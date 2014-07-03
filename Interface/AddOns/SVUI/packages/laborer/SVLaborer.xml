@@ -1,0 +1,23 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/">	
+	<Script file='SVLaborer.lua'/>
+	<Include file='common\_load.xml'/>
+
+	<Frame name="SVUI_ModesHandler" hidden="true" frameStrata="LOW">
+		<Anchors>
+            <Anchor point="LEFT" relativeTo="$parent" relativePoint="RIGHT">
+                <Offset x="10000" y="0"/>
+            </Anchor>
+        </Anchors>
+        <Frames>
+            <Button name="SVUI_ModeCaptureWindow" inherits="SecureActionButtonTemplate" enableMouse="true">
+            	<Scripts>
+		            <PostClick>
+						ClearOverrideBindings(self);
+						self.Grip:Hide();
+		            </PostClick>
+		            <OnLoad function="SVUI_ModeCaptureWindow_OnLoad"/>
+		        </Scripts>
+            </Button>
+        </Frames>
+    </Frame>
+</Ui>

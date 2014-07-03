@@ -1,0 +1,5 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/">	
+	<Script file='dialogs.lua'/>
+	<Script file='operators.lua'/>
+	<Script file='minions.lua'/>
+</Ui>

@@ -1,0 +1,255 @@
+﻿<Ui xmlns="http://www.blizzard.com/wow/ui/">
+    <Frame name="SVUI_MoveEventHandler" hidden="true">
+        <Scripts>
+            <OnLoad>
+                self:RegisterEvent("PLAYER_LOGIN")
+                self:RegisterEvent("ADDON_LOADED")
+                self:RegisterEvent("LFG_UPDATE")
+                self:RegisterEvent("ROLE_POLL_BEGIN")
+                self:RegisterEvent("READY_CHECK")
+                self:RegisterEvent("UPDATE_WORLD_STATES")
+                self:RegisterEvent("WORLD_STATE_TIMER_START")
+                self:RegisterEvent("WORLD_STATE_UI_TIMER_UPDATE")
+            </OnLoad>
+            <OnEvent function="SVUI_MoveEventHandler_OnEvent"/> 
+        </Scripts>
+    </Frame>
+
+    <Frame name="SVUI_MentaloEventHandler" hidden="true">
+        <Scripts>
+            <OnLoad>
+                self.UpdateFrameTarget = false;
+            </OnLoad>
+            <OnUpdate function="SVUI_MentaloEventHandler_Update"/> 
+        </Scripts>
+    </Frame>
+
+    <Frame name="SVUI_MentaloPrecision" inherits="SVUI_PanelTemplate" hidden="true" frameStrata="DIALOG">
+        <Size x="200" y="110"/>
+        <Anchors>
+            <Anchor point="CENTER"/>
+        </Anchors>
+        <Layers>
+            <Layer level="ARTWORK">
+                <FontString parentKey="Title" inherits="GameFontNormal" text="Focused Position">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeTo="$parentTitleBG"/>
+                        <Anchor point="BOTTOMRIGHT" relativeTo="$parentTitleBG"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+        <Frames> 
+            <EditBox name="$parentSetX" inherits="InputBoxTemplate" autoFocus="false">
+                <Size x="50" y="17"/>
+                <Anchors>
+                    <Anchor point="BOTTOMRIGHT" relativeTo="$parentBG" relativePoint="CENTER">
+                        <Offset x="-8" y="8"/>
+                    </Anchor>
+                </Anchors>
+                <Layers>
+                    <Layer level="ARTWORK">
+                        <FontString inherits="GameFontNormal" text="Horizontal">
+                            <Size x="90" y="17"/>
+                            <Anchors>
+                                <Anchor point="BOTTOM" relativeTo="$parent" relativePoint="TOP"/>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>
+                <Scripts>
+                    <OnEscapePressed function="SVUI_MentaloPrecisionInput_EscapePressed"/>
+                    <OnEnterPressed function="SVUI_MentaloPrecisionInput_EnterPressed"/>
+                    <OnEditFocusLost function="SVUI_MentaloPrecisionInput_FocusLost"/>
+                    <OnShow>
+                        SVUI_MentaloPrecisionInput_OnShow(self)
+                    </OnShow>
+                </Scripts>
+                <FontString inherits="GameFontHighlightSmall"/>
+            </EditBox>
+            <EditBox name="$parentSetY" inherits="InputBoxTemplate" autoFocus="false">
+                <Size x="50" y="17"/>
+                <Anchors>
+                    <Anchor point="BOTTOMLEFT" relativeTo="$parentBG" relativePoint="CENTER">
+                        <Offset x="8" y="8"/>
+                    </Anchor>
+                </Anchors>
+                <Layers>
+                    <Layer level="ARTWORK">
+                        <FontString inherits="GameFontNormal" text="Vertical">
+                            <Size x="90" y="17"/>
+                            <Anchors>
+                                <Anchor point="BOTTOM" relativeTo="$parent" relativePoint="TOP"/>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>
+                <Scripts>
+                    <OnEscapePressed function="SVUI_MentaloPrecisionInput_EscapePressed"/>
+                    <OnEnterPressed function="SVUI_MentaloPrecisionInput_EnterPressed"/>
+                    <OnEditFocusLost function="SVUI_MentaloPrecisionInput_FocusLost"/>
+                    <OnShow function="SVUI_MentaloPrecisionInput_OnShow"/>
+                </Scripts>
+                <FontString inherits="GameFontHighlightSmall"/>
+            </EditBox>
+            <!-- <Button name="$parentResetButton" inherits="UIPanelButtonTemplate" text="RESET">
+                <Size x="96" y="24"/>
+                <Anchors>
+                    <Anchor point="TOP" relativeTo="$parentBG" relativePoint="CENTER">
+                        <Offset x="0" y="2"/>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnClick function="SVUI_MentaloPrecisionResetButton_OnClick"/>
+                </Scripts>
+            </Button> -->
+
+            <Button name="$parentUpButton" inherits="UIPanelSquareButton">
+                <Anchors>
+                    <Anchor point="BOTTOMLEFT" relativeTo="$parentBG" relativePoint="BOTTOM">
+                        <Offset x="6" y="4"/>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnLoad>
+                        SquareButton_SetIcon(self, "UP");
+                        self:RegisterForClicks("AnyUp");
+                    </OnLoad>
+                    <OnClick>
+                        local frame = _G["SVUI_MentaloPrecisionSetY"];
+                        frame:SetText(frame.CurrentValue + 1)
+                        frame:GetScript('OnEnterPressed')(frame)
+                    </OnClick>
+                </Scripts>
+            </Button>
+
+            <Button name="$parentDownButton" inherits="UIPanelSquareButton">
+                <Anchors>
+                    <Anchor point="LEFT" relativeTo="$parentUpButton" relativePoint="RIGHT">
+                        <Offset x="6" y="0"/>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnLoad>
+                        SquareButton_SetIcon(self, "DOWN");
+                        self:RegisterForClicks("AnyUp");
+                    </OnLoad>
+                    <OnClick>
+                        local frame = _G["SVUI_MentaloPrecisionSetY"];
+                        frame:SetText(frame.CurrentValue - 1)
+                        frame:GetScript('OnEnterPressed')(frame)
+                    </OnClick>
+                </Scripts>
+            </Button>
+
+            <Button name="$parentRightButton" inherits="UIPanelSquareButton">
+                <Anchors>
+                    <Anchor point="RIGHT" relativeTo="$parentUpButton" relativePoint="LEFT">
+                        <Offset x="-6" y="0"/>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnLoad>
+                        SquareButton_SetIcon(self, "RIGHT");
+                        self:RegisterForClicks("AnyUp");
+                    </OnLoad>
+                    <OnClick>
+                        local frame = _G["SVUI_MentaloPrecisionSetX"];
+                        frame:SetText(frame.CurrentValue + 1)
+                        frame:GetScript('OnEnterPressed')(frame)
+                    </OnClick>
+                </Scripts>
+            </Button>
+
+            <Button name="$parentLeftButton" inherits="UIPanelSquareButton">
+                <Anchors>
+                    <Anchor point="RIGHT" relativeTo="$parentRightButton" relativePoint="LEFT">
+                        <Offset x="-6" y="0"/>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnLoad>
+                        SquareButton_SetIcon(self, "LEFT");
+                        self:RegisterForClicks("AnyUp");
+                    </OnLoad>
+                    <OnClick>
+                        local frame = _G["SVUI_MentaloPrecisionSetX"];
+                        frame:SetText(frame.CurrentValue - 1)
+                        frame:GetScript('OnEnterPressed')(frame)
+                    </OnClick>
+                </Scripts>
+            </Button>
+        </Frames>
+        <Scripts>
+            <OnLoad function="SVUI_MentaloPrecision_OnLoad"/> 
+        </Scripts>
+    </Frame>
+
+	<Frame name="SVUI_Mentalo" movable="true" hidden="true" frameStrata="DIALOG">
+        <Size x="300" y="30"/>
+        <Anchors>
+            <Anchor point="CENTER"/>
+        </Anchors>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture name="$parentBG" setAllPoints="true"/>
+            </Layer>
+            <Layer level="OVERLAY">
+                <Texture name="$parentTitleBG">
+                    <Anchors>
+                        <Anchor point="TOPLEFT"/>
+                        <Anchor point="BOTTOMRIGHT" relativePoint="TOPRIGHT">
+                            <Offset x="0" y="-30"/>
+                        </Anchor>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="ARTWORK">
+                <FontString parentKey="Title" inherits="GameFontNormal" justifyH="LEFT" text="Mentalo The Frame Mover!">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeTo="$parentTitleBG">
+                            <Offset x="4" y="0"/>
+                        </Anchor>
+                        <Anchor point="BOTTOMRIGHT" relativeTo="$parentTitleBG"/>
+                    </Anchors>
+                    <Color r="1" g="1" b="1" a="1"/>
+                </FontString>
+                <Texture parentKey="Avatar" file="Interface\AddOns\SVUI\assets\artwork\Doodads\MENTALO-OFF">
+                    <Size x="132" y="132"/>
+                    <Anchors>
+                        <Anchor point="BOTTOM" relativeTo="$parentBG" relativePoint="TOP"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Frames>
+            <Button name="$parentLockButton" inherits="OptionsButtonTemplate" text="Lock">
+                <Size x="96" y="24"/>
+                <Anchors>
+                    <Anchor point="RIGHT" relativeTo="$parentBG">
+                        <Offset x="-4" y="0"/>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnClick function="SVUI_MentaloLockButton_OnClick"/>
+                </Scripts>
+            </Button>
+        </Frames>
+        <Scripts>
+            <OnLoad function="SVUI_Mentalo_OnLoad"/> 
+            <OnEvent function="SVUI_Mentalo_OnEvent"/>
+            <OnHide>
+                local frame = _G["SVUI_MentaloPrecision"];
+                frame:Hide();
+            </OnHide>
+            <OnDragStart>
+                _G["SVUI_Mentalo"].moving = true;
+                _G["SVUI_Mentalo"]:StartMoving();
+            </OnDragStart>
+            <OnDragStop>
+                _G["SVUI_Mentalo"].moving = nil;
+                _G["SVUI_Mentalo"]:StopMovingOrSizing();
+            </OnDragStop>
+        </Scripts>
+    </Frame>
+</Ui>

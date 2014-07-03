@@ -1,0 +1,8 @@
+﻿<Ui xmlns="http://www.blizzard.com/wow/ui/">
+	<Script file='Database.lua'/>
+	<Script file='Filters.lua'/>
+	<Script file='Security.lua'/>
+	<Script file='Registry.lua'/>
+	<Script file='Visibility.lua'/>
+	<Script file='Animate.lua'/>
+</Ui>

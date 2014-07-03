@@ -1,0 +1,11 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/">
+	<Script file='misc.lua'/>
+	<Script file='mounts.lua'/>
+	<Script file='marker.lua'/>
+	<Script file='threat.lua'/>
+	<Script file='comix.lua'/>
+	<Script file='questwatch.lua'/>
+	<Script file='totems.lua'/>
+	<Script file='raid.lua'/>
+	<Script file='reactions.lua'/>
+</Ui>

@@ -1,0 +1,12 @@
+﻿<Ui xmlns="http://www.blizzard.com/wow/ui/">
+	<Frame name="SVUI_EventHandler1" hidden="true" virtual="true">
+        <Scripts>
+            <OnEvent function="SVUI_EventHandler1_OnEvent"/> 
+        </Scripts>
+    </Frame>
+    <Frame name="SVUI_EventHandler2" hidden="true" virtual="true">
+        <Scripts>
+            <OnEvent function="SVUI_EventHandler2_OnEvent"/> 
+        </Scripts>
+    </Frame>
+</Ui>

@@ -1,0 +1,9 @@
+## Interface: 50400
+## Author: Munglunch, Azilroka, Sortokk
+## Version: @project-version@
+## Title: |cffFF9900SVUI |r|cffFFEF00Style O Matic|r
+## Notes: Supervillain UI [|cff9911FFAddon Skins|r].
+## RequiredDeps: SVUI
+## OptionalDeps: Blizzard_DebugTools, Blizzard_PetJournal, SharedMedia
+
+SVUI_StyleOMatic.xml
