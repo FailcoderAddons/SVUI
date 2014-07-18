@@ -52,6 +52,9 @@ GET ADDON DATA
 ##########################################################
 ]]--
 local SuperVillain, L = unpack(select(2, ...));
+
+local logoutListener = CreateFrame("Frame", nil)
+
 local CLASS_WATCH_INDEX = {
 	PRIEST = {
 		{-- Weakened Soul
@@ -567,11 +570,17 @@ local CLASS_WATCH_INDEX = {
 
 local FilterIDs = {
 	["Blocked"] = [[36900,36901,36893,114216,97821,36032,132365,8733,57724,25771,57723,36032,58539,26013,6788,71041,41425,55711,8326,23445,24755,25163,80354,95809,95223,124275,124274,124273,117870,123981,15007,113942,89140]],
+
 	["Allowed"] = [[31821,2825,32182,80353,90355,47788,33206,116849,22812,1490,116202,123059,136431,137332,137375,144351,142863,142864,142865,143198]],
+
 	["Strict"] = [[123059,136431,137332,137375,144351,142863,142864,142865,143198]],
+
 	["CC"] = [[47476,91800,91807,91797,108194,115001,33786,2637,339,78675,22570,5211,9005,102359,99,127797,45334,102795,114238,113004,3355,1513,19503,34490,24394,64803,19386,117405,128405,50519,91644,90337,54706,4167,90327,56626,50245,50541,96201,96201,31661,118,55021,122,82691,118271,44572,33395,102051,20066,10326,853,105593,31935,105421,605,64044,8122,9484,15487,114404,88625,113792,87194,2094,1776,6770,1833,51722,1330,408,88611,115197,113953,51514,64695,63685,76780,118905,118345,710,6789,118699,5484,6358,30283,24259,115782,115268,118093,89766,137143,20511,7922,676,105771,107566,132168,107570,118895,18498,116706,117368,115078,122242,119392,119381,120086,116709,123407,140023,25046,20549,107079]],
+
 	["Shield"] = [[17,47515,45243,45438,115610,48797,48792,49039,87256,55233,50461,33206,47788,62618,47585,104773,110913,108359,22812,102342,106922,61336,19263,53480,1966,31224,74001,5277,45182,98007,30823,108271,1022,6940,114039,31821,498,642,86659,31850,118038,55694,97463,12975,114029,871,114030,120954,131523,122783,122278,115213,116849,20594]],
+
 	["Player"] = [[17,47515,45243,45438,45438,115610,110909,12051,12472,80353,12042,32612,110960,108839,111264,108843,48797,48792,49039,87256,49222,55233,50461,49016,51271,96268,33206,47788,62618,47585,6346,10060,114239,119032,27827,104773,110913,108359,113860,113861,113858,88448,22812,102342,106922,61336,117679,102543,102558,102560,16689,132158,106898,1850,106951,29166,52610,69369,112071,124974,19263,53480,51755,54216,34471,3045,3584,131894,90355,90361,31224,74001,5277,45182,51713,114018,2983,121471,11327,108212,57933,79140,13750,98007,30823,108271,16188,2825,79206,16191,8178,58875,108281,108271,16166,114896,1044,1022,1038,6940,114039,31821,498,642,86659,20925,31850,31884,53563,31842,54428,105809,85499,118038,55694,97463,12975,114029,871,114030,18499,1719,23920,114028,46924,3411,107574,120954,131523,122783,122278,115213,116849,125174,116841,20594,59545,20572,26297,68992]],
+
 	["Raid"] = [[116281,116784,116417,116942,116161,117708,118303,118048,118135,117878,117949,116835,116778,116525,122761,122760,122740,123812,123180,123474,122835,123081,122125,121885,121949,117436,118091,117519,122752,123011,116161,123121,119985,119086,119775,122151,138349,137371,136767,137641,137359,137972,136903,136753,137633,137731,133767,133768,136050,138569,134691,137440,137408,137360,135000,143436,143579,147383,146124,144851,144358,144774,147207,144215,143990,144330,143494,142990,143919,143766,143773,146589,143777,143385,143974,145183]]
 }
 
@@ -596,7 +605,6 @@ local FilterDefaults = {
 	['BuffWatch'] = CLASS_WATCH_INDEX[SuperVillain.class],
 	['PetBuffWatch'] = CLASS_WATCH_INDEX.PET,
 }
-
 local function safename(id)
 	local n = GetSpellInfo(id) 	
 	if not n then
@@ -609,111 +617,94 @@ local function safename(id)
 	end
 	return n
 end
-
-local function tablecopy(d, s)
-	if type(s) ~= "table" then return end
-	if type(d) == "table" then
-		for k, v in pairs(s) do
-			if type(v) == "table" then
-				if not rawget(d, k) then rawset(d, k, {}) end
-				if type(d[k]) == "table" then
-					tablecopy(d[k], v)
-				end
+for k, x in pairs(FilterIDs) do
+	local src = {};
+	for id in gmatch(x, '([^,]+)') do
+		if(id) then
+			local saved
+			local n = safename(id);
+			local p = FilterOverrides[tostring(id)] or 0;
+			if k == "Strict" then
+				saved = {['enable'] = true, ['spellID'] = id, ['priority'] = p}
 			else
-				if rawget(d, k) == nil then
-					rawset(d, k, v)
-				end
+				saved = {['enable'] = true, ['priority'] = p}
+			end
+			src[n] = saved
+		end 
+	end
+	FilterDefaults[k] = src
+end
+
+local function removedefaults(db, src, nometa)
+	if(type(src) ~= "table") then return end
+	if(not nometa) then
+		setmetatable(db, nil)
+	end
+	for k,v in pairs(src) do
+		if type(v) == "table" and type(db[k]) == "table" then
+			removedefaults(db[k], v, nometa)
+			if next(db[k]) == nil then
+				db[k] = nil
+			end
+		else
+			if db[k] == src[k] then
+				db[k] = nil
 			end
 		end
 	end
 end
 
-local function setdefaults(t, key)
-	local sv = _G["SVUI_Filters"]
-	local src = FilterDefaults
-	local dest = sv[key]
-	if(dest) then
-		for k,v in pairs(dest) do
-			dest[k] = nil
-		end
-	else
-		sv[key] = {}
-	end
-	tablecopy(sv[key], src[key])
-end
-
-local function getdefaults(t, key)
-	return FilterDefaults[key] or {}
-end
-
-local function resetfilters(t)
-	local sv = _G["SVUI_Filters"]
-	local src = FilterDefaults
+local function SanitizeDatabase()
+	local sv = SuperVillain.Filters
+	local dv = FilterDefaults
 	for k,v in pairs(sv) do
-		sv[k] = nil
+		removedefaults(sv[k], dv[k])
 	end
-	tablecopy(sv, src)
 end
 
-local function changefilter(t, k, id, v)
-	local sv = _G["SVUI_Filters"]
-	local name = safename(id)
-	rawset(sv[k], name, v)
-end
-
-local metadatabase = { 
-	__index = function(t, k)
-		local sv = rawget(t, "filters")
-		local dv = rawget(t, "defaults")
-		local src = dv and dv[k]
-		if(not sv[k]) then sv[k] = {} end
-		if(src) then
-			tablecopy(sv[k], src)
-		end
-		rawset(t, k, sv[k])
-		return rawget(t, k) 
+local LogOut_OnEvent = function(self, event)
+	if event == "PLAYER_LOGOUT" then
+		SanitizeDatabase()
 	end
-}
-
+end
 
 local METAFILTERS = function(sv)
-	local db 		= setmetatable({}, metadatabase)
-
-	db.filters 		= sv
-	db.defaults 	= FilterDefaults
-	db.Reset 		= resetprofile
-	db.SetDefault 	= setdefaults
-	db.Change 		= changefilter
-
 	for k, x in pairs(FilterIDs) do
-		local src = {};
-		for id in gmatch(x, '([^,]+)') do
-			if(id) then
-				local saved
-				local n = safename(id);
-				local p = FilterOverrides[tostring(id)] or 0;
-				if k == "Strict" then
-					saved = {['enable'] = true, ['spellID'] = id, ['priority'] = p}
-				else
-					saved = {['enable'] = true, ['priority'] = p}
-				end
-				src[n] = saved
-			end 
+		if (not sv[k]) then
+			sv[k] = {}
+			for id in gmatch(x, '([^,]+)') do
+				if(id) then
+					local saved
+					local n = safename(id);
+					local p = FilterOverrides[tostring(id)] or 0;
+					if k == "Strict" then
+						saved = {['enable'] = true, ['spellID'] = id, ['priority'] = p}
+					else
+						saved = {['enable'] = true, ['priority'] = p}
+					end
+					sv[k][n] = saved
+				end 
+			end
 		end
-		tablecopy(db[k], src)
 	end
 
-	return db
+	return sv
+end
+
+function SuperVillain:ChangeFilter(k, id, v)
+	local name = safename(id)
+	if (not self.Filters[k]) then self.Filters[k] = {} end
+	self.Filters[k][name] = tcopy(v)
 end
 
 function SuperVillain:SetFilterObjects(init)
 	if(init) then
 		self.Filters = FilterDefaults
 	else
-		local sv = _G["SVUI_Filters"]
-
-		twipe(self.Filters)
-		
+		local sv = _G["SVUI_AuraFilters"]
 	    self.Filters = METAFILTERS(sv)
+
+	    logoutListener:RegisterEvent("PLAYER_LOGOUT")
+		logoutListener:SetScript("OnEvent", LogOut_OnEvent)
 	end
 end

@@ -30,7 +30,8 @@ GET ADDON DATA
 ##########################################################
 ]]--
 local SuperVillain, L = unpack(SVUI);
-local MOD = SuperVillain.Registry:Expose('SVUnit');
+local MOD = SuperVillain.Registry:Expose('SVUnit')
+if(not MOD) then return end;
 local _, ns = ...
 
 SuperVillain.Options.args.SVUnit.args.party ={
@@ -161,7 +162,7 @@ SuperVillain.Options.args.SVUnit.args.party ={
 										LEFT_UP = format(L['%s and then %s'], L['Left'], L['Up']),
 									},
 								},
-								gCount ={
+								groupCount ={
 									order = 7,
 									type = 'range',
 									name = L['Number of Groups'],
@@ -270,24 +271,24 @@ SuperVillain.Options.args.SVUnit.args.party ={
 									width = 'full',
 									name = ' ',
 								},
-								rSort ={
+								customSorting ={
 									order = 4,
-									name = L['Raid-Wide Sorting'],
-									desc = L['Enabling this allows raid-wide sorting however you will not be able to distinguish between groups.'],
+									name = L['Custom Sorting'],
+									desc = L['Enabling this allows unique sorting.'],
 									type = 'toggle',
 								},
 								invertGroupingOrder ={
 									order = 5,
 									name = L['Invert Grouping Order'],
-									desc = L['Enabling this inverts the grouping order when the raid is not full, this will reverse the direction it starts from.'],
-									disabled = function()return not SuperVillain.db.SVUnit['party'].rSort end,
+									desc = L['Enabling this inverts the sorting order.'],
+									disabled = function()return not SuperVillain.db.SVUnit['party'].customSorting end,
 									type = 'toggle',
 								},
 								startFromCenter ={
 									order = 6,
 									name = L['Start Near Center'],
 									desc = L['The initial group will start near the center and grow out.'],
-									disabled = function()return not SuperVillain.db.SVUnit['party'].rSort end,
+									disabled = function()return not SuperVillain.db.SVUnit['party'].customSorting end,
 									type = 'toggle',
 								},
 							},

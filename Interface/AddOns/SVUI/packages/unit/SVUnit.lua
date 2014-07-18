@@ -29,70 +29,183 @@ local string 	= _G.string;
 --[[ STRING METHODS ]]--
 local find, format, upper = string.find, string.format, string.upper;
 local match, gsub = string.match, string.gsub;
+--[[ MUNGLUNCH's FASTER ASSERT FUNCTION ]]--
+local assert = enforce;
+--[[ LOCALIZED BLIZZ FUNCTIONS ]]--
+local NewHook = hooksecurefunc;
 --[[ 
 ########################################################## 
-GET ADDON DATA
+GET ADDON DATA AND TEST FOR oUF
 ##########################################################
 ]]--
 local SuperVillain, L = unpack(select(2, ...));
 local _, ns = ...
 local oUF_SuperVillain = ns.oUF
---[[ MUNGLUNCH's FASTER ASSERT FUNCTION ]]--
-local assert = enforce;
 assert(oUF_SuperVillain, "SVUI was unable to locate oUF.")
+--[[ 
+########################################################## 
+MODULE AND INNER CLASSES
+##########################################################
+]]--
 local MOD = {}
-local LSM = LibStub("LibSharedMedia-3.0")
-local NewHook = hooksecurefunc;
+MOD.Units = {}
+MOD.Headers = {}
 --[[ 
 ########################################################## 
-MODULE DATA
+LOCALS
 ##########################################################
 ]]--
-local LoadedBasicFrames, LoadedGroupFrames, LoadedExtraFrames;
-local BasicFrames, GroupFrames, ExtraFrames = {},{},{}
---[[ 
-########################################################## 
-LOCAL FUNCTIONS
-##########################################################
-]]--
-local dummy = CreateFrame("Frame")
-dummy:Hide()
-local KillBlizzardUnit = function(unit)
-	local frame;
-	if type(unit)=='string' then frame=_G[unit] else frame=unit end
-	if frame then 
-		frame:UnregisterAllEvents()
-		frame:Hide()
-		frame:SetParent(dummy)
-		local h = frame.healthbar;
-		if h then h:UnregisterAllEvents()end
-		local m = frame.manabar;
-		if m then m:UnregisterAllEvents()end
-		local s = frame.spellbar;
-		if s then s:UnregisterAllEvents()end
-		local p = frame.powerBarAlt;
-		if p then p:UnregisterAllEvents()end 
-	end 
+local LoadedUnitFrames, LoadedGroupHeaders;
+local SortAuraBars;
+local ReversedUnit = {
+	["target"] = true, 
+	["targettarget"] = true, 
+	["pettarget"] = true,  
+	["focustarget"] = true,
+	["boss"] = true, 
+	["arena"] = true, 
+}
+
+do
+	local hugeMath = math.huge
+
+	local TRRSort = function(a, b)
+		local compA = a.noTime and hugeMath or a.expirationTime
+		local compB = b.noTime and hugeMath or b.expirationTime 
+		return compA < compB 
+	end
+
+	local TDSort = function(a, b)
+		local compA = a.noTime and hugeMath or a.duration
+		local compB = b.noTime and hugeMath or b.duration 
+		return compA > compB 
+	end
+
+	local TDRSort = function(a, b)
+		local compA = a.noTime and hugeMath or a.duration
+		local compB = b.noTime and hugeMath or b.duration 
+		return compA < compB 
+	end
+
+	local NSort = function(a, b)
+		return a.name > b.name 
+	end
+
+	SortAuraBars = function(parent, sorting)
+		if not parent then return end 
+		if sorting == "TIME_REMAINING" then 
+			parent.sort = true;
+		elseif sorting == "TIME_REMAINING_REVERSE" then 
+			parent.sort = TRRSort
+		elseif sorting == "TIME_DURATION" then 
+			parent.sort = TDSort
+		elseif sorting == "TIME_DURATION_REVERSE" then 
+			parent.sort = TDRSort
+		elseif sorting == "NAME" then 
+			parent.sort = NSort
+		else 
+			parent.sort = nil;
+		end 
+	end
 end
---[[ 
-########################################################## 
-INNER CLASSES
-##########################################################
-]]--
-MOD.Construct = {}
-MOD.FrameUpdate = {}
-MOD.HeaderUpdate = {}
-MOD.VisibilityUpdate = {}
+
+local function FindAnchorFrame(frame, anchor, badPoint)
+	if badPoint or anchor == 'FRAME' then 
+		if(frame.Combatant and frame.Combatant:IsShown()) then 
+			return frame.Combatant
+		else
+			return frame 
+		end
+	elseif(anchor == 'TRINKET' and frame.Combatant and frame.Combatant:IsShown()) then 
+		return frame.Combatant
+	elseif(anchor == 'BUFFS' and frame.Buffs and frame.Buffs:IsShown()) then
+		return frame.Buffs 
+	elseif(anchor == 'DEBUFFS' and frame.Debuffs and frame.Debuffs:IsShown()) then
+		return frame.Debuffs 
+	else 
+		return frame
+	end 
+end 
 --[[ 
 ########################################################## 
 CORE FUNCTIONS
 ##########################################################
 ]]--
-function MOD:DetachSubFrames(...)
-	for i = 1, select("#", ...) do 
-		local frame = select(i,...)
-		frame:ClearAllPoints()
-	end 
+do
+	local dummy = CreateFrame("Frame", nil)
+	dummy:Hide()
+
+	local function deactivate(unitName)
+		local frame;
+		if type(unitName) == "string" then frame = _G[unitName] else frame = unitName end
+		if frame then 
+			frame:UnregisterAllEvents()
+			frame:Hide()
+			frame:SetParent(dummy)
+			if frame.healthbar then frame.healthbar:UnregisterAllEvents() end
+			if frame.manabar then frame.manabar:UnregisterAllEvents() end
+			if frame.spellbar then frame.spellbar:UnregisterAllEvents() end
+			if frame.powerBarAlt then frame.powerBarAlt:UnregisterAllEvents() end 
+		end 
+	end
+
+	function oUF_SuperVillain:DisableBlizzard(unit)
+		if (not unit) or InCombatLockdown() then return end
+
+		if (unit == "player") then
+			deactivate(PlayerFrame)
+			PlayerFrame:RegisterUnitEvent("UNIT_ENTERING_VEHICLE", "player")
+			PlayerFrame:RegisterUnitEvent("UNIT_ENTERED_VEHICLE", "player")
+			PlayerFrame:RegisterUnitEvent("UNIT_EXITING_VEHICLE", "player")
+			PlayerFrame:RegisterUnitEvent("UNIT_EXITED_VEHICLE", "player")
+			PlayerFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+
+			PlayerFrame:SetUserPlaced(true)
+			PlayerFrame:SetDontSavePosition(true)
+			RuneFrame:SetParent(PlayerFrame)
+		elseif(unit == "pet") then
+			deactivate(PetFrame)
+		elseif(unit == "target") then
+			deactivate(TargetFrame)
+			deactivate(ComboFrame)
+		elseif(unit == "focus") then
+			deactivate(FocusFrame)
+			deactivate(TargetofFocusFrame)
+		elseif(unit == "targettarget") then
+			deactivate(TargetFrameToT)
+		elseif(unit:match("(boss)%d?$") == "boss") then
+		local id = unit:match("boss(%d)")
+			if(id) then
+				deactivate("Boss"..id.."TargetFrame")
+			else
+				for i = 1, 4 do
+					deactivate(("Boss%dTargetFrame"):format(i))
+				end
+			end
+		elseif(unit:match("(party)%d?$") == "party") then
+			local id = unit:match("party(%d)")
+			if(id) then
+				deactivate("PartyMemberFrame"..id)
+			else
+				for i = 1, 4 do
+					deactivate(("PartyMemberFrame%d"):format(i))
+				end
+			end
+		elseif(unit:match("(arena)%d?$") == "arena") then
+			local id = unit:match("arena(%d)")
+			if(id) then
+				deactivate("ArenaEnemyFrame"..id)
+				deactivate("ArenaPrepFrame"..id)
+				deactivate("ArenaEnemyFrame"..id.."PetFrame")
+			else
+				for i = 1, 5 do
+					deactivate(("ArenaEnemyFrame%d"):format(i))
+					deactivate(("ArenaPrepFrame%d"):format(i))
+					deactivate(("ArenaEnemyFrame%dPetFrame"):format(i))
+				end
+			end
+		end
+	end
 end
 
 function MOD:AllowElement(unitFrame)
@@ -136,17 +249,6 @@ function MOD:RestrictElement(unitFrame)
 	end 
 end
 
-function MOD:RestrictChildren(parentFrame, ...)
-	parentFrame.isForced = nil;
-
-	for i=1,select("#",...) do 
-		local childFrame = select(i,...)
-		childFrame:RegisterForClicks(self.db.fastClickTarget and 'AnyDown' or 'AnyUp')
-		childFrame.TargetGlow:SetAlpha(1)
-		self:RestrictElement(childFrame)
-	end 
-end
-
 function MOD:AllowChildren(parentFrame, ...)
 	parentFrame.isForced = true;
 	
@@ -159,36 +261,71 @@ function MOD:AllowChildren(parentFrame, ...)
 	end  
 end
 
+function MOD:RestrictChildren(parentFrame, ...)
+	parentFrame.isForced = nil;
+
+	for i=1,select("#",...) do 
+		local childFrame = select(i,...)
+		childFrame:RegisterForClicks(MOD.db.fastClickTarget and 'AnyDown' or 'AnyUp')
+		childFrame.TargetGlow:SetAlpha(1)
+		self:RestrictElement(childFrame)
+	end 
+end
+
 function MOD:ResetUnitOptions(unit)
 	SuperVillain.db:SetDefault("SVUnit", unit)
 	self:RefreshUnitFrames()
 end
 
+function MOD:RefreshUnitColors()
+	local db = SuperVillain.db.media.unitframes 
+	for i, setting in pairs(db) do
+		if setting and type(setting) == "table" then
+			if(setting[1]) then
+				oUF_SuperVillain.colors[i] = setting
+			else
+				local bt = {}
+				for x, color in pairs(setting) do
+					if(color)then
+						bt[x] = color
+					end
+					oUF_SuperVillain.colors[i] = bt
+				end
+			end
+		elseif setting then
+			oUF_SuperVillain.colors[i] = setting
+		end
+	end
+	local r, g, b = db.health[1], db.health[2], db.health[3]
+	oUF_SuperVillain.colors.smooth = {1, 0, 0, 1, 1, 0, r, g, b}
+end
+
+function MOD:RefreshAllUnitMedia()
+	if(not self.db or (self.db and self.db.enable ~= true)) then return end
+	self:RefreshUnitColors()
+	for unit,frame in pairs(self.Units)do
+		if self.db[frame.___key].enable then 
+			frame:MediaUpdate()
+			frame:UpdateAllElements()
+		end 
+	end
+	for _,group in pairs(self.Headers) do
+		group:MediaUpdate(true)
+	end
+	collectgarbage("collect")
+end
+
 function MOD:RefreshUnitFrames()
 	if SuperVillain.db['SVUnit'].enable~=true then return end
-	self:UpdateAuraUpvalues()
 	self:RefreshUnitColors()
-	self:RefreshUnitFonts()
-	self:RefreshUnitTextures()
-
-	for unit in pairs(BasicFrames)do 
-		if self.db[unit].enable then 
-			self[unit]:Enable()
-			self[unit]:Update()
+	for unit,frame in pairs(self.Units)do
+		if self.db[frame.___key].enable then 
+			frame:Enable()
+			frame:Update()
 		else 
-			self[unit]:Disable()
+			frame:Disable()
 		end 
 	end
-
-	for unit,group in pairs(ExtraFrames)do 
-		if self.db[group].enable then 
-			self[unit]:Enable()
-			self[unit]:Update()
-		else 
-			self[unit]:Disable()
-		end 
-	end
-
 	local _,groupType = IsInInstance()
 	local raidDebuffs = ns.oUF_RaidDebuffs or oUF_RaidDebuffs;
 	if raidDebuffs then
@@ -199,478 +336,743 @@ function MOD:RefreshUnitFrames()
 		  raidDebuffs:RegisterDebuffs(SuperVillain.Filters["CC"])
 		end 
 	end
-
-	for _,group in pairs(GroupFrames) do
+	for _,group in pairs(self.Headers) do
 		group:Update()
 		if group.SetConfigEnvironment then 
 		  group:SetConfigEnvironment()
 		end 
 	end
-
 	if SuperVillain.db.SVUnit.disableBlizzard then 
 		oUF_SuperVillain:DisableBlizzard('party')
 	end
-
-	-- self:SetFadeManager()
+	collectgarbage("collect")
 end
 
-do
-	local SecureHeaderUpdate = function(self)
-		local unit = self.NameKey;
-		local db = MOD.db[unit]
-		MOD.HeaderUpdate[unit](MOD, self, db)
-
-		local index = 1;
-		local childFrame = self:GetAttribute("child"..index)
-		while childFrame do 
-			MOD.FrameUpdate[unit](MOD, childFrame, db)
-			if _G[childFrame:GetName().."Pet"] then 
-				MOD.FrameUpdate[unit](MOD, _G[childFrame:GetName().."Pet"], db)
+function MOD:RefreshUnitMedia(unitName, updateElements)
+    local db = MOD.db
+    local key = unitName or self.___key
+    if(not (db and db.enable) or not self) then return end
+    local CURRENT_BAR_TEXTURE = SuperVillain.Shared:Fetch("statusbar", db.statusbar)
+    local CURRENT_AURABAR_TEXTURE = SuperVillain.Shared:Fetch("statusbar", db.auraBarStatusbar);
+    local CURRENT_FONT = SuperVillain.Shared:Fetch("font", db.font)
+    local CURRENT_AURABAR_FONT = SuperVillain.Shared:Fetch("font", db.auraFont);
+    local CURRENT_AURABAR_FONTSIZE = db.auraFontSize
+    local CURRENT_AURABAR_FONTOUTLINE = db.auraFontOutline
+    local unitDB = db[key]
+    if(unitDB and unitDB.enable) then
+        local panel = self.InfoPanel
+        if(panel) then
+            if(panel.Name and unitDB.name) then
+                panel.Name:SetFont(SuperVillain.Shared:Fetch("font", unitDB.name.font), unitDB.name.fontSize, unitDB.name.fontOutline)
+            end
+            if(panel.Health) then
+                panel.Health:SetFont(CURRENT_FONT, db.fontSize, db.fontOutline)
+            end
+            if(panel.Power) then
+                panel.Power:SetFont(CURRENT_FONT, db.fontSize, db.fontOutline)
+            end
+            if(panel.Misc) then
+                panel.Misc:SetFont(CURRENT_FONT, db.fontSize, db.fontOutline)
+            end
+        end
+        if(self.Health and (unitDB.health and unitDB.health.enable)) then
+            self.Health:SetStatusBarTexture(CURRENT_BAR_TEXTURE)
+        end
+        if(self.Power and (unitDB.power and unitDB.power.enable)) then
+            self.Power:SetStatusBarTexture(CURRENT_BAR_TEXTURE)
+        end
+        if(self.Castbar and (unitDB.castbar)) then
+            if(unitDB.castbar.useCustomColor) then
+				cr,cg,cb = unitDB.castbar.castingColor[1], unitDB.castbar.castingColor[2], unitDB.castbar.castingColor[3];
+				self.Castbar.CastColor = {cr,cg,cb}
+				cr,cg,cb = unitDB.castbar.sparkColor[1], unitDB.castbar.sparkColor[2], unitDB.castbar.sparkColor[3];
+				self.Castbar.SparkColor = {cr,cg,cb}
+			else
+				self.Castbar.CastColor = oUF_SuperVillain.colors.casting
+				self.Castbar.SparkColor = oUF_SuperVillain.colors.spark
 			end
+        end
+        if(self.AuraBars and (unitDB.aurabar and unitDB.aurabar.enable)) then
+            local ab = self.AuraBars
+            ab.auraBarTexture = CURRENT_AURABAR_TEXTURE
+            ab.textFont = CURRENT_AURABAR_FONT
+            ab.textSize = db.auraFontSize
+            ab.textOutline = db.auraFontOutline
+            ab.buffColor = oUF_SuperVillain.colors.buff_bars
 
-			if _G[childFrame:GetName().."Target"] then 
-				MOD.FrameUpdate[unit](MOD, _G[childFrame:GetName().."Target"], db)
+			if MOD.db.auraBarByType then 
+				ab.debuffColor = nil;
+				ab.defaultDebuffColor = oUF_SuperVillain.colors.debuff_bars
+			else 
+				ab.debuffColor = oUF_SuperVillain.colors.debuff_bars
+				ab.defaultDebuffColor = nil 
 			end
-
-			index = index + 1;
-			childFrame = self:GetAttribute("child"..index)
-		end 
-	end
-		
-	local SecureHeaderClear = function(self)
-		self:Hide()
-		self:SetAttribute("showPlayer", true)
-		self:SetAttribute("showSolo", true)
-		self:SetAttribute("showParty", true)
-		self:SetAttribute("showRaid", true)
-		self:SetAttribute("columnSpacing", nil)
-		self:SetAttribute("columnAnchorPoint", nil)
-		self:SetAttribute("sortMethod", nil)
-		self:SetAttribute("groupFilter", nil)
-		self:SetAttribute("groupingOrder", nil)
-		self:SetAttribute("maxColumns", nil)
-		self:SetAttribute("nameList", nil)
-		self:SetAttribute("point", nil)
-		self:SetAttribute("sortDir", nil)
-		self:SetAttribute("sortMethod", "NAME")
-		self:SetAttribute("startingIndex", nil)
-		self:SetAttribute("strictFiltering", nil)
-		self:SetAttribute("unitsPerColumn", nil)
-		self:SetAttribute("xOffset", nil)
-		self:SetAttribute("yOffset", nil)
-	end
-
-	function MOD:SpawnGroupHeader(parentFrame, filter, realName, template1, secureName, template2)
-		local name = parentFrame.NameKey or secureName;
-		local db = MOD.db[name]
-		local frameName = name:gsub("(.)", upper, 1)
-		oUF_SuperVillain:SetActiveStyle("SVUI_" .. frameName)
-		local header = oUF_SuperVillain:SpawnHeader(realName, template2, nil, 
-			"oUF-initialConfigFunction", ("self:SetWidth(%d); self:SetHeight(%d); self:SetFrameLevel(5)"):format(db.width, db.height), 
-			"groupFilter", filter, 
-			"showParty", true, 
-			"showRaid", true, 
-			"showSolo", true, 
-			template1 and "template", template1
-		);
-		header.NameKey = name;
-		header:SetParent(parentFrame)
-		header:Show()
-		header.Update = SecureHeaderUpdate 
-		header.ClearAllAttributes = SecureHeaderClear 
-		return header 
-	end
+        end
+        if(self.Buffs and (unitDB.buffs and unitDB.buffs.enable)) then
+            local buffs = self.Buffs
+            buffs.textFont = CURRENT_AURABAR_FONT
+            buffs.textSize = db.auraFontSize
+            buffs.textOutline = db.auraFontOutline
+        end
+        if(self.Debuffs and (unitDB.debuffs and unitDB.debuffs.enable)) then
+            local debuffs = self.Debuffs
+            debuffs.textFont = CURRENT_AURABAR_FONT
+            debuffs.textSize = db.auraFontSize
+            debuffs.textOutline = db.auraFontOutline
+        end
+        if(self.RaidDebuffs and (unitDB.rdebuffs and unitDB.rdebuffs.enable)) then
+            local rdebuffs = self.RaidDebuffs;
+            rdebuffs.count:SetFont(CURRENT_AURABAR_FONT, db.auraFontSize, db.auraFontOutline)
+            rdebuffs.time:SetFont(CURRENT_AURABAR_FONT, db.auraFontSize, db.auraFontOutline)
+        end
+        if(updateElements) then
+        	self:UpdateAllElements()
+        end
+    end
 end
 
-function MOD:SetBasicFrame(unit)
-	assert(unit, "No unit provided to create or update.")
-	if InCombatLockdown()then self:FrameForge() return end
-	local realName = unit:gsub("(.)", upper, 1);
-	realName = realName:gsub("t(arget)", "T%1");
-	if not self[unit] then 
-		self[unit] = oUF_SuperVillain:Spawn(unit, "SVUI_"..realName)
-		BasicFrames[unit] = unit 
-	end
-	self[unit].Update = function()
-		self.FrameUpdate[unit](MOD, unit, MOD[unit], MOD.db[unit]) 
-	end
-	if self[unit]:GetParent() ~= SVUI_UnitFrameParent then 
-		self[unit]:SetParent(SVUI_UnitFrameParent)
-	end
-	if self.db[unit].enable then 
-		self[unit]:Enable()
-		self[unit].Update()
-	else 
-		self[unit]:Disable()
-	end
-end
+function MOD:RefreshUnitLayout(frame, template)
+	local db = self.db[template]
+	local UNIT_WIDTH = db.width;
+	local UNIT_HEIGHT = db.height;
+	local BEST_SIZE = min(UNIT_WIDTH,UNIT_HEIGHT);
+	local AURA_HOLDER = db.width
+	local powerHeight = (db.power and db.power.enable) and (db.power.height - 1) or 1;
 
-function MOD:SetExtraFrame(name, count)
-	if InCombatLockdown() then self:FrameForge() return end
+	local TOP_ANCHOR1, TOP_ANCHOR2, TOP_MODIFIER = "TOPRIGHT", "TOPLEFT", 1;
+	local BOTTOM_ANCHOR1, BOTTOM_ANCHOR2, BOTTOM_MODIFIER = "BOTTOMLEFT", "BOTTOMRIGHT", -1;
+	if(ReversedUnit[template]) then
+		TOP_ANCHOR1 = "TOPLEFT"
+		TOP_ANCHOR2 = "TOPRIGHT"
+		TOP_MODIFIER = -1
+		BOTTOM_ANCHOR1 = "BOTTOMRIGHT"
+		BOTTOM_ANCHOR2 = "BOTTOMLEFT"
+		BOTTOM_MODIFIER = 1
+	end
 
-	for i = 1, count do 
-		local unit = name..i;
-		local realName = unit:gsub("(.)", upper, 1)
-		realName = realName:gsub("t(arget)", "T%1")
-		if not self[unit]then 
-			ExtraFrames[unit] = name;
-			self[unit] = oUF_SuperVillain:Spawn(unit, "SVUI_"..realName)
-			self[unit].index = i;
-			self[unit]:SetParent(SVUI_UnitFrameParent)
-			self[unit]:SetID(i)
+	local portraitOverlay = false;
+	local overlayAnimation = false;
+	local portraitWidth = (1 * TOP_MODIFIER);
+	local healthPanel = frame.HealthPanel
+	local infoPanel = frame.InfoPanel
+	local calculatedHeight = db.height;
+
+	if(template:find("raid")) then
+		AURA_HOLDER = 100
+	end
+
+	if(db.portrait and db.portrait.enable) then 
+		if(not db.portrait.overlay) then
+			portraitWidth = ((db.portrait.width * TOP_MODIFIER) + (1 * TOP_MODIFIER))
+		else
+			portraitOverlay = true
+			overlayAnimation = self.db.overlayAnimation
 		end
+	end
 
-		local secureName = name:gsub("(.)", upper, 1)
-		secureName = secureName:gsub("t(arget)", "T%1")
-		self[unit].Update = function()
-			self.FrameUpdate[name](MOD, unit, MOD[unit], MOD.db[name])
+	if frame.Portrait then
+		frame.Portrait:Hide()
+		frame.Portrait:ClearAllPoints()
+	end 
+	if db.portrait and frame.PortraitTexture and frame.PortraitModel then
+		if db.portrait.style == '2D' then
+			frame.Portrait = frame.PortraitTexture
+		else
+			frame.PortraitModel.UserRotation = db.portrait.rotation;
+			frame.PortraitModel.UserCamDistance = db.portrait.camDistanceScale;
+			frame.Portrait = frame.PortraitModel
 		end
+	end 
 
-		if self.db[name].enable then 
-			self[unit]:Enable()
-			self[unit].Update()
+	healthPanel:ClearAllPoints()
+	healthPanel:Point(TOP_ANCHOR1, frame, TOP_ANCHOR1, (1 * BOTTOM_MODIFIER), -1)
+	healthPanel:Point(BOTTOM_ANCHOR1, frame, BOTTOM_ANCHOR1, portraitWidth, powerHeight)
 
-			if self[unit].isForced then 
-				self:AllowElement(self[unit])
+	if(frame.StatusPanel) then
+		if(template ~= "player" and template ~= "pet" and template ~= "target" and template ~= "targettarget" and template ~= "focus" and template ~= "focustarget") then
+			local size = healthPanel:GetHeight()
+			frame.StatusPanel:SetSize(size, size)
+			frame.StatusPanel:SetPoint("CENTER", healthPanel, "CENTER", 0, 0)
+		end
+	end
+
+	--[[ THREAT LAYOUT ]]--
+
+	if frame.Threat then 
+		local threat = frame.Threat;
+		if db.threatEnabled then 
+			if not frame:IsElementEnabled('Threat')then 
+				frame:EnableElement('Threat')
 			end 
-		else 
-			self[unit]:Disable()
+		elseif frame:IsElementEnabled('Threat')then 
+			frame:DisableElement('Threat')
 		end 
 	end 
-end
 
-do
-	local _POINTMAP = {
-		["DOWN_RIGHT"] = {[1]="TOP",[2]="TOPLEFT",[3]="LEFT",[4]="RIGHT",[5]="LEFT",[6]=1,[7]=-1,[8]=false},
-		["DOWN_LEFT"] = {[1]="TOP",[2]="TOPRIGHT",[3]="RIGHT",[4]="LEFT",[5]="RIGHT",[6]=1,[7]=-1,[8]=false},
-		["UP_RIGHT"] = {[1]="BOTTOM",[2]="BOTTOMLEFT",[3]="LEFT",[4]="RIGHT",[5]="LEFT",[6]=1,[7]=1,[8]=false},
-		["UP_LEFT"] = {[1]="BOTTOM",[2]="BOTTOMRIGHT",[3]="RIGHT",[4]="LEFT",[5]="RIGHT",[6]=-1,[7]=1,[8]=false},
-		["RIGHT_DOWN"] = {[1]="LEFT",[2]="TOPLEFT",[3]="TOP",[4]="BOTTOM",[5]="TOP",[6]=1,[7]=-1,[8]=true},
-		["RIGHT_UP"] = {[1]="LEFT",[2]="BOTTOMLEFT",[3]="BOTTOM",[4]="TOP",[5]="BOTTOM",[6]=1,[7]=1,[8]=true},
-		["LEFT_DOWN"] = {[1]="RIGHT",[2]="TOPRIGHT",[3]="TOP",[4]="BOTTOM",[5]="TOP",[6]=-1,[7]=-1,[8]=true},
-		["LEFT_UP"] = {[1]="RIGHT",[2]="BOTTOMRIGHT",[3]="BOTTOM",[4]="TOP",[5]="BOTTOM",[6]=-1,[7]=1,[8]=true},
-		["UP"] = {[1]="BOTTOM",[2]="BOTTOM",[3]="BOTTOM",[4]="TOP",[5]="TOP",[6]=1,[7]=1,[8]=false},
-		["DOWN"] = {[1]="TOP",[2]="TOP",[3]="TOP",[4]="BOTTOM",[5]="BOTTOM",[6]=1,[7]=1,[8]=false},
-		["CUSTOM1"] = {
-			['TOPTOP'] = 'UP_RIGHT',
-			['BOTTOMBOTTOM'] = 'TOP_RIGHT',
-			['LEFTLEFT'] = 'RIGHT_UP',
-			['RIGHTRIGHT'] = 'LEFT_UP',
-			['RIGHTTOP'] = 'LEFT_DOWN',
-			['LEFTTOP'] = 'RIGHT_DOWN',
-			['LEFTBOTTOM'] = 'RIGHT_UP',
-			['RIGHTBOTTOM'] = 'LEFT_UP',
-			['BOTTOMRIGHT'] = 'UP_LEFT',
-			['BOTTOMLEFT'] = 'UP_RIGHT',
-			['TOPRIGHT'] = 'DOWN_LEFT',
-			['TOPLEFT'] = 'DOWN_RIGHT'
-		}
-	};
+	--[[ TARGETGLOW LAYOUT ]]--
 
-	local _GSORT = {
-		['CLASS']=function(frame)
-			frame:SetAttribute("groupingOrder","DEATHKNIGHT,DRUID,HUNTER,MAGE,PALADIN,PRIEST,SHAMAN,WARLOCK,WARRIOR,MONK")
-			frame:SetAttribute('sortMethod','NAME')
-			frame:SetAttribute("sortMethod",'CLASS')
-		end,
-		['MTMA']=function(frame)
-			frame:SetAttribute("groupingOrder","MAINTANK,MAINASSIST,NONE")
-			frame:SetAttribute('sortMethod','NAME')
-			frame:SetAttribute("sortMethod",'ROLE')
-		end,
-		['ROLE']=function(frame)
-			frame:SetAttribute("groupingOrder","TANK,HEALER,DAMAGER,NONE")
-			frame:SetAttribute('sortMethod','NAME')
-			frame:SetAttribute("sortMethod",'ASSIGNEDROLE')
-		end,
-		['ROLE_TDH']=function(frame)
-			frame:SetAttribute("groupingOrder","TANK,DAMAGER,HEALER,NONE")
-			frame:SetAttribute('sortMethod','NAME')
-			frame:SetAttribute("sortMethod",'ASSIGNEDROLE')
-		end,
-		['ROLE_HTD']=function(frame)
-			frame:SetAttribute("groupingOrder","HEALER,TANK,DAMAGER,NONE")
-			frame:SetAttribute('sortMethod','NAME')
-			frame:SetAttribute("sortMethod",'ASSIGNEDROLE')
-		end,
-		['ROLE_HDT']=function(frame)
-			frame:SetAttribute("groupingOrder","HEALER,DAMAGER,TANK,NONE")
-			frame:SetAttribute('sortMethod','NAME')
-			frame:SetAttribute("sortMethod",'ASSIGNEDROLE')
-		end,
-		['NAME']=function(frame)
-			frame:SetAttribute("groupingOrder","1,2,3,4,5,6,7,8")
-			frame:SetAttribute('sortMethod','NAME')
-			frame:SetAttribute("sortMethod",nil)
-		end,
-		['GROUP']=function(frame)
-			frame:SetAttribute("groupingOrder","1,2,3,4,5,6,7,8")
-			frame:SetAttribute('sortMethod','INDEX')
-			frame:SetAttribute("sortMethod",'GROUP')
-		end,
-		['PETNAME']=function(frame)
-			frame:SetAttribute("groupingOrder","1,2,3,4,5,6,7,8")
-			frame:SetAttribute('sortMethod','NAME')
-			frame:SetAttribute("sortMethod",nil)
-			frame:SetAttribute("filterOnPet",true)
-		end
-	};
+	if frame.TargetGlow then 
+		local glow = frame.TargetGlow;
+		glow:ClearAllPoints()
+		glow:Point("TOPLEFT", -3, 3)
+		glow:Point("TOPRIGHT", 3, 3)
+		glow:Point("BOTTOMLEFT", -3, -3)
+		glow:Point("BOTTOMRIGHT", 3, -3)
+	end 
 
-	local function dbMapping(frame)
-		local db = MOD.db[frame.NameKey]
-		if(db.showBy == "UP") then 
-			db.showBy = "UP_RIGHT"
-		end
-		if(db.showBy == "DOWN") then 
-			db.showBy = "DOWN_RIGHT"
+	--[[ INFO TEXTS ]]--
+
+	if(infoPanel.Name and db.name) then
+		local nametext = infoPanel.Name
+		if(not db.power or (not db.power.hideonnpc) or db.power.tags == "") then
+			nametext:ClearAllPoints()
+			SuperVillain:ReversePoint(nametext, db.name.position, infoPanel, db.name.xOffset, db.name.yOffset)
 		end 
+		frame:Tag(nametext, db.name.tags)
 	end
 
-	local function AppendUpdateHandler(unit)
-		return function()
-			local db = MOD.db[unit]
-			if db.enable  ~= true then 
-				UnregisterAttributeDriver(MOD[unit], "state-visibility")
-				MOD[unit]:Hide()
-				return 
-			end
-			MOD.HeaderUpdate[unit](MOD, MOD[unit], db)
-			for i = 1, MOD[unit]:GetNumChildren()do 
-				local childFrame = select(i, MOD[unit]:GetChildren())
-				MOD.FrameUpdate[unit](MOD, childFrame, MOD.db[unit])
-				if _G[childFrame:GetName().."Target"]then 
-					MOD.FrameUpdate[unit](MOD, _G[childFrame:GetName().."Target"], MOD.db[unit])
-				end
-				if _G[childFrame:GetName().."Pet"]then 
-					MOD.FrameUpdate[unit](MOD, _G[childFrame:GetName().."Pet"], MOD.db[unit])
-				end 
-			end 
-		end
+	if(frame.Health and infoPanel.Health and db.health) then
+		local healthtext = infoPanel.Health
+		local point = db.health.position
+		healthtext:ClearAllPoints()
+		SuperVillain:ReversePoint(healthtext, point, infoPanel, db.health.xOffset, db.health.yOffset)
+		frame:Tag(healthtext, db.health.tags)
 	end
 
-	local GroupSetConfigEnvironment = function(self)
-		local db = MOD.db[self.NameKey]
-		local anchorPoint;
-		local widthCalc,heightCalc,xCalc,yCalc = 0,0,0,0;
-		local sorting = db.showBy;
-		local pointMap = _POINTMAP[sorting]
-		local point1,point2,point3,point4,point5,horizontal,vertical,isHorizontal = pointMap[1],pointMap[2],pointMap[3],pointMap[4],pointMap[5],pointMap[6],pointMap[7],pointMap[8];
-		for i=1,db.gCount do 
-			local frame = self.subunits[i] --<<
-			if frame then 
-				dbMapping(frame)
-				if isHorizontal then 
-					frame:SetAttribute("xOffset",db.wrapXOffset * horizontal)
-					frame:SetAttribute("yOffset",0)
-					frame:SetAttribute("columnSpacing",db.wrapYOffset)
-				else 
-					frame:SetAttribute("xOffset",0)
-					frame:SetAttribute("yOffset",db.wrapYOffset * vertical)
-					frame:SetAttribute("columnSpacing",db.wrapXOffset)
-				end
-				if not frame.isForced then 
-					if not frame.initialized then 
-						frame:SetAttribute("startingIndex",db.rSort and (-min(db.gCount * db.gRowCol * 5, MAX_RAID_MEMBERS) + 1) or -4)
-						frame:Show()
-						frame.initialized=true 
-					end
-					frame:SetAttribute('startingIndex',1)
-				end
-				frame:ClearAllPoints()
-				if db.rSort and db.invertGroupingOrder then 
-					frame:SetAttribute("columnAnchorPoint",point4)
-				else 
-					frame:SetAttribute("columnAnchorPoint",point3)
-				end
-				MOD:DetachSubFrames(frame:GetChildren())
-				frame:SetAttribute("point",point1)
-				if not frame.isForced then 
-					frame:SetAttribute("maxColumns",db.rSort and db.gCount or 1)
-					frame:SetAttribute("unitsPerColumn",db.rSort and (db.gRowCol * 5) or 5)
-					_GSORT[db.sortMethod](frame)
-					frame:SetAttribute('sortDir',db.sortDir)
-					frame:SetAttribute("showPlayer",db.showPlayer)
-				end
-				if i==1 and db.rSort then 
-					frame:SetAttribute("groupFilter","1,2,3,4,5,6,7,8")
-				else 
-					frame:SetAttribute("groupFilter",tostring(i))
-				end 
-			end
-			local anchorPoint=point2
-			if db.rSort and db.startFromCenter then 
-				anchorPoint=point5
-			end
-			if (i - 1) % db.gRowCol==0 then 
-				if isHorizontal then 
-					if frame then 
-						frame:SetPoint(anchorPoint, self, anchorPoint, 0, heightCalc * vertical)
-					end
-					heightCalc=heightCalc + db.height + db.wrapYOffset;
-					yCalc = yCalc + 1 
-				else 
-					if frame then 
-						frame:SetPoint(anchorPoint, self, anchorPoint, widthCalc * horizontal, 0)
-					end
-					widthCalc=widthCalc + db.width + db.wrapXOffset;
-					xCalc = xCalc + 1 
-				end 
+	if(frame.Power and infoPanel.Power and db.power) then
+		local powertext = infoPanel.Power
+		if db.power.tags ~= nil and db.power.tags ~= '' then
+			local point = db.power.position
+			powertext:ClearAllPoints()
+			SuperVillain:ReversePoint(powertext, point, infoPanel, db.power.xOffset, db.power.yOffset)
+			frame:Tag(powertext, db.power.tags)
+			if db.power.attachTextToPower then 
+				powertext:SetParent(frame.Power)
 			else 
-				if isHorizontal then 
-					if yCalc==1 then 
-						if frame then 
-							frame:SetPoint(anchorPoint, self, anchorPoint, widthCalc * horizontal, 0)
-						end
-						widthCalc=widthCalc + (db.width + db.wrapXOffset) * 5;
-						xCalc = xCalc + 1 
-					elseif frame then 
-						frame:SetPoint(anchorPoint, self, anchorPoint, (((db.width + db.wrapXOffset) * 5) * ((i - 1) % db.gRowCol)) * horizontal, ((db.height + db.wrapYOffset) * (yCalc - 1)) * vertical)
-					end 
-				else 
-					if xCalc==1 then 
-						if frame then 
-							frame:SetPoint(anchorPoint, self, anchorPoint, 0, heightCalc * vertical)
-						end
-						heightCalc=heightCalc + (db.height + db.wrapYOffset) * 5;
-						yCalc = yCalc + 1 
-					elseif frame then 
-						frame:SetPoint(anchorPoint, self, anchorPoint, ((db.width + db.wrapXOffset) * (xCalc - 1)) * horizontal, (((db.height + db.wrapYOffset) * 5) * ((i - 1) % db.gRowCol)) * vertical)
-					end 
-				end 
+				powertext:SetParent(infoPanel)
 			end
-			if heightCalc == 0 then 
-				heightCalc = heightCalc + (db.height + db.wrapYOffset) * 5 
-			elseif widthCalc == 0 then 
-				widthCalc = widthCalc + (db.width + db.wrapXOffset) * 5 
-			end 
+			powertext:Show()
+		else
+			powertext:Hide()
 		end
-		self:SetSize(widthCalc - db.wrapXOffset, heightCalc - db.wrapYOffset)
-	end
-	
-	local GroupUpdate = function(self) --<<
-		local unitName = self.NameKey;
-		MOD[unitName].db = MOD.db[unitName]
-		for i=1,#self.subunits do 
-			self.subunits[i].db = MOD.db[unitName]
-			self.subunits[i]:Update()
-		end 
 	end
 
-	local GroupSetActiveState = function(self) --<<
-		if not self.isForced then 
-			for i=1,#self.subunits do
-				local frame = self.subunits[i]
-				if i <= self.db.gCount and self.db.rSort and i <= 1 or not self.db.rSort then 
-					frame:Show()
+	if(infoPanel.Misc and db.misc) then
+		frame:Tag(infoPanel.Misc, db.misc.tags)
+	end
+
+	--[[ HEALTH LAYOUT ]]--
+
+	do 
+		local health = frame.Health;
+		if(db.health and (db.health.reversed  ~= nil)) then
+			health.fillInverted = db.health.reversed;
+		else
+			health.fillInverted = false
+		end
+
+		health.Smooth = self.db.smoothbars;
+
+		health.colorSmooth = nil;
+		health.colorHealth = nil;
+		health.colorClass = nil;
+		health.colorReaction = nil;
+		health.colorOverlay = nil;
+		health.overlayAnimation = overlayAnimation
+		if(db.health and (db.health.frequentUpdates ~= nil)) then
+		end
+		if(frame.HealPrediction) then
+			frame.HealPrediction["frequentUpdates"] = health.frequentUpdates
+		end
+		if(portraitOverlay and self.db.forceHealthColor) then
+			health.colorOverlay = true;
+		else
+			if(db.colorOverride and db.colorOverride == "FORCE_ON") then 
+				health.colorClass = true;
+				health.colorReaction = true 
+			elseif(db.colorOverride and db.colorOverride == "FORCE_OFF") then 
+				if self.db.colorhealthbyvalue == true then 
+					health.colorSmooth = true 
 				else 
-					if frame.forceShow then 
-						frame:Hide()
-						MOD:RestrictChildren(frame, frame:GetChildren())
-						frame:SetAttribute('startingIndex',1)
+					health.colorHealth = true 
+				end 
+			else
+				if(not self.db.healthclass) then 
+					if self.db.colorhealthbyvalue == true then 
+						health.colorSmooth = true 
 					else 
-						frame:ClearAllAttributes()
+						health.colorHealth = true 
 					end 
+				else 
+					health.colorClass = true;
+					health.colorReaction = true 
+				end 
+			end
+		end
+		health:ClearAllPoints()
+		health:SetAllPoints(healthPanel)
+		if db.health and db.health.orientation then
+			health:SetOrientation(db.health.orientation)
+		end
+
+		self:RefreshHealthBar(frame, portraitOverlay)
+	end 
+
+	--[[ POWER LAYOUT ]]--
+
+	do
+		if frame.Power then
+			local power = frame.Power;
+			if db.power.enable then 
+				if not frame:IsElementEnabled('Power')then 
+					frame:EnableElement('Power')
+					power:Show()
+				end
+
+				power.Smooth = self.db.smoothbars;
+ 
+				power.colorClass = nil;
+				power.colorReaction = nil;
+				power.colorPower = nil;
+				if self.db.powerclass then 
+					power.colorClass = true;
+					power.colorReaction = true 
+				else 
+					power.colorPower = true 
+				end 
+				if(db.power.frequentUpdates) then
+					power.frequentUpdates = db.power.frequentUpdates
+				end
+				power:ClearAllPoints()
+				power:Height(powerHeight - 2)
+				power:Point(BOTTOM_ANCHOR1, frame, BOTTOM_ANCHOR1, (portraitWidth - (1 * BOTTOM_MODIFIER)), 2)
+				power:Point(BOTTOM_ANCHOR2, frame, BOTTOM_ANCHOR2, (2 * BOTTOM_MODIFIER), 2)
+			elseif frame:IsElementEnabled('Power')then 
+				frame:DisableElement('Power')
+				power:Hide()
+			end 
+		end
+
+		--[[ ALTPOWER LAYOUT ]]--
+
+		if frame.AltPowerBar then
+			local altPower = frame.AltPowerBar;
+			local Alt_OnShow = function()
+				healthPanel:Point(TOP_ANCHOR2, portraitWidth, -(powerHeight + 1))
+			end 
+			local Alt_OnHide = function()
+				healthPanel:Point(TOP_ANCHOR2, portraitWidth, -1)
+				altPower.text:SetText("")
+			end 
+			if db.power.enable then 
+				frame:EnableElement('AltPowerBar')
+				if(infoPanel.Health) then
+					altPower.text:SetFont(infoPanel.Health:GetFont())
+				end
+				altPower.text:SetAlpha(1)
+				altPower:Point(TOP_ANCHOR2, frame, TOP_ANCHOR2, portraitWidth, -1)
+				altPower:Point(TOP_ANCHOR1, frame, TOP_ANCHOR1, (1 * BOTTOM_MODIFIER), -1)
+				altPower:SetHeight(powerHeight)
+				altPower.Smooth = self.db.smoothbars;
+				altPower:HookScript("OnShow", Alt_OnShow)
+				altPower:HookScript("OnHide", Alt_OnHide)
+			else 
+				frame:DisableElement('AltPowerBar')
+				altPower.text:SetAlpha(0)
+				altPower:Hide()
+			end 
+		end
+	end
+
+	--[[ PORTRAIT LAYOUT ]]--
+
+	if db.portrait and frame.Portrait then
+		local portrait = frame.Portrait;
+
+		portrait:Show()
+
+		if db.portrait.enable then
+			if not frame:IsElementEnabled('Portrait')then 
+				frame:EnableElement('Portrait')
+			end 
+			portrait:ClearAllPoints()
+			portrait:SetAlpha(1)
+		
+			if db.portrait.overlay then 
+				if db.portrait.style == '3D' then
+					portrait:SetFrameLevel(frame.ActionPanel:GetFrameLevel())
+					portrait:SetCamDistanceScale(db.portrait.camDistanceScale)
+				elseif db.portrait.style == '2D' then 
+					portrait.anchor:SetFrameLevel(frame.ActionPanel:GetFrameLevel())
+				end 
+				
+				portrait:Point(TOP_ANCHOR2, healthPanel, TOP_ANCHOR2, (1 * TOP_MODIFIER), -1)
+				portrait:Point(BOTTOM_ANCHOR2, healthPanel, BOTTOM_ANCHOR2, (1 * BOTTOM_MODIFIER), 1)
+				
+				portrait.Panel:Show()
+			else
+				portrait.Panel:Show()
+				if db.portrait.style == '3D' then 
+					portrait:SetFrameLevel(frame.ActionPanel:GetFrameLevel())
+					portrait:SetCamDistanceScale(db.portrait.camDistanceScale)
+				elseif db.portrait.style == '2D' then 
+					portrait.anchor:SetFrameLevel(frame.ActionPanel:GetFrameLevel())
+				end 
+				
+				if not frame.Power or not db.power.enable then 
+					portrait:Point(TOP_ANCHOR2, frame, TOP_ANCHOR2, (1 * TOP_MODIFIER), -1)
+					portrait:Point(BOTTOM_ANCHOR2, healthPanel, BOTTOM_ANCHOR1, (4 * BOTTOM_MODIFIER), 0)
+				else 
+					portrait:Point(TOP_ANCHOR2, frame, TOP_ANCHOR2, (1 * TOP_MODIFIER), -1)
+					portrait:Point(BOTTOM_ANCHOR2, frame.Power, BOTTOM_ANCHOR1, (4 * BOTTOM_MODIFIER), 0)
+				end 
+			end
+		else 
+			if frame:IsElementEnabled('Portrait')then 
+				frame:DisableElement('Portrait')
+				portrait:Hide()
+				portrait.Panel:Hide()
+			end 
+		end
+	end 
+
+	--[[ CASTBAR LAYOUT ]]--
+
+	if db.castbar and frame.Castbar then
+		local castbar = frame.Castbar;
+		local castHeight = db.castbar.height;
+		local castWidth
+		if(db.castbar.matchFrameWidth) then
+			castWidth = UNIT_WIDTH
+		else
+			castWidth = db.castbar.width
+		end
+		local sparkSize = castHeight * 4;
+		local adjustedWidth = castWidth - 2;
+		local lazerScale = castHeight * 1.8;
+
+		if(db.castbar.format) then castbar.TimeFormat = db.castbar.format end
+		
+		if(not castbar.pewpew) then
+			castbar:SetSize(adjustedWidth, castHeight)
+		elseif(castbar:GetHeight() ~= lazerScale) then
+			castbar:SetSize(adjustedWidth, lazerScale)
+		end
+
+		if castbar.Spark and db.castbar.spark then 
+			castbar.Spark:Show()
+			castbar.Spark:SetSize(sparkSize, sparkSize)
+			if castbar.Spark[1] and castbar.Spark[2] then
+				castbar.Spark[1]:SetAllPoints(castbar.Spark)
+				castbar.Spark[2]:FillInner(castbar.Spark, 4, 4)
+			end
+			castbar.Spark.SetHeight = function()return end 
+		end 
+		castbar:SetFrameStrata("HIGH")
+		if castbar.Holder then
+			castbar.Holder:Width(castWidth + 2)
+			castbar.Holder:Height(castHeight + 6)
+			local holderUpdate = castbar.Holder:GetScript('OnSizeChanged')
+			if holderUpdate then
+				holderUpdate(castbar.Holder)
+			end
+		end
+		castbar:GetStatusBarTexture():SetHorizTile(false)
+		if db.castbar.latency then 
+			castbar.SafeZone = castbar.LatencyTexture;
+			castbar.LatencyTexture:Show()
+		else 
+			castbar.SafeZone = nil;
+			castbar.LatencyTexture:Hide()
+		end 
+		if castbar.Icon then
+			if db.castbar.icon then
+				castbar.Icon.bg:Width(castHeight + 2)
+				castbar.Icon.bg:Height(castHeight + 2)
+				castbar.Icon.bg:Show()
+			else 
+				castbar.Icon.bg:Hide()
+				castbar.Icon = nil 
+			end 
+		end
+		
+		local cr,cg,cb
+		if(db.castbar.useCustomColor) then
+			cr,cg,cb = db.castbar.castingColor[1], db.castbar.castingColor[2], db.castbar.castingColor[3];
+			castbar.CastColor = {cr,cg,cb}
+			cr,cg,cb = db.castbar.sparkColor[1], db.castbar.sparkColor[2], db.castbar.sparkColor[3];
+			castbar.SparkColor = {cr,cg,cb}
+		else
+			castbar.CastColor = oUF_SuperVillain.colors.casting
+			castbar.SparkColor = oUF_SuperVillain.colors.spark
+		end
+
+		if db.castbar.enable and not frame:IsElementEnabled('Castbar')then 
+			frame:EnableElement('Castbar')
+		elseif not db.castbar.enable and frame:IsElementEnabled('Castbar')then
+			SuperVillain:AddonMessage("No castbar")
+			frame:DisableElement('Castbar') 
+		end
+	end 
+
+	--[[ AURA LAYOUT ]]--
+
+	if frame.Buffs and frame.Debuffs then
+		do
+			if db.debuffs.enable or db.buffs.enable then 
+				if not frame:IsElementEnabled('Aura')then 
+					frame:EnableElement('Aura')
+				end 
+			else 
+				if frame:IsElementEnabled('Aura')then 
+					frame:DisableElement('Aura')
 				end 
 			end 
+			frame.Buffs:ClearAllPoints()
+			frame.Debuffs:ClearAllPoints()
+		end 
+
+		do 
+			local buffs = frame.Buffs;
+			local numRows = db.buffs.numrows;
+			local perRow = db.buffs.perrow;
+			local buffCount = perRow * numRows;
+			
+			buffs.forceShow = frame.forceShowAuras;
+			buffs.num = buffCount;
+
+			local tempSize = (((UNIT_WIDTH + 2) - (buffs.spacing * (perRow - 1))) / perRow);
+			local auraSize = min(BEST_SIZE, tempSize)
+			if(db.buffs.sizeOverride and db.buffs.sizeOverride > 0) then
+				auraSize = db.buffs.sizeOverride
+				buffs:SetWidth(perRow * db.buffs.sizeOverride)
+			end
+
+			buffs.size = auraSize;
+
+			local attachTo = FindAnchorFrame(frame, db.buffs.attachTo, db.debuffs.attachTo == 'BUFFS' and db.buffs.attachTo == 'DEBUFFS')
+
+			SuperVillain:ReversePoint(buffs, db.buffs.anchorPoint, attachTo, db.buffs.xOffset + BOTTOM_MODIFIER, db.buffs.yOffset)
+			buffs:SetWidth((auraSize + buffs.spacing) * perRow)
+			buffs:Height((auraSize + buffs.spacing) * numRows)
+			buffs["growth-y"] = db.buffs.verticalGrowth;
+			buffs["growth-x"] = db.buffs.horizontalGrowth;
+
+			if db.buffs.enable then 
+				buffs:Show()
+			else 
+				buffs:Hide()
+			end 
+		end 
+		do 
+			local debuffs = frame.Debuffs;
+			local numRows = db.debuffs.numrows;
+			local perRow = db.debuffs.perrow;
+			local debuffCount = perRow * numRows;
+			
+			debuffs.forceShow = frame.forceShowAuras;
+			debuffs.num = debuffCount;
+
+			local tempSize = (((UNIT_WIDTH + 2) - (debuffs.spacing * (perRow - 1))) / perRow);
+			local auraSize = min(BEST_SIZE,tempSize)
+			if(db.debuffs.sizeOverride and db.debuffs.sizeOverride > 0) then
+				auraSize = db.debuffs.sizeOverride
+				debuffs:SetWidth(perRow * db.debuffs.sizeOverride)
+			end
+
+			debuffs.size = auraSize;
+
+			local attachTo = FindAnchorFrame(frame, db.debuffs.attachTo, db.debuffs.attachTo == 'BUFFS' and db.buffs.attachTo == 'DEBUFFS')
+
+			SuperVillain:ReversePoint(debuffs, db.debuffs.anchorPoint, attachTo, db.debuffs.xOffset + BOTTOM_MODIFIER, db.debuffs.yOffset)
+			debuffs:SetWidth((auraSize + debuffs.spacing) * perRow)
+			debuffs:Height((auraSize + debuffs.spacing) * numRows)
+			debuffs["growth-y"] = db.debuffs.verticalGrowth;
+			debuffs["growth-x"] = db.debuffs.horizontalGrowth;
+
+			if db.debuffs.enable then 
+				debuffs:Show()
+			else 
+				debuffs:Hide()
+			end 
+		end 
+	end 
+
+	--[[ AURABAR LAYOUT ]]--
+
+	if frame.AuraBars then
+		local auraBar = frame.AuraBars;
+		if db.aurabar.enable then 
+			if not frame:IsElementEnabled("AuraBars") then frame:EnableElement("AuraBars") end 
+			auraBar:Show()
+			auraBar.friendlyAuraType = db.aurabar.friendlyAuraType
+			auraBar.enemyAuraType = db.aurabar.enemyAuraType
+
+			local attachTo = frame.ActionPanel;
+			local preOffset = 1;
+			if(db.aurabar.attachTo == "BUFFS" and frame.Buffs and frame.Buffs:IsShown()) then 
+				attachTo = frame.Buffs
+				preOffset = 10
+			elseif(db.aurabar.attachTo == "DEBUFFS" and frame.Debuffs and frame.Debuffs:IsShown()) then 
+				attachTo = frame.Debuffs
+				preOffset = 10
+			elseif not isPlayer and SVUI_Player and db.aurabar.attachTo == "PLAYER_AURABARS" then
+				attachTo = SVUI_Player.AuraBars
+				preOffset = 10
+			end
+
+			auraBar.auraBarHeight = db.aurabar.height;
+			auraBar:ClearAllPoints()
+			auraBar:SetSize(UNIT_WIDTH, db.aurabar.height)
+
+			if db.aurabar.anchorPoint == "BELOW" then
+				auraBar:Point("TOPLEFT", attachTo, "BOTTOMLEFT", 1, -preOffset)
+				auraBar.down = true
+			else
+				auraBar:Point("BOTTOMLEFT", attachTo, "TOPLEFT", 1, preOffset)
+				auraBar.down = false
+			end 
+			auraBar.buffColor = oUF_SuperVillain.colors.buff_bars
+
+			if self.db.auraBarByType then 
+				auraBar.debuffColor = nil;
+				auraBar.defaultDebuffColor = oUF_SuperVillain.colors.debuff_bars
+			else 
+				auraBar.debuffColor = oUF_SuperVillain.colors.debuff_bars
+				auraBar.defaultDebuffColor = nil 
+			end
+
+			SortAuraBars(auraBar, db.aurabar.sort)
+			auraBar:SetAnchors()
+		else 
+			if frame:IsElementEnabled("AuraBars")then frame:DisableElement("AuraBars")auraBar:Hide()end 
+		end
+	end 
+
+	--[[ ICON LAYOUTS ]]--
+
+	do
+		if db.icons then
+			local ico = db.icons;
+
+			--[[ RAIDICON ]]--
+
+			if(ico.raidicon and frame.RaidIcon) then
+				local raidIcon = frame.RaidIcon;
+				if ico.raidicon.enable then
+					raidIcon:Show()
+					frame:EnableElement('RaidIcon')
+					local size = ico.raidicon.size;
+					raidIcon:ClearAllPoints()
+					raidIcon:Size(size)
+					SuperVillain:ReversePoint(raidIcon, ico.raidicon.attachTo, healthPanel, ico.raidicon.xOffset, ico.raidicon.yOffset)
+				else 
+					frame:DisableElement('RaidIcon')
+					raidIcon:Hide()
+				end
+			end
+
+			--[[ ROLEICON ]]--
+
+			if(ico.roleIcon and frame.LFDRole) then 
+				local lfd = frame.LFDRole;
+				if ico.roleIcon.enable then
+					lfd:Show()
+					frame:EnableElement('LFDRole')
+					local size = ico.roleIcon.size;
+					lfd:ClearAllPoints()
+					lfd:Size(size)
+					SuperVillain:ReversePoint(lfd, ico.roleIcon.attachTo, healthPanel, ico.roleIcon.xOffset, ico.roleIcon.yOffset)
+				else 
+					frame:DisableElement('LFDRole')
+					lfd:Hide()
+				end 
+			end 
+
+			--[[ RAIDROLEICON ]]--
+
+			if(ico.raidRoleIcons and frame.RaidRoleFramesAnchor) then 
+				local roles = frame.RaidRoleFramesAnchor;
+				if ico.raidRoleIcons.enable then 
+					roles:Show()
+					frame:EnableElement('Leader')
+					frame:EnableElement('MasterLooter')
+					local size = ico.raidRoleIcons.size;
+					roles:ClearAllPoints()
+					roles:Size(size)
+					SuperVillain:ReversePoint(roles, ico.raidRoleIcons.attachTo, healthPanel, ico.raidRoleIcons.xOffset, ico.raidRoleIcons.yOffset)
+				else 
+					roles:Hide()
+					frame:DisableElement('Leader')
+					frame:DisableElement('MasterLooter')
+				end 
+			end 
+
 		end 
 	end
 
-	function MOD:SetGroupFrame(group, filter, template1, forceUpdate, template2)
-		if not self.db[group] then return end
-		local db = self.db[group]
+	--[[ HEAL PREDICTION LAYOUT ]]--
 
-		if not self[group] then 
-			local realName = group:gsub("(.)", upper, 1)
-			oUF_SuperVillain:RegisterStyle("SVUI_"..realName, MOD.Construct[group])
-			oUF_SuperVillain:SetActiveStyle("SVUI_"..realName)
-
-			if db.gCount then 
-				self[group] = CreateFrame("Frame", "SVUI_"..realName, SVUI_UnitFrameParent, "SecureHandlerStateTemplate")
-				self[group].subunits = {} --<<
-				self[group].NameKey = group;
-				self[group].SetConfigEnvironment = GroupSetConfigEnvironment
-				self[group].Update = GroupUpdate
-				self[group].SetActiveState = GroupSetActiveState
-			else 
-				self[group] = self:SpawnGroupHeader(SVUI_UnitFrameParent, filter, "SVUI_"..realName, template1, group, template2)
-			end
-
-			self[group].db = db;
-			GroupFrames[group] = self[group]
-			self[group]:Show()
-		end
-
-		if db.gCount then
-			local xname = self[group].NameKey
-			realName = xname:gsub("(.)", upper, 1)
-			if(db.enable  ~= true and group  ~= "raidpet") then 
-				UnregisterStateDriver(self[group], "visibility")
-				self[group]:Hide()
-				return 
-			end
-
-			if db.rSort then 
-				if not self[group].subunits[1] then 
-					self[group].subunits[1] = self:SpawnGroupHeader(self[group], 1, "SVUI_" .. realName .. "Group1", template1, nil, template2)
-				end 
-			else 
-				while db.gCount > #self[group].subunits do 
-					local index = tostring(#self[group].subunits + 1)
-					tinsert(self[group].subunits, self:SpawnGroupHeader(self[group], index, "SVUI_" .. realName .. "Group"..index, template1, nil, template2))
-				end 
-			end
-
-			if self[group].SetActiveState then 
-				self[group]:SetActiveState() 
-			end
-
-			if forceUpdate or not self[group].Avatar then 
-				self[group]:SetConfigEnvironment()
-				if not self[group].isForced and not self[group].blockVisibilityChanges then 
-					RegisterStateDriver(self[group], "visibility", db.visibility)
-				end 
-			else 
-				self[group]:SetConfigEnvironment()
-				self[group]:Update()
-			end
-
-			if(db.enable  ~= true and group == "raidpet") then 
-				UnregisterStateDriver(self[group], "visibility")
-				self[group]:Hide()
-				return 
+	if frame.HealPrediction then
+		if db.predict then 
+			if not frame:IsElementEnabled('HealPrediction')then 
+				frame:EnableElement('HealPrediction')
 			end 
 		else 
-			self[group].db = db;
-			self[group].Update = AppendUpdateHandler(group)
+			if frame:IsElementEnabled('HealPrediction')then 
+				frame:DisableElement('HealPrediction')
+			end 
+		end
+	end 
 
-			if forceUpdate then 
-				self.HeaderUpdate[xname](self, self[group], db)
-			else 
-				self[group].Update()
+	--[[ DEBUFF HIGHLIGHT LAYOUT ]]--
+
+	if frame.Afflicted then
+		if self.db.debuffHighlighting then
+			if(template ~= "player" and template ~= "target" and template ~= "focus") then
+				frame.Afflicted:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]])
+			end
+			frame:EnableElement('Afflicted')
+		else 
+			frame:DisableElement('Afflicted')
+		end
+	end 
+
+	--[[ RANGE CHECK LAYOUT ]]--
+
+	if frame.Range then 
+		frame.Range.outsideAlpha = self.db.OORAlpha or 1;
+		if db.rangeCheck then 
+			if not frame:IsElementEnabled('Range')then 
+				frame:EnableElement('Range')
+			end  
+		else 
+			if frame:IsElementEnabled('Range')then 
+				frame:DisableElement('Range')
 			end 
 		end 
-	end
-end
-
+	end 
+end 
+--[[ 
+########################################################## 
+EVENTS AND INITIALIZE
+##########################################################
+]]--
 function MOD:FrameForge()
-	if not LoadedBasicFrames then
-		self:SetBasicFrame("player")
-		self:SetBasicFrame("pet")
-		self:SetBasicFrame("pettarget")
-		self:SetBasicFrame("target")
-		self:SetBasicFrame("targettarget")
-		self:SetBasicFrame("focus")
-		self:SetBasicFrame("focustarget")
-		LoadedBasicFrames = true;
+	if not LoadedUnitFrames then
+		self:SetUnitFrame("player")
+		self:SetUnitFrame("pet")
+		self:SetUnitFrame("pettarget")
+		self:SetUnitFrame("target")
+		self:SetUnitFrame("targettarget")
+		self:SetUnitFrame("focus")
+		self:SetUnitFrame("focustarget")
+		self:SetEnemyFrames("boss", MAX_BOSS_FRAMES)
+		self:SetEnemyFrames("arena", 5)
+		LoadedUnitFrames = true;
 	end
 
-	if not LoadedExtraFrames then
-		self:SetExtraFrame("boss", MAX_BOSS_FRAMES)
-		self:SetExtraFrame("arena", 5)
-		LoadedExtraFrames = true;
-	end
-
-	if not LoadedGroupFrames then
+	if not LoadedGroupHeaders then
 		self:SetGroupFrame("raid10")
 		self:SetGroupFrame("raid25")
 		self:SetGroupFrame("raid40")
@@ -678,19 +1080,11 @@ function MOD:FrameForge()
 		self:SetGroupFrame("party", nil, "SVUI_UNITPET, SVUI_UNITTARGET")
 		self:SetGroupFrame("tank", "MAINTANK", "SVUI_UNITTARGET")
 		self:SetGroupFrame("assist", "MAINASSIST", "SVUI_UNITTARGET")
-		for i, group in pairs(LoadedGroupFrames)do
-			local filter, template1, template2;
-			local config = group_settings[i]
-			if(type(config) == "table") then 
-				filter, template1, template2 = unpack(config)
-			end
-			MOD:SetGroupFrame(group, filter, template1, nil, template2)
-		end
-		LoadedGroupFrames = true
+		LoadedGroupHeaders = true
 	end
 
-	MOD:UnProtect("FrameForge");
-	MOD:Protect("RefreshUnitFrames");
+	self:UnProtect("FrameForge");
+	self:Protect("RefreshUnitFrames");
 end
 
 function MOD:KillBlizzardRaidFrames()
@@ -703,79 +1097,16 @@ function MOD:KillBlizzardRaidFrames()
 	end
 end
 
-function oUF_SuperVillain:DisableBlizzard(unit)
-	if (not unit) or InCombatLockdown() then return end
-	if (unit == "player") then
-		KillBlizzardUnit(PlayerFrame)
-		PlayerFrame:RegisterUnitEvent("UNIT_ENTERING_VEHICLE", "player")
-		PlayerFrame:RegisterUnitEvent("UNIT_ENTERED_VEHICLE", "player")
-		PlayerFrame:RegisterUnitEvent("UNIT_EXITING_VEHICLE", "player")
-		PlayerFrame:RegisterUnitEvent("UNIT_EXITED_VEHICLE", "player")
-		PlayerFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
-		PlayerFrame:SetUserPlaced(true)
-		PlayerFrame:SetDontSavePosition(true)
-		RuneFrame:SetParent(PlayerFrame)
-	elseif(unit == "pet") then
-		KillBlizzardUnit(PetFrame)
-	elseif(unit == "target") then
-		KillBlizzardUnit(TargetFrame)
-		KillBlizzardUnit(ComboFrame)
-	elseif(unit == "focus") then
-		KillBlizzardUnit(FocusFrame)
-		KillBlizzardUnit(TargetofFocusFrame)
-	elseif(unit == "targettarget") then
-		KillBlizzardUnit(TargetFrameToT)
-	elseif(unit:match"(boss)%d?$" == "boss") then
-	local id = unit:match"boss(%d)"
-		if(id) then
-			KillBlizzardUnit("Boss"..id.."TargetFrame")
-		else
-			for i = 1, 4 do
-				KillBlizzardUnit(("Boss%dTargetFrame"):format(i))
-			end
-		end
-	elseif(unit:match"(party)%d?$" == "party") then
-		local id = unit:match"party(%d)"
-		if(id) then
-			KillBlizzardUnit("PartyMemberFrame"..id)
-		else
-			for i = 1, 4 do
-				KillBlizzardUnit(("PartyMemberFrame%d"):format(i))
-			end
-		end
-	elseif(unit:match"(arena)%d?$" == "arena") then
-		local id = unit:match"arena(%d)"
-		if(id) then
-			KillBlizzardUnit("ArenaEnemyFrame"..id)
-			KillBlizzardUnit("ArenaPrepFrame"..id)
-			KillBlizzardUnit("ArenaEnemyFrame"..id.."PetFrame")
-		else
-			for i = 1, 5 do
-				KillBlizzardUnit(("ArenaEnemyFrame%d"):format(i))
-				KillBlizzardUnit(("ArenaPrepFrame%d"):format(i))
-				KillBlizzardUnit(("ArenaEnemyFrame%dPetFrame"):format(i))
-			end
-		end
-	end
-end
-
 function MOD:PLAYER_REGEN_DISABLED()
-	for _,frame in pairs(GroupFrames) do 
-		if frame.forceShow then 
+	for _,frame in pairs(self.Headers) do 
+		if frame and frame.forceShow then 
 			self:UpdateGroupConfig(frame)
 		end 
 	end
 
-	for _,unit in pairs(BasicFrames) do 
-		local frame = self[unit]
+	for _,frame in pairs(self.Units) do
 		if frame and frame.forceShow then 
 			self:RestrictElement(frame)
-		end 
-	end
-
-	for unit,group in pairs(ExtraFrames)do 
-		if(self[unit] and self[unit].isForced) then 
-			self:RestrictElement(self[unit])
 		end 
 	end
 end
@@ -794,10 +1125,6 @@ function MOD:PLAYER_ENTERING_WORLD()
 	end
 end
 
-function MOD:GROUP_ROSTER_UPDATE()
-	self:KillBlizzardRaidFrames()
-end
-
 local UnitFrameThreatIndicator_Hook = function(unit, unitFrame)
 	unitFrame:UnregisterAllEvents()
 end
@@ -806,30 +1133,27 @@ end
 BUILD FUNCTION / UPDATE
 ##########################################################
 ]]--
-function MOD:UpdateThisPackage()
+function MOD:ReLoad()
+	if(not SuperVillain.db.SVUnit.enable or SuperVillain.db.SVUnit.enable == false) then print("ReLoad Disabled") return end
 	self:RefreshUnitFrames()
 end
 
-function MOD:ConstructThisPackage()
+function MOD:Load()
+	if(not SuperVillain.db.SVUnit.enable or SuperVillain.db.SVUnit.enable == false) then print("Load Disabled") return end
 	self:RefreshUnitColors()
+
 	local SVUI_UnitFrameParent = CreateFrame("Frame", "SVUI_UnitFrameParent", SuperVillain.UIParent, "SecureHandlerStateTemplate")
 	RegisterStateDriver(SVUI_UnitFrameParent, "visibility", "[petbattle] hide; show")
-	oUF_SuperVillain:RegisterStyle("oUF_SuperVillain", function(frame, unit)
-		frame:SetScript("OnEnter", UnitFrame_OnEnter)
-		frame:SetScript("OnLeave", UnitFrame_OnLeave)
-		frame:SetFrameLevel(2)
-		local frameName = ExtraFrames[unit] or unit;
-		MOD.Construct[frameName](MOD, frame, unit);
-		return frame
-	end)
-	self:Protect("FrameForge", true);
-	-- self:SetFadeManager();
+
+	self:Protect("FrameForge", true)
 	self:RegisterEvent("PLAYER_ENTERING_WORLD")
-	--self:RegisterEvent("PLAYER_REGEN_DISABLED")
+	self:RegisterEvent("PLAYER_REGEN_DISABLED")
+
 	if SuperVillain.db.SVUnit.disableBlizzard then 
 		self:Protect("KillBlizzardRaidFrames", true);
 		NewHook("CompactUnitFrame_RegisterEvents", CompactUnitFrame_UnregisterEvents)
 		NewHook("UnitFrameThreatIndicator_Initialize", UnitFrameThreatIndicator_Hook)
+
 		InterfaceOptionsFrameCategoriesButton10:SetScale(0.0001)
 		InterfaceOptionsFrameCategoriesButton11:SetScale(0.0001)
 		InterfaceOptionsStatusTextPanelPlayer:SetScale(0.0001)
@@ -867,5 +1191,5 @@ function MOD:ConstructThisPackage()
 	rDebuffs.FilterDispellableDebuff = true;
 	rDebuffs.MatchBySpellName = true;
 end
+
 SuperVillain.Registry:NewPackage(MOD, "SVUnit", "pre");
-MOD:RegisterEvent('PLAYER_REGEN_DISABLED')

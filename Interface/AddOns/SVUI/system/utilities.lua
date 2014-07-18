@@ -36,8 +36,7 @@ local floor, modf = math.floor, math.modf;
 GET ADDON DATA
 ##########################################################
 ]]--
-local SuperVillain, L = unpack(select(2, ...));
-local LSM = LibStub("LibSharedMedia-3.0")
+local SuperVillain, L = unpack(select(2, ...))
 --[[ 
 ########################################################## 
 MISC UTILITY FUNCTIONS

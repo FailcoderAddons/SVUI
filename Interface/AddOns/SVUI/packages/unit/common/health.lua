@@ -27,26 +27,25 @@ GET ADDON DATA
 ##########################################################
 ]]--
 local SuperVillain, L = unpack(select(2, ...));
-local MOD = SuperVillain.Registry:Expose('SVUnit');
+local MOD = SuperVillain.Registry:Expose('SVUnit')
+if(not MOD) then return end;
 local _, ns = ...
 local oUF_SuperVillain = ns.oUF
 --[[ MUNGLUNCH's FASTER ASSERT FUNCTION ]]--
 local assert = enforce;
 assert(oUF_SuperVillain, "SVUI was unable to locate oUF.");
-local LSM = LibStub("LibSharedMedia-3.0");
 --[[ 
 ########################################################## 
 LOCAL FUNCTIONS
 ##########################################################
 ]]--
 local HEALTH_ANIM_FILE = [[Interface\Addons\SVUI\assets\artwork\Unitframe\UNIT-HEALTH-ANIMATION]];
-local DEAD_MODEL_FILE = [[Spells\Monk_travelingmist_missile.m2]];
 
 local Anim_OnUpdate = function(self)
 	local parent = self.parent
 	local coord = self._coords;
 	parent:SetTexCoord(coord[1],coord[2],coord[3],coord[4])
-end;
+end 
 
 local Anim_OnPlay = function(self)
 	local parent = self.parent
@@ -54,7 +53,7 @@ local Anim_OnPlay = function(self)
 	if not parent:IsShown() then
 		parent:Show()
 	end
-end;
+end 
 
 local Anim_OnStop = function(self)
 	local parent = self.parent
@@ -62,7 +61,7 @@ local Anim_OnStop = function(self)
 	if parent:IsShown() then
 		parent:Hide()
 	end
-end;
+end 
 
 local function SetNewAnimation(frame, animType, parent)
 	local anim = frame:CreateAnimation(animType, subType)
@@ -185,7 +184,7 @@ local CustomUpdate = function(self, event, unit)
 		health:SetStatusBarColor(0.6,0.4,1,0.5)
 		health.animation[1]:SetVertexColor(0.8,0.3,1,0.4)
 	elseif(health.colorOverlay) then
-		local t = health.colors.health
+		local t = oUF_SuperVillain.colors.health
 		health:SetStatusBarColor(t[1], t[2], t[3], 0.9)
 	else
 		health:SetStatusBarColor(1, 0.25 * mu, 0, 0.85)
@@ -208,28 +207,12 @@ local CustomUpdate = function(self, event, unit)
 
 	if self.ResurrectIcon then 
 		self.ResurrectIcon:SetAlpha(min == 0 and 1 or 0)
-	end;
+	end 
 	if self.isForced then 
 		local current = random(1,max)
 		health:SetValue(-current)
-	end;
-
-	local portrait = self.Portrait
-	if(portrait and portrait:IsObjectType'Model') then
-		if(UnitIsDeadOrGhost(unit) and not portrait.isdead) then
-			portrait:SetCamDistanceScale(1)
-			portrait:SetPortraitZoom(0)
-			portrait:SetPosition(4,-1,1)
-			portrait:ClearModel()
-			portrait:SetModel(DEAD_MODEL_FILE)
-			portrait.isdead = true
-			portrait.guid = nil
-		elseif(not UnitIsDeadOrGhost(unit) and portrait.isdead == true) then
-			portrait.isdead = nil
-			MOD.Update3DPortrait(self, event, unit)
-		end
 	end
-end;
+end 
 
 local Update = function(self, event, unit)
 	if(self.unit ~= unit) or not unit then return end
@@ -255,18 +238,18 @@ local Update = function(self, event, unit)
 	end
 
 	local bg = health.bg;
-	local db = self:GetParent().db or SuperVillain.db.SVUnit;
+	local db = MOD.db or SuperVillain.db.SVUnit;
 	local r, g, b, t, t2;
 
 	if(health.colorTapping and not UnitPlayerControlled(unit) and UnitIsTapped(unit) and not UnitIsTappedByPlayer(unit) and not UnitIsTappedByAllThreatList(unit)) then
-		t = health.colors.tapped
+		t = oUF_SuperVillain.colors.tapped
 	elseif(health.colorDisconnected and not UnitIsConnected(unit)) then
-		t = health.colors.disconnected
+		t = oUF_SuperVillain.colors.disconnected
 	elseif(health.colorClass and UnitIsPlayer(unit)) or
 		(health.colorClassNPC and not UnitIsPlayer(unit)) or
 		(health.colorClassPet and UnitPlayerControlled(unit) and not UnitIsPlayer(unit)) then
 		local _, class = UnitClass(unit)
-		local tmp = oUF_SuperVillain.colors.class[class] or health.colors.health
+		local tmp = oUF_SuperVillain.colors.class[class] or oUF_SuperVillain.colors.health
 		t = {(tmp[1] * 0.75),(tmp[2] * 0.75),(tmp[3] * 0.75)}
 		if(bg and db.classbackdrop and UnitIsPlayer(unit)) then
 			t2 = t
@@ -279,7 +262,7 @@ local Update = function(self, event, unit)
 	elseif(health.colorSmooth) then
 		r, g, b = oUF_SuperVillain.ColorGradient(min, max, unpack(health.smoothGradient or oUF_SuperVillain.colors.smooth))
 	elseif(health.colorHealth) then
-		t = health.colors.health
+		t = oUF_SuperVillain.colors.health
 	end
 
 	if(t) then
@@ -302,29 +285,13 @@ local Update = function(self, event, unit)
 
 	if self.ResurrectIcon then 
 		self.ResurrectIcon:SetAlpha(min == 0 and 1 or 0)
-	end;
+	end 
 	if self.isForced then 
 		min = random(1,max)
 		health:SetValue(min)
-	end;
-	if self.db and self.db.gridMode then 
+	end 
+	if(db.gridMode) then 
 		health:SetOrientation("VERTICAL")
-	end;
-
-	local portrait = self.Portrait
-	if(portrait and portrait:IsObjectType'Model') then
-		if(UnitIsDeadOrGhost(unit) and not portrait.isdead) then
-			portrait:SetCamDistanceScale(1)
-			portrait:SetPortraitZoom(0)
-			portrait:SetPosition(4,-1,1)
-			portrait:ClearModel()
-			portrait:SetModel(DEAD_MODEL_FILE)
-			portrait.isdead = true
-			portrait.guid = nil
-		elseif(not UnitIsDeadOrGhost(unit) and portrait.isdead == true) then
-			portrait.isdead = nil
-			MOD.Update3DPortrait(self, event, unit)
-		end
 	end
 end
 --[[ 
@@ -332,14 +299,10 @@ end
 BUILD FUNCTION
 ##########################################################
 ]]--
-function MOD:CreateHealthBar(frame, hasbg, text, reverse)
+function MOD:CreateHealthBar(frame, hasbg, reverse)
 	local healthBar = CreateFrame("StatusBar", nil, frame)
 	healthBar:SetFrameStrata("LOW")
 	healthBar:SetFrameLevel(4)
-	healthBar.colors = {}
-	healthBar.colors.health = oUF_SuperVillain.colors.health
-	healthBar.colors.tapped = oUF_SuperVillain.colors.tapped
-	healthBar.colors.disconnected = oUF_SuperVillain.colors.disconnected
 	healthBar:SetStatusBarTexture(SuperVillain.Media.bar.default)
 	if hasbg then 
 		healthBar.bg = healthBar:CreateTexture(nil, "BORDER")
@@ -347,7 +310,7 @@ function MOD:CreateHealthBar(frame, hasbg, text, reverse)
 		healthBar.bg:SetTexture(SuperVillain.Media.bar.gradient)
 		healthBar.bg:SetVertexColor(0.4, 0.1, 0.1)
 		healthBar.bg.multiplier = 0.25
-	end;
+	end 
 
 	local flasher = CreateFrame("Frame", nil, frame)
 	flasher:SetFrameLevel(3)
@@ -360,17 +323,7 @@ function MOD:CreateHealthBar(frame, hasbg, text, reverse)
 	flasher[1]:SetBlendMode("ADD")
 	flasher[1]:SetAllPoints(flasher)
 	SetAnim(flasher[1], flasher)
-	flasher:Hide()
-
-	if text then 
-		healthBar.value = healthBar:CreateFontString(nil, "OVERLAY")
-		healthBar.value.db = "health"
-		MOD:SetUnitFont(healthBar.value)
-		healthBar.value:SetParent(frame.InfoPanel)
-		local offset = reverse and 2 or -2;
-		local direction = reverse and "LEFT" or "RIGHT";
-		healthBar.value:Point(direction, healthBar, direction, offset, 0)
-	end;
+	flasher:Hide() 
 
 	healthBar.animation = flasher
 	healthBar.noupdate = false;
@@ -379,18 +332,12 @@ function MOD:CreateHealthBar(frame, hasbg, text, reverse)
 	healthBar.colorDisconnected = true
 	healthBar.Override = Update;
 	return healthBar 
-end;
+end 
 
-function MOD:RefreshHealthBar(frame)
-	if(frame.db and frame.db.portrait) then
-		local db = frame.db.portrait
-		local useOverlayHealth = (db.enable and db.overlay);
-		if useOverlayHealth then
-			frame.Health:SetStatusBarTexture(SuperVillain.Media.bar.default)
-			frame.Health.Override = CustomUpdate;
-		else
-			frame.Health:SetStatusBarTexture(LSM:Fetch("statusbar", MOD.db.statusbar))
-			frame.Health.Override = Update;
-		end
-	end;
+function MOD:RefreshHealthBar(frame, overlay)
+	if(overlay) then
+		frame.Health.Override = CustomUpdate;
+	else
+		frame.Health.Override = Update;
+	end 
 end

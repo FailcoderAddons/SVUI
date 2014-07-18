@@ -44,8 +44,6 @@ GET ADDON DATA
 ]]--
 local SuperVillain, L = unpack(select(2, ...));
 local MOD = {};
-local DOCK = SuperVillain.Registry:Expose('SVDock');
-local LSM = LibStub("LibSharedMedia-3.0");
 --[[ 
 ########################################################## 
 LOCAL VARS
@@ -396,7 +394,7 @@ do
 			LeftSuperDock.editboxforced = true;
 			LeftSuperDockToggleButton:GetScript("OnEnter")(LeftSuperDockToggleButton)
 		end
-		DOCK:DockAlertLeftOpen(self)
+		SuperDockAlertLeft:Activate(self)
 	end
 
 	local EditBox_OnEditFocusLost = function(self)
@@ -407,7 +405,7 @@ do
 			end 
 		end;
 		self:Hide()
-		DOCK:DockAlertLeftClose()
+		SuperDockAlertLeft:Deactivate()
 	end
 
 	local EditBox_OnTextChanged = function(self)
@@ -645,17 +643,17 @@ do
 		CHAT_ALLOW_URL = MOD.db.url;
 		CHAT_HOVER_URL = MOD.db.hyperlinkHover;
 		CHAT_STICKY = MOD.db.sticky;
-		CHAT_FONT = LSM:Fetch("font", MOD.db.font);
+		CHAT_FONT = SuperVillain.Shared:Fetch("font", MOD.db.font);
 		CHAT_FONTSIZE = SuperVillain.db.media.fonts.size or 12;
 		CHAT_FONTOUTLINE = MOD.db.fontOutline;
 		TAB_WIDTH = MOD.db.tabWidth;
 		TAB_HEIGHT = MOD.db.tabHeight;
 		TAB_SKINS = MOD.db.tabStyled;
-		TAB_FONT = LSM:Fetch("font", MOD.db.tabFont);
+		TAB_FONT = SuperVillain.Shared:Fetch("font", MOD.db.tabFont);
 		TAB_FONTSIZE = MOD.db.tabFontSize;
 		TAB_FONTOUTLINE = MOD.db.tabFontOutline;
 		CHAT_FADING = MOD.db.fade;
-		CHAT_PSST = LSM:Fetch("sound", MOD.db.psst);
+		CHAT_PSST = SuperVillain.Shared:Fetch("sound", MOD.db.psst);
 		TIME_STAMP_MASK = MOD.db.timeStampFormat;
 		if(throttle and throttle == 0) then
 			twipe(THROTTLE_CACHE)
@@ -872,11 +870,11 @@ do
 	end
 end;
 
-function MOD:UpdateThisPackage()
+function MOD:ReLoad()
 	self:RefreshChatFrames(true) 
 end;
 
-function MOD:ConstructThisPackage()
+function MOD:Load()
 	if(not SuperVillain.db.SVChat.enable) then return end;
 	self:RegisterEvent('UPDATE_CHAT_WINDOWS', 'RefreshChatFrames')
 	self:RegisterEvent('UPDATE_FLOATING_CHAT_WINDOWS', 'RefreshChatFrames')

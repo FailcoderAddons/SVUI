@@ -41,6 +41,10 @@ LOCAL VARS
 ##########################################################
 ]]--
 local scale;
+local rez = GetCVar("gxResolution");
+local gxHeight = tonumber(match(rez,"%d+x(%d+)"));
+local gxWidth = tonumber(match(rez,"(%d+)x%d+"));
+local evalwidth
 --[[ 
 ########################################################## 
 CORE FUNCTIONS
@@ -48,35 +52,47 @@ CORE FUNCTIONS
 ]]--
 function SuperVillain:UIScale(event)
     self.ghettoMonitor = nil;
-    if IsMacClient() and self.db.screenheight and self.db.screenwidth then 
-        if self.screenheight ~= self.db.screenheight or self.screenwidth ~= self.db.screenwidth then 
-            self.screenheight = self.db.screenheight;
-            self.screenwidth = self.db.screenwidth 
+    if(IsMacClient() and SVUI_Cache and SVUI_Cache.screenheight and SVUI_Cache.screenwidth) then
+        if(gxHeight ~= SVUI_Cache.screenheight or gxWidth ~= SVUI_Cache.screenwidth) then 
+            gxHeight = SVUI_Cache.screenheight;
+            gxWidth = SVUI_Cache.screenwidth 
         end 
     end;
     
     if self.db.system.autoScale then
-        scale = max(0.64, min(1.15, 768 / self.screenheight))
+        scale = max(0.64, min(1.15, 768 / gxHeight))
     else
-        scale = max(0.64, min(1.15, GetCVar("uiScale") or UIParent:GetScale() or 768 / self.screenheight))
+        scale = max(0.64, min(1.15, GetCVar("uiScale") or UIParent:GetScale() or 768 / gxHeight))
     end
-    if self.screenwidth < 1600 then
+    if gxWidth < 1600 then
             self.ghettoMonitor = true;
-    elseif self.screenwidth >= 3840 then
-        local width = self.screenwidth;
-        local height = self.screenheight;
-        if width >= 9840 then width = 3280; end
-        if width >= 7680 and width < 9840 then width = 2560; end
-        if width >= 5760 and width < 7680 then width = 1920; end
-        if width >= 5040 and width < 5760 then width = 1680; end
-        if width >= 4800 and width < 5760 and height == 900 then width = 1600; end
-        if width >= 4320 and width < 4800 then width = 1440; end
-        if width >= 4080 and width < 4320 then width = 1360; end
-        if width >= 3840 and width < 4080 then width = 1224; end
-        if width < 1600 then
-            self.ghettoMonitor = true;
+    elseif gxWidth >= 3840 then
+        local width = gxWidth;
+        local height = gxHeight;
+        if(self.db.system.multiMonitor) then
+            if width >= 9840 then width = 3280; end
+            if width >= 7680 and width < 9840 then width = 2560; end
+            if width >= 5760 and width < 7680 then width = 1920; end
+            if width >= 5040 and width < 5760 then width = 1680; end
+            if width >= 4800 and width < 5760 and height == 900 then width = 1600; end
+            if width >= 4320 and width < 4800 then width = 1440; end
+            if width >= 4080 and width < 4320 then width = 1360; end
+            if width >= 3840 and width < 4080 then width = 1224; end
+            if width < 1600 then
+                self.ghettoMonitor = true;
+            end
+        else
+            if width >= 9840 then width = 9840; end
+            if width >= 7680 and width < 9840 then width = 7680; end
+            if width >= 5760 and width < 7680 then width = 5760; end
+            if width >= 5040 and width < 5760 then width = 5040; end
+            if width >= 4800 and width < 5040 then width = 4800; end
+            if width >= 4320 and width < 4800 then width = 4320; end
+            if width >= 4080 and width < 4320 then width = 4080; end
+            if width >= 3840 and width < 4080 then width = 3840; end
         end
-        self.evaluatedWidth = width;
+        
+        evalwidth = width;
     end
 
     self.mult = 768 / match(GetCVar("gxResolution"), "%d+x(%d+)") / scale;
@@ -89,17 +105,17 @@ function SuperVillain:UIScale(event)
 
     if(event == 'PLAYER_LOGIN' or event == 'UI_SCALE_CHANGED') then
         if IsMacClient() then 
-            self.db.screenheight = floor(GetScreenHeight() * 100 + .5) / 100
-            self.db.screenwidth = floor(GetScreenWidth() * 100 + .5) / 100
+            SVUI_Cache.screenheight = floor(GetScreenHeight() * 100 + .5) / 100
+            SVUI_Cache.screenwidth = floor(GetScreenWidth() * 100 + .5) / 100
         end;
 
-        if self.evaluatedWidth then
-            local width = self.evaluatedWidth;
-            local height = self.screenheight;
+        if evalwidth then
+            local width = evalwidth
+            local height = gxHeight;
             if not self.db.system.autoScale or height > 1200 then
                 local h = UIParent:GetHeight();
-                local ratio = self.screenheight / h;
-                local w = self.evaluatedWidth / ratio;
+                local ratio = gxHeight / h;
+                local w = evalwidth / ratio;
                 
                 width = w;
                 height = h; 

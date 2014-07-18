@@ -14,143 +14,136 @@ S U P E R - V I L L A I N - U I   By: Munglunch                              #
 ##############################################################################
 --]]
 local SuperVillain, L = unpack(select(2, ...));
-local MOD = SuperVillain.Registry:Expose('SVUnit');
+local MOD = SuperVillain.Registry:Expose('SVUnit')
+if(not MOD) then return end;
 local _, ns = ...
 local oUF_SuperVillain = ns.oUF
 --[[ MUNGLUNCH's FASTER ASSERT FUNCTION ]]--
 local assert = enforce;
 assert(oUF_SuperVillain, "SVUI was unable to locate oUF.");
-local LSM = LibStub("LibSharedMedia-3.0");
 --[[ 
 ########################################################## 
 LOCAL VARIABLES
 ##########################################################
 ]]--
 local random = math.random;
-local token={[0]="MANA",[1]="RAGE",[2]="FOCUS",[3]="ENERGY",[6]="RUNIC_POWER"}
+local token = {[0] = "MANA", [1] = "RAGE", [2] = "FOCUS", [3] = "ENERGY", [6] = "RUNIC_POWER"}
 --[[ 
 ########################################################## 
 LOCAL FUNCTIONS
 ##########################################################
 ]]--
-local PostUpdateAltPower = function(self,min,current,max)
-	local remaining=floor(current / max * 100)
-	local parent=self:GetParent()
+local PostUpdateAltPower = function(self, min, current, max)
+	local remaining = floor(current  /  max  *  100)
+	local parent = self:GetParent()
 	if remaining < 35 then 
-		self:SetStatusBarColor(0,1,0)
+		self:SetStatusBarColor(0, 1, 0)
 	elseif remaining < 70 then 
-		self:SetStatusBarColor(1,1,0)
+		self:SetStatusBarColor(1, 1, 0)
 	else 
-		self:SetStatusBarColor(1,0,0)
-	end;
-	local unit=parent.unit;
+		self:SetStatusBarColor(1, 0, 0)
+	end 
+	local unit = parent.unit;
 	if(unit == "player" and self.text) then 
-		local apInfo=select(10,UnitAlternatePowerInfo(unit))
+		local apInfo = select(10, UnitAlternatePowerInfo(unit))
 		if remaining > 0 then 
-			self.text:SetText(apInfo..": "..format("%d%%",remaining))
+			self.text:SetText(apInfo..": "..format("%d%%", remaining))
 		else 
 			self.text:SetText(apInfo..": 0%")
 		end 
 	elseif(unit and unit:find("boss%d") and self.text) then 
 		self.text:SetTextColor(self:GetStatusBarColor())
-		if not parent.Power.value:GetText() or parent.Power.value:GetText()=="" then 
-			self.text:Point("BOTTOMRIGHT",parent.Health,"BOTTOMRIGHT")
+		if not parent.InfoPanel.Power:GetText() or parent.InfoPanel.Power:GetText() == "" then 
+			self.text:Point("BOTTOMRIGHT", parent.Health, "BOTTOMRIGHT")
 		else 
-			self.text:Point("RIGHT", parent.Power.value.value, "LEFT", 2, 0)
-		end;
+			self.text:Point("RIGHT", parent.InfoPanel.Power, "LEFT", 2, 0)
+		end 
 		if remaining > 0 then 
-			self.text:SetText("|cffD7BEA5[|r"..format("%d%%",remaining).."|cffD7BEA5]|r")
+			self.text:SetText("|cffD7BEA5[|r"..format("%d%%", remaining).."|cffD7BEA5]|r")
 		else 
 			self.text:SetText(nil)
 		end 
 	end 
-end;
+end 
 --[[ 
 ########################################################## 
 BUILD FUNCTION
 ##########################################################
 ]]--
-function MOD:CreatePowerBar(frame,bg,text,direction)
-	local power=CreateFrame('StatusBar',nil,frame)
-	MOD:SetUnitStatusbar(power)
-	power:SetPanelTemplate("Inset")
+function MOD:CreatePowerBar(frame, bg)
+	local power = CreateFrame("StatusBar", nil, frame)
+	power:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Bars\DEFAULT]])
+	power:SetPanelTemplate("Bar")
 	if bg then 
-		power.bg=power:CreateTexture(nil,'BORDER')
+		power.bg = power:CreateTexture(nil, "BORDER")
 		power.bg:SetAllPoints()
 		power.bg:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]])
-		power.bg.multiplier=0.2 
-	end;
-	if text then 
-		power.value=frame.InfoPanel:CreateFontString(nil,'OVERLAY')
-		power.value.db='power'MOD:SetUnitFont(power.value)
-		power.value:SetParent(frame.InfoPanel)
-		local offset = -2;
-		if direction=='LEFT'then offset=2 end;
-		power.value:Point(direction,frame.Health,direction,offset,0)
-	end;
-	power.colorDisconnected=false;
-	power.colorTapping=false;
-	power.PostUpdate=MOD.PostUpdatePower;
+		power.bg.multiplier = 0.2 
+	end 
+	power.colorDisconnected = false;
+	power.colorTapping = false;
+	power.PostUpdate = MOD.PostUpdatePower;
 	return power 
-end;
+end 
 
 function MOD:CreateAltPowerBar(frame)
-	local altPower = CreateFrame("StatusBar",nil,frame)
-	MOD:SetUnitStatusbar(altPower)
-	altPower:SetPanelTemplate("Inset")
+	local altPower = CreateFrame("StatusBar", nil, frame)
+	altPower:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Bars\DEFAULT]])
+	altPower:SetPanelTemplate("Bar")
 	altPower:GetStatusBarTexture():SetHorizTile(false)
 	altPower:SetFrameStrata("MEDIUM")
-	altPower.text = altPower:CreateFontString(nil,'OVERLAY')
+	altPower.text = altPower:CreateFontString(nil, "OVERLAY")
 	altPower.text:SetPoint("CENTER")
 	altPower.text:SetJustifyH("CENTER")
-	MOD:SetUnitFont(altPower.text)
+	altPower.text:SetFont(SuperVillain.Shared:Fetch("font", MOD.db.font), MOD.db.fontSize, MOD.db.fontOutline)
 	altPower.PostUpdate = PostUpdateAltPower;
 	return altPower 
-end;
+end 
 --[[ 
 ########################################################## 
 UPDATE
 ##########################################################
 ]]--
-function MOD:PowerUpdateNamePosition(frame,unit)
-	if not frame.Power.value:IsShown() or not frame.Name then return end;
-	local db = frame.db;
-	local parent = frame.Name:GetParent()
+local function PowerUpdateNamePosition(frame, unit)
+	local panel = frame.InfoPanel
+	if(not panel.Power or (panel.Power and not panel.Power:IsShown()) or not panel.Name) then return end
+	local db = MOD.db[unit]
+	local parent = panel.Name:GetParent()
 	if UnitIsPlayer(unit)then 
 		local point = db.name.position;
-		frame.Power.value:SetAlpha(1)
-		frame.Name:ClearAllPoints()
-		SuperVillain:ReversePoint(frame.Name, point, parent, db.name.xOffset, db.name.yOffset)
+		panel.Power:SetAlpha(1)
+		panel.Name:ClearAllPoints()
+		SuperVillain:ReversePoint(panel.Name, point, parent, db.name.xOffset, db.name.yOffset)
 	else 
-		frame.Power.value:SetAlpha(db.power.hideonnpc and 0 or 1)
-		frame.Name:ClearAllPoints()
-		frame.Name:SetPoint(frame.Power.value:GetPoint())
-	end;
-end;
+		panel.Power:SetAlpha(db.power.hideonnpc and 0 or 1)
+		panel.Name:ClearAllPoints()
+		panel.Name:SetPoint(panel.Power:GetPoint())
+	end 
+end 
 
-function MOD:PostUpdatePower(unit,value,max)
-	local powerType,_,_,_,_ = UnitPowerType(unit)
-	local parent=self:GetParent()
+function MOD:PostUpdatePower(unit, value, max)
+	local db = MOD.db[unit]
+	local powerType, _, _, _, _ = UnitPowerType(unit)
+	local parent = self:GetParent()
 	if parent.isForced then
 		value = random(1, max)
 		powerType = random(0, 4)
 		self:SetValue(value)
-	end;
-	local colors=oUF_SuperVillain.colors.power[token[powerType]]
+	end 
+	local colors = oUF_SuperVillain.colors.power[token[powerType]]
 	local mult = self.bg.multiplier or 1;
 	local isPlayer = UnitPlayerControlled(unit)
 	if isPlayer and self.colorClass then 
-		local _,class=UnitClassBase(unit);
-		colors=oUF_SuperVillain['colors'].class[class]
+		local _, class = UnitClassBase(unit);
+		colors = oUF_SuperVillain["colors"].class[class]
 	elseif not isPlayer then 
-		local react=UnitReaction("player",unit)
-		colors=oUF_SuperVillain['colors'].reaction[react]
-	end;
-	if not colors then return end
-	self:SetStatusBarColor(colors[1],colors[2],colors[3])
-	self.bg:SetVertexColor(colors[1]*mult,colors[2]*mult,colors[3]*mult)
-	local db=parent.db;
-	if db and db.power and db.power.hideonnpc then 
-		MOD:PowerUpdateNamePosition(parent,unit)
+		local react = UnitReaction("player", unit)
+		colors = oUF_SuperVillain["colors"].reaction[react]
 	end 
-end;
+	if not colors then return end
+	self:SetStatusBarColor(colors[1], colors[2], colors[3])
+	self.bg:SetVertexColor(colors[1] * mult, colors[2] * mult, colors[3] * mult)
+	if db and db.power and db.power.hideonnpc then 
+		PowerUpdateNamePosition(parent, unit)
+	end
+end 

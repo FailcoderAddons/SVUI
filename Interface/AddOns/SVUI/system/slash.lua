@@ -25,21 +25,27 @@ local lower, trim = string.lower, string.trim
 GLOBAL SLASH FUNCTIONS
 ##########################################################
 ]]--
-function FishingMode()
+function SVUIFishingMode()
 	if InCombatLockdown() then SuperVillain:AddonMessage(ERR_NOT_IN_COMBAT); return; end
 	if SuperVillain.Modes.CurrentMode and SuperVillain.Modes.CurrentMode == "Fishing" then SuperVillain.Modes:EndJobModes() else SuperVillain.Modes:SetJobMode("Fishing") end
 end
-function FarmingMode()
+function SVUIFarmingMode()
 	if InCombatLockdown() then SuperVillain:AddonMessage(ERR_NOT_IN_COMBAT); return; end
 	if SuperVillain.Modes.CurrentMode and SuperVillain.CurrentMode == "Farming" then SuperVillain.Modes:EndJobModes() else SuperVillain.Modes:SetJobMode("Farming") end
 end
-function ArchaeologyMode()
+function SVUIArchaeologyMode()
 	if InCombatLockdown() then SuperVillain:AddonMessage(ERR_NOT_IN_COMBAT); return; end
 	if SuperVillain.Modes.CurrentMode and SuperVillain.Modes.CurrentMode == "Archaeology" then SuperVillain.Modes:EndJobModes() else SuperVillain.Modes:SetJobMode("Archaeology") end
 end
-function CookingMode()
+function SVUICookingMode()
 	if InCombatLockdown() then SuperVillain:AddonMessage(ERR_NOT_IN_COMBAT); return; end
 	if SuperVillain.Modes.CurrentMode and SuperVillain.Modes.CurrentMode == "Cooking" then SuperVillain.Modes:EndJobModes() else SuperVillain.Modes:SetJobMode("Cooking") end
+end
+function SVUISayIncoming()
+	local subzoneText = GetSubZoneText()
+	local msg = ("{rt8} Incoming %s {rt8}"):format(subzoneText)
+	SendChatMessage(msg, "INSTANCE_CHAT")
+	return
 end
 --[[ 
 ########################################################## 
@@ -58,13 +64,13 @@ local function SVUIMasterCommand(msg)
 		elseif (msg == "reset" or msg == "resetui") then
 			SuperVillain:ResetAllUI()
 		elseif (msg == "fish" or msg == "fishing") then
-			FishingMode()
+			SVUIFishingMode()
 		elseif (msg == "farm" or msg == "farming") then
-			FarmingMode()
+			SVUIFarmingMode()
 		elseif (msg == "cook" or msg == "cooking") then
-			ArchaeologyMode()
+			SVUIArchaeologyMode()
 		elseif (msg == "dig" or msg == "survey" or msg == "archaeology") then
-			CookingMode()
+			SVUICookingMode()
 		elseif (msg == "bg" or msg == "pvp") then
 			local MOD = SuperVillain.Registry:Expose('SVStats')
 			MOD.ForceHideBGStats = nil;

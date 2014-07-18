@@ -57,41 +57,24 @@ if GetLocale() == "ruRU" then
     INFO_HEADER = "SuperVillain UI (устарела %.3f): Плагины";
 end
 
-local metatemplate = {__index = function(tbl, key) tbl[key] = {} return tbl[key] end}
-
-function SuperVillain:SetContainer()
-    local obj = {}
-    local addonmeta = {}
-    local oldmeta = getmetatable(obj)
-    if oldmeta then
-        for k, v in pairs(oldmeta) do addonmeta[k] = v end
-    end
-    addonmeta.__tostring = _addontostring
-
-    setmetatable( obj, addonmeta )
-    return obj
-end
-
 local function SetPrototype(obj)
     obj.db = {}
     obj._loaded = false
     obj.CombatLocked = false
-    obj.ChangeDBVar = function(obj, value, key, sub1, sub2)
-        --local debug = self:GetName()
-        if sub1 and sub2 and obj.db[sub1] and obj.db[sub1][sub2] then
-            --print(debug..": DB[" .. key .. "] " .. sub1 .. "." .. sub2)
+    obj.ChangeDBVar = function(obj, value, key, sub1, sub2, sub3)
+        if((sub1 and sub2 and sub3) and (obj.db[sub1] and obj.db[sub1][sub2] and obj.db[sub1][sub2][sub3])) then
+            obj.db[sub1][sub2][sub3][key] = value;
+            SuperVillain.db[obj._name][sub1][sub2][sub3][key] = value;
+        elseif((sub1 and sub2) and (obj.db[sub1] and obj.db[sub1][sub2])) then
             obj.db[sub1][sub2][key] = value;
             SuperVillain.db[obj._name][sub1][sub2][key] = value;
-        elseif sub1 and obj.db[sub1] then
-            --print(debug..": DB[" .. key .. "] " .. sub1)
+        elseif(sub1 and obj.db[sub1]) then
             obj.db[sub1][key] = value;
             SuperVillain.db[obj._name][sub1][key] = value;
         else
-            --print(debug..": DB[" .. key .. "]")
             obj.db[key] = value;
             SuperVillain.db[obj._name][key] = value;
         end
-        --print(value)
     end
     obj.Protect = function(obj, fnKey, autorun)
         SuperVillain.Security:Register(obj, fnKey, autorun);
@@ -118,7 +101,9 @@ local function SetPrototype(obj)
         obj.___eventframe:RegisterEvent(eventname)
     end
     obj.UnregisterEvent = function(obj, event, func)
-        obj.___eventframe:UnregisterEvent(event)
+        if(obj.___eventframe) then
+            obj.___eventframe:UnregisterEvent(event)
+        end
     end
     return obj
 end
@@ -148,9 +133,9 @@ local METAREGISTRY = function()
                     if SuperVillain.db[name] then
                         obj.db = SuperVillain.db[name]
                     end
-                    if obj.ConstructThisPackage then
-                        obj:ConstructThisPackage()
-                        obj.ConstructThisPackage = nil
+                    if obj.Load then
+                        obj:Load()
+                        obj.Load = nil
                     end
                     obj._loaded = true;
                 end 
@@ -158,8 +143,8 @@ local METAREGISTRY = function()
             _queue[priority] = nil
         end,
         Expose = function(_, name)
-            assert(_._packages[name], "Expose: The package " .. name .. " does not exist");
-            return _._packages[name]
+            --assert(_._packages[name], "Expose: The package " .. name .. " does not exist");
+            return _._packages[name] or false
         end,
         SetCallback = function(_, fn)
             if(fn and type(fn) == "function") then
@@ -192,11 +177,11 @@ local METAREGISTRY = function()
             setmetatable( obj, addonmeta )
             _._packages[name] = SetPrototype(obj)
 
-            -- if(SuperVillain.CoreEnabled) then 
-            --     if(_packages[name].ConstructThisPackage) then 
-            --         _packages[name]:ConstructThisPackage()
-            --     end
-            -- end
+            if(SuperVillain.CoreEnabled) then 
+                if(_._packages[name].Load) then 
+                    _._packages[name]:Load()
+                end
+            end
         end,
         FetchPlugins = function(_)
             local list = "";
@@ -250,20 +235,6 @@ local METAREGISTRY = function()
             end
             _._plugins[name] = plugin
         end,
-        PreLoad = function(_)
-            _:_loadPkg(1)
-        end,
-        Load = function(_)
-            _:_loadPkg(2)
-            _:_loadPkg(3)
-            local count = #tempScripts
-            for i=1, count do 
-                local fn = tempScripts[i]
-                if(fn and type(fn) == "function") then
-                    fn()
-                end 
-            end
-        end,
         RunTemp = function(_, name)
             local t = _._packages[name]
             for i,fn in pairs(tempMethods[name]) do
@@ -282,7 +253,7 @@ local METAREGISTRY = function()
             end
         end,
         Temp = function(_, name, func)
-            assert(_._packages[name], "Temp: The package " .. name .. " does not exist");
+            --assert(_._packages[name], "Temp: The package " .. name .. " does not exist");
             if(not tempMethods[name]) then
                 tempMethods[name] = {}
             end
@@ -290,34 +261,50 @@ local METAREGISTRY = function()
             t[#t + 1] = func
         end,
         Update = function(_, name, dataOnly)
-            assert(_._packages[name], "Update: The package " .. name .. " does not exist");
+            --assert(_._packages[name], "Update: The package " .. name .. " does not exist");
             local obj = _._packages[name]
             if obj then
                 if SuperVillain.db[name] then
                     obj.db = SuperVillain.db[name]
                 end
-                if obj.UpdateThisPackage and not dataOnly then
-                    obj:UpdateThisPackage()
+                if obj.ReLoad and not dataOnly then
+                    obj:ReLoad()
                 end
             end
         end,
         UpdateAll = function(_)
-            for priority = 1,3 do
-                if _._packages[priority] then
-                    local updList = _._packages[priority]
-                    for i=1,#_packages[priority] do
-                        local obj = updList[i]
-                        local name = obj._name
-                        if obj and obj.UpdateThisPackage then
-                            if SuperVillain.db[name] then
-                                obj.db = SuperVillain.db[name]
-                            end
-                            obj:UpdateThisPackage()
-                        end 
+            print("Registry: Updating")
+            local pkgList = _._packages
+            for name,obj in pairs(pkgList) do
+                print(name)
+                local name = obj._name
+                if obj and obj.ReLoad then
+                    if SuperVillain.db[name] then
+                        obj.db = SuperVillain.db[name]
                     end
+                    obj:ReLoad()
                 end
             end
-        end
+        end,
+
+        --construct stored classes
+        
+        Lights = function(_)
+            _:_loadPkg(1)
+        end,
+        Camera = function(_)
+            _:_loadPkg(2)
+            _:_loadPkg(3)
+        end,
+        Action = function(_)
+            local count = #tempScripts
+            for i=1, count do 
+                local fn = tempScripts[i]
+                if(fn and type(fn) == "function") then
+                    fn()
+                end 
+            end
+        end,
     };
     local mt ={
         __index = function(t,  k)

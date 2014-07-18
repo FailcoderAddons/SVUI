@@ -26,7 +26,8 @@ GET ADDON DATA
 ##########################################################
 ]]--
 local SuperVillain, L = unpack(select(2, ...));
-local MOD = SuperVillain.Registry:Expose('SVUnit');
+local MOD = SuperVillain.Registry:Expose('SVUnit')
+if(not MOD) then return end;
 local _, ns = ...
 local oUF_SuperVillain = ns.oUF
 --[[ MUNGLUNCH's FASTER ASSERT FUNCTION ]]--

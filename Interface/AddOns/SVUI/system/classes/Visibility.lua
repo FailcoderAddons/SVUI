@@ -32,10 +32,9 @@ local SuperVillain, L = unpack(select(2, ...));
 LOCALS
 ##########################################################
 ]]--
+local DisplayEventHandler = CreateFrame("Frame");
 local SecureFadeManager = CreateFrame("Frame");
 local SecureFadeFrames = {};
-local StealthFrame = CreateFrame("Frame");
-StealthFrame:Hide();
 --[[ 
 ########################################################## 
 FRAME VISIBILITY MANAGEMENT
@@ -51,10 +50,10 @@ function SuperVillain:FlushDisplayAudit()
     if InCombatLockdown() then return end;
     for frame,_ in pairs(self.DisplayAudit)do 
         if _G[frame] then 
-            _G[frame]:SetParent(StealthFrame)
+            _G[frame]:SetParent(SuperVillain.Cloaked)
         end 
     end;
-    self:RegisterEvent("PLAYER_REGEN_DISABLED","PushDisplayAudit")
+    DisplayEventHandler:RegisterEvent("PLAYER_REGEN_DISABLED")
 end;
 
 function SuperVillain:PushDisplayAudit()
@@ -64,8 +63,29 @@ function SuperVillain:PushDisplayAudit()
             _G[frame]:SetParent(UIParent)
         end 
     end;
-    self:UnregisterEvent("PLAYER_REGEN_DISABLED")
+    DisplayEventHandler:UnregisterEvent("PLAYER_REGEN_DISABLED")
 end;
+
+local DisplayAudit_OnEvent = function(self, event, arg, ...)
+    SuperVillain:PushDisplayAudit()
+end
+
+DisplayEventHandler:SetScript("OnEvent", DisplayAudit_OnEvent)
+
+local function SafeFrameRemoval(table, item)
+    local index = 1;
+    while table[index] do
+        if ( item == table[index] ) then
+            tremove(table, index);
+        else
+            index = index + 1;
+        end
+    end
+end
+
+local function SecureFadeRemoveFrame(frame)
+    SafeFrameRemoval(SecureFadeFrames, frame);
+end
 
 function SuperVillain:SecureFade_OnUpdate(value)
     local i = 1;
@@ -81,14 +101,19 @@ function SuperVillain:SecureFade_OnUpdate(value)
             elseif safeFadeState.mode == "OUT" then 
                 this:SetAlpha((safeFadeState.timeToFade - safeFadeState.fadeTimer)  /  safeFadeState.timeToFade  *  safeFadeState.startAlpha - safeFadeState.endAlpha  +  safeFadeState.endAlpha)
             end 
-        else 
+        else
             this:SetAlpha(safeFadeState.endAlpha)
+            SecureFadeRemoveFrame(this)
             if not this:IsProtected() and safeFadeState.hideOnFinished and this:IsShown() then 
                 this:Hide()
-            end 
-        end;
-        i = i  +  1; 
-    end;
+            end
+            if (safeFadeState.finishedFunc) then
+                safeFadeState.finishedFunc(safeFadeState.finishedArg1, safeFadeState.finishedArg2, safeFadeState.finishedArg3, safeFadeState.finishedArg4)
+                safeFadeState.finishedFunc = nil
+            end
+        end
+        i = i  +  1
+    end
     if #SecureFadeFrames == 0 then 
         SecureFadeManager:SetScript("OnUpdate", nil)
     end 
@@ -140,6 +165,7 @@ function SuperVillain:SecureFadeIn(this, duration, startAlpha, endAlpha)
     this._secureFade.startAlpha = startAlpha or 0;
     this._secureFade.endAlpha = endAlpha or 1;
     this._secureFade.hideOnFinished = false;
+    this._secureFade.finishedFunc = nil
     SuperVillain:SecureFade(this)
 end;
 
@@ -152,6 +178,7 @@ function SuperVillain:SecureFadeOut(this, duration, startAlpha, endAlpha, hideOn
     this._secureFade.startAlpha = startAlpha or 1;
     this._secureFade.endAlpha = endAlpha or 0;
     this._secureFade.hideOnFinished = hideOnFinished;
+    this._secureFade.finishedFunc = nil
     SuperVillain:SecureFade(this)
 end;
 

@@ -3,8 +3,8 @@
 ## Version: @project-version@
 ## Title: |cffFF9900SVUI|r
 ## Notes: Supervillain UI [|cff9911FFCore Framework|r].
-## SavedVariables: SVUI_Global
-## SavedVariablesPerCharacter: SVUI_Profile, SVUI_Filters, SVUI_Cache
+## SavedVariables: SVUI_Global, SVUI_AuraFilters
+## SavedVariablesPerCharacter: SVUI_Profile, SVUI_Cache
 ## OptionalDeps: Blizzard_DebugTools, Blizzard_PetJournal, SharedMedia
 ## X-oUF: oUF_SuperVillain
 ## X-Notes: Special thanks to Elv and Tukz for their incredible work.

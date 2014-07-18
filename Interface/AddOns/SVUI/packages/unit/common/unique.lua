@@ -14,8 +14,8 @@ S U P E R - V I L L A I N - U I   By: Munglunch                              #
 ##############################################################################
 --]]
 local SuperVillain, L = unpack(select(2, ...));
-local MOD = SuperVillain.Registry:Expose('SVUnit');
-local LSM = LibStub("LibSharedMedia-3.0");
+local MOD = SuperVillain.Registry:Expose('SVUnit')
+if(not MOD) then return end;
 --[[ 
 ########################################################## 
 LOCAL VARS
@@ -66,54 +66,56 @@ local ExRep_OnEnter = function(self)if self:IsShown() then UIFrameFadeIn(self,.1
 local ExRep_OnLeave = function(self)if self:IsShown() then UIFrameFadeOut(self,.2,1,0) end end;
 
 function MOD:CreateExperienceRepBar(frame)
-	local db=MOD.db.player;
+	local db = MOD.db.player;
+	
 	if db.playerExpBar then 
-		local xp=CreateFrame('StatusBar','PlayerFrameExperienceBar',frame.Power)
-		xp:FillInner(frame.Power,0,0)
+		local xp = CreateFrame("StatusBar", "PlayerFrameExperienceBar", frame.Power)
+		xp:FillInner(frame.Power, 0, 0)
 		xp:SetPanelTemplate()
 		xp:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]])
-		xp:SetStatusBarColor(0,0.1,0.6)
-		--xp:SetBackdropColor(1,1,1,0.8)
+		xp:SetStatusBarColor(0, 0.1, 0.6)
+		--xp:SetBackdropColor(1, 1, 1, 0.8)
 		xp:SetFrameLevel(xp:GetFrameLevel() + 2)
-		xp.Tooltip=true;
-		xp.Rested=CreateFrame('StatusBar',nil,xp)
+		xp.Tooltip = true;
+		xp.Rested = CreateFrame("StatusBar", nil, xp)
 		xp.Rested:SetAllPoints(xp)
 		xp.Rested:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]])
-		xp.Rested:SetStatusBarColor(1,0,1,0.6)
-		xp.Value=xp:CreateFontString(nil,'TOOLTIP')
+		xp.Rested:SetStatusBarColor(1, 0, 1, 0.6)
+		xp.Value = xp:CreateFontString(nil, "TOOLTIP")
 		xp.Value:SetAllPoints(xp)
-		xp.Value:SetFontTemplate(SuperVillain.Media.font.roboto,10,"NONE")
-		xp.Value:SetTextColor(0.2,0.75,1)
-		xp.Value:SetShadowColor(0,0,0,0)
-		xp.Value:SetShadowOffset(0,0)
-		frame:Tag(xp.Value,"[curxp] / [maxxp]")
-		xp.Rested:SetBackdrop({bgFile=[[Interface\BUTTONS\WHITE8X8]]})
+		xp.Value:SetFontTemplate(SuperVillain.Media.font.roboto, 10, "NONE")
+		xp.Value:SetTextColor(0.2, 0.75, 1)
+		xp.Value:SetShadowColor(0, 0, 0, 0)
+		xp.Value:SetShadowOffset(0, 0)
+		frame:Tag(xp.Value, "[curxp] / [maxxp]")
+		xp.Rested:SetBackdrop({bgFile = [[Interface\BUTTONS\WHITE8X8]]})
 		xp.Rested:SetBackdropColor(unpack(SuperVillain.Media.color.default))
-		xp:SetScript('OnEnter', ExRep_OnEnter)
-		xp:SetScript('OnLeave', ExRep_OnLeave)
+		xp:SetScript("OnEnter", ExRep_OnEnter)
+		xp:SetScript("OnLeave", ExRep_OnLeave)
 		xp:SetAlpha(0)
-		frame.Experience=xp 
+		frame.Experience = xp 
 	end;
+
 	if db.playerRepBar then 
-		local rep=CreateFrame('StatusBar','PlayerFrameReputationBar',frame.Power)
-		rep:FillInner(frame.Power,0,0)
+		local rep = CreateFrame("StatusBar", "PlayerFrameReputationBar", frame.Power)
+		rep:FillInner(frame.Power, 0, 0)
 		rep:SetPanelTemplate()
 		rep:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]])
-		rep:SetStatusBarColor(0,0.6,0)
-		--rep:SetBackdropColor(1,1,1,0.8)
+		rep:SetStatusBarColor(0, 0.6, 0)
+		--rep:SetBackdropColor(1, 1, 1, 0.8)
 		rep:SetFrameLevel(rep:GetFrameLevel() + 2)
-		rep.Tooltip=true;
-		rep.Value=rep:CreateFontString(nil,'TOOLTIP')
+		rep.Tooltip = true;
+		rep.Value = rep:CreateFontString(nil, "TOOLTIP")
 		rep.Value:SetAllPoints(rep)
-		rep.Value:SetFontTemplate(SuperVillain.Media.font.roboto,10,"NONE")
-		rep.Value:SetTextColor(0.1,1,0.2)
-		rep.Value:SetShadowColor(0,0,0,0)
-		rep.Value:SetShadowOffset(0,0)
-		frame:Tag(rep.Value,"[standing]: [currep] / [maxrep]")
-		rep:SetScript('OnEnter', ExRep_OnEnter)
-		rep:SetScript('OnLeave', ExRep_OnLeave)
+		rep.Value:SetFontTemplate(SuperVillain.Media.font.roboto, 10, "NONE")
+		rep.Value:SetTextColor(0.1, 1, 0.2)
+		rep.Value:SetShadowColor(0, 0, 0, 0)
+		rep.Value:SetShadowOffset(0, 0)
+		frame:Tag(rep.Value, "[standing]: [currep] / [maxrep]")
+		rep:SetScript("OnEnter", ExRep_OnEnter)
+		rep:SetScript("OnLeave", ExRep_OnLeave)
 		rep:SetAlpha(0)
-		frame.Reputation=rep 
+		frame.Reputation = rep 
 	end 
 end;
 --[[ 

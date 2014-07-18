@@ -51,7 +51,6 @@ GET ADDON DATA
 ]]--
 local SuperVillain, L = unpack(select(2, ...));
 local MOD = {};
-local LSM = LibStub("LibSharedMedia-3.0");
 --[[ 
 ########################################################## 
 LOCALIZED GLOBALS
@@ -70,6 +69,10 @@ local PlateRegistry, VisiblePlates = {}, {};
 local WorldFrameUpdateHook, UpdatePlateElements, PlateForge;
 local BLIZZ_PLATE, SVUI_PLATE, PLATE_REF, PLATE_ARGS, PLATE_AURAS, PLATE_AURAICONS, PLATE_GRIP, PLATE_REALNAME;
 local CURRENT_TARGET_NAME, TARGET_CHECKS;
+local PLATE_TOP = [[Interface\Addons\SVUI\assets\artwork\Template\Plate\PLATE-TOP]]
+local PLATE_BOTTOM = [[Interface\Addons\SVUI\assets\artwork\Template\Plate\PLATE-BOTTOM]]
+local PLATE_RIGHT = [[Interface\Addons\SVUI\assets\artwork\Template\Plate\PLATE-RIGHT]]
+local PLATE_LEFT = [[Interface\Addons\SVUI\assets\artwork\Template\Plate\PLATE-LEFT]]
 --[[
 	Quick explaination of what Im doing with all of these locals...
 	Unlike many of the other modules, SVPlates has to continuously 
@@ -214,31 +217,81 @@ local function SetPlateBorder(plate, point)
 	point.backdrop:SetDrawLayer("BORDER", -4)
 	point.backdrop:SetAllPoints(point)
 	point.backdrop:SetTexture(SuperVillain.Media.bar.default)
-	point.backdrop:SetVertexColor(0.1,0.1,0.1)	
+	point.backdrop:SetVertexColor(0.1,0.1,0.1)
+
 	point.bordertop = plate:CreateTexture(nil, "BORDER")
 	point.bordertop:SetPoint("TOPLEFT", point, "TOPLEFT", -noscalemult, noscalemult)
 	point.bordertop:SetPoint("TOPRIGHT", point, "TOPRIGHT", noscalemult, noscalemult)
 	point.bordertop:SetHeight(noscalemult)
 	point.bordertop:SetTexture(0,0,0)	
 	point.bordertop:SetDrawLayer("BORDER", 1)
+
 	point.borderbottom = plate:CreateTexture(nil, "BORDER")
 	point.borderbottom:SetPoint("BOTTOMLEFT", point, "BOTTOMLEFT", -noscalemult, -noscalemult)
 	point.borderbottom:SetPoint("BOTTOMRIGHT", point, "BOTTOMRIGHT", noscalemult, -noscalemult)
 	point.borderbottom:SetHeight(noscalemult)
 	point.borderbottom:SetTexture(0,0,0)	
 	point.borderbottom:SetDrawLayer("BORDER", 1)
+
 	point.borderleft = plate:CreateTexture(nil, "BORDER")
 	point.borderleft:SetPoint("TOPLEFT", point, "TOPLEFT", -noscalemult, noscalemult)
 	point.borderleft:SetPoint("BOTTOMLEFT", point, "BOTTOMLEFT", noscalemult, -noscalemult)
 	point.borderleft:SetWidth(noscalemult)
 	point.borderleft:SetTexture(0,0,0)	
 	point.borderleft:SetDrawLayer("BORDER", 1)
+
 	point.borderright = plate:CreateTexture(nil, "BORDER")
 	point.borderright:SetPoint("TOPRIGHT", point, "TOPRIGHT", noscalemult, noscalemult)
 	point.borderright:SetPoint("BOTTOMRIGHT", point, "BOTTOMRIGHT", -noscalemult, -noscalemult)
 	point.borderright:SetWidth(noscalemult)
 	point.borderright:SetTexture(0,0,0)	
-	point.borderright:SetDrawLayer("BORDER", 1)	
+	point.borderright:SetDrawLayer("BORDER", 1)
+end
+
+local function SetEliteBorder(point)
+	local noscalemult = 2 * UIParent:GetScale()
+	if point.eliteborder then return end
+
+	point.eliteborder = CreateFrame("Frame", nil, point)
+	point.eliteborder:SetAllPoints(point)
+	point.eliteborder:SetFrameStrata("BACKGROUND")
+	point.eliteborder:SetFrameLevel(0)
+
+	point.eliteborder.top = point.eliteborder:CreateTexture(nil, "BACKGROUND")
+	point.eliteborder.top:SetPoint("BOTTOMLEFT", point.eliteborder, "TOPLEFT", 0, 0)
+	point.eliteborder.top:SetPoint("BOTTOMRIGHT", point.eliteborder, "TOPRIGHT", 0, 0)
+	point.eliteborder.top:SetHeight(22)
+	point.eliteborder.top:SetTexture(PLATE_TOP)
+	point.eliteborder.top:SetVertexColor(1, 1, 0)
+	point.eliteborder.top:SetBlendMode("BLEND")
+
+	point.eliteborder.bottom = point.eliteborder:CreateTexture(nil, "BACKGROUND")
+	point.eliteborder.bottom:SetPoint("TOPLEFT", point.eliteborder, "BOTTOMLEFT", 0, 0)
+	point.eliteborder.bottom:SetPoint("TOPRIGHT", point.eliteborder, "BOTTOMRIGHT", 0, 0)
+	point.eliteborder.bottom:SetHeight(32)
+	point.eliteborder.bottom:SetTexture(PLATE_BOTTOM)
+	point.eliteborder.bottom:SetVertexColor(1, 1, 0)
+	point.eliteborder.bottom:SetBlendMode("BLEND")
+
+	-- point.eliteborder.right = point.eliteborder:CreateTexture(nil, "BACKGROUND")
+	-- point.eliteborder.right:SetPoint("TOPLEFT", point.eliteborder, "TOPRIGHT", 0, 0)
+	-- point.eliteborder.right:SetPoint("BOTTOMLEFT", point.eliteborder, "BOTTOMRIGHT", 0, 0)
+	-- point.eliteborder.right:SetWidth(point:GetHeight() * 4)
+	-- point.eliteborder.right:SetTexture(PLATE_RIGHT)
+	-- point.eliteborder.right:SetVertexColor(1, 1, 0)
+	-- point.eliteborder.right:SetBlendMode("BLEND")
+
+	-- point.eliteborder.left = point.eliteborder:CreateTexture(nil, "BACKGROUND")
+	-- point.eliteborder.left:SetPoint("TOPRIGHT", point.eliteborder, "TOPLEFT", 0, 0)
+	-- point.eliteborder.left:SetPoint("BOTTOMRIGHT", point.eliteborder, "BOTTOMLEFT", 0, 0)
+	-- point.eliteborder.left:SetWidth(point:GetHeight() * 4)
+	-- point.eliteborder.left:SetTexture(PLATE_LEFT)
+	-- point.eliteborder.left:SetVertexColor(1, 1, 0)
+	-- point.eliteborder.left:SetBlendMode("BLEND")
+
+	point.eliteborder:SetAlpha(0.35)
+
+	point.eliteborder:Hide()
 end
 --[[ 
 ########################################################## 
@@ -506,6 +559,9 @@ do
 		end
 
 		frame.health:SetStatusBarColor(unpack(latestColor))
+		--frame.health.eliteborder.bottom:SetVertexColor(unpack(latestColor))
+		--frame.health.eliteborder.right:SetVertexColor(unpack(latestColor))
+		--frame.health.eliteborder.left:SetVertexColor(unpack(latestColor))
 		if(NPUsePointer and NPPointerMatch and plate.setting.unit == "target") then
 			NPGlow:SetBackdropBorderColor(unpack(latestColor))
 		end
@@ -524,12 +580,15 @@ do
 		if plate.ref.level:IsShown() then
 			local level = plate.ref.level:GetObjectType() == 'FontString' and tonumber(plate.ref.level:GetText()) or nil
 			local elite, boss, mylevel = plate.ref.eliteicon:IsShown(), plate.ref.skullicon:IsShown(), UnitLevel("player")
+			frame.health.eliteborder:Hide()
 			if boss then
 				frame.level:SetText("??")
 				frame.level:SetTextColor(0.8, 0.05, 0)
+				frame.health.eliteborder:Show()
 			elseif level then
 				frame.level:SetText(level..(elite and "+" or ""))
 				frame.level:SetTextColor(plate.ref.level:GetTextColor())
+				if(elite) then frame.health.eliteborder:Show() end
 			end
 		elseif plate.ref.skullicon:IsShown() and frame.level:GetText() ~= '??' then
 			frame.level:SetText("??")
@@ -717,8 +776,8 @@ do
 		end
 		SVUI_PLATE.health:SetStatusBarTexture(SuperVillain.Media.bar.textured)
 		SVUI_PLATE.health.text:SetFontTemplate(SuperVillain.Media.font.roboto, 8, "OUTLINE")
-		SVUI_PLATE.cast:SetSize(HBWidth, CBHeight)
-		SVUI_PLATE.cast:SetStatusBarTexture(SuperVillain.Media.bar.glow)
+		SVUI_PLATE.cast:SetSize(HBWidth, (CBHeight + 20))
+		SVUI_PLATE.cast:SetStatusBarTexture(SuperVillain.Media.bar.lazer)
 		SVUI_PLATE.cast.text:SetFont(SuperVillain.Media.font.roboto, 8, "OUTLINE")
 		plate.cast.text:SetFont(SuperVillain.Media.font.roboto, 8, "OUTLINE")
 		plate.cast.icon:Size((CBHeight + HBHeight) + 5)
@@ -811,6 +870,7 @@ do
 		frame.health:SetScript("OnSizeChanged", HealthBarSizeChanged)
 		frame.health.sync = plate;
 		SetPlateBorder(frame.health)
+		SetEliteBorder(frame.health)
 
 		frame.health.text = frame.health:CreateFontString(nil, 'OVERLAY')
 		frame.health.text:SetPoint("CENTER", frame.health, HBTextAnchor, HBXoffset, HBYoffset)
@@ -859,12 +919,11 @@ do
 		--[[ CAST BAR ]]--
 
 		frame.cast = CreateFrame("StatusBar", nil, frame)
-		frame.cast:SetPoint('TOPLEFT', frame.health, 'BOTTOMLEFT', 0, -5)	
-		frame.cast:SetPoint('TOPRIGHT', frame.health, 'BOTTOMRIGHT', 0, -5)	
+		frame.cast:SetPoint('TOPLEFT', frame.health, 'BOTTOMLEFT', 0, 5)	
+		frame.cast:SetPoint('TOPRIGHT', frame.health, 'BOTTOMRIGHT', 0, 5)
+
 		frame.cast:SetFrameStrata("BACKGROUND")
 		frame.cast:SetFrameLevel(0)
-
-		SetPlateBorder(frame.cast)
 
 		frame.cast.text = frame.cast:CreateFontString(nil, 'OVERLAY')
 		frame.cast.text:SetPoint("TOPRIGHT", frame.cast, "BOTTOMRIGHT", 6, -2)
@@ -881,7 +940,13 @@ do
 		cast.icon:ClearAllPoints()
 		cast.icon:SetPoint("TOPLEFT", frame.health, "TOPRIGHT", 5, 0)
 
-		SetPlateBorder(frame.cast, cast.icon)
+		local bgFrame = CreateFrame("Frame", nil, frame.cast)
+		bgFrame:WrapOuter(cast.icon)
+		bgFrame:SetFrameLevel(bgFrame:GetFrameLevel() - 1)
+
+		bgFrame:SetPanelTemplate("Bar", true, 2, 0, 0)
+
+		--SetPlateBorder(frame.cast, cast.icon)
 
 		cast.sync = frame.cast
 
@@ -1038,11 +1103,11 @@ function MOD:UpdateDataLocals()
 	NPBaseAlpha = db.nonTargetAlpha;
 	NPCombatHide = db.combatHide;
 
-	NPFont = LSM:Fetch("font", db.font);
+	NPFont = SuperVillain.Shared:Fetch("font", db.font);
 	NPFSize = db.fontSize;
 	NPFOutline = db.fontOutline;
 
-	AuraFont = LSM:Fetch("font", db.auras.font);
+	AuraFont = SuperVillain.Shared:Fetch("font", db.auras.font);
 	AuraFSize = db.auras.fontSize;
 	AuraFOutline = db.auras.fontOutline;
 	AuraMaxCount = db.auras.numAuras;
@@ -1110,7 +1175,7 @@ function MOD:CombatToggle(noToggle)
 	end
 end
 
-function MOD:UpdateThisPackage()
+function MOD:ReLoad()
 	if SuperVillain.db["SVPlate"].enable ~= true then 
 		self:DisableTracking()
 		return 
@@ -1118,7 +1183,7 @@ function MOD:UpdateThisPackage()
 	self:UpdateAllPlates();
 end;
 
-function MOD:ConstructThisPackage()
+function MOD:Load()
 	if SuperVillain.db["SVPlate"].enable ~= true then return end
 	self.UseCombo = false;
 	self:UpdateDataLocals()

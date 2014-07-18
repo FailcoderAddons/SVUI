@@ -20,8 +20,14 @@ local MOD = SuperVillain.Registry:Expose("SVStyle");
 ARCHEOLOGYFRAME STYLER
 ##########################################################
 ]]--
+--240 24
+local progressBarHolder = CreateFrame("Frame", nil)
+progressBarHolder:SetSize(240, 24)
+progressBarHolder:SetPoint("BOTTOM", CastingBarFrame, "TOP", 0, 10)
+SuperVillain:SetSVMovable(progressBarHolder, "ArcheologyProgressBar_MOVE", "Archeology Progress Bar")
+
 local function ArchaeologyStyle()
-	if SuperVillain.db.SVStyle.blizzard.enable ~= true or SuperVillain.db.SVStyle.blizzard.archaeology ~= true then return end;ArchaeologyFrame:Formula409()
+	if SuperVillain.db.SVStyle.blizzard.enable ~= true or SuperVillain.db.SVStyle.blizzard.archaeology ~= true then return end ArchaeologyFrame:Formula409()
 	ArchaeologyFrameInset:Formula409()
 	ArchaeologyFrame:SetPanelTemplate("Transparent")
 	ArchaeologyFrame.Panel:SetAllPoints()
@@ -54,7 +60,7 @@ local function ArchaeologyStyle()
 			_G["ArchaeologyFrameCompletedPageArtifact"..b.."Icon"].backdrop:SetFrameLevel(c:GetFrameLevel()-2)
 			_G["ArchaeologyFrameCompletedPageArtifact"..b.."Icon"]:SetDrawLayer("OVERLAY")
 		end 
-	end;
+	end 
 	ArchaeologyFrameArtifactPageIcon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 	ArchaeologyFrameArtifactPageIcon.backdrop = CreateFrame("Frame", nil, ArchaeologyFrameArtifactPage)
 	ArchaeologyFrameArtifactPageIcon.backdrop:SetFixedPanelTemplate("Default")
@@ -63,10 +69,9 @@ local function ArchaeologyStyle()
 	ArchaeologyFrameArtifactPageIcon:SetParent(ArchaeologyFrameArtifactPageIcon.backdrop)
 	ArchaeologyFrameArtifactPageIcon:SetDrawLayer("OVERLAY")
 	MOD:ApplyCloseButtonStyle(ArchaeologyFrameCloseButton)
-	-- ArcheologyDigsiteProgressBar:Formula409()
-	-- ArcheologyDigsiteProgressBar.BarBackground:SetTexture([[Interface\Archeology\ArcheologyToast]])
-	-- ArcheologyDigsiteProgressBar.BarBorderAndOverlay:SetTexture([[Interface\Archeology\ArcheologyToast]])
-end;
+	ArcheologyDigsiteProgressBar:SetAllPoints(progressBarHolder)
+	progressBarHolder:SetParent(ArcheologyDigsiteProgressBar)
+end 
 --[[ 
 ########################################################## 
 STYLE LOADING

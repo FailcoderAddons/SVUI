@@ -14,50 +14,48 @@ S U P E R - V I L L A I N - U I   By: Munglunch                              #
 ##############################################################################
 --]]
 local SuperVillain, L = unpack(select(2, ...));
-local MOD = SuperVillain.Registry:Expose('SVUnit');
+local MOD = SuperVillain.Registry:Expose('SVUnit')
+if(not MOD) then return end;
 local _, ns = ...
 local oUF_SuperVillain = ns.oUF
 --[[ MUNGLUNCH's FASTER ASSERT FUNCTION ]]--
 local assert = enforce;
 assert(oUF_SuperVillain, "SVUI was unable to locate oUF.");
-local LSM = LibStub("LibSharedMedia-3.0");
 --[[ 
 ########################################################## 
 LOCAL VARIABLES
 ##########################################################
 ]]--
-local AURA_FONT = [[Interface\AddOns\SVUI\assets\fonts\Display.ttf]];
-local AURA_FONTSIZE = 10;
-local AURA_OUTLINE = "OUTLINE";
+local AURA_FONT = [[Interface\AddOns\SVUI\assets\fonts\Display.ttf]]
+local AURA_FONTSIZE = 10
+local AURA_OUTLINE = "OUTLINE"
 local LML_ICON_FILE = [[Interface\Addons\SVUI\assets\artwork\Unitframe\UNIT-LML]]
 local ROLE_ICON_FILE = [[Interface\Addons\SVUI\assets\artwork\Unitframe\UNIT-ROLES]]
+local BUDDY_ICON = [[Interface\Addons\SVUI\assets\artwork\Unitframe\UNIT-FRIENDSHIP]]
+
 local ROLE_ICON_DATA = {
 	["TANK"] = {0,0.5,0,0.5, 0.5,0.75,0.5,0.75},
 	["HEALER"] = {0,0.5,0.5,1, 0.5,0.75,0.75,1},
 	["DAMAGER"] = {0.5,1,0,0.5, 0.75,1,0.5,0.75}
-};
--- local fadeManager = CreateFrame("Frame",nil,UIParent)
--- fadeManager.fadeRoles = false;
--- fadeManager.fadeNames = false;
--- fadeManager.fadeFrames = {};
---[[ 
-########################################################## 
-NAME
-##########################################################
-]]--
-function MOD:CreateNameText(frame, unitName)
-	local name = frame.InfoPanel:CreateFontString(nil, "OVERLAY")
-	name:SetShadowOffset(2, -2)
-	name:SetShadowColor(0, 0, 0, 1)
-	name:SetFontTemplate()
-	if unitNmae == "target" then
-		name:SetPoint("TOPRIGHT", frame.InfoPanel)
-	else
-		name:SetPoint("CENTER", frame.InfoPanel)
-	end
-	MOD:SetUnitFont(name, unitName)
-	return name;
-end 
+}
+
+local function BasicBG(frame)
+	frame:SetBackdrop({
+    	bgFile = [[Interface\BUTTONS\WHITE8X8]], 
+		tile = false, 
+		tileSize = 0, 
+		edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
+        edgeSize = 2, 
+        insets = {
+            left = 0, 
+            right = 0, 
+            top = 0, 
+            bottom = 0
+        }
+    })
+    frame:SetBackdropColor(0, 0, 0, 0)
+    frame:SetBackdropBorderColor(0, 0, 0)
+end
 --[[ 
 ########################################################## 
 RAID DEBUFFS / DEBUFF HIGHLIGHT
@@ -90,8 +88,8 @@ function MOD:CreateAfflicted(frame)
 	afflicted:SetTexture("Interface\\Addons\\SVUI\\assets\\artwork\\Unitframe\\UNIT-AFFLICTED")
 	afflicted:SetVertexColor(0, 0, 0, 0)
 	afflicted:SetBlendMode("ADD")
-	frame.AfflictedFilter = true;
-	frame.AfflictedAlpha = 0.75;
+	frame.AfflictedFilter = true
+	frame.AfflictedAlpha = 0.75
 	
 	return afflicted
 end
@@ -102,7 +100,7 @@ VARIOUS ICONS
 ]]--
 function MOD:CreateResurectionIcon(frame)
 	local rez = frame.InfoPanel:CreateTexture(nil, "OVERLAY")
-	rez:Point("CENTER", frame.Health.value, "CENTER")
+	rez:Point("CENTER", frame.InfoPanel.Health, "CENTER")
 	rez:Size(30, 25)
 	rez:SetDrawLayer("OVERLAY", 7)
 	return rez 
@@ -115,25 +113,55 @@ function MOD:CreateReadyCheckIcon(frame)
 	return rdy 
 end 
 
-function MOD:CreateTrinket(frame)
-	local trinket = CreateFrame("Frame", nil, frame)
-	trinket:SetFrameLevel(trinket:GetFrameLevel() + 1)
-	trinket.bg = CreateFrame("Frame", nil, trinket)
-	trinket.bg:SetFixedPanelTemplate("Default")
-	trinket.bg:SetFrameLevel(trinket:GetFrameLevel() - 1)
-	trinket:FillInner(trinket.bg)
-	return trinket 
-end 
-
-function MOD:CreatePVPSpecIcon(frame)
+function MOD:CreateCombatant(frame)
 	local pvp = CreateFrame("Frame", nil, frame)
 	pvp:SetFrameLevel(pvp:GetFrameLevel() + 1)
-	pvp.bg = CreateFrame("Frame", nil, pvp)
-	pvp.bg:SetFixedPanelTemplate("Default")
-	pvp.bg:SetFrameLevel(pvp:GetFrameLevel() - 1)
-	pvp:FillInner(pvp.bg)
+
+	local trinket = CreateFrame("Frame", nil, pvp)
+	BasicBG(trinket)
+	trinket.Icon = trinket:CreateTexture(nil, "BORDER")
+	trinket.Icon:FillInner(trinket, 2, 2)
+	trinket.Icon:SetTexture([[Interface\Icons\INV_MISC_QUESTIONMARK]])
+	trinket.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+
+	trinket.Unavailable = trinket:CreateTexture(nil, "OVERLAY")
+	trinket.Unavailable:SetAllPoints(trinket)
+	trinket.Unavailable:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+	trinket.Unavailable:SetTexture([[Interface\BUTTONS\UI-GroupLoot-Pass-Up]])
+	trinket.Unavailable:Hide()
+
+	trinket.CD = CreateFrame("Cooldown", nil, trinket)
+	trinket.CD:SetAllPoints(trinket)
+
+	pvp.Trinket = trinket
+
+	local badge = CreateFrame("Frame", nil, pvp)
+	BasicBG(badge)
+	badge.Icon = badge:CreateTexture(nil, "OVERLAY")
+	badge.Icon:FillInner(badge, 2, 2)
+	badge.Icon:SetTexture([[Interface\Icons\INV_MISC_QUESTIONMARK]])
+	badge.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+
+	pvp.Badge = badge
+
 	return pvp 
-end 
+end
+
+function MOD:CreateFriendshipBar(frame)
+	local buddy = CreateFrame("StatusBar", nil, frame.Power)
+    buddy:SetAllPoints(frame.Power)
+    buddy:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Bars\DEFAULT]])
+    buddy:SetStatusBarColor(1,0,0)
+    local bg = buddy:CreateTexture(nil, "BACKGROUND")
+	bg:SetAllPoints(buddy)
+	bg:SetTexture(0.2,0,0)
+	local icon = buddy:CreateTexture(nil, "OVERLAY")
+	icon:SetPoint("LEFT", buddy, "LEFT", -11, 0)
+	icon:SetSize(22,22)
+	icon:SetTexture(BUDDY_ICON)
+
+	return buddy 
+end
 --[[ 
 ########################################################## 
 CONFIGURABLE ICONS
@@ -147,33 +175,21 @@ function MOD:CreateRaidIcon(frame)
 	return rIcon 
 end 
 
-function MOD:CreateRoleIcon(frame)
-	local parent = frame.InfoPanel or frame;
-	local rIconHolder = CreateFrame("Frame", nil, parent)
-	rIconHolder:SetAllPoints()
-	local rIcon = rIconHolder:CreateTexture(nil, "ARTWORK", nil, 2)
-	rIcon:Size(14)
-	rIcon:Point("BOTTOMRIGHT", rIconHolder, "BOTTOMRIGHT")
-	rIcon.Override = MOD.UpdateRoleIcon;
-	frame:RegisterEvent("UNIT_CONNECTION", MOD.UpdateRoleIcon)
-	-- fadeManager.fadeFrames[frame] = true;
-	return rIcon 
-end 
-
-function MOD:UpdateRoleIcon()
-	local lfd = self.LFDRole;
-	if not self.db or not self.db.icons then return end 
-	local db = self.db.icons.roleIcon;
-	if not db or db and not db.enable then lfd:Hide()return end 
+local UpdateRoleIcon = function(self)
+	local key = self.___key
+	local db = MOD.db[key]
+	if(not db or not db.icons or (db.icons and not db.icons.roleIcon)) then return end 
+	local lfd = self.LFDRole
+	if(not db.icons.roleIcon.enable) then lfd:Hide() return end 
 	local unitRole = UnitGroupRolesAssigned(self.unit)
-	if self.isForced and unitRole == "NONE"then 
+	if(self.isForced and unitRole == "NONE") then 
 		local rng = random(1, 3)
 		unitRole = rng == 1 and "TANK" or rng == 2 and "HEALER" or rng == 3 and "DAMAGER" 
 	end 
-	if(unitRole  ~= "NONE" and (self.isForced or UnitIsConnected(self.unit))) then
+	if(unitRole ~= "NONE" and (self.isForced or UnitIsConnected(self.unit))) then
 		local coords = ROLE_ICON_DATA[unitRole]
 		lfd:SetTexture(ROLE_ICON_FILE)
-		if(lfd:GetHeight()  <= 13) then
+		if(lfd:GetHeight() <= 13) then
 			lfd:SetTexCoord(coords[5], coords[6], coords[7], coords[8])
 		else
 			lfd:SetTexCoord(coords[1], coords[2], coords[3], coords[4])
@@ -184,12 +200,24 @@ function MOD:UpdateRoleIcon()
 	end 
 end 
 
+function MOD:CreateRoleIcon(frame)
+	local parent = frame.InfoPanel or frame;
+	local rIconHolder = CreateFrame("Frame", nil, parent)
+	rIconHolder:SetAllPoints()
+	local rIcon = rIconHolder:CreateTexture(nil, "ARTWORK", nil, 2)
+	rIcon:Size(14)
+	rIcon:Point("BOTTOMRIGHT", rIconHolder, "BOTTOMRIGHT")
+	rIcon.Override = UpdateRoleIcon;
+	frame:RegisterEvent("UNIT_CONNECTION", UpdateRoleIcon)
+	return rIcon 
+end 
+
 function MOD:CreateRaidRoleFrames(frame)
 	local parent = frame.InfoPanel or frame;
 	local raidRoles = CreateFrame("Frame", nil, frame)
 	raidRoles:Size(24, 12)
 	raidRoles:Point("TOPLEFT", frame.ActionPanel, "TOPLEFT", -2, 4)
-	raidRoles:SetFrameLevel(parent:GetFrameLevel()  +  50)
+	raidRoles:SetFrameLevel(parent:GetFrameLevel() + 50)
 
 	frame.Leader = raidRoles:CreateTexture(nil, "OVERLAY")
 	frame.Leader:Size(12, 12)
@@ -215,8 +243,8 @@ function MOD:RaidRoleUpdate()
 	local leaderIcon = frame.Leader;
 	local looterIcon = frame.MasterLooter;
 	if not leaderIcon or not looterIcon then return end 
-		local unit = frame.unit;
-		local db = frame.db;
+		local key = frame.___key;
+		local db = MOD.db[key];
 		local leaderShown = leaderIcon:IsShown()
 		local looterShown = looterIcon:IsShown()
 		leaderIcon:ClearAllPoints()
@@ -236,43 +264,3 @@ function MOD:RaidRoleUpdate()
 		end 
 	end 
 end 
---[[ 
-########################################################## 
-FADEFRAME MANAGER
-##########################################################
-]]--
--- fadeManager:SetScript("OnEvent", function(self, event, ...)
--- 	if event == "PLAYER_REGEN_DISABLED" then
--- 		for frame, _ in pairs(fadeManager.fadeFrames) do
--- 			if frame.Name and fadeManager.fadeNames == true then 
--- 				frame.Name:SetAlpha(0.4)
--- 				local f1, f2, f3 = frame.Name:GetFont()
--- 				frame.Name.OldOutline = f3
--- 				frame.Name:SetFont(f1, f2, nil)
--- 			end
--- 			if frame.LFDRole and fadeManager.fadeRoles == true then frame.LFDRole:SetAlpha(0) end
--- 		end
--- 	elseif event == "PLAYER_REGEN_ENABLED" then
--- 		for frame, _ in pairs(fadeManager.fadeFrames) do
--- 			if frame.Name and fadeManager.fadeNames == true then 
--- 				frame.Name:SetAlpha(1)
--- 				local f1, f2, f3 = frame.Name:GetFont()
--- 				frame.Name:SetFont(f1, f2, frame.Name.OldOutline or "OUTLINE")
--- 			end
--- 			if frame.LFDRole and fadeManager.fadeRoles == true then frame.LFDRole:SetAlpha(1) end
--- 		end
--- 	end 
--- end)
-
--- function MOD:SetFadeManager()
--- 	if MOD.db.combatFadeRoles  ~= true and MOD.db.combatFadeNames  ~= true then
--- 		fadeManager:UnregisterAllEvents()
--- 		fadeManager.fadeRoles = false;
--- 		fadeManager.fadeNames = false;
--- 	else
--- 		fadeManager:RegisterEvent("PLAYER_REGEN_ENABLED")
--- 		fadeManager:RegisterEvent("PLAYER_REGEN_DISABLED")
--- 		fadeManager.fadeRoles = MOD.db.combatFadeRoles;
--- 		fadeManager.fadeNames = MOD.db.combatFadeNames;
--- 	end 
--- end 

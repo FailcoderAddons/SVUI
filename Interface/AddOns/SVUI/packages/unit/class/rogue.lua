@@ -36,7 +36,8 @@ GET ADDON DATA
 ##########################################################
 ]]--
 local SuperVillain, L = unpack(select(2, ...));
-local MOD = SuperVillain.Registry:Expose('SVUnit');
+local MOD = SuperVillain.Registry:Expose('SVUnit')
+if(not MOD) then return end;
 local _, ns = ...
 local oUF_SuperVillain = ns.oUF
 --[[ MUNGLUNCH's FASTER ASSERT FUNCTION ]]--
@@ -67,10 +68,11 @@ POSITIONING
 ##########################################################
 ]]--
 local Reposition = function(self)
+	local db = MOD.db.target
 	local bar = self.HyperCombo.CPoints;
 	local max = MAX_COMBO_POINTS;
-	local height = self.db.combobar.height
-	local isSmall = self.db.combobar.smallIcons
+	local height = db.combobar.height
+	local isSmall = db.combobar.smallIcons
 	local size = isSmall and 22 or (height - 4)
 	local width = (size + 4) * max;
 	bar:ClearAllPoints()
@@ -166,15 +168,16 @@ ROGUE COMBO TRACKER
 ##########################################################
 ]]--
 local RepositionTracker = function(self)
+	local db = MOD.db.player
 	local bar = self.HyperCombo;
-	if not self.db then return end
-	local height = self.db.classbar.height
+	if not db then return end
+	local height = db.classbar.height
 	local size = (height - 4)
 	local width = (size + 2) * 3;
 	local textwidth = height * 1.25;
 	bar:ClearAllPoints()
 	bar:Size(width, height)
-	if(self.db and self.db.classbar.slideLeft and (not self.db.power.tags or self.db.power.tags == '')) then
+	if(db and db.classbar.slideLeft and (not db.power.tags or db.power.tags == '')) then
 		bar:Point("TOPLEFT", self.InfoPanel, "TOPLEFT", 0, -2)
 	else
 		bar:Point("TOP", self.InfoPanel, "TOP", 0, -2)

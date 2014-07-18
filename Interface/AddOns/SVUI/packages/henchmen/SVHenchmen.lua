@@ -549,7 +549,7 @@ end;
 BUILD FUNCTION / UPDATE
 ##########################################################
 ]]--
-function MOD:ConstructThisPackage()
+function MOD:Load()
 	--self:CreateHenchmenFrame()
 	self:CreateHenchmanSpeech()
 	self:LoadAllMinions()

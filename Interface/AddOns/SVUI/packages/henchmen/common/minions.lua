@@ -187,7 +187,7 @@ function MOD:LoadMailMinions()
 	SVUI_GetMailButton:SetScript("OnLeave",function()GameTooltip:Hide()end)
 	SVUI_GetMailButton:SetScript("OnEvent",function(l,m,h,n,o,p)
 		if m=="UI_ERROR_MESSAGE"then 
-			if h==ERR_INV_FULL then 
+			if h==ERR_INV_FULL or h==ERR_ITEM_MAX_COUNT then 
 				StopOpeningMail("Your bags are too full!")
 			end 
 		end 

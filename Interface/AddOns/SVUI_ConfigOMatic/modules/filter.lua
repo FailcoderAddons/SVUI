@@ -30,7 +30,8 @@ GET ADDON DATA
 ##########################################################
 ]]--
 local SuperVillain, L = unpack(SVUI);
-local MOD = SuperVillain.Registry:Expose('SVUnit');
+local MOD = SuperVillain.Registry:Expose('SVUnit')
+if(not MOD) then return end;
 local selectedSpell,filterType,filters;
 local tinsert = table.insert;
 local function generateFilterOptions()
@@ -54,9 +55,9 @@ local function generateFilterOptions()
 							SuperVillain.db.media.unitframes.spellcolor[arg] = false 
 						end;
 						generateFilterOptions()
-						MOD:SetBasicFrame("player")
-						MOD:SetBasicFrame("target")
-						MOD:SetBasicFrame("focus")
+						MOD:SetUnitFrame("player")
+						MOD:SetUnitFrame("target")
+						MOD:SetUnitFrame("focus")
 					end
 				},
 				removeSpell = {
@@ -75,9 +76,9 @@ local function generateFilterOptions()
 						end;
 						selectedSpell = nil;
 						generateFilterOptions()
-						MOD:SetBasicFrame("player")
-						MOD:SetBasicFrame("target")
-						MOD:SetBasicFrame("focus")
+						MOD:SetUnitFrame("player")
+						MOD:SetUnitFrame("target")
+						MOD:SetUnitFrame("focus")
 					end
 				},
 				selectSpell = {
@@ -131,9 +132,9 @@ local function generateFilterOptions()
 						end;
 						local abColor = {r, g, b}
 						SuperVillain.db.media.unitframes.spellcolor[selectedSpell] = abColor
-						MOD:SetBasicFrame("player")
-						MOD:SetBasicFrame("target")
-						MOD:SetBasicFrame("focus")
+						MOD:SetUnitFrame("player")
+						MOD:SetUnitFrame("target")
+						MOD:SetUnitFrame("focus")
 					end
 				},
 				removeColor = {
@@ -142,9 +143,9 @@ local function generateFilterOptions()
 					name = L["Restore Defaults"],
 					func = function(e, arg)
 						SuperVillain.db.media.unitframes.spellcolor[selectedSpell] = false;
-						MOD:SetBasicFrame("player")
-						MOD:SetBasicFrame("target")
-						MOD:SetBasicFrame("focus")
+						MOD:SetUnitFrame("player")
+						MOD:SetUnitFrame("target")
+						MOD:SetUnitFrame("focus")
 					end
 				}
 			}
@@ -182,7 +183,7 @@ local function generateFilterOptions()
 						else 
 							tinsert(SuperVillain.Filters["PetBuffWatch"], {["enable"] = true, ["id"] = tonumber(arg), ["point"] = "TOPRIGHT", ["color"] = {["r"] = 1, ["g"] = 0, ["b"] = 0}, ["anyUnit"] = true})
 							generateFilterOptions()
-							MOD:SetBasicFrame("pet")
+							MOD:SetUnitFrame("pet")
 							selectedSpell = nil 
 						end 
 					end
@@ -218,7 +219,7 @@ local function generateFilterOptions()
 						end;
 						selectedSpell = nil;
 						generateFilterOptions()
-						MOD:SetBasicFrame("pet")
+						MOD:SetUnitFrame("pet")
 					end
 				}, 
 				selectSpell = {
@@ -226,7 +227,7 @@ local function generateFilterOptions()
 					type = "select", 
 					order = 3, 
 					values = function()
-						local values = {}
+						local v = {}
 						watchedBuffs = {}
 						for o, f in pairs(SuperVillain.Filters["PetBuffWatch"])do 
 							tinsert(watchedBuffs, f)
@@ -234,10 +235,10 @@ local function generateFilterOptions()
 						for o, l in pairs(watchedBuffs)do 
 							if l.id then 
 								local name = GetSpellInfo(l.id)
-								values[l.id] = name 
+								v[l.id] = name 
 							end 
 						end;
-						return values 
+						return v 
 					end, 
 					get = function(e)return selectedSpell end, 
 					set = function(e, arg)selectedSpell = arg; generateFilterOptions()end
@@ -261,7 +262,7 @@ local function generateFilterOptions()
 				get = function(e)return SuperVillain.Filters["PetBuffWatch"][registeredSpell][e[#e]] end, 
 				set = function(e, arg)
 					SuperVillain.Filters["PetBuffWatch"][registeredSpell][e[#e]] = arg;
-					MOD:SetBasicFrame("pet")
+					MOD:SetUnitFrame("pet")
 				end, 
 				order = -10, 
 				args = {
@@ -291,7 +292,7 @@ local function generateFilterOptions()
 						name = L["Style"], 
 						order = 3, 
 						type = "select", 
-						values = {["coloredIcon"] = L["Colored Icon"], ["texturedIcon"] = L["Textured Icon"], ["NONE"] = NONE}
+						values = {["coloredIcon"] = L["Colored Icon"], ["texturedIcon"] = L["Textured Icon"], [""] = NONE}
 					}, 
 					color = {
 						name = L["Color"], 
@@ -304,7 +305,7 @@ local function generateFilterOptions()
 						set = function(e, i, j, k)
 							local abColor = SuperVillain.Filters["PetBuffWatch"][registeredSpell][e[#e]]
 							abColor.r,  abColor.g,  abColor.b = i, j, k;
-							MOD:SetBasicFrame("pet")
+							MOD:SetUnitFrame("pet")
 						end
 					}, 
 					displayText = {
@@ -327,7 +328,7 @@ local function generateFilterOptions()
 						set = function(e,i,j,k)
 							local abColor = SuperVillain.Filters["PetBuffWatch"][registeredSpell][e[#e]]
 							abColor.r,abColor.g,abColor.b = i,j,k;
-							MOD:SetBasicFrame("pet")
+							MOD:SetUnitFrame("pet")
 						end
 					},
 					textThreshold = {
@@ -389,10 +390,10 @@ local function generateFilterOptions()
 							tinsert(SuperVillain.Filters["BuffWatch"], {["enable"] = true, ["id"] = tonumber(f), ["point"] = "TOPRIGHT", ["color"] = {["r"] = 1, ["g"] = 0, ["b"] = 0}, ["anyUnit"] = false})
 							generateFilterOptions()
 							for t = 10, 40, 15 do 
-								MOD:UpdateAuraWatchFromHeader("raid"..t)
+								MOD:UpdateGroupAuraWatch("raid"..t)
 							end;
-							MOD:UpdateAuraWatchFromHeader("party")
-							MOD:UpdateAuraWatchFromHeader("raidpet", true)
+							MOD:UpdateGroupAuraWatch("party")
+							MOD:UpdateGroupAuraWatch("raidpet", true)
 							selectedSpell = nil 
 						end 
 					end
@@ -429,10 +430,10 @@ local function generateFilterOptions()
 						selectedSpell = nil;
 						generateFilterOptions()
 						for t = 10, 40, 15 do 
-							MOD:UpdateAuraWatchFromHeader("raid"..t)
+							MOD:UpdateGroupAuraWatch("raid"..t)
 						end;
-						MOD:UpdateAuraWatchFromHeader("party")
-						MOD:UpdateAuraWatchFromHeader("raidpet", true)
+						MOD:UpdateGroupAuraWatch("party")
+						MOD:UpdateGroupAuraWatch("raidpet", true)
 					end
 				}, 
 				selectSpell = {
@@ -440,7 +441,7 @@ local function generateFilterOptions()
 					type = "select", 
 					order = 3, 
 					values = function()
-						local values = {}
+						local v = {}
 						watchedBuffs = {}
 						for o, f in pairs(SuperVillain.Filters["BuffWatch"])do 
 							tinsert(watchedBuffs, f)
@@ -448,10 +449,10 @@ local function generateFilterOptions()
 						for o, l in pairs(watchedBuffs)do 
 							if l.id then 
 								local name = GetSpellInfo(l.id)
-								values[l.id] = name 
+								v[l.id] = name 
 							end 
 						end;
-						return values 
+						return v 
 					end, 
 					get = function(e)return selectedSpell end, 
 					set = function(e, arg)selectedSpell = arg;generateFilterOptions()end
@@ -469,10 +470,10 @@ local function generateFilterOptions()
 				set = function(e, arg)
 					SuperVillain.Filters["BuffWatch"][registeredSpell][e[#e]] = arg;
 					for t = 10, 40, 15 do 
-						MOD:UpdateAuraWatchFromHeader("raid"..t)
+						MOD:UpdateGroupAuraWatch("raid"..t)
 					end;
-					MOD:UpdateAuraWatchFromHeader("party")
-					MOD:UpdateAuraWatchFromHeader("raidpet", true)
+					MOD:UpdateGroupAuraWatch("party")
+					MOD:UpdateGroupAuraWatch("raidpet", true)
 				end, 
 				order = -10, 
 				args = {
@@ -494,7 +495,7 @@ local function generateFilterOptions()
 					}, 
 					xOffset = {order = 2, type = "range", name = L["xOffset"], min = -75, max = 75, step = 1}, 
 					yOffset = {order = 2, type = "range", name = L["yOffset"], min = -75, max = 75, step = 1}, 
-					style = {name = L["Style"], order = 3, type = "select", values = {["coloredIcon"] = L["Colored Icon"], ["texturedIcon"] = L["Textured Icon"], ["NONE"] = NONE}}, 
+					style = {name = L["Style"], order = 3, type = "select", values = {["coloredIcon"] = L["Colored Icon"], ["texturedIcon"] = L["Textured Icon"], [""] = NONE}}, 
 					color = {
 						name = L["Color"], 
 						type = "color", 
@@ -507,10 +508,10 @@ local function generateFilterOptions()
 							local abColor = SuperVillain.Filters["BuffWatch"][registeredSpell][e[#e]]
 							abColor.r,  abColor.g,  abColor.b = i, j, k;
 							for t = 10, 40, 15 do 
-								MOD:UpdateAuraWatchFromHeader("raid"..t)
+								MOD:UpdateGroupAuraWatch("raid"..t)
 							end;
-							MOD:UpdateAuraWatchFromHeader("party")
-							MOD:UpdateAuraWatchFromHeader("raidpet", true)
+							MOD:UpdateGroupAuraWatch("party")
+							MOD:UpdateGroupAuraWatch("raidpet", true)
 						end
 					}, 
 					displayText = {
@@ -535,10 +536,10 @@ local function generateFilterOptions()
 							local abColor = SuperVillain.Filters["BuffWatch"][registeredSpell][e[#e]]
 							abColor.r,  abColor.g,  abColor.b = i, j, k;
 							for t = 10, 40, 15 do 
-								MOD:UpdateAuraWatchFromHeader("raid"..t)
+								MOD:UpdateGroupAuraWatch("raid"..t)
 							end;
-							MOD:UpdateAuraWatchFromHeader("party")
-							MOD:UpdateAuraWatchFromHeader("raidpet", true)
+							MOD:UpdateGroupAuraWatch("party")
+							MOD:UpdateGroupAuraWatch("raidpet", true)
 						end
 					}, 
 					textThreshold = {
@@ -621,7 +622,10 @@ local function generateFilterOptions()
 					order = 3,
 					guiInline = true,
 					get = function(e)return selectedSpell end,
-					set = function(e, arg)selectedSpell = arg;generateFilterOptions()end,
+					set = function(e, arg)
+						selectedSpell = arg;
+						generateFilterOptions()
+					end,
 					values = function()
 						local filters = {}
 						local list = SuperVillain.Filters[filterType]
@@ -635,7 +639,7 @@ local function generateFilterOptions()
 			}
 		}
 
-		if not selectedSpell or not SuperVillain.Filters[filterType][selectedSpell]then 
+		if not selectedSpell or not SuperVillain.Filters[filterType][selectedSpell] then 
 			SuperVillain.Options.args.filters.args.spellGroup = nil;
 			return 
 		end;
@@ -686,6 +690,7 @@ local function generateFilterOptions()
 		}
 	end;
 	MOD:RefreshUnitFrames()
+	collectgarbage("collect")
 end;
 SuperVillain.Options.args.filters = {
 	type = "group",
@@ -723,9 +728,7 @@ SuperVillain.Options.args.filters = {
 				filters = {}
 				filters[""] = NONE;
 				for g in pairs(SuperVillain.Filters) do
-					if(g ~= "defaults" and g ~= "filters" and SuperVillain.Filters[g] and type(SuperVillain.Filters[g]) == "table") then
-						filters[g] = g
-					end
+					filters[g] = g
 				end;
 				return filters 
 			end
@@ -748,9 +751,7 @@ SuperVillain.Options.args.filters = {
 				filters = {}
 				filters[""] = NONE;
 				for g in pairs(SuperVillain.Filters) do 
-					if(g ~= "defaults" and g ~= "filters" and SuperVillain.Filters[g] and type(SuperVillain.Filters[g]) == "table") then
-						filters[g] = g
-					end
+					filters[g] = g
 				end;
 				filters["Buff Indicator"] = "Buff Indicator"
 				filters["Buff Indicator (Pet)"] = "Buff Indicator (Pet)"

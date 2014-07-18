@@ -36,7 +36,8 @@ GET ADDON DATA
 ##########################################################
 ]]--
 local SuperVillain, L = unpack(select(2, ...));
-local MOD = SuperVillain.Registry:Expose('SVUnit');
+local MOD = SuperVillain.Registry:Expose('SVUnit')
+if(not MOD) then return end;
 local _, ns = ...
 local oUF_SuperVillain = ns.oUF
 --[[ MUNGLUNCH's FASTER ASSERT FUNCTION ]]--
@@ -48,7 +49,7 @@ DRUID ALT MANA
 ##########################################################
 ]]--
 local UpdateAltPower = function(self, unit, arg1, arg2)
-	local value = self:GetParent().Power.value;
+	local value = self:GetParent().InfoPanel.Power;
 	if(arg1 ~= arg2) then 
 		local color = oUF_SuperVillain['colors'].power['MANA']
 		color = SuperVillain:HexColor(color[1],color[2],color[3])
@@ -64,18 +65,18 @@ local UpdateAltPower = function(self, unit, arg1, arg2)
 	else 
 		self.Text:SetText()
 	end 
-end;
+end 
 
-local function CreateAltMana(playerFrame,eclipse)
-	local bar = CreateFrame('Frame', nil, playerFrame)
+local function CreateAltMana(playerFrame, eclipse)
+	local bar = CreateFrame("Frame", nil, playerFrame)
 	bar:SetFrameStrata("LOW")
 	bar:SetPoint("TOPLEFT", eclipse, "TOPLEFT", 38, 0)
 	bar:SetPoint("BOTTOMRIGHT", eclipse, "BOTTOMRIGHT", 0, 0)
 	bar:SetFixedPanelTemplate("Default")
-	bar:SetFrameLevel(bar:GetFrameLevel()+1)
+	bar:SetFrameLevel(bar:GetFrameLevel() + 1)
 	bar.colorPower = true;
 	bar.PostUpdatePower = UpdateAltPower;
-	bar.ManaBar = CreateFrame('StatusBar', nil, bar)
+	bar.ManaBar = CreateFrame("StatusBar", nil, bar)
 	bar.ManaBar.noupdate = true;
 	bar.ManaBar:SetStatusBarTexture(SuperVillain.Media.bar.glow)
 	bar.ManaBar:FillInner(bar)
@@ -83,29 +84,30 @@ local function CreateAltMana(playerFrame,eclipse)
 	bar.bg:SetAllPoints(bar.ManaBar)
 	bar.bg:SetTexture([[Interface\BUTTONS\WHITE8X8]])
 	bar.bg.multiplier = 0.3;
-	bar.Text = bar.ManaBar:CreateFontString(nil, 'OVERLAY')
+	bar.Text = bar.ManaBar:CreateFontString(nil, "OVERLAY")
 	bar.Text:SetAllPoints(bar.ManaBar)
-	MOD:SetUnitFont(bar.Text)
+	bar.Text:SetFont(SuperVillain.Shared:Fetch("font", MOD.db.font), MOD.db.fontSize, MOD.db.fontOutline)
 	return bar 
-end;
+end 
 --[[ 
 ########################################################## 
 POSITIONING
 ##########################################################
 ]]--
 local Reposition = function(self)
-	local bar = self.EclipseBar;
-	if not bar or not self.db then print("Error") return end
-	local height = self.db.classbar.height
+	local bar = self.EclipseBar
+	local db = MOD.db.player
+	if not bar or not db then print("Error") return end
+	local height = db.classbar.height
 	local offset = (height - 10)
 	local adjustedBar = (height * 1.5)
 	local adjustedAnim = (height * 1.25)
 	local scaled = (height * 0.8)
-	local width = self.db.width * 0.4;
+	local width = db.width * 0.4;
 	bar:ClearAllPoints()
 	bar:Size(width, height)
 
-	if(self.db and self.db.classbar.slideLeft and (not self.db.power.tags or self.db.power.tags == '')) then
+	if(db and db.classbar.slideLeft and (not db.power.tags or db.power.tags == '')) then
 		bar:Point("TOPLEFT", self.InfoPanel, "TOPLEFT", offset, -2)
 	else
 		bar:Point("TOP", self.InfoPanel, "TOP", 0, -2)
@@ -129,7 +131,7 @@ local Reposition = function(self)
 
 	bar.Text:SetPoint("TOPLEFT", bar, "TOPLEFT", 10, 0)
 	bar.Text:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT", -10, 0)
-end;
+end 
 --[[ 
 ########################################################## 
 DRUID ECLIPSE BAR
@@ -171,7 +173,7 @@ local TrackerCallback = function(energy, direction, virtual_energy, virtual_dire
 		energy, direction, virtual_energy, virtual_direction, virtual_eclipse = LibBalancePowerTracker:GetEclipseEnergyInfo()
 		directionHandler[virtual_direction](playerFrame.EclipseBar)
 	end 
-end;
+end 
 
 function MOD:CreateDruidResourceBar(playerFrame)
 	local bar = CreateFrame('Frame', nil, playerFrame)
@@ -234,10 +236,10 @@ function MOD:CreateDruidResourceBar(playerFrame)
 
 	bar.SolarBar = solar;
 
-	bar.Text = lunar:CreateFontString(nil, 'OVERLAY', nil, 2)
+	bar.Text = lunar:CreateFontString(nil, 'OVERLAY')
 	bar.Text:SetPoint("TOPLEFT", bar, "TOPLEFT", 10, 0)
 	bar.Text:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT", -10, 0)
-	bar.Text:SetFontTemplate(SuperVillain.Media.font.roboto, 16, "NONE")
+	bar.Text:SetFont(SuperVillain.Media.font.roboto, 16, "NONE")
 	bar.Text:SetShadowOffset(0,0)
 
 	local hyper = CreateFrame("Frame",nil,playerFrame)
@@ -251,7 +253,7 @@ function MOD:CreateDruidResourceBar(playerFrame)
 
 	points.Text = points:CreateFontString(nil,'OVERLAY')
 	points.Text:SetAllPoints(points)
-	points.Text:SetFontTemplate([[Interface\AddOns\SVUI\assets\fonts\Combo.ttf]],26,'OUTLINE')
+	points.Text:SetFont([[Interface\AddOns\SVUI\assets\fonts\Combo.ttf]], 26, 'OUTLINE')
 	points.Text:SetTextColor(1,1,1)
 
 	playerFrame.HyperCombo = hyper;
@@ -265,7 +267,7 @@ function MOD:CreateDruidResourceBar(playerFrame)
 	playerFrame.ClassBarRefresh = Reposition;
 
 	return bar 
-end;
+end 
 --[[ 
 ########################################################## 
 DRUID COMBO POINTS
@@ -287,27 +289,28 @@ local comboTextures = {
 
 local ShowPoint = function(self)
 	self:SetAlpha(1)
-end;
+end 
 
 local HidePoint = function(self)
 	self.Icon:SetTexture(comboTextures[random(1,3)])
 	self:SetAlpha(0)
-end;
+end 
 
 local ShowSmallPoint = function(self)
 	self:SetAlpha(1)
-end;
+end 
 
 local HideSmallPoint = function(self)
 	self.Icon:SetVertexColor(unpack(cpointColor[i]))
 	self:SetAlpha(0)
-end;
+end 
 
 local RepositionCombo = function(self)
+	local db = MOD.db.target
 	local bar = self.HyperCombo.CPoints;
 	local max = MAX_COMBO_POINTS;
-	local height = self.db.combobar.height
-	local isSmall = self.db.combobar.smallIcons
+	local height = db.combobar.height
+	local isSmall = db.combobar.smallIcons
 	local size = isSmall and 22 or (height - 4)
 	local width = (size + 4) * max;
 	bar:ClearAllPoints()
@@ -328,7 +331,7 @@ local RepositionCombo = function(self)
 			bar[i]:Point("LEFT", bar[i - 1], "RIGHT", -2, 0) 
 		end
 	end 
-end;
+end 
 
 function MOD:CreateDruidCombobar(targetFrame, isSmall)
 	local max = 5
@@ -362,11 +365,11 @@ function MOD:CreateDruidCombobar(targetFrame, isSmall)
 		cpoint.Icon = icon
 
 		bar.CPoints[i] = cpoint 
-	end;
+	end 
 
 	targetFrame.ComboRefresh = RepositionCombo;
 	bar.PointShow = isSmall and ShowSmallPoint or ShowPoint;
 	bar.PointHide = isSmall and HideSmallPoint or HidePoint;
 
 	return bar 
-end;
+end 

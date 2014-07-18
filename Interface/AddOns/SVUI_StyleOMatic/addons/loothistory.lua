@@ -59,7 +59,8 @@ LOOTHISTORY STYLER
 local function LootHistoryStyle()
   LootHistoryFrame:SetFrameStrata('HIGH')
   if SuperVillain.db.SVStyle.blizzard.enable ~= true or SuperVillain.db.SVStyle.blizzard.loot ~= true then return end;
-  local M = MissingLootFrame;M:Formula409()
+  local M = MissingLootFrame;
+  M:Formula409()
   M:SetPanelTemplate("Pattern")
   MOD:ApplyCloseButtonStyle(MissingLootFramePassButton)
   hooksecurefunc("MissingLootFrame_Show", MissingLootFrame_OnShow)
@@ -73,6 +74,14 @@ local function LootHistoryStyle()
   LootHistoryFrame.ResizeButton:Height(19)
   LootHistoryFrame.ResizeButton:ClearAllPoints()
   LootHistoryFrame.ResizeButton:Point("TOP", LootHistoryFrame, "BOTTOM", 0, -2)
+  LootHistoryFrame.ResizeButton:SetNormalTexture("")
+
+  local txt = LootHistoryFrame.ResizeButton:CreateFontString(nil,"OVERLAY")
+  txt:SetFont(SuperVillain.Media.font.roboto, 14, "NONE")
+  txt:SetAllPoints(LootHistoryFrame.ResizeButton)
+  txt:SetJustifyH("CENTER")
+  txt:SetText("RESIZE")
+
   LootHistoryFrameScrollFrame:Formula409()
   MOD:ApplyScrollStyle(LootHistoryFrameScrollFrameScrollBar)
   hooksecurefunc("LootHistoryFrame_FullUpdate", LootHistoryFrame_OnUpdate)

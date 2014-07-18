@@ -40,6 +40,7 @@ local MOD = SuperVillain.Registry:Expose('SVLaborer');
 LOCAL VARS
 ##########################################################
 ]]--
+local playerRace = select(2,UnitRace("player"))
 local archSpell, survey, surveyIsKnown, skillRank, skillModifier;
 local EnableListener, DisableListener;
 local CanScanResearchSite = CanScanResearchSite
@@ -56,6 +57,7 @@ local refArtifacts = {};
 for i = 1, 12 do
 	refArtifacts[i] = {}
 end
+local NEEDS_UPDATE = true;
 local ArchLaborer = CreateFrame("Frame", "SVUI_ArchLaborer", UIParent)
 --[[ 
 ########################################################## 
@@ -159,7 +161,7 @@ end
 
 local function UpdateArtifactCache()
 	local found, raceName, raceItemID, cache, _;
-	for index=1, 12 do
+	for index = 1, 12 do
 		found = GetNumArtifactsByRace(index)
 		raceName, _, raceItemID = GetArchaeologyRaceInfo(index)
 		cache = refArtifacts[index]
@@ -201,6 +203,7 @@ local function UpdateArtifactCache()
 		end
 		UpdateArtifactBars(index)
 	end
+	NEEDS_UPDATE = false
 end
 
 local function GetTitleAndSkill()
@@ -225,8 +228,7 @@ EVENT HANDLER
 ]]--
 do
 	local SURVEYCDFONT = SuperVillain.Media.font.numbers
-	local SURVEYRED = {0,1,1}
-	local SURVEYGRN = {1,0.5,0}
+	local SURVEYRED = {0,0.5,1}
 	local last = 0
 	local time = 3
 
@@ -236,15 +238,28 @@ do
 	local ArchCanSurvey, ArchWillSurvey = false, false;
 
 	SurveyCooldown:SetPoint("CENTER", 0, -80)
-	SurveyCooldown:SetSize(40, 40)
+	SurveyCooldown:SetSize(150, 150)
 	SurveyCooldown.text = SurveyCooldown:CreateFontString(nil, "OVERLAY")
-	SurveyCooldown.text:SetFont(SURVEYCDFONT, 99, "OUTLINE")
+	SurveyCooldown.text:SetAllPoints(SurveyCooldown)
+	SurveyCooldown.text:SetFont(SURVEYCDFONT, 150, "OUTLINE")
 	SurveyCooldown.text:SetTextColor(0,1,0.12,0.5)
 	SurveyCooldown.text:SetPoint("CENTER")
+	SurveyCooldown:SetScale(1.5)
 
 	local Arch_OnEvent = function(self, event, ...)
 		if(InCombatLockdown() or not archSpell) then return end
-		if(event == "ZONE_CHANGED" or event == "ARTIFACT_DIG_SITE_UPDATED" or event == "ARTIFACT_DIGSITE_COMPLETE") then
+		if(event == "CURRENCY_DISPLAY_UPDATE" or event == "CHAT_MSG_SKILL" or event == "ARTIFACT_COMPLETE") then
+			local msg = GetTitleAndSkill()
+			MOD.TitleWindow:Clear()
+			MOD.TitleWindow:AddMessage(msg)
+		end
+		if(CanScanResearchSite() and (event == "CURRENCY_DISPLAY_UPDATE")) then
+			UpdateArtifactCache()
+		elseif(event == "ARCHAEOLOGY_SURVEY_CAST" or event == "ARTIFACT_COMPLETE" or event == "ARTIFACT_DIG_SITE_UPDATED") then
+			UpdateArtifactCache()
+		elseif(event == "ARTIFACT_HISTORY_READY" or event == "ARTIFACT_DIGSITE_COMPLETE") then
+			NEEDS_UPDATE = true
+		else
 			ArchCanSurvey = CanScanResearchSite()
 			if(ArchCanSurvey and not ArchWillSurvey) then
 				_G["SVUI_ModeCaptureWindow"]:SetAttribute("type", "spell")
@@ -257,6 +272,7 @@ do
 				ModeAlert.HelpText = "Double-Right-Click anywhere on the screen to open the artifacts window.";
 				ArchWillSurvey = false
 			end
+			if(event == "ZONE_CHANGED_NEW_AREA") then ArchSiteFound = nil end
 			if(not ArchSiteFound) then
 				local sites = ArchaeologyMapUpdateAll();
 				if(sites and sites > 0) then
@@ -266,8 +282,9 @@ do
 					ArchSiteFound = nil
 				end
 			end
-		elseif(ArchCanSurvey and (event == "ARTIFACT_HISTORY_READY" or event == "CURRENCY_DISPLAY_UPDATE" or event == "ARTIFACT_COMPLETE")) then
-			UpdateArtifactCache()
+			if(NEEDS_UPDATE) then
+				UpdateArtifactCache()
+			end
 		end
 	end;
 
@@ -281,7 +298,7 @@ do
 				self.text:SetText("")
 				time = 3
 			end
-			self.text:SetTextColor(SURVEYRED[time],SURVEYGRN[time],0.12,0.5)
+			self.text:SetTextColor(SURVEYRED[time],1,0.12,0.8)
 			last = 0
 		end
 	end;
@@ -298,17 +315,21 @@ do
 		UpdateArtifactCache()
 		
 		ArchEventHandler:RegisterEvent("ZONE_CHANGED")
+		ArchEventHandler:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+		ArchEventHandler:RegisterEvent("ZONE_CHANGED_INDOORS")
+
 		ArchEventHandler:RegisterEvent("ARTIFACT_DIG_SITE_UPDATED")
 		ArchEventHandler:RegisterEvent("ARTIFACT_DIGSITE_COMPLETE")
 		ArchEventHandler:RegisterEvent("ARTIFACT_HISTORY_READY")
 		ArchEventHandler:RegisterEvent("ARTIFACT_COMPLETE")
+
 		ArchEventHandler:RegisterEvent("CURRENCY_DISPLAY_UPDATE")
-		--ArchEventHandler:RegisterEvent("ZONE_CHANGED_NEW_AREA")
-		--ArchEventHandler:RegisterEvent("ZONE_CHANGED_INDOORS")
-		--ArchEventHandler:RegisterEvent("ARCHAEOLOGY_SURVEY_CAST")
+		ArchEventHandler:RegisterEvent("ARCHAEOLOGY_SURVEY_CAST")
+
+		ArchEventHandler:RegisterEvent("CHAT_MSG_SKILL")
 		
 		ArchEventHandler:SetScript("OnEvent", Arch_OnEvent)
-		if(SuperVillain.race ~= "Dwarf") then
+		if(playerRace ~= "Dwarf") then
 			SurveyCooldown:RegisterEvent("UNIT_SPELLCAST_STOP")
 			SurveyCooldown:SetScript("OnEvent", Survey_OnEvent)
 		end
@@ -317,7 +338,7 @@ do
 	function DisableListener()
 		ArchEventHandler:UnregisterAllEvents()
 		ArchEventHandler:SetScript("OnEvent", nil)
-		if(SuperVillain.race ~= "Dwarf") then
+		if(playerRace ~= "Dwarf") then
 			SurveyCooldown:UnregisterAllEvents()
 			SurveyCooldown:SetScript("OnEvent", nil)
 		end

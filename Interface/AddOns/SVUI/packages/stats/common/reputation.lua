@@ -35,7 +35,6 @@ GET ADDON DATA
 ]]--
 local SuperVillain, L = unpack(select(2, ...));
 local MOD = SuperVillain.Registry:Expose('SVStats');
-local LSM = LibStub("LibSharedMedia-3.0");
 --[[ 
 ########################################################## 
 REPUTATION STATS
@@ -86,7 +85,7 @@ local function Reputation_OnEvent(self, ...)
 		self.text:SetJustifyH("CENTER")
 		self.barframe:Hide()
 		self.text:SetAlpha(1)
-		self.text:SetFontTemplate(LSM:Fetch("font",SuperVillain.db.SVStats.font),SuperVillain.db.SVStats.fontSize,SuperVillain.db.SVStats.fontOutline)
+		self.text:SetFontTemplate(SuperVillain.Shared:Fetch("font",SuperVillain.db.SVStats.font),SuperVillain.db.SVStats.fontSize,SuperVillain.db.SVStats.fontOutline)
 	end;
 	local ID = 100
 	local isFriend, friendText
@@ -118,7 +117,7 @@ local function ReputationBar_OnEvent(self, ...)
 		self.barframe:Show()
 		self.barframe.icon.texture:SetTexture("Interface\\Addons\\SVUI\\assets\\artwork\\Icons\\STAT-REP")
 		self.text:SetAlpha(0.5)
-		self.text:SetFontTemplate(LSM:Fetch("font",SuperVillain.db.SVStats.font),SuperVillain.db.SVStats.fontSize,"NONE")
+		self.text:SetFontTemplate(SuperVillain.Shared:Fetch("font",SuperVillain.db.SVStats.font),SuperVillain.db.SVStats.fontSize,"NONE")
 	end;
 	local bar = self.barframe.bar;
 	local name, reaction, min, max, value = GetWatchedFactionInfo()

@@ -211,8 +211,4 @@ function MOD:LoadMinimapButtons()
 	MMBBar:SetScript("OnEnter",MMB_OnEnter)
 	MMBBar:SetScript("OnLeave",MMB_OnLeave)
 	self:UpdateMinimapButtonSettings()
-	
-	if SVUI_BailOut then
-		SVUI_BailOut:SetPoint("TOPLEFT",SVUI_MinimapFrame,"BOTTOMLEFT",2,-(SVUI_MiniMapButtonHolder:GetHeight() + 4))
-	end
 end

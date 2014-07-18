@@ -34,7 +34,8 @@ GET ADDON DATA
 ##########################################################
 ]]--
 local SuperVillain, L = unpack(select(2, ...));
-local MOD = SuperVillain.Registry:Expose('SVUnit');
+local MOD = SuperVillain.Registry:Expose('SVUnit')
+if(not MOD) then return end;
 local _, ns = ...
 local oUF_SuperVillain = ns.oUF
 --[[ MUNGLUNCH's FASTER ASSERT FUNCTION ]]--
@@ -119,9 +120,10 @@ local function ChangeGroupIndex(self)
 	if not self:IsShown() then return end
 
 	local max = MAX_RAID_MEMBERS;
-	local db = self.db or self:GetParent().db;
+	local key = self.___groupkey
+	local db = MOD.db[key]
 
-	local newIndex = db.rSort and -(min(db.gCount * (db.gRowCol * 5), max) + 1 ) or -4;
+	local newIndex = db.customSorting and -(min(db.groupCount * (db.gRowCol * 5), max) + 1 ) or -4;
 	if self:GetAttribute("startingIndex") ~= newIndex then 
 		self:SetAttribute("startingIndex", newIndex)
 		self.isForced = true;
@@ -133,15 +135,18 @@ end
 CORE FUNCTIONS
 ##########################################################
 ]]--
-function MOD:SwapElement(unitGroup, numGroup)
+function MOD:SwapElement(unit, numGroup)
 	if InCombatLockdown()then return end
-	for i=1,numGroup do
-		local unitName = unitGroup..i
-		if self[unitName] and not self[unitName].isForced then 
-			self:AllowElement(self[unitName])
-		elseif self[unitName] then 
-			self:RestrictElement(self[unitName])
-		end 
+	for i=1, numGroup do
+		local unitName = unit..i
+		local frame = self.Units[unitName]
+		if(frame) then
+			if(not frame.isForced) then 
+				self:AllowElement(frame)
+			else
+				self:RestrictElement(frame)
+			end
+		end
 	end 
 end
 
@@ -155,7 +160,8 @@ function MOD:UpdateGroupConfig(headerFrame, setForced)
 	if InCombatLockdown()then return end
 
 	SetProxyEnv()
-	
+	local key = headerFrame.___groupkey
+	local db = MOD.db[key]
 	headerFrame.forceShow = setForced;
 	headerFrame.forceShowAuras = setForced;
 	headerFrame.isForced = setForced;
@@ -175,13 +181,12 @@ function MOD:UpdateGroupConfig(headerFrame, setForced)
 			setfenv(func, fenv)
 			definedEnvs[func] = nil 
 		end
-		RegisterStateDriver(headerFrame, "visibility", headerFrame.db.visibility)
+		RegisterStateDriver(headerFrame, "visibility", db.visibility)
 		headerFrame:GetScript("OnEvent")(headerFrame, "PLAYER_ENTERING_WORLD")
 	end
 
-	for i = 1, #headerFrame.subunits do 
-		local groupFrame = headerFrame.subunits[i]
-		local db = groupFrame.db;
+	for i = 1, #headerFrame.groups do
+		local groupFrame = headerFrame.groups[i]
 
 		if groupFrame:IsShown()then 
 			groupFrame.forceShow = headerFrame.forceShow;
@@ -207,4 +212,5 @@ function MOD:UpdateGroupConfig(headerFrame, setForced)
 	end
 
 	headerFrame:SetActiveState()
+	collectgarbage("collect")
 end

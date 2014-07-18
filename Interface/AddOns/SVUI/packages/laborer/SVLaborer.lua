@@ -34,7 +34,6 @@ GET ADDON DATA
 ]]--
 local SuperVillain, L = unpack(select(2, ...));
 local MOD = {};
-local DOCK = SuperVillain.Registry:Expose('SVDock');
 SuperVillain.Modes = MOD;
 --[[ 
 ########################################################## 
@@ -349,7 +348,7 @@ local ModeAlert_OnLeave = function(self)
 end
 
 local ModeAlert_OnHide = function()
-	DOCK:DockAlertRightClose()
+	SuperDockAlertRight:Deactivate()
 end
 
 local ModeAlert_OnShow = function(self)
@@ -359,7 +358,7 @@ local ModeAlert_OnShow = function(self)
 		return; 
 	end
 	UIFrameFadeIn(self, 0.3, 0, 1)
-	DOCK:DockAlertRightOpen(self)
+	SuperDockAlertRight:Activate(self)
 end
 
 local _hide_me = function() ModeAlert:Hide() end
@@ -391,7 +390,7 @@ local ModeButton_OnMouseDown = function(self)
 	MOD:SetJobMode(name)
 end
 
-function MOD:ConstructThisPackage()
+function MOD:Load()
 	classR, classG, classB = SuperVillain.Media.color.class[1], SuperVillain.Media.color.class[2], SuperVillain.Media.color.class[3]
 	LABORER_FONT = LibStub("LibSharedMedia-3.0"):Fetch("font", SuperVillain.db.media.fonts.default)
 	local _,_,arch,_,cook,_ = GetProfessions();

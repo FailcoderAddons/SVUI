@@ -117,22 +117,21 @@ local StupidHatHandler_OnEvent = function(self, event)
 end
 --[[ 
 ########################################################## 
-ARENA OPPONENT IS DRINKING
+VARIOUS COMBAT REACTIONS
 ##########################################################
 ]]--
-local ArenaDrinkHandler = CreateFrame("Frame")
-local ArenaDrinkHandler_OnEvent = function(self, event, ...)
-	if not (event == "UNIT_SPELLCAST_SUCCEEDED" and GetZonePVPInfo() == "arena") then return end
-	local unit, _, _, _, spellID = ...
-	if UnitIsEnemy("player", unit) and (spellID == 118358 or spellID == 104270) then
-		SendChatMessage(UnitName(unit)..L[" is drinking."], "PARTY")
-	end
+local random = math.random
+local function rng()
+	return random(1,6)
 end
---[[ 
-########################################################## 
-I HAS LAID DOWN A FEAST
-##########################################################
-]]--
+local SAPPED_MESSAGE = {
+	"Oh Hell No... {rt8}SAPPED{rt8}", 
+	"{rt8}SAPPED{rt8}", 
+	"Mother Fu... {rt8}SAPPED{rt8}", 
+	"{rt8}SAPPED{rt8}", 
+	"{rt8}SAPPED{rt8} ...Ain't Nobody Got Time For That!", 
+	"{rt8}SAPPED{rt8}"
+}
 local ChatLogHandler = CreateFrame("Frame")
 local ChatLogHandler_OnEvent = function(self, event, ...)
 	local _, subEvent, _, sourceGUID, sourceName, _, _, destGUID, destName, _, _, spellID, _, _, otherSpellID = ...
@@ -141,7 +140,9 @@ local ChatLogHandler_OnEvent = function(self, event, ...)
 
 	if(SuperVillain.db.system.pvpinterrupt) then
 		if ((spellID == 6770) and (destName == toon) and (subEvent == "SPELL_AURA_APPLIED" or subEvent == "SPELL_AURA_REFRESH")) then
-			SendChatMessage("Uh-oh", "SAY")
+			local msg = SAPPED_MESSAGE[rng()]
+			local cahnnel = IsInGroup() and "PARTY" or "SAY"
+			SendChatMessage(msg, cahnnel)
 			DEFAULT_CHAT_FRAME:AddMessage("Sapped by: "..(sourceName or "(unknown)"))
 		elseif(subEvent == "SPELL_INTERRUPT" and sourceGUID == UnitGUID("player") and IsInGroup()) then
 			SendChatMessage(INTERRUPTED.." "..destName..": "..GetSpellLink(otherSpellID), MsgTest())
@@ -253,14 +254,6 @@ function SuperVillain:ToggleReactions()
 	else
 		StupidHatHandler:UnregisterEvent("ZONE_CHANGED_NEW_AREA")
 		StupidHatHandler:SetScript("OnEvent", nil)
-	end
-
-	if(settings.arenadrink) then
-		ArenaDrinkHandler:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
-		ArenaDrinkHandler:SetScript("OnEvent", ArenaDrinkHandler_OnEvent)
-	else
-		ArenaDrinkHandler:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED")
-		ArenaDrinkHandler:SetScript("OnEvent", nil)
 	end
 
 	if(not settings.sharingiscaring) and (not settings.pvpinterrupt) and (not settings.woot) and (not settings.lookwhaticando) then

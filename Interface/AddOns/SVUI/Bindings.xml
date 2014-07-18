@@ -3,21 +3,24 @@
     RaidMark_HotkeyPressed(keystate)
   </Binding>
   <Binding name="Fishing Mode" runOnUp="false">
-    FishingMode()
+    SVUIFishingMode()
   </Binding> 
    <Binding name="Farming Mode" runOnUp="false">
-    FarmingMode()
+    SVUIFarmingMode()
   </Binding>
   <Binding name="Archaeology Mode" runOnUp="false">
-    ArchaeologyMode()
+    SVUIArchaeologyMode()
   </Binding> 
   <Binding name="Cooking Mode" runOnUp="false">
-    CookingMode()
+    SVUICookingMode()
   </Binding>
    <Binding name="Toggle Docks" runOnUp="false">
     HideSuperDocks()
   </Binding>
   <Binding name="Lets Ride" runOnUp="false">
-    LetsRide()
+    SVUILetsRide()
+  </Binding>
+  <Binding name="Call Out Incoming" runOnUp="false">
+    SVUISayIncoming()
   </Binding>
 </Bindings>

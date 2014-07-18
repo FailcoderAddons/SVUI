@@ -53,7 +53,7 @@ LOCAL VARS
 local gsub,upper = string.gsub,string.upper;
 local temp = gsub(SLASH_CALENDAR1, "/", "");
 local calendar_string = gsub(temp, "^%l", upper)
-local cColor = SVUI_CLASS_COLORS[SuperVillain.class];
+local cColor = RAID_CLASS_COLORS[SuperVillain.class];
 local MM_COLOR = {"VERTICAL", 0.65, 0.65, 0.65, 0.95, 0.95, 0.95}
 local MM_BRDR = 0
 local MM_SIZE = 240
@@ -109,13 +109,11 @@ end;
 
 function MOD:RefreshMiniMap()
 	MOD:UpdateSizing()
-
 	if(SVUI_MinimapFrame and SVUI_MinimapFrame:IsShown()) then
 		SVUI_MinimapFrame:Size(MM_WIDTH, MM_HEIGHT)
 		SVUI_MinimapFrame.backdrop:SetGradient(unpack(MM_COLOR))
 		Minimap:Size(MM_SIZE,MM_SIZE)
 		if MOD.db.customshape then
-			Minimap:SetHitRectInsets(0, 0, -50, 50)
 			Minimap:SetPoint("BOTTOMLEFT", SVUI_MinimapFrame, "BOTTOMLEFT", MM_BRDR, -(MM_OFFSET_BOTTOM - MM_BRDR))
 			Minimap:SetPoint("TOPRIGHT", SVUI_MinimapFrame, "TOPRIGHT", -MM_BRDR, (MM_OFFSET_TOP - MM_BRDR))
 			Minimap:SetMaskTexture('Interface\\AddOns\\SVUI\\assets\\artwork\\Minimap\\MINIMAP_MASK_RECTANGLE')
@@ -264,7 +262,7 @@ local function UpdateMinimapNarration()
 end;
 
 local function UpdateMinimapLocation()
-	SVUI_MinimapZonetext.Text:SetText(MOD.locationPrefix .. strsub(GetMinimapZoneText(),1,25))
+	SVUI_MinimapZonetext.Text:SetText(MOD.locationPrefix .. strsub(GetMinimapZoneText(), 1, 25))
 end;
 
 function MOD:UpdateMinimapTexts()
@@ -442,12 +440,12 @@ end;
 BUILD FUNCTION / UPDATE
 ##########################################################
 ]]--
-function MOD:UpdateThisPackage()
+function MOD:ReLoad()
 	if(not SuperVillain.db.SVMap.enable) then return; end
 	self:RefreshMiniMap()
 end
 
-function MOD:ConstructThisPackage()
+function MOD:Load()
 	if(not SuperVillain.db.SVMap.enable) then 
 		Minimap:SetMaskTexture('Textures\\MinimapMask')
 		return; 
@@ -462,7 +460,7 @@ function MOD:ConstructThisPackage()
 	self:LoadMinimapButtons()
 	self:LoadWorldMap()
 	self:SetMiniMapCoords()
-	self:UpdateThisPackage()
+	self:ReLoad()
 	SuperVillain:AddToDisplayAudit(SVUI_MinimapFrame)
 end
 SuperVillain.Registry:NewPackage(MOD, "SVMap", "pre")

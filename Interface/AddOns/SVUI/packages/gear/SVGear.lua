@@ -272,11 +272,11 @@ local GearSwapComplete = function()
 	end 
 end;
 
-function MOD:UpdateThisPackage()
+function MOD:ReLoad()
 	RefreshGear()
 end;
 
-function MOD:ConstructThisPackage()
+function MOD:Load()
 	self.PreBuildComplete = false
 	self:RegisterEvent("UPDATE_INVENTORY_DURABILITY", RefreshGear)
 	self:RegisterEvent("PLAYER_EQUIPMENT_CHANGED", RefreshGear)

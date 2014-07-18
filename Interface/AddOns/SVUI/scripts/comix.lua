@@ -147,11 +147,11 @@ function SuperVillain:ToggleComix()
 end;
 
 function SuperVillain:ToastyKombat()
-	Comix:LaunchPopup("DELUXE")
-	-- ComixToastyPanelBG.anim[2]:SetOffset(256, -256)
-	-- ComixToastyPanelBG.anim[2]:SetOffset(0, 0)
-	-- ComixToastyPanelBG.anim:Play()
-	-- PlaySoundFile([[Interface\AddOns\SVUI\assets\sounds\toasty.mp3]])
+	--Comix:LaunchPopup("DELUXE")
+	ComixToastyPanelBG.anim[2]:SetOffset(256, -256)
+	ComixToastyPanelBG.anim[2]:SetOffset(0, 0)
+	ComixToastyPanelBG.anim:Play()
+	PlaySoundFile([[Interface\AddOns\SVUI\assets\sounds\toasty.mp3]])
 end;
 
 local Comix_OnUpdate = function() Comix:ReadyState(true) end

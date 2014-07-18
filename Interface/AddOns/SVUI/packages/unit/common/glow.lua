@@ -19,7 +19,8 @@ local oUF_SuperVillain = ns.oUF
 --[[ MUNGLUNCH's FASTER ASSERT FUNCTION ]]--
 local assert = enforce;
 assert(oUF_SuperVillain, "SVUI was unable to locate oUF.")
-local MOD = SuperVillain.Registry:Expose('SVUnit');
+local MOD = SuperVillain.Registry:Expose('SVUnit')
+if(not MOD) then return end;
 --[[ 
 ########################################################## 
 LOCAL VARIABLES

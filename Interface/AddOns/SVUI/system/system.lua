@@ -58,31 +58,17 @@ LOCALS
 ##########################################################
 ]]--
 local bld = select(2,GetBuildInfo());
-local resolution = GetCVar("gxResolution");
+local toonClass = select(2,UnitClass("player"));
+local rez = GetCVar("gxResolution");
+local gxHeight = tonumber(match(rez,"%d+x(%d+)"));
+local gxWidth = tonumber(match(rez,"(%d+)x%d+"));
 local NewHook = hooksecurefunc;
 --[[ 
 ########################################################## 
 BUILD ADDON OBJECTS
 ##########################################################
 ]]--
-local SuperVillain = {};
-SuperVillain.Filters = {};
-SuperVillain.db = {};
-SuperVillain.Media = {};
-SuperVillain.DisplayAudit = {};
-SuperVillain.DynamicOptions = {};
-SuperVillain.snaps = {};
-SuperVillain.Options = { type="group", name="|cff339fffConfig-O-Matic|r", args={}, };
-
-local svui_meta = {}
-local base_meta = getmetatable(SuperVillain)
-if base_meta then
-	for k, v in pairs(base_meta) do svui_meta[k] = v end
-end
-svui_meta._name = "SuperVillain"
-svui_meta.__tostring = function(self) return self._name end
-setmetatable(SuperVillain, svui_meta)
-
+local SuperVillain = SVUI_LIB:SetObject(SVUINameSpace)
 local L = SVUI_LOCALE:SetObject()
 
 SVUICore[1] = SuperVillain;
@@ -95,34 +81,37 @@ CREATE GLOBAL NAMESPACE
 _G[SVUINameSpace] = SVUICore;
 --[[ 
 ########################################################## 
-CREATE GLOBAL NAMESPACE
+SET MANY VARIABLES
 ##########################################################
 ]]--
+local SVUISystemEventHandler = CreateFrame("Frame", "SVUISystemEventHandler")
+local SVUIParent = CreateFrame("Frame", "SVUIParent", UIParent);
+local StealthFrame = CreateFrame("Frame", nil, UIParent);
+StealthFrame:Hide();
+SVUIParent:SetFrameLevel(UIParent:GetFrameLevel());
+SVUIParent:SetPoint("CENTER", UIParent, "CENTER");
+SVUIParent:SetSize(UIParent:GetSize());
+
+SuperVillain.db = {};
+SuperVillain.Media = {};
+SuperVillain.Filters = {};
+SuperVillain.DisplayAudit = {};
+SuperVillain.DynamicOptions = {};
+SuperVillain.snaps = {};
+SuperVillain.Dispellable = {};
+SuperVillain.Options = { type="group", name="|cff339fffConfig-O-Matic|r", args={}, };
+SuperVillain.Shared = LibStub("LibSharedMedia-3.0")
 SuperVillain.version = GetAddOnMetadata(..., "Version");
-SuperVillain.HVAL = format("|cff%02x%02x%02x",0.2*255,0.5*255,1*255);
-SuperVillain.class = select(2,UnitClass("player"));
+SuperVillain.class = toonClass;
 SuperVillain.name = UnitName("player");
 SuperVillain.realm = GetRealmName();
 SuperVillain.build = tonumber(bld);
-SuperVillain.race = select(2,UnitRace("player"));
-SuperVillain.faction = select(2,UnitFactionGroup('player'));
 SuperVillain.guid = UnitGUID('player');
-SuperVillain.mac = IsMacClient();
-SuperVillain.screenheight = tonumber(match(resolution,"%d+x(%d+)"));
-SuperVillain.screenwidth = tonumber(match(resolution,"(%d+)x%d+"));
-SuperVillain.macheight = tonumber(match(resolution,"%d+x(%d+)"));
-SuperVillain.macwidth = tonumber(match(resolution,"(%d+)x%d+"));
 SuperVillain.mult = 1;
---[[ INTERNAL TEMP STORAGE ]]--
 SuperVillain.ConfigurationMode = false;
 SuperVillain.ClassRole = "";
---[[ INTERNAL HANDLER FRAMES ]]--
-local SVUISystemEventHandler = CreateFrame("Frame", "SVUISystemEventHandler")
-local SVUIParent = CreateFrame('Frame','SVUIParent',UIParent);
-SVUIParent:SetFrameLevel(UIParent:GetFrameLevel());
-SVUIParent:SetPoint('CENTER',UIParent,'CENTER');
-SVUIParent:SetSize(UIParent:GetSize());
 SuperVillain.UIParent = SVUIParent;
+SuperVillain.Cloaked = StealthFrame;
 SuperVillain.snaps[#SuperVillain.snaps + 1] = SuperVillain.UIParent;
 --[[ 
 ########################################################## 
@@ -137,65 +126,43 @@ DISPEL MECHANICS
 ##########################################################
 ]]--
 local droodSpell1, droodSpell2 = GetSpellInfo(110309), GetSpellInfo(4987);
-local RefClassData = {
-	PALADIN = {
-		["ROLE"] = {"C", "T", "M"}, 
-		["DISPELL"] = {["Poison"] = true, ["Magic"] = false, ["Disease"] = true}, 
-		["MagicSpec"] = 1
-	}, 
-	PRIEST = {
-		["ROLE"] = {"C", "C", "C"}, 
-		["DISPELL"] = {["Magic"] = true, ["Disease"] = true}, 
-		["MagicSpec"] = false
-	}, 
-	WARLOCK = {
-		["ROLE"] = {"C", "C", "C"}, 
-		["DISPELL"] = false, 
-		["MagicSpec"] = false
-	}, 
-	WARRIOR = {
-		["ROLE"] = {"M", "M", "T"}, 
-		["DISPELL"] = false, 
-		["MagicSpec"] = false
-	}, 
-	HUNTER = {
-		["ROLE"] = {"M", "M", "M"}, 
-		["DISPELL"] = false, 
-		["MagicSpec"] = false
-	}, 
-	SHAMAN = {
-		["ROLE"] = {"C", "M", "C"}, 
-		["DISPELL"] = {["Magic"] = false, ["Curse"] = true}, 
-		["MagicSpec"] = 3
-	}, 
-	ROGUE = {
-		["ROLE"] = {"M", "M", "M"}, 
-		["DISPELL"] = false, 
-		["MagicSpec"] = false
-	}, 
-	MAGE = {
-		["ROLE"] = {"C", "C", "C"}, 
-		["DISPELL"] = {["Curse"] = true}, 
-		["MagicSpec"] = false
-	}, 
-	DEATHKNIGHT = {
-		["ROLE"] = {"T", "M", "M"}, 
-		["DISPELL"] = false, 
-		["MagicSpec"] = false
-	}, 
-	DRUID = {
-		["ROLE"] = {"C", "M", "T", "C"}, 
-		["DISPELL"] = {["Magic"] = false, ["Curse"] = true, ["Poison"] = true, ["Disease"] = false}, 
-		["MagicSpec"] = 4
-	}, 
-	MONK = {
-		["ROLE"] = {"T", "C", "M"}, 
-		["DISPELL"] = {["Magic"] = false, ["Disease"] = true, ["Poison"] = true}, 
-		["MagicSpec"] = 2
-	}
-}
-
-local DispellData = RefClassData[SuperVillain.class]["DISPELL"];
+local RefClassRoles;
+local RefMagicSpec;
+do
+	if(toonClass == "PRIEST") then
+		RefClassRoles = {"C", "C", "C"}
+		SuperVillain.Dispellable = {["Magic"] = true, ["Disease"] = true}
+	elseif(toonClass == "WARLOCK") then
+		RefClassRoles = {"C", "C", "C"}
+	elseif(toonClass == "WARRIOR") then
+		RefClassRoles = {"M", "M", "T"}
+	elseif(toonClass == "HUNTER") then
+		RefClassRoles = {"M", "M", "M"}
+	elseif(toonClass == "ROGUE") then
+		RefClassRoles = {"M", "M", "M"}
+	elseif(toonClass == "MAGE") then
+		RefClassRoles = {"C", "C", "C"}
+		SuperVillain.Dispellable = {["Curse"] = true}
+	elseif(toonClass == "DEATHKNIGHT") then
+		RefClassRoles = {"T", "M", "M"}
+	elseif(toonClass == "DRUID") then
+		RefMagicSpec = 4
+		RefClassRoles = {"C", "M", "T", "C"}
+		SuperVillain.Dispellable = {["Curse"] = true, ["Poison"] = true}
+	elseif(toonClass == "SHAMAN") then
+		RefMagicSpec = 3
+		RefClassRoles = {"C", "M", "C"}
+		SuperVillain.Dispellable = {["Curse"] = true}
+	elseif(toonClass == "MONK") then
+		RefMagicSpec = 2
+		RefClassRoles = {"T", "C", "M"}
+		SuperVillain.Dispellable = {["Disease"] = true, ["Poison"] = true}
+	elseif(toonClass == "PALADIN") then
+		RefMagicSpec = 1
+		RefClassRoles = {"C", "T", "M"}
+		SuperVillain.Dispellable = {["Poison"] = true, ["Disease"] = true}
+	end
+end
 
 local function GetTalentInfo(arg)
 	if type(arg) == "number" then 
@@ -205,18 +172,11 @@ local function GetTalentInfo(arg)
 	end 
 end
 
-function SuperVillain:DispellAvailable(debuffType)
-	if not DispellData then return end 
-	if DispellData[debuffType] then 
-		return true 
-	end 
-end
-
 function SuperVillain:DefinePlayerRole()
 	local spec = GetSpecialization()
 	local role;
 	if spec then
-		role = RefClassData[self.class]["ROLE"][spec]
+		role = RefClassRoles[spec]
 		if role == "T" and UnitLevel("player") == MAX_PLAYER_LEVEL then
 			local bonus, pvp = GetCombatRatingBonus(COMBAT_RATING_RESILIENCE_PLAYER_DAMAGE_TAKEN), false;
 			if bonus > GetDodgeChance() and bonus > GetParryChance() then 
@@ -238,11 +198,11 @@ function SuperVillain:DefinePlayerRole()
 		self.ClassRole = role;
 		self.RoleChangedCallback()
 	end 
-	if RefClassData[self.class]["MagicSpec"] then 
-		if GetTalentInfo(RefClassData[self.class]["MagicSpec"]) then 
-			DispellData.Magic = true 
-		else 
-			DispellData.Magic = false 
+	if RefMagicSpec then 
+		if(GetTalentInfo(RefMagicSpec)) then 
+			self.Dispellable["Magic"] = true 
+		elseif(self.Dispellable["Magic"]) then
+			self.Dispellable["Magic"] = nil 
 		end 
 	end
 end 
@@ -258,10 +218,10 @@ function SuperVillain:TableSplice(targetTable, mergeTable)
         for key,val in pairs(mergeTable) do 
             if type(val) == "table" then 
                 val = self:TableSplice(targetTable[key], val)
-            end;
+            end 
             targetTable[key] = val 
         end 
-    end;
+    end 
     return targetTable 
 end
 
@@ -306,7 +266,7 @@ function SuperVillain:ToggleConfig()
 		if state ~= "MISSING" and state ~= "DISABLED" then 
 			LoadAddOn("SVUI_ConfigOMatic")
 			local config_version = GetAddOnMetadata("SVUI_ConfigOMatic","Version")
-			if(tonumber(config_version) < self.version) then 
+			if(tonumber(config_version) < 4) then 
 				self:StaticPopup_Show("CLIENT_UPDATE_REQUEST")
 			end 
 		else 
@@ -320,7 +280,7 @@ function SuperVillain:ToggleConfig()
 	GameTooltip:Hide()
 end 
 
-function SuperVillain:TaintHandler(taint,sourceName,sourceFunc)
+function SuperVillain:TaintHandler(taint, sourceName, sourceFunc)
 	if GetCVarBool('scriptErrors') ~= 1 then return end 
 	ScriptErrorsFrame_OnError(L["%s: %s has lost it's damn mind and is destroying '%s'."]:format(taint, sourceName or "<name>", sourceFunc or "<func>"),false)
 end 
@@ -329,6 +289,13 @@ end
 SYSTEM UPDATES
 ##########################################################
 ]]--
+function SuperVillain:VersionCheck()
+	local minimumVersion = 4.06;
+	if(not SVUI_Profile.SAFEDATA.install_version or (SVUI_Profile.SAFEDATA.install_version and (tonumber(SVUI_Profile.SAFEDATA.install_version) < minimumVersion))) then
+		self:Install(true)
+	end
+end
+
 function SuperVillain:RefreshEverything(bypass)
 	self:RefreshAllSystemMedia();
 
@@ -343,9 +310,7 @@ function SuperVillain:RefreshEverything(bypass)
 	collectgarbage("collect");
 
 	if not bypass then
-		if(SVUI_Profile.SAFEDATA.install_complete == nil or (SVUI_Profile.SAFEDATA.install_complete and type(SVUI_Profile.SAFEDATA.install_complete) == 'boolean') or (SVUI_Profile.SAFEDATA.install_complete and type(tonumber(SVUI_Profile.SAFEDATA.install_complete)) == 'number' and tonumber(SVUI_Profile.SAFEDATA.install_complete) < self.version)) then 
-			self:Install(); 
-		end
+		self:VersionCheck()
 	end
 end 
 --[[ 
@@ -355,34 +320,43 @@ SVUI LOAD PROCESS
 ]]--
 local function PreLoad(self)
 	--[[ BEGIN DEPRECATED ]]--
-    if SVUI_DATA then SVUI_DATA = nil end;
-    if SVUI_SAFE_DATA then SVUI_SAFE_DATA = nil end;
-    if SVUI_TRACKER then SVUI_TRACKER = nil end;
-    if SVUI_ENEMIES then SVUI_ENEMIES = nil end;
-    if SVUI_JOURNAL then SVUI_JOURNAL = nil end;
-    if SVUI_CHARACTER_LOG then SVUI_CHARACTER_LOG = nil end;
-    if SVUI_MOVED_FRAMES then SVUI_MOVED_FRAMES = nil end;
-    if SVUI_SystemData then SVUI_SystemData = nil end;
-    if SVUI_ProfileData then SVUI_ProfileData = nil end;
+    if SVUI_DATA then SVUI_DATA = nil end 
+    if SVUI_SAFE_DATA then SVUI_SAFE_DATA = nil end 
+    if SVUI_TRACKER then SVUI_TRACKER = nil end 
+    if SVUI_ENEMIES then SVUI_ENEMIES = nil end 
+    if SVUI_JOURNAL then SVUI_JOURNAL = nil end 
+    if SVUI_CHARACTER_LOG then SVUI_CHARACTER_LOG = nil end 
+    if SVUI_MOVED_FRAMES then SVUI_MOVED_FRAMES = nil end 
+    if SVUI_SystemData then SVUI_SystemData = nil end 
+    if SVUI_ProfileData then SVUI_ProfileData = nil end 
     --[[ END DEPRECATED ]]--
     
-	if not SVUI_Global then SVUI_Global = {} end;
-    if not SVUI_Global["profiles"] then SVUI_Global["profiles"] = {} end;
-    if not SVUI_Global["profileKeys"] then SVUI_Global["profileKeys"] = {} end;
-    if not SVUI_Global["gold"] then SVUI_Global["gold"] = 0 end;
+	if not SVUI_Global then SVUI_Global = {} end 
+    if not SVUI_Global["profiles"] then SVUI_Global["profiles"] = {} end 
 
-    if not SVUI_Profile then SVUI_Profile = {} end;
-    if not SVUI_Profile.SAFEDATA then SVUI_Profile.SAFEDATA = {} end;
+    if SVUI_Global["gold"] then SVUI_Global["gold"] = nil end 
+    if SVUI_Global["profileKeys"] then SVUI_Global["profileKeys"] = nil end 
 
-    if not SVUI_Filters then SVUI_Filters = {} end;
+    if not SVUI_Profile then SVUI_Profile = {} end 
+    if not SVUI_Profile.SAFEDATA then SVUI_Profile.SAFEDATA = {} end 
+    if(SVUI_Profile.SAFEDATA.install_complete) then SVUI_Profile.SAFEDATA.install_complete = nil end
 
-    if not SVUI_Cache then SVUI_Cache = {} end;
-    if not SVUI_Cache["Dock"] then SVUI_Cache["Dock"] = {} end;
-    if not SVUI_Cache["Mentalo"] then SVUI_Cache["Mentalo"] = {} end;
+    if SVUI_Filters then SVUI_Filters = nil end
+    if not SVUI_AuraFilters then SVUI_AuraFilters = {} end
+
+    if not SVUI_Cache then SVUI_Cache = {} end 
+    if not SVUI_Cache["Dock"] then SVUI_Cache["Dock"] = {} end 
+    if not SVUI_Cache["Mentalo"] then SVUI_Cache["Mentalo"] = {} end 
+    if(not SVUI_Cache["screenheight"] or (SVUI_Cache["screenheight"] and type(SVUI_Cache["screenheight"]) ~= "number")) then 
+    	SVUI_Cache["screenheight"] = gxHeight 
+    end
+    if(not SVUI_Cache["screenwidth"] or (SVUI_Cache["screenwidth"] and type(SVUI_Cache["screenwidth"]) ~= "number")) then 
+    	SVUI_Cache["screenwidth"] = gxWidth 
+    end
 
     --[[ MORE DEPRECATED ]]--
-    if SVUI_Cache["Mentalo"]["Blizzard"] then SVUI_Cache["Mentalo"]["Blizzard"] = nil end;
-    if SVUI_Cache["Mentalo"]["UI"] then SVUI_Cache["Mentalo"]["UI"] = nil end;
+    if SVUI_Cache["Mentalo"]["Blizzard"] then SVUI_Cache["Mentalo"]["Blizzard"] = nil end 
+    if SVUI_Cache["Mentalo"]["UI"] then SVUI_Cache["Mentalo"]["UI"] = nil end 
     --[[ END DEPRECATED ]]--
 
     self:SetDatabaseObjects(true)
@@ -391,23 +365,20 @@ local function PreLoad(self)
 	self:RefreshSystemFonts();
 	SVUISystemEventHandler:RegisterEvent('PLAYER_REGEN_DISABLED');
 	self:LoadSystemAlerts();
-	self.Registry:PreLoad();
+	self.Registry:Lights();
 end 
 
 local function FullLoad(self)
 	self:SetDatabaseObjects()
-	self:SetFilterObjects()
 	self:UIScale("PLAYER_LOGIN");
-	self.Registry:Load();
+	self.Registry:Camera();
+	self.Registry:Action();
 	self:DefinePlayerRole();
 	self:LoadMovables();
 	self:SetSVMovablesPositions();
 	self.CoreEnabled = true;
 
-	if (SVUI_Profile.SAFEDATA.install_complete == nil or not SVUI_Profile.install_version or SVUI_Profile.install_version  ~= self.version) then 
-		self:Install()
-		SVUI_Profile.install_version = self.version 
-	end 
+	self:VersionCheck()
 
 	self:RefreshAllSystemMedia();
 	NewHook("StaticPopup_Show", self.StaticPopup_Show)
@@ -430,8 +401,8 @@ local function FullLoad(self)
 
 	_G["SVUI_Mentalo"]:SetFixedPanelTemplate("Component")
 	_G["SVUI_Mentalo"]:SetPanelColor("yellow")
-	_G["SVUI_MentaloPrecision"]:SetFixedPanelTemplate("Default")
-
+	_G["SVUI_MentaloPrecision"]:SetPanelTemplate("Transparent")
+	
 	Consuela:RegisterAllEvents()
 	Consuela:SetScript("OnEvent", function(self, event)
 		LemonPledge = LemonPledge  +  1
@@ -453,8 +424,8 @@ SVUISystemEventHandler:RegisterEvent("PLAYER_LOGIN")
 EVENT HANDLER
 ##########################################################
 ]]--
-local Registry_OnEvent = function(self, event, arg1)
-	if(event == "ADDON_LOADED"  and arg1 ~= "Blizzard_DebugTools") then
+local Registry_OnEvent = function(self, event, arg, ...)
+	if(event == "ADDON_LOADED"  and arg ~= "Blizzard_DebugTools") then
 		PreLoad(SuperVillain)
 		self:UnregisterEvent("ADDON_LOADED")
 	elseif(event == "PLAYER_LOGIN" and IsLoggedIn()) then
@@ -463,7 +434,7 @@ local Registry_OnEvent = function(self, event, arg1)
 	elseif(event == "ACTIVE_TALENT_GROUP_CHANGED" or event == "PLAYER_TALENT_UPDATE" or event == "CHARACTER_POINTS_CHANGED" or event == "UNIT_INVENTORY_CHANGED" or event == "UPDATE_BONUS_ACTIONBAR") then
 		SuperVillain:DefinePlayerRole()
 	elseif(event == "UI_SCALE_CHANGED") then
-		SuperVillain:UIScale()
+		SuperVillain:UIScale("UI_SCALE_CHANGED")
 	elseif(event == "PLAYER_ENTERING_WORLD") then
 		SuperVillain:DefinePlayerRole()
 		if(not SuperVillain.MediaUpdated) then 
@@ -478,21 +449,21 @@ local Registry_OnEvent = function(self, event, arg1)
 			SuperVillain.BGTimer = nil 
 		end
 	elseif(event == "SPELLS_CHANGED") then
-		if (SuperVillain.class ~= "DRUID") then
+		if (toonClass ~= "DRUID") then
 			self:UnregisterEvent("SPELLS_CHANGED")
 			return 
 		end 
 		if GetSpellInfo(droodSpell1) == droodSpell2 then 
-			DispellData.Disease = true 
-		else 
-			DispellData.Disease = false 
+			SuperVillain.Dispellable["Disease"] = true 
+		elseif(SuperVillain.Dispellable["Disease"]) then
+			SuperVillain.Dispellable["Disease"] = nil 
 		end
 	elseif(event == "PET_BATTLE_CLOSE") then
 		SuperVillain:PushDisplayAudit()
 	elseif(event == "PET_BATTLE_OPENING_START") then
 		SuperVillain:FlushDisplayAudit()
 	elseif(event == "ADDON_ACTION_BLOCKED" or event == "ADDON_ACTION_FORBIDDEN") then
-		SuperVillain:TaintHandler()
+		SuperVillain:TaintHandler(arg, ...)
 	elseif(event == "PLAYER_REGEN_DISABLED") then
 		local forceClosed=false;
 		if IsAddOnLoaded("SVUI_ConfigOMatic") then 

@@ -2,9 +2,9 @@
 	<Script file='SVLaborer.lua'/>
 	<Include file='common\_load.xml'/>
 
-	<Frame name="SVUI_ModesHandler" hidden="true" frameStrata="LOW">
+	<Frame name="SVUI_ModesHandler" hidden="true" frameStrata="LOW" parent="UIParent">
 		<Anchors>
-            <Anchor point="LEFT" relativeTo="$parent" relativePoint="RIGHT">
+            <Anchor point="LEFT" relativeTo="UIParent" relativePoint="RIGHT">
                 <Offset x="10000" y="0"/>
             </Anchor>
         </Anchors>

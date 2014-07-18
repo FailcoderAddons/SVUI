@@ -14,21 +14,18 @@ S U P E R - V I L L A I N - U I   By: Munglunch                              #
 ##############################################################################
 --]]
 local SuperVillain, L = unpack(select(2, ...));
-local MOD = SuperVillain.Registry:Expose('SVUnit');
+local MOD = SuperVillain.Registry:Expose('SVUnit')
+if(not MOD) then return end;
 local _, ns = ...
 local oUF_SuperVillain = ns.oUF
 --[[ MUNGLUNCH's FASTER ASSERT FUNCTION ]]--
 local assert = enforce;
 assert(oUF_SuperVillain, "SVUI was unable to locate oUF.");
-local LSM = LibStub("LibSharedMedia-3.0");
 
 local ELITE_TOP = [[Interface\Addons\SVUI\assets\artwork\Unitframe\Border\ELITE-TOP]]
 local ELITE_BOTTOM = [[Interface\Addons\SVUI\assets\artwork\Unitframe\Border\ELITE-BOTTOM]]
 local ELITE_RIGHT = [[Interface\Addons\SVUI\assets\artwork\Unitframe\Border\ELITE-RIGHT]]
-
--- local STATUS_BG = [[Interface\Addons\SVUI\assets\artwork\Unitframe\Border\STATUS-BG]]
--- local STATUS_LEFT = [[Interface\Addons\SVUI\assets\artwork\Unitframe\Border\STATUS-LEFT]]
--- local STATUS_RIGHT = [[Interface\Addons\SVUI\assets\artwork\Unitframe\Border\STATUS-RIGHT]]
+local STUNNED_ANIM = [[Interface\Addons\SVUI\assets\artwork\Unitframe\UNIT-STUNNED]]
 --[[ 
 ########################################################## 
 LOCAL FUNCTIONS
@@ -189,10 +186,31 @@ local function CreateActionPanel(frame, offset)
 end;
 --[[ 
 ########################################################## 
+NAME
+##########################################################
+]]--
+local function CreateNameText(frame, unitName)
+	local db = MOD.db
+	if(MOD.db[unitName] and MOD.db[unitName].name) then
+		db = MOD.db[unitName].name
+	end
+	local name = frame:CreateFontString(nil, "OVERLAY")
+	name:SetFont(SuperVillain.Shared:Fetch("font", db.font), db.fontSize, db.fontOutline)
+	name:SetShadowOffset(2, -2)
+	name:SetShadowColor(0, 0, 0, 1)
+	if unitNmae == "target" then
+		name:SetPoint("RIGHT", frame)
+	else
+		name:SetPoint("CENTER", frame)
+	end
+	return name;
+end 
+--[[ 
+########################################################## 
 ACTIONPANEL / INFOPANEL
 ##########################################################
 ]]--
-function MOD:SetActionPanel(frame, unit)
+function MOD:SetActionPanel(frame, unit, noHealthText, noPowerText, noMiscText)
 	if(unit and (unit == "target" or unit == "player")) then
 		frame.ActionPanel = CreateActionPanel(frame, 3)
 		frame.Threat = CreateThreat(frame.ActionPanel, unit)
@@ -242,6 +260,31 @@ function MOD:SetActionPanel(frame, unit)
 			frame.ActionPanel.special[3]:SetBlendMode("BLEND")
 			frame.ActionPanel.special:SetAlpha(0.7)
 			frame.ActionPanel.special:Hide()
+		else
+			frame.LossOfControl = CreateFrame("Frame", nil, frame.InfoPanel)
+			frame.LossOfControl:SetAllPoints(frame)
+			frame.LossOfControl:SetFrameStrata("DIALOG")
+			frame.LossOfControl:SetFrameLevel(99)
+
+			local stunned = frame.LossOfControl:CreateTexture(nil, "OVERLAY", nil, 1)
+			stunned:SetPoint("CENTER", frame, "CENTER", 0, 0)
+			stunned:SetSize(96, 96)
+			stunned:SetTexture(STUNNED_ANIM)
+			stunned:SetBlendMode("ADD")
+			SuperVillain.Animate:Sprite(stunned, 0.12, false, true)
+			stunned:Hide()
+			frame.LossOfControl.stunned = stunned
+
+			LossOfControlFrame:HookScript("OnShow", function()
+				if(_G["SVUI_Player"] and _G["SVUI_Player"].LossOfControl) then
+					_G["SVUI_Player"].LossOfControl:Show()
+				end
+			end)
+			LossOfControlFrame:HookScript("OnHide", function()
+				if(_G["SVUI_Player"] and _G["SVUI_Player"].LossOfControl) then
+					_G["SVUI_Player"].LossOfControl:Hide()
+				end
+			end)
 		end
 	else
 		frame.ActionPanel = CreateActionPanel(frame, 2)
@@ -252,11 +295,32 @@ function MOD:SetActionPanel(frame, unit)
 		frame.InfoPanel:SetFrameLevel(frame.InfoPanel:GetFrameLevel() + 30)
 	end
 
-	local miscText = frame.InfoPanel:CreateFontString(nil, "OVERLAY")
-	MOD:SetUnitFont(miscText)
-	miscText:Point("CENTER", frame, "CENTER", 0, 0)
+	frame.InfoPanel.Name = CreateNameText(frame.InfoPanel, unit)
 
-	frame.InfoPanel.Misc = miscText
+	local reverse = unit and (unit == "target" or unit == "focus" or unit == "boss" or unit == "arena") or false;
+	local offset, direction
+
+	if(not noHealthText) then
+		frame.InfoPanel.Health = frame.InfoPanel:CreateFontString(nil, "OVERLAY")
+		frame.InfoPanel.Health:SetFont(SuperVillain.Shared:Fetch("font", MOD.db.font), MOD.db.fontSize, MOD.db.fontOutline)
+		offset = reverse and 2 or -2;
+		direction = reverse and "LEFT" or "RIGHT";
+		frame.InfoPanel.Health:Point(direction, frame.InfoPanel, direction, offset, 0)
+	end
+
+	if(not noPowerText) then
+		frame.InfoPanel.Power = frame.InfoPanel:CreateFontString(nil, "OVERLAY")
+		frame.InfoPanel.Power:SetFont(SuperVillain.Shared:Fetch("font", MOD.db.font), MOD.db.fontSize, MOD.db.fontOutline)
+		offset = reverse and -2 or 2;
+		direction = reverse and "RIGHT" or "LEFT";
+		frame.InfoPanel.Power:Point(direction, frame.InfoPanel, direction, offset, 0)
+	end
+
+	if(not noMiscText) then
+		frame.InfoPanel.Misc = frame.InfoPanel:CreateFontString(nil, "OVERLAY")
+		frame.InfoPanel.Misc:SetFont(SuperVillain.Shared:Fetch("font", MOD.db.font), MOD.db.fontSize, MOD.db.fontOutline)
+		frame.InfoPanel.Misc:Point("CENTER", frame, "CENTER", 0, 0)
+	end
 
 	frame.HealthPanel = CreateFrame("Frame", nil, frame)
 	frame.HealthPanel:SetAllPoints(frame)

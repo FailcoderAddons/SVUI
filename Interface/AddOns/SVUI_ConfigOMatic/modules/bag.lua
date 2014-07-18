@@ -145,7 +145,7 @@ SuperVillain.Options.args.SVBag={
 								["ICON"] = L["Icons Only"], 
 								["ICON_TEXT"] = L["Icons and Text"]
 							},
-							set = function(a,b)MOD:ChangeDBVar(b,a[#a])MOD:RefreshTKN()end
+							set = function(a,b)MOD:ChangeDBVar(b,a[#a])MOD:RefreshTokens()end
 						},
 						bagTools = {
 							order = 10, 

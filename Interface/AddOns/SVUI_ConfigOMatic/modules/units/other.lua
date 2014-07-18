@@ -30,7 +30,8 @@ GET ADDON DATA
 ##########################################################
 ]]--
 local SuperVillain, L = unpack(SVUI);
-local MOD = SuperVillain.Registry:Expose('SVUnit');
+local MOD = SuperVillain.Registry:Expose('SVUnit')
+if(not MOD) then return end;
 local _, ns = ...
 --[[
 ##################################################################################################
@@ -43,7 +44,7 @@ SuperVillain.Options.args.SVUnit.args.boss = {
 	order = 1000, 
 	childGroups = "tab", 
 	get = function(l)return SuperVillain.db.SVUnit["boss"][l[#l]]end, 
-	set = function(l, m)MOD:ChangeDBVar(m, l[#l], "boss");MOD:SetExtraFrame("boss", MAX_BOSS_FRAMES)end, 
+	set = function(l, m)MOD:ChangeDBVar(m, l[#l], "boss");MOD:SetEnemyFrames("boss", MAX_BOSS_FRAMES)end, 
 	args = {
 		enable = {type = "toggle", order = 1, name = L["Enable"]},
 		displayFrames = {type = "execute", order = 2, name = L["Display Frames"], desc = L["Force the frames to show, they will act as if they are the player frame."], func = function()MOD:SwapElement("boss", 4)end}, 
@@ -72,7 +73,7 @@ SuperVillain.Options.args.SVUnit.args.boss = {
 									name = "",
 								},
 								rangeCheck = {order = 3, name = L["Range Check"], desc = L["Check if you are in range to cast spells on this specific unit."], type = "toggle"}, 
-								hideonnpc = {type = "toggle", order = 4, name = L["Text Toggle On NPC"], desc = L["Power text will be hidden on NPC targets, in addition the name text will be repositioned to the power texts anchor point."], get = function(l)return SuperVillain.db.SVUnit["boss"]["power"].hideonnpc end, set = function(l, m)SuperVillain.db.SVUnit["boss"]["power"].hideonnpc = m;MOD:SetBasicFrame("boss")end}, 
+								hideonnpc = {type = "toggle", order = 4, name = L["Text Toggle On NPC"], desc = L["Power text will be hidden on NPC targets, in addition the name text will be repositioned to the power texts anchor point."], get = function(l)return SuperVillain.db.SVUnit["boss"]["power"].hideonnpc end, set = function(l, m)SuperVillain.db.SVUnit["boss"]["power"].hideonnpc = m;MOD:SetEnemyFrames("boss")end}, 
 								threatEnabled = {type = "toggle", order = 5, name = L["Show Threat"]}
 							}
 						},
@@ -88,15 +89,15 @@ SuperVillain.Options.args.SVUnit.args.boss = {
 						},
 					}
 				},
-				misc = ns:SetMiscConfigGroup(false, MOD.SetExtraFrame, "boss", MAX_BOSS_FRAMES),
-				health = ns:SetHealthConfigGroup(false, MOD.SetExtraFrame, "boss", MAX_BOSS_FRAMES), 
-				power = ns:SetPowerConfigGroup(false, MOD.SetExtraFrame, "boss", MAX_BOSS_FRAMES), 
-				name = ns:SetNameConfigGroup(MOD.SetExtraFrame, "boss", MAX_BOSS_FRAMES), 
-				portrait = ns:SetPortraitConfigGroup(MOD.SetExtraFrame, "boss", MAX_BOSS_FRAMES), 
-				buffs = ns:SetAuraConfigGroup(true, "buffs", false, MOD.SetExtraFrame, "boss", MAX_BOSS_FRAMES), 
-				debuffs = ns:SetAuraConfigGroup(true, "debuffs", false, MOD.SetExtraFrame, "boss", MAX_BOSS_FRAMES), 
-				castbar = ns:SetCastbarConfigGroup(MOD.SetExtraFrame, "boss", MAX_BOSS_FRAMES), 
-				icons = ns:SetIconConfigGroup(MOD.SetExtraFrame, "boss", MAX_BOSS_FRAMES)
+				misc = ns:SetMiscConfigGroup(false, MOD.SetEnemyFrames, "boss", MAX_BOSS_FRAMES),
+				health = ns:SetHealthConfigGroup(false, MOD.SetEnemyFrames, "boss", MAX_BOSS_FRAMES), 
+				power = ns:SetPowerConfigGroup(false, MOD.SetEnemyFrames, "boss", MAX_BOSS_FRAMES), 
+				name = ns:SetNameConfigGroup(MOD.SetEnemyFrames, "boss", MAX_BOSS_FRAMES), 
+				portrait = ns:SetPortraitConfigGroup(MOD.SetEnemyFrames, "boss", MAX_BOSS_FRAMES), 
+				buffs = ns:SetAuraConfigGroup(true, "buffs", false, MOD.SetEnemyFrames, "boss", MAX_BOSS_FRAMES), 
+				debuffs = ns:SetAuraConfigGroup(true, "debuffs", false, MOD.SetEnemyFrames, "boss", MAX_BOSS_FRAMES), 
+				castbar = ns:SetCastbarConfigGroup(MOD.SetEnemyFrames, "boss", MAX_BOSS_FRAMES), 
+				icons = ns:SetIconConfigGroup(MOD.SetEnemyFrames, "boss", MAX_BOSS_FRAMES)
 			}
 		}
 	}
@@ -112,7 +113,7 @@ SuperVillain.Options.args.SVUnit.args.arena = {
 	order = 1100, 
 	childGroups = "tab", 
 	get = function(l)return SuperVillain.db.SVUnit["arena"][l[#l]]end, 
-	set = function(l, m)MOD:ChangeDBVar(m, l[#l], "arena");MOD:SetExtraFrame("arena", 5)end, 
+	set = function(l, m)MOD:ChangeDBVar(m, l[#l], "arena");MOD:SetEnemyFrames("arena", 5)end, 
 	args = {
 		enable = {type = "toggle", order = 1, name = L["Enable"]}, 
 		displayFrames = {type = "execute", order = 2, name = L["Display Frames"], desc = L["Force the frames to show, they will act as if they are the player frame."], func = function()MOD:SwapElement("arena", 5)end},
@@ -141,10 +142,9 @@ SuperVillain.Options.args.SVUnit.args.arena = {
 									name = "",
 								},
 								predict = {order = 3, name = L["Heal Prediction"], desc = L["Show a incomming heal prediction bar on the unitframe. Also display a slightly different colored bar for incoming overheals."], type = "toggle"}, 
-								pvpSpecIcon = {order = 4, name = L["Spec Icon"], desc = L["Display icon on arena frame indicating the units talent specialization or the units faction if inside a battleground."], type = "toggle"},
-								rangeCheck = {order = 5, name = L["Range Check"], desc = L["Check if you are in range to cast spells on this specific unit."], type = "toggle"}, 
-								hideonnpc = {type = "toggle", order = 6, name = L["Text Toggle On NPC"], desc = L["Power text will be hidden on NPC targets, in addition the name text will be repositioned to the power texts anchor point."], get = function(l)return SuperVillain.db.SVUnit["arena"]["power"].hideonnpc end, set = function(l, m)SuperVillain.db.SVUnit["arena"]["power"].hideonnpc = m;MOD:SetBasicFrame("arena")end}, 
-								threatEnabled = {type = "toggle", order = 7, name = L["Show Threat"]}
+								rangeCheck = {order = 4, name = L["Range Check"], desc = L["Check if you are in range to cast spells on this specific unit."], type = "toggle"}, 
+								hideonnpc = {type = "toggle", order = 5, name = L["Text Toggle On NPC"], desc = L["Power text will be hidden on NPC targets, in addition the name text will be repositioned to the power texts anchor point."], get = function(l)return SuperVillain.db.SVUnit["arena"]["power"].hideonnpc end, set = function(l, m)SuperVillain.db.SVUnit["arena"]["power"].hideonnpc = m;MOD:SetEnemyFrames("arena")end}, 
+								threatEnabled = {type = "toggle", order = 6, name = L["Show Threat"]}
 							}
 						},
 						sizeGroup = {
@@ -157,63 +157,118 @@ SuperVillain.Options.args.SVUnit.args.arena = {
 								height = {order = 2, width = "full", name = L["Height"], type = "range", min = 10, max = 250, step = 1}, 
 							}
 						},
-						pvpTrinket = {
+						pvp = {
 							order = 3,
 							guiInline = true, 
 							type = "group", 
-							name = L["PVP Trinket"], 
-							get = function(l)return SuperVillain.db.SVUnit["arena"]["pvpTrinket"][l[#l]]end, 
-							set = function(l, m)MOD:ChangeDBVar(m, l[#l], "arena", "pvpTrinket");MOD:SetExtraFrame("arena", 5)end, 
+							name = L["PVP Indicators"],  
 							args = {
 								enable = {
 									type = "toggle", 
 									order = 1, 
-									name = L["Enable"]
+									name = L["Enable"],
+									get = function(l)return SuperVillain.db.SVUnit.arena.pvp.enable end, 
+									set = function(l, m)MOD:ChangeDBVar(m, "enable", "arena", "pvp");MOD:SetEnemyFrames("arena", 5)end,
 								},
-								position = {
-									type = "select", 
-									order = 2, 
-									name = L["Position"], 
-									values = {
-										["LEFT"] = L["Left"], 
-										["RIGHT"] = L["Right"]
+								trinketGroup = {
+									order = 2,
+									guiInline = true, 
+									type = "group", 
+									name = L["Trinkets"],
+									get = function(l)return SuperVillain.db.SVUnit.arena.pvp[l[#l]]end, 
+									set = function(l, m)MOD:ChangeDBVar(m, l[#l], "arena", "pvp");MOD:SetEnemyFrames("arena", 5)end,
+									disabled = function() return not SuperVillain.db.SVUnit.arena.pvp.enable end,
+									args = {
+										trinketPosition = {
+											type = "select", 
+											order = 1, 
+											name = L["Position"], 
+											values = {
+												["LEFT"] = L["Left"], 
+												["RIGHT"] = L["Right"]
+											}
+										},
+										trinketSize = {
+											order = 2, 
+											type = "range", 
+											name = L["Size"], 
+											min = 10, 
+											max = 60, 
+											step = 1
+										},
+										trinketX = {
+											order = 3, 
+											type = "range", 
+											name = L["xOffset"], 
+											min = -60, 
+											max = 60, 
+											step = 1
+										},
+										trinketY = {
+											order = 4, 
+											type = "range", 
+											name = L["yOffset"], 
+											min = -60, 
+											max = 60, 
+											step = 1
+										}
 									}
 								},
-								size = {
-									order = 3, 
-									type = "range", 
-									name = L["Size"], 
-									min = 10, 
-									max = 60, 
-									step = 1
-								},
-								xOffset = {
-									order = 4, 
-									type = "range", 
-									name = L["xOffset"], 
-									min = -60, 
-									max = 60, 
-									step = 1
-								},
-								yOffset = {
-									order = 4, 
-									type = "range", 
-									name = L["yOffset"], 
-									min = -60, 
-									max = 60, 
-									step = 1
+								specGroup = {
+									order = 3,
+									guiInline = true, 
+									type = "group", 
+									name = L["Enemy Specs"],
+									get = function(l)return SuperVillain.db.SVUnit.arena.pvp[l[#l]]end, 
+									set = function(l, m)MOD:ChangeDBVar(m, l[#l], "arena", "pvp");MOD:SetEnemyFrames("arena", 5)end,
+									disabled = function() return not SuperVillain.db.SVUnit.arena.pvp.enable end,
+									args = {
+										specPosition = {
+											type = "select", 
+											order = 1, 
+											name = L["Position"], 
+											values = {
+												["LEFT"] = L["Left"], 
+												["RIGHT"] = L["Right"]
+											}
+										},
+										specSize = {
+											order = 2, 
+											type = "range", 
+											name = L["Size"], 
+											min = 10, 
+											max = 60, 
+											step = 1
+										},
+										specX = {
+											order = 3, 
+											type = "range", 
+											name = L["xOffset"], 
+											min = -60, 
+											max = 60, 
+											step = 1
+										},
+										specY = {
+											order = 4, 
+											type = "range", 
+											name = L["yOffset"], 
+											min = -60, 
+											max = 60, 
+											step = 1
+										}
+									}
 								}
 							}
 						},
 					}
 				},
-				misc = ns:SetMiscConfigGroup(false, MOD.SetExtraFrame, "arena", 5),
-				health = ns:SetHealthConfigGroup(false, MOD.SetExtraFrame, "arena", 5), 
-				power = ns:SetPowerConfigGroup(false, MOD.SetExtraFrame, "arena", 5), 
-				name = ns:SetNameConfigGroup(MOD.SetExtraFrame, "arena", 5), 
-				buffs = ns:SetAuraConfigGroup(false, "buffs", false, MOD.SetExtraFrame, "arena", 5), 
-				debuffs = ns:SetAuraConfigGroup(false, "debuffs", false, MOD.SetExtraFrame, "arena", 5), 
-				castbar = ns:SetCastbarConfigGroup(MOD.SetExtraFrame, "arena", 5)
+				misc = ns:SetMiscConfigGroup(false, MOD.SetEnemyFrames, "arena", 5),
+				health = ns:SetHealthConfigGroup(false, MOD.SetEnemyFrames, "arena", 5), 
+				power = ns:SetPowerConfigGroup(false, MOD.SetEnemyFrames, "arena", 5), 
+				name = ns:SetNameConfigGroup(MOD.SetEnemyFrames, "arena", 5), 
+				buffs = ns:SetAuraConfigGroup(false, "buffs", false, MOD.SetEnemyFrames, "arena", 5), 
+				debuffs = ns:SetAuraConfigGroup(false, "debuffs", false, MOD.SetEnemyFrames, "arena", 5), 
+				castbar = ns:SetCastbarConfigGroup(MOD.SetEnemyFrames, "arena", 5)
 			}
 		}
 	}
@@ -318,47 +373,3 @@ SuperVillain.Options.args.SVUnit.args.assist = {
 		}
 	}
 }
---[[
-##################################################################################################
-##################################################################################################
-##################################################################################################
-]]
-if SuperVillain.class == "MONK" or SuperVillain.class == "WARLOCK" or SuperVillain.class == "DEATHKNIGHT" then 
-	SuperVillain.Options.args.SVUnit.args.common.args.allColorsGroup.args.classResourceGroup = {
-		order = -1, 
-		type = "group", 
-		guiInline = true, 
-		name = L["Class Resources"], 
-		args = {}
-	}
-	if SuperVillain.class == "MONK" then 
-		for w = 1, 5 do 
-			SuperVillain.Options.args.SVUnit.args.common.args.allColorsGroup.args.classResourceGroup.args["resource"..w] = {
-				type = "color", 
-				name = L["Harmony"].." #"..w, 
-				get = function(l)local P = SuperVillain.db.media.unitframes.MonkHarmony[w]return P.r, P.g, P.b, P.a end, 
-				set = function(l, Q, R, S)SuperVillain.db.media.unitframes.MonkHarmony[w] = {}local P = SuperVillain.db.media.unitframes.MonkHarmony[w]P.r, P.g, P.b = Q, R, S;MOD:RefreshUnitFrames()end
-			}
-		end 
-	elseif SuperVillain.class == "WARLOCK" then 
-		local W = {[1] = L["Affliction"], [2] = L["Demonology"], [3] = L["Destruction"]}
-		for w = 1, 3 do 
-			SuperVillain.Options.args.SVUnit.args.common.args.allColorsGroup.args.classResourceGroup.args["resource"..w] = {
-				type = "color", 
-				name = W[w], 
-				get = function(l)local P = SuperVillain.db.media.unitframes.WarlockShards[w]return P.r, P.g, P.b, P.a end, 
-				set = function(l, Q, R, S)SuperVillain.db.media.unitframes.WarlockShards[w] = {}local P = SuperVillain.db.media.unitframes.WarlockShards[w]P.r, P.g, P.b = Q, R, S;MOD:RefreshUnitFrames()end
-			}
-		end 
-	elseif SuperVillain.class == "DEATHKNIGHT" then 
-		local W = {[1] = L["Blood"], [2] = L["Unholy"], [3] = L["Frost"], [4] = L["Death"]}
-		for w = 1, 4 do 
-			SuperVillain.Options.args.SVUnit.args.common.args.allColorsGroup.args.classResourceGroup.args["resource"..w] = {
-				type = "color", 
-				name = W[w], 
-				get = function(l)local P = SuperVillain.db.media.unitframes.Runes[w]return P.r, P.g, P.b, P.a end, 
-				set = function(l, Q, R, S)SuperVillain.db.media.unitframes.Runes[w] = {}local P = SuperVillain.db.media.unitframes.Runes[w]P.r, P.g, P.b = Q, R, S;MOD:RefreshUnitFrames()end
-			}
-		end 
-	end 
-end

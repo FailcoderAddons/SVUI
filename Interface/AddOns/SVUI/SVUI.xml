@@ -8,9 +8,9 @@
             <Layer level="OVERLAY">
                 <Texture name="$parentTitleBG">
                     <Anchors>
-                        <Anchor point="TOPLEFT"/>
-                        <Anchor point="BOTTOMRIGHT" relativePoint="TOPRIGHT">
-                            <Offset x="0" y="-30"/>
+                        <Anchor point="BOTTOMLEFT" relativeTo="$parentBG" relativePoint="TOPLEFT"/>
+                        <Anchor point="TOPRIGHT" relativeTo="$parentBG" relativePoint="TOPRIGHT">
+                            <Offset x="0" y="30"/>
                         </Anchor>
                     </Anchors>
                 </Texture>

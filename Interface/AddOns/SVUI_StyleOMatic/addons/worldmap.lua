@@ -20,13 +20,21 @@ local MOD = SuperVillain.Registry:Expose('SVStyle');
 HELPERS
 ##########################################################
 ]]--
+local function AdjustMapLevel()
+  if InCombatLockdown()then return end 
+    WorldMapFrame:SetFrameLevel(2)
+    WorldMapDetailFrame:SetFrameLevel(4)
+    WorldMapFrame:SetFrameStrata('HIGH')
+    WorldMapArchaeologyDigSites:SetFrameLevel(6)
+    WorldMapArchaeologyDigSites:SetFrameStrata('DIALOG')
+end
 local function WorldMap_SmallView()
   WorldMapFrame.Panel:ClearAllPoints()
   WorldMapFrame.Panel:SetAllPoints(WorldMapFrame)
   WorldMapFrame.backdrop:ClearAllPoints()
   WorldMapFrame.backdrop:Point("TOPLEFT", WorldMapFrame.Panel, 2, 2)
   WorldMapFrame.backdrop:Point("BOTTOMRIGHT", WorldMapFrame.Panel, 2, -2)
-end;
+end 
 local function WorldMap_FullView()
   WorldMapFrame.Panel:ClearAllPoints()
   WorldMapFrame.Panel:Point("TOPLEFT", WorldMapDetailFrame, "TOPLEFT", -12, 70)
@@ -34,7 +42,7 @@ local function WorldMap_FullView()
   WorldMapFrame.backdrop:ClearAllPoints()
   WorldMapFrame.backdrop:Point("TOPLEFT", WorldMapFrame.Panel, 2, 2)
   WorldMapFrame.backdrop:Point("BOTTOMRIGHT", WorldMapFrame.Panel, 2, -2)
-end;
+end 
 local function WorldMap_QuestView()
   WorldMap_FullView()
   if not WorldMapQuestDetailScrollFrame.Panel then
@@ -46,7 +54,7 @@ local function WorldMap_QuestView()
     WorldMapQuestDetailScrollFrame.spellTex:SetPoint("TOPLEFT", WorldMapQuestDetailScrollFrame.Panel, 'TOPLEFT', 2, -2)
     WorldMapQuestDetailScrollFrame.spellTex:Size(586, 310)
     WorldMapQuestDetailScrollFrame.spellTex:SetTexCoord(0, 1, 0.02, 1)
-  end;
+  end 
   if not WorldMapQuestRewardScrollFrame.Panel then
     WorldMapQuestRewardScrollFrame:SetPanelTemplate("Inset")
     WorldMapQuestRewardScrollFrame.Panel:Point("BOTTOMRIGHT", 22, -4)
@@ -55,7 +63,7 @@ local function WorldMap_QuestView()
     WorldMapQuestRewardScrollFrame.spellTex:SetPoint("TOPLEFT", WorldMapQuestRewardScrollFrame.Panel, 'TOPLEFT', 2, -2)
     WorldMapQuestRewardScrollFrame.spellTex:Size(585, 310)
     WorldMapQuestRewardScrollFrame.spellTex:SetTexCoord(0, 1, 0.02, 1)
-  end;
+  end 
   if not WorldMapQuestScrollFrame.Panel then
     WorldMapQuestScrollFrame:SetPanelTemplate("Inset")
     WorldMapQuestScrollFrame.Panel:Point("TOPLEFT", 0, 2)
@@ -66,19 +74,21 @@ local function WorldMap_QuestView()
     WorldMapQuestScrollFrame.spellTex:Size(520, 1033)
     WorldMapQuestScrollFrame.spellTex:SetTexCoord(0, 1, 0.02, 1)
   end 
-end;
+end 
 local function WorldMap_OnShow()
   WorldMapFrame:Formula409()
   if not SuperVillain.db.SVMap.tinyWorldMap then
-     BlackoutWorld:SetTexture(0, 0, 0, 1)
-  end;
+    BlackoutWorld:SetTexture(0, 0, 0, 1)
+  else
+    BlackoutWorld:SetTexture(nil)
+  end 
   if WORLDMAP_SETTINGS.size == WORLDMAP_FULLMAP_SIZE then
     WorldMap_FullView()
   elseif WORLDMAP_SETTINGS.size == WORLDMAP_WINDOWED_SIZE then 
     WorldMap_SmallView()
   elseif WORLDMAP_SETTINGS.size == WORLDMAP_QUESTLIST_SIZE then
     WorldMap_QuestView()
-  end;
+  end 
   WorldMapFrameAreaLabel:SetFontTemplate(nil, 50, "OUTLINE")
   WorldMapFrameAreaLabel:SetShadowOffset(2, -2)
   WorldMapFrameAreaLabel:SetTextColor(0.90, 0.8294, 0.6407)
@@ -87,20 +97,21 @@ local function WorldMap_OnShow()
   WorldMapFrameAreaPetLevels:SetFontTemplate(nil, 25, 'OUTLINE')
   WorldMapZoneInfo:SetFontTemplate(nil, 27, "OUTLINE")
   WorldMapZoneInfo:SetShadowOffset(2, -2)
-  if InCombatLockdown() then return end;
+  if InCombatLockdown() then return end 
   WorldMapFrame:SetFrameLevel(2)
   WorldMapDetailFrame:SetFrameLevel(4)
   WorldMapFrame:SetFrameStrata('HIGH')
   WorldMapArchaeologyDigSites:SetFrameLevel(6)
   WorldMapArchaeologyDigSites:SetFrameStrata('DIALOG')
-end;
+  AdjustMapLevel()
+end 
 --[[ 
 ########################################################## 
 WORLDMAP STYLER
 ##########################################################
 ]]--
 local function WorldMapQuestStyle()
-  if SuperVillain.db.SVStyle.blizzard.enable ~= true or SuperVillain.db.SVStyle.blizzard.worldmap ~= true then return end;
+  if SuperVillain.db.SVStyle.blizzard.enable ~= true or SuperVillain.db.SVStyle.blizzard.worldmap ~= true then return end 
   WorldMapFrame:SetFrameLevel(2)
   MOD:ApplyScrollStyle(WorldMapQuestScrollFrameScrollBar)
   MOD:ApplyScrollStyle(WorldMapQuestDetailScrollFrameScrollBar, 4)
@@ -133,7 +144,7 @@ local function WorldMapQuestStyle()
   hooksecurefunc("WorldMapFrame_SetQuestMapView", WorldMap_QuestView)
   hooksecurefunc("WorldMap_ToggleSizeUp", WorldMap_OnShow)
   BlackoutWorld:SetParent(WorldMapFrame.backdrop)
-end;
+end 
 --[[ 
 ########################################################## 
 STYLE LOADING

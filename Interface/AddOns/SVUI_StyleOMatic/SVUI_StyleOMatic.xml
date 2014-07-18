@@ -1,6 +1,5 @@
 ﻿<Ui xmlns="http://www.blizzard.com/wow/ui/">
 	<Script file='SVUI_StyleOMatic.lua'/>
 	<Script file='common\methods.lua'/>
-	<Script file='common\docklets.lua'/>
 	<Include file='addons\_load.xml'/>
 </Ui>

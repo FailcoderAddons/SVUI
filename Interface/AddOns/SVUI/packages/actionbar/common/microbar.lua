@@ -44,8 +44,8 @@ local function RefreshMicrobar()
   local buttonSize =  MOD.db.Micro.buttonsize or 30;
   local spacing =  MOD.db.Micro.buttonspacing or 1;
   local barWidth = (buttonSize + spacing) * 13;
-  SVUI_MicroBar:Size(barWidth, buttonSize + 6)
-  SVUI_MicroBar:Point('TOP', SuperVillain.UIParent, 'TOP', 0, 4)
+  SVUI_MicroBar_MOVE:Size(barWidth, buttonSize + 6)
+  SVUI_MicroBar:SetAllPoints(SVUI_MicroBar_MOVE)
   for i=1,13 do
     local data = ICON_DATA[i]
     local button = _G[data[1]]
@@ -143,19 +143,20 @@ local CreateMicroBar = function(self)
   	local button = _G[data[1]]
   	button:SetParent(SVUI_MicroBar)
   	button:Size(buttonSize, buttonSize + 28)
-  	button.Flash:SetTexture(nil)
-  	if button:GetPushedTexture()then 
-  		button:SetPushedTexture(nil)
+  	button.Flash:SetTexture("")
+  	if button.SetPushedTexture then 
+  		button:SetPushedTexture("")
   	end;
-  	if button:GetNormalTexture()then 
-  		button:SetNormalTexture(nil)
+  	if button.SetNormalTexture then 
+  		button:SetNormalTexture("")
   	end;
-  	if button:GetDisabledTexture()then 
-  		button:SetDisabledTexture(nil)
+  	if button.SetDisabledTexture then 
+  		button:SetDisabledTexture("")
   	end;
-    if button:GetHighlightTexture()then 
-      button:SetHighlightTexture(nil)
+    if button.SetHighlightTexture then 
+      button:SetHighlightTexture("")
     end;
+    button:Formula409()
 
   	local buttonMask = NewFrame("Frame",nil,button)
   	buttonMask:SetPoint("TOPLEFT",button,"TOPLEFT",0,-28)
@@ -186,6 +187,9 @@ local CreateMicroBar = function(self)
 
   SVUIMicroButtonsParent(microBar)
   SVUIMicroButton_SetNormal()
+
+  SuperVillain:SetSVMovable(microBar, "SVUI_MicroBar_MOVE", L["Micro Bar"])
+
   RefreshMicrobar()
 
   microBar.screenMarker = NewFrame('Frame',nil,SuperVillain.UIParent)

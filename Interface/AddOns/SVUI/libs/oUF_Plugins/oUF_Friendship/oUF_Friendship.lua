@@ -8,7 +8,7 @@ assert(oUF, 'oUF Friendship was unable to locate oUF install')
  The list is currently generated with the following:
 
  for index = 1100, 1500 do
-	if(GetFriendshipReputationByID(index)) then
+	if(GetFriendshipReputation(index)) then
 		friendships[GetFactionInfoByID(index)] = index
 	end
  end
@@ -39,35 +39,35 @@ for tag, func in pairs({
 	['curfriendship'] = function()
 		local id = GetFriendshipID()
 		if(id) then
-			local _, cur, _, _, _, _, threshold = GetFriendshipReputationByID(id)
+			local _, cur, _, name, details, _, standing, threshold, maximum = GetFriendshipReputation(id)
 			return cur - threshold
 		end
 	end,
 	['currawfriendship'] = function()
 		local id = GetFriendshipID()
 		if(id) then
-			local _, cur = GetFriendshipReputationByID(id)
+			local _, cur = GetFriendshipReputation(id)
 			return cur
 		end
 	end,
 	['perfriendship'] = function()
 		local id = GetFriendshipID()
 		if(id) then
-			local _, cur, _, _, _, _, threshold = GetFriendshipReputationByID(id)
+			local _, cur, _, name, details, _, standing, threshold, maximum = GetFriendshipReputation(id)
 			return math.floor((cur - threshold) / 8400 * 100)
 		end
 	end,
 	['perfullfriendship'] = function()
 		local id = GetFriendshipID()
 		if(id) then
-			local _, cur = GetFriendshipReputationByID(id)
+			local _, cur = GetFriendshipReputation(id)
 			return math.floor(cur / 42999 * 100)
 		end
 	end,
 	['friendshipstanding'] = function()
 		local id = GetFriendshipID()
 		if(id) then
-			local _, _, _, _, _, standing = GetFriendshipReputationByID(id)
+			local _, cur, _, name, details, _, standing, threshold, maximum = GetFriendshipReputation(id)
 			return standing
 		end
 	end,
@@ -77,7 +77,7 @@ for tag, func in pairs({
 end
 
 local function OnEnter(self)
-	local _, cur, _, details, _, standing, threshold = GetFriendshipReputationByID(GetFriendshipID())
+	local _, cur, _, name, details, _, standing, threshold, maximum = GetFriendshipReputation(GetFriendshipID())
 	GameTooltip:SetOwner(self, 'ANCHOR_BOTTOMRIGHT')
 	GameTooltip:SetText(UnitName('target'), 1, 1, 1)
 	GameTooltip:AddLine(details, nil, nil, nil, true)
@@ -90,7 +90,7 @@ local function Update(self)
 	
 	local id = GetFriendshipID()
 	if(id) then
-		local _, cur, _, _, _, _, threshold = GetFriendshipReputationByID(id)
+		local _, cur, _, name, details, _, standing, threshold, maximum = GetFriendshipReputation(id)
 		friendship:SetMinMaxValues(0, 8400)
 		friendship:SetValue(cur - threshold)
 		friendship:Show()

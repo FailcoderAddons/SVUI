@@ -28,7 +28,7 @@ local table 	= _G.table;
 --[[ STRING METHODS ]]--
 local find, format, match, sub, gsub = string.find, string.format, string.match, string.sub, string.gsub;
 --[[ MATH METHODS ]]--
-local floor = math.floor;
+local floor,min = math.floor, math.min;
 --[[ TABLE METHODS ]]--
 local twipe, tconcat = table.wipe, table.concat;
 --[[ 
@@ -38,7 +38,6 @@ GET ADDON DATA
 ]]--
 local SuperVillain, L = unpack(select(2, ...));
 local MOD = {};
-local LSM = LibStub("LibSharedMedia-3.0");
 --[[ 
 ########################################################## 
 LOCAL VARIABLES
@@ -51,21 +50,44 @@ local playerGUID = UnitGUID("player");
 local targetList, inspectCache = {}, {};
 local NIL_COLOR = { r = 1, g = 1, b = 1 };
 local TAPPED_COLOR = { r = .6, g = .6, b = .6 };
-local tooltips={
-	GameTooltip,ItemRefTooltip,ItemRefShoppingTooltip1,
-	ItemRefShoppingTooltip2,ItemRefShoppingTooltip3,AutoCompleteBox,
-	FriendsTooltip,ConsolidatedBuffsTooltip,ShoppingTooltip1,
-	ShoppingTooltip2,ShoppingTooltip3,WorldMapTooltip,
-	WorldMapCompareTooltip1,WorldMapCompareTooltip2,
-	WorldMapCompareTooltip3,DropDownList1MenuBackdrop,
-	DropDownList2MenuBackdrop,DropDownList3MenuBackdrop,BNToastFrame
-};
-local classification={
-	worldboss = format("|cffAF5050 %s|r",BOSS),
-	rareelite = format("|cffAF5050+ %s|r",ITEM_QUALITY3_DESC),
-	elite = "|cffAF5050+|r",
-	rare = format("|cffAF5050 %s|r",ITEM_QUALITY3_DESC)
-};
+local SKULL_ICON = "|TInterface\\TARGETINGFRAME\\UI-TargetingFrame-Skull.blp:16:16|t";
+local TAMABLE_INDICATOR = "|cffFFFF00Tamable|r";
+local TT_TOP = [[Interface\Addons\SVUI\assets\artwork\Template\Tooltip\TT-TOP]]
+local TT_BOTTOM = [[Interface\Addons\SVUI\assets\artwork\Template\Tooltip\TT-BOTTOM]]
+local TT_RIGHT = [[Interface\Addons\SVUI\assets\artwork\Template\Tooltip\TT-RIGHT-OVERLAY]]
+local TT_LEFT = [[Interface\Addons\SVUI\assets\artwork\Template\Tooltip\TT-LEFT-OVERLAY]]
+
+local TAMABLE_FAMILIES = {
+	["Basilisk"] = true, 	 ["Bat"] = true, 		  ["Bear"] = true, 		   ["Beetle"] = true, 
+	["Bird of Prey"] = true, ["Boar"] = true, 		  ["Carrion Bird"] = true, ["Cat"] = true, 
+	["Chimaera"] = true, 	 ["Core Hound"] = true,   ["Crab"] = true, 		   ["Crane"] = true, 
+	["Crocolisk"] = true, 	 ["Devilsaur"] = true, 	  ["Direhorn"] = true, 	   ["Dog"] = true, 
+	["Dragonhawk"] = true, 	 ["Fox"] = true, 		  ["Goat"] = true, 		   ["Gorilla"] = true, 
+	["Wasp"] = true, 		 ["Hydra"] = true, 		  ["Hyena"] = true, 	   ["Monkey"] = true, 
+	["Moth"] = true, 		 ["Nether Ray"] = true,   ["Porcupine"] = true,    ["Quilen"] = true, 
+	["Raptor"] = true, 		 ["Ravager"] = true, 	  ["Rhino"] = true, 	   ["Riverbeast"] = true, 
+	["Scorpid"] = true, 	 ["Shale Spider"] = true, ["Spirit Beast"] = true, ["Serpent"] = true, 
+	["Silithid"] = true, 	 ["Spider"] = true, 	  ["Sporebat"] = true, 	   ["Tallstrider"] = true, 
+	["Turtle"] = true,		 ["Warp Stalker"] = true, ["Wasp"] = true, 		   ["Water strider"] = true, 
+	["Wind Serpent"] = true, ["Wolf"] = true, 		  ["Worm"] = true
+}
+
+local tooltips = {
+	GameTooltip, ItemRefTooltip, ItemRefShoppingTooltip1, 
+	ItemRefShoppingTooltip2, ItemRefShoppingTooltip3, AutoCompleteBox, 
+	FriendsTooltip, ConsolidatedBuffsTooltip, ShoppingTooltip1, 
+	ShoppingTooltip2, ShoppingTooltip3, WorldMapTooltip, 
+	WorldMapCompareTooltip1, WorldMapCompareTooltip2, 
+	WorldMapCompareTooltip3, DropDownList1MenuBackdrop, 
+	DropDownList2MenuBackdrop, DropDownList3MenuBackdrop, BNToastFrame
+}
+
+local classification = {
+	worldboss = format("|cffAF5050%s|r", BOSS), 
+	rareelite = format("|cffAF5050+%s|r", ITEM_QUALITY3_DESC), 
+	elite = "|cffAF5050+|r", 
+	rare = format("|cffAF5050%s|r", ITEM_QUALITY3_DESC)
+}
 --[[ 
 ########################################################## 
 LOCAL FUNCTIONS
@@ -116,26 +138,6 @@ local function TruncateString(value)
         return value 
     end 
 end
-
-local function GetLevelLine(this, start)
-	for i = start, this:NumLines() do 
-		local tip = _G["GameTooltipTextLeft"..i]
-		if tip:GetText() and tip:GetText():find(LEVEL) then 
-			return tip 
-		end 
-	end 
-end 
-
-local function RemoveTrashLines(this)
-	for i=3,this:NumLines() do 
-		local tip = _G["GameTooltipTextLeft"..i]
-		local tipText = tip:GetText()
-		if tipText:find(PVP) or tipText:find(FACTION_ALLIANCE) or tipText:find(FACTION_HORDE) then 
-			tip:SetText(nil)
-			tip:Hide()
-		end 
-	end 
-end 
 
 local function GetTalentSpec(unit,isPlayer)
 	local spec;
@@ -298,8 +300,29 @@ local function ShowInspectInfo(this,unit,unitLevel,r,g,b,iteration)
 	end 
 end 
 
+local function tipcleaner(this)
+	for i=3, this:NumLines() do 
+		local tip = _G["GameTooltipTextLeft"..i]
+		local tipText = tip:GetText()
+		if tipText:find(PVP) or tipText:find(FACTION_ALLIANCE) or tipText:find(FACTION_HORDE) then 
+			tip:SetText(nil)
+			tip:Hide()
+		end 
+	end 
+end 
+
+local function tiplevel(this, start)
+	for i = start, this:NumLines() do 
+		local tip = _G["GameTooltipTextLeft"..i]
+		if tip:GetText() and tip:GetText():find(LEVEL) then 
+			return tip 
+		end 
+	end 
+end
+
 local _hook_GameTooltip_OnTooltipSetUnit = function(self)
 	local unit = select(2, self:GetUnit())
+	local TamablePet;
 	if self:GetOwner()  ~= UIParent and MOD.db.visibility.unitFrames  ~= "NONE" then 
 		local vis = MOD.db.visibility.unitFrames;
 		if vis == "ALL" or not (vis == "SHIFT" and IsShiftKeyDown() or vis == "CTRL" and IsControlKeyDown() or vis == "ALT" and IsAltKeyDown()) then 
@@ -314,53 +337,67 @@ local _hook_GameTooltip_OnTooltipSetUnit = function(self)
 		end 
 		if not unit or not UnitExists(unit) then return end 
 	end 
-	RemoveTrashLines(self)
+	tipcleaner(self)
 	local unitLevel = UnitLevel(unit)
 	local colors, qColor, totColor;
 	local lvlLine;
+	local isShiftKeyDown = IsShiftKeyDown()
+
 	if UnitIsPlayer(unit) then 
 		local className, classToken = UnitClass(unit)
 		local unitName, unitRealm = UnitName(unit)
-		local guildName, guildRankName, guildRankIndex = GetGuildInfo(unit)
+		local guildName, guildRankName, _, guildRealm = GetGuildInfo(unit)
 		local pvpName = UnitPVPName(unit)
 		local realmRelation = UnitRealmRelationship(unit)
 		colors = RAID_CLASS_COLORS[classToken]
+
 		if MOD.db.playerTitles and pvpName then 
 			unitName = pvpName 
 		end 
-		if unitRealm and unitRealm  ~= "" then 
-			if IsShiftKeyDown() then 
+		if unitRealm and unitRealm ~= "" then 
+			if(isShiftKeyDown) then 
 				unitName = unitName.."-"..unitRealm 
-			elseif realmRelation == LE_REALM_RELATION_COALESCED then 
+			elseif(realmRelation == LE_REALM_RELATION_COALESCED) then 
 				unitName = unitName..FOREIGN_SERVER_LABEL 
-			elseif realmRelation == LE_REALM_RELATION_VIRTUAL then 
+			elseif(realmRelation == LE_REALM_RELATION_VIRTUAL) then 
 				unitName = unitName..INTERACTIVE_SERVER_LABEL 
 			end 
-		end 
+		end
 
-		GameTooltipTextLeft1:SetFormattedText("|c%s%s|r", colors.colorStr, unitName)
+		if(UnitIsAFK(unit)) then
+			GameTooltipTextLeft1:SetFormattedText("[|cffFF0000%s|r] |c%s%s|r ", L["AFK"], colors.colorStr, unitName)
+		elseif(UnitIsDND(unit)) then
+			GameTooltipTextLeft1:SetFormattedText("[|cffFF9900%s|r] |c%s%s|r ", L["DND"], colors.colorStr, unitName)
+		else
+			GameTooltipTextLeft1:SetFormattedText("|c%s%s|r", colors.colorStr, unitName)
+		end
 
-		if guildName then 
-			if guildRankIndex and IsShiftKeyDown() then 
-				guildName = guildName.."-"..guildRankIndex 
-			end 
-			if MOD.db.guildRanks then 
+		if(guildName) then
+			if(guildRealm and isShiftKeyDown) then
+				guildName = guildName.."-"..guildRealm
+			end
+
+			if guildRankName and MOD.db.guildRanks then 
 				GameTooltipTextLeft2:SetText(("<|cff00ff10%s|r> [|cff00ff10%s|r]"):format(guildName, guildRankName))
 			else 
 				GameTooltipTextLeft2:SetText(("<|cff00ff10%s|r>"):format(guildName))
 			end 
-			lvlLine = GetLevelLine(self, 3)
+			lvlLine = tiplevel(self, 3)
 		else
-			lvlLine = GetLevelLine(self, 2)
+			lvlLine = tiplevel(self, 2)
 		end 
 
-		if lvlLine then 
+		if(lvlLine) then 
 			qColor = GetQuestDifficultyColor(unitLevel)
-			local race, _ = UnitRace(unit)
-			lvlLine:SetFormattedText("|cff%02x%02x%02x%s|r %s |c%s%s|r", qColor.r * 255, qColor.g * 255, qColor.b * 255, unitLevel > 0 and unitLevel or "??", race, colors.colorStr, className)
+			local race, englishRace = UnitRace(unit)
+			local _, factionGroup = UnitFactionGroup(unit)
+			if(factionGroup and englishRace == "Pandaren") then
+				race = factionGroup.." "..race
+			end	
+			lvlLine:SetFormattedText("|cff%02x%02x%02x%s|r %s |c%s%s|r", qColor.r * 255, qColor.g * 255, qColor.b * 255, unitLevel > 0 and unitLevel or SKULL_ICON, race or "", colors.colorStr, className)
 		end 
 
-		if MOD.db.inspectInfo and IsShiftKeyDown() then 
+		if MOD.db.inspectInfo and isShiftKeyDown then 
 			ShowInspectInfo(self, unit, unitLevel, colors.r, colors.g, colors.b, 0)
 		end 
 	else
@@ -370,10 +407,10 @@ local _hook_GameTooltip_OnTooltipSetUnit = function(self)
 			colors = FACTION_BAR_COLORS[UnitReaction(unit, "player")]
 		end 
 
-		lvlLine = GetLevelLine(self, 2)
+		lvlLine = tiplevel(self, 2)
 
-		if lvlLine then
-			local unitType = UnitClassification(unit)
+		if(lvlLine) then
+			local creatureClassification = UnitClassification(unit)
 			local creatureType = UnitCreatureType(unit)
 			local temp = ""
 			if(UnitIsWildBattlePet(unit) or UnitIsBattlePetCompanion(unit)) then 
@@ -394,34 +431,39 @@ local _hook_GameTooltip_OnTooltipSetUnit = function(self)
 
 			if(creatureType) then
 				local family = UnitCreatureFamily(unit) or creatureType
-				if(creatureType == PET_TYPE_SUFFIX[8] and SuperVillain.class == "HUNTER") then
-					unitCreature = family .. " |cffFFFF00Tamable|r"
-				else
-					unitCreature = family
+				if(SuperVillain.class == "HUNTER" and creatureType == PET_TYPE_SUFFIX[8] and (family and TAMABLE_FAMILIES[family])) then
+					local hunterLevel = UnitLevel("player")
+					if(unitLevel <= hunterLevel) then
+						TamablePet = true
+					end
 				end
+				creatureType = family
 			else
-				unitCreature = ""
+				creatureType = ""
 			end
 
-			lvlLine:SetFormattedText("|cff%02x%02x%02x%s|r%s %s%s", qColor.r * 255, qColor.g * 255, qColor.b * 255, unitLevel > 0 and unitLevel or "??", classification[unitType] or "", unitCreature, temp)
+			lvlLine:SetFormattedText("|cff%02x%02x%02x%s|r%s %s%s", qColor.r * 255, qColor.g * 255, qColor.b * 255, unitLevel > 0 and unitLevel or "??", classification[creatureClassification] or "", creatureType, temp)
 		end 
-	end 
+	end
+	if(TamablePet) then
+		GameTooltip:AddLine(TAMABLE_INDICATOR)
+	end
 	if MOD.db.targetInfo then
-		if unit ~= "player" and UnitExists(targettarget) then 
-			local targettarget = unit.."target"
-			if UnitIsPlayer(targettarget) and not UnitHasVehicleUI(targettarget) then 
-				totColor = RAID_CLASS_COLORS[select(2, UnitClass(targettarget))]
+		local unitTarget = unit.."target"
+		if(unit ~= "player" and UnitExists(unitTarget)) then 
+			if UnitIsPlayer(unitTarget) and not UnitHasVehicleUI(unitTarget) then 
+				totColor = RAID_CLASS_COLORS[select(2, UnitClass(unitTarget))]
 			else 
-				totColor = FACTION_BAR_COLORS[UnitReaction(targettarget, "player")]
+				totColor = FACTION_BAR_COLORS[UnitReaction(unitTarget, "player")]
 			end 
-			GameTooltip:AddDoubleLine(format("%s:", TARGET), format("|cff%02x%02x%02x%s|r", totColor.r * 255, totColor.g * 255, totColor.b * 255, UnitName(targettarget)))
+			GameTooltip:AddDoubleLine(format("%s:", TARGET), format("|cff%02x%02x%02x%s|r", totColor.r * 255, totColor.g * 255, totColor.b * 255, UnitName(unitTarget)))
 		end 
 		if IsInGroup() then 
 			for i = 1, GetNumGroupMembers() do 
-				local grouptarget = IsInRaid() and "raid"..i or "party"..i;
-				if UnitIsUnit(grouptarget.."target", unit) and not UnitIsUnit(grouptarget, "player") then 
-					local _, classToken = UnitClass(grouptarget)
-					tinsert(targetList, format("|c%s%s|r", RAID_CLASS_COLORS[classToken].colorStr, UnitName(grouptarget)))
+				local groupedUnit = IsInRaid() and "raid"..i or "party"..i;
+				if UnitIsUnit(groupedUnit.."target", unit) and not UnitIsUnit(groupedUnit, "player") then 
+					local _, classToken = UnitClass(groupedUnit)
+					tinsert(targetList, format("|c%s%s|r", RAID_CLASS_COLORS[classToken].colorStr, UnitName(groupedUnit)))
 				end 
 			end 
 			local maxTargets = #targetList;
@@ -534,14 +576,14 @@ end
 
 local _hook_GameTooltip_OnTooltipSetSpell = function(self)
 	local ref = select(3, self:GetSpell())
-	if not ref or not MOD.db.spellID then return end 
-	local text = ("|cFFCA3C3C%s|r %d"):format(ID,ref)
+	if not ref then return end 
+	local text = ("|cFFCA3C3C%s|r%d"):format(ID, ref)
 	local max = self:NumLines()
 	local check;
-	for i=1,max do 
-		local tip=_G[("GameTooltipTextLeft%d"):format(i)]
+	for i = 1, max do 
+		local tip = _G[("GameTooltipTextLeft%d"):format(i)]
 		if tip and tip:GetText() and tip:GetText():find(text) then 
-			check=true;
+			check = true;
 			break 
 		end 
 	end 
@@ -616,14 +658,14 @@ local _hook_OnTipCleared = function(self)
 end
 
 local _hook_OnTipShow = function(self)
-	self:SetBackdrop({
-		bgFile=[[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]],
-		edgeFile=[[Interface\BUTTONS\WHITE8X8]],
-		tile=false,
-		edgeSize=1
-	})
-	self:SetBackdropColor(0,0,0,0.8)
-	self:SetBackdropBorderColor(0,0,0)
+	local width,height = self:GetSize()
+	local heightScale = min(64, height)
+	local widthScale = min(128, width)
+	local heightWidth = widthScale * 0.35
+	self.SuperBorder[1]:SetSize(widthScale,heightWidth)
+	self.SuperBorder[2]:SetSize(heightScale,heightScale)
+	self.SuperBorder[3]:SetSize(heightScale,heightScale)
+	self.SuperBorder[4]:SetSize(widthScale,heightWidth)
 end
 
 local _hook_OnItemRef = function(link,text,button,chatFrame)
@@ -640,7 +682,7 @@ local TooltipModifierChangeHandler = function(self, event, mod)
 	end 
 end 
 
-function MOD:ConstructThisPackage()
+function MOD:Load()
 	BNToastFrame:Point("TOPRIGHT", SVUI_MinimapFrame, "BOTTOMLEFT", 0, -10)
 	SuperVillain:SetSVMovable(BNToastFrame, "BNET_MOVE", L["BNet Frame"])
 	NewHook(BNToastFrame, "SetPoint", _hook_BNToastOnShow)
@@ -653,7 +695,8 @@ function MOD:ConstructThisPackage()
 	GameTooltipStatusBar:SetPoint("TOPRIGHT", GameTooltip, "BOTTOMRIGHT", -1, -3)
 	GameTooltipStatusBar.text = GameTooltipStatusBar:CreateFontString(nil, "OVERLAY")
 	GameTooltipStatusBar.text:Point("CENTER", GameTooltipStatusBar, 0, -3)
-	GameTooltipStatusBar.text:SetFontTemplate(LSM:Fetch("font", MOD.db.healthBar.font), MOD.db.healthBar.fontSize, "OUTLINE")
+	GameTooltipStatusBar.text:SetFontTemplate(SuperVillain.Shared:Fetch("font", MOD.db.healthBar.font), MOD.db.healthBar.fontSize, "OUTLINE")
+	
 	if not GameTooltipStatusBar.border then 
 		local border = CreateFrame("Frame", nil, GameTooltipStatusBar)
 		border:WrapOuter(GameTooltipStatusBar, 1, 1)
@@ -661,7 +704,8 @@ function MOD:ConstructThisPackage()
 		border:SetBackdrop({edgeFile = [[Interface\BUTTONS\WHITE8X8]], edgeSize = 1})
 		border:SetBackdropBorderColor(0, 0, 0, 1)
 		GameTooltipStatusBar.border = border 
-	end 
+	end
+
 	local anchor = CreateFrame("Frame", "GameTooltipAnchor", SuperVillain.UIParent)
 	anchor:Point("BOTTOMRIGHT", RightSuperDock, "TOPRIGHT", 0, 60)
 	anchor:Size(130, 20)
@@ -675,17 +719,66 @@ function MOD:ConstructThisPackage()
 	NewHook(GameTooltip, "SetUnitBuff", _hook_OnSetUnitAura)
 	NewHook(GameTooltip, "SetUnitDebuff", _hook_OnSetUnitAura)
 	NewHook(GameTooltip, "SetUnitConsolidatedBuff", _hook_OnSetHyperUnitAura)
+
 	if self.db.spellID then
 		NewHook("SetItemRef", _hook_OnItemRef)
+		GameTooltip:HookScript("OnTooltipSetSpell", _hook_GameTooltip_OnTooltipSetSpell)
 	end
 
-	GameTooltip:HookScript("OnTooltipSetSpell", _hook_GameTooltip_OnTooltipSetSpell)
 	GameTooltip:HookScript("OnTooltipCleared", _hook_OnTipCleared)
 	GameTooltip:HookScript("OnTooltipSetItem", _hook_GameTooltip_OnTooltipSetItem)
 	GameTooltip:HookScript("OnTooltipSetUnit", _hook_GameTooltip_OnTooltipSetUnit)
 	GameTooltipStatusBar:HookScript("OnValueChanged", _hook_GameTooltipStatusBar_OnValueChanged)
 	self:RegisterEvent("MODIFIER_STATE_CHANGED", TooltipModifierChangeHandler)
-	for _, tooltip in pairs(tooltips)do 
+	-- local MINI_BG = [[Interface\Addons\SVUI\assets\artwork\Template\Tooltip\MINITIP-BG]]
+	-- local MINI_LEFT = [[Interface\Addons\SVUI\assets\artwork\Template\Tooltip\MINITIP-LEFT]]
+	-- local MINI_RIGHT = [[Interface\Addons\SVUI\assets\artwork\Template\Tooltip\MINITIP-RIGHT]]
+	for _, tooltip in pairs(tooltips) do
+		if(tooltip.SuperBorder) then return end
+		local mask = CreateFrame("Frame", nil, tooltip)
+		mask:SetAllPoints()
+		mask[1] = mask:CreateTexture(nil, "BACKGROUND")
+		mask[1]:SetPoint("BOTTOMLEFT", mask, "TOPLEFT", 0, 0)
+		mask[1]:SetHeight(mask:GetWidth() * 0.25)
+		mask[1]:SetWidth(mask:GetWidth() * 0.25)
+		mask[1]:SetTexture(TT_TOP)
+		mask[1]:SetVertexColor(0,0,0)
+		mask[1]:SetBlendMode("BLEND")
+		mask[1]:SetAlpha(0.65)
+		mask[2] = mask:CreateTexture(nil, "BACKGROUND")
+		mask[2]:SetPoint("LEFT", mask, "RIGHT", 0, 0)
+		mask[2]:SetSize(64,64)
+		mask[2]:SetTexture(TT_RIGHT)
+		mask[2]:SetVertexColor(0,0,0)
+		mask[2]:SetBlendMode("BLEND")
+		mask[2]:SetAlpha(0.75)
+		mask[3] = mask:CreateTexture(nil, "BACKGROUND")
+		mask[3]:SetPoint("RIGHT", mask, "LEFT", 0, 0)
+		mask[3]:SetSize(64,64)
+		mask[3]:SetTexture(TT_LEFT)
+		mask[3]:SetVertexColor(0,0,0)
+		mask[3]:SetBlendMode("BLEND")
+		mask[3]:SetAlpha(0.75)
+		mask[4] = mask:CreateTexture(nil, "BACKGROUND")
+		mask[4]:SetPoint("TOPRIGHT", mask, "BOTTOMRIGHT", 0, 0)
+		mask[4]:SetHeight(mask:GetWidth() * 0.25)
+		mask[4]:SetWidth(mask:GetWidth() * 0.25)
+		mask[4]:SetTexture(TT_BOTTOM)
+		mask[4]:SetVertexColor(0,0,0)
+		mask[4]:SetBlendMode("BLEND")
+		mask[4]:SetAlpha(0.5)
+		tooltip.SuperBorder = mask
+		tooltip:SetBackdrop({
+			bgFile = [[Interface\AddOns\SVUI\assets\artwork\Template\Tooltip\TOOLTIP]], 
+			edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
+			tile = false, 
+			edgeSize = 1
+		})
+		tooltip:SetBackdropColor(0, 0, 0, 0.8)
+		tooltip:SetBackdropBorderColor(0, 0, 0) 
+		tooltip.SetBackdrop = function() end
+		tooltip.SetBackdropColor = function() end
+		tooltip.SetBackdropBorderColor = function() end
 		tooltip:HookScript("OnShow", _hook_OnTipShow)
 	end 
 end 

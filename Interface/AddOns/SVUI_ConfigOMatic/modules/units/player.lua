@@ -30,7 +30,8 @@ GET ADDON DATA
 ##########################################################
 ]]--
 local SuperVillain, L = unpack(SVUI);
-local MOD = SuperVillain.Registry:Expose('SVUnit');
+local MOD = SuperVillain.Registry:Expose('SVUnit')
+if(not MOD) then return end;
 local _, ns = ...
 --[[
 ##################################################################################################
@@ -43,7 +44,7 @@ SuperVillain.Options.args.SVUnit.args.player={
 	order = 3,
 	childGroups = "tab",
 	get = function(l)return SuperVillain.db.SVUnit['player'][l[#l]]end,
-	set = function(l,m)MOD:ChangeDBVar(m, l[#l], "player");MOD:SetBasicFrame('player')end,
+	set = function(l,m)MOD:ChangeDBVar(m, l[#l], "player");MOD:SetUnitFrame('player')end,
 	args = {
 		enable = {
 			type = 'toggle',
@@ -80,7 +81,7 @@ SuperVillain.Options.args.SVUnit.args.player={
 									order = 1,
 									type = "execute",
 									name = L["Show Auras"],
-									func = function()local U = SVUI_Player;if U.forceShowAuras then U.forceShowAuras = nil else U.forceShowAuras = true end;MOD:SetBasicFrame("player")end
+									func = function()local U = SVUI_Player;if U.forceShowAuras then U.forceShowAuras = nil else U.forceShowAuras = true end;MOD:SetUnitFrame("player")end
 								},
 								lowmana = {
 									order = 2,
@@ -98,7 +99,7 @@ SuperVillain.Options.args.SVUnit.args.player={
 									type = "toggle",
 									set = function(l, m)
 										MOD:ChangeDBVar(m, l[#l], "player");
-										MOD:SetBasicFrame("player")
+										MOD:SetUnitFrame("player")
 										if m == true then 
 											SVUI_Pet:SetParent(SVUI_Player)
 										else 
@@ -118,7 +119,7 @@ SuperVillain.Options.args.SVUnit.args.player={
 									name = L["Text Toggle On NPC"],
 									desc = L["Power text will be hidden on NPC targets, in addition the name text will be repositioned to the power texts anchor point."],
 									get = function(l)return SuperVillain.db.SVUnit["player"]["power"].hideonnpc end,
-									set = function(l, m)SuperVillain.db.SVUnit["player"]["power"].hideonnpc = m;MOD:SetBasicFrame("player")end
+									set = function(l, m)SuperVillain.db.SVUnit["player"]["power"].hideonnpc = m;MOD:SetUnitFrame("player")end
 								},
 								threatEnabled = {
 									type = "toggle",
@@ -160,7 +161,7 @@ SuperVillain.Options.args.SVUnit.args.player={
 											SuperVillain.db.SVUnit["player"].castbar.width = m 
 										end;
 										MOD:ChangeDBVar(m, l[#l], "player");
-										MOD:SetBasicFrame("player")
+										MOD:SetUnitFrame("player")
 									end
 								},
 								height = {
@@ -180,7 +181,7 @@ SuperVillain.Options.args.SVUnit.args.player={
 							guiInline = true,
 							name = PVP,
 							get = function(l)return SuperVillain.db.SVUnit["player"]["pvp"][l[#l]]end,
-							set = function(l, m)MOD:ChangeDBVar(m, l[#l], "player", "pvp");MOD:SetBasicFrame("player")end,
+							set = function(l, m)MOD:ChangeDBVar(m, l[#l], "player", "pvp");MOD:SetUnitFrame("player")end,
 							args = {
 								position = {
 									type = "select",
@@ -209,22 +210,22 @@ SuperVillain.Options.args.SVUnit.args.player={
 						}
 					}
 				},
-				misc = ns:SetMiscConfigGroup(false, MOD.SetBasicFrame, "player"),
-				health = ns:SetHealthConfigGroup(false, MOD.SetBasicFrame, "player"), 
-				power = ns:SetPowerConfigGroup(true, MOD.SetBasicFrame, "player"), 
-				name = ns:SetNameConfigGroup(MOD.SetBasicFrame, "player"), 
-				portrait = ns:SetPortraitConfigGroup(MOD.SetBasicFrame, "player"), 
-				buffs = ns:SetAuraConfigGroup(true, "buffs", false, MOD.SetBasicFrame, "player"), 
-				debuffs = ns:SetAuraConfigGroup(true, "debuffs", false, MOD.SetBasicFrame, "player"), 
-				castbar = ns:SetCastbarConfigGroup(MOD.SetBasicFrame, "player"), 
-				aurabar = ns:SetAurabarConfigGroup(true, MOD.SetBasicFrame, "player"), 
-				icons = ns:SetIconConfigGroup(MOD.SetBasicFrame, "player"), 
+				misc = ns:SetMiscConfigGroup(false, MOD.SetUnitFrame, "player"),
+				health = ns:SetHealthConfigGroup(false, MOD.SetUnitFrame, "player"), 
+				power = ns:SetPowerConfigGroup(true, MOD.SetUnitFrame, "player"), 
+				name = ns:SetNameConfigGroup(MOD.SetUnitFrame, "player"), 
+				portrait = ns:SetPortraitConfigGroup(MOD.SetUnitFrame, "player"), 
+				buffs = ns:SetAuraConfigGroup(true, "buffs", false, MOD.SetUnitFrame, "player"), 
+				debuffs = ns:SetAuraConfigGroup(true, "debuffs", false, MOD.SetUnitFrame, "player"), 
+				castbar = ns:SetCastbarConfigGroup(MOD.SetUnitFrame, "player"), 
+				aurabar = ns:SetAurabarConfigGroup(true, MOD.SetUnitFrame, "player"), 
+				icons = ns:SetIconConfigGroup(MOD.SetUnitFrame, "player"), 
 				classbar = {
 					order = 1000,
 					type = "group",
 					name = L["Classbar"],
 					get = function(l)return SuperVillain.db.SVUnit["player"]["classbar"][l[#l]]end,
-					set = function(l, m)MOD:ChangeDBVar(m, l[#l], "player", "classbar");MOD:SetBasicFrame("player")end,
+					set = function(l, m)MOD:ChangeDBVar(m, l[#l], "player", "classbar");MOD:SetUnitFrame("player")end,
 					args = {
 						enable = {
 							type = "toggle",
@@ -252,7 +253,7 @@ SuperVillain.Options.args.SVUnit.args.player={
 									order = 3,
 									name = L["Stagger Bar"],
 									get = function(l)return SuperVillain.db.SVUnit["player"]["stagger"].enable end,
-									set = function(l, m)MOD:ChangeDBVar(m, "enable", "player", "stagger");MOD:SetBasicFrame("player")end,
+									set = function(l, m)MOD:ChangeDBVar(m, "enable", "player", "stagger");MOD:SetUnitFrame("player")end,
 									disabled = SuperVillain.class ~= "MONK",
 								},
 								druidMana = {
@@ -265,7 +266,7 @@ SuperVillain.Options.args.SVUnit.args.player={
 									end, 
 									set = function(key, value)
 										MOD:ChangeDBVar(value, "druidMana", "player", "power");
-										MOD:SetBasicFrame("player")
+										MOD:SetUnitFrame("player")
 									end,
 									disabled = SuperVillain.class ~= "DRUID",
 								}

@@ -1,3 +1,4 @@
+--[[ MODIFIED FOR SVUI BY MUNGLUNCH ]]--
 local _, ns = ...
 local oUF = oUF or ns.oUF
 assert(oUF, 'oUF_AuraBars was unable to locate oUF install.')
@@ -67,6 +68,45 @@ local function SetAnchors(self)
 	end
 end
 
+local function SetBackground(frame)
+	local btop = frame:CreateTexture(nil, "OVERLAY")
+	btop:SetTexture(0, 0, 0)
+	btop:SetPoint("TOPLEFT")
+	btop:SetPoint("TOPRIGHT")
+	btop:SetHeight(1)
+	local bbottom = frame:CreateTexture(nil, "OVERLAY")
+	bbottom:SetTexture(0, 0, 0)
+	bbottom:SetPoint("BOTTOMLEFT")
+	bbottom:SetPoint("BOTTOMRIGHT")
+	bbottom:SetHeight(1)
+	local bright = frame:CreateTexture(nil, "OVERLAY")
+	bright:SetTexture(0, 0, 0)
+	bright:SetPoint("TOPRIGHT")
+	bright:SetPoint("BOTTOMRIGHT")
+	bright:SetWidth(1)
+	local bleft = frame:CreateTexture(nil, "OVERLAY")
+	bleft:SetTexture(0, 0, 0)
+	bleft:SetPoint("TOPLEFT")
+	bleft:SetPoint("BOTTOMLEFT")
+	bleft:SetWidth(1)
+    frame:SetBackdrop({
+        bgFile = [[Interface\BUTTONS\WHITE8X8]], 
+        edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
+        tile = false, 
+        tileSize = 0, 
+        edgeSize = 1, 
+        insets = 
+        {
+            left = 0, 
+            right = 0, 
+            top = 0, 
+            bottom = 0, 
+        }, 
+    })
+    frame:SetBackdropColor(0,0,0,0.25)
+    frame:SetBackdropBorderColor(0,0,0)
+end
+
 local function CreateAuraBar(oUF, anchor)
 	local auraBarParent = oUF.AuraBars
 	
@@ -74,13 +114,14 @@ local function CreateAuraBar(oUF, anchor)
 	frame:SetHeight(auraBarParent.auraBarHeight or 20)
 	frame:SetWidth((auraBarParent.auraBarWidth or auraBarParent:GetWidth()) - (frame:GetHeight() + (auraBarParent.gap or 0)))
 	frame.anchor = anchor
+	SetBackground(frame)
 	
 	-- the main bar
 	local statusBar = CreateFrame("StatusBar", nil, frame)
-	statusBar:SetStatusBarTexture(auraBarParent.auraBarTexture or [[Interface\TargetingFrame\UI-StatusBar]])
+	statusBar:SetStatusBarTexture(auraBarParent.barTexture or [[Interface\TargetingFrame\UI-StatusBar]])
 	statusBar:SetAlpha(auraBarParent.fgalpha or 1)
-	statusBar:SetAllPoints(frame)
-	
+	statusBar:SetPoint("TOPLEFT", frame, "TOPLEFT", 1, -1)
+	statusBar:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -1, 1)
 	frame.statusBar = statusBar
 	
 	if auraBarParent.down == true then
@@ -104,44 +145,43 @@ local function CreateAuraBar(oUF, anchor)
 	spark:SetPoint('CENTER', statusBar:GetStatusBarTexture(), 'RIGHT')		
 	statusBar.spark = spark
 	
-	statusBar.iconHolder = CreateFrame('Button', nil, statusBar)
-	statusBar.iconHolder:SetHeight(frame:GetHeight())
-	statusBar.iconHolder:SetWidth(frame:GetHeight())
-	statusBar.iconHolder:SetPoint('BOTTOMRIGHT', frame, 'BOTTOMLEFT', -auraBarParent.gap, 0)
-	statusBar.iconHolder.__unit = oUF.unit
-	statusBar.iconHolder:SetScript('OnEnter', OnEnter)
-	statusBar.iconHolder:SetScript('OnLeave', OnLeave)
-	statusBar.iconHolder.UpdateTooltip = UpdateTooltip
-	
-	statusBar.icon = statusBar.iconHolder:CreateTexture(nil, 'BACKGROUND')
-	statusBar.icon:SetTexCoord(.07, .93, .07, .93)
-	statusBar.icon:SetAllPoints()
+	local holder = CreateFrame('Button', nil, statusBar)
+	holder:SetHeight(frame:GetHeight())
+	holder:SetWidth(frame:GetHeight())
+	holder:SetPoint('BOTTOMRIGHT', frame, 'BOTTOMLEFT', -auraBarParent.gap, 0)
+	SetBackground(holder)
+	holder.__unit = oUF.unit
+	holder:SetScript('OnEnter', OnEnter)
+	holder:SetScript('OnLeave', OnLeave)
+	holder.UpdateTooltip = UpdateTooltip
+	statusBar.iconHolder = holder
+
+	statusBar.icon = statusBar.iconHolder:CreateTexture(nil, 'OVERLAY')
+	statusBar.icon:SetTexCoord(.1, .9, .1, .9)
+	statusBar.icon:SetPoint("TOPLEFT", statusBar.iconHolder, "TOPLEFT", 1, -1)
+	statusBar.icon:SetPoint("BOTTOMRIGHT", statusBar.iconHolder, "BOTTOMRIGHT", -1, 1)
 
 	statusBar.spelltime = statusBar:CreateFontString(nil, 'ARTWORK')
-	if auraBarParent.spellTimeObject then
-		statusBar.spelltime:SetFontObject(auraBarParent.spellTimeObject)
-	else
-		statusBar.spelltime:SetFont(auraBarParent.spellTimeFont or [[Fonts\FRIZQT__.TTF]], auraBarParent.spellTimeSize or 10)
-	end
+	statusBar.spelltime:SetFont(auraBarParent.timeFont or [[Fonts\FRIZQT__.TTF]], auraBarParent.textSize or 10, auraBarParent.textOutline or "NONE")
 	statusBar.spelltime:SetTextColor(1 ,1, 1)
+	statusBar.spelltime:SetShadowOffset(1, -1)
+  	statusBar.spelltime:SetShadowColor(0, 0, 0)
 	statusBar.spelltime:SetJustifyH'RIGHT'
 	statusBar.spelltime:SetJustifyV'CENTER'
 	statusBar.spelltime:SetPoint'RIGHT'
 
 	statusBar.spellname = statusBar:CreateFontString(nil, 'ARTWORK')
-	if auraBarParent.spellNameObject then
-		statusBar.spellname:SetFontObject(auraBarParent.spellNameObject)
-	else
-		statusBar.spellname:SetFont(auraBarParent.spellNameFont or [[Fonts\FRIZQT__.TTF]], auraBarParent.spellNameSize or 10)
-	end
+	statusBar.spellname:SetFont(auraBarParent.textFont or [[Fonts\FRIZQT__.TTF]], auraBarParent.textSize or 10, auraBarParent.textOutline or "NONE")
 	statusBar.spellname:SetTextColor(1, 1, 1)
+	statusBar.spellname:SetShadowOffset(1, -1)
+  	statusBar.spellname:SetShadowColor(0, 0, 0)
 	statusBar.spellname:SetJustifyH'LEFT'
 	statusBar.spellname:SetJustifyV'CENTER'
 	statusBar.spellname:SetPoint'LEFT'
 	statusBar.spellname:SetPoint('RIGHT', statusBar.spelltime, 'LEFT')
 
 	if auraBarParent.PostCreateBar then
-		auraBarParent.PostCreateBar(frame)
+		auraBarParent.PostCreateBar(statusBar)
 	end
 	
 	return frame

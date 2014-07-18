@@ -1,17 +1,4 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/">
-	<Script file='all_units.lua'/>	
-	<Script file='basic\player.lua'/>
-	<Script file='basic\target.lua'/>
-	<Script file='basic\tot.lua'/>
-	<Script file='basic\focus.lua'/>
-	<Script file='basic\ft.lua'/>
-	<Script file='basic\pet.lua'/>
-	<Script file='basic\pt.lua'/>
-	<Script file='group\party.lua'/>
-	<Script file='group\raid.lua'/>
-	<Script file='extra\arena.lua'/>
-	<Script file='extra\boss.lua'/>
-	<Script file='group\tank.lua'/>
-	<Script file='group\assist.lua'/>
-	<Script file='group\rpet.lua'/>
+	<Script file='units.lua'/>	
+	<Script file='groups.lua'/>
 </Ui>

@@ -27,8 +27,11 @@ local tonumber  = _G.tonumber;
 local tinsert   = _G.tinsert;
 local string    = _G.string;
 local table     = _G.table;
+local math 		= _G.math;
 --[[ STRING METHODS ]]--
 local lower = string.lower;
+--[[ MATH METHODS ]]--
+local random = math.random;
 --[[ TABLE METHODS ]]--
 local tremove, twipe = table.remove, table.wipe;
 --[[ MUNGLUNCH's FASTER ASSERT FUNCTION ]]--
@@ -80,7 +83,8 @@ SuperVillain.SystemAlert["FAILED_UISCALE"] = {
 	text = L["You have changed your UIScale, however you still have the AutoScale option enabled in SVUI. Press accept if you would like to disable the Auto Scale option."], 
 	button1 = ACCEPT, 
 	button2 = CANCEL, 
-	OnAccept = function() SuperVillain.db.system.autoScale = false; ReloadUI(); end, 
+	OnAccept = function() SuperVillain.db.system.autoScale = false; ReloadUI(); end,
+	OnCancel = function() ReloadUI() end,
 	timeout = 0, 
 	whileDead = 1, 	
 	hideOnEscape = false, 
@@ -175,12 +179,16 @@ SuperVillain.SystemAlert["RESET_PROFILE_PROMPT"] = {
 	timeout = 0, 
 	hideOnEscape = 1, 
 	OnAccept = function()
-		SuperVillain.db = nil
-    	_G["SVUI_Profile"] = nil
-    	_G["SVUI_Filters"] = nil
-    	_G["SVUI_Cache"] = nil
-    	ReloadUI()
+		SuperVillain.db:Reset()
 	end
+};
+SuperVillain.SystemAlert["COPY_PROFILE_PROMPT"] = {
+	text = L["Are you sure you want to copy all settings from this profile?"], 
+	button1 = YES, 
+	button2 = NO, 
+	timeout = 0, 
+	hideOnEscape = 1, 
+	OnAccept = function() end
 };
 SuperVillain.SystemAlert["BAR6_CONFIRMATION"] = {
 	text = L["Enabling / Disabling Bar #6 will toggle a paging option from your main actionbar to prevent duplicating bars, are you sure you want to do this?"], 
@@ -792,11 +800,84 @@ function SuperVillain:StaticPopup_Hide(which, data)
 	end
 end
 
+local function rng()
+	local x,y = random(10,70), random(10,70)
+	return x,y
+end
+
+local function SetConfigAlertAnim(f)
+	local x = x or 50;
+	local y = y or 150;
+	f.trans = f:CreateAnimationGroup()
+	f.trans[1] = f.trans:CreateAnimation("Translation")
+	f.trans[1]:SetOrder(1)
+	f.trans[1]:SetDuration(0.3)
+	f.trans[1]:SetOffset(x,y)
+	f.trans[1]:SetScript("OnPlay",function()f:SetScale(0.01)f:SetAlpha(1)end)
+	f.trans[1]:SetScript("OnUpdate",function(self)f:SetScale(0.1+(1*f.trans[1]:GetProgress()))end)
+	f.trans[2] = f.trans:CreateAnimation("Translation")
+	f.trans[2]:SetOrder(2)
+	f.trans[2]:SetDuration(0.7)
+	f.trans[2]:SetOffset(x*.5,y*.5)
+	f.trans[3] = f.trans:CreateAnimation("Translation")
+	f.trans[3]:SetOrder(3)
+	f.trans[3]:SetDuration(0.1)
+	f.trans[3]:SetOffset(0,0)
+	f.trans[3]:SetScript("OnStop",function()f:SetAlpha(0)end)
+	f.trans:SetScript("OnFinished",f.trans[3]:GetScript("OnStop"))
+end
+
+function SuperVillain:SavedPopup()
+	if not _G["SVUI_ConfigAlert"] then return end;
+	local alert = _G["SVUI_ConfigAlert"]
+	local x,y = rng()
+	if(alert:IsShown()) then
+		alert:Hide()
+	end
+	alert:Show()
+	alert.bg.anim:Play()
+	alert.bg.trans[1]:SetOffset(x,y)
+	alert.fg.trans[1]:SetOffset(x,y)
+	alert.bg.trans[2]:SetOffset(x*.5,y*.5)
+	alert.fg.trans[2]:SetOffset(x*.5,y*.5)
+	alert.bg.trans:Play()
+	alert.fg.trans:Play()
+		
+	PlaySoundFile("Sound\\Interface\\uCharacterSheetOpen.wav")
+end
+
 local AlertButton_OnClick = function(self)
 	SysPop_Event_Click(self:GetParent(), self:GetID())
 end
 
 function SuperVillain:LoadSystemAlerts()
+	if not _G["SVUI_ConfigAlert"] then 
+		local configAlert = CreateFrame("Frame", "SVUI_ConfigAlert", UIParent)
+		configAlert:SetFrameStrata("TOOLTIP")
+		configAlert:SetFrameLevel(979)
+		configAlert:Size(300, 300)
+		configAlert:Point("CENTER", 200, -150)
+		configAlert:Hide()
+		configAlert.bg = CreateFrame("Frame", nil, configAlert)
+		configAlert.bg:Size(300, 300)
+		configAlert.bg:Point("CENTER")
+		configAlert.bg:SetFrameStrata("TOOLTIP")
+		configAlert.bg:SetFrameLevel(979)
+		local bgtex = configAlert.bg:CreateTexture(nil, "BACKGROUND")
+		bgtex:SetAllPoints()
+		bgtex:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Template\\SAVED-BG")
+		configAlert.fg = CreateFrame("Frame", nil, configAlert)
+		configAlert.fg:Size(300, 300)
+		configAlert.fg:Point("CENTER", bgtex, "CENTER")
+		configAlert.fg:SetFrameStrata("TOOLTIP")
+		configAlert.fg:SetFrameLevel(999)
+		local fgtex = configAlert.fg:CreateTexture(nil, "ARTWORK")
+		fgtex:SetAllPoints()
+		fgtex:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Template\\SAVED-FG")
+		SetConfigAlertAnim(configAlert.bg, configAlert)
+		SetConfigAlertAnim(configAlert.fg, configAlert)
+		SuperVillain.Animate:Orbit(configAlert.bg, 10)
+	end;
 	for i = 1, 4 do 
 		local alert = CreateFrame("Frame", "SVUI_SystemAlert"..i, SuperVillain.UIParent, "StaticPopupTemplate")
 		alert:SetID(i)

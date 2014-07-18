@@ -38,63 +38,63 @@ GET ADDON DATA
 ]]--
 local SuperVillain, L = unpack(select(2, ...));
 local MOD = SuperVillain.Registry:Expose('SVMap');
-local NewHook = hooksecurefunc;
-
+local NewHook = hooksecurefunc
+local Initialized = false
 local function SetLargeWorldMap()
-	if InCombatLockdown() then return end;
-	if SuperVillain.db.SVMap.tinyWorldMap then
+	if InCombatLockdown() then return end 
+	if SuperVillain.db.SVMap.tinyWorldMap == true then
 		WorldMapFrame:SetParent(SuperVillain.UIParent)
 		WorldMapFrame:EnableMouse(false)
 		WorldMapFrame:EnableKeyboard(false)
 		WorldMapFrame:SetScale(1)
 		if WorldMapFrame:GetAttribute('UIPanelLayout-area') ~= 'center'then
 			SetUIPanelAttribute(WorldMapFrame, "area", "center")
-		end;
+		end 
 		if WorldMapFrame:GetAttribute('UIPanelLayout-allowOtherPanels') ~= true then
 			SetUIPanelAttribute(WorldMapFrame, "allowOtherPanels", true)
-		end 
-	end;
+		end
+	end 
 	WorldMapFrameSizeUpButton:Hide()
 	WorldMapFrameSizeDownButton:Show()
-end;
+end 
 
 local function SetQuestWorldMap()
-	if InCombatLockdown() then return end;
-	if SuperVillain.db.SVMap.tinyWorldMap then
+	if InCombatLockdown() then return end 
+	if SuperVillain.db.SVMap.tinyWorldMap == true then
 		WorldMapFrame:SetParent(SuperVillain.UIParent)
 		WorldMapFrame:EnableMouse(false)
 		WorldMapFrame:EnableKeyboard(false)
 		if WorldMapFrame:GetAttribute('UIPanelLayout-area') ~= 'center'then
 			SetUIPanelAttribute(WorldMapFrame, "area", "center")
-		end;
+		end 
 		if WorldMapFrame:GetAttribute('UIPanelLayout-allowOtherPanels') ~= true then
 			SetUIPanelAttribute(WorldMapFrame, "allowOtherPanels", true)
 		end 
-	end;
+	end 
 	WorldMapFrameSizeUpButton:Hide()
 	WorldMapFrameSizeDownButton:Show()
-end;
+end 
 
 local function SetSmallWorldMap()
-	if InCombatLockdown() then return end;
+	if InCombatLockdown() then return end 
 	WorldMapLevelDropDown:ClearAllPoints()
 	WorldMapLevelDropDown:Point("TOPLEFT", WorldMapDetailFrame, "TOPLEFT", -10, -4)
 	WorldMapFrameSizeUpButton:Show()
 	WorldMapFrameSizeDownButton:Hide()
-end;
+end 
 
 local function AdjustMapLevel()
-	if InCombatLockdown()then return end;
+	if InCombatLockdown()then return end 
 	WorldMapFrame:SetFrameLevel(2)
   	WorldMapDetailFrame:SetFrameLevel(4)
   	WorldMapFrame:SetFrameStrata('HIGH')
   	WorldMapArchaeologyDigSites:SetFrameLevel(6)
   	WorldMapArchaeologyDigSites:SetFrameStrata('DIALOG')
-end;
+end 
 
 local function AdjustMapSize()
-	if InCombatLockdown() then return end;
-	if MOD.db.tinyWorldMap then
+	if InCombatLockdown() then return end 
+	if SuperVillain.db.SVMap.tinyWorldMap == true then
 		if WORLDMAP_SETTINGS.size == WORLDMAP_FULLMAP_SIZE then 
 			SetLargeWorldMap()
 		elseif WORLDMAP_SETTINGS.size == WORLDMAP_WINDOWED_SIZE then 
@@ -112,32 +112,32 @@ local function AdjustMapSize()
 			WorldMapFrame_SetQuestMapView()
 		end
 		BlackoutWorld:SetTexture(0, 0, 0, 1)
-	end;
+	end 
 	AdjustMapLevel()
-end;
+end 
 
 local function CheckMovement()
-	if(not WorldMapFrame:IsShown()) then return end;
+	if(not WorldMapFrame:IsShown()) then return end 
 	if GetUnitSpeed("player") ~= 0 then
 		WorldMapFrame:SetAlpha(MOD.db.mapAlpha)
 	else
 		WorldMapFrame:SetAlpha(1)
 	end 
-end;
+end 
 
 function MOD:PLAYER_REGEN_ENABLED()
 	self:UnregisterEvent('PLAYER_REGEN_ENABLED')
 	WorldMapFrameSizeDownButton:Enable()
 	WorldMapFrameSizeUpButton:Enable()
-end;
+end 
 
 function MOD:PLAYER_REGEN_DISABLED()
 	WorldMapFrameSizeDownButton:Disable()
 	WorldMapFrameSizeUpButton:Disable()
-end;
+end 
 
 local function UpdateWorldMapCoords()
-	if(not WorldMapFrame:IsShown() or not SVUI_WorldMapCoords) then return end;
+	if(not WorldMapFrame:IsShown() or not SVUI_WorldMapCoords) then return end 
 	local a, b = IsInInstance()
 	local c, d = GetPlayerMapPosition("player")
 	c = parsefloat(100 * c, 2)
@@ -146,7 +146,7 @@ local function UpdateWorldMapCoords()
 		SVUI_WorldMapCoords.playerCoords:SetText(PLAYER..":   "..c..", "..d)
 	else 
 		SVUI_WorldMapCoords.playerCoords:SetText("")
-	end;
+	end 
 	local e = WorldMapDetailFrame:GetEffectiveScale()
 	local f = WorldMapDetailFrame:GetWidth()
 	local g = WorldMapDetailFrame:GetHeight()
@@ -161,10 +161,10 @@ local function UpdateWorldMapCoords()
 	else 
 		SVUI_WorldMapCoords.mouseCoords:SetText("")
 	end 
-end;
+end 
 
 function MOD:UpdateWorldMapConfig()
-	if InCombatLockdown()then return end;
+	if InCombatLockdown()then return end 
 	if(not MOD.WorldMapHooked) then
 		NewHook("WorldMap_ToggleSizeUp", AdjustMapSize)
 		NewHook("WorldMap_ToggleSizeDown", SetSmallWorldMap)
@@ -179,32 +179,40 @@ function MOD:UpdateWorldMapConfig()
 		end
 	elseif(not MOD.MovingTimer) then
 		MOD.MovingTimer = SuperVillain:ExecuteLoop(CheckMovement, 0.2)
-	end;
+	end 
 	AdjustMapSize() 
-end;
+end 
 
 local ResetDropDownList_Hook = function(self)
 	DropDownList1:ClearAllPoints()
 	DropDownList1:Point("TOPRIGHT",self,"BOTTOMRIGHT",-17,-4)
-end;
+end 
 
 local WorldMapFrameOnShow_Hook = function()
-	if InCombatLockdown()then return end;
-	AdjustMapLevel()
-end;
+	if InCombatLockdown()then return end 
+	if(not SuperVillain.db.SVMap.tinyWorldMap and not Initialized) then 
+      WorldMap_ToggleSizeUp()
+      Initialized = true
+    end
+    AdjustMapLevel()
+end 
 
 function MOD:LoadWorldMap()
 	setfenv(WorldMapFrame_OnShow, setmetatable({ UpdateMicroButtons = function() end }, { __index = _G }))
+
 	WorldMapShowDropDown:Point('BOTTOMRIGHT',WorldMapPositioningGuide,'BOTTOMRIGHT',-2,-4)
 	WorldMapZoomOutButton:Point("LEFT",WorldMapZoneDropDown,"RIGHT",0,4)
 	WorldMapLevelUpButton:Point("TOPLEFT",WorldMapLevelDropDown,"TOPRIGHT",-2,8)
 	WorldMapLevelDownButton:Point("BOTTOMLEFT",WorldMapLevelDropDown,"BOTTOMRIGHT",-2,2)
+
+	WorldMapFrame:SetParent(SuperVillain.UIParent)
 	WorldMapFrame:SetFrameLevel(4)
-	WorldMapDetailFrame:SetFrameLevel(6)
 	WorldMapFrame:SetFrameStrata('HIGH')
+	WorldMapDetailFrame:SetFrameLevel(6)
 
 	WorldMapFrame:HookScript('OnShow', WorldMapFrameOnShow_Hook)
 	WorldMapZoneDropDownButton:HookScript('OnClick', ResetDropDownList_Hook)
+
 	self:RegisterEvent('PLAYER_REGEN_ENABLED')
 	self:RegisterEvent('PLAYER_REGEN_DISABLED')
 

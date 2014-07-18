@@ -22,12 +22,8 @@ local unpack 	= _G.unpack;
 local select 	= _G.select;
 local type 		= _G.type;
 local string 	= _G.string;
-local math 		= _G.math;
 local table     = _G.table;
---[[ STRING METHODS ]]--
 local format = string.format;
---[[ MATH METHODS ]]--
-local random = math.random;
 local tcopy = table.copy;
 --[[ 
 ########################################################## 
@@ -41,63 +37,17 @@ LOCAL VARS
 ##########################################################
 ]]--
 local CURRENT_PAGE, MAX_PAGE, XOFF = 0, 8, (GetScreenWidth() * 0.025)
-local okToResetMOVE=false
-local SVUI_ConfigAlert;
+local okToResetMOVE = false
 local mungs = false;
 local user_music_vol;
-local musicIsPlaying = false;
+local musicIsPlaying;
 --[[ 
 ########################################################## 
 LOCAL FUNCTIONS
 ##########################################################
 ]]--
-local function rng()
-	local x,y = random(10,70), random(10,70)
-	return x,y
-end;
-
-local function SetConfigAlertAnim(f)
-	local x = x or 50;
-	local y = y or 150;
-	f.trans = f:CreateAnimationGroup()
-	f.trans[1] = f.trans:CreateAnimation("Translation")
-	f.trans[1]:SetOrder(1)
-	f.trans[1]:SetDuration(0.3)
-	f.trans[1]:SetOffset(x,y)
-	f.trans[1]:SetScript("OnPlay",function()f:SetScale(0.01)f:SetAlpha(1)end)
-	f.trans[1]:SetScript("OnUpdate",function(self)f:SetScale(0.1+(1*f.trans[1]:GetProgress()))end)
-	f.trans[2] = f.trans:CreateAnimation("Translation")
-	f.trans[2]:SetOrder(2)
-	f.trans[2]:SetDuration(0.7)
-	f.trans[2]:SetOffset(x*.5,y*.5)
-	f.trans[3] = f.trans:CreateAnimation("Translation")
-	f.trans[3]:SetOrder(3)
-	f.trans[3]:SetDuration(0.1)
-	f.trans[3]:SetOffset(0,0)
-	f.trans[3]:SetScript("OnStop",function()f:SetAlpha(0)end)
-	f.trans:SetScript("OnFinished",f.trans[3]:GetScript("OnStop"))
-end;
-
-local function PopAlert()
-	if not SVUI_ConfigAlert then return end;
-	local x,y = rng()
-	if(SVUI_ConfigAlert:IsShown()) then
-		SVUI_ConfigAlert:Hide()
-	end
-	SVUI_ConfigAlert:Show()
-	SVUI_ConfigAlert.bg.anim:Play()
-	SVUI_ConfigAlert.bg.trans[1]:SetOffset(x,y)
-	SVUI_ConfigAlert.fg.trans[1]:SetOffset(x,y)
-	SVUI_ConfigAlert.bg.trans[2]:SetOffset(x*.5,y*.5)
-	SVUI_ConfigAlert.fg.trans[2]:SetOffset(x*.5,y*.5)
-	SVUI_ConfigAlert.bg.trans:Play()
-	SVUI_ConfigAlert.fg.trans:Play()
-		
-	PlaySoundFile("Sound\\Interface\\uCharacterSheetOpen.wav")
-end
-
 local function SetInstallButton(button)
-    if(not button) then return end;
+    if(not button) then return end 
     button.Left:SetAlpha(0)
     button.Middle:SetAlpha(0)
     button.Right:SetAlpha(0)
@@ -107,7 +57,7 @@ local function SetInstallButton(button)
     button:SetDisabledTexture("")
     button:Formula409()
     button:SetFrameLevel(button:GetFrameLevel() + 1)
-end;
+end 
 
 local function forceCVars()
 	SetCVar("alternateResourceText",1)
@@ -127,7 +77,7 @@ local function forceCVars()
 	SetCVar('SpamFilter',0)
 	InterfaceOptionsActionBarsPanelPickupActionKeyDropDown:SetValue('SHIFT')
 	InterfaceOptionsActionBarsPanelPickupActionKeyDropDown:RefreshValue()
-end;
+end 
 
 local function BarShuffle()
 	local bar2 = SuperVillain.db.SVBar.Bar2.enable;
@@ -138,17 +88,17 @@ local function BarShuffle()
 	local sph = (400 - b2h);
 	if not SuperVillain.db.framelocations then SuperVillain.db.framelocations = {} end
 	SuperVillain.db.framelocations.SVUI_SpecialAbility_MOVE = "BOTTOMSVUIParentBOTTOM0"..sph;
-	SuperVillain.db.framelocations.SVUI_ActionBar2_MOVE = "BOTTOMSVUI_ActionBar1TOP0-1";
-	SuperVillain.db.framelocations.SVUI_ActionBar3_MOVE = "BOTTOMRIGHTSVUI_ActionBar1BOTTOMLEFT-40";
-	SuperVillain.db.framelocations.SVUI_ActionBar5_MOVE = "BOTTOMLEFTSVUI_ActionBar1BOTTOMRIGHT40";
+	SuperVillain.db.framelocations.SVUI_ActionBar2_MOVE = "BOTTOMSVUI_ActionBar1TOP04";
+	SuperVillain.db.framelocations.SVUI_ActionBar3_MOVE = "BOTTOMLEFTSVUI_ActionBar1BOTTOMRIGHT40";
+	SuperVillain.db.framelocations.SVUI_ActionBar5_MOVE = "BOTTOMRIGHTSVUI_ActionBar1BOTTOMLEFT-40";
 	if bar2 then
-		SuperVillain.db.framelocations.SVUI_PetActionBar_MOVE = "BOTTOMLEFTSVUI_ActionBar2TOPLEFT02"
-		SuperVillain.db.framelocations.SVUI_StanceBar_MOVE = "BOTTOMRIGHTSVUI_ActionBar2TOPRIGHT02";
+		SuperVillain.db.framelocations.SVUI_PetActionBar_MOVE = "BOTTOMLEFTSVUI_ActionBar2TOPLEFT04"
+		SuperVillain.db.framelocations.SVUI_StanceBar_MOVE = "BOTTOMRIGHTSVUI_ActionBar2TOPRIGHT04";
 	else
-		SuperVillain.db.framelocations.SVUI_PetActionBar_MOVE = "BOTTOMLEFTSVUI_ActionBar1TOPLEFT02"
-		SuperVillain.db.framelocations.SVUI_StanceBar_MOVE = "BOTTOMRIGHTSVUI_ActionBar1TOPRIGHT02";
+		SuperVillain.db.framelocations.SVUI_PetActionBar_MOVE = "BOTTOMLEFTSVUI_ActionBar1TOPLEFT04"
+		SuperVillain.db.framelocations.SVUI_StanceBar_MOVE = "BOTTOMRIGHTSVUI_ActionBar1TOPRIGHT04";
 	end
-end;
+end 
 
 local function UFMoveBottomQuadrant(toggle)
 	if not SuperVillain.db.framelocations then SuperVillain.db.framelocations = {} end
@@ -183,7 +133,7 @@ local function UFMoveBottomQuadrant(toggle)
 		SuperVillain.db.framelocations.SVUI_Focus_MOVE = "BOTTOMSVUIParentBOTTOM"..c..""..(d + 150);
 		SuperVillain.db.framelocations.SVUI_ThreatBar_MOVE = "BOTTOMRIGHTSVUIParentBOTTOMRIGHT-495"..d;
 	end
-end;
+end 
 
 local function UFMoveLeftQuadrant(toggle)
 	if not SuperVillain.db.framelocations then SuperVillain.db.framelocations = {} end
@@ -204,7 +154,7 @@ local function UFMoveLeftQuadrant(toggle)
 		SuperVillain.db.framelocations.SVUI_Raid10_MOVE = "BOTTOMLEFTSVUIParentBOTTOMLEFT4300"
 		SuperVillain.db.framelocations.SVUI_Raid25_MOVE = "BOTTOMLEFTSVUIParentBOTTOMLEFT4300"
 	end
-end;
+end 
 
 local function UFMoveTopQuadrant(toggle)
 	if not SuperVillain.db.framelocations then SuperVillain.db.framelocations = {} end
@@ -221,7 +171,7 @@ local function UFMoveTopQuadrant(toggle)
 		SuperVillain.db.framelocations.LossOfControlFrame_MOVE = "BOTTOMSVUIParentBOTTOM0443"
 		SuperVillain.db.framelocations.BNET_MOVE = "TOPRIGHTSVUIParentTOPRIGHT-4-248"
 	end
-end;
+end 
 
 local function UFMoveRightQuadrant(toggle)
 	if not SuperVillain.db.framelocations then SuperVillain.db.framelocations = {} end
@@ -235,7 +185,7 @@ local function UFMoveRightQuadrant(toggle)
 		SuperVillain.db.framelocations.SVUI_ArenaHolder_MOVE = "RIGHTSVUIParentRIGHT-1050"
 		SuperVillain.db.framelocations.Tooltip_MOVE = "BOTTOMRIGHTSVUIParentBOTTOMRIGHT-284"..dH;
 	end
-end;
+end 
 
 local function initChat(mungs)
 	forceCVars()
@@ -253,7 +203,7 @@ local function initChat(mungs)
 			chat:ClearAllPoints()
 			chat:Point("BOTTOMLEFT", LeftSuperDock, "BOTTOMLEFT", 5, 5)
 			chat:Point("TOPRIGHT", LeftSuperDock, "TOPRIGHT", -5, -10)
-		end;
+		end 
 		FCF_SavePositionAndDimensions(chat)
 		FCF_StopDragging(chat)
 		FCF_SetChatWindowFontSize(nil, chat, 12)
@@ -264,7 +214,7 @@ local function initChat(mungs)
 		elseif i == 3 then 
 			FCF_SetWindowName(chat, LOOT)
 		end 
-	end;
+	end 
 	ChatFrame_RemoveAllMessageGroups(ChatFrame1)
 	ChatFrame_AddMessageGroup(ChatFrame1, "SAY")
 	ChatFrame_AddMessageGroup(ChatFrame1, "EMOTE")
@@ -347,13 +297,13 @@ local function initChat(mungs)
 	ChangeChatColor("CHANNEL3", 232 / 255, 228 / 255, 121 / 255)
 	if not mungs then
 		if SuperVillain.Chat then 
-			SuperVillain.Chat:UpdateThisPackage(true)
-			if SVUI_Cache["Dock"].RightSuperDockFaded  == true then RightSuperDockToggleButton:Click()end;
+			SuperVillain.Chat:ReLoad(true)
+			if SVUI_Cache["Dock"].RightSuperDockFaded  == true then RightSuperDockToggleButton:Click()end 
 			if SVUI_Cache["Dock"].LeftSuperDockFaded  == true then LeftSuperDockToggleButton:Click()end 
 		end
-		PopAlert()
+		SuperVillain:SavedPopup()
 	end
-end;
+end 
 --[[ 
 ########################################################## 
 GLOBAL/MODULE FUNCTIONS
@@ -364,7 +314,7 @@ function SuperVillain:SetUserScreen(rez, preserve)
 		if okToResetMOVE then 
 			self:ResetMovables("")
 			okToResetMOVE = false;
-		end;
+		end 
 		self.db:SetDefault("SVUnit")
 	end
 
@@ -395,7 +345,7 @@ function SuperVillain:SetUserScreen(rez, preserve)
 			self.db.SVUnit.boss.castbar.width = 200;
 			self.db.SVUnit.arena.width = 200;
 			self.db.SVUnit.arena.castbar.width = 200 
-		end;
+		end 
 		if not mungs then
 			UFMoveBottomQuadrant(true)
 			UFMoveLeftQuadrant(true)
@@ -413,7 +363,7 @@ function SuperVillain:SetUserScreen(rez, preserve)
 			UFMoveRightQuadrant()
 		end
 		self.ghettoMonitor = nil 
-	end;
+	end 
 
 	if(not preserve and not mungs) then
 		BarShuffle()
@@ -421,9 +371,9 @@ function SuperVillain:SetUserScreen(rez, preserve)
 		self.Registry:Update('SVDock')
 		self.Registry:Update('SVAura')
 		self.Registry:Update('SVUnit')
-		PopAlert()
+		SuperVillain:SavedPopup()
 	end
-end;
+end 
 
 function SuperVillain:SetColorTheme(style, preserve)
 	style = style or "default";
@@ -439,17 +389,17 @@ function SuperVillain:SetColorTheme(style, preserve)
 		self.db.SVUnit.healthclass = true;
 	else
 		self.db.SVUnit.healthclass = false;
-	end;
+	end 
 	
 	if(not mungs) then
 		self:MediaUpdate()
 		self.Registry:Update('SVStats')
 		self.Registry:Update('SVUnit')
 		if(not preserve) then
-			PopAlert()
+			SuperVillain:SavedPopup()
 		end
 	end
-end;
+end 
 
 function SuperVillain:SetUnitframeLayout(style, preserve)
 	style = style or "default";
@@ -470,7 +420,7 @@ function SuperVillain:SetUnitframeLayout(style, preserve)
 
 	if(self.db.SAFEDATA.mediastyle == "default") then 
 		self.db.SVUnit.healthclass = true;
-	end;
+	end 
 
 	if(not mungs) then
 		if(not preserve) then
@@ -484,22 +434,22 @@ function SuperVillain:SetUnitframeLayout(style, preserve)
 		self.Registry:Update('SVStats')
 		self.Registry:Update('SVUnit')
 		if(not preserve) then
-			PopAlert()
+			SuperVillain:SavedPopup()
 		end
 	end
-end;
+end 
 
 function SuperVillain:SetupBarLayout(style, preserve)
 	style = style or "default";
 
-	if not SuperVillain.db.framelocations then SuperVillain.db.framelocations={} end;
+	if not SuperVillain.db.framelocations then SuperVillain.db.framelocations={} end 
 	if not preserve then 
 		self.db:SetDefault("SVBar")
 		if okToResetMOVE then
 			self:ResetMovables('')
 			okToResetMOVE=false
 		end
-	end;
+	end 
 
 	local presets = self:LoadPresetData("bars", style)
 	self.db.SAFEDATA.barstyle = style;
@@ -519,10 +469,10 @@ function SuperVillain:SetupBarLayout(style, preserve)
 		self.Registry:Update('SVStats')
 		self.Registry:Update('SVBar')
 		if(not preserve) then
-			PopAlert()
+			SuperVillain:SavedPopup()
 		end
 	end
-end;
+end 
 
 function SuperVillain:SetupAuralayout(style, preserve)
 	style = style or "default";
@@ -534,18 +484,28 @@ function SuperVillain:SetupAuralayout(style, preserve)
 		self.Registry:Update('SVAura')
 		self.Registry:Update('SVUnit')
 		if(not preserve) then
-			PopAlert()
+			SuperVillain:SavedPopup()
 		end
 	end
-end;
+end 
+
+local function PlayThemeSong()
+	if(not musicIsPlaying) then
+		SetCVar("Sound_MusicVolume", 100)
+		SetCVar("Sound_EnableMusic", 1)
+		StopMusic()
+		PlayMusic([[Interface\AddOns\SVUI\assets\sounds\SuperVillain.mp3]])
+		musicIsPlaying = true
+	end
+end
 
 local function InstallComplete()
-	SVUI_Profile.SAFEDATA.install_complete = SuperVillain.version;
+	SVUI_Profile.SAFEDATA.install_version = SuperVillain.version;
 	StopMusic()
 	SetCVar("Sound_MusicVolume",user_music_vol)
 	okToResetMOVE = false;
 	ReloadUI()
-end;
+end 
 
 local function InstallMungsChoice()
 	mungs = true;
@@ -558,11 +518,11 @@ local function InstallMungsChoice()
 	SuperVillain.db.SAFEDATA.barstyle = nil;
 	SuperVillain:SetupBarLayout();
 	SuperVillain:SetupAuralayout();
-	SVUI_Profile.SAFEDATA.install_complete = SuperVillain.version;
+	SVUI_Profile.SAFEDATA.install_version = SuperVillain.version;
 	StopMusic()
 	SetCVar("Sound_MusicVolume",user_music_vol)
 	ReloadUI()
-end;
+end 
 
 local function ResetAll()
 	SVUI_InstallNextButton:Disable()
@@ -573,6 +533,9 @@ local function ResetAll()
 	SVUI_InstallOption02Button:Hide()
 	SVUI_InstallOption02Button:SetScript("OnClick",nil)
 	SVUI_InstallOption02Button:SetText("")
+	SVUI_InstallOption03Button:Hide()
+	SVUI_InstallOption03Button:SetScript("OnClick",nil)
+	SVUI_InstallOption03Button:SetText("")
 	SVUI_InstallOption1Button:Hide()
 	SVUI_InstallOption1Button:SetScript("OnClick",nil)
 	SVUI_InstallOption1Button:SetText("")
@@ -590,7 +553,7 @@ local function ResetAll()
 	SVUI_SetupHolder.Desc2:SetText("")
 	SVUI_SetupHolder.Desc3:SetText("")
 	SVUI_SetupHolder:Size(550,400)
-end;
+end 
 
 local function SetPage(newPage)
 	CURRENT_PAGE = newPage;
@@ -600,12 +563,11 @@ local function SetPage(newPage)
 	if newPage  ~= MAX_PAGE then  
 		SVUI_InstallNextButton:Enable()
 		SVUI_InstallNextButton:Show()
-	end;
+	end 
 	if newPage  ~= 1 then 
 		SVUI_InstallPrevButton:Enable()
 		SVUI_InstallPrevButton:Show()
-	end;
-
+	end 
 	--[[
 		more useful globalstrings
 
@@ -620,6 +582,7 @@ local function SetPage(newPage)
 	]]--
 
 	if newPage == 1 then
+		local hasOldConfig = SVUI_Profile.SAFEDATA.install_version
 		SVUI_InstallPrevButton:Disable()
 		SVUI_InstallPrevButton:Hide()
 		okToResetMOVE = true
@@ -630,9 +593,17 @@ local function SetPage(newPage)
 		SVUI_InstallOption01Button:Show()
 		SVUI_InstallOption01Button:SetScript("OnClick", InstallMungsChoice)
 		SVUI_InstallOption01Button:SetText(USE.."\n"..DEFAULT.."\n"..SETTINGS)
+
 		SVUI_InstallOption02Button:Show()
 		SVUI_InstallOption02Button:SetScript("OnClick", InstallComplete)
-		SVUI_InstallOption02Button:SetText(CANCEL.."\n"..SETTINGS)
+		SVUI_InstallOption02Button:SetText("PRETEND YOU\nDID THIS\nALREADY")
+
+		if(hasOldConfig) then
+			SVUI_InstallOption03Button:Show()
+			SVUI_InstallOption03Button:SetScript("OnClick", InstallComplete)
+			SVUI_InstallOption03Button:SetText("Keep\nSaved\n"..SETTINGS)
+		end
+
 	elseif newPage == 2 then
 		setupFrame.SubTitle:SetText(CHAT)
 		setupFrame.Desc1:SetText(L["Whether you want to or not, you will be needing a communicator so other villains can either update you on their doings-of-evil or inform you about the MANY abilities of Chuck Norris"])
@@ -643,13 +614,7 @@ local function SetPage(newPage)
 			initChat(false)
 		end)
 		SVUI_InstallOption1Button:SetText(CHAT_DEFAULTS)
-		if(not musicIsPlaying) then
-			SetCVar("Sound_MusicVolume", 100)
-			SetCVar("Sound_EnableMusic", 1)
-			StopMusic()
-			PlayMusic([[Interface\AddOns\SVUI\assets\sounds\SuperVillain.mp3]])
-			musicIsPlaying = true
-		end
+		
 	elseif newPage == 3 then
 		local rez = GetCVar("gxResolution")
 		setupFrame.SubTitle:SetText(RESOLUTION)
@@ -660,7 +625,7 @@ local function SetPage(newPage)
 		else 
 			setupFrame.Desc2:SetText(L["This resolution doesn't require that you change settings for the UI to fit on your screen."].." "..L["Click the button below to resize your chat frames, unitframes, and reposition your actionbars."].." "..L["This is completely optional."])
 			setupFrame.Desc3:SetText(L["CHOOSE_OR_DIE"])
-		end;
+		end 
 		SVUI_InstallOption1Button:Show()
 		SVUI_InstallOption1Button:SetScript("OnClick", function()
 			SuperVillain:SetUserScreen("high")
@@ -677,13 +642,7 @@ local function SetPage(newPage)
 			SVUI_SetupHolder.Desc3:SetText(L["Enjoy the ONE incredible pixel that fits on this screen."])
 		end)
 		SVUI_InstallOption2Button:SetText(LOW)
-		if(not musicIsPlaying) then
-			SetCVar("Sound_MusicVolume", 100)
-			SetCVar("Sound_EnableMusic", 1)
-			StopMusic()
-			PlayMusic([[Interface\AddOns\SVUI\assets\sounds\SuperVillain.mp3]])
-			musicIsPlaying = true
-		end
+		
 	elseif newPage == 4 then
 		setupFrame.SubTitle:SetText(COLOR.." "..SETTINGS)
 		setupFrame.Desc1:SetText(L["Choose a theme layout you wish to use for your initial setup."])
@@ -721,13 +680,7 @@ local function SetPage(newPage)
 			SVUI_SetupHolder.Desc3:SetText(CONTINUED..L["you don't need fancyness to kick some ass!"])
 		end)
 		SVUI_InstallOption4Button:SetText(L["Vintage"])
-		if(not musicIsPlaying) then
-			SetCVar("Sound_MusicVolume", 100)
-			SetCVar("Sound_EnableMusic", 1)
-			StopMusic()
-			PlayMusic([[Interface\AddOns\SVUI\assets\sounds\SuperVillain.mp3]])
-			musicIsPlaying = true
-		end
+		
 	elseif newPage == 5 then
 		setupFrame.SubTitle:SetText(UNITFRAME_LABEL.." "..SETTINGS)
 		setupFrame.Desc1:SetText(L["You can now choose what primary unitframe style you wish to use."])
@@ -760,13 +713,7 @@ local function SetPage(newPage)
 			SVUI_SetupHolder.Desc3:SetText(CONTINUED..L["you dont need no fanciness getting in the way of world domination do you?"])
 		end)
 		SVUI_InstallOption3Button:SetText(L["Compact"])
-		if(not musicIsPlaying) then
-			SetCVar("Sound_MusicVolume", 100)
-			SetCVar("Sound_EnableMusic", 1)
-			StopMusic()
-			PlayMusic([[Interface\AddOns\SVUI\assets\sounds\SuperVillain.mp3]])
-			musicIsPlaying = true
-		end
+		
 	elseif newPage == 6 then
 		setupFrame.SubTitle:SetText(ACTIONBAR_LABEL.." "..SETTINGS)
 		setupFrame.Desc1:SetText(L["Choose a layout for your action bars."])
@@ -808,13 +755,7 @@ local function SetPage(newPage)
 			SVUI_SetupHolder.Desc3:SetText(L["Double your bars then double their size for maximum button goodness!"])
 		end)
 		SVUI_InstallOption4Button:SetText(L["2 Big" .. "\n" .. "Rows"])
-		if(not musicIsPlaying) then
-			SetCVar("Sound_MusicVolume", 100)
-			SetCVar("Sound_EnableMusic", 1)
-			StopMusic()
-			PlayMusic([[Interface\AddOns\SVUI\assets\sounds\SuperVillain.mp3]])
-			musicIsPlaying = true
-		end
+		
 	elseif newPage == 7 then
 		setupFrame.SubTitle:SetText(AURAS.." "..SETTINGS)
 		setupFrame.Desc1:SetText(L["Select an aura layout. \"Icons\" will display only icons and aurabars won't be used. \"Bars\" will display only aurabars and icons won't be used (duh). \"The Works!\" does just what it says.... icons, bars and awesomeness."])
@@ -844,13 +785,7 @@ local function SetPage(newPage)
 			SuperVillain:SetupAuralayout("theworks")
 		end)
 		SVUI_InstallOption4Button:SetText(L["The" .. "\n" .. "Works!"])
-		if(not musicIsPlaying) then
-			SetCVar("Sound_MusicVolume", 100)
-			SetCVar("Sound_EnableMusic", 1)
-			StopMusic()
-			PlayMusic([[Interface\AddOns\SVUI\assets\sounds\SuperVillain.mp3]])
-			musicIsPlaying = true
-		end
+		
 	elseif newPage == 8 then
 		SVUI_InstallNextButton:Disable()
 		SVUI_InstallNextButton:Hide()
@@ -861,22 +796,22 @@ local function SetPage(newPage)
 		SVUI_InstallOption1Button:SetScript("OnClick", InstallComplete)
 		SVUI_InstallOption1Button:SetText(L["THE_BUTTON_BELOW"])
 		SVUI_SetupHolder:Size(550, 350)
-	end 
-end;
+	end
+end 
 
 local function NextPage()
 	if CURRENT_PAGE ~= MAX_PAGE then 
 		CURRENT_PAGE = CURRENT_PAGE + 1;
 		SetPage(CURRENT_PAGE)
-	end 
-end;
+	end
+end 
 
 local function PreviousPage()
 	if CURRENT_PAGE ~= 1 then 
 		CURRENT_PAGE = CURRENT_PAGE - 1;
 		SetPage(CURRENT_PAGE)
 	end 
-end;
+end 
 
 function SuperVillain:ResetInstallation()
 	mungs = true;
@@ -913,49 +848,16 @@ function SuperVillain:ResetInstallation()
     	SuperVillain:SetupAuralayout()
     end
 
-	SVUI_Profile.SAFEDATA.install_complete = SuperVillain.version;
+	SVUI_Profile.SAFEDATA.install_version = SuperVillain.version;
 	SuperVillain:ResetMovables('')
 	ReloadUI()
-end;
+end 
 
 function SuperVillain:Install(autoLoaded)
 	if(not user_music_vol) then
 		user_music_vol = GetCVar("Sound_MusicVolume") 
 	end
-	if(not musicIsPlaying) then
-		SetCVar("Sound_MusicVolume", 100)
-		SetCVar("Sound_EnableMusic", 1)
-		StopMusic()
-		PlayMusic([[Interface\AddOns\SVUI\assets\sounds\SuperVillain.mp3]])
-		musicIsPlaying = true
-	end
-	if not SVUI_ConfigAlert then 
-		SVUI_ConfigAlert = CreateFrame("Frame", "SVUI_ConfigAlert", UIParent)
-		SVUI_ConfigAlert:SetFrameStrata("TOOLTIP")
-		SVUI_ConfigAlert:SetFrameLevel(979)
-		SVUI_ConfigAlert:Size(300, 300)
-		SVUI_ConfigAlert:Point("CENTER", 200, -150)
-		SVUI_ConfigAlert:Hide()
-		SVUI_ConfigAlert.bg = CreateFrame("Frame", nil, SVUI_ConfigAlert)
-		SVUI_ConfigAlert.bg:Size(300, 300)
-		SVUI_ConfigAlert.bg:Point("CENTER")
-		SVUI_ConfigAlert.bg:SetFrameStrata("TOOLTIP")
-		SVUI_ConfigAlert.bg:SetFrameLevel(979)
-		local bgtex = SVUI_ConfigAlert.bg:CreateTexture(nil, "BACKGROUND")
-		bgtex:SetAllPoints()
-		bgtex:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Template\\SAVED-BG")
-		SVUI_ConfigAlert.fg = CreateFrame("Frame", nil, SVUI_ConfigAlert)
-		SVUI_ConfigAlert.fg:Size(300, 300)
-		SVUI_ConfigAlert.fg:Point("CENTER", bgtex, "CENTER")
-		SVUI_ConfigAlert.fg:SetFrameStrata("TOOLTIP")
-		SVUI_ConfigAlert.fg:SetFrameLevel(999)
-		local fgtex = SVUI_ConfigAlert.fg:CreateTexture(nil, "ARTWORK")
-		fgtex:SetAllPoints()
-		fgtex:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Template\\SAVED-FG")
-		SetConfigAlertAnim(SVUI_ConfigAlert.bg, SVUI_ConfigAlert)
-		SetConfigAlertAnim(SVUI_ConfigAlert.fg, SVUI_ConfigAlert)
-		SuperVillain.Animate:Orbit(SVUI_ConfigAlert.bg, 10)
-	end;
+	
 	-- frame
 	if not SVUI_SetupHolder then 
 		local frame = CreateFrame("Button", "SVUI_SetupHolder", UIParent)
@@ -1050,12 +952,12 @@ function SuperVillain:Install(autoLoaded)
 
 		frame.Option02 = CreateFrame("Button", "SVUI_InstallOption02Button", frame, "UIPanelButtonTemplate")
 		frame.Option02:Formula409()
-		frame.Option02:Size(120, 30)
+		frame.Option02:Size(130, 30)
 		frame.Option02:Point("BOTTOMLEFT", frame, "BOTTOM", 4, 15)
 		frame.Option02:SetText("")
 		SetInstallButton(frame.Option02)
 		frame.Option02.texture = frame.Option02:CreateTexture(nil, "BORDER")
-		frame.Option02.texture:Size(120, 110)
+		frame.Option02.texture:Size(130, 110)
 		frame.Option02.texture:Point("CENTER", frame.Option02, "BOTTOM", 0, -15)
 		frame.Option02.texture:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Template\\OPTION")
 		frame.Option02.texture:SetGradient("VERTICAL", 0.3, 0, 0, 0.7, 0, 0)
@@ -1070,7 +972,7 @@ function SuperVillain:Install(autoLoaded)
 			g.texture:Point("CENTER", g, "BOTTOM", 0, -(h * 0.09))
 		end)
 		frame.Option02:SetScript("OnShow", function()
-			frame.Option01:SetWidth(120)
+			frame.Option01:SetWidth(130)
 			frame.Option01:ClearAllPoints()
 			frame.Option01:Point("BOTTOMRIGHT", frame, "BOTTOM", -4, 15)
 		end)
@@ -1081,6 +983,46 @@ function SuperVillain:Install(autoLoaded)
 		end)
 		frame.Option02:SetFrameLevel(frame.Option01:GetFrameLevel() + 10)
 		frame.Option02:Hide()
+
+		frame.Option03 = CreateFrame("Button", "SVUI_InstallOption03Button", frame, "UIPanelButtonTemplate")
+		frame.Option03:Formula409()
+		frame.Option03:Size(130, 30)
+		frame.Option03:Point("BOTTOM", frame, "BOTTOM", 0, 15)
+		frame.Option03:SetText("")
+		SetInstallButton(frame.Option03)
+		frame.Option03.texture = frame.Option03:CreateTexture(nil, "BORDER")
+		frame.Option03.texture:Size(130, 110)
+		frame.Option03.texture:Point("CENTER", frame.Option03, "BOTTOM", 0, -15)
+		frame.Option03.texture:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Template\\OPTION")
+		frame.Option03.texture:SetGradient("VERTICAL", 0, 0.1, 0.3, 0, 0.5, 0.7)
+		frame.Option03:SetScript("OnEnter", function(this)
+			this.texture:SetVertexColor(0.2, 0.5, 1)
+		end)
+		frame.Option03:SetScript("OnLeave", function(this)
+			this.texture:SetGradient("VERTICAL", 0, 0.1, 0.3, 0, 0.5, 0.7)
+		end)
+		hooksecurefunc(frame.Option03, "SetWidth", function(g, h)
+			g.texture:Size(h, h)
+			g.texture:Point("CENTER", g, "BOTTOM", 0, -(h * 0.09))
+		end)
+		frame.Option03:SetScript("OnShow", function(self)
+			self:SetWidth(130)
+			frame.Option01:SetWidth(130)
+			frame.Option01:ClearAllPoints()
+			frame.Option01:Point("RIGHT", self, "LEFT", -8, 0)
+			frame.Option02:SetWidth(130)
+			frame.Option02:ClearAllPoints()
+			frame.Option02:Point("LEFT", self, "RIGHT", 8, 0)
+		end)
+		frame.Option03:SetScript("OnHide", function()
+			frame.Option01:SetWidth(160)
+			frame.Option01:ClearAllPoints()
+			frame.Option01:Point("BOTTOM", 0, 15)
+			frame.Option02:ClearAllPoints()
+			frame.Option02:Point("BOTTOMLEFT", frame, "BOTTOM", 4, 15)
+		end)
+		frame.Option03:SetFrameLevel(frame.Option01:GetFrameLevel() + 10)
+		frame.Option03:Hide()
 
 		frame.Option1 = CreateFrame("Button", "SVUI_InstallOption1Button", frame, "UIPanelButtonTemplate")
 		frame.Option1:Formula409()
@@ -1235,21 +1177,19 @@ function SuperVillain:Install(autoLoaded)
 		frame.tutorialImage:Size(256, 128)
 		frame.tutorialImage:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\SPLASH")
 		frame.tutorialImage:Point("BOTTOM", 0, 70)
-	end;
+	end 
 
 	SVUI_SetupHolder:SetScript("OnHide", function()
 		StopMusic()
 		SetCVar("Sound_MusicVolume", user_music_vol)
-		musicIsPlaying = false
+		musicIsPlaying = nil
 	end)
 	
-	if(not autoLoaded) then
-		SetCVar("Sound_MusicVolume", 100)
-		SetCVar("Sound_EnableMusic", 1)
-		StopMusic()
-		PlayMusic([[Interface\AddOns\SVUI\assets\sounds\SuperVillain.mp3]])
-		musicIsPlaying = true
-	end
 	SVUI_SetupHolder:Show()
 	NextPage()
-end;
+	if(not autoLoaded) then
+		PlayThemeSong()
+	else
+		SuperVillain:ExecuteTimer(PlayThemeSong, 5)
+	end
+end 

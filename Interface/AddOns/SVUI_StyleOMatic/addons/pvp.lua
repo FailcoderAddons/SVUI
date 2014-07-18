@@ -20,6 +20,8 @@ local MOD = SuperVillain.Registry:Expose("SVStyle");
 PVP STYLER
 ##########################################################
 ]]--
+-- LoadAddOn("Blizzard_PVPUI")
+
 local function PVPFrameStyle()
 	if SuperVillain.db.SVStyle.blizzard.enable ~= true or SuperVillain.db.SVStyle.blizzard.pvp ~= true then
 		return 
@@ -114,28 +116,29 @@ local function PVPFrameStyle()
 	MOD:ApplyScrollStyle(WarGamesFrameScrollFrameScrollBar)
 	MOD:ApplyScrollStyle(WarGamesFrameInfoScrollFrameScrollBar)
 	WarGamesFrame.HorizontalBar:Formula409()
+	PVPUIFrame.LeftInset:Formula409()
 	PVPReadyDialog:Formula409()
-	PVPReadyDialog:SetPanelTemplate("Pattern", true)
+	PVPReadyDialog:SetPanelTemplate("Pattern")
 	PVPReadyDialogEnterBattleButton:SetButtonTemplate()
 	PVPReadyDialogLeaveQueueButton:SetButtonTemplate()
 	MOD:ApplyCloseButtonStyle(PVPReadyDialogCloseButton)
 	PVPReadyDialogRoleIcon.texture:SetTexture("Interface\\LFGFrame\\UI-LFG-ICONS-ROLEBACKGROUNDS")
 	PVPReadyDialogRoleIcon.texture:SetAlpha(0.5)
-	PVPUIFrame.LeftInset:Formula409()
+	
 	ConquestFrame.Inset:SetFixedPanelTemplate("Inset")
 	WarGamesFrameScrollFrame:SetPanelTemplate("Inset",false,2,2,6)
-	hooksecurefunc("PVPReadyDialog_Display", function(n, l, N, O, P, Q, R)
+
+	hooksecurefunc("PVPReadyDialog_Display", function(self, l, N, O, P, Q, R)
 		if R == "DAMAGER" then
 			PVPReadyDialogRoleIcon.texture:SetTexCoord(LFDQueueFrameRoleButtonDPS.background:GetTexCoord())
 		elseif R == "TANK" then 
 			PVPReadyDialogRoleIcon.texture:SetTexCoord(LFDQueueFrameRoleButtonTank.background:GetTexCoord())
 		elseif R == "HEALER" then 
 			PVPReadyDialogRoleIcon.texture:SetTexCoord(LFDQueueFrameRoleButtonHealer.background:GetTexCoord())
-		end;
+		end
 		if P == "ARENA" then
-			n:SetHeight(100)
-		end;
-		n.background:Hide()
+			self:SetHeight(100)
+		end
 	end)
 end;
 --[[ 
@@ -143,4 +146,6 @@ end;
 STYLE LOADING
 ##########################################################
 ]]--
-MOD:SaveBlizzardStyle('Blizzard_PVPUI',PVPFrameStyle)
+MOD:SaveBlizzardStyle('Blizzard_PVPUI', PVPFrameStyle, true, nil, true)
+
+-- /script StaticPopupSpecial_Show(PVPReadyDialog)

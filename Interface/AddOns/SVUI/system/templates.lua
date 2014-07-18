@@ -38,8 +38,7 @@ local tremove, tcopy, twipe, tsort, tconcat, tdump = table.remove, table.copy, t
 GET ADDON DATA
 ##########################################################
 ]]--
-local SuperVillain, L = unpack(select(2, ...));
-local LSM = LibStub("LibSharedMedia-3.0")
+local SuperVillain, L = unpack(select(2, ...))
 --[[ 
 ########################################################## 
 LOCAL VARS
@@ -323,6 +322,29 @@ local _templates = {
         padding = 1, 
         shadow = false, 
         noupdate = false,
+    },
+    ["Bar"] = {
+        backdrop = {
+            bgFile = [[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]], 
+            edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
+            tile = false, 
+            tileSize = 0, 
+            edgeSize = 1, 
+            insets = 
+            {
+                left = 0, 
+                right = 0, 
+                top = 0, 
+                bottom = 0, 
+            }, 
+        }, 
+        color = "transparent",
+        gradient = false, 
+        texture = false, 
+        texupdate = false,
+        padding = 1, 
+        shadow = false, 
+        noupdate = true, 
     },
     ["Slot"] = {
         backdrop = {

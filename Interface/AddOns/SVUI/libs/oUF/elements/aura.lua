@@ -31,14 +31,23 @@ local createAuraIcon = function(icons, index)
 	button:SetHeight(icons.size or 16)
 
 	local cd = CreateFrame("Cooldown", nil, button)
-	cd:SetAllPoints(button)
+	cd:SetPoint("TOPLEFT", button, "TOPLEFT", 1, -1)
+	cd:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", -1, 1)
 
-	local icon = button:CreateTexture(nil, "BORDER")
-	icon:SetAllPoints(button)
+	local text = cd:CreateFontString(nil, "OVERLAY")
+	text:SetFont(icons.textFont or [[Fonts\FRIZQT__.TTF]], icons.textSize or 10, icons.textOutline or "NONE")
+	text:SetPoint("CENTER", 1, 1)
+	text:SetJustifyH("CENTER")
+
+	local icon = button:CreateTexture(nil, "ARTWORK")
+	icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+	icon:SetPoint("TOPLEFT", button, "TOPLEFT", 1, -1)
+	icon:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", -1, 1)
 
 	local count = button:CreateFontString(nil, "OVERLAY")
-	count:SetFontObject(NumberFontNormal)
+	count:SetFont(icons.textFont or [[Fonts\FRIZQT__.TTF]], icons.textSize or 10, icons.textOutline or "NONE")
 	count:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", -1, 0)
+	count:SetJustifyH("RIGHT")
 
 	local overlay = button:CreateTexture(nil, "OVERLAY")
 	overlay:SetTexture"Interface\\Buttons\\UI-Debuff-Overlays"
@@ -63,6 +72,7 @@ local createAuraIcon = function(icons, index)
 	button.icon = icon
 	button.count = count
 	button.cd = cd
+	button.text = text
 
 	if(icons.PostCreateIcon) then icons:PostCreateIcon(button) end
 

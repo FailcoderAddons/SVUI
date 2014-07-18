@@ -32,7 +32,8 @@ GET ADDON DATA
 ##########################################################
 ]]--
 local SuperVillain, L = unpack(SVUI);
-local MOD = SuperVillain.Registry:Expose('SVUnit');
+local MOD = SuperVillain.Registry:Expose('SVUnit')
+if(not MOD) then return end;
 local _, ns = ...;
 local ACD = LibStub("AceConfigDialog-3.0");
 --[[ 
@@ -59,11 +60,11 @@ function ns:SetCastbarConfigGroup(updateFunction, unitName, count)
 		order = 800, 
 		type = "group", 
 		name = L["Castbar"], 
-		get = function(l)
-			return SuperVillain.db.SVUnit[unitName]["castbar"][l[#l]]
+		get = function(key)
+			return SuperVillain.db.SVUnit[unitName]["castbar"][key[#key]]
 		end,
-		set = function(l, m)
-			SuperVillain.db.SVUnit[unitName]["castbar"][l[#l]] = m;
+		set = function(key, value)
+			MOD:ChangeDBVar(value, key[#key], unitName, "castbar")
 			updateFunction(MOD, unitName, count)
 		end,
 		args = {
@@ -78,17 +79,8 @@ function ns:SetCastbarConfigGroup(updateFunction, unitName, count)
 				type = "group", 
 				name = L["Base Settings"], 
 				args = {
-					matchsize = {
-						order = 1, 
-						type = "execute", 
-						name = L["Match Frame Width"], 
-						func = function()
-							SuperVillain.db.SVUnit[unitName]["castbar"]["width"] = SuperVillain.db.SVUnit[unitName]["width"]
-							updateFunction(MOD, unitName, count)
-						end
-					},
 					forceshow = {
-						order = 2, 
+						order = 1, 
 						name = SHOW.." / "..HIDE,
 						type = "execute",
 						func = function()
@@ -125,17 +117,17 @@ function ns:SetCastbarConfigGroup(updateFunction, unitName, count)
 						end,
 					},
 					icon = {
-						order = 3, 
+						order = 2, 
 						name = L["Icon"], 
 						type = "toggle"
 					},
 					latency = {
-						order = 4, 
+						order = 3, 
 						name = L["Latency"], 
 						type = "toggle"
 					},
 					spark = {
-						order = 5, 
+						order = 4, 
 						type = "toggle", 
 						name = L["Spark"]
 					},
@@ -147,8 +139,24 @@ function ns:SetCastbarConfigGroup(updateFunction, unitName, count)
 				type = "group", 
 				name = L["Size Settings"], 
 				args = {
-					width = {
+					matchFrameWidth = {
 						order = 1, 
+						name = L["Auto Width"], 
+						desc = "Force the castbar to ALWAYS match its unitframes width.",
+						type = "toggle", 
+					},
+					matchsize = {
+						order = 2, 
+						type = "execute", 
+						name = L["Match Frame Width"], 
+						desc = "Set the castbar width to match its unitframe.",
+						func = function()
+							SuperVillain.db.SVUnit[unitName]["castbar"]["width"] = SuperVillain.db.SVUnit[unitName]["width"]
+							updateFunction(MOD, unitName, count)
+						end
+					},
+					width = {
+						order = 3, 
 						name = L["Width"], 
 						type = "range", 
 						width = "full",
@@ -157,7 +165,7 @@ function ns:SetCastbarConfigGroup(updateFunction, unitName, count)
 						step = 1
 					},
 					height = {
-						order = 2, 
+						order = 4, 
 						name = L["Height"], 
 						type = "range",
 						width = "full",
@@ -245,12 +253,14 @@ function ns:SetAuraConfigGroup(custom, auraType, unused, updateFunction, unitNam
 	local configTable = {
 		order = auraType == "buffs" and 600 or 700, 
 		type = "group", 
-		name = auraType == "buffs" and L["Buffs"] or L["Debuffs"], 
-		get = function(l)return SuperVillain.db.SVUnit[unitName][auraType][l[#l]]end, 
-		set = function(l, m)
-			SuperVillain.db.SVUnit[unitName][auraType][l[#l]] = m;
+		name = auraType == "buffs" and L["Buffs"] or L["Debuffs"],
+		get = function(key)
+			return SuperVillain.db.SVUnit[unitName][auraType][key[#key]]
+		end,
+		set = function(key, value)
+			MOD:ChangeDBVar(value, key[#key], unitName, auraType)
 			updateFunction(MOD, unitName, count)
-		end, 
+		end,  
 		args = {
 			enable = {
 				type = "toggle", 
@@ -808,7 +818,7 @@ function ns:SetNameConfigGroup(updateFunction, unitName, count)
 				name = L["Fonts"],
 				set = function(key, value)
 					MOD:ChangeDBVar(value, key[#key], unitName, "name");
-					MOD:UpdateUnitFont(unitName)
+					MOD:RefreshAllUnitMedia()
 				end,
 				args = {
 					font = {
@@ -903,8 +913,13 @@ function ns:SetPortraitConfigGroup(updateFunction, unitName, count)
 		order = 400, 
 		type = "group", 
 		name = L["Portrait"],
-		get = function(l)return SuperVillain.db.SVUnit[unitName]["portrait"][l[#l]]end, 
-		set = function(l, m)SuperVillain.db.SVUnit[unitName]["portrait"][l[#l]] = m;updateFunction(MOD, unitName, count)end,
+		get = function(key)
+			return SuperVillain.db.SVUnit[unitName]["portrait"][key[#key]]
+		end,
+		set = function(key, value)
+			MOD:ChangeDBVar(value, key[#key], unitName, "portrait")
+			updateFunction(MOD, unitName, count)
+		end,
 		args = {
 			enable = {
 				type = "toggle", 
@@ -981,6 +996,13 @@ function ns:SetIconConfigGroup(updateFunction, unitName, count)
 		order = 5000, 
 		type = "group", 
 		name = L["Icons"], 
+		get = function(key)
+			return SuperVillain.db.SVUnit[unitName]["icons"][key[#key]]
+		end,
+		set = function(key, value)
+			MOD:ChangeDBVar(value, key[#key], unitName, "icons")
+			updateFunction(MOD, unitName, count)
+		end,
 		args = {}
 	};
 
@@ -989,9 +1011,14 @@ function ns:SetIconConfigGroup(updateFunction, unitName, count)
 			order = grouporder, 
 			type = "group",
 			guiInline = true,
-			name = L["Raid Marker"], 
-			get = function(l)return SuperVillain.db.SVUnit[unitName]["icons"]["raidicon"][l[#l]]end, 
-			set = function(l, m)SuperVillain.db.SVUnit[unitName]["icons"]["raidicon"][l[#l]] = m;updateFunction(MOD, unitName, count)end, 
+			name = L["Raid Marker"],
+			get = function(key)
+				return SuperVillain.db.SVUnit[unitName]["icons"]["raidicon"][key[#key]]
+			end,
+			set = function(key, value)
+				MOD:ChangeDBVar(value, key[#key], unitName, "icons", "raidicon")
+				updateFunction(MOD, unitName, count)
+			end,
 			args = {
 				enable = {type = "toggle", order = 1, name = L["Enable"]}, 
 				attachTo = {type = "select", order = 2, name = L["Position"], values = SuperVillain.PointIndexes}, 
@@ -1008,9 +1035,14 @@ function ns:SetIconConfigGroup(updateFunction, unitName, count)
 			order = grouporder, 
 			type = "group",
 			guiInline = true,
-			name = L["Combat"], 
-			get = function(l)return SuperVillain.db.SVUnit[unitName]["icons"]["combatIcon"][l[#l]]end, 
-			set = function(l, m)SuperVillain.db.SVUnit[unitName]["icons"]["combatIcon"][l[#l]] = m;updateFunction(MOD, unitName, count)end, 
+			name = L["Combat"],
+			get = function(key)
+				return SuperVillain.db.SVUnit[unitName]["icons"]["combatIcon"][key[#key]]
+			end,
+			set = function(key, value)
+				MOD:ChangeDBVar(value, key[#key], unitName, "icons", "combatIcon")
+				updateFunction(MOD, unitName, count)
+			end,
 			args = {
 				enable = {type = "toggle", order = 1, name = L["Enable"]}, 
 				attachTo = {type = "select", order = 2, name = L["Position"], values = SuperVillain.PointIndexes}, 
@@ -1027,9 +1059,14 @@ function ns:SetIconConfigGroup(updateFunction, unitName, count)
 			order = grouporder, 
 			type = "group",
 			guiInline = true,
-			name = L["Resting"], 
-			get = function(l)return SuperVillain.db.SVUnit[unitName]["icons"]["restIcon"][l[#l]]end, 
-			set = function(l, m)SuperVillain.db.SVUnit[unitName]["icons"]["restIcon"][l[#l]] = m;updateFunction(MOD, unitName, count)end, 
+			name = L["Resting"],
+			get = function(key)
+				return SuperVillain.db.SVUnit[unitName]["icons"]["restIcon"][key[#key]]
+			end,
+			set = function(key, value)
+				MOD:ChangeDBVar(value, key[#key], unitName, "icons", "restIcon")
+				updateFunction(MOD, unitName, count)
+			end,
 			args = {
 				enable = {type = "toggle", order = 1, name = L["Enable"]}, 
 				attachTo = {type = "select", order = 2, name = L["Position"], values = SuperVillain.PointIndexes}, 
@@ -1046,9 +1083,14 @@ function ns:SetIconConfigGroup(updateFunction, unitName, count)
 			order = grouporder, 
 			type = "group",
 			guiInline = true,
-			name = L["Class"], 
-			get = function(l)return SuperVillain.db.SVUnit[unitName]["icons"]["classicon"][l[#l]]end, 
-			set = function(l, m)SuperVillain.db.SVUnit[unitName]["icons"]["classicon"][l[#l]] = m;updateFunction(MOD, unitName, count)end, 
+			name = L["Class"],
+			get = function(key)
+				return SuperVillain.db.SVUnit[unitName]["icons"]["classicon"][key[#key]]
+			end,
+			set = function(key, value)
+				MOD:ChangeDBVar(value, key[#key], unitName, "icons", "classicon")
+				updateFunction(MOD, unitName, count)
+			end,
 			args = {
 				enable = {type = "toggle", order = 1, name = L["Enable"]}, 
 				attachTo = {type = "select", order = 2, name = L["Position"], values = SuperVillain.PointIndexes}, 
@@ -1065,9 +1107,14 @@ function ns:SetIconConfigGroup(updateFunction, unitName, count)
 			order = grouporder, 
 			type = "group",
 			guiInline = true,
-			name = L["Elite / Rare"], 
-			get = function(l)return SuperVillain.db.SVUnit[unitName]["icons"]["eliteicon"][l[#l]]end, 
-			set = function(l, m)SuperVillain.db.SVUnit[unitName]["icons"]["eliteicon"][l[#l]] = m;updateFunction(MOD, unitName, count)end, 
+			name = L["Elite / Rare"],
+			get = function(key)
+				return SuperVillain.db.SVUnit[unitName]["icons"]["eliteicon"][key[#key]]
+			end,
+			set = function(key, value)
+				MOD:ChangeDBVar(value, key[#key], unitName, "icons", "eliteicon")
+				updateFunction(MOD, unitName, count)
+			end,
 			args = {
 				enable = {type = "toggle", order = 1, name = L["Enable"]}, 
 				attachTo = {type = "select", order = 2, name = L["Position"], values = SuperVillain.PointIndexes}, 
@@ -1084,9 +1131,14 @@ function ns:SetIconConfigGroup(updateFunction, unitName, count)
 			order = grouporder, 
 			type = "group",
 			guiInline = true,
-			name = L["Role"], 
-			get = function(l)return SuperVillain.db.SVUnit[unitName]["icons"]["roleIcon"][l[#l]]end, 
-			set = function(l, m)SuperVillain.db.SVUnit[unitName]["icons"]["roleIcon"][l[#l]] = m;updateFunction(MOD, unitName, count)end, 
+			name = L["Role"],
+			get = function(key)
+				return SuperVillain.db.SVUnit[unitName]["icons"]["roleIcon"][key[#key]]
+			end,
+			set = function(key, value)
+				MOD:ChangeDBVar(value, key[#key], unitName, "icons", "roleIcon")
+				updateFunction(MOD, unitName, count)
+			end,
 			args = {
 				enable = {type = "toggle", order = 1, name = L["Enable"]}, 
 				attachTo = {type = "select", order = 2, name = L["Position"], values = SuperVillain.PointIndexes}, 
@@ -1103,9 +1155,14 @@ function ns:SetIconConfigGroup(updateFunction, unitName, count)
 			order = grouporder, 
 			type = "group",
 			guiInline = true,
-			name = L["Leader / MasterLooter"], 
-			get = function(l)return SuperVillain.db.SVUnit[unitName]["icons"]["raidRoleIcons"][l[#l]]end, 
-			set = function(l, m)SuperVillain.db.SVUnit[unitName]["icons"]["raidRoleIcons"][l[#l]] = m;updateFunction(MOD, unitName, count)end, 
+			name = L["Leader / MasterLooter"],
+			get = function(key)
+				return SuperVillain.db.SVUnit[unitName]["icons"]["raidRoleIcons"][key[#key]]
+			end,
+			set = function(key, value)
+				MOD:ChangeDBVar(value, key[#key], unitName, "icons", "raidRoleIcons")
+				updateFunction(MOD, unitName, count)
+			end,
 			args = {
 				enable = {type = "toggle", order = 1, name = L["Enable"]}, 
 				attachTo = {type = "select", order = 2, name = L["Position"], values = SuperVillain.PointIndexes}, 
@@ -1124,9 +1181,15 @@ function ns:SetAurabarConfigGroup(custom, updateFunction, unitName)
 	local k = {
 		order = 1100, 
 		type = "group", 
-		name = L["Aura Bars"], 
-		get = function(l)return SuperVillain.db.SVUnit[unitName]["aurabar"][l[#l]]end, 
-		set = function(l, m)SuperVillain.db.SVUnit[unitName]["aurabar"][l[#l]] = m;updateFunction(MOD, unitName);MOD:RefreshUnitFrames()end, 
+		name = L["Aura Bars"],
+		get = function(key)
+			return SuperVillain.db.SVUnit[unitName]["aurabar"][key[#key]]
+		end,
+		set = function(key, value)
+			MOD:ChangeDBVar(value, key[#key], unitName, "aurabar")
+			updateFunction(MOD, unitName, count)
+			MOD:RefreshUnitFrames()
+		end,
 		args = {
 			enable = {
 				type = "toggle", 
@@ -1403,9 +1466,6 @@ SuperVillain.Options.args.SVUnit = {
 		MOD:ChangeDBVar(value, key[#key]);
 		MOD:RefreshUnitFrames();
 	end,
-	disabled = function()
-		return not SuperVillain.db.SVUnit.enable 
-	end, 
 	args = {
 		enable = {
 			order = 1, 
@@ -1423,6 +1483,9 @@ SuperVillain.Options.args.SVUnit = {
 			type = "group", 
 			name = L["General"], 
 			guiInline = true, 
+			disabled = function()
+				return not SuperVillain.db.SVUnit.enable 
+			end, 
 			args = {
 				commonGroup = {
 					order = 1, 
@@ -1454,33 +1517,7 @@ SuperVillain.Options.args.SVUnit = {
 							name = L["Debuff Highlight"], 
 							desc = L["Color the unit if there is a debuff that can be dispelled by your class."], 
 							type = "toggle"
-						}, 
-						-- combatFadeNames = {
-						-- 	order = 4, 
-						-- 	name = L["Name Fading"], 
-						-- 	desc = L["Fade Names in Combat"], 
-						-- 	type = "toggle", 
-						-- 	get = function(key)
-						-- 		return SuperVillain.db.SVUnit.combatFadeNames 
-						-- 	end, 
-						-- 	set = function(key, value)
-						-- 		MOD:ChangeDBVar(value, key[#key]);
-						-- 		MOD:SetFadeManager()
-						-- 	end
-						-- }, 
-						-- combatFadeRoles = {
-						-- 	order = 5, 
-						-- 	name = L["Role Fading"], 
-						-- 	desc = L["Fade Role Icons in Combat"], 
-						-- 	type = "toggle", 
-						-- 	get = function(key)
-						-- 		return SuperVillain.db.SVUnit.combatFadeRoles 
-						-- 	end, 
-						-- 	set = function(key, value)
-						-- 		MOD:ChangeDBVar(value, key[#key]);
-						-- 		MOD:SetFadeManager()
-						-- 	end
-						-- },
+						},
 						xrayFocus = {
 							order = 6, 
 							name = L["X-Ray Specs"], 
@@ -1508,7 +1545,7 @@ SuperVillain.Options.args.SVUnit = {
 					guiInline = true, 
 					name = "Unit Backgrounds (3D Portraits Only)", 
 					get = function(key)
-						return SuperVillain.db.media.textures[key[#key]][2]
+						return SuperVillain.db.media.textures[key[#key]]
 					end,
 					set = function(key, value)
 						SuperVillain.db.media.textures[key[#key]] = {"background", value}
@@ -1541,7 +1578,7 @@ SuperVillain.Options.args.SVUnit = {
 					end,
 					set = function(key, value)
 						MOD:ChangeDBVar(value, key[#key]);
-						MOD:RefreshUnitTextures()
+						MOD:RefreshAllUnitMedia()
 					end,
 					args = {
 						smoothbars = {
@@ -1575,7 +1612,7 @@ SuperVillain.Options.args.SVUnit = {
 					name = L["Fonts"],
 					set = function(key, value)
 						MOD:ChangeDBVar(value, key[#key]);
-						MOD:RefreshUnitFonts()
+						MOD:RefreshAllUnitMedia()
 					end,
 					args = {
 						font = {
@@ -1613,7 +1650,7 @@ SuperVillain.Options.args.SVUnit = {
 							values = AceGUIWidgetLSMlists.font,
 							set = function(key, value)
 								MOD:ChangeDBVar(value, key[#key]);
-								MOD:RefreshUnitAuraFonts()
+								MOD:RefreshAllUnitMedia()
 							end,
 						},  
 						auraFontOutline = {
@@ -1626,7 +1663,7 @@ SuperVillain.Options.args.SVUnit = {
 							},
 							set = function(key, value)
 								MOD:ChangeDBVar(value, key[#key]);
-								MOD:RefreshUnitAuraFonts();
+								MOD:RefreshAllUnitMedia()
 							end,
 						},
 						auraFontSize = {
@@ -1639,7 +1676,7 @@ SuperVillain.Options.args.SVUnit = {
 							step = 1,
 							set = function(key, value)
 								MOD:ChangeDBVar(value, key[#key]);
-								MOD:RefreshUnitAuraFonts()
+								MOD:RefreshAllUnitMedia()
 							end,
 						},
 					}
@@ -1659,7 +1696,7 @@ SuperVillain.Options.args.SVUnit = {
 									order = 1, 
 									type = "toggle", 
 									name = L["Class Health"], 
-									desc = L["Color health by classcolor or reaction."], 
+									desc = L["Color health by classcolor or reaction."],
 									get = function(key)
 										return SuperVillain.db.SVUnit[key[#key]]
 									end, 
@@ -1725,12 +1762,12 @@ SuperVillain.Options.args.SVUnit = {
 									type = "color", 
 									name = L["Health"],
 									get = function(key)
-										local color = SuperVillain.db.media.unitframes["health"]
-										return color.r, color.g, color.b, color.a 
-									end, 
+										local color = SuperVillain.db.media.unitframes.health
+										return color[1],color[2],color[3] 
+									end,
 									set = function(key, rValue, gValue, bValue)
-										SuperVillain.db.media.unitframes["health"] = {r = rValue, g = gValue, b = bValue}
-										MOD:RefreshUnitFrames()
+										SuperVillain.db.media.unitframes.health = {rValue, gValue, bValue}
+										MOD:RefreshAllUnitMedia()
 									end, 
 								}, 
 								tapped = {
@@ -1738,26 +1775,26 @@ SuperVillain.Options.args.SVUnit = {
 									type = "color", 
 									name = L["Tapped"],
 									get = function(key)
-										local color = SuperVillain.db.media.unitframes["tapped"]
-										return color.r, color.g, color.b, color.a 
-									end, 
+										local color = SuperVillain.db.media.unitframes.tapped
+										return color[1],color[2],color[3] 
+									end,
 									set = function(key, rValue, gValue, bValue)
-										SuperVillain.db.media.unitframes["tapped"] = {r = rValue, g = gValue, b = bValue}
-										MOD:RefreshUnitFrames()
-									end, 
+										SuperVillain.db.media.unitframes.tapped = {rValue, gValue, bValue}
+										MOD:RefreshAllUnitMedia()
+									end,
 								}, 
 								disconnected = {
 									order = 9, 
 									type = "color", 
 									name = L["Disconnected"],
 									get = function(key)
-										local color = SuperVillain.db.media.unitframes["disconnected"]
-										return color.r, color.g, color.b, color.a 
-									end, 
+										local color = SuperVillain.db.media.unitframes.disconnected
+										return color[1],color[2],color[3] 
+									end,
 									set = function(key, rValue, gValue, bValue)
-										SuperVillain.db.media.unitframes["disconnected"] = {r = rValue, g = gValue, b = bValue}
-										MOD:RefreshUnitFrames()
-									end, 
+										SuperVillain.db.media.unitframes.disconnected = {rValue, gValue, bValue}
+										MOD:RefreshAllUnitMedia()
+									end,
 								}
 							}
 						}, 
@@ -1786,11 +1823,11 @@ SuperVillain.Options.args.SVUnit = {
 									type = "color",
 									get = function(key)
 										local color = SuperVillain.db.media.unitframes.power["MANA"]
-										return color.r, color.g, color.b, color.a 
-									end, 
+										return color[1],color[2],color[3] 
+									end,
 									set = function(key, rValue, gValue, bValue)
-										SuperVillain.db.media.unitframes.power["MANA"] = {r = rValue, g = gValue, b = bValue}
-										MOD:RefreshUnitFrames()
+										SuperVillain.db.media.unitframes.power["MANA"] = {rValue, gValue, bValue}
+										MOD:RefreshAllUnitMedia()
 									end, 
 								}, 
 								RAGE = {
@@ -1799,12 +1836,12 @@ SuperVillain.Options.args.SVUnit = {
 									type = "color",
 									get = function(key)
 										local color = SuperVillain.db.media.unitframes.power["RAGE"]
-										return color.r, color.g, color.b, color.a 
-									end, 
+										return color[1],color[2],color[3] 
+									end,
 									set = function(key, rValue, gValue, bValue)
-										SuperVillain.db.media.unitframes.power["RAGE"] = {r = rValue, g = gValue, b = bValue}
-										MOD:RefreshUnitFrames()
-									end, 
+										SuperVillain.db.media.unitframes.power["RAGE"] = {rValue, gValue, bValue}
+										MOD:RefreshAllUnitMedia()
+									end,
 								}, 
 								FOCUS = {
 									order = 4, 
@@ -1812,12 +1849,12 @@ SuperVillain.Options.args.SVUnit = {
 									type = "color",
 									get = function(key)
 										local color = SuperVillain.db.media.unitframes.power["FOCUS"]
-										return color.r, color.g, color.b, color.a 
-									end, 
+										return color[1],color[2],color[3] 
+									end,
 									set = function(key, rValue, gValue, bValue)
-										SuperVillain.db.media.unitframes.power["FOCUS"] = {r = rValue, g = gValue, b = bValue}
-										MOD:RefreshUnitFrames()
-									end, 
+										SuperVillain.db.media.unitframes.power["FOCUS"] = {rValue, gValue, bValue}
+										MOD:RefreshAllUnitMedia()
+									end,
 								}, 
 								ENERGY = {
 									order = 5, 
@@ -1825,12 +1862,12 @@ SuperVillain.Options.args.SVUnit = {
 									type = "color",
 									get = function(key)
 										local color = SuperVillain.db.media.unitframes.power["ENERGY"]
-										return color.r, color.g, color.b, color.a 
-									end, 
+										return color[1],color[2],color[3] 
+									end,
 									set = function(key, rValue, gValue, bValue)
-										SuperVillain.db.media.unitframes.power["ENERGY"] = {r = rValue, g = gValue, b = bValue}
-										MOD:RefreshUnitFrames()
-									end, 
+										SuperVillain.db.media.unitframes.power["ENERGY"] = {rValue, gValue, bValue}
+										MOD:RefreshAllUnitMedia()
+									end,
 								}, 
 								RUNIC_POWER = {
 									order = 6, 
@@ -1838,12 +1875,12 @@ SuperVillain.Options.args.SVUnit = {
 									type = "color",
 									get = function(key)
 										local color = SuperVillain.db.media.unitframes.power["RUNIC_POWER"]
-										return color.r, color.g, color.b, color.a 
-									end, 
+										return color[1],color[2],color[3] 
+									end,
 									set = function(key, rValue, gValue, bValue)
-										SuperVillain.db.media.unitframes.power["RUNIC_POWER"] = {r = rValue, g = gValue, b = bValue}
-										MOD:RefreshUnitFrames()
-									end, 
+										SuperVillain.db.media.unitframes.power["RUNIC_POWER"] = {rValue, gValue, bValue}
+										MOD:RefreshAllUnitMedia()
+									end,
 								}
 							}
 						}, 
@@ -1871,12 +1908,12 @@ SuperVillain.Options.args.SVUnit = {
 									name = L["Interruptable"], 
 									type = "color",
 									get = function(key)
-										local color = SuperVillain.db.media.unitframes["casting"]
-										return color.r, color.g, color.b, color.a 
-									end, 
+										local color = SuperVillain.db.media.unitframes.casting
+										return color[1],color[2],color[3] 
+									end,
 									set = function(key, rValue, gValue, bValue)
-										SuperVillain.db.media.unitframes["casting"] = {r = rValue, g = gValue, b = bValue}
-										MOD:RefreshUnitFrames()
+										SuperVillain.db.media.unitframes.casting = {rValue, gValue, bValue}
+										MOD:RefreshAllUnitMedia()
 									end,
 								}, 
 								spark = {
@@ -1884,12 +1921,12 @@ SuperVillain.Options.args.SVUnit = {
 									name = "Spark Color", 
 									type = "color",
 									get = function(key)
-										local color = SuperVillain.db.media.unitframes["spark"]
-										return color.r, color.g, color.b, color.a 
-									end, 
+										local color = SuperVillain.db.media.unitframes.spark
+										return color[1],color[2],color[3] 
+									end,
 									set = function(key, rValue, gValue, bValue)
-										SuperVillain.db.media.unitframes["spark"] = {r = rValue, g = gValue, b = bValue}
-										MOD:RefreshUnitFrames()
+										SuperVillain.db.media.unitframes.spark = {rValue, gValue, bValue}
+										MOD:RefreshAllUnitMedia()
 									end,
 								}, 
 								interrupt = {
@@ -1897,12 +1934,12 @@ SuperVillain.Options.args.SVUnit = {
 									name = L["Non-Interruptable"], 
 									type = "color",
 									get = function(key)
-										local color = SuperVillain.db.media.unitframes["interrupt"]
-										return color.r, color.g, color.b, color.a 
-									end, 
+										local color = SuperVillain.db.media.unitframes.interrupt
+										return color[1],color[2],color[3] 
+									end,
 									set = function(key, rValue, gValue, bValue)
-										SuperVillain.db.media.unitframes["interrupt"] = {r = rValue, g = gValue, b = bValue}
-										MOD:RefreshUnitFrames()
+										SuperVillain.db.media.unitframes.interrupt = {rValue, gValue, bValue}
+										MOD:RefreshAllUnitMedia()
 									end,
 								}
 							}
@@ -1944,12 +1981,12 @@ SuperVillain.Options.args.SVUnit = {
 									name = L["Buffs"], 
 									type = "color",
 									get = function(key)
-										local color = SuperVillain.db.media.unitframes["buff_bars"]
-										return color.r, color.g, color.b, color.a 
-									end, 
+										local color = SuperVillain.db.media.unitframes.buff_bars
+										return color[1],color[2],color[3] 
+									end,
 									set = function(key, rValue, gValue, bValue)
-										SuperVillain.db.media.unitframes["buff_bars"] = {r = rValue, g = gValue, b = bValue}
-										MOD:RefreshUnitFrames()
+										SuperVillain.db.media.unitframes.buff_bars = {rValue, gValue, bValue}
+										MOD:RefreshAllUnitMedia()
 									end,
 								}, 
 								debuff_bars = {
@@ -1957,12 +1994,12 @@ SuperVillain.Options.args.SVUnit = {
 									name = L["Debuffs"], 
 									type = "color",
 									get = function(key)
-										local color = SuperVillain.db.media.unitframes["debuff_bars"]
-										return color.r, color.g, color.b, color.a 
-									end, 
+										local color = SuperVillain.db.media.unitframes.debuff_bars
+										return color[1],color[2],color[3] 
+									end,
 									set = function(key, rValue, gValue, bValue)
-										SuperVillain.db.media.unitframes["debuff_bars"] = {r = rValue, g = gValue, b = bValue}
-										MOD:RefreshUnitFrames()
+										SuperVillain.db.media.unitframes.debuff_bars = {rValue, gValue, bValue}
+										MOD:RefreshAllUnitMedia()
 									end,
 								}, 
 								shield_bars = {
@@ -1970,12 +2007,12 @@ SuperVillain.Options.args.SVUnit = {
 									name = L["Shield Buffs Color"], 
 									type = "color",
 									get = function(key)
-										local color = SuperVillain.db.media.unitframes["shield_bars"]
-										return color.r, color.g, color.b, color.a 
-									end, 
+										local color = SuperVillain.db.media.unitframes.shield_bars
+										return color[1],color[2],color[3] 
+									end,
 									set = function(key, rValue, gValue, bValue)
-										SuperVillain.db.media.unitframes["shield_bars"] = {r = rValue, g = gValue, b = bValue}
-										MOD:RefreshUnitFrames()
+										SuperVillain.db.media.unitframes.shield_bars = {rValue, gValue, bValue}
+										MOD:RefreshAllUnitMedia()
 									end,
 								}
 							}
@@ -1992,10 +2029,10 @@ SuperVillain.Options.args.SVUnit = {
 									hasAlpha = true,
 									get = function(key)
 										local color = SuperVillain.db.media.unitframes.predict["personal"]
-										return color.r, color.g, color.b, color.a 
-									end, 
+										return color[1],color[2],color[3] 
+									end,
 									set = function(key, rValue, gValue, bValue)
-										SuperVillain.db.media.unitframes.predict["personal"] = {r = rValue, g = gValue, b = bValue}
+										SuperVillain.db.media.unitframes.predict["personal"] = {rValue, gValue, bValue}
 										MOD:RefreshUnitFrames()
 									end,
 								}, 
@@ -2006,10 +2043,10 @@ SuperVillain.Options.args.SVUnit = {
 									hasAlpha = true,
 									get = function(key)
 										local color = SuperVillain.db.media.unitframes.predict["others"]
-										return color.r, color.g, color.b, color.a 
-									end, 
+										return color[1],color[2],color[3] 
+									end,
 									set = function(key, rValue, gValue, bValue)
-										SuperVillain.db.media.unitframes.predict["others"] = {r = rValue, g = gValue, b = bValue}
+										SuperVillain.db.media.unitframes.predict["others"] = {rValue, gValue, bValue}
 										MOD:RefreshUnitFrames()
 									end,
 								}, 
@@ -2020,10 +2057,10 @@ SuperVillain.Options.args.SVUnit = {
 									hasAlpha = true,
 									get = function(key)
 										local color = SuperVillain.db.media.unitframes.predict["absorbs"]
-										return color.r, color.g, color.b, color.a 
-									end, 
+										return color[1],color[2],color[3] 
+									end,
 									set = function(key, rValue, gValue, bValue)
-										SuperVillain.db.media.unitframes.predict["absorbs"] = {r = rValue, g = gValue, b = bValue}
+										SuperVillain.db.media.unitframes.predict["absorbs"] = {rValue, gValue, bValue}
 										MOD:RefreshUnitFrames()
 									end,
 								}
@@ -2035,33 +2072,3 @@ SuperVillain.Options.args.SVUnit = {
 		}
 	}
 }
-
---[[
-
-commonGroup = {
-					order = 1, 
-					type = "group", 
-					name = L["General Settings"], 
-					args = {
-						baseGroup = {
-							order = 1, 
-							type = "group", 
-							guiInline = true, 
-							name = L["Base Settings"],
-							args = {
-
-							}
-						},
-						sizeGroup = {
-							order = 2, 
-							guiInline = true, 
-							type = "group", 
-							name = L["Size Settings"], 
-							args = {
-							
-							}
-						},
-					}
-				}, 
-
-]]

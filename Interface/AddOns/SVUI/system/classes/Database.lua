@@ -52,51 +52,54 @@ GET ADDON DATA
 ##########################################################
 ]]--
 local SuperVillain, L = unpack(select(2, ...));
-local LSM = LibStub("LibSharedMedia-3.0")
+local realm = GetRealmName()
+local name = UnitName("player")
+local pkey = name .. " - " .. realm
+local logoutListener = CreateFrame("Frame", nil)
 --[[ 
 ########################################################## 
 DEFINE SHARED MEDIA
 ##########################################################
 ]]--
-LSM:Register("background","SVUI Backdrop 1",[[Interface\AddOns\SVUI\assets\artwork\Template\Background\PATTERN1]])
-LSM:Register("background","SVUI Backdrop 2",[[Interface\AddOns\SVUI\assets\artwork\Template\Background\PATTERN2]])
-LSM:Register("background","SVUI Backdrop 3",[[Interface\AddOns\SVUI\assets\artwork\Template\Background\PATTERN3]])
-LSM:Register("background","SVUI Backdrop 4",[[Interface\AddOns\SVUI\assets\artwork\Template\Background\PATTERN4]])
-LSM:Register("background","SVUI Backdrop 5",[[Interface\AddOns\SVUI\assets\artwork\Template\Background\PATTERN5]])
-LSM:Register("background","SVUI Comic 1",[[Interface\AddOns\SVUI\assets\artwork\Template\Background\COMIC1]])
-LSM:Register("background","SVUI Comic 2",[[Interface\AddOns\SVUI\assets\artwork\Template\Background\COMIC2]])
-LSM:Register("background","SVUI Comic 3",[[Interface\AddOns\SVUI\assets\artwork\Template\Background\COMIC3]])
-LSM:Register("background","SVUI Comic 4",[[Interface\AddOns\SVUI\assets\artwork\Template\Background\COMIC4]])
-LSM:Register("background","SVUI Comic 5",[[Interface\AddOns\SVUI\assets\artwork\Template\Background\COMIC5]])
-LSM:Register("background","SVUI Comic 6",[[Interface\AddOns\SVUI\assets\artwork\Template\Background\COMIC6]])
-LSM:Register("background","SVUI Unit BG 1",[[Interface\AddOns\SVUI\assets\artwork\Unitframe\Background\UNIT-BG1]])
-LSM:Register("background","SVUI Unit BG 2",[[Interface\AddOns\SVUI\assets\artwork\Unitframe\Background\UNIT-BG2]])
-LSM:Register("background","SVUI Unit BG 3",[[Interface\AddOns\SVUI\assets\artwork\Unitframe\Background\UNIT-BG3]])
-LSM:Register("background","SVUI Unit BG 4",[[Interface\AddOns\SVUI\assets\artwork\Unitframe\Background\UNIT-BG4]])
-LSM:Register("background","SVUI Small BG 1",[[Interface\AddOns\SVUI\assets\artwork\Unitframe\Background\UNIT-SMALL-BG1]])
-LSM:Register("background","SVUI Small BG 2",[[Interface\AddOns\SVUI\assets\artwork\Unitframe\Background\UNIT-SMALL-BG2]])
-LSM:Register("background","SVUI Small BG 3",[[Interface\AddOns\SVUI\assets\artwork\Unitframe\Background\UNIT-SMALL-BG3]])
-LSM:Register("background","SVUI Small BG 4",[[Interface\AddOns\SVUI\assets\artwork\Unitframe\Background\UNIT-SMALL-BG4]])
-LSM:Register("statusbar","SVUI BasicBar",[[Interface\AddOns\SVUI\assets\artwork\Bars\DEFAULT]])
-LSM:Register("statusbar","SVUI MultiColorBar",[[Interface\AddOns\SVUI\assets\artwork\Bars\GRADIENT]])
-LSM:Register("statusbar","SVUI SmoothBar",[[Interface\AddOns\SVUI\assets\artwork\Bars\SMOOTH]])
-LSM:Register("statusbar","SVUI PlainBar",[[Interface\AddOns\SVUI\assets\artwork\Bars\FLAT]])
-LSM:Register("statusbar","SVUI FancyBar",[[Interface\AddOns\SVUI\assets\artwork\Bars\TEXTURED]])
-LSM:Register("statusbar","SVUI GlossBar",[[Interface\AddOns\SVUI\assets\artwork\Bars\GLOSS]])
-LSM:Register("statusbar","SVUI GlowBar",[[Interface\AddOns\SVUI\assets\artwork\Bars\GLOWING]])
-LSM:Register("statusbar","SVUI LazerBar",[[Interface\AddOns\SVUI\assets\artwork\Bars\LAZER]])
-LSM:Register("sound", "Whisper Alert", [[Interface\AddOns\SVUI\assets\sounds\whisper.mp3]])
-LSM:Register("sound", "Toasty", [[Interface\AddOns\SVUI\assets\sounds\toasty.mp3]])
-LSM:Register("font","SVUI Default Font",[[Interface\AddOns\SVUI\assets\fonts\Default.ttf]])
-LSM:Register("font","SVUI System Font",[[Interface\AddOns\SVUI\assets\fonts\System.ttf]])
-LSM:Register("font","SVUI Dialog Font",[[Interface\AddOns\SVUI\assets\fonts\Dialog.ttf]])
-LSM:Register("font","SVUI Narrator Font",[[Interface\AddOns\SVUI\assets\fonts\Narrative.ttf]])
-LSM:Register("font","SVUI Number Font",[[Interface\AddOns\SVUI\assets\fonts\Numbers.ttf]])
-LSM:Register("font","SVUI Combat Font",[[Interface\AddOns\SVUI\assets\fonts\Combat.ttf]])
-LSM:Register("font","SVUI Action Font",[[Interface\AddOns\SVUI\assets\fonts\Action.ttf]])
-LSM:Register("font","SVUI Name Font",[[Interface\AddOns\SVUI\assets\fonts\Names.ttf]])
-LSM:Register("font","SVUI Alert Font",[[Interface\AddOns\SVUI\assets\fonts\Alert.ttf]])
-LSM:Register("font","Roboto",[[Interface\AddOns\SVUI\assets\fonts\Roboto.ttf]],LSM.LOCALE_BIT_ruRU+LSM.LOCALE_BIT_western)
+SuperVillain.Shared:Register("background","SVUI Backdrop 1",[[Interface\AddOns\SVUI\assets\artwork\Template\Background\PATTERN1]])
+SuperVillain.Shared:Register("background","SVUI Backdrop 2",[[Interface\AddOns\SVUI\assets\artwork\Template\Background\PATTERN2]])
+SuperVillain.Shared:Register("background","SVUI Backdrop 3",[[Interface\AddOns\SVUI\assets\artwork\Template\Background\PATTERN3]])
+SuperVillain.Shared:Register("background","SVUI Backdrop 4",[[Interface\AddOns\SVUI\assets\artwork\Template\Background\PATTERN4]])
+SuperVillain.Shared:Register("background","SVUI Backdrop 5",[[Interface\AddOns\SVUI\assets\artwork\Template\Background\PATTERN5]])
+SuperVillain.Shared:Register("background","SVUI Comic 1",[[Interface\AddOns\SVUI\assets\artwork\Template\Background\COMIC1]])
+SuperVillain.Shared:Register("background","SVUI Comic 2",[[Interface\AddOns\SVUI\assets\artwork\Template\Background\COMIC2]])
+SuperVillain.Shared:Register("background","SVUI Comic 3",[[Interface\AddOns\SVUI\assets\artwork\Template\Background\COMIC3]])
+SuperVillain.Shared:Register("background","SVUI Comic 4",[[Interface\AddOns\SVUI\assets\artwork\Template\Background\COMIC4]])
+SuperVillain.Shared:Register("background","SVUI Comic 5",[[Interface\AddOns\SVUI\assets\artwork\Template\Background\COMIC5]])
+SuperVillain.Shared:Register("background","SVUI Comic 6",[[Interface\AddOns\SVUI\assets\artwork\Template\Background\COMIC6]])
+SuperVillain.Shared:Register("background","SVUI Unit BG 1",[[Interface\AddOns\SVUI\assets\artwork\Unitframe\Background\UNIT-BG1]])
+SuperVillain.Shared:Register("background","SVUI Unit BG 2",[[Interface\AddOns\SVUI\assets\artwork\Unitframe\Background\UNIT-BG2]])
+SuperVillain.Shared:Register("background","SVUI Unit BG 3",[[Interface\AddOns\SVUI\assets\artwork\Unitframe\Background\UNIT-BG3]])
+SuperVillain.Shared:Register("background","SVUI Unit BG 4",[[Interface\AddOns\SVUI\assets\artwork\Unitframe\Background\UNIT-BG4]])
+SuperVillain.Shared:Register("background","SVUI Small BG 1",[[Interface\AddOns\SVUI\assets\artwork\Unitframe\Background\UNIT-SMALL-BG1]])
+SuperVillain.Shared:Register("background","SVUI Small BG 2",[[Interface\AddOns\SVUI\assets\artwork\Unitframe\Background\UNIT-SMALL-BG2]])
+SuperVillain.Shared:Register("background","SVUI Small BG 3",[[Interface\AddOns\SVUI\assets\artwork\Unitframe\Background\UNIT-SMALL-BG3]])
+SuperVillain.Shared:Register("background","SVUI Small BG 4",[[Interface\AddOns\SVUI\assets\artwork\Unitframe\Background\UNIT-SMALL-BG4]])
+SuperVillain.Shared:Register("statusbar","SVUI BasicBar",[[Interface\AddOns\SVUI\assets\artwork\Bars\DEFAULT]])
+SuperVillain.Shared:Register("statusbar","SVUI MultiColorBar",[[Interface\AddOns\SVUI\assets\artwork\Bars\GRADIENT]])
+SuperVillain.Shared:Register("statusbar","SVUI SmoothBar",[[Interface\AddOns\SVUI\assets\artwork\Bars\SMOOTH]])
+SuperVillain.Shared:Register("statusbar","SVUI PlainBar",[[Interface\AddOns\SVUI\assets\artwork\Bars\FLAT]])
+SuperVillain.Shared:Register("statusbar","SVUI FancyBar",[[Interface\AddOns\SVUI\assets\artwork\Bars\TEXTURED]])
+SuperVillain.Shared:Register("statusbar","SVUI GlossBar",[[Interface\AddOns\SVUI\assets\artwork\Bars\GLOSS]])
+SuperVillain.Shared:Register("statusbar","SVUI GlowBar",[[Interface\AddOns\SVUI\assets\artwork\Bars\GLOWING]])
+SuperVillain.Shared:Register("statusbar","SVUI LazerBar",[[Interface\AddOns\SVUI\assets\artwork\Bars\LAZER]])
+SuperVillain.Shared:Register("sound", "Whisper Alert", [[Interface\AddOns\SVUI\assets\sounds\whisper.mp3]])
+SuperVillain.Shared:Register("sound", "Toasty", [[Interface\AddOns\SVUI\assets\sounds\toasty.mp3]])
+SuperVillain.Shared:Register("font","SVUI Default Font",[[Interface\AddOns\SVUI\assets\fonts\Default.ttf]])
+SuperVillain.Shared:Register("font","SVUI System Font",[[Interface\AddOns\SVUI\assets\fonts\System.ttf]])
+SuperVillain.Shared:Register("font","SVUI Dialog Font",[[Interface\AddOns\SVUI\assets\fonts\Dialog.ttf]])
+SuperVillain.Shared:Register("font","SVUI Narrator Font",[[Interface\AddOns\SVUI\assets\fonts\Narrative.ttf]])
+SuperVillain.Shared:Register("font","SVUI Number Font",[[Interface\AddOns\SVUI\assets\fonts\Numbers.ttf]])
+SuperVillain.Shared:Register("font","SVUI Combat Font",[[Interface\AddOns\SVUI\assets\fonts\Combat.ttf]])
+SuperVillain.Shared:Register("font","SVUI Action Font",[[Interface\AddOns\SVUI\assets\fonts\Action.ttf]])
+SuperVillain.Shared:Register("font","SVUI Name Font",[[Interface\AddOns\SVUI\assets\fonts\Names.ttf]])
+SuperVillain.Shared:Register("font","SVUI Alert Font",[[Interface\AddOns\SVUI\assets\fonts\Alert.ttf]])
+SuperVillain.Shared:Register("font","Roboto",[[Interface\AddOns\SVUI\assets\fonts\Roboto.ttf]],SuperVillain.Shared.LOCALE_BIT_ruRU+SuperVillain.Shared.LOCALE_BIT_western)
 --[[ 
 ########################################################## 
 POPULATE MEDIA TABLE
@@ -110,7 +113,8 @@ do
 	local r2,g2,b2 = cColor2.r*.25, cColor2.g*.25, cColor2.b*.25
 	local ir1,ig1,ib1 = (1 - r1), (1 - g1), (1 - b1)
 	local ir2,ig2,ib2 = (1 - cColor2.r)*.25, (1 - cColor2.g)*.25, (1 - cColor2.b)*.25
-
+	local Shared = SuperVillain.Shared
+	
 	SuperVillain.Media["color"] = {
 		["default"] 	= {0.2, 0.2, 0.2, 1}, 
 		["special"] 	= {.37, .32, .29, 1},
@@ -127,34 +131,34 @@ do
 	}
 
 	SuperVillain.Media["font"] = {
-		["default"] 	= LSM:Fetch("font", "SVUI Default Font"),
-		["system"] 		= LSM:Fetch("font", "SVUI System Font"),
-		["combat"] 		= LSM:Fetch("font", "SVUI Combat Font"),
-		["dialog"] 		= LSM:Fetch("font", "SVUI Dialog Font"),
-		["narrator"] 	= LSM:Fetch("font", "SVUI Narrator Font"),
-		["action"] 		= LSM:Fetch("font", "SVUI Action Font"),
-		["names"] 		= LSM:Fetch("font", "SVUI Name Font"),
-		["alert"] 		= LSM:Fetch("font", "SVUI Alert Font"),
-		["numbers"] 	= LSM:Fetch("font", "SVUI Number Font"),
-		["roboto"] 		= LSM:Fetch("font", "Roboto")
+		["default"] 	= Shared:Fetch("font", "SVUI Default Font"),
+		["system"] 		= Shared:Fetch("font", "SVUI System Font"),
+		["combat"] 		= Shared:Fetch("font", "SVUI Combat Font"),
+		["dialog"] 		= Shared:Fetch("font", "SVUI Dialog Font"),
+		["narrator"] 	= Shared:Fetch("font", "SVUI Narrator Font"),
+		["action"] 		= Shared:Fetch("font", "SVUI Action Font"),
+		["names"] 		= Shared:Fetch("font", "SVUI Name Font"),
+		["alert"] 		= Shared:Fetch("font", "SVUI Alert Font"),
+		["numbers"] 	= Shared:Fetch("font", "SVUI Number Font"),
+		["roboto"] 		= Shared:Fetch("font", "Roboto")
 	}
 
 	SuperVillain.Media["bar"] = { 
-		["default"] 	= LSM:Fetch("statusbar", "SVUI BasicBar"), 
-		["gradient"] 	= LSM:Fetch("statusbar", "SVUI MultiColorBar"), 
-		["smooth"] 		= LSM:Fetch("statusbar", "SVUI SmoothBar"), 
-		["flat"] 		= LSM:Fetch("statusbar", "SVUI PlainBar"), 
-		["textured"] 	= LSM:Fetch("statusbar", "SVUI FancyBar"), 
-		["gloss"] 		= LSM:Fetch("statusbar", "SVUI GlossBar"), 
-		["glow"] 		= LSM:Fetch("statusbar", "SVUI GlowBar"),
-		["lazer"] 		= LSM:Fetch("statusbar", "SVUI LazerBar"),
+		["default"] 	= Shared:Fetch("statusbar", "SVUI BasicBar"), 
+		["gradient"] 	= Shared:Fetch("statusbar", "SVUI MultiColorBar"), 
+		["smooth"] 		= Shared:Fetch("statusbar", "SVUI SmoothBar"), 
+		["flat"] 		= Shared:Fetch("statusbar", "SVUI PlainBar"), 
+		["textured"] 	= Shared:Fetch("statusbar", "SVUI FancyBar"), 
+		["gloss"] 		= Shared:Fetch("statusbar", "SVUI GlossBar"), 
+		["glow"] 		= Shared:Fetch("statusbar", "SVUI GlowBar"),
+		["lazer"] 		= Shared:Fetch("statusbar", "SVUI LazerBar"),
 	}
 
 	SuperVillain.Media["bg"] = {
-		["pattern"] 	= LSM:Fetch("background", "SVUI Backdrop 1"),
-		["comic"] 		= LSM:Fetch("background", "SVUI Comic 1"),
-		["unitlarge"] 	= LSM:Fetch("background", "SVUI Unit BG 3"), 
-		["unitsmall"] 	= LSM:Fetch("background", "SVUI Small BG 3")
+		["pattern"] 	= Shared:Fetch("background", "SVUI Backdrop 1"),
+		["comic"] 		= Shared:Fetch("background", "SVUI Comic 1"),
+		["unitlarge"] 	= Shared:Fetch("background", "SVUI Unit BG 3"), 
+		["unitsmall"] 	= Shared:Fetch("background", "SVUI Small BG 3")
 	}
 
 	SuperVillain.Media["gradient"] 	= {
@@ -190,10 +194,13 @@ DB PROFILE
 ##########################################################
 ]]--
 local DatabaseDefaults = {
+	["copyKey"] = pkey,
+	["profileKey"] = pkey,
 	["framelocations"] = {}, 
 	["system"] = {
 		["cooldown"] = true, 
-		["autoScale"] = true, 
+		["autoScale"] = true,
+		["multiMonitor"] = false,
 		["taintLog"] = false, 
 		["stickyFrames"] = true, 
 		["loginmessage"] = true, 
@@ -234,7 +241,7 @@ local DatabaseDefaults = {
 		}, 
 		["colors"] = {
 			["default"] 	 = {0.2, 0.2, 0.2, 1}, 
-			["special"] 	 = {.37, .32, .29, 1}, 
+			["special"] 	 = {0.37, 0.32, 0.29, 1}, 
 		}, 
 		["unitframes"] = {
 			["health"] 		 = {0.3, 0.5, 0.3}, 
@@ -256,25 +263,7 @@ local DatabaseDefaults = {
 				[6] = {0.19, 0.85, 0.13}, 
 				[7] = {0.19, 0.85, 0.13}, 
 				[8] = {0.19, 0.85, 0.13}, 
-			}, 
-			["Runes"] 		 = {
-				[1] = {1, 0, 0}, 
-				[2] = {0, 0.5, 0}, 
-				[3] = {0, 1, 1}, 
-				[4] = {0.9, 0.1, 1}
-			}, 
-			["MonkHarmony"] = {
-				[1] = {0.57, 0.87, 0.35}, 
-				[2] = {0.47, 0.87, 0.35}, 
-				[3] = {0.37, 0.87, 0.35}, 
-				[4] = {0.27, 0.87, 0.33}, 
-				[5] = {0.17, 0.87, 0.33}
-			}, 
-			["WarlockShards"] = {
-				[1] = {0.58, 0.51, 0.79}, 
-				[2] = {0.58, 0.51, 0.79}, 
-				[3] = {1, 0.06, 0}
-			}, 
+			},
 			["tapped"] 			 = {0.55, 0.57, 0.61}, 
 			["disconnected"] 	 = {0.84, 0.75, 0.65}, 
 			["casting"] 		 = {0.8, 0.8, 0}, 
@@ -361,9 +350,12 @@ local DatabaseDefaults = {
 	}, 
 	["SVBar"] = {
 		["enable"] = true, 
-		["font"] = "SVUI Number Font", 
-		["fontSize"] = 10,  
-		["fontOutline"] = "OUTLINE", 
+		["font"] = "Roboto", 
+		["fontSize"] = 11,  
+		["fontOutline"] = "OUTLINE",
+		["countFont"] = "SVUI Number Font", 
+		["countFontSize"] = 11,  
+		["countFontOutline"] = "OUTLINE",
 		["cooldownSize"] = 18, 
 		["rightClickSelf"] = false, 
 		["macrotext"] = false, 
@@ -554,7 +546,7 @@ local DatabaseDefaults = {
 			["buttonsize"] = 24, 
 			["buttonspacing"] = 3, 
 			["useCustomVisibility"] = false, 
-			["customVisibility"] = "[petbattle] hide;[pet, novehicleui, nooverridebar, nopossessbar] show;hide", 
+			["customVisibility"] = "[petbattle] hide; [pet, novehicleui, nooverridebar, nopossessbar] show; hide", 
 			["alpha"] = 1
 		}, 
 		["Stance"] = {
@@ -567,6 +559,8 @@ local DatabaseDefaults = {
 			["backdrop"] = false, 
 			["buttonsize"] = 24, 
 			["buttonspacing"] = 5, 
+			["useCustomVisibility"] = false, 
+			["customVisibility"] = "[petbattle] hide; show",  
 			["alpha"] = 1
 		}, 
 	}, 
@@ -803,7 +797,7 @@ local DatabaseDefaults = {
 		["guildRanks"] = true, 
 		["inspectInfo"] = true, 
 		["itemCount"] = true, 
-		["spellID"] = true, 
+		["spellID"] = false, 
 		["progressInfo"] = true, 
 		["visibility"] = {
 			["unitFrames"] = "NONE", 
@@ -855,11 +849,11 @@ local DatabaseDefaults = {
 		["xrayFocus"] = true, 
 		["player"] = {
 			["enable"] = true, 
-			["width"] = 235, 
-			["height"] = 70, 
+			["width"] = 215, 
+			["height"] = 60, 
 			["lowmana"] = 30, 
 			["combatfade"] = false, 
-			["predict"] = true, 
+			["predict"] = false, 
 			["threatEnabled"] = true, 
 			["playerExpBar"] = false, 
 			["playerRepBar"] = false, 
@@ -888,27 +882,22 @@ local DatabaseDefaults = {
 				["position"] = "INNERRIGHT", 
 				["xOffset"] = 0, 
 				["yOffset"] = 0, 
-				["reversed"] = false, 
-				["font"] = "SVUI Number Font", 
+				["reversed"] = false,
 				["fontSize"] = 11, 
-				["fontOutline"] = "OUTLINE", 
 			}, 
 			["power"] = 
 			{
 				["enable"] = true, 
 				["tags"] = "", 
-				["height"] = 15, 
+				["height"] = 10, 
 				["position"] = "INNERLEFT", 
 				["hideonnpc"] = false, 
 				["xOffset"] = 0, 
-				["yOffset"] = 0, 
-				["detachFromFrame"] = false, 
+				["yOffset"] = 0,
 				["detachedWidth"] = 250, 
 				["attachTextToPower"] = false, 
-				["druidMana"] = true, 
-				["font"] = "SVUI Number Font", 
-				["fontSize"] = 11, 
-				["fontOutline"] = "OUTLINE", 
+				["druidMana"] = true,
+				["fontSize"] = 11,
 			}, 
 			["name"] = 
 			{
@@ -998,9 +987,9 @@ local DatabaseDefaults = {
 			["castbar"] = 
 			{
 				["enable"] = true, 
-				["width"] = 235, 
+				["width"] = 215, 
 				["height"] = 20, 
-				["detachFromFrame"] = false, 
+				["matchFrameWidth"] = true, 
 				["icon"] = true, 
 				["latency"] = false, 
 				["format"] = "REMAINING", 
@@ -1052,11 +1041,11 @@ local DatabaseDefaults = {
 		}, 
 		["target"] = {
 			["enable"] = true, 
-			["width"] = 235, 
-			["height"] = 70, 
+			["width"] = 215, 
+			["height"] = 60, 
 			["threatEnabled"] = true, 
 			["rangeCheck"] = true, 
-			["predict"] = true, 
+			["predict"] = false, 
 			["smartAuraDisplay"] = "DISABLED", 
 			["middleClickFocus"] = true, 
 			["formatting"] = {
@@ -1085,23 +1074,19 @@ local DatabaseDefaults = {
 				["xOffset"] = 0, 
 				["yOffset"] = 0, 
 				["reversed"] = true, 
-				["font"] = "SVUI Number Font", 
-				["fontSize"] = 11, 
-				["fontOutline"] = "OUTLINE", 
+				["fontSize"] = 11,
 			}, 
 			["power"] = 
 			{
 				["enable"] = true, 
 				["tags"] = "", 
-				["height"] = 13, 
+				["height"] = 10, 
 				["position"] = "CENTER", 
 				["hideonnpc"] = true, 
 				["xOffset"] = 0, 
 				["yOffset"] = 0, 
-				["attachTextToPower"] = false, 
-				["font"] = "SVUI Number Font", 
-				["fontSize"] = 11, 
-				["fontOutline"] = "OUTLINE", 
+				["attachTextToPower"] = false,
+				["fontSize"] = 11,
 			}, 
 			["name"] = 
 			{
@@ -1249,9 +1234,9 @@ local DatabaseDefaults = {
 			["castbar"] = 
 			{
 				["enable"] = true, 
-				["width"] = 235, 
+				["width"] = 215, 
 				["height"] = 20, 
-				["detachFromFrame"] = false, 
+				["matchFrameWidth"] = true, 
 				["icon"] = true, 
 				["format"] = "REMAINING", 
 				["spark"] = true, 
@@ -1311,10 +1296,8 @@ local DatabaseDefaults = {
 				["position"] = "INNERRIGHT", 
 				["xOffset"] = 0, 
 				["yOffset"] = 0, 
-				["reversed"] = false, 
-				["font"] = "SVUI Number Font", 
-				["fontSize"] = 9, 
-				["fontOutline"] = "OUTLINE", 
+				["reversed"] = false,
+				["fontSize"] = 9,
 			}, 
 			["power"] = 
 			{
@@ -1324,10 +1307,8 @@ local DatabaseDefaults = {
 				["position"] = "INNERLEFT", 
 				["hideonnpc"] = false, 
 				["xOffset"] = 0, 
-				["yOffset"] = 0, 
-				["font"] = "SVUI Number Font", 
-				["fontSize"] = 9, 
-				["fontOutline"] = "OUTLINE", 
+				["yOffset"] = 0,
+				["fontSize"] = 9,
 			}, 
 			["name"] = 
 			{
@@ -1476,10 +1457,8 @@ local DatabaseDefaults = {
 				["position"] = "INNERRIGHT", 
 				["xOffset"] = 0, 
 				["yOffset"] = 0, 
-				["reversed"] = false, 
-				["font"] = "SVUI Number Font", 
-				["fontSize"] = 10, 
-				["fontOutline"] = "OUTLINE", 
+				["reversed"] = false,
+				["fontSize"] = 10,
 			}, 
 			["power"] = 
 			{
@@ -1489,10 +1468,8 @@ local DatabaseDefaults = {
 				["position"] = "INNERLEFT", 
 				["hideonnpc"] = false, 
 				["xOffset"] = 0, 
-				["yOffset"] = 0, 
-				["font"] = "SVUI Number Font", 
-				["fontSize"] = 10, 
-				["fontOutline"] = "OUTLINE", 
+				["yOffset"] = 0,
+				["fontSize"] = 10,
 			}, 
 			["name"] = 
 			{
@@ -1593,6 +1570,7 @@ local DatabaseDefaults = {
 				["width"] = 170, 
 				["height"] = 18, 
 				["icon"] = true, 
+				["matchFrameWidth"] = true,
 				["format"] = "REMAINING", 
 				["spark"] = true, 
 				["useCustomColor"] = false, 
@@ -1683,10 +1661,8 @@ local DatabaseDefaults = {
 				["position"] = "INNERRIGHT", 
 				["xOffset"] = 0, 
 				["yOffset"] = 0, 
-				["reversed"] = false, 
-				["font"] = "SVUI Number Font", 
-				["fontSize"] = 10, 
-				["fontOutline"] = "OUTLINE", 
+				["reversed"] = false,
+				["fontSize"] = 10,
 			}, 
 			["power"] = 
 			{
@@ -1696,10 +1672,8 @@ local DatabaseDefaults = {
 				["position"] = "INNERLEFT", 
 				["hideonnpc"] = false, 
 				["xOffset"] = 0, 
-				["yOffset"] = 0, 
-				["font"] = "SVUI Number Font", 
-				["fontSize"] = 10, 
-				["fontOutline"] = "OUTLINE", 
+				["yOffset"] = 0,
+				["fontSize"] = 10,
 			}, 
 			["name"] = 
 			{
@@ -1838,10 +1812,8 @@ local DatabaseDefaults = {
 				["position"] = "INNERRIGHT", 
 				["yOffset"] = 0, 
 				["xOffset"] = 0, 
-				["reversed"] = false, 
-				["font"] = "SVUI Number Font", 
-				["fontSize"] = 10, 
-				["fontOutline"] = "OUTLINE", 
+				["reversed"] = false,
+				["fontSize"] = 10,
 			}, 
 			["power"] = 
 			{
@@ -1851,10 +1823,8 @@ local DatabaseDefaults = {
 				["position"] = "INNERLEFT", 
 				["hideonnpc"] = false, 
 				["yOffset"] = 0, 
-				["xOffset"] = 0, 
-				["font"] = "SVUI Number Font", 
-				["fontSize"] = 10, 
-				["fontOutline"] = "OUTLINE", 
+				["xOffset"] = 0,
+				["fontSize"] = 10,
 			}, 
 			["name"] = 
 			{
@@ -1920,6 +1890,7 @@ local DatabaseDefaults = {
 				["width"] = 130, 
 				["height"] = 8, 
 				["icon"] = false, 
+				["matchFrameWidth"] = true,
 				["format"] = "REMAINING", 
 				["spark"] = false, 
 				["useCustomColor"] = false, 
@@ -1963,10 +1934,8 @@ local DatabaseDefaults = {
 				["position"] = "INNERRIGHT", 
 				["yOffset"] = 0, 
 				["xOffset"] = 0, 
-				["reversed"] = false, 
-				["font"] = "SVUI Number Font", 
-				["fontSize"] = 10, 
-				["fontOutline"] = "OUTLINE", 
+				["reversed"] = false,
+				["fontSize"] = 10,
 			}, 
 			["power"] = 
 			{
@@ -1976,10 +1945,8 @@ local DatabaseDefaults = {
 				["position"] = "INNERLEFT", 
 				["hideonnpc"] = false, 
 				["yOffset"] = 0, 
-				["xOffset"] = 0, 
-				["font"] = "SVUI Number Font", 
-				["fontSize"] = 10, 
-				["fontOutline"] = "OUTLINE", 
+				["xOffset"] = 0,
+				["fontSize"] = 10,
 			}, 
 			["name"] = 
 			{
@@ -2106,10 +2073,8 @@ local DatabaseDefaults = {
 				["position"] = "INNERTOPRIGHT", 
 				["yOffset"] = 0, 
 				["xOffset"] = 0, 
-				["reversed"] = true, 
-				["font"] = "SVUI Number Font", 
-				["fontSize"] = 10, 
-				["fontOutline"] = "OUTLINE", 
+				["reversed"] = true,
+				["fontSize"] = 10,
 			}, 
 			["power"] = 
 			{
@@ -2119,10 +2084,8 @@ local DatabaseDefaults = {
 				["position"] = "INNERBOTTOMRIGHT", 
 				["hideonnpc"] = false, 
 				["yOffset"] = 7, 
-				["xOffset"] = 0, 
-				["font"] = "SVUI Number Font", 
-				["fontSize"] = 10, 
-				["fontOutline"] = "OUTLINE", 
+				["xOffset"] = 0,
+				["fontSize"] = 10,
 			}, 
 			["portrait"] = 
 			{
@@ -2188,6 +2151,7 @@ local DatabaseDefaults = {
 				["width"] = 200, 
 				["height"] = 18, 
 				["icon"] = true, 
+				["matchFrameWidth"] = true,
 				["format"] = "REMAINING", 
 				["spark"] = true, 
 				["useCustomColor"] = false, 
@@ -2211,8 +2175,7 @@ local DatabaseDefaults = {
 			["rangeCheck"] = true, 
 			["showBy"] = "UP", 
 			["width"] = 215, 
-			["height"] = 45, 
-			["pvpSpecIcon"] = true, 
+			["height"] = 45,  
 			["predict"] = false, 
 			["colorOverride"] = "USE_DEFAULT", 
 			["formatting"] = {
@@ -2240,10 +2203,8 @@ local DatabaseDefaults = {
 				["position"] = "INNERTOPRIGHT", 
 				["yOffset"] = 0, 
 				["xOffset"] = 0, 
-				["reversed"] = true, 
-				["font"] = "SVUI Number Font", 
-				["fontSize"] = 10, 
-				["fontOutline"] = "OUTLINE", 
+				["reversed"] = true,
+				["fontSize"] = 10,
 			}, 
 			["power"] = 
 			{
@@ -2253,10 +2214,8 @@ local DatabaseDefaults = {
 				["position"] = "INNERBOTTOMRIGHT", 
 				["hideonnpc"] = false, 
 				["yOffset"] = 7, 
-				["xOffset"] = 0, 
-				["font"] = "SVUI Number Font", 
-				["fontSize"] = 10, 
-				["fontOutline"] = "OUTLINE", 
+				["xOffset"] = 0,
+				["fontSize"] = 10,
 			}, 
 			["name"] = 
 			{
@@ -2326,7 +2285,7 @@ local DatabaseDefaults = {
 				["enable"] = true, 
 				["perrow"] = 3, 
 				["numrows"] = 1, 
-				["attachTo"] = "FRAME", 
+				["attachTo"] = "BUFFS", 
 				["anchorPoint"] = "LEFT", 
 				["verticalGrowth"] = "UP", 
 				["horizontalGrowth"] = "LEFT", 
@@ -2366,19 +2325,24 @@ local DatabaseDefaults = {
 				["width"] = 215, 
 				["height"] = 18, 
 				["icon"] = true, 
+				["matchFrameWidth"] = true,
 				["format"] = "REMAINING", 
 				["spark"] = true, 
 				["useCustomColor"] = false, 
 				["castingColor"] = {0.8, 0.8, 0}, 
 				["sparkColor"] = {1, 0.72, 0}, 
 			}, 
-			["pvpTrinket"] = 
+			["pvp"] = 
 			{
-				["enable"] = true, 
-				["position"] = "LEFT", 
-				["size"] = 45, 
-				["xOffset"] = 0, 
-				["yOffset"] = 0, 
+				["enable"] = true,
+				["trinketPosition"] = "LEFT",
+				["trinketSize"] = 45,
+				["trinketX"] = -2, 
+				["trinketY"] = 0,
+				["specPosition"] = "RIGHT",
+				["specSize"] = 45,
+				["specX"] = 2, 
+				["specY"] = 0,
 			}, 
 		}, 
 		["party"] = {
@@ -2389,11 +2353,11 @@ local DatabaseDefaults = {
 			["showBy"] = "UP_RIGHT", 
 			["wrapXOffset"] = 9, 
 			["wrapYOffset"] = 13, 
-			["gCount"] = 1, 
-			["gRowCol"] = 1, 
+			["groupCount"] = 1, 
+			["gRowCol"] = 1,
+			["customSorting"] = false,
 			["sortMethod"] = "GROUP", 
-			["sortDir"] = "ASC", 
-			["rSort"] = false, 
+			["sortDir"] = "ASC",
 			["invertGroupingOrder"] = false, 
 			["startFromCenter"] = false, 
 			["showPlayer"] = true, 
@@ -2429,10 +2393,8 @@ local DatabaseDefaults = {
 				["frequentUpdates"] = false, 
 				["yOffset"] = 0, 
 				["xOffset"] = 0, 
-				["reversed"] = false, 
-				["font"] = "SVUI Number Font", 
-				["fontSize"] = 10, 
-				["fontOutline"] = "OUTLINE", 
+				["reversed"] = false,
+				["fontSize"] = 10,
 			}, 
 			["power"] = 
 			{
@@ -2443,10 +2405,8 @@ local DatabaseDefaults = {
 				["position"] = "BOTTOMRIGHT", 
 				["hideonnpc"] = false, 
 				["yOffset"] = 0, 
-				["xOffset"] = 0, 
-				["font"] = "SVUI Number Font", 
-				["fontSize"] = 10, 
-				["fontOutline"] = "OUTLINE", 
+				["xOffset"] = 0,
+				["fontSize"] = 10,
 			}, 
 			["name"] = 
 			{
@@ -2570,8 +2530,9 @@ local DatabaseDefaults = {
 			["showBy"] = "RIGHT_DOWN", 
 			["wrapXOffset"] = 8, 
 			["wrapYOffset"] = 8, 
-			["gCount"] = 2, 
-			["gRowCol"] = 1, 
+			["groupCount"] = 2, 
+			["gRowCol"] = 1,
+			["customSorting"] = false,
 			["sortMethod"] = "GROUP", 
 			["sortDir"] = "ASC", 
 			["showPlayer"] = true, 
@@ -2607,10 +2568,8 @@ local DatabaseDefaults = {
 				["frequentUpdates"] = false, 
 				["yOffset"] = 0, 
 				["xOffset"] = 0, 
-				["reversed"] = false, 
-				["font"] = "SVUI Default Font", 
-				["fontSize"] = 10, 
-				["fontOutline"] = "OUTLINE", 
+				["reversed"] = false,
+				["fontSize"] = 10,
 			}, 
 			["power"] = 
 			{
@@ -2621,10 +2580,8 @@ local DatabaseDefaults = {
 				["position"] = "BOTTOMRIGHT", 
 				["hideonnpc"] = false, 
 				["yOffset"] = 0, 
-				["xOffset"] = 0, 
-				["font"] = "SVUI Default Font", 
-				["fontSize"] = 10, 
-				["fontOutline"] = "OUTLINE", 
+				["xOffset"] = 0,
+				["fontSize"] = 10,
 			}, 
 			["name"] = 
 			{
@@ -2723,8 +2680,9 @@ local DatabaseDefaults = {
 			["showBy"] = "RIGHT_DOWN", 
 			["wrapXOffset"] = 8, 
 			["wrapYOffset"] = 8, 
-			["gCount"] = 5, 
-			["gRowCol"] = 1, 
+			["groupCount"] = 5, 
+			["gRowCol"] = 1,
+			["customSorting"] = false,
 			["sortMethod"] = "GROUP", 
 			["sortDir"] = "ASC", 
 			["showPlayer"] = true, 
@@ -2760,10 +2718,8 @@ local DatabaseDefaults = {
 				["frequentUpdates"] = false, 
 				["yOffset"] = 0, 
 				["xOffset"] = 0, 
-				["reversed"] = false, 
-				["font"] = "SVUI Default Font", 
-				["fontSize"] = 10, 
-				["fontOutline"] = "OUTLINE", 
+				["reversed"] = false,
+				["fontSize"] = 10,
 			}, 
 			["power"] = 
 			{
@@ -2773,10 +2729,8 @@ local DatabaseDefaults = {
 				["position"] = "BOTTOMRIGHT", 
 				["hideonnpc"] = false, 
 				["yOffset"] = 0, 
-				["xOffset"] = 0, 
-				["font"] = "SVUI Default Font", 
-				["fontSize"] = 10, 
-				["fontOutline"] = "OUTLINE", 
+				["xOffset"] = 0,
+				["fontSize"] = 10,
 			}, 
 			["name"] = 
 			{
@@ -2875,8 +2829,9 @@ local DatabaseDefaults = {
 			["showBy"] = "RIGHT_DOWN", 
 			["wrapXOffset"] = 8, 
 			["wrapYOffset"] = 8, 
-			["gCount"] = 8, 
-			["gRowCol"] = 1, 
+			["groupCount"] = 8, 
+			["gRowCol"] = 1,
+			["customSorting"] = false,
 			["sortMethod"] = "GROUP", 
 			["sortDir"] = "ASC", 
 			["showPlayer"] = true, 
@@ -2912,10 +2867,8 @@ local DatabaseDefaults = {
 				["frequentUpdates"] = false, 
 				["yOffset"] = 0, 
 				["xOffset"] = 0, 
-				["reversed"] = false, 
-				["font"] = "SVUI Default Font", 
-				["fontSize"] = 10, 
-				["fontOutline"] = "OUTLINE", 
+				["reversed"] = false,
+				["fontSize"] = 10,
 			}, 
 			["power"] = 
 			{
@@ -2926,10 +2879,8 @@ local DatabaseDefaults = {
 				["position"] = "BOTTOMRIGHT", 
 				["hideonnpc"] = false, 
 				["yOffset"] = 0, 
-				["xOffset"] = 0, 
-				["font"] = "SVUI Default Font", 
-				["fontSize"] = 10, 
-				["fontOutline"] = "OUTLINE", 
+				["xOffset"] = 0,
+				["fontSize"] = 10,
 			}, 
 			["name"] = 
 			{
@@ -3028,11 +2979,11 @@ local DatabaseDefaults = {
 			["showBy"] = "DOWN_RIGHT", 
 			["wrapXOffset"] = 3, 
 			["wrapYOffset"] = 3, 
-			["gCount"] = 2, 
-			["gRowCol"] = 1, 
+			["groupCount"] = 2, 
+			["gRowCol"] = 1,
+			["customSorting"] = true,
 			["sortMethod"] = "PETNAME", 
-			["sortDir"] = "ASC", 
-			["rSort"] = true, 
+			["sortDir"] = "ASC",  
 			["invertGroupingOrder"] = false, 
 			["startFromCenter"] = false, 
 			["predict"] = false, 
@@ -3067,10 +3018,8 @@ local DatabaseDefaults = {
 				["frequentUpdates"] = false, 
 				["yOffset"] = 0, 
 				["xOffset"] = 0, 
-				["reversed"] = false, 
-				["font"] = "SVUI Default Font", 
-				["fontSize"] = 10, 
-				["fontOutline"] = "OUTLINE", 
+				["reversed"] = false,
+				["fontSize"] = 10,
 			}, 
 			["name"] = 
 			{
@@ -3179,10 +3128,8 @@ local DatabaseDefaults = {
 				["frequentUpdates"] = false, 
 				["yOffset"] = 0, 
 				["xOffset"] = 0, 
-				["reversed"] = false, 
-				["font"] = "SVUI Default Font", 
-				["fontSize"] = 10, 
-				["fontOutline"] = "OUTLINE", 
+				["reversed"] = false,
+				["fontSize"] = 10,
 			}, 
 			["name"] = 
 			{
@@ -3238,10 +3185,8 @@ local DatabaseDefaults = {
 				["frequentUpdates"] = false, 
 				["yOffset"] = 0, 
 				["xOffset"] = 0, 
-				["reversed"] = false, 
-				["font"] = "SVUI Default Font", 
-				["fontSize"] = 10, 
-				["fontOutline"] = "OUTLINE", 
+				["reversed"] = false,
+				["fontSize"] = 10,
 			}, 
 			["name"] = 
 			{
@@ -3347,6 +3292,12 @@ local DatabaseDefaults = {
 		}
 	}, 
 }
+
+local GlobalDefaults = {
+	["Accountant"] = {},
+	["profiles"] = {},
+	["profileKeys"] = {},
+}
 --[[ 
 ########################################################## 
 CREATE DB
@@ -3359,9 +3310,7 @@ local function tablecopy(d, s)
 			if(k ~= "SAFEDATA") then
 				if type(v) == "table" then
 					if not rawget(d, k) then rawset(d, k, {}) end
-					if type(d[k]) == "table" then
-						tablecopy(d[k], v)
-					end
+					tablecopy(d[k], v)
 				else
 					if rawget(d, k) == nil then
 						rawset(d, k, v)
@@ -3388,8 +3337,8 @@ local function importdata(s, d)
 end
 
 local function setdefaults(t, key, sub, sub2)
-	local sv = _G["SVUI_Profile"]
-	local src = DatabaseDefaults
+	local sv = rawget(t, "profile")
+	local src = rawget(t, "defaults")
 	local savedProfile = sv[key]
 	if(sub2 and sv[key] and sv[key][sub]) then
 		savedProfile = sv[key][sub][sub2]
@@ -3409,87 +3358,169 @@ local function setdefaults(t, key, sub, sub2)
 end
 
 local function getdefaults(t, key)
-	return DatabaseDefaults[key] or {}
+	local src = rawget(t, "defaults")
+	return src[key] or {}
 end
 
-local function resetprofile(t)
-	local sv = _G["SVUI_Profile"]
-	local src = DatabaseDefaults
-	for k,v in pairs(sv) do
-		if(k ~= "SAFEDATA") then
-			sv[k] = nil
-		end
+local function removedefaults(db, src, nometa)
+	if(type(src) ~= "table") then return end
+	if(not nometa) then
+		setmetatable(db, nil)
 	end
-	tablecopy(sv, src)
-	SuperVillain:StaticPopup_Show("RESET_PROFILE_PROMPT")
-end
-
-local function listprofiles(t)
-	local globals = _G["SVUI_Global"]
-	return globals.profileKeys
-end
-
-local function firstprofile(t)
-	local globals = _G["SVUI_Global"]
-	for key in pairs(globals.profileKeys) do
-		return key
-	end
-end
-
-local function importprofile(t, key)
-	local sv = _G["SVUI_Profile"]
-	local globals = _G["SVUI_Global"]
-	local src = globals.profiles[key]
-	if(not src) then return end
-	importdata(src, sv)
-	t.profileKey = key
-	sv.profileKey = key
-	SuperVillain:RefreshEverything()
-end
-
-local function exportprofile(t, key)
-	local sv = _G["SVUI_Profile"]
-	local globals = _G["SVUI_Global"]
-	if(not globals.profiles[key]) then
-		globals.profiles[key] = {}
-	end
-	local dest = globals.profiles[key]
-	tablecopy(dest, src)
-	globals.profileKeys[key] = key
-end
-
-local function removeprofile(t, key)
-	local globals = _G["SVUI_Global"]
-	if(globals.profiles[key]) then globals.profiles[key] = nil end
-	if(globals.profileKeys[key]) then globals.profileKeys[key] = nil end
-end
-
-local SanitizeDatabase = function(self, event)
-	if event == "PLAYER_LOGOUT" then
-		local sv = _G["SVUI_Profile"]
-		local src = DatabaseDefaults
-		for k,v in pairs(sv) do
-			if(k ~= "SAFEDATA") then 
-				if(rawget(src, k)) then
-					for key in pairs(sv[k]) do
-						if not next(sv[k][key]) then
-							sv[k][key] = nil
-						end
-					end
-					if not next(sv[k]) then
-						sv[k] = nil
-					end
-				else
-					sv[k] = nil
+	for k,v in pairs(src) do
+		if(k ~= "SAFEDATA") then 
+			if type(v) == "table" and type(db[k]) == "table" then
+				removedefaults(db[k], v, nometa)
+				if next(db[k]) == nil then
+					db[k] = nil
+				end
+			else
+				if db[k] == v then
+					db[k] = nil
 				end
 			end
 		end
 	end
 end
 
+local function resetprofile(t)
+	local sv = rawget(t, "profile")
+	local src = rawget(t, "defaults")
+	for k,v in pairs(sv) do
+		if(k ~= "SAFEDATA") then
+			sv[k] = nil
+		end
+	end
+	ReloadUI()
+end
+
+local function importprofile(t, key)
+	local sv = rawget(t, "profile")
+	local dv = rawget(t, "defaults")
+	local globals = SuperVillain.global
+	local src = globals.profiles[key]
+	if(not src) then return end
+	for k,v in pairs(sv) do
+		if(k ~= "SAFEDATA") then
+			sv[k] = nil
+		end
+	end
+	tablecopy(sv, src)
+	sv.copyKey = key
+	ReloadUI()
+end
+
+local function importprompt(t, key)
+	SuperVillain.SystemAlert["COPY_PROFILE_PROMPT"].text = L["Are you sure you want to copy the profile '" .. key .. "'?"]
+	SuperVillain.SystemAlert["COPY_PROFILE_PROMPT"].OnAccept = function() importprofile(t, key) end
+	SuperVillain:StaticPopup_Show("COPY_PROFILE_PROMPT")
+end
+
+local function exportprofile(t, key)
+	local sv = rawget(t, "profile")
+	local dv = rawget(t, "defaults")
+	local globals = SuperVillain.global
+	if(not globals.profiles[key]) then globals.profiles[key] = {} end
+	local saved = globals.profiles[key]
+	tablecopy(saved, sv)
+	for k,v in pairs(saved) do
+		removedefaults(saved[k], dv[k])
+	end
+	globals.profileKeys[key] = key
+	SuperVillain:SavedPopup()
+end
+
+local function removeprofile(t, key)
+	local globals = SuperVillain.global
+	if(globals.profiles[key]) then globals.profiles[key] = nil end
+	if(globals.profileKeys[key]) then globals.profileKeys[key] = nil end
+	collectgarbage("collect")
+end
+
+local function initializedata(t)
+	local sv = rawget(t, "profile")
+	if(not sv.copyKey or (sv.copyKey and type(sv.copyKey) ~= "string")) then
+		sv.copyKey = pkey
+	end
+end
+
+local function SanitizeDatabase()
+	local db = SuperVillain.db.profile
+	local src = DatabaseDefaults
+	for k,v in pairs(db) do
+		if(k ~= "SAFEDATA" and src[k]) then
+			removedefaults(db[k], src[k])
+		end
+	end
+end
+
+local LogOut_OnEvent = function(self, event)
+	if event == "PLAYER_LOGOUT" then
+		SanitizeDatabase()
+	end
+end
+
 local metadatabase = { 
 	__index = function(t, k)
+		if(not k or k == "") then return end
 		local sv = rawget(t, "profile")
+		local dv = rawget(t, "defaults")
+		local src = dv and dv[k]
+		if(not sv[k]) then sv[k] = {} end
+		if(src) then
+			tablecopy(sv[k], src)
+		end
+		rawset(t, k, sv[k])
+		return rawget(t, k) 
+	end,
+}
+
+local METAPROFILE = function(sv)
+	local db 		= setmetatable({}, metadatabase)
+
+	db.profile 		= sv
+	db.defaults 	= DatabaseDefaults
+	db.Init 		= initializedata
+	db.Reset 		= resetprofile
+	db.SetDefault 	= setdefaults
+	db.GetDefault 	= getdefaults
+	db.Import 		= importprompt
+	db.Export 		= exportprofile
+	db.Remove 		= removeprofile
+
+	return db
+end
+
+local function listprofiles(t)
+	local globals = t.globals
+	local list = globals.profileKeys or {}
+	return list
+end
+
+local function checkprofiles(t)
+	local hasProfile = false
+	local globals = rawget(t, "globals")
+	local list = globals.profileKeys or {}
+	for key,_ in pairs(list) do
+		hasProfile = true
+	end
+	return hasProfile
+end
+
+local function initializeglobals(t)
+	local sv = _G["SVUI_Global"]
+	local dv = GlobalDefaults
+	local keys = {}
+	for k,v in pairs(sv.profiles) do
+		keys[k] = k
+	end
+	sv.profileKeys = keys
+end
+
+local metaglobals = { 
+	__index = function(t, k)
+		if(not k or k == "") then return end
+		local sv = rawget(t, "globals")
 		local dv = rawget(t, "defaults")
 		local src = dv and dv[k]
 		if(not sv[k]) then sv[k] = {} end
@@ -3501,24 +3532,14 @@ local metadatabase = {
 	end
 }
 
-local METAPROFILE = function(sv, pkey)
-	local db 		= setmetatable({}, metadatabase)
+local METAGLOBAL = function(sv)
+	local db 		= setmetatable({}, metaglobals)
 
-	db.profile 		= sv
-	db.profileKey 	= pkey
-	db.defaults 	= DatabaseDefaults
-	db.Reset 		= resetprofile
-	db.SetDefault 	= setdefaults
-	db.GetDefault 	= getdefaults
-	db.GetAll 		= listprofiles
-	db.GetFirst 	= firstprofile
-	db.Import 		= importprofile
-	db.Export 		= exportprofile
-	db.Remove 		= removeprofile
-
-	local logout = CreateFrame("Frame",nil)
-	logout:RegisterEvent("PLAYER_LOGOUT")
-	logout:SetScript("OnEvent", SanitizeDatabase)
+	db.globals 		 = sv
+	db.defaults 	 = GlobalDefaults
+	db.GetProfiles	 = listprofiles
+	db.CheckProfiles = checkprofiles
+	db.Init 		 = initializeglobals
 
 	return db
 end
@@ -3551,16 +3572,24 @@ end
 
 function SuperVillain:SetDatabaseObjects(init)
 	if(init) then
+		self.global = tcopy(GlobalDefaults, true)
 		self.db = tcopy(DatabaseDefaults, true)
 	else
-		local realm = GetRealmName()
-		local name = UnitName("player")
-		local pkey = name .. " - " .. realm
-	    local sv = _G["SVUI_Profile"]
+		local sv = _G["SVUI_Profile"]
+		local gv = _G["SVUI_Global"]
 
+	    twipe(self.global)
 	    twipe(self.db)
 
-		self.db = METAPROFILE(sv, pkey)
+	    self.global = METAGLOBAL(gv)
+	    self.global:Init()
+
+		self.db = METAPROFILE(sv)
+		self.db:Init()
+		self.db.profileKey = pkey
+
+		logoutListener:RegisterEvent("PLAYER_LOGOUT")
+		logoutListener:SetScript("OnEvent", LogOut_OnEvent)
 	end
 	self:SetFilterObjects(init)
 end

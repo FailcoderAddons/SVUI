@@ -78,7 +78,7 @@ LOCAL FUNCTIONS
 ##########################################################
 ]]--
 local function StyleBagToolButton(button)
-	if button.styled then return end;
+	if button.styled then return end 
 
 	local outer = button:CreateTexture(nil, "OVERLAY")
 	outer:WrapOuter(button, 6, 6)
@@ -88,7 +88,7 @@ local function StyleBagToolButton(button)
 	if button.SetNormalTexture then 
 		iconTex = button:GetNormalTexture()
 		iconTex:SetGradient("VERTICAL", 0.5, 0.53, 0.55, 0.8, 0.8, 1)
-	end;
+	end 
 	
 	local icon = button:CreateTexture(nil, "OVERLAY")
 	icon:WrapOuter(button, 6, 6)
@@ -106,7 +106,7 @@ local function StyleBagToolButton(button)
 		pushed:SetTexture(borderTex)
 		pushed:SetGradient(unpack(SuperVillain.Media.gradient.highlight))
 		button:SetPushedTexture(pushed)
-	end;
+	end 
 
 	if button.SetCheckedTexture then 
 		local checked = button:CreateTexture(nil, "BORDER")
@@ -114,7 +114,7 @@ local function StyleBagToolButton(button)
 		checked:SetTexture(borderTex)
 		checked:SetGradient(unpack(SuperVillain.Media.gradient.green))
 		button:SetCheckedTexture(checked)
-	end;
+	end 
 
 	if button.SetDisabledTexture then 
 		local disabled = button:CreateTexture(nil, "BORDER")
@@ -122,15 +122,15 @@ local function StyleBagToolButton(button)
 		disabled:SetTexture(borderTex)
 		disabled:SetGradient(unpack(SuperVillain.Media.gradient.default))
 		button:SetDisabledTexture(disabled)
-	end;
+	end 
 
 	local cd = button:GetName() and _G[button:GetName().."Cooldown"]
 	if cd then 
 		cd:ClearAllPoints()
 		cd:FillInner()
-	end;
+	end 
 	button.styled = true
-end;
+end 
 
 local function encodeSub(i, j, k)
 	local l = j;
@@ -144,11 +144,11 @@ local function encodeSub(i, j, k)
 			l = l + 2;
 		else
 			l = l + 1;
-		end;
+		end 
 		k = k-1;
-	end;
+	end 
 	return i:sub(j, (l-1))
-end;
+end 
 
 local function formatAndSave(level, font, saveTo)
 	if level == 1 then
@@ -160,26 +160,28 @@ local function formatAndSave(level, font, saveTo)
 	else
 		font:SetText()
 	end
-end;
+end 
 
 local function BuildEquipmentMap()
 	for t, u in pairs(gearList)do
 		twipe(u);
-	end;
+	end 
 	local set, player, bank, bags, index, bag, loc, _;
 	for i = 1, GetNumEquipmentSets() do
 		set = GetEquipmentSetInfo(i);
 		gearSet = GetEquipmentSetLocations(set);
-		for key, location in pairs(gearSet)do
-			player, bank, bags, _, index, bag = EquipmentManager_UnpackLocation(location);
-			if((bank or bags) and (index and bag)) then
-				loc = format("%d_%d", bag, index);
-				gearList[loc] = (gearList[loc] or {});
-				tinsert(gearList[loc], set);
+		if(gearSet) then
+			for key, location in pairs(gearSet)do
+				player, bank, bags, _, index, bag = EquipmentManager_UnpackLocation(location);
+				if((bank or bags) and (index and bag)) then
+					loc = format("%d_%d", bag, index);
+					gearList[loc] = (gearList[loc] or {});
+					tinsert(gearList[loc], set);
+				end
 			end
 		end
 	end
-end;
+end 
 --[[ 
 ########################################################## 
 CORE FUNCTIONS
@@ -196,16 +198,16 @@ function MOD:GetContainerFrame(e)
 				end 
 			end 
 		end 
-	end;
+	end 
 	return MOD.BagFrame 
-end;
+end 
 
 function MOD:DisableBlizzard()
 	BankFrame:UnregisterAllEvents()
 	for h = 1, NUM_CONTAINER_FRAMES do 
 		_G["ContainerFrame"..h]:MUNG()
 	end 
-end;
+end 
 
 function MOD:INVENTORY_SEARCH_UPDATE()
 	for _, bag in pairs(self.BagFrames)do 
@@ -225,10 +227,10 @@ function MOD:INVENTORY_SEARCH_UPDATE()
 			end 
 		end 
 	end 
-end;
+end 
 
 function MOD:RefreshSlot(bag, slotID)
-	if self.Bags[bag] and self.Bags[bag].numSlots ~= GetContainerNumSlots(bag) or not self.Bags[bag] or not self.Bags[bag][slotID] then return end;
+	if self.Bags[bag] and self.Bags[bag].numSlots ~= GetContainerNumSlots(bag) or not self.Bags[bag] or not self.Bags[bag][slotID] then return end 
 	local slot, _ = self.Bags[bag][slotID], nil;
 	local bagType = self.Bags[bag].bagFamily;
 	local texture, count, locked = GetContainerItemInfo(bag, slotID)
@@ -243,10 +245,10 @@ function MOD:RefreshSlot(bag, slotID)
 		SetItemButtonTextureVertexColor(slot, 0.4, 0.4, 0.4)
 	else 
 		SetItemButtonTextureVertexColor(slot, 1, 1, 1)
-	end;
+	end 
 	if bagType then
 		local r, g, b = bagType[1], bagType[2], bagType[3];
-		slot:SetBackdropColor(r, g, b, 0.25)
+		slot:SetBackdropColor(r, g, b, 0.5)
 		slot:SetBackdropBorderColor(r, g, b, 1)
 	elseif itemLink then
 		local class, subclass, maxStack;
@@ -266,19 +268,19 @@ function MOD:RefreshSlot(bag, slotID)
 		end 
 	else 
 		slot:SetBackdropBorderColor(0, 0, 0)
-	end;
+	end 
 	if C_NewItems.IsNewItem(bag, slotID)then 
 		ActionButton_ShowOverlayGlow(slot)
 	else 
 		ActionButton_HideOverlayGlow(slot)
-	end;
+	end 
 	SetItemButtonTexture(slot, texture)
 	SetItemButtonCount(slot, count)
 	SetItemButtonDesaturated(slot, locked, 0.5, 0.5, 0.5)
-end;
+end 
 
 function MOD:RefreshBagSlots(bag)
-	if(not bag) then return end;
+	if(not bag) then return end 
 	for i = 1, GetContainerNumSlots(bag)do 
 		if self.RefreshSlot then 
 			self:RefreshSlot(bag, i)
@@ -286,7 +288,7 @@ function MOD:RefreshBagSlots(bag)
 			self:GetParent():RefreshSlot(bag, i)
 		end 
 	end 
-end;
+end 
 
 function MOD:RefreshCD()
 	for _, bag in ipairs(self.BagIDs)do 
@@ -302,7 +304,7 @@ function MOD:RefreshCD()
 			end
 		end 
 	end 
-end;
+end 
 
 function MOD:RefreshBagsSlots()
 	for _, bag in ipairs(self.BagIDs)do 
@@ -310,7 +312,7 @@ function MOD:RefreshBagsSlots()
 			self.Bags[bag]:RefreshBagSlots(bag)
 		end 
 	end
-end;
+end 
 
 function MOD:UseSlotFading(this)
 	for _, id in ipairs(this.BagIDs)do 
@@ -327,7 +329,7 @@ function MOD:UseSlotFading(this)
 			end 
 		end 
 	end 
-end;
+end 
 
 function MOD:FlushSlotFading(this)
 	for _, id in ipairs(this.BagIDs)do 
@@ -340,15 +342,15 @@ function MOD:FlushSlotFading(this)
 			end 
 		end 
 	end 
-end;
+end 
 
 function MOD:Layout(isBank)
-	if SuperVillain.db.SVBag.enable ~= true then return; end;
+	if SuperVillain.db.SVBag.enable ~= true then return; end 
 	local f = MOD:GetContainerFrame(isBank);
-	if not f then return; end;
+	if not f then return; end 
 	local buttonSize = isBank and MOD.db.bankSize or MOD.db.bagSize;
 	local buttonSpacing = 8;
-	local containerWidth = (MOD.db.alignToChat == true and (SuperVillain.db.SVDock.dockWidth - 14)) or (isBank and MOD.db.bankWidth) or MOD.db.bagWidth
+	local containerWidth = (MOD.db.alignToChat == true and (isBank and (SuperVillain.db.SVDock.dockLeftWidth - 14) or (SuperVillain.db.SVDock.dockRightWidth - 14))) or (isBank and MOD.db.bankWidth) or MOD.db.bagWidth
 	local numContainerColumns = floor(containerWidth / (buttonSize + buttonSpacing));
 	local holderWidth = ((buttonSize + buttonSpacing) * numContainerColumns) - buttonSpacing;
 	local numContainerRows = 0;
@@ -402,7 +404,7 @@ function MOD:Layout(isBank)
 				f.ContainerHolder[i]:SetPoint("LEFT", lastContainerButton, "RIGHT", buttonSpacing, 0)
 			end 
 			lastContainerButton = f.ContainerHolder[i];
-		end;
+		end 
 		local numSlots = GetContainerNumSlots(bagID);
 		if numSlots > 0 then 
 			if not f.Bags[bagID] then 
@@ -490,26 +492,26 @@ function MOD:Layout(isBank)
 		end 
 	end 
 	f:Size(containerWidth, (((buttonSize + buttonSpacing) * numContainerRows) - buttonSpacing) + f.topOffset + f.bottomOffset);
-end;
+end 
 
 function MOD:RefreshBags()
 	if MOD.BagFrame then 
 		MOD:Layout(false)
-	end;
+	end 
 	if MOD.BankFrame then 
 		MOD:Layout(true)
 	end 
-end;
+end 
 
 function MOD:UpdateGoldText()
 	MOD.BagFrame.goldText:SetText(GetCoinTextureString(GetMoney(), 12))
-end;
+end 
 
 function MOD:VendorGrays(arg1, arg2, arg3)
 	if(not MerchantFrame or not MerchantFrame:IsShown()) and not arg1 and not arg3 then 
 		SuperVillain:AddonMessage(L["You must be at a vendor."])
 		return 
-	end;
+	end 
 	local copper = 0;
 	local deleted = 0;
 	for i = 0, 4 do 
@@ -522,7 +524,7 @@ function MOD:VendorGrays(arg1, arg2, arg3)
 						if not arg3 then 
 							PickupContainerItem(i, silver)
 							DeleteCursorItem()
-						end;
+						end 
 						copper = copper + a3;
 						deleted = deleted + 1 
 					end 
@@ -531,14 +533,14 @@ function MOD:VendorGrays(arg1, arg2, arg3)
 						if not arg3 then 
 							UseContainerItem(i, silver)
 							PickupMerchantItem()
-						end;
+						end 
 						copper = copper + a3 
 					end 
 				end 
 			end 
 		end 
-	end;
-	if arg3 then return copper end;
+	end 
+	if arg3 then return copper end 
 	if copper > 0 and not arg1 then 
 		local gold, silver, copper = floor(copper / 10000) or 0, floor(copper%10000 / 100) or 0, copper%100;
 		SuperVillain:AddonMessage(L["Vendored gray items for:"].." |cffffffff"..gold..L.goldabbrev.." |cffffffff"..silver ..L.silverabbrev.." |cffffffff"..copper ..L.copperabbrev..".")
@@ -550,27 +552,27 @@ function MOD:VendorGrays(arg1, arg2, arg3)
 	elseif not arg2 then 
 		SuperVillain:AddonMessage(L["No gray items to delete."])
 	end 
-end;
+end 
 
 function MOD:ModifyBags()
 	if self.BagFrame then 
 		self.BagFrame:ClearAllPoints()
 		self.BagFrame:Point("BOTTOMRIGHT", RightSuperDock, "BOTTOMRIGHT", 0-MOD.db.xOffset, 0 + MOD.db.yOffset)
-	end;
+	end 
 	if self.BankFrame then 
 		self.BankFrame:ClearAllPoints()
 		self.BankFrame:Point("BOTTOMLEFT", LeftSuperDock, "BOTTOMLEFT", 0 + MOD.db.xOffset, 0 + MOD.db.yOffset)
 	end 
-end;
+end 
 
 do
 	local function Bags_OnEnter()
-		if MOD.db.bagBar.mouseover ~= true then return end;
+		if MOD.db.bagBar.mouseover ~= true then return end 
 		UIFrameFadeIn(SVUI_BagBar, 0.2, SVUI_BagBar:GetAlpha(), 1)
 	end
 
 	local function Bags_OnLeave()
-		if MOD.db.bagBar.mouseover ~= true then return end;
+		if MOD.db.bagBar.mouseover ~= true then return end 
 		UIFrameFadeOut(SVUI_BagBar, 0.2, SVUI_BagBar:GetAlpha(), 0)
 	end
 
@@ -586,7 +588,7 @@ do
 	end
 
 	local function LoadBagBar()
-		if MOD.BagBarLoaded then return end;
+		if MOD.BagBarLoaded then return end 
 		local bar = NewFrame("Frame", "SVUI_BagBar", SuperVillain.UIParent)
 		bar:SetPoint("TOPRIGHT", RightSuperDock, "TOPLEFT", -4, 0)
 		bar.buttons = {}
@@ -615,26 +617,26 @@ do
 			AlterBagBar(bagSlot)
 			count = count + 1
 			bar.buttons[count] = bagSlot
-		end;
+		end 
 		SuperVillain:SetSVMovable(bar, "Bags_MOVE", L["Bags"])
 		MOD.BagBarLoaded = true
 	end
 
 	function MOD:ModifyBagBar()
-		if not SuperVillain.db.SVBag.bagBar.enable then return end;
+		if not SuperVillain.db.SVBag.bagBar.enable then return end 
 		if not MOD.BagBarLoaded then 
 			LoadBagBar() 
-		end;
+		end 
 		if MOD.db.bagBar.mouseover then 
 			SVUI_BagBar:SetAlpha(0)
 		else 
 			SVUI_BagBar:SetAlpha(1)
-		end;
+		end 
 		if MOD.db.bagBar.showBackdrop then 
 			SVUI_BagBar.Panel:Show()
 		else 
 			SVUI_BagBar.Panel:Hide()
-		end;
+		end 
 		for i = 1, #SVUI_BagBar.buttons do 
 			local button = SVUI_BagBar.buttons[i]
 			local lastButton = SVUI_BagBar.buttons[i - 1]
@@ -665,7 +667,7 @@ do
 					button:SetPoint("BOTTOM", lastButton, "TOP", 0, MOD.db.bagBar.spacing)
 				end 
 			end 
-		end;
+		end 
 		if MOD.db.bagBar.showBy == "HORIZONTAL" then 
 			SVUI_BagBar:Width(MOD.db.bagBar.size * numBagFrame + MOD.db.bagBar.spacing * numBagFrame + MOD.db.bagBar.spacing)
 			SVUI_BagBar:Height(MOD.db.bagBar.size + MOD.db.bagBar.spacing * 2)
@@ -674,7 +676,7 @@ do
 			SVUI_BagBar:Width(MOD.db.bagBar.size + MOD.db.bagBar.spacing * 2)
 		end 
 	end
-end;
+end 
 
 function MOD:RepositionBags()
 	local a9, xOffset, yOffset, aa, ab, ac, ad;
@@ -683,7 +685,7 @@ function MOD:RepositionBags()
 	local ag = 0;
 	if BankFrame:IsShown()then 
 		ag = BankFrame:GetRight()-25 
-	end;
+	end 
 	while af>CONTAINER_SCALE do 
 		aa = GetScreenHeight() / af;
 		xOffset = CONTAINER_OFFSET_X / af;
@@ -698,18 +700,18 @@ function MOD:RepositionBags()
 				ad = ad + 1;
 				ac = ae-ad * CONTAINER_WIDTH * af-xOffset;
 				ab = aa-yOffset 
-			end;
+			end 
 			ab = ab-ah-VISIBLE_CONTAINER_SPACING 
-		end;
+		end 
 		if ac<ag then 
 			af = af-0.01 
 		else 
 			break 
 		end 
-	end;
+	end 
 	if af<CONTAINER_SCALE then 
 		af = CONTAINER_SCALE 
-	end;
+	end 
 	aa = GetScreenHeight() / af;
 	xOffset = CONTAINER_OFFSET_X / af;
 	yOffset = CONTAINER_OFFSET_Y / af;
@@ -729,15 +731,15 @@ function MOD:RepositionBags()
 				a9:SetPoint("BOTTOMRIGHT", ContainerFrame1.bags[ai-ak-1], "BOTTOMLEFT", -CONTAINER_SPACING, 0)
 			else 
 				a9:SetPoint("BOTTOMRIGHT", ContainerFrame1.bags[ai-ak], "BOTTOMLEFT", -CONTAINER_SPACING, 0)
-			end;
+			end 
 			ak = 0 
 		else 
 			a9:SetPoint("BOTTOMRIGHT", ContainerFrame1.bags[ai-1], "TOPRIGHT", 0, CONTAINER_SPACING)
 			ak = ak + 1 
-		end;
+		end 
 		ab = ab-a9:GetHeight()-VISIBLE_CONTAINER_SPACING 
 	end
-end;
+end 
 --[[ 
 ########################################################## 
 BAG CONTAINER CREATION
@@ -752,7 +754,7 @@ do
 			slot.equipmentinfo:SetWordWrap(true)
 			slot.equipmentinfo:SetJustifyH('LEFT')
 			slot.equipmentinfo:SetJustifyV('BOTTOM')
-		end;
+		end 
 		if slot.equipmentinfo then 
 			slot.equipmentinfo:SetAllPoints(slot)
 			local loc = format("%d_%d", bag, index)
@@ -764,13 +766,13 @@ do
 				formatAndSave(level, slot.equipmentinfo, nil)
 			end 
 		end 
-	end;
+	end 
 
 	local Search_OnKeyPressed = function(self)
 		self:GetParent().detail:Show()
 		self:ClearFocus()
 		SetItemSearch('')
-	end;
+	end 
 
 	local Search_OnInput = function(self)
 		local i = 3;
@@ -782,14 +784,14 @@ do
 					k=false;
 					break 
 				end 
-			end;
+			end 
 			if k then 
 				Search_OnKeyPressed(self)
 				return 
 			end 
-		end;
+		end 
 		SetItemSearch(j)
-	end;
+	end 
 
 	local Search_OnClick = function(self, button)
 		local container = self:GetParent()
@@ -811,7 +813,7 @@ do
 				container.editBox:HighlightText()
 			end 
 		end 
-	end;
+	end 
 
 	local Container_OnEvent = function(self, event, ...)
 		if(event == "ITEM_LOCK_CHANGED" or event == "ITEM_UNLOCKED") then 
@@ -831,14 +833,14 @@ do
 						end
 					end
 				end
-			end;
+			end 
 			self:RefreshBagSlots(...)
 		elseif(event == "BAG_UPDATE_COOLDOWN") then 
 			self:RefreshCD()
 		elseif(event == "PLAYERBANKSLOTS_CHANGED") then 
 			self:RefreshBagsSlots()
 		end 
-	end;
+	end 
 
 	local Vendor_OnClick = function(self)
 		if IsShiftKeyDown()then 
@@ -847,22 +849,22 @@ do
 		else 
 			MOD:VendorGrays()
 		end 
-	end;
+	end 
 
 	local Token_OnEnter = function(self)
 		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
 		GameTooltip:SetBackpackToken(self:GetID())
-	end;
+	end 
 
 	local Token_OnLeave = function(self)
 		GameTooltip:Hide() 
-	end;
+	end 
 
 	local Token_OnClick = function(self)
 		if IsModifiedClick("CHATLINK") then 
 			HandleModifiedItemClick(GetCurrencyLink(self.currencyID))
 		end 
-	end;
+	end 
 
 	local Tooltip_Show = function(self)
 		GameTooltip:SetOwner(self:GetParent(),"ANCHOR_TOP",0,4)
@@ -871,32 +873,32 @@ do
 		if self.ttText2 then 
 			GameTooltip:AddLine(' ')
 			GameTooltip:AddDoubleLine(self.ttText2,self.ttText2desc,1,1,1)
-		end;
+		end 
 		self:GetNormalTexture():SetGradient(unpack(SuperVillain.Media.gradient.highlight))
 		GameTooltip:Show()
-	end;
+	end 
 
 	local Tooltip_Hide = function(self)
 		self:GetNormalTexture():SetGradient("VERTICAL", 0.5, 0.53, 0.55, 0.8, 0.8, 1)
 		GameTooltip:Hide()
-	end;
+	end 
 
 	local Container_OnDragStart = function(self)
 		if IsShiftKeyDown()then self:StartMoving()end
-	end;
+	end 
 	local Container_OnDragStop = function(self)
 		self:StopMovingOrSizing()
-	end;
+	end 
 	local Container_OnClick = function(self)
 		if IsControlKeyDown()then MOD:ModifyBags()end
-	end;
+	end 
 	local Container_OnEnter = function(self)
 		GameTooltip:SetOwner(self,"ANCHOR_TOPLEFT",0,4)
 		GameTooltip:ClearLines()
 		GameTooltip:AddDoubleLine(L['Hold Shift + Drag:'],L['Temporary Move'],1,1,1)
 		GameTooltip:AddDoubleLine(L['Hold Control + Right Click:'],L['Reset Position'],1,1,1)
 		GameTooltip:Show()
-	end;
+	end 
 
 	function MOD:ToggleEquipmentOverlay()
 		local numSlots, container;
@@ -1170,63 +1172,63 @@ do
 				frame.currencyButton[h]:SetScript('OnLeave', Token_OnLeave)
 				frame.currencyButton[h]:SetScript('OnClick', Token_OnClick)
 				frame.currencyButton[h]:Hide()
-			end;
+			end 
 			frame:SetScript('OnHide',CloseAllBags)
 			UISpecialFrames[uisCount] = "SVUI_ContainerFrame";
-		end;
+		end 
 		self.BagFrames[bagsCount] = frame
 		return frame
-	end;
-end;
+	end 
+end
+
+function MOD:RefreshTokens()
+	local frame = MOD.BagFrame;
+	local index = 0;
+	for i=1,MAX_WATCHED_TOKENS do
+		local name,count,icon,currencyID = GetBackpackCurrencyInfo(i)
+		local set = frame.currencyButton[i]
+		set:ClearAllPoints()
+		if name then 
+			set.icon:SetTexture(icon)
+			if MOD.db.currencyFormat == 'ICON_TEXT' then 
+				set.text:SetText(name..': '..count)
+			elseif MOD.db.currencyFormat == 'ICON' then 
+				set.text:SetText(count)
+			end 
+			set.currencyID = currencyID;
+			set:Show()
+			index = index + 1; 
+		else 
+			set:Hide()
+		end 
+	end 
+	if index == 0 then 
+		frame.bottomOffset = 8;
+		if frame.currencyButton:IsShown() then 
+			frame.currencyButton:Hide()
+			MOD:Layout(false)
+		end 
+		return 
+	elseif not frame.currencyButton:IsShown() then 
+		frame.bottomOffset = 28;
+		frame.currencyButton:Show()
+		MOD:Layout(false)
+	end 
+	frame.bottomOffset = 28;
+	local set = frame.currencyButton;
+	if index == 1 then 
+		set[1]:Point("BOTTOM", set, "BOTTOM", -(set[1].text:GetWidth() / 2), 3)
+	elseif index == 2 then 
+		set[1]:Point("BOTTOM", set, "BOTTOM", -set[1].text:GetWidth()-set[1]:GetWidth() / 2, 3)
+		frame.currencyButton[2]:Point("BOTTOMLEFT", set, "BOTTOM", set[2]:GetWidth() / 2, 3)
+	else 
+		set[1]:Point("BOTTOMLEFT", set, "BOTTOMLEFT", 3, 3)
+		set[2]:Point("BOTTOM", set, "BOTTOM", -(set[2].text:GetWidth() / 3), 3)
+		set[3]:Point("BOTTOMRIGHT", set, "BOTTOMRIGHT", -set[3].text:GetWidth()-set[3]:GetWidth() / 2, 3)
+	end 
+end
 
 do
-	local function RefreshTKN()
-		local frame = MOD.BagFrame;
-		local index = 0;
-		for i=1,MAX_WATCHED_TOKENS do
-			local name,count,icon,currencyID = GetBackpackCurrencyInfo(i)
-			local set = frame.currencyButton[i]
-			set:ClearAllPoints()
-			if name then 
-				set.icon:SetTexture(icon)
-				if MOD.db.currencyFormat == 'ICON_TEXT' then 
-					set.text:SetText(name..': '..count)
-				elseif MOD.db.currencyFormat == 'ICON' then 
-					set.text:SetText(count)
-				end;
-				set.currencyID = currencyID;
-				set:Show()
-				index = index + 1; 
-			else 
-				set:Hide()
-			end 
-		end;
-		if index == 0 then 
-			frame.bottomOffset = 8;
-			if frame.currencyButton:IsShown() then 
-				frame.currencyButton:Hide()
-				MOD:Layout(false)
-			end;
-			return 
-		elseif not frame.currencyButton:IsShown() then 
-			frame.bottomOffset = 28;
-			frame.currencyButton:Show()
-			MOD:Layout(false)
-		end;
-		frame.bottomOffset = 28;
-		local set = frame.currencyButton;
-		if index == 1 then 
-			set[1]:Point("BOTTOM", set, "BOTTOM", -(set[1].text:GetWidth() / 2), 3)
-		elseif index == 2 then 
-			set[1]:Point("BOTTOM", set, "BOTTOM", -set[1].text:GetWidth()-set[1]:GetWidth() / 2, 3)
-			frame.currencyButton[2]:Point("BOTTOMLEFT", set, "BOTTOM", set[2]:GetWidth() / 2, 3)
-		else 
-			set[1]:Point("BOTTOMLEFT", set, "BOTTOMLEFT", 3, 3)
-			set[2]:Point("BOTTOM", set, "BOTTOM", -(set[2].text:GetWidth() / 3), 3)
-			set[3]:Point("BOTTOMRIGHT", set, "BOTTOMRIGHT", -set[3].text:GetWidth()-set[3]:GetWidth() / 2, 3)
-		end 
-	end;
-
 	local function OpenBags()
 		GameTooltip:Hide()
 		MOD.BagFrame:Show()
@@ -1239,7 +1241,7 @@ do
 		MOD.BagFrame:Hide()
 		if(MOD.BankFrame) then 
 			MOD.BankFrame:Hide()
-		end;
+		end 
 		if(BreakStuffHandler and BreakStuffButton and BreakStuffButton.icon) then
 			BreakStuffHandler:MODIFIER_STATE_CHANGED()
 			BreakStuffHandler.ReadyToSmash = false
@@ -1250,7 +1252,7 @@ do
 	end
 
 	local function ToggleBags(id)
-		if id and GetContainerNumSlots(id)==0 then return end;
+		if id and GetContainerNumSlots(id)==0 then return end 
 		if MOD.BagFrame:IsShown()then 
 			CloseBags()
 		else 
@@ -1259,7 +1261,7 @@ do
 	end
 
 	local function ToggleBackpack()
-		if IsOptionFrameOpen()then return end;
+		if IsOptionFrameOpen()then return end 
 		if IsBagOpen(0) then 
 			OpenBags()
 		else 
@@ -1271,17 +1273,17 @@ do
 		if not MOD.BankFrame then 
 			MOD.BankFrame = MOD:MakeBags('SVUI_BankContainerFrame',true)
 			MOD:ModifyBags()
-		end;
+		end 
 		MOD:Layout(true)
 		MOD.BankFrame:Show()
 		MOD.BankFrame:RefreshBagsSlots()
 		MOD.BagFrame:Show()
 		MOD.BagFrame:RefreshBagsSlots()
-		RefreshTKN()
+		MOD.RefreshTokens()
 	end
 
 	local function CloseBank()
-		if not MOD.BankFrame then return end;
+		if not MOD.BankFrame then return end 
 		MOD.BankFrame:Hide()
 	end
 
@@ -1291,29 +1293,34 @@ do
 		NewHook("ToggleBag", ToggleBags)
 		NewHook("ToggleAllBags", ToggleBackpack)
 		NewHook("ToggleBackpack", ToggleBackpack)
-		NewHook("BackpackTokenFrame_Update", RefreshTKN)
+		NewHook("BackpackTokenFrame_Update", MOD.RefreshTokens)
 		MOD:RegisterEvent("BANKFRAME_OPENED", OpenBank)
 		MOD:RegisterEvent("BANKFRAME_CLOSED", CloseBank)
 	end
-end;
+end 
 
 function MOD:PLAYERBANKBAGSLOTS_CHANGED()
 	MOD:Layout(true)
-end;
+end 
+
+function MOD:PLAYER_ENTERING_WORLD()
+	self:UpdateGoldText()
+	self.BagFrame:RefreshBagsSlots()
+end 
 --[[ 
 ########################################################## 
 BUILD FUNCTION / UPDATE
 ##########################################################
 ]]--
-function MOD:UpdateThisPackage()
+function MOD:ReLoad()
 	self:Layout();
 	self:Layout(true);
 	self:ModifyBags();
 	self:ModifyBagBar();
-end;
+end 
 
-function MOD:ConstructThisPackage()
-	if not SuperVillain.db.SVBag.enable then return end;
+function MOD:Load()
+	if not SuperVillain.db.SVBag.enable then return end 
 	self:ModifyBagBar()
 	SuperVillain.bags = self;
 	self.BagFrames = {}
@@ -1326,12 +1333,12 @@ function MOD:ConstructThisPackage()
 	SuperVillain:ExecuteTimer(MOD.BreakStuffLoader, 5)
 	self:RegisterEvent("INVENTORY_SEARCH_UPDATE")
 	self:RegisterEvent("PLAYER_MONEY", "UpdateGoldText")
-	self:RegisterEvent("PLAYER_ENTERING_WORLD", "UpdateGoldText")
+	self:RegisterEvent("PLAYER_ENTERING_WORLD")
 	self:RegisterEvent("PLAYER_TRADE_MONEY", "UpdateGoldText")
 	self:RegisterEvent("TRADE_MONEY_CHANGED", "UpdateGoldText")
 	self:RegisterEvent("PLAYERBANKBAGSLOTS_CHANGED");
 	StackSplitFrame:SetFrameStrata("DIALOG")
 	self.BagFrame:RefreshBagsSlots()
-end;
+end 
 
 SuperVillain.Registry:NewPackage(MOD, "SVBag");

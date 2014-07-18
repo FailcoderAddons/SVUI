@@ -14,63 +14,45 @@ S U P E R - V I L L A I N - U I   By: Munglunch                              #
 ##############################################################################
 --]]
 local SuperVillain, L = unpack(select(2, ...));
-local MOD = SuperVillain.Registry:Expose('SVUnit');
+local MOD = SuperVillain.Registry:Expose('SVUnit')
+if(not MOD) then return end;
 local _, ns = ...
 local oUF_SuperVillain = ns.oUF
 --[[ MUNGLUNCH's FASTER ASSERT FUNCTION ]]--
 local assert = enforce;
 assert(oUF_SuperVillain, "SVUI was unable to locate oUF.");
-local LSM = LibStub("LibSharedMedia-3.0");
 --[[ 
 ########################################################## 
 LOCAL VARIABLES 
 ##########################################################
 ]]--
-local tsort,floor,sub,huge = table.sort,math.floor,string.sub,math.huge;
+local tsort,floor,sub = table.sort, math.floor, string.sub;
+local CustomBarFilter;
 --[[ 
 ########################################################## 
 BUILD FUNCTION
 ##########################################################
 ]]--
-function MOD:CreateAuraBars()
-	local parent = self:GetParent().parent
-	local db = parent.db.aurabar
-	local auraBar = self.statusBar;
-	self:SetFixedPanelTemplate('Transparent',true)
-	auraBar:FillInner(self)
-	MOD:WatchUnitMedia("aurabarfonts", auraBar)
-	auraBar.spelltime:SetFontTemplate(LSM:Fetch("font", MOD.db.auraFont), MOD.db.auraFontSize, MOD.db.auraFontOutline, "RIGHT", nil, true)
-	auraBar.spelltime:SetShadowOffset(1, -1)
-  	auraBar.spelltime:SetShadowColor(0, 0, 0)
-	auraBar.spellname:SetFontTemplate(LSM:Fetch("font", MOD.db.auraFont), MOD.db.auraFontSize, MOD.db.auraFontOutline, "LEFT", nil, true)
-	auraBar.spellname:SetShadowOffset(1, -1)
-  	auraBar.spellname:SetShadowColor(0, 0, 0)
-	auraBar.spellname:ClearAllPoints()
-	auraBar.spellname:SetPoint('LEFT',auraBar,'LEFT',4,0)
-	auraBar.spellname:SetPoint('RIGHT',auraBar.spelltime,'LEFT',-4,0)
-	auraBar.iconHolder:SetFixedPanelTemplate('Transparent',true)
-	auraBar.icon:FillInner(auraBar.iconHolder)
-	auraBar.icon:SetDrawLayer('OVERLAY')
-	auraBar.bg = auraBar:CreateTexture(nil,'BORDER')
-	auraBar.bg:Hide()
-	auraBar.iconHolder:RegisterForClicks('RightButtonUp')
-	auraBar.iconHolder:SetScript('OnClick',function(self)
-		if not IsShiftKeyDown()then return end;
-		local n = self:GetParent().aura.name;
-		local id = self:GetParent().aura.spellID;
-		if id then 
-			SuperVillain:AddonMessage(format(L['The spell "%s" has been added to the Blocked unitframe aura filter.'],n))
-			SuperVillain.Filters:Change('Blocked', id, {['enable'] = true, ['priority'] = 0})
-			MOD:RefreshUnitFrames()
-		end 
-	end)
-end;
+local AuraRemover_OnClick = function(self)
+	if not IsShiftKeyDown() then return end 
+	local name = self:GetParent().aura.name
+	if name then 
+		SuperVillain:AddonMessage(format(L["The spell '%s' has been added to the Blocked unitframe aura filter."], name))
+		SuperVillain.Filters["Blocked"][name] = {["enable"] = true, ["priority"] = 0}
+		MOD:RefreshUnitFrames()
+	end 
+end
 
-function MOD:ColorizeAuraBars()
+local function PostCreateAuraBars(self)
+	self.iconHolder:RegisterForClicks("RightButtonUp")
+	self.iconHolder:SetScript("OnClick", AuraRemover_OnClick)
+end 
+
+local function ColorizeAuraBars(self)
 	local bars = self.bars;
-	for i=1,#bars do 
+	for i = 1, #bars do 
 		local auraBar = bars[i]
-		if not auraBar:IsVisible()then break end;
+		if not auraBar:IsVisible()then break end 
 		local color
 		local spellName = auraBar.statusBar.aura.name;
 		local spellID = auraBar.statusBar.aura.spellID;
@@ -78,124 +60,113 @@ function MOD:ColorizeAuraBars()
 			color = oUF_SuperVillain.colors.shield_bars
 		elseif(SuperVillain.db.media.unitframes.spellcolor[spellName]) then
 			color = SuperVillain.db.media.unitframes.spellcolor[spellName]
-		end;
+		end 
 		if color then 
 			auraBar.statusBar:SetStatusBarColor(unpack(color))
-			auraBar.statusBar.bg:SetTexture(color[1]*0.25,color[2]*0.25,color[3]*0.25)
+			auraBar:SetBackdropColor(color[1] * 0.25, color[2] * 0.25, color[3] * 0.25, 0.25)
 		else
-			local r,g,b = auraBar.statusBar:GetStatusBarColor()
-			auraBar.statusBar.bg:SetTexture(r*0.25,g*0.25,b*0.25)
+			local r, g, b = auraBar.statusBar:GetStatusBarColor()
+			auraBar:SetBackdropColor(r * 0.25, g * 0.25, b * 0.25, 0.25)
 		end 
 	end 
-end;
+end 
 
-local function CheckAuraFilter(setting,helpful)
-	local friend, enemy = false, false
-	if type(setting)=='boolean' then 
-		friend = setting;
-	  	enemy = setting
-	elseif setting and type(setting)~='string' then 
-		friend = setting.friendly;
-	  	enemy = setting.enemy
-	end;
-	if (friend and helpful) or (enemy and not helpful) then 
-	  return true;
-	end
-  	return false 
-end;
-
-function MOD:AuraBarFilter(unit,name,_,_,_,debuffType,duration,_,unitCaster,isStealable,shouldConsolidate,spellID)
-	if not MOD.db then return end;
-	if(spellID == 65148) then 
-		return false;
-	end
-	local db = self.db.aurabar;
-	local filtered = (unitCaster=='player' or unitCaster=='vehicle') and true or false;
-	local allowed = true;
-	local pass = false;
-	local friendly = UnitIsFriend('player',unit) == 1 and true or false;
-
-	if CheckAuraFilter(db.filterPlayer,friendly) then
-		allowed=filtered;
-		pass=true 
-	end;
-	if CheckAuraFilter(db.filterDispellable,friendly)then 
-		if (self.type=='buffs' and not isStealable) or (self.type=='debuffs' and debuffType and not SuperVillain:DispellAvailable(debuffType)) or debuffType==nil then 
-			filtered=false 
-		end;
-		pass=true 
-	end;
-	if CheckAuraFilter(db.filterRaid,friendly)then 
-		if shouldConsolidate==1 then filtered=false end;
-		pass=true 
-	end;
-	if CheckAuraFilter(db.filterInfinite,friendly)then 
-		if duration==0 or not duration then 
-			filtered=false 
-		end;
-		pass=true 
-	end;
-	if CheckAuraFilter(db.filterBlocked,friendly)then
-		local blackList = SuperVillain.Filters['Blocked'][name]
-		if blackList and blackList.enable then filtered=false end;
-		pass=true 
-	end;
-	if CheckAuraFilter(db.filterAllowed,friendly)then 
-		local whiteList = SuperVillain.Filters['Allowed'][name]
-		if whiteList and whiteList.enable then 
-			filtered=true 
-		elseif not pass then 
-			filtered=false 
-		end;
-		pass=true 
-	end;
-	if db.useFilter and SuperVillain.Filters[db.useFilter]then
-		local spellsDB = SuperVillain.Filters[db.useFilter];
-		if db.useFilter ~= 'Blocked' then 
-			if spellsDB[name] and spellsDB[name].enable and allowed then 
-				filtered=true 
-			elseif not pass then 
-				filtered=false
-			end 
-		elseif spellsDB[name] and spellsDB[name].enable then 
-			filtered=false 
+do
+	local function _test(setting, helpful)
+		local friend, enemy = false, false
+		if type(setting) == "boolean" then 
+			friend = setting;
+		  	enemy = setting
+		elseif setting and type(setting) ~= "string" then 
+			friend = setting.friendly;
+		  	enemy = setting.enemy
 		end 
-	end;
-	return filtered 
-end;
+		if (friend and helpful) or (enemy and not helpful) then 
+		  return true;
+		end
+	  	return false 
+	end 
+
+	CustomBarFilter = function(self, unit, name, _, _, _, debuffType, duration, _, caster, isStealable, shouldConsolidate, spellID)
+		local key = self.___key
+		local db = MOD.db[key]
+		if((not db) or (db and not db.aurabar) or (spellID == 65148)) then 
+			return false;
+		end
+		local barDB = db.aurabar
+		local filtered = (caster == "player" or caster == "vehicle") and true or false;
+		local allowed = true;
+		local pass = false;
+		local friendly = UnitIsFriend("player", unit) == 1 and true or false;
+
+		if _test(barDB.filterPlayer, friendly) then
+			allowed = filtered;
+			pass = true 
+		end 
+		if _test(barDB.filterDispellable, friendly) then 
+			if (debuffType and not SuperVillain.Dispellable[debuffType]) or debuffType == nil then 
+				filtered = false 
+			end 
+			pass = true 
+		end 
+		if _test(barDB.filterRaid, friendly) then 
+			if shouldConsolidate == 1 then filtered = false end 
+			pass = true 
+		end 
+		if _test(barDB.filterInfinite, friendly) then 
+			if duration == 0 or not duration then 
+				filtered = false 
+			end 
+			pass = true 
+		end 
+		if _test(barDB.filterBlocked, friendly) then
+			local blackList = SuperVillain.Filters["Blocked"][name]
+			if blackList and blackList.enable then filtered = false end 
+			pass = true 
+		end 
+		if _test(barDB.filterAllowed, friendly) then 
+			local whiteList = SuperVillain.Filters["Allowed"][name]
+			if whiteList and whiteList.enable then 
+				filtered = true 
+			elseif not pass then 
+				filtered = false 
+			end 
+			pass = true 
+		end
+		local active = barDB.useFilter
+		if active and active ~= "" and SuperVillain.Filters[active] then
+			local spellsDB = SuperVillain.Filters[active];
+			if active ~= "Blocked" then 
+				if spellsDB[name] and spellsDB[name].enable and allowed then 
+					filtered = true 
+				elseif not pass then 
+					filtered = false
+				end 
+			elseif spellsDB[name] and spellsDB[name].enable then 
+				filtered = false 
+			end 
+		end 
+		return filtered 
+	end
+end
 --[[ 
 ########################################################## 
 UTILITY
 ##########################################################
 ]]--
-function MOD:CreateAuraBarHeader(frame,unitName)
-	local abHeader = CreateFrame('Frame',nil,frame)
-	abHeader.parent = frame;
-	abHeader.PostCreateBar = self.CreateAuraBars;
-	abHeader.gap = -1;
-	abHeader.spacing = -1;
-	abHeader.spark = true;
-	abHeader.filter = self.AuraBarFilter;
-	abHeader.PostUpdate = self.ColorizeAuraBars;
-	local bartex = self.db.auraBarStatusbar
-	abHeader.auraBarTexture = LSM:Fetch("statusbar", bartex);
-	self:WatchUnitMedia("aurabars", abHeader)
-	return abHeader 
-end;
-
-function MOD:SortAuraBars(parent,sorting)
-	if not parent then return end;
-	if sorting=='TIME_REMAINING' then 
-		parent.sort=true;
-	elseif sorting=='TIME_REMAINING_REVERSE' then 
-		parent.sort=function(a,b)local compA,compB=a.noTime and huge or a.expirationTime, b.noTime and huge or b.expirationTime; return compA < compB end; 
-	elseif sorting=='TIME_DURATION' then 
-		parent.sort=function(a,b)local compA,compB=a.noTime and huge or a.duration, b.noTime and huge or b.duration; return compA > compB end;
-	elseif sorting=='TIME_DURATION_REVERSE' then 
-		parent.sort=function(a,b)local compA,compB=a.noTime and huge or a.duration, b.noTime and huge or b.duration; return compA < compB end; 
-	elseif sorting=='NAME' then 
-		parent.sort=function(a,b)return a.name > b.name end;
-	else 
-		parent.sort=nil;
-	end;
-end;
+function MOD:CreateAuraBarHeader(frame, unitName)
+	local auraBarParent = CreateFrame("Frame", nil, frame)
+	auraBarParent.parent = frame;
+	auraBarParent.PostCreateBar = PostCreateAuraBars;
+	auraBarParent.gap = 2;
+	auraBarParent.spacing = 1;
+	auraBarParent.spark = true;
+	auraBarParent.filter = CustomBarFilter;
+	auraBarParent.PostUpdate = ColorizeAuraBars;
+	auraBarParent.barTexture = SuperVillain.Shared:Fetch("statusbar", MOD.db.auraBarStatusbar)
+	auraBarParent.timeFont = SuperVillain.Shared:Fetch("font", "Roboto")
+	auraBarParent.textFont = SuperVillain.Shared:Fetch("font", MOD.db.auraFont)
+	auraBarParent.textSize = MOD.db.auraFontSize
+	auraBarParent.textOutline = MOD.db.auraFontOutline
+	return auraBarParent 
+end  

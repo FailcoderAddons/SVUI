@@ -36,7 +36,8 @@ GET ADDON DATA
 ##########################################################
 ]]--
 local SuperVillain, L = unpack(select(2, ...));
-local MOD = SuperVillain.Registry:Expose('SVUnit');
+local MOD = SuperVillain.Registry:Expose('SVUnit')
+if(not MOD) then return end;
 local _, ns = ...
 local oUF_SuperVillain = ns.oUF
 --[[ MUNGLUNCH's FASTER ASSERT FUNCTION ]]--
@@ -48,14 +49,15 @@ POSITIONING
 ##########################################################
 ]]--
 local Reposition = function(self)
+	local db = MOD.db.player
 	local bar = self.ArcaneChargeBar;
 	local max = self.MaxClassPower;
-	local height = self.db.classbar.height
+	local height = db.classbar.height
 	local size = (height - 4)
 	local width = (size + 2) * max;
 	bar:ClearAllPoints()
 	bar:Size(width, height)
-	if(self.db and self.db.classbar.slideLeft and (not self.db.power.tags or self.db.power.tags == '')) then
+	if(db and db.classbar.slideLeft and (not db.power.tags or db.power.tags == '')) then
 		bar:Point("TOPLEFT", self.InfoPanel, "TOPLEFT", 0, -2)
 	else
 		bar:Point("TOP", self.InfoPanel, "TOP", 0, -2)

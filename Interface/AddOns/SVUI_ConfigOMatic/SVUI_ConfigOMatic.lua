@@ -239,8 +239,16 @@ SuperVillain.Options.args.common = {
 									get = function(j)return SuperVillain.db.system.autoScale end,
 									set = function(j,value)SuperVillain.db.system.autoScale = value;SuperVillain:StaticPopup_Show("RL_CLIENT")end
 								},
-								hideErrorFrame = {
+								multiMonitor = {
 									order = 2,
+									name = L["Multi Monitor"],
+									desc = L["Adjust UI dimensions to accomodate for multiple monitor setups"],
+									type = "toggle",
+									get = function(j)return SuperVillain.db.system.multiMonitor end,
+									set = function(j,value)SuperVillain.db.system.multiMonitor = value;SuperVillain:StaticPopup_Show("RL_CLIENT")end
+								},
+								hideErrorFrame = {
+									order = 3,
 									name = L["Hide Error Text"],
 									desc = L["Hides the red error text at the top of the screen while in combat."],
 									type = "toggle",
@@ -248,7 +256,7 @@ SuperVillain.Options.args.common = {
 									set = function(j,value)SuperVillain.db.system.hideErrorFrame = value;SuperVillain:StaticPopup_Show("RL_CLIENT")end
 								},
 								LoginMessage = {
-									order = 3,
+									order = 4,
 									type = 'toggle',
 									name = L['Login Message'],
 									get = function(j)return SuperVillain.db.system.loginmessage end,
@@ -375,10 +383,10 @@ SuperVillain.Options.args.common = {
 									type = "toggle", 
 									name = L["Totems"], 
 									get = function(j)
-										return SuperVillain.db.system.totems 
+										return SuperVillain.db.system.totems.enable
 									end, 
 									set = function(j, value)
-										SuperVillain.db.system.totems = value;
+										SuperVillain.db.system.totems.enable = value;
 										SuperVillain:StaticPopup_Show("RL_CLIENT")
 									end
 								},
@@ -397,7 +405,13 @@ SuperVillain.Options.args.common = {
 									name = L["Totem Button Size"], 
 									min = 24, 
 									max = 60, 
-									step = 1
+									step = 1,
+									get = function(j)
+										return SuperVillain.db.system.totems[j[#j]]
+									end, 
+									set = function(j, value)
+										SuperVillain.db.system.totems[j[#j]] = value
+									end
 								},
 								spacing = {
 									order = 5, 
@@ -406,7 +420,13 @@ SuperVillain.Options.args.common = {
 									name = L['Totem Button Spacing'], 
 									min = 1, 
 									max = 10, 
-									step = 1
+									step = 1,
+									get = function(j)
+										return SuperVillain.db.system.totems[j[#j]]
+									end, 
+									set = function(j, value)
+										SuperVillain.db.system.totems[j[#j]] = value
+									end
 								},
 								sortDirection = {
 									order = 6, 
@@ -415,7 +435,13 @@ SuperVillain.Options.args.common = {
 									values = {
 										['ASCENDING'] = L['Ascending'], 
 										['DESCENDING'] = L['Descending']
-									}
+									},
+									get = function(j)
+										return SuperVillain.db.system.totems[j[#j]]
+									end, 
+									set = function(j, value)
+										SuperVillain.db.system.totems[j[#j]] = value
+									end
 								},
 								showBy = {
 									order = 7, 
@@ -424,7 +450,13 @@ SuperVillain.Options.args.common = {
 									values = {
 										['VERTICAL'] = L['Vertical'], 
 										['HORIZONTAL'] = L['Horizontal']
-									}
+									},
+									get = function(j)
+										return SuperVillain.db.system.totems[j[#j]]
+									end, 
+									set = function(j, value)
+										SuperVillain.db.system.totems[j[#j]] = value
+									end
 								}
 							}
 						}		
@@ -443,7 +475,7 @@ SuperVillain.Options.args.common = {
 							name = L["Textures"], 
 							guiInline = true,
 							get = function(key)
-								return SuperVillain.db.media.textures[key[#key]][2]
+								return SuperVillain.db.media.textures[key[#key]]
 							end,
 							set = function(key, value)
 								SuperVillain.db.media.textures[key[#key]] = {"background", value}
@@ -494,10 +526,22 @@ SuperVillain.Options.args.common = {
 									step = 1,
 									set = function(j,value)SuperVillain.db.media.fonts[j[#j]] = value;CommonFontSizeUpdate()end
 								},
+								fontSpacer1 = {
+									order = 3,
+									type = "description",
+									name = "",
+									desc = "",
+								},
+								fontSpacer2 = {
+									order = 4,
+									type = "description",
+									name = "",
+									desc = "",
+								},
 								default = {
 									type = "select",
 									dialogControl = 'LSM30_Font',
-									order = 3,
+									order = 5,
 									name = L["Default Font"],
 									desc = L["Set/Override the global UI font. |cff00FF00NOTE:|r |cff00FF99This WILL NOT affect configurable fonts.|r"],
 									values = AceGUIWidgetLSMlists.font,
@@ -507,7 +551,7 @@ SuperVillain.Options.args.common = {
 								name = {
 									type = "select",
 									dialogControl = 'LSM30_Font',
-									order = 4,
+									order = 6,
 									name = L["Unit Name Font"],
 									desc = L["Set/Override the global name font. |cff00FF00NOTE:|r |cff00FF99This WILL NOT affect styled nameplates or unitframes.|r"],
 									values = AceGUIWidgetLSMlists.font,
@@ -517,7 +561,7 @@ SuperVillain.Options.args.common = {
 								combat = {
 									type = "select",
 									dialogControl = 'LSM30_Font',
-									order = 5,
+									order = 7,
 									name = L["CombatText Font"],
 									desc = L["Set/Override the font that combat text will use. |cffFF0000NOTE:|r |cffFF9900This requires a game restart or re-log for this change to take effect.|r"],
 									values = AceGUIWidgetLSMlists.font,
@@ -527,7 +571,7 @@ SuperVillain.Options.args.common = {
 								number = {
 									type = "select",
 									dialogControl = 'LSM30_Font',
-									order = 6,
+									order = 8,
 									name = L["Numbers Font"],
 									desc = L["Set/Override the global font used for numbers. |cff00FF00NOTE:|r |cff00FF99This WILL NOT affect all numbers.|r"],
 									values = AceGUIWidgetLSMlists.font,
@@ -541,28 +585,36 @@ SuperVillain.Options.args.common = {
 							type = "group", 
 							name = L["Colors"], 
 							guiInline = true,
-							get = function(key)
-								local color = SuperVillain.db.media.colors[key[#key]]
-								return color[1],color[2],color[3],color[4] 
-							end,
-							set = function(key, rValue, gValue, bValue, aValue)
-								SuperVillain.db.media.colors[key[#key]] = {rValue, gValue, bValue, aValue}
-								SuperVillain:MediaUpdate()
-							end,
 							args = {
 								default = {
 									type = "color",
 									order = 1,
 									name = L["Default Color"],
 									desc = L["Main color used by most UI elements. (ex: Backdrop Color)"],
-									hasAlpha = false
+									hasAlpha = true,
+									get = function(key)
+										local color = SuperVillain.db.media.colors.default
+										return color[1],color[2],color[3],color[4] 
+									end,
+									set = function(key, rValue, gValue, bValue, aValue)
+										SuperVillain.db.media.colors.default = {rValue, gValue, bValue, aValue}
+										SuperVillain:MediaUpdate()
+									end,
 								},
 								special = {
 									type = "color",
 									order = 2,
 									name = L["Accent Color"],
 									desc = L["Color used in various frame accents.  (ex: Dressing Room Backdrop Color)"],
-									hasAlpha = true
+									hasAlpha = true,
+									get = function(key)
+										local color = SuperVillain.db.media.colors.special
+										return color[1],color[2],color[3],color[4] 
+									end,
+									set = function(key, rValue, gValue, bValue, aValue)
+										SuperVillain.db.media.colors.special = {rValue, gValue, bValue, aValue}
+										SuperVillain:MediaUpdate()
+									end,
 								},
 								resetbutton = {
 									type = "execute",
@@ -583,19 +635,25 @@ SuperVillain.Options.args.common = {
 					type = 'group',
 					name = L['Gear Managment'],
 					get = function(a)return SuperVillain.db.SVGear[a[#a]]end,
-					set = function(a,b)SuperVillain.db.SVGear[a[#a]]=b;GEAR:UpdateThisPackage()end,
+					set = function(a,b)SuperVillain.db.SVGear[a[#a]]=b;GEAR:ReLoad()end,
 					args={
 						intro={
-							order=1,
-							type='description',
-							name=L["EQUIPMENT_DESC"]
+							order = 1,
+							type = 'description',
+							name = function() 
+								if(GetNumEquipmentSets()==0) then 
+									return L["EQUIPMENT_DESC"] .. "\n" .. "|cffFF0000Must create an equipment set to use some of these features|r" 
+								else 
+									return L["EQUIPMENT_DESC"] 
+								end 
+							end
 						},
 						specialization={
-							order=2,
-							type="group",
-							name=L["Specialization"],
-							guiInline=true,
-							disabled=function()return GetNumEquipmentSets()==0 end,
+							order = 2,
+							type = "group",
+							name = L["Specialization"],
+							guiInline = true,
+							disabled = function()return GetNumEquipmentSets()==0 end,
 							args={
 								enable={
 									type="toggle",
@@ -603,7 +661,7 @@ SuperVillain.Options.args.common = {
 									name=L["Enable"],
 									desc=L['Enable/Disable the specialization switch.'],
 									get=function(e)return SuperVillain.db.SVGear.specialization.enable end,
-									set=function(e,value)SuperVillain.db.SVGear.specialization.enable=value end
+									set=function(e,value) SuperVillain.db.SVGear.specialization.enable = value end
 								},
 								primary={
 									type="select",
@@ -684,7 +742,7 @@ SuperVillain.Options.args.common = {
 							guiInline = true,
 							order = 5,
 							get = function(e)return SuperVillain.db.SVGear.durability[e[#e]]end,
-							set = function(e,value)SuperVillain.db.SVGear.durability[e[#e]] = value;GEAR:UpdateThisPackage()end,
+							set = function(e,value)SuperVillain.db.SVGear.durability[e[#e]] = value;GEAR:ReLoad()end,
 							args = {
 								enable = {
 									type = "toggle",
@@ -712,7 +770,7 @@ SuperVillain.Options.args.common = {
 							guiInline = true,
 							order = 7,
 							get = function(e)return SuperVillain.db.SVGear.itemlevel[e[#e]]end,
-							set = function(e,value)SuperVillain.db.SVGear.itemlevel[e[#e]] = value;GEAR:UpdateThisPackage()end,
+							set = function(e,value)SuperVillain.db.SVGear.itemlevel[e[#e]] = value;GEAR:ReLoad()end,
 							args = {
 								enable = {
 									type = "toggle",

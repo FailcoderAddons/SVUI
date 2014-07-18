@@ -30,7 +30,8 @@ GET ADDON DATA
 ##########################################################
 ]]--
 local SuperVillain, L = unpack(SVUI);
-local MOD = SuperVillain.Registry:Expose('SVUnit');
+local MOD = SuperVillain.Registry:Expose('SVUnit')
+if(not MOD) then return end;
 local _, ns = ...
 --[[
 ##################################################################################################
@@ -43,7 +44,7 @@ SuperVillain.Options.args.SVUnit.args.focus = {
 	order = 9, 
 	childGroups = "tab", 
 	get = function(l)return SuperVillain.db.SVUnit["focus"][l[#l]]end, 
-	set = function(l, m)MOD:ChangeDBVar(m, l[#l], "focus");MOD:SetBasicFrame("focus")end, 
+	set = function(l, m)MOD:ChangeDBVar(m, l[#l], "focus");MOD:SetUnitFrame("focus")end, 
 	args = {
 		enable = {type = "toggle", order = 1, name = L["Enable"]}, 
 		resetSettings = {type = "execute", order = 2, name = L["Restore Defaults"], func = function(l, m)MOD:ResetUnitOptions("focus");SuperVillain:ResetMovables("Focus Frame")end}, 
@@ -68,7 +69,7 @@ SuperVillain.Options.args.SVUnit.args.focus = {
 									order = 1, 
 									type = "execute",
 									name = L["Show Auras"], 
-									func = function()local U = SVUI_Focus;if U.forceShowAuras then U.forceShowAuras = nil else U.forceShowAuras = true end;MOD:SetBasicFrame("focus")end
+									func = function()local U = SVUI_Focus;if U.forceShowAuras then U.forceShowAuras = nil else U.forceShowAuras = true end;MOD:SetUnitFrame("focus")end
 								},
 								smartAuraDisplay = {
 									type = "select", 
@@ -95,7 +96,7 @@ SuperVillain.Options.args.SVUnit.args.focus = {
 									name = L["Text Toggle On NPC"], 
 									desc = L["Power text will be hidden on NPC targets, in addition the name text will be repositioned to the power texts anchor point."], 
 									get = function(l)return SuperVillain.db.SVUnit["focus"]["power"].hideonnpc end, 
-									set = function(l, m)SuperVillain.db.SVUnit["focus"]["power"].hideonnpc = m;MOD:SetBasicFrame("focus")end
+									set = function(l, m)SuperVillain.db.SVUnit["focus"]["power"].hideonnpc = m;MOD:SetUnitFrame("focus")end
 								},  
 								threatEnabled = {
 									type = "toggle", 
@@ -132,15 +133,15 @@ SuperVillain.Options.args.SVUnit.args.focus = {
 						},
 					}
 				}, 
-				misc = ns:SetMiscConfigGroup(false, MOD.SetBasicFrame, "focus"),
-				health = ns:SetHealthConfigGroup(false, MOD.SetBasicFrame, "focus"), 
-				power = ns:SetPowerConfigGroup(nil, MOD.SetBasicFrame, "focus"), 
-				name = ns:SetNameConfigGroup(MOD.SetBasicFrame, "focus"), 
-				buffs = ns:SetAuraConfigGroup(false, "buffs", false, MOD.SetBasicFrame, "focus"), 
-				debuffs = ns:SetAuraConfigGroup(false, "debuffs", false, MOD.SetBasicFrame, "focus"), 
-				castbar = ns:SetCastbarConfigGroup(MOD.SetBasicFrame, "focus"), 
-				aurabar = ns:SetAurabarConfigGroup(false, MOD.SetBasicFrame, "focus"), 
-				icons = ns:SetIconConfigGroup(MOD.SetBasicFrame, "focus")
+				misc = ns:SetMiscConfigGroup(false, MOD.SetUnitFrame, "focus"),
+				health = ns:SetHealthConfigGroup(false, MOD.SetUnitFrame, "focus"), 
+				power = ns:SetPowerConfigGroup(nil, MOD.SetUnitFrame, "focus"), 
+				name = ns:SetNameConfigGroup(MOD.SetUnitFrame, "focus"), 
+				buffs = ns:SetAuraConfigGroup(false, "buffs", false, MOD.SetUnitFrame, "focus"), 
+				debuffs = ns:SetAuraConfigGroup(false, "debuffs", false, MOD.SetUnitFrame, "focus"), 
+				castbar = ns:SetCastbarConfigGroup(MOD.SetUnitFrame, "focus"), 
+				aurabar = ns:SetAurabarConfigGroup(false, MOD.SetUnitFrame, "focus"), 
+				icons = ns:SetIconConfigGroup(MOD.SetUnitFrame, "focus")
 			}
 		}
 	}
@@ -156,7 +157,7 @@ SuperVillain.Options.args.SVUnit.args.focustarget = {
 	order = 10, 
 	childGroups = "tab", 
 	get = function(l)return SuperVillain.db.SVUnit["focustarget"][l[#l]]end, 
-	set = function(l, m)MOD:ChangeDBVar(m, l[#l], "focustarget");MOD:SetBasicFrame("focustarget")end, 
+	set = function(l, m)MOD:ChangeDBVar(m, l[#l], "focustarget");MOD:SetUnitFrame("focustarget")end, 
 	args = {
 		enable = {type = "toggle", order = 1, name = L["Enable"]}, 
 		resetSettings = {type = "execute", order = 2, name = L["Restore Defaults"], func = function(l, m)MOD:ResetUnitOptions("focustarget")SuperVillain:ResetMovables("FocusTarget Frame")end}, 
@@ -177,14 +178,14 @@ SuperVillain.Options.args.SVUnit.args.focustarget = {
 							guiInline = true, 
 							name = L["Base Settings"],
 							args = {
-								showAuras = {order = 1, type = "execute", name = L["Show Auras"], func = function()local U = SVUI_FocusTarget;if U.forceShowAuras then U.forceShowAuras = nil else U.forceShowAuras = true end;MOD:SetBasicFrame("focustarget")end}, 
+								showAuras = {order = 1, type = "execute", name = L["Show Auras"], func = function()local U = SVUI_FocusTarget;if U.forceShowAuras then U.forceShowAuras = nil else U.forceShowAuras = true end;MOD:SetUnitFrame("focustarget")end}, 
 								spacer1 = {
 									order = 2,
 									type = "description", 
 									name = "",
 								},
 								rangeCheck = {order = 3, name = L["Range Check"], desc = L["Check if you are in range to cast spells on this specific unit."], type = "toggle"}, 
-								hideonnpc = {type = "toggle", order = 4, name = L["Text Toggle On NPC"], desc = L["Power text will be hidden on NPC targets, in addition the name text will be repositioned to the power texts anchor point."], get = function(l)return SuperVillain.db.SVUnit["focustarget"]["power"].hideonnpc end, set = function(l, m)SuperVillain.db.SVUnit["focustarget"]["power"].hideonnpc = m;MOD:SetBasicFrame("focustarget")end}, 
+								hideonnpc = {type = "toggle", order = 4, name = L["Text Toggle On NPC"], desc = L["Power text will be hidden on NPC targets, in addition the name text will be repositioned to the power texts anchor point."], get = function(l)return SuperVillain.db.SVUnit["focustarget"]["power"].hideonnpc end, set = function(l, m)SuperVillain.db.SVUnit["focustarget"]["power"].hideonnpc = m;MOD:SetUnitFrame("focustarget")end}, 
 								threatEnabled = {type = "toggle", order = 5, name = L["Show Threat"]}
 							}
 						},
@@ -200,13 +201,13 @@ SuperVillain.Options.args.SVUnit.args.focustarget = {
 						},
 					}
 				},
-				misc = ns:SetMiscConfigGroup(false, MOD.SetBasicFrame, "focustarget"),
-				health = ns:SetHealthConfigGroup(false, MOD.SetBasicFrame, "focustarget"), 
-				power = ns:SetPowerConfigGroup(false, MOD.SetBasicFrame, "focustarget"), 
-				name = ns:SetNameConfigGroup(MOD.SetBasicFrame, "focustarget"), 
-				buffs = ns:SetAuraConfigGroup(false, "buffs", false, MOD.SetBasicFrame, "focustarget"), 
-				debuffs = ns:SetAuraConfigGroup(false, "debuffs", false, MOD.SetBasicFrame, "focustarget"), 
-				icons = ns:SetIconConfigGroup(MOD.SetBasicFrame, "focustarget")
+				misc = ns:SetMiscConfigGroup(false, MOD.SetUnitFrame, "focustarget"),
+				health = ns:SetHealthConfigGroup(false, MOD.SetUnitFrame, "focustarget"), 
+				power = ns:SetPowerConfigGroup(false, MOD.SetUnitFrame, "focustarget"), 
+				name = ns:SetNameConfigGroup(MOD.SetUnitFrame, "focustarget"), 
+				buffs = ns:SetAuraConfigGroup(false, "buffs", false, MOD.SetUnitFrame, "focustarget"), 
+				debuffs = ns:SetAuraConfigGroup(false, "debuffs", false, MOD.SetUnitFrame, "focustarget"), 
+				icons = ns:SetIconConfigGroup(MOD.SetUnitFrame, "focustarget")
 			}
 		}
 	}

@@ -1,7 +1,7 @@
 ## Interface: 50001
 ## Title: oUF Arcane Charge
 ## Notes: Adds support for arcane charge indicators to oUF.
-## Author: SV
+## Author: Munglunch
 ## Version: 1.0.0
 ## Dependencies: oUF
 

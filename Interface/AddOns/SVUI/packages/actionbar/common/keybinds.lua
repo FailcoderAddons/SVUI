@@ -269,7 +269,7 @@ end
 local BinderButton_OnEnter = function(self)
   local parent = self.button:GetParent()
   if parent and parent._fade then 
-    SuperVillain:SecureFadeIn(parent, 0.2, parent:GetAlpha(), parent.db.alpha)
+    SuperVillain:SecureFadeIn(parent, 0.2, parent:GetAlpha(), parent._alpha)
   end
 end;
 

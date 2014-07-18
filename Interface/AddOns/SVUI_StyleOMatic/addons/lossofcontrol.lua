@@ -20,6 +20,26 @@ local MOD = SuperVillain.Registry:Expose("SVStyle");
 LOSSOFCONTROL STYLER
 ##########################################################
 ]]--
+local _hook_LossOfControl = function(self, ...)
+  self.Icon:ClearAllPoints()
+  self.Icon:SetPoint("CENTER", self, "CENTER", 0, 0)
+  self.AbilityName:ClearAllPoints()
+  self.AbilityName:SetPoint("BOTTOM", self, 0, -28)
+  self.AbilityName.scrollTime = nil;
+  self.AbilityName:SetFont(SuperVillain.Media.font.names, 20, 'OUTLINE')
+  self.TimeLeft.NumberText:ClearAllPoints()
+  self.TimeLeft.NumberText:SetPoint("BOTTOM", self, 4, -58)
+  self.TimeLeft.NumberText.scrollTime = nil;
+  self.TimeLeft.NumberText:SetFont(SuperVillain.Media.font.numbers, 20, 'OUTLINE')
+  self.TimeLeft.SecondsText:ClearAllPoints()
+  self.TimeLeft.SecondsText:SetPoint("BOTTOM", self, 0, -80)
+  self.TimeLeft.SecondsText.scrollTime = nil;
+  self.TimeLeft.SecondsText:SetFont(SuperVillain.Media.font.roboto, 20, 'OUTLINE')
+  if self.Anim:IsPlaying() then
+     self.Anim:Stop()
+  end 
+end
+
 local function LossOfControlStyle()
   if SuperVillain.db.SVStyle.blizzard.enable ~= true or SuperVillain.db.SVStyle.blizzard.losscontrol ~= true then return end;
   local IconBackdrop = CreateFrame("Frame", nil, LossOfControlFrame)
@@ -29,29 +49,9 @@ local function LossOfControlStyle()
   LossOfControlFrame.Icon:SetTexCoord(.1, .9, .1, .9)
   LossOfControlFrame:Formula409()
   LossOfControlFrame.AbilityName:ClearAllPoints()
-  LossOfControlFrame:Size(LossOfControlFrame.Icon:GetWidth()+50)
+  LossOfControlFrame:Size(LossOfControlFrame.Icon:GetWidth() + 50)
   --local bg = CreateFrame("Frame", nil, LossOfControlFrame)
-
-  local font = SuperVillain.Media.font.default;
-  hooksecurefunc("LossOfControlFrame_SetUpDisplay", function(o, ...)
-    o.Icon:ClearAllPoints()
-    o.Icon:SetPoint("CENTER", o, "CENTER", 0, 0)
-    o.AbilityName:ClearAllPoints()
-    o.AbilityName:SetPoint("BOTTOM", o, 0, -28)
-    o.AbilityName.scrollTime = nil;
-    o.AbilityName:SetFontTemplate(font, 20, 'OUTLINE')
-    o.TimeLeft.NumberText:ClearAllPoints()
-    o.TimeLeft.NumberText:SetPoint("BOTTOM", o, 4, -58)
-    o.TimeLeft.NumberText.scrollTime = nil;
-    o.TimeLeft.NumberText:SetFontTemplate(font, 20, 'OUTLINE')
-    o.TimeLeft.SecondsText:ClearAllPoints()
-    o.TimeLeft.SecondsText:SetPoint("BOTTOM", o, 0, -80)
-    o.TimeLeft.SecondsText.scrollTime = nil;
-    o.TimeLeft.SecondsText:SetFontTemplate(font, 20, 'OUTLINE')
-    if o.Anim:IsPlaying() then
-       o.Anim:Stop()
-    end 
-  end)
+  hooksecurefunc("LossOfControlFrame_SetUpDisplay", _hook_LossOfControl)
 end;
 --[[ 
 ########################################################## 

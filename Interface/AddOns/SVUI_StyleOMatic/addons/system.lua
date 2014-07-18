@@ -487,27 +487,43 @@ end;
 SYSTEM WIDGET STYLERS
 ##########################################################
 ]]--
+local ChatGeneric_OnShow = function(self) if(not self.Panel) then self:SetPanelTemplate("Halftone") end end
+local ChatMenu_OnShow = function(self) if(not self.Panel) then self:SetPanelTemplate("Halftone") end self:ClearAllPoints() self:Point("BOTTOMLEFT", ChatFrame1, "TOPLEFT", 0, 30) end
+
 local function SystemPanelQue()
 	if SuperVillain.db.SVStyle.blizzard.enable ~= true or SuperVillain.db.SVStyle.blizzard.misc ~= true then return end
 	QueueStatusFrame:Formula409()
 	for i = 1, #SystemPopList do
-		_G[SystemPopList[i]]:Formula409()
-		MOD:ApplyAlertStyle(_G[SystemPopList[i]])
-		_G[SystemPopList[i]]:SetBackdropColor(0.8, 0.2, 0.2)
+		local this = _G[SystemPopList[i]]
+		if(this) then
+			this:Formula409()
+			MOD:ApplyAlertStyle(this)
+			this:SetBackdropColor(0.8, 0.2, 0.2)
+		end
 	end
 	for i = 1, #SystemFrameList1 do
-		_G[SystemFrameList1[i]]:Formula409()
-		_G[SystemFrameList1[i]]:SetPanelTemplate("Pattern")
+		local this = _G[SystemFrameList1[i]]
+		if(this) then
+			this:Formula409()
+			this:SetPanelTemplate("Pattern")
+		end
 	end
 	for i = 1, #SystemFrameList2 do
-		_G[SystemFrameList2[i]]:Formula409()
-		_G[SystemFrameList2[i]]:SetPanelTemplate("Halftone")
+		local this = _G[SystemFrameList2[i]]
+		if(this) then
+			this:Formula409()
+			this:SetPanelTemplate("Halftone")
+		end
 	end
 	for i = 1, #SystemFrameList3 do
-		if _G[SystemFrameList3[i]] == _G["ChatMenu"] then
-			_G[SystemFrameList3[i]]:HookScript("OnShow", function(self) self:SetPanelTemplate("Halftone") self:ClearAllPoints() self:Point("BOTTOMLEFT", ChatFrame1, "TOPLEFT", 0, 30) end)
-		else
-			_G[SystemFrameList3[i]]:HookScript("OnShow", function(self) self:SetPanelTemplate("Halftone") end)
+		local name = SystemFrameList3[i]
+		local this = _G[name]
+		if(this) then
+			if(name == "ChatMenu") then
+				this:HookScript("OnShow", ChatMenu_OnShow)
+			else
+				this:HookScript("OnShow", ChatGeneric_OnShow)
+			end
 		end
 	end
 	LFDRoleCheckPopup:Formula409()
@@ -538,9 +554,9 @@ local function SystemPanelQue()
 		end
 	end
 	for i = 1, #SystemFrameList4 do
-		local SVUIMenuButtons = _G["GameMenuButton"..SystemFrameList4[i]]
-		if SVUIMenuButtons then
-			SVUIMenuButtons:SetButtonTemplate()
+		local this = _G["GameMenuButton"..SystemFrameList4[i]]
+		if(this) then
+			this:SetButtonTemplate()
 		end
 	end
 	if IsAddOnLoaded("OptionHouse") then
@@ -566,21 +582,21 @@ local function SystemPanelQue()
 		tex:FillInner()
 	end
 	for i = 1, #SystemFrameList5 do
-		local title = _G[SystemFrameList5[i].."Header"]			
-		if title then
-			title:SetTexture("")
-			title:ClearAllPoints()
-			if title == _G["GameMenuFrameHeader"] then
-				title:SetPoint("TOP", GameMenuFrame, 0, 7)
+		local this = _G[SystemFrameList5[i].."Header"]			
+		if(this) then
+			this:SetTexture("")
+			this:ClearAllPoints()
+			if this == _G["GameMenuFrameHeader"] then
+				this:SetPoint("TOP", GameMenuFrame, 0, 7)
 			else
-				title:SetPoint("TOP", SystemFrameList5[i], 0, 0)
+				this:SetPoint("TOP", SystemFrameList5[i], 0, 0)
 			end
 		end
 	end
 	for i = 1, #SystemFrameList6 do
-		local SVUIButtons = _G[SystemFrameList6[i]]
-		if SVUIButtons then
-			SVUIButtons:SetButtonTemplate()
+		local this = _G[SystemFrameList6[i]]
+		if(this) then
+			this:SetButtonTemplate()
 		end
 	end
 	VideoOptionsFrameCancel:ClearAllPoints()
@@ -649,34 +665,46 @@ local function SystemPanelQue()
 	end
 	OpacityFrame:Formula409()
 	OpacityFrame:SetFixedPanelTemplate("Transparent", true)
-	for _, object in pairs(SystemFrameList7) do
-		_G[object]:Formula409()
+	for i = 1, #SystemFrameList7 do
+		local this = _G[SystemFrameList7[i]]
+		if(this) then
+			this:Formula409()
+		end
 	end
 	for i = 1, #SystemFrameList8 do
-		_G[SystemFrameList8[i]]:SetButtonTemplate()
+		local this = _G[SystemFrameList8[i]]
+		if(this) then
+			this:SetButtonTemplate()
+		end
 	end	
 	ChatConfigFrameOkayButton:Point("RIGHT", ChatConfigFrameCancelButton, "RIGHT", -11, -1)
 	ChatConfigCombatSettingsFiltersDeleteButton:Point("TOPRIGHT", ChatConfigCombatSettingsFilters, "BOTTOMRIGHT", 0, -1)
 	ChatConfigCombatSettingsFiltersAddFilterButton:Point("RIGHT", ChatConfigCombatSettingsFiltersDeleteButton, "LEFT", -1, 0)
 	ChatConfigCombatSettingsFiltersCopyFilterButton:Point("RIGHT", ChatConfigCombatSettingsFiltersAddFilterButton, "LEFT", -1, 0)
 	for i=1, 5 do
-		local tab = _G["CombatConfigTab"..i]
-		tab:Formula409()
+		local this = _G["CombatConfigTab"..i]
+		if(this) then
+			this:Formula409()
+		end
 	end
 	CombatConfigSettingsNameEditBox:SetEditboxTemplate()
 	ChatConfigFrame:SetPanelTemplate("Pattern", true)
 	for i = 1, #SystemFrameList9 do
-		local QueuedFrames = _G[SystemFrameList9[i]]
-		QueuedFrames:Formula409()
-		QueuedFrames:SetFixedPanelTemplate("Inset", true)
+		local this = _G[SystemFrameList9[i]]
+		if(this) then
+			this:Formula409()
+			this:SetFixedPanelTemplate("Inset", true)
+		end
 	end
 	for i = 1, #SystemFrameList10 do
-		local QueuedFrames = _G[SystemFrameList10[i]]
-		QueuedFrames:ClearAllPoints()
-		if QueuedFrames == CombatConfigColorsColorizeSpellNames then
-			QueuedFrames:Point("TOP",CombatConfigColorsColorizeUnitName,"BOTTOM",0,-2)
-		else
-			QueuedFrames:Point("TOP",_G[SystemFrameList10[i-1]],"BOTTOM",0,-2)
+		local this = _G[SystemFrameList10[i]]
+		if(this) then
+			this:ClearAllPoints()
+			if this == CombatConfigColorsColorizeSpellNames then
+				this:Point("TOP",CombatConfigColorsColorizeUnitName,"BOTTOM",0,-2)
+			else
+				this:Point("TOP",_G[SystemFrameList10[i-1]],"BOTTOM",0,-2)
+			end
 		end
 	end
 	ChatConfigChannelSettingsLeft:RegisterEvent("PLAYER_ENTERING_WORLD")
@@ -772,20 +800,20 @@ local function SystemPanelQue()
 		end
 	end)
 	for i = 1,#COMBAT_CONFIG_TABS do
-		local cctab = _G["CombatConfigTab"..i]
-		if cctab then
-			MOD:ApplyTabStyle(cctab)
-			cctab:SetHeight(cctab:GetHeight()-2)
-			cctab:SetWidth(ceil(cctab:GetWidth()+1.6))
+		local this = _G["CombatConfigTab"..i]
+		if(this) then
+			MOD:ApplyTabStyle(this)
+			this:SetHeight(this:GetHeight()-2)
+			this:SetWidth(ceil(this:GetWidth()+1.6))
 			_G["CombatConfigTab"..i.."Text"]:SetPoint("BOTTOM",0,10)
 		end
 	end
 	CombatConfigTab1:ClearAllPoints()
 	CombatConfigTab1:SetPoint("BOTTOMLEFT",ChatConfigBackgroundFrame,"TOPLEFT",6,-2)
 	for i = 1, #SystemFrameList11 do
-		local ccbtn = _G[SystemFrameList11[i]]
-		if ccbtn then
-			ccbtn:SetButtonTemplate()
+		local this = _G[SystemFrameList11[i]]
+		if(this) then
+			this:SetButtonTemplate()
 		end
 	end
 	ChatConfigFrameOkayButton:SetPoint("TOPRIGHT",ChatConfigBackgroundFrame,"BOTTOMRIGHT",-3,-5)
@@ -795,8 +823,10 @@ local function SystemPanelQue()
 	ChatConfigCombatSettingsFiltersCopyFilterButton:SetPoint("RIGHT",ChatConfigCombatSettingsFiltersDeleteButton,"LEFT",-2,0)
 	ChatConfigCombatSettingsFiltersAddFilterButton:SetPoint("RIGHT",ChatConfigCombatSettingsFiltersCopyFilterButton,"LEFT",-2,0)
 	for i = 1, #SystemFrameList12 do
-		local ccbtn = _G[SystemFrameList12[i]]
-		ccbtn:SetCheckboxTemplate(true)
+		local this = _G[SystemFrameList12[i]]
+		if(this) then
+			this:SetCheckboxTemplate(true)
+		end
 	end
 	MOD:ApplyPaginationStyle(ChatConfigMoveFilterUpButton,true)
 	MOD:ApplyPaginationStyle(ChatConfigMoveFilterDownButton,true)
@@ -836,24 +866,24 @@ local function SystemPanelQue()
 		end
 	end
 	for i = 1, #SystemFrameList13 do
-		local QueuedFrames = _G[SystemFrameList13[i]]
-		if QueuedFrames then
-			QueuedFrames:Formula409()
-			QueuedFrames:SetPanelTemplate("Default", true)
-			if QueuedFrames ~= _G["VideoOptionsFramePanelContainer"] and QueuedFrames ~= _G["InterfaceOptionsFramePanelContainer"] then
-				QueuedFrames.Panel:Point("TOPLEFT",-1,0)
-				QueuedFrames.Panel:Point("BOTTOMRIGHT",0,1)
+		local this = _G[SystemFrameList13[i]]
+		if(this) then
+			this:Formula409()
+			this:SetFixedPanelTemplate("Inset")
+			if this ~= _G["VideoOptionsFramePanelContainer"] and this ~= _G["InterfaceOptionsFramePanelContainer"] then
+				this.Panel:Point("TOPLEFT",-1,0)
+				this.Panel:Point("BOTTOMRIGHT",0,1)
 			else
-				QueuedFrames.Panel:Point("TOPLEFT", 0, 0)
-				QueuedFrames.Panel:Point("BOTTOMRIGHT", 0, 0)
+				this.Panel:Point("TOPLEFT", 0, 0)
+				this.Panel:Point("BOTTOMRIGHT", 0, 0)
 			end
 		end
 	end
 	for i = 1, #SystemFrameList14 do
-		local itab = _G[SystemFrameList14[i]]
-		if itab then
-			itab:Formula409()
-			MOD:ApplyTabStyle(itab)
+		local this = _G[SystemFrameList14[i]]
+		if(this) then
+			this:Formula409()
+			MOD:ApplyTabStyle(this)
 		end
 	end
 	InterfaceOptionsFrameTab1:ClearAllPoints()
@@ -865,49 +895,55 @@ local function SystemPanelQue()
 	InterfaceOptionsFrameDefaults:SetPoint("TOPLEFT",InterfaceOptionsFrameCategories,"BOTTOMLEFT",-1,-5)
 	InterfaceOptionsFrameCancel:SetPoint("TOPRIGHT",InterfaceOptionsFramePanelContainer,"BOTTOMRIGHT",0,-6)
 	for i = 1, #SystemFrameList15 do
-		local icheckbox = _G["InterfaceOptions"..SystemFrameList15[i]]
-		if icheckbox then
-			icheckbox:SetCheckboxTemplate(true)
+		local this = _G["InterfaceOptions"..SystemFrameList15[i]]
+		if(this) then
+			this:SetCheckboxTemplate(true)
 		end
 	end
 	for i = 1, #SystemFrameList16 do
-		local idropdown = _G["InterfaceOptions"..SystemFrameList16[i]]
-		if idropdown then
-			MOD:ApplyDropdownStyle(idropdown)
+		local this = _G["InterfaceOptions"..SystemFrameList16[i]]
+		if(this) then
+			MOD:ApplyDropdownStyle(this)
 			DropDownList1:SetFixedPanelTemplate("Default", true)
 		end
 	end
 	InterfaceOptionsHelpPanelResetTutorials:SetButtonTemplate()
 	for i = 1, #SystemFrameList17 do
-		local ocheckbox = _G[SystemFrameList17[i]]
-		if ocheckbox then
-			ocheckbox:SetCheckboxTemplate(true)
+		local this = _G[SystemFrameList17[i]]
+		if(this) then
+			this:SetCheckboxTemplate(true)
 		end
 	end
 	for i = 1, #SystemFrameList18 do
-		local odropdown = _G[SystemFrameList18[i]]
-		if odropdown then
-			MOD:ApplyDropdownStyle(odropdown,165)
+		local this = _G[SystemFrameList18[i]]
+		if(this) then
+			MOD:ApplyDropdownStyle(this,165)
 			DropDownList1:SetFixedPanelTemplate("Default", true)
 		end
 	end
-	for _, button in pairs(SystemFrameList19) do
-		_G[button]:SetButtonTemplate()
+	for i = 1, #SystemFrameList19 do
+		local this = _G[SystemFrameList19[i]]
+		if(this) then
+			this:SetButtonTemplate()
+		end
 	end
 	AudioOptionsVoicePanelChatMode1KeyBindingButton:ClearAllPoints()
 	AudioOptionsVoicePanelChatMode1KeyBindingButton:Point("CENTER", AudioOptionsVoicePanelBinding, "CENTER", 0, -10)
 	CompactUnitFrameProfilesRaidStylePartyFrames:SetCheckboxTemplate(true)
 	CompactUnitFrameProfilesGeneralOptionsFrameResetPositionButton:SetButtonTemplate()
 	for i = 1, #SystemFrameList20 do
-		local icheckbox = _G["CompactUnitFrameProfilesGeneralOptionsFrame"..SystemFrameList20[i]]
-		if icheckbox then
-			icheckbox:SetCheckboxTemplate(true)
-			icheckbox:SetFrameLevel(40)
+		local this = _G["CompactUnitFrameProfilesGeneralOptionsFrame"..SystemFrameList20[i]]
+		if(this) then
+			this:SetCheckboxTemplate(true)
+			this:SetFrameLevel(40)
 		end
 	end	
 	Graphics_RightQuality:MUNG()
-	for _, slider in pairs(SystemFrameList21) do
-		MOD:ApplyScrollbarStyle(_G[slider])
+	for i = 1, #SystemFrameList21 do
+		local this = _G[SystemFrameList21[i]]
+		if(this) then
+			MOD:ApplyScrollbarStyle(this)
+		end
 	end
 	MacOptionsFrame:Formula409()
 	MacOptionsFrame:SetFixedPanelTemplate()
@@ -924,8 +960,10 @@ local function SystemPanelQue()
 	MOD:ApplyDropdownStyle(MacOptionsFrameCodecDropDown)
 	MOD:ApplyScrollbarStyle(MacOptionsFrameQualitySlider)
 	for i = 1, 11 do
-		local b = _G["MacOptionsFrameCheckButton"..i]
-		b:SetCheckboxTemplate(true)
+		local this = _G["MacOptionsFrameCheckButton"..i]
+		if(this) then
+			this:SetCheckboxTemplate(true)
+		end
 	end
 	MacOptionsButtonKeybindings:ClearAllPoints()
 	MacOptionsButtonKeybindings:SetPoint("LEFT", MacOptionsFrameDefaults, "RIGHT", 2, 0)

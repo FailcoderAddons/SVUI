@@ -41,7 +41,7 @@ local tsort, tconcat = table.sort, table.concat;
 CONSTANTS
 ##########################################################
 ]]--
-SVUI_LOCALE = {}
+SVUI_LIB, SVUI_LOCALE = {}, {}
 BINDING_HEADER_SVUI = GetAddOnMetadata(..., "Title");
 SLASH_RELOADUI1="/rl"
 SLASH_RELOADUI2="/reloadui"
@@ -71,6 +71,25 @@ function enforce(condition, ...)
    end
 end
 local assert = enforce;
+--[[ 
+########################################################## 
+OBJECT CONSTRUCTOR GLOBAL
+##########################################################
+]]--
+local rootstring = function(self) return self.name end
+
+function SVUI_LIB:SetObject(globalName)
+    local r = {}
+    r.name = globalName
+    local mt = {}
+    local old = getmetatable(r)
+    if old then
+        for k, v in pairs(old) do mt[k] = v end
+    end
+    mt.__tostring = rootstring
+    setmetatable(r, mt)
+    return r
+end
 --[[ 
 ########################################################## 
 LOCALIZATION GLOBAL

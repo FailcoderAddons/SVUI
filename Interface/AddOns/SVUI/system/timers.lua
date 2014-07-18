@@ -239,6 +239,6 @@ local Cooldown_OnLoad = function(self, start, duration, elapsed)
 end;
 
 function SuperVillain:AddCD(cooldown)
-	if not SuperVillain.db.system.cooldown then return end;
-	hooksecurefunc(cooldown,"SetCooldown",Cooldown_OnLoad)
+	if not SuperVillain.db.system.cooldown then return end
+	hooksecurefunc(cooldown, "SetCooldown", Cooldown_OnLoad)
 end;

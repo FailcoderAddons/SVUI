@@ -271,7 +271,7 @@ local function MakeSlots(id)
 	slot.count = slot.iconFrame:CreateFontString(nil, "OVERLAY")
 	slot.count:SetJustifyH("RIGHT")
 	slot.count:Point("BOTTOMRIGHT", slot.iconFrame, -2, 2)
-	slot.count:SetFontTemplate(SuperVillain.Media.font.roboto, nil, "OUTLINE")
+	slot.count:SetFont(SuperVillain.Shared:Fetch("font", "Roboto"), 12, "OUTLINE")
 	slot.count:SetText(1)
 
 	slot.name = slot:CreateFontString(nil, "OVERLAY")
@@ -279,7 +279,7 @@ local function MakeSlots(id)
 	slot.name:SetPoint("LEFT", slot)
 	slot.name:SetPoint("RIGHT", slot.icon, "LEFT")
 	slot.name:SetNonSpaceWrap(true)
-	slot.name:SetFontTemplate(SuperVillain.Media.font.roboto, nil, "OUTLINE")
+	slot.name:SetFont(SuperVillain.Shared:Fetch("font", "Roboto"), 12, "OUTLINE")
 
 	slot.drop = slot:CreateTexture(nil, "ARTWORK")
 	slot.drop:SetTexture("Interface\\QuestFrame\\UI-QuestLogTitleHighlight")
@@ -315,7 +315,7 @@ local function CreateRollButton(rollFrame, type, locale, anchor)
 	rollButton:SetScript("OnClick", DoDaRoll)
 	rollButton:SetMotionScriptsWhileDisabled(true)
 	local text = rollButton:CreateFontString(nil, nil)
-	text:SetFontTemplate(nil, nil, "OUTLINE")
+	text:SetFont(SuperVillain.Shared:Fetch("font", "Roboto"),14,"OUTLINE")
 	text:Point("CENTER", 0, ((type == 2 and 1) or (type == 0 and -1.2) or 0))
 	return rollButton, text 
 end 
@@ -369,16 +369,16 @@ local function CreateRollFrame()
 	rollFrame.need,rollFrame.greed,rollFrame.pass,rollFrame.disenchant = needText,greedText,passText,deText;
 	rollFrame.bindText = rollFrame:CreateFontString()
 	rollFrame.bindText:Point("LEFT",passButton,"RIGHT",3,1)
-	rollFrame.bindText:SetFontTemplate(nil,nil,"OUTLINE")
+	rollFrame.bindText:SetFont(SuperVillain.Shared:Fetch("font", "SVUI Number Font"),14,"OUTLINE")
 	rollFrame.lootText = rollFrame:CreateFontString(nil,"ARTWORK")
-	rollFrame.lootText:SetFontTemplate(nil,nil,"OUTLINE")
+	rollFrame.lootText:SetFont(SuperVillain.Shared:Fetch("font", "SVUI Number Font"),14,"OUTLINE")
 	rollFrame.lootText:Point("LEFT",rollFrame.bindText,"RIGHT",0,0)
 	rollFrame.lootText:Point("RIGHT",rollFrame,"RIGHT",-5,0)
 	rollFrame.lootText:Size(200,10)
 	rollFrame.lootText:SetJustifyH("LEFT")
 
 	rollFrame.yourRoll = rollFrame:CreateFontString(nil,"ARTWORK")
-	rollFrame.yourRoll:SetFontTemplate(SuperVillain.Media.font.numbers,18,"OUTLINE")
+	rollFrame.yourRoll:SetFont(SuperVillain.Shared:Fetch("font", "SVUI Number Font"),18,"OUTLINE")
 	rollFrame.yourRoll:Size(22,22)
 	rollFrame.yourRoll:Point("LEFT",rollFrame,"RIGHT",5,0)
 	rollFrame.yourRoll:SetJustifyH("CENTER")
@@ -621,7 +621,7 @@ end
 local OverrideLootFrame = function(self)
 	LootFrame:UnregisterAllEvents();
 	SVUI_LootFrame:SetFixedPanelTemplate('Transparent');
-	SVUI_LootFrame.title:SetFontTemplate(nil,nil,'OUTLINE');
+	SVUI_LootFrame.title:SetFont(SuperVillain.Shared:Fetch("font", "SVUI Number Font"),18,"OUTLINE")
 	SuperVillain:SetSVMovable(SVUI_LootFrameHolder, "SVUI_LootFrame_MOVE", L["Loot Frame"]);
 	tinsert(UISpecialFrames, "SVUI_LootFrame");
 

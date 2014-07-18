@@ -18,11 +18,11 @@ local LibAB = LibStub("LibActionButton-1.0");
 local NUM_ACTIONBAR_BUTTONS = NUM_ACTIONBAR_BUTTONS
 local pointSets = {
   {"BOTTOM","SVUIParent","BOTTOM",0,28},
-  {"BOTTOM","SVUI_ActionBar1","TOP",0,2},
-  {"BOTTOMLEFT","SVUI_ActionBar1","BOTTOMRIGHT",2,0},
-  {"RIGHT","SVUIParent","RIGHT",-2,0},
-  {"BOTTOMRIGHT","SVUI_ActionBar1","BOTTOMLEFT",2,0},
-  {"BOTTOM","SVUI_ActionBar2","TOP",0,2},
+  {"BOTTOM","SVUI_ActionBar1","TOP",0,4},
+  {"BOTTOMLEFT","SVUI_ActionBar1","BOTTOMRIGHT",4,0},
+  {"RIGHT","SVUIParent","RIGHT",-4,0},
+  {"BOTTOMRIGHT","SVUI_ActionBar1","BOTTOMLEFT",-4,0},
+  {"BOTTOM","SVUI_ActionBar2","TOP",0,4},
 };
 --[[ 
 ########################################################## 

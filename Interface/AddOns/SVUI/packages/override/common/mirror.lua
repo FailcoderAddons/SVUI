@@ -95,35 +95,11 @@ local function MirrorBarRegistry(barType)
 		return RegisteredMirrorBars[barType]
 	end;
 	local bar = CreateFrame('StatusBar', nil, SuperVillain.UIParent)
-	bar:SetFixedPanelTemplate("Inset")
+	bar:SetPanelTemplate("Bar", false, 3, 3, 3)
 	bar:SetScript("OnUpdate", MirrorBar_OnUpdate)
 	local r, g, b = unpack(mirrorTypeColor[barType])
-	local bg = bar:CreateTexture(nil, 'BACKGROUND')
-	bg:SetAllPoints(bar)
-	bg:SetTexture([[Interface\BUTTONS\WHITE8X8]])
-	bg:SetVertexColor(r, g, b)
-	bg:SetAlpha(0.2)
-	local border = CreateFrame("Frame", nil, bar)
-	border:WrapOuter(bar,2,2)
-	border:SetFrameLevel(0)
-	border:SetBackdrop({
-        bgFile = [[Interface\BUTTONS\WHITE8X8]], 
-        edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
-        tile = false, 
-        tileSize = 0, 
-        edgeSize = 1, 
-        insets = 
-        {
-            left = 0, 
-            right = 0, 
-            top = 0, 
-            bottom = 0, 
-        }, 
-    })
-    border:SetBackdropColor(0,0,0)
-    border:SetBackdropBorderColor(0,0,0)
 	bar.text = bar:CreateFontString(nil, 'OVERLAY')
-	bar.text:SetFontTemplate(nil, nil, 'OUTLINE')
+	bar.text:SetFontTemplate(SuperVillain.Media.font.roboto, 12, 'OUTLINE')
 	bar.text:SetJustifyH('CENTER')
 	bar.text:SetTextColor(1, 1, 1)
 	bar.text:SetPoint('LEFT', bar)
@@ -147,20 +123,12 @@ local function SetTimerStyle(bar)
 		if child:GetObjectType() == "Texture"then
 			child:SetTexture(nil)
 		elseif child:GetObjectType() == "FontString" then 
-			child:SetFontTemplate(nil, 12, 'OUTLINE')
+			child:SetFontTemplate(SuperVillain.Media.font.roboto, 12, 'OUTLINE')
 		end 
 	end;
 	bar:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]])
-	bar:SetStatusBarColor(unpack(SuperVillain.Media.color.highlight))
-	local tempBG = CreateFrame("Frame", nil, bar)
-	tempBG:WrapOuter(bar)
-	if (bar:GetFrameLevel() - 1)  >= 0 then 
-		tempBG:SetFrameLevel(bar:GetFrameLevel() - 1)
-	else 
-		tempBG:SetFrameLevel(0)
-	end;
-	tempBG:SetFixedPanelTemplate("Transparent")
-	tempBG:SetAlpha(1)
+	bar:SetStatusBarColor(0.37, 0.92, 0.08)
+	bar:SetPanelTemplate("Bar", false, 3, 3, 3)
 end;
 --[[ 
 ########################################################## 

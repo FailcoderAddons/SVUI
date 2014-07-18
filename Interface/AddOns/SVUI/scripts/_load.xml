@@ -8,4 +8,5 @@
 	<Script file='totems.lua'/>
 	<Script file='raid.lua'/>
 	<Script file='reactions.lua'/>
+	<!-- <Script file='pvp.lua'/> -->
 </Ui>

@@ -198,7 +198,6 @@ local DraggableFrames = {
 	"ItemUpgradeFrame",
 	"KeyBindingFrame",
 	"LFGDungeonReadyPopup",
-	"LossOfControlFrame",
 	"MacOptionsFrame",
 	"MacroFrame",
 	"MailFrame",
@@ -228,7 +227,9 @@ local DraggableFrames = {
 	"VoidStorageFrame",
 	--"WorldStateAlwaysUpFrame"
 };
-
+-- local MentaloUIFrames = {
+-- 	"ArcheologyDigsiteProgressBar",
+-- };
 local theHand = CreateFrame("Frame", "SVUI_HandOfMentalo", SuperVillain.UIParent)
 theHand:SetFrameStrata("DIALOG")
 theHand:SetFrameLevel(99)
@@ -686,31 +687,34 @@ function SuperVillain:LoadMovables()
 	theHand.energy = theHand:CreateTexture(nil, "OVERLAY")
 	theHand.energy:SetAllPoints(theHand)
 	theHand.energy:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Doodads\MENTALO-ENERGY]])
-	SuperVillain.Animate:Orbit(theHand.energy, 10)
+	self.Animate:Orbit(theHand.energy, 10)
 	theHand.flash = theHand.energy.anim;
 	theHand.energy:Hide()
 	theHand.elapsedTime = 0;
 	theHand.flash:Stop()
 	theHand:Hide()
 
-	for name, _ in pairs(SuperVillain.MentaloFrames)do 
+	for name, _ in pairs(self.MentaloFrames)do 
 		local parent, text, overlay, snapoffset, postdrag;
-		for key, value in pairs(SuperVillain.MentaloFrames[name])do 
-			if key == "parent"then 
+		for key, value in pairs(self.MentaloFrames[name])do 
+			if(key == "parent") then 
 				parent = value 
-			elseif key == "text"then 
+			elseif(key == "text") then 
 				text = value 
-			elseif key == "overlay"then 
+			elseif(key == "overlay") then 
 				overlay = value 
-			elseif key == "snapoffset"then 
+			elseif(key == "snapoffset") then 
 				snapoffset = value 
-			elseif key == "postdrag"then 
+			elseif(key == "postdrag") then 
 				postdrag = value 
 			end 
 		end 
-		SuperVillain:SetMentaloAlphas()
+		self:SetMentaloAlphas()
 		SetSVMovable(parent, name, text, overlay, snapoffset, postdrag)
 	end 
+	-- for _, name in pairs(MentaloUIFrames) do
+	-- 	self:SetSVMovable(_G[name], name .. "_MOVE", name)
+	-- end
 end 
 
 function SuperVillain:UseMentalo(isConfigMode, configType)
@@ -777,7 +781,7 @@ function SuperVillain:MentaloFocusUpdate(frame)
 	SVUI_MentaloPrecisionSetY:SetText(w)
 	SVUI_MentaloPrecisionSetX.CurrentValue = v;
 	SVUI_MentaloPrecisionSetY.CurrentValue = w;
-	SVUI_MentaloPrecision.Title:SetText(frame.textSting)
+	SVUI_MentaloPrecision.Title:SetText(frame.textString)
 end 
 
 function SuperVillain:MovableFocused()

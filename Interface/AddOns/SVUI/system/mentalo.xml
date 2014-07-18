@@ -25,7 +25,7 @@
     </Frame>
 
     <Frame name="SVUI_MentaloPrecision" inherits="SVUI_PanelTemplate" hidden="true" frameStrata="DIALOG">
-        <Size x="200" y="110"/>
+        <Size x="130" y="60"/>
         <Anchors>
             <Anchor point="CENTER"/>
         </Anchors>
@@ -33,9 +33,25 @@
             <Layer level="ARTWORK">
                 <FontString parentKey="Title" inherits="GameFontNormal" text="Focused Position">
                     <Anchors>
-                        <Anchor point="TOPLEFT" relativeTo="$parentTitleBG"/>
-                        <Anchor point="BOTTOMRIGHT" relativeTo="$parentTitleBG"/>
+                        <Anchor point="TOPLEFT" relativeTo="$parentTitleBG" relativePoint="TOPLEFT"/>
+                        <Anchor point="BOTTOMRIGHT" relativeTo="$parentTitleBG" relativePoint="BOTTOMRIGHT"/>
                     </Anchors>
+                </FontString>
+                <FontString inherits="NumberFont_Outline_Huge" text="X">
+                    <Anchors>
+                        <Anchor point="RIGHT" relativeTo="$parent" relativePoint="LEFT">
+                            <Offset x="-3" y="0"/>
+                        </Anchor>
+                    </Anchors>
+                    <Color r="1" g="0.5" b="0" a="1"/>
+                </FontString>
+                <FontString inherits="NumberFont_Outline_Huge" text="Y">
+                    <Anchors>
+                        <Anchor point="LEFT" relativeTo="$parent" relativePoint="RIGHT">
+                            <Offset x="3" y="0"/>
+                        </Anchor>
+                    </Anchors>
+                    <Color r="1" g="0.5" b="0" a="1"/>
                 </FontString>
             </Layer>
         </Layers>
@@ -44,19 +60,10 @@
                 <Size x="50" y="17"/>
                 <Anchors>
                     <Anchor point="BOTTOMRIGHT" relativeTo="$parentBG" relativePoint="CENTER">
-                        <Offset x="-8" y="8"/>
+                        <Offset x="-12" y="3"/>
                     </Anchor>
                 </Anchors>
-                <Layers>
-                    <Layer level="ARTWORK">
-                        <FontString inherits="GameFontNormal" text="Horizontal">
-                            <Size x="90" y="17"/>
-                            <Anchors>
-                                <Anchor point="BOTTOM" relativeTo="$parent" relativePoint="TOP"/>
-                            </Anchors>
-                        </FontString>
-                    </Layer>
-                </Layers>
+
                 <Scripts>
                     <OnEscapePressed function="SVUI_MentaloPrecisionInput_EscapePressed"/>
                     <OnEnterPressed function="SVUI_MentaloPrecisionInput_EnterPressed"/>
@@ -65,49 +72,28 @@
                         SVUI_MentaloPrecisionInput_OnShow(self)
                     </OnShow>
                 </Scripts>
-                <FontString inherits="GameFontHighlightSmall"/>
             </EditBox>
+
             <EditBox name="$parentSetY" inherits="InputBoxTemplate" autoFocus="false">
                 <Size x="50" y="17"/>
                 <Anchors>
                     <Anchor point="BOTTOMLEFT" relativeTo="$parentBG" relativePoint="CENTER">
-                        <Offset x="8" y="8"/>
+                        <Offset x="12" y="3"/>
                     </Anchor>
                 </Anchors>
-                <Layers>
-                    <Layer level="ARTWORK">
-                        <FontString inherits="GameFontNormal" text="Vertical">
-                            <Size x="90" y="17"/>
-                            <Anchors>
-                                <Anchor point="BOTTOM" relativeTo="$parent" relativePoint="TOP"/>
-                            </Anchors>
-                        </FontString>
-                    </Layer>
-                </Layers>
                 <Scripts>
                     <OnEscapePressed function="SVUI_MentaloPrecisionInput_EscapePressed"/>
                     <OnEnterPressed function="SVUI_MentaloPrecisionInput_EnterPressed"/>
                     <OnEditFocusLost function="SVUI_MentaloPrecisionInput_FocusLost"/>
                     <OnShow function="SVUI_MentaloPrecisionInput_OnShow"/>
                 </Scripts>
-                <FontString inherits="GameFontHighlightSmall"/>
             </EditBox>
-            <!-- <Button name="$parentResetButton" inherits="UIPanelButtonTemplate" text="RESET">
-                <Size x="96" y="24"/>
-                <Anchors>
-                    <Anchor point="TOP" relativeTo="$parentBG" relativePoint="CENTER">
-                        <Offset x="0" y="2"/>
-                    </Anchor>
-                </Anchors>
-                <Scripts>
-                    <OnClick function="SVUI_MentaloPrecisionResetButton_OnClick"/>
-                </Scripts>
-            </Button> -->
 
             <Button name="$parentUpButton" inherits="UIPanelSquareButton">
+                <Size x="25" y="20"/>
                 <Anchors>
-                    <Anchor point="BOTTOMLEFT" relativeTo="$parentBG" relativePoint="BOTTOM">
-                        <Offset x="6" y="4"/>
+                    <Anchor point="TOPLEFT" relativeTo="$parentBG" relativePoint="CENTER">
+                        <Offset x="10" y="-3"/>
                     </Anchor>
                 </Anchors>
                 <Scripts>
@@ -124,9 +110,10 @@
             </Button>
 
             <Button name="$parentDownButton" inherits="UIPanelSquareButton">
+                <Size x="25" y="20"/>
                 <Anchors>
                     <Anchor point="LEFT" relativeTo="$parentUpButton" relativePoint="RIGHT">
-                        <Offset x="6" y="0"/>
+                        <Offset x="2" y="0"/>
                     </Anchor>
                 </Anchors>
                 <Scripts>
@@ -143,9 +130,10 @@
             </Button>
 
             <Button name="$parentRightButton" inherits="UIPanelSquareButton">
+                <Size x="25" y="20"/>
                 <Anchors>
                     <Anchor point="RIGHT" relativeTo="$parentUpButton" relativePoint="LEFT">
-                        <Offset x="-6" y="0"/>
+                        <Offset x="-20" y="0"/>
                     </Anchor>
                 </Anchors>
                 <Scripts>
@@ -162,9 +150,10 @@
             </Button>
 
             <Button name="$parentLeftButton" inherits="UIPanelSquareButton">
+                <Size x="25" y="20"/>
                 <Anchors>
                     <Anchor point="RIGHT" relativeTo="$parentRightButton" relativePoint="LEFT">
-                        <Offset x="-6" y="0"/>
+                        <Offset x="-2" y="0"/>
                     </Anchor>
                 </Anchors>
                 <Scripts>
@@ -205,7 +194,7 @@
                 </Texture>
             </Layer>
             <Layer level="ARTWORK">
-                <FontString parentKey="Title" inherits="GameFontNormal" justifyH="LEFT" text="Mentalo The Frame Mover!">
+                <FontString parentKey="Title" inherits="SystemFont_Small" justifyH="LEFT" text="Mentalo The Frame Mover!">
                     <Anchors>
                         <Anchor point="TOPLEFT" relativeTo="$parentTitleBG">
                             <Offset x="4" y="0"/>
@@ -213,6 +202,17 @@
                         <Anchor point="BOTTOMRIGHT" relativeTo="$parentTitleBG"/>
                     </Anchors>
                     <Color r="1" g="1" b="1" a="1"/>
+                </FontString>
+                <FontString parentKey="SubTitle" inherits="FriendsFont_Small" justifyH="CENTER" text="Right-click frames to move with precision.">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeTo="$parentTitleBG" relativePoint="BOTTOMLEFT">
+                            <Offset x="4" y="-4"/>
+                        </Anchor>
+                        <Anchor point="TOPRIGHT" relativeTo="$parentTitleBG" relativePoint="BOTTOMRIGHT">
+                            <Offset x="-4" y="-4"/>
+                        </Anchor>
+                    </Anchors>
+                    <Color r="1" g="1" b="0" a="0.8"/>
                 </FontString>
                 <Texture parentKey="Avatar" file="Interface\AddOns\SVUI\assets\artwork\Doodads\MENTALO-OFF">
                     <Size x="132" y="132"/>

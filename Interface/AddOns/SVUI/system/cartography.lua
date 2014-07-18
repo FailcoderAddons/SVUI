@@ -38,8 +38,7 @@ local band = bit.band;
 GET ADDON DATA
 ##########################################################
 ]]--
-local SuperVillain, L = unpack(select(2, ...));
-local LSM = LibStub("LibSharedMedia-3.0")
+local SuperVillain, L = unpack(select(2, ...))
 --[[ 
 ########################################################## 
 MEASURING UTILITY FUNCTIONS (from Astrolabe  by: Esamynn)
@@ -293,11 +292,26 @@ do
         local dist, xDelta, yDelta;
         if(map1 == map2 and floor1 == floor2) then
             local chunk = _mapdata[map1];
+            local tmp = chunk
             if(floor1 ~= 0) then
-                chunk = rawget(chunk, floor1) or _dungeons[chunk.origin][floor1];
+                tmp = rawget(chunk, floor1)
             end
-            xDelta = (x2 - x1) * chunk.width;
-            yDelta = (y2 - y1) * chunk.height;
+            local w,h = 1,1
+            if(not tmp) then
+                if(_dungeons[chunk.origin] and _dungeons[chunk.origin][floor1]) then
+                    chunk = _dungeons[chunk.origin][floor1]
+                    w = chunk.width
+                    h = chunk.height
+                else
+                    w = 1
+                    h = 1
+                end
+            else
+                w = chunk.width
+                h = chunk.height
+            end
+            xDelta = (x2 - x1) * w;
+            yDelta = (y2 - y1) * h;
         else
             local map1 = _mapdata[map1];
             local map2 = _mapdata[map2];

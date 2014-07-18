@@ -96,7 +96,7 @@ local function UpdateMountCheckboxes(button, index)
 	end
 end
 
-function UpdateMountCache()
+local function UpdateMountCache()
 	if(not MountJournal or not MountJournal.cachedMounts) then return end
 	local num = GetNumCompanions("MOUNT")
 	for index = 1, num, 1 do
@@ -124,7 +124,7 @@ function UpdateMountCache()
 	end
 end
 
-function Update_MountCheckButtons()
+local function Update_MountCheckButtons()
 	if(not MountJournal or not MountJournal.cachedMounts) then return end
 	local count = #MountJournal.cachedMounts
 	if(type(count) ~= "number") then return end;
@@ -141,7 +141,7 @@ function Update_MountCheckButtons()
 	end
 end
 
-function ProxyUpdate_Mounts(self, event, ...)
+local ProxyUpdate_Mounts = function(self, event, ...)
 	if(event == "COMPANION_LEARNED" or event == "COMPANION_UNLEARNED") then
 		UpdateMountCache()
 	end
@@ -337,7 +337,7 @@ end
 SLASH FUNCTION
 ##########################################################
 ]]--
-function LetsRide()
+function SVUILetsRide()
 	local checkList = SVUI_Cache.Mounts.types
 	local letsFly, letsSwim, letsSeahorse, vjZone, IbelieveIcantFly
 	local maxMounts = GetNumCompanions("MOUNT")
@@ -376,6 +376,12 @@ function LetsRide()
 			return
 		end
 	end
+	if(letsSeahorse) then
+		for index = 1, maxMounts, 1 do
+			local _, info, id = GetCompanionInfo("MOUNT", index)
+			if(letsSeahorse and id == 75207) then CallCompanion("MOUNT", index) end
+		end
+	end
 	if(letsFly and not letsSwim) then
 		if(checkList["FLYING"]) then
 			CallCompanion("MOUNT", checkList["FLYING"])
@@ -387,7 +393,7 @@ function LetsRide()
 				return
 			end
 		end
-	elseif(not letsFly and not letsSwim and not letsSeahorse) then
+	elseif(not letsFly and not letsSwim) then
 		if(checkList["GROUND"]) then
 			CallCompanion("MOUNT", checkList["GROUND"])
 			return
@@ -396,23 +402,14 @@ function LetsRide()
 		if(checkList["SWIMMING"]) then
 			CallCompanion("MOUNT", checkList["SWIMMING"])
 			return
-		else
-			if(letsFly and checkList["FLYING"]) then
-				SuperVillain:AddonMessage("No swimming mount selected! Using your flying mount.")
-				CallCompanion("MOUNT", checkList["FLYING"])
-				return
-			end
+		elseif(letsFly and checkList["FLYING"]) then
+			SuperVillain:AddonMessage("No swimming mount selected! Using your flying mount.")
+			CallCompanion("MOUNT", checkList["FLYING"])
+			return
 		end
 	elseif(checkList["GROUND"]) then
 		CallCompanion("MOUNT", checkList["GROUND"])
 		return
-	end
-	if(letsSeahorse and checkList["SWIMMING"]) then
-		local _, info, id, _, active, flag = GetCompanionInfo("MOUNT", checkList["SWIMMING"])
-		if(id == 75207) then
-			CallCompanion("MOUNT", checkList["SWIMMING"])
-			return
-		end
 	end
 	if(not checkList["GROUND"] and not checkList["FLYING"] and not checkList["SWIMMING"]) then
 		CallCompanion("MOUNT", random(1, maxMounts))

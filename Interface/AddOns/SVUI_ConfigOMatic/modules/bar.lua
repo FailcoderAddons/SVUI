@@ -396,7 +396,7 @@ local function BarConfigLoader()
 				}
 			},
 			customGroup = {
-				name = L["Stateful Options"],
+				name = L["Visibility Options"],
 				type = "group",
 				order = 6,
 				guiInline = true,
@@ -432,7 +432,7 @@ local function BarConfigLoader()
 						get = function(e)return SuperVillain.db.SVBar["Pet"].customVisibility end,
 						set = function(e,f)
 							SuperVillain.db.SVBar["Pet"].customVisibility = f;
-							MOD.db["Bar"..d].customVisibility = f;
+							MOD.db["Pet"].customVisibility = f;
 							MOD:RefreshBar("Pet")
 						end,
 						disabled = function()return not SuperVillain.db.SVBar["Pet"].useCustomVisibility end,
@@ -547,14 +547,14 @@ local function BarConfigLoader()
 				}
 			},
 			customGroup = {
-				name = L["Stateful Options"],
+				name = L["Visibility Options"],
 				type = "group",
 				order = 6,
 				guiInline = true,
 				disabled = function()return not SuperVillain.db.SVBar["Stance"].enable end,
 				args = {
 					style = {
-						order = 13,
+						order = 1,
 						type = "select",
 						name = L["Style"],
 						desc = L["This setting will be updated upon changing stances."],
@@ -562,7 +562,53 @@ local function BarConfigLoader()
 							["darkenInactive"] = L["Darken Inactive"],
 							["classic"] = L["Classic"]
 						}
-					}
+					},
+					spacer1 = {
+						order = 2,
+						type = "description",
+						name = "",
+					},
+					spacer2 = {
+						order = 3,
+						type = "description",
+						name = "",
+					},
+					useCustomVisibility = {
+						order = 4,
+						type = "toggle",
+						name = L["Enable"],
+						desc = L["Allow the use of custom paging for this bar"],
+						get = function()return SuperVillain.db.SVBar["Stance"].useCustomVisibility end,
+						set = function(e,f)
+							SuperVillain.db.SVBar["Stance"].useCustomVisibility = f;
+							MOD.db["Stance"].useCustomVisibility = f;
+							MOD:RefreshBar("Stance")
+						end
+					},
+					resetVisibility = {
+						order = 5,
+						type = "execute",
+						name = L["Restore Defaults"],
+						desc = L["Restore default visibility attributes for this bar"],
+						func = function()
+							SuperVillain.db:SetDefault("SVBar", "Stance", "customVisibility")
+							MOD:RefreshBar("Stance")
+						end
+					},
+					customVisibility = {
+						order = 6,
+						type = "input",
+						width = "full",
+						name = L["Visibility"],
+						desc = L["|cffFF0000ADVANCED:|r Set the visibility attributes for this bar"],
+						get = function(e)return SuperVillain.db.SVBar["Stance"].customVisibility end,
+						set = function(e,f)
+							SuperVillain.db.SVBar["Stance"].customVisibility = f;
+							MOD.db["Stance"].customVisibility = f;
+							MOD:RefreshBar("Stance")
+						end,
+						disabled = function()return not SuperVillain.db.SVBar["Stance"].useCustomVisibility end,
+					},
 				}
 			}
 		}
@@ -709,9 +755,39 @@ SuperVillain.Options.args.SVBar = {
 								["MONOCHROMEOUTLINE"] = "MONOCROMEOUTLINE", 
 								["THICKOUTLINE"] = "THICKOUTLINE"
 							}
-						}, 
-						cooldownSize = {
+						},
+						countFont = {
+							type = "select", 
+							width = "full", 
+							dialogControl = "LSM30_Font", 
 							order = 4, 
+							name = L["Count Font"], 
+							values = AceGUIWidgetLSMlists.font
+						}, 
+						countFontSize = {
+							order = 5, 
+							width = "full", 
+							name = L["Count Font Size"], 
+							type = "range", 
+							min = 6, 
+							max = 22, 
+							step = 1
+						}, 
+						countFontOutline = {
+							order = 6, 
+							width = "full", 
+							name = L["Count Font Outline"], 
+							desc = L["Set the font outline."], 
+							type = "select", 
+							values = {
+								["NONE"] = L["None"], 
+								["OUTLINE"] = "OUTLINE", 
+								["MONOCHROMEOUTLINE"] = "MONOCROMEOUTLINE", 
+								["THICKOUTLINE"] = "THICKOUTLINE"
+							}
+						},
+						cooldownSize = {
+							order = 7, 
 							width = "full", 
 							name = L["Cooldown Font Size"], 
 							type = "range", 

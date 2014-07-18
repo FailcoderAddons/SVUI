@@ -87,11 +87,24 @@ end
 local Vehicle_OnSetPoint = function(self,_,parent)
 	if(parent == "MinimapCluster" or parent == _G["MinimapCluster"]) then 
 		VehicleSeatIndicator:ClearAllPoints()
-		if VehicleSeat_MOVE then 
-			VehicleSeatIndicator:Point("TOPLEFT",VehicleSeat_MOVE,"TOPLEFT",0,0)
-		else 
-			VehicleSeatIndicator:Point("TOPLEFT",SuperVillain.UIParent,"TOPLEFT",22,-45)
-			SuperVillain:SetSVMovable(VehicleSeatIndicator,"VehicleSeat_MOVE",L["Vehicle Seat Frame"])
+		if SVUI_VehicleFrame_MOVE then
+			VehicleSeatIndicator:Point("BOTTOM", SVUI_VehicleFrame_MOVE, "BOTTOM", 0, 0)
+		else
+			VehicleSeatIndicator:Point("TOPLEFT", SuperVillain.UIParent, "TOPLEFT", 22, -45)
+			SuperVillain:SetSVMovable(VehicleSeatIndicator, "SVUI_VehicleFrame_MOVE", L["Vehicle Seat Frame"])
+			
+			local exit = CreateFrame("Button", "SVUI_BailOut", SuperVillain.UIParent, "SecureHandlerClickTemplate")
+			exit:Size(40, 40)
+			exit:Point("TOPLEFT", SVUI_MinimapFrame, "BOTTOMLEFT", 0, -30)
+			exit:SetNormalTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Icons\\EXIT")
+			exit:SetPushedTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Icons\\EXIT")
+			exit:SetHighlightTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Icons\\EXIT")
+			exit:SetFixedPanelTemplate("Transparent")
+			exit:RegisterForClicks("AnyUp")
+			exit:SetScript("OnClick", VehicleExit)
+			RegisterStateDriver(exit, "visibility", "[vehicleui] show;hide")
+
+			SuperVillain:SetSVMovable(exit, "SVUI_BailOut_MOVE", L["Bail Out"])
 		end;
 		VehicleSeatIndicator:SetScale(0.8)
 	end 
@@ -124,7 +137,7 @@ function MOD:DisbandRaidGroup()
 	LeaveParty()
 end
 
-function MOD:ConstructThisPackage()
+function MOD:Load()
 	HelpOpenTicketButtonTutorial:MUNG()
 	TalentMicroButtonAlert:MUNG()
 	HelpPlate:MUNG()

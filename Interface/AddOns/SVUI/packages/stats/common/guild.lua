@@ -211,7 +211,7 @@ local function Guild_OnClick(self, button)
 		for i = 1, #GuildStatMembers do
 			info = GuildStatMembers[i]
 			if info[7] and info[1] ~= SuperVillain.name then 
-				local classc, levelc = CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS[info[9]], GetQuestDifficultyColor(info[3])
+				local classc, levelc = RAID_CLASS_COLORS[info[9]], GetQuestDifficultyColor(info[3])
 				if UnitInParty(info[1])or UnitInRaid(info[1]) then
 					grouped = "|cffaaaaaa*|r"
 				elseif not info[11] then 
@@ -291,7 +291,7 @@ local function Guild_OnEnter(self, _, ap)
 		else
 			zoneColor = {r=0.65,g=0.65,b=0.65} 
 		end;
-		classColor, questColor = CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS[member[9]], GetQuestDifficultyColor(member[3])
+		classColor, questColor = RAID_CLASS_COLORS[member[9]], GetQuestDifficultyColor(member[3])
 		if UnitInParty(member[1]) or UnitInRaid(member[1]) then
 			groupFormat = "|cffaaaaaa*|r"
 		else

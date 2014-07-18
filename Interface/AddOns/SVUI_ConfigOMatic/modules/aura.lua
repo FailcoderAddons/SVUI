@@ -162,8 +162,8 @@ SuperVillain.Options.args.SVAura = {
 	get = function(a)return SuperVillain.db.SVAura[a[#a]]end,
 	set = function(a,b)
 		MOD:ChangeDBVar(b,a[#a]);
-		MOD:UpdateHeader(SVUI_PlayerBuffs)
-		MOD:UpdateHeader(SVUI_PlayerDebuffs)
+		MOD:UpdateAuraHeader(SVUI_PlayerBuffs)
+		MOD:UpdateAuraHeader(SVUI_PlayerDebuffs)
 	end,
 	args = {
 		intro = {
@@ -271,7 +271,7 @@ SuperVillain.Options.args.SVAura = {
 					type = "group", 
 					name = L["Hyper Buffs"], 
 					get = function(b)return SuperVillain.db.SVAura.hyperBuffs[b[#b]]end,
-					set = function(a,b)MOD:ChangeDBVar(b,a[#a],"hyperBuffs");MOD:ToggleConsolidatedBuffs();MAP:UpdateThisPackage();MOD:UpdateHeader(SVUI_PlayerBuffs)end,
+					set = function(a,b)MOD:ChangeDBVar(b,a[#a],"hyperBuffs");MOD:ToggleConsolidatedBuffs();MAP:ReLoad();MOD:UpdateAuraHeader(SVUI_PlayerBuffs)end,
 					args = {
 						enable = {
 							order = 1, 
@@ -294,7 +294,7 @@ SuperVillain.Options.args.SVAura = {
 					type = "group", 
 					name = L["Buffs"], 
 					get = function(b)return SuperVillain.db.SVAura.buffs[b[#b]]end,
-					set = function(a,b)MOD:ChangeDBVar(b,a[#a],"buffs");MOD:UpdateHeader(SVUI_PlayerBuffs)end,
+					set = function(a,b)MOD:ChangeDBVar(b,a[#a],"buffs");MOD:UpdateAuraHeader(SVUI_PlayerBuffs)end,
 					args = auraOptionsTemplate
 				},
 				debuffs = {
@@ -302,7 +302,7 @@ SuperVillain.Options.args.SVAura = {
 					type = "group", 
 					name = L["Debuffs"], 
 					get = function(b)return SuperVillain.db.SVAura.debuffs[b[#b]]end,
-					set = function(a,b)MOD:ChangeDBVar(b,a[#a],"debuffs");MOD:UpdateHeader(SVUI_PlayerDebuffs)end,
+					set = function(a,b)MOD:ChangeDBVar(b,a[#a],"debuffs");MOD:UpdateAuraHeader(SVUI_PlayerDebuffs)end,
 					args = auraOptionsTemplate
 				}
 			}

@@ -440,8 +440,8 @@ local presets = {
 		["link"] = "SVUnit",
 		["default"] = {
 			["player"] = {
-				width = 235,
-				height = 70,
+				width = 215,
+				height = 60,
 				portrait = {
 					enable = true,
 					overlay = true,
@@ -449,8 +449,8 @@ local presets = {
 				}
 			},
 			["target"] = {
-				width = 235,
-				height = 70,
+				width = 215,
+				height = 60,
 				portrait = {
 					enable = true,
 					overlay = true,
@@ -492,7 +492,7 @@ local presets = {
 			},
 			["party"] = {
 				width = 75,
-				height = 70,
+				height = 60,
 				gridMode = false,
 				wrapXOffset = 9,
 				wrapYOffset = 13,
@@ -529,8 +529,8 @@ local presets = {
 		},
 		["super"] = {
 			["player"] = {
-				width = 235,
-				height = 70,
+				width = 215,
+				height = 60,
 				portrait = {
 					enable = true,
 					overlay = true,
@@ -538,8 +538,8 @@ local presets = {
 				}
 			},
 			["target"] = {
-				width = 235,
-				height = 70,
+				width = 215,
+				height = 60,
 				portrait = {
 					enable = true,
 					overlay = true,
@@ -581,7 +581,7 @@ local presets = {
 			},
 			["party"] = {
 				width = 75,
-				height = 70,
+				height = 60,
 				gridMode = false,
 				wrapXOffset = 9,
 				wrapYOffset = 13,
@@ -618,21 +618,23 @@ local presets = {
 		},
 		["simple"] = {
 			["player"] = {
-				width = 235,
-				height = 70,
+				width = 215,
+				height = 60,
 				portrait = {
 					enable = true,
 					overlay = false,
 					style = "2D",
+					width = 60, 
 				}
 			},
 			["target"] = {
-				width = 235,
-				height = 70,
+				width = 215,
+				height = 60,
 				portrait = {
 					enable = true,
 					overlay = false,
 					style = "2D",
+					width = 60,
 				}
 			},
 			["pet"] = {
@@ -642,6 +644,7 @@ local presets = {
 					enable = true,
 					overlay = false,
 					style = "2D",
+					width = 30,
 				},
 				name = {
 					position = "INNERLEFT"
@@ -654,6 +657,7 @@ local presets = {
 					enable = true,
 					overlay = false,
 					style = "2D",
+					width = 30,
 				},
 				name = {
 					position = "INNERLEFT"
@@ -666,6 +670,7 @@ local presets = {
 					enable = true,
 					overlay = false,
 					style = "2D",
+					width = 45,
 				}
 			},
 			["party"] = {
@@ -678,6 +683,7 @@ local presets = {
 					enable = true,
 					overlay = false,
 					style = "2D",
+					width = 35,
 				},
 				name = {
 					position = "INNERRIGHT"
@@ -707,14 +713,14 @@ local presets = {
 		},
 		["compact"] = {
 			["player"] = {
-				width = 235,
+				width = 215,
 				height = 50,
 				portrait = {
 					enable = false
 				}
 			},
 			["target"] = {
-				width = 235,
+				width = 215,
 				height = 50,
 				portrait = {
 					enable = false

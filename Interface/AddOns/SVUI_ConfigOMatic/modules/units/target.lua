@@ -30,7 +30,8 @@ GET ADDON DATA
 ##########################################################
 ]]--
 local SuperVillain, L = unpack(SVUI);
-local MOD = SuperVillain.Registry:Expose('SVUnit');
+local MOD = SuperVillain.Registry:Expose('SVUnit')
+if(not MOD) then return end;
 local _, ns = ...
 --[[
 ##################################################################################################
@@ -43,7 +44,7 @@ SuperVillain.Options.args.SVUnit.args.target={
 	order=6,
 	childGroups="tab",
 	get=function(l)return SuperVillain.db.SVUnit['target'][l[#l]]end,
-	set=function(l,m)MOD:ChangeDBVar(m, l[#l], "target");MOD:SetBasicFrame('target')end,
+	set=function(l,m)MOD:ChangeDBVar(m, l[#l], "target");MOD:SetUnitFrame('target')end,
 	args={
 		enable={type='toggle',order=1,name=L['Enable']},
 		resetSettings={type='execute',order=2,name=L['Restore Defaults'],func=function(l,m)MOD:ResetUnitOptions('target')SuperVillain:ResetMovables('Target Frame')end},
@@ -68,7 +69,7 @@ SuperVillain.Options.args.SVUnit.args.target={
 									order = 1,
 									type = "execute",
 									name = L["Show Auras"],
-									func = function()local U = SVUI_Target;if U.forceShowAuras then U.forceShowAuras = nil else U.forceShowAuras = true end;MOD:SetBasicFrame("target")end
+									func = function()local U = SVUI_Target;if U.forceShowAuras then U.forceShowAuras = nil else U.forceShowAuras = true end;MOD:SetUnitFrame("target")end
 								},
 								smartAuraDisplay = {
 									type = "select",
@@ -93,7 +94,7 @@ SuperVillain.Options.args.SVUnit.args.target={
 									name = L["Text Toggle On NPC"],
 									desc = L["Power text will be hidden on NPC targets, in addition the name text will be repositioned to the power texts anchor point."],
 									get = function(l)return SuperVillain.db.SVUnit["target"]["power"].hideonnpc end,
-									set = function(l, m)SuperVillain.db.SVUnit["target"]["power"].hideonnpc = m;MOD:SetBasicFrame("target")end
+									set = function(l, m)SuperVillain.db.SVUnit["target"]["power"].hideonnpc = m;MOD:SetUnitFrame("target")end
 								},
 								threatEnabled = {
 									type = "toggle",
@@ -129,7 +130,7 @@ SuperVillain.Options.args.SVUnit.args.target={
 											SuperVillain.db.SVUnit["target"].castbar.width = m 
 										end;
 										MOD:ChangeDBVar(m, l[#l], "target");
-										MOD:SetBasicFrame("target")
+										MOD:SetUnitFrame("target")
 									end
 								},
 								height = {
@@ -150,7 +151,7 @@ SuperVillain.Options.args.SVUnit.args.target={
 					type = "group",
 					name = L["Combobar"],
 					get = function(l)return SuperVillain.db.SVUnit["target"]["combobar"][l[#l]]end,
-					set = function(l, m)MOD:ChangeDBVar(m, l[#l], "target", "combobar");MOD:SetBasicFrame("target")end,
+					set = function(l, m)MOD:ChangeDBVar(m, l[#l], "target", "combobar");MOD:SetUnitFrame("target")end,
 					args = {
 						enable = {
 							type = "toggle",
@@ -177,16 +178,16 @@ SuperVillain.Options.args.SVUnit.args.target={
 						}
 					}
 				},
-				misc = ns:SetMiscConfigGroup(false, MOD.SetBasicFrame, "target"),
-				health = ns:SetHealthConfigGroup(false, MOD.SetBasicFrame, "target"), 
-				power = ns:SetPowerConfigGroup(true, MOD.SetBasicFrame, "target"), 
-				name = ns:SetNameConfigGroup(MOD.SetBasicFrame, "target"), 
-				portrait = ns:SetPortraitConfigGroup(MOD.SetBasicFrame, "target"), 
-				buffs = ns:SetAuraConfigGroup(false, "buffs", false, MOD.SetBasicFrame, "target"), 
-				debuffs = ns:SetAuraConfigGroup(false, "debuffs", false, MOD.SetBasicFrame, "target"), 
-				castbar = ns:SetCastbarConfigGroup(MOD.SetBasicFrame, "target"), 
-				aurabar = ns:SetAurabarConfigGroup(false, MOD.SetBasicFrame, "target"), 
-				icons = ns:SetIconConfigGroup(MOD.SetBasicFrame, "target")
+				misc = ns:SetMiscConfigGroup(false, MOD.SetUnitFrame, "target"),
+				health = ns:SetHealthConfigGroup(false, MOD.SetUnitFrame, "target"), 
+				power = ns:SetPowerConfigGroup(true, MOD.SetUnitFrame, "target"), 
+				name = ns:SetNameConfigGroup(MOD.SetUnitFrame, "target"), 
+				portrait = ns:SetPortraitConfigGroup(MOD.SetUnitFrame, "target"), 
+				buffs = ns:SetAuraConfigGroup(false, "buffs", false, MOD.SetUnitFrame, "target"), 
+				debuffs = ns:SetAuraConfigGroup(false, "debuffs", false, MOD.SetUnitFrame, "target"), 
+				castbar = ns:SetCastbarConfigGroup(MOD.SetUnitFrame, "target"), 
+				aurabar = ns:SetAurabarConfigGroup(false, MOD.SetUnitFrame, "target"), 
+				icons = ns:SetIconConfigGroup(MOD.SetUnitFrame, "target")
 			}
 		}
 	}
@@ -202,7 +203,7 @@ SuperVillain.Options.args.SVUnit.args.targettarget={
 	order=7,
 	childGroups="tab",
 	get=function(l)return SuperVillain.db.SVUnit['targettarget'][l[#l]]end,
-	set=function(l,m)MOD:ChangeDBVar(m, l[#l], "targettarget");MOD:SetBasicFrame('targettarget')end,
+	set=function(l,m)MOD:ChangeDBVar(m, l[#l], "targettarget");MOD:SetUnitFrame('targettarget')end,
 	args={
 		enable={type='toggle',order=1,name=L['Enable']},
 		resetSettings={type='execute',order=2,name=L['Restore Defaults'],func=function(l,m)MOD:ResetUnitOptions('targettarget')SuperVillain:ResetMovables('TargetTarget Frame')end},
@@ -227,7 +228,7 @@ SuperVillain.Options.args.SVUnit.args.targettarget={
 									order = 1,
 									type = "execute",
 									name = L["Show Auras"],
-									func = function()local U = SVUI_TargetTarget;if U.forceShowAuras then U.forceShowAuras = nil else U.forceShowAuras = true end;MOD:SetBasicFrame("targettarget")end
+									func = function()local U = SVUI_TargetTarget;if U.forceShowAuras then U.forceShowAuras = nil else U.forceShowAuras = true end;MOD:SetUnitFrame("targettarget")end
 								},
 								spacer1 = {
 									order = 2,
@@ -246,7 +247,7 @@ SuperVillain.Options.args.SVUnit.args.targettarget={
 									name = L["Text Toggle On NPC"],
 									desc = L["Power text will be hidden on NPC targets, in addition the name text will be repositioned to the power texts anchor point."],
 									get = function(l)return SuperVillain.db.SVUnit["target"]["power"].hideonnpc end,
-									set = function(l, m)SuperVillain.db.SVUnit["target"]["power"].hideonnpc = m;MOD:SetBasicFrame("target")end
+									set = function(l, m)SuperVillain.db.SVUnit["target"]["power"].hideonnpc = m;MOD:SetUnitFrame("target")end
 								},
 								threatEnabled = {
 									type = "toggle",
@@ -283,14 +284,14 @@ SuperVillain.Options.args.SVUnit.args.targettarget={
 						}
 					}
 				},
-				misc = ns:SetMiscConfigGroup(false, MOD.SetBasicFrame, "targettarget"),
-				health = ns:SetHealthConfigGroup(false, MOD.SetBasicFrame, "targettarget"), 
-				power = ns:SetPowerConfigGroup(nil, MOD.SetBasicFrame, "targettarget"), 
-				name = ns:SetNameConfigGroup(MOD.SetBasicFrame, "targettarget"), 
-				portrait = ns:SetPortraitConfigGroup(MOD.SetBasicFrame, "targettarget"), 
-				buffs = ns:SetAuraConfigGroup(false, "buffs", false, MOD.SetBasicFrame, "targettarget"), 
-				debuffs = ns:SetAuraConfigGroup(false, "debuffs", false, MOD.SetBasicFrame, "targettarget"), 
-				icons = ns:SetIconConfigGroup(MOD.SetBasicFrame, "targettarget")
+				misc = ns:SetMiscConfigGroup(false, MOD.SetUnitFrame, "targettarget"),
+				health = ns:SetHealthConfigGroup(false, MOD.SetUnitFrame, "targettarget"), 
+				power = ns:SetPowerConfigGroup(nil, MOD.SetUnitFrame, "targettarget"), 
+				name = ns:SetNameConfigGroup(MOD.SetUnitFrame, "targettarget"), 
+				portrait = ns:SetPortraitConfigGroup(MOD.SetUnitFrame, "targettarget"), 
+				buffs = ns:SetAuraConfigGroup(false, "buffs", false, MOD.SetUnitFrame, "targettarget"), 
+				debuffs = ns:SetAuraConfigGroup(false, "debuffs", false, MOD.SetUnitFrame, "targettarget"), 
+				icons = ns:SetIconConfigGroup(MOD.SetUnitFrame, "targettarget")
 			}
 		}
 	}

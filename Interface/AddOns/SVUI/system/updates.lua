@@ -37,8 +37,7 @@ local twipe, tsort = table.wipe, table.sort;
 GET ADDON DATA
 ##########################################################
 ]]--
-local SuperVillain, L = unpack(select(2, ...));
-local LSM = LibStub("LibSharedMedia-3.0")
+local SuperVillain, L = unpack(select(2, ...))
 --[[ 
 ########################################################## 
 LOCALIZED GLOBALS
@@ -76,12 +75,12 @@ CORE FUNCTIONS
 ##########################################################
 ]]--
 function SuperVillain:MediaUpdate()
-  self.Media.color.default  = SuperVillain.db.media.colors.default
-  self.Media.color.special  = SuperVillain.db.media.colors.special
-  self.Media.bg.pattern     = LSM:Fetch("background", SuperVillain.db.media.textures.pattern)
-  self.Media.bg.comic       = LSM:Fetch("background", SuperVillain.db.media.textures.comic)
-  self.Media.bg.unitlarge   = LSM:Fetch("background", SuperVillain.db.media.textures.unitlarge)
-  self.Media.bg.unitsmall   = LSM:Fetch("background", SuperVillain.db.media.textures.unitsmall)
+  self.Media.color.default  = self.db.media.colors.default
+  self.Media.color.special  = self.db.media.colors.special
+  self.Media.bg.pattern     = self.Shared:Fetch("background", self.db.media.textures.pattern)
+  self.Media.bg.comic       = self.Shared:Fetch("background", self.db.media.textures.comic)
+  self.Media.bg.unitlarge   = self.Shared:Fetch("background", self.db.media.textures.unitlarge)
+  self.Media.bg.unitsmall   = self.Shared:Fetch("background", self.db.media.textures.unitsmall)
 
   local cColor1 = self.Media.color.special
     local cColor2 = self.Media.color.default
@@ -97,11 +96,11 @@ function SuperVillain:RefreshSystemFonts()
   local fontsize = self.db.media.fonts.size
   local unicodesize = self.db.media.fonts.unicodeSize
 
-  local NUMBER_TEXT_FONT = LSM:Fetch("font", self.db.media.fonts.number);
-  local GIANT_TEXT_FONT = LSM:Fetch("font", self.db.media.fonts.giant);
-  STANDARD_TEXT_FONT = LSM:Fetch("font", self.db.media.fonts.default);
-  UNIT_NAME_FONT = LSM:Fetch("font", self.db.media.fonts.name);
-  DAMAGE_TEXT_FONT = LSM:Fetch("font", self.db.media.fonts.combat);
+  local NUMBER_TEXT_FONT = self.Shared:Fetch("font", self.db.media.fonts.number);
+  local GIANT_TEXT_FONT = self.Shared:Fetch("font", self.db.media.fonts.giant);
+  STANDARD_TEXT_FONT = self.Shared:Fetch("font", self.db.media.fonts.default);
+  UNIT_NAME_FONT = self.Shared:Fetch("font", self.db.media.fonts.name);
+  DAMAGE_TEXT_FONT = self.Shared:Fetch("font", self.db.media.fonts.combat);
   NAMEPLATE_FONT = STANDARD_TEXT_FONT
   CHAT_FONT_HEIGHTS = {8,9,10,11,12,13,14,15,16,17,18,19,20}
   UIDROPDOWNMENU_DEFAULT_TEXT_HEIGHT = fontsize
@@ -166,11 +165,11 @@ function SuperVillain:RefreshAllSystemMedia()
   local fontsize = self.db.media.fonts.size
   local unicodesize = self.db.media.fonts.unicodeSize
 
-  local NUMBER_TEXT_FONT = LSM:Fetch("font", self.db.media.fonts.number);
-  local GIANT_TEXT_FONT = LSM:Fetch("font", self.db.media.fonts.giant);
-  STANDARD_TEXT_FONT = LSM:Fetch("font", self.db.media.fonts.default);
-  UNIT_NAME_FONT = LSM:Fetch("font", self.db.media.fonts.name);
-  DAMAGE_TEXT_FONT = LSM:Fetch("font", self.db.media.fonts.combat);
+  local NUMBER_TEXT_FONT = self.Shared:Fetch("font", self.db.media.fonts.number);
+  local GIANT_TEXT_FONT = self.Shared:Fetch("font", self.db.media.fonts.giant);
+  STANDARD_TEXT_FONT = self.Shared:Fetch("font", self.db.media.fonts.default);
+  UNIT_NAME_FONT = self.Shared:Fetch("font", self.db.media.fonts.name);
+  DAMAGE_TEXT_FONT = self.Shared:Fetch("font", self.db.media.fonts.combat);
   NAMEPLATE_FONT = STANDARD_TEXT_FONT
   CHAT_FONT_HEIGHTS = {8,9,10,11,12,13,14,15,16,17,18,19,20}
   UIDROPDOWNMENU_DEFAULT_TEXT_HEIGHT = fontsize

@@ -38,8 +38,9 @@ GET ADDON DATA
 ##########################################################
 ]]--
 local SuperVillain, L = unpack(SVUI);
-local AddOnName = select(1, ...);
-local MOD = SuperVillain:SetContainer();
+local AddOnName, AddOnObject = ...;
+
+local MOD = SVUI_LIB:SetObject(AddOnName);
 local DOCK = SuperVillain.Registry:Expose('SVDock');
 local SuperDockWindow = _G["SuperDockWindow"];
 local SuperDockletMain = _G["SuperDockletMain"];
@@ -129,9 +130,12 @@ function MOD:SaveAddonStyle(addon, fn, force, passive, ...)
 	end
 end;
 
-function MOD:SaveBlizzardStyle(addon, fn, force, passive)
+function MOD:SaveBlizzardStyle(addon, fn, force, passive, preload)
 	if passive then MOD.PassiveAddons[addon] = true end;
 	if force then 
+		if(preload and not IsAddOnLoaded(addon)) then
+			LoadAddOn(addon)
+		end
 		fn()
 		MOD.BlizzardQueue[addon] = nil
 	else 
@@ -645,7 +649,7 @@ end;
 BUILD FUNCTION
 ##########################################################
 ]]--
-function MOD:ConstructThisPackage()
+function MOD:Load()
 	local alert = CreateFrame('Frame', nil, UIParent);
 	alert:SetFixedPanelTemplate('Transparent');
 	alert:SetSize(250, 70);

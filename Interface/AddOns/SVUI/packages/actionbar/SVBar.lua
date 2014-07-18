@@ -36,7 +36,6 @@ GET ADDON DATA
 local SuperVillain, L = unpack(select(2, ...));
 local MOD = {};
 local LibAB = LibStub("LibActionButton-1.0");
-local LSM = LibStub("LibSharedMedia-3.0");
 MOD.Storage = {};
 MOD.Storage["Cache"] = {};
 MOD.Storage["Bar1"] = {};
@@ -242,52 +241,39 @@ local Bar_OnEnter = function(self)
 	if(self._fade) then
 		SuperVillain:SecureFadeIn(self, 0.2, self:GetAlpha(), self._alpha)
 	end
-end;
+end 
 
 local Bar_OnLeave = function(self)
 	if(self._fade) then
 		SuperVillain:SecureFadeOut(self, 1, self:GetAlpha(), 0)
 	end
-end;
+end 
 
-local function FixKeybindText(button)
+function MOD:FixKeybindText(button)
 	local hotkey = _G[button:GetName()..'HotKey']
 	local hotkeyText = hotkey:GetText()
 	if hotkeyText then
-		hotkeyText = gsub(hotkeyText, 'SHIFT%-', "S")
-		hotkeyText = gsub(hotkeyText, 'ALT%-',  "A")
-		hotkeyText = gsub(hotkeyText, 'CTRL%-',  "C")
-		hotkeyText = gsub(hotkeyText, 'BUTTON',  "MB")
-		hotkeyText = gsub(hotkeyText, 'MOUSEWHEELUP', "MU")
-		hotkeyText = gsub(hotkeyText, 'MOUSEWHEELDOWN', "MD")
-		hotkeyText = gsub(hotkeyText, 'NUMPAD',  "NP")
-		hotkeyText = gsub(hotkeyText, 'PAGEUP', "PgU")
-		hotkeyText = gsub(hotkeyText, 'PAGEDOWN', "PgD")
-		hotkeyText = gsub(hotkeyText, 'SPACE', "SP")
-		hotkeyText = gsub(hotkeyText, 'INSERT', "IN")
-		hotkeyText = gsub(hotkeyText, 'HOME', "HM")
-		hotkeyText = gsub(hotkeyText, 'DELETE', "DEL")
-		hotkeyText = gsub(hotkeyText, 'NMULTIPLY', "*")
-		hotkeyText = gsub(hotkeyText, 'NMINUS', "N-")
-		hotkeyText = gsub(hotkeyText, 'NPLUS', "N+")
-		-- hotkeyText = gsub(hotkeyText, 'SHIFT%-', L['KEY_SHIFT'])
-		-- hotkeyText = gsub(hotkeyText, 'ALT%-', L['KEY_ALT'])
-		-- hotkeyText = gsub(hotkeyText, 'CTRL%-', L['KEY_CTRL'])
-		-- hotkeyText = gsub(hotkeyText, 'BUTTON', L['KEY_MOUSEBUTTON'])
-		-- hotkeyText = gsub(hotkeyText, 'MOUSEWHEELUP', L['KEY_MOUSEWHEELUP'])
-		-- hotkeyText = gsub(hotkeyText, 'MOUSEWHEELDOWN', L['KEY_MOUSEWHEELDOWN'])
-		-- hotkeyText = gsub(hotkeyText, 'NUMPAD', L['KEY_NUMPAD'])
-		-- hotkeyText = gsub(hotkeyText, 'PAGEUP', L['KEY_PAGEUP'])
-		-- hotkeyText = gsub(hotkeyText, 'PAGEDOWN', L['KEY_PAGEDOWN'])
-		-- hotkeyText = gsub(hotkeyText, 'SPACE', L['KEY_SPACE'])
-		-- hotkeyText = gsub(hotkeyText, 'INSERT', L['KEY_INSERT'])
-		-- hotkeyText = gsub(hotkeyText, 'HOME', L['KEY_HOME'])
-		-- hotkeyText = gsub(hotkeyText, 'DELETE', L['KEY_DELETE'])
+		hotkeyText = hotkeyText:gsub('SHIFT%-', "S")
+		hotkeyText = hotkeyText:gsub('ALT%-',  "A")
+		hotkeyText = hotkeyText:gsub('CTRL%-',  "C")
+		hotkeyText = hotkeyText:gsub('BUTTON',  "B")
+		hotkeyText = hotkeyText:gsub('MOUSEWHEELUP', "WU")
+		hotkeyText = hotkeyText:gsub('MOUSEWHEELDOWN', "WD")
+		hotkeyText = hotkeyText:gsub('NUMPAD',  "N")
+		hotkeyText = hotkeyText:gsub('PAGEUP', "PgU")
+		hotkeyText = hotkeyText:gsub('PAGEDOWN', "PgD")
+		hotkeyText = hotkeyText:gsub('SPACE', "SP")
+		hotkeyText = hotkeyText:gsub('INSERT', "INS")
+		hotkeyText = hotkeyText:gsub('HOME', "HM")
+		hotkeyText = hotkeyText:gsub('DELETE', "DEL")
+		hotkeyText = hotkeyText:gsub('NMULTIPLY', "N*")
+		hotkeyText = hotkeyText:gsub('NMINUS', "N-")
+		hotkeyText = hotkeyText:gsub('NPLUS', "N+")
 		hotkey:SetText(hotkeyText)
-	end;
+	end 
 	hotkey:ClearAllPoints()
 	hotkey:SetAllPoints()
-end;
+end 
 
 local function Pinpoint(parent)
     local centerX,centerY = parent:GetCenter()
@@ -296,7 +282,7 @@ local function Pinpoint(parent)
     local result;
     if not centerX or not centerY then 
         return "CENTER"
-    end;
+    end 
     local heightTop = screenHeight * 0.75;
     local heightBottom = screenHeight * 0.25;
     local widthLeft = screenWidth * 0.25;
@@ -319,24 +305,24 @@ local function Pinpoint(parent)
         result="RIGHT"
     else 
         result="CENTER"
-    end;
+    end 
     return result 
-end;
+end 
 
 local function SaveActionButton(parent)
 	local button = parent:GetName()
 	local cooldown = _G[button.."Cooldown"]
 	cooldown.SizeOverride = MOD.db.cooldownSize
-	FixKeybindText(parent)
+	MOD:FixKeybindText(parent)
 	if not MOD.Storage.Cache[parent] then 
 		SuperVillain:AddCD(cooldown)
 		MOD.Storage.Cache[parent] = true 
 	end
 	parent:SetSlotTemplate(true, 2, 0, 0)
-end;
+end 
 
 local function SetFlyoutButton(button)
-	if not button or not button.FlyoutArrow or not button.FlyoutArrow:IsShown() or not button.FlyoutBorder then return end;
+	if not button or not button.FlyoutArrow or not button.FlyoutArrow:IsShown() or not button.FlyoutBorder then return end 
 	local LOCKDOWN = InCombatLockdown()
 	button.FlyoutBorder:SetAlpha(0)
 	button.FlyoutBorderShadow:SetAlpha(0)
@@ -350,34 +336,34 @@ local function SetFlyoutButton(button)
 			maxFlyoutCount = max;
 			break 
 		end 
-	end;
+	end 
 	local offset = 0;
-	if SpellFlyout:IsShown() and SpellFlyout:GetParent() == button or GetMouseFocus() == button then offset = 5 else offset = 2 end;
-	if button:GetParent() and button:GetParent():GetParent() and button:GetParent():GetParent():GetName() and button:GetParent():GetParent():GetName() == "SpellBookSpellIconsFrame" then return end;
+	if SpellFlyout:IsShown() and SpellFlyout:GetParent() == button or GetMouseFocus() == button then offset = 5 else offset = 2 end 
+	if button:GetParent() and button:GetParent():GetParent() and button:GetParent():GetParent():GetName() and button:GetParent():GetParent():GetName() == "SpellBookSpellIconsFrame" then return end 
 	if button:GetParent() then 
 		local point = Pinpoint(button:GetParent())
-		if strfind(point, "RIGHT") then 
+		if point:find("RIGHT") then 
 			button.FlyoutArrow:ClearAllPoints()
 			button.FlyoutArrow:SetPoint("LEFT", button, "LEFT", -offset, 0)
 			SetClampedTextureRotation(button.FlyoutArrow, 270)
 			if not LOCKDOWN then 
 				button:SetAttribute("flyoutDirection", "LEFT")
 			end 
-		elseif strfind(point, "LEFT") then 
+		elseif point:find("LEFT") then 
 			button.FlyoutArrow:ClearAllPoints()
 			button.FlyoutArrow:SetPoint("RIGHT", button, "RIGHT", offset, 0)
 			SetClampedTextureRotation(button.FlyoutArrow, 90)
 			if not LOCKDOWN then 
 				button:SetAttribute("flyoutDirection", "RIGHT")
 			end 
-		elseif strfind(point, "TOP") then 
+		elseif point:find("TOP") then 
 			button.FlyoutArrow:ClearAllPoints()
 			button.FlyoutArrow:SetPoint("BOTTOM", button, "BOTTOM", 0, -offset)
 			SetClampedTextureRotation(button.FlyoutArrow, 180)
 			if not LOCKDOWN then 
 				button:SetAttribute("flyoutDirection", "DOWN")
 			end 
-		elseif point == "CENTER" or strfind(point, "BOTTOM") then 
+		elseif point == "CENTER" or point:find("BOTTOM") then 
 			button.FlyoutArrow:ClearAllPoints()
 			button.FlyoutArrow:SetPoint("TOP", button, "TOP", 0, offset)
 			SetClampedTextureRotation(button.FlyoutArrow, 0)
@@ -386,7 +372,7 @@ local function SetFlyoutButton(button)
 			end 
 		end
 	end 
-end;
+end 
 
 local function ModifyActionButton(parent)
 	local button = parent:GetName()
@@ -404,62 +390,62 @@ local function ModifyActionButton(parent)
 	local checked = parent:GetCheckedTexture()
 	if cooldown then
 		cooldown.SizeOverride = MOD.db.cooldownSize
-	end;
+	end 
 	if highlight then 
 		highlight:SetTexture(1,1,1,.2)
-	end;
+	end 
 	if pushed then 
 		pushed:SetTexture(0,0,0,.4)
-	end;
+	end 
 	if checked then 
 		checked:SetTexture(1,1,1,.2)
-	end;
+	end 
 	if flash then 
 		flash:SetTexture(nil)
-	end;
+	end 
 	if normal then 
 		normal:SetTexture(nil)
 		normal:Hide()
 		normal:SetAlpha(0)
-	end;
+	end 
 	if parentTex then 
 		parentTex:SetTexture(nil)
 		parentTex:Hide()
 		parentTex:SetAlpha(0)
-	end;
-	if border then border:MUNG()end;
+	end 
+	if border then border:MUNG()end 
 	if count then 
 		count:ClearAllPoints()
 		count:SetPoint("BOTTOMRIGHT",1,1)
 		count:SetShadowOffset(1,-1)
-		count:SetFontTemplate(LSM:Fetch("font",MOD.db.font),MOD.db.fontSize,MOD.db.fontOutline)
-	end;
+		count:SetFontTemplate(SuperVillain.Shared:Fetch("font",MOD.db.countFont),MOD.db.countFontSize,MOD.db.countFontOutline)
+	end 
 	if icon then 
 		icon:SetTexCoord(.1,.9,.1,.9)
 		icon:SetGradient("VERTICAL",.5,.5,.5,1,1,1)
 		icon:FillInner()
-	end;
-	if shine then shine:SetAllPoints()end;
+	end 
+	if shine then shine:SetAllPoints()end 
 	if MOD.db.hotkeytext then 
 		hotkey:ClearAllPoints()
 		hotkey:SetAllPoints()
-		hotkey:SetFont(CLEANFONT,10,"OUTLINE")
+		hotkey:SetFontTemplate(SuperVillain.Shared:Fetch("font",MOD.db.font),MOD.db.fontSize,MOD.db.fontOutline)
 		hotkey:SetJustifyH("RIGHT")
     	hotkey:SetJustifyV("TOP")
 		hotkey:SetShadowOffset(1,-1)
-	end;
+	end 
 	if parent.style then 
 		parent.style:SetDrawLayer('BACKGROUND',-7)
-	end;
+	end 
 	parent.FlyoutUpdateFunc = SetFlyoutButton;
-	FixKeybindText(parent)
-end;
+	MOD:FixKeybindText(parent)
+end 
 
 do
 	local SpellFlyoutButton_OnEnter = function(self)
 		local parent = self:GetParent()
 		local anchor = select(2, parent:GetPoint())
-		if not MOD.Storage.Cache[anchor] then return end;
+		if not MOD.Storage.Cache[anchor] then return end 
 		local anchorParent = anchor:GetParent()
 		if anchorParent._fade then
 			local alpha = anchorParent._alpha
@@ -471,7 +457,7 @@ do
 	local SpellFlyoutButton_OnLeave = function(self)
 		local parent = self:GetParent()
 		local anchor = select(2, parent:GetPoint())
-		if not MOD.Storage.Cache[anchor] then return end;
+		if not MOD.Storage.Cache[anchor] then return end 
 		local anchorParent = anchor:GetParent()
 		if anchorParent._fade then
 			local actual = anchorParent:GetAlpha()
@@ -481,7 +467,7 @@ do
 
 	local SpellFlyout_OnEnter = function(self)
 		local anchor = select(2,self:GetPoint())
-		if not MOD.Storage.Cache[anchor] then return end;
+		if not MOD.Storage.Cache[anchor] then return end 
 		local anchorParent = anchor:GetParent()
 		if anchorParent._fade then 
 			Bar_OnEnter(anchorParent)	
@@ -490,7 +476,7 @@ do
 
 	local SpellFlyout_OnLeave = function(self)
 		local anchor = select(2, self:GetPoint())
-		if not MOD.Storage.Cache[anchor] then return end;
+		if not MOD.Storage.Cache[anchor] then return end 
 		local anchorParent=anchor:GetParent()
 		if anchorParent._fade then 
 			Bar_OnLeave(anchorParent)
@@ -507,25 +493,25 @@ do
 				
 				_G["SpellFlyoutButton"..i]:HookScript('OnLeave', SpellFlyoutButton_OnLeave)
 			end 
-		end;
+		end 
 		SpellFlyout:HookScript('OnEnter', SpellFlyout_OnEnter)
 		SpellFlyout:HookScript('OnLeave', SpellFlyout_OnLeave)
 	end
 
 	local QualifyFlyouts = function()
-		if InCombatLockdown() then return end;
+		if InCombatLockdown() then return end 
 		for button,_ in pairs(MOD.Storage.Cache)do 
 			if(button and button.FlyoutArrow) then
 				SetFlyoutButton(button)
 			end 
-		end;
-	end;
+		end 
+	end 
 
 	function SetSpellFlyoutHook()
 		SpellFlyout:HookScript("OnShow",SpellFlyout_OnShow);
 		SuperVillain:ExecuteTimer(QualifyFlyouts, 5)
 	end
-end;
+end 
 --[[ 
 ########################################################## 
 CORE FUNCTIONS
@@ -541,7 +527,7 @@ function MOD:UpdateBarBindings(pet,stance)
 		    	local binding = GetBindingKey(key)
 		      	_G["SVUI_StanceBarButton"..i.."HotKey"]:Show()
 		      	_G["SVUI_StanceBarButton"..i.."HotKey"]:SetText(binding)
-		      	FixKeybindText(_G["SVUI_StanceBarButton"..i])
+		      	MOD:FixKeybindText(_G["SVUI_StanceBarButton"..i])
 		    else 
 		      	_G["SVUI_StanceBarButton"..i.."HotKey"]:Hide()
 		    end 
@@ -556,25 +542,25 @@ function MOD:UpdateBarBindings(pet,stance)
 		    	local binding = GetBindingKey(key)
 		      	_G["PetActionButton"..i.."HotKey"]:Show()
 		      	_G["PetActionButton"..i.."HotKey"]:SetText(binding)
-		      	FixKeybindText(_G["PetActionButton"..i])
+		      	MOD:FixKeybindText(_G["PetActionButton"..i])
 		    else
 	    		_G["PetActionButton"..i.."HotKey"]:Hide()
-	    	end;
+	    	end 
 	  	end
 	end
-end;
+end 
 
 function MOD:UpdateAllBindings(event)
 	if event == "UPDATE_BINDINGS" then 
 		MOD:UpdateBarBindings(true,true)
-	end;
+	end 
 	MOD:UnregisterEvent("PLAYER_REGEN_DISABLED")
-	if InCombatLockdown()then return end;
+	if InCombatLockdown()then return end 
 	for barID,stored in pairs(MOD.Storage)do
 		if (type(stored) == "table" and (barID ~= "Pet" and barID ~= "Stance" and barID ~= "Cache")) then
 			local bar = stored.bar;
 			local buttons = stored.buttons;
-			if not bar or not buttons then return end;
+			if not bar or not buttons then return end 
 			ClearOverrideBindings(bar);
 			local nameMod = bar:GetName().."Button";
 			local thisBinding = stored.binding;
@@ -585,12 +571,12 @@ function MOD:UpdateAllBindings(event)
 					local key = select(x,GetBindingKey(binding))
 					if (key and key ~= "") then 
 						SetOverrideBindingClick(bar,false,key,btn)
-					end;
+					end 
 				end 
 			end 
 		end
-	end;
-end;
+	end 
+end 
 
 function MOD:SetBarConfigData(barID)
 	local data = self.Storage[barID]
@@ -615,13 +601,13 @@ function MOD:SetBarConfigData(barID)
 		button:SetAttribute("checkfocuscast",true)
 		button:UpdateConfig(data.config)
 	end
-end;
+end 
 
 function MOD:UpdateBarPagingDefaults()
 	local parse = "[vehicleui,mod:alt,mod:ctrl] %d; [possessbar] %d; [overridebar] %d; [form,noform] 0; [shapeshift] 13; [bar:2] 2; [bar:3] 3; [bar:4] 4; [bar:5] 5; [bar:6] 6;";
 	if self.db.Bar6.enable then
 		parse = "[vehicleui,mod:alt,mod:ctrl] %d; [possessbar] %d; [overridebar] %d; [form,noform] 0; [shapeshift] 13; [bar:3] 3; [bar:4] 4; [bar:5] 5; [bar:6] 6;";
-	end;
+	end 
 	if self.db.Bar1.useCustomPaging then
 		parse = parse .. " " .. self.db.Bar1.customPaging[SuperVillain.class];
 	end
@@ -630,8 +616,8 @@ function MOD:UpdateBarPagingDefaults()
 		if self.db['Bar'..i].useCustomPaging then
 			self.Storage['Bar'..i].conditions = self.db['Bar'..i].customPaging[SuperVillain.class];
 		end
-	end;
-	if((not SuperVillain.db.SVBar.enable or InCombatLockdown()) or not self.isInitialized) then return end;
+	end 
+	if((not SuperVillain.db.SVBar.enable or InCombatLockdown()) or not self.isInitialized) then return end 
 	local Bar2Option = InterfaceOptionsActionBarsPanelBottomRight
 	local Bar3Option = InterfaceOptionsActionBarsPanelBottomLeft
 	local Bar4Option = InterfaceOptionsActionBarsPanelRightTwo
@@ -666,7 +652,7 @@ function MOD:UpdateBarPagingDefaults()
 	elseif (self.db.Bar5.enable and not Bar5Option:GetChecked()) or (not self.db.Bar5.enable and Bar5Option:GetChecked()) then
 		Bar5Option:Click()
 	end
-end;
+end 
 --[[ 
 ########################################################## 
 CORE FUNCTIONS
@@ -678,7 +664,7 @@ do
 		if parent and parent._fade then 
 			SuperVillain:SecureFadeIn(parent, 0.2, parent:GetAlpha(), parent._alpha)
 		end
-	end;
+	end 
 
 	local Button_OnLeave = function(self)
 		local parent = self:GetParent()
@@ -686,11 +672,11 @@ do
 		if parent and parent._fade then 
 			SuperVillain:SecureFadeOut(parent, 1, parent:GetAlpha(), 0)
 		end
-	end;
+	end 
 
 	local function _refreshButtons(bar, id, max, space, cols, totalButtons, size, point, selfcast)
-		if InCombatLockdown() then return end;
-		if not bar then return end;
+		if InCombatLockdown() then return end 
+		if not bar then return end 
 		local hideByScale = id == "Pet" and true or false;
 		local isStance = id == "Stance" and true or false;
 		local button,lastButton,lastRow;
@@ -705,7 +691,7 @@ do
 
 			if(selfcast) then
 				button:SetAttribute("unit2", "player")
-			end;
+			end 
 
 			if(not button._hookFade) then 
 				button:HookScript('OnEnter', Button_OnEnter)
@@ -714,7 +700,7 @@ do
 				-- 	NewHook(button, "SetAlpha", function(self) print(self:GetName());print(self:GetAlpha()) end)
 				-- end
 				button._hookFade = true;
-			end;
+			end 
 
 			local x,y,anchor1,anchor2;
 
@@ -749,7 +735,7 @@ do
 		        	anchor2 = "LEFT"
 		      	end
 				button:Point(anchor1,lastButton,anchor2,x,y)
-			end;
+			end 
 
 			if(i > totalButtons) then
 				if hideByScale then
@@ -765,14 +751,14 @@ do
 				else 
 					button:Show()
 				end
-			end;
+			end 
 
 			if (not isStance or (isStance and not button.FlyoutUpdateFunc)) then 
 	      		ModifyActionButton(button);
 	      		SaveActionButton(button);
 	    	end
-		end;
-	end;
+		end 
+	end 
 
 	local function _getPage(bar, defaultPage, condition)
 		local page = MOD.db[bar].customPaging[SuperVillain.class]
@@ -786,7 +772,7 @@ do
 	end
 
 	function MOD:RefreshBar(id)
-		if(InCombatLockdown() or (not self.Storage[id] or not self.Storage[id].bar or not self.db[id])) then return end;
+		if(InCombatLockdown() or (not self.Storage[id] or not self.Storage[id].bar or not self.db[id])) then return end 
 		local db = self.db[id];
 		local data = self.Storage[id]
 		local selfcast = self.db.rightClickSelf
@@ -802,8 +788,8 @@ do
 		local max = isStance and GetNumShapeshiftForms() or totalButtons;
 		local rows = ceil(max  /  cols);
 
-		if max < cols then cols = max end;
-		if rows < 1 then rows = 1 end;
+		if max < cols then cols = max end 
+		if rows < 1 then rows = 1 end 
 		bar:Width(space  +  (size  *  cols)  +  ((space  *  (cols - 1))  +  space));
 		bar:Height((space  +  (size  *  rows))  +  ((space  *  (rows - 1))  +  space));
 		bar.backdrop:ClearAllPoints()
@@ -815,13 +801,13 @@ do
 			bar.backdrop:Show()
 		else 
 			bar.backdrop:Hide()
-		end;
+		end 
 
 		if(not bar._hookFade) then 
 			bar:HookScript('OnEnter', Bar_OnEnter)
 			bar:HookScript('OnLeave', Bar_OnLeave)
 			bar._hookFade = true;
-		end;
+		end 
 
 		if(db.mouseover == true) then 
 			bar:SetAlpha(0)
@@ -829,7 +815,7 @@ do
 		else 
 			bar:SetAlpha(db.alpha)
 			bar._fade = false 
-		end;
+		end 
 		
 		_refreshButtons(bar, id, max, space, cols, totalButtons, size, point, selfcast);
 
@@ -837,13 +823,18 @@ do
 			if db.enable then 
 				bar:SetScale(1)
 				bar:SetAlpha(db.alpha)
+				if(db.mouseover == true) then 
+					bar:SetAlpha(0)
+				else 
+					bar:SetAlpha(db.alpha)
+				end
+				RegisterStateDriver(bar, "visibility", barVisibility)
 			else 
 				bar:SetScale(0.000001)
 				bar:SetAlpha(0)
+				UnregisterStateDriver(bar, "visibility")
 			end
-			if isPet then
-				RegisterStateDriver(bar, "show", barVisibility)
-			end
+			--RegisterStateDriver(bar, "show", barVisibility)
 		else
 		  	local page = _getPage(id, data.page, data.conditions)
 			if data.conditions:find("[form, noform]") then
@@ -867,14 +858,14 @@ do
 			else
 				bar:Hide()
 				UnregisterStateDriver(bar, "visibility")
-			end;
+			end 
 			SuperVillain:SetSnapOffset("SVUI_Action"..id.."_MOVE", (space  /  2))
 		end
-	end;
-end;
+	end 
+end 
 
 function MOD:RefreshActionBars()
-	if InCombatLockdown() then return end;
+	if InCombatLockdown() then return end 
 	self:UpdateBarPagingDefaults()
 	for button,_ in pairs(self.Storage.Cache)do 
 		if button then 
@@ -886,10 +877,10 @@ function MOD:RefreshActionBars()
 		else 
 			self.Storage.Cache[button]=nil 
 		end 
-	end;
+	end 
 	for t=1,6 do 
 		self:RefreshBar("Bar"..t)
-	end;
+	end 
 	self:RefreshBar("Pet")
 	self:RefreshBar("Stance")
 	self:UpdateBarBindings(true,true)
@@ -897,8 +888,8 @@ function MOD:RefreshActionBars()
 		if barID ~= "Pet" and barID ~= "Stance" then
 			self:SetBarConfigData(barID)
 		end
-	end;
-end;
+	end 
+end 
 
 local Vehicle_Updater = function()
 	local bar = MOD.Storage['Bar1'].bar
@@ -919,7 +910,7 @@ local Vehicle_Updater = function()
 		bar.backdrop:SetFrameLevel(0);
 	end
 	MOD:RefreshBar("Bar1")
-end;
+end 
 --[[ 
 ########################################################## 
 HOOKED / REGISTERED FUNCTIONS
@@ -927,7 +918,7 @@ HOOKED / REGISTERED FUNCTIONS
 ]]--
 local CreateExtraBar = function(self)
 	local specialBar = CreateFrame("Frame", "SVUI_SpecialAbility", SuperVillain.UIParent)
-	specialBar:Point("BOTTOM", SuperVillain.UIParent, "BOTTOM", 0, 150)
+	specialBar:Point("TOP", SuperVillain.UIParent, "CENTER", 0, -50)
 	specialBar:Size(ExtraActionBarFrame:GetSize())
 	ExtraActionBarFrame:SetParent(specialBar)
 	ExtraActionBarFrame:ClearAllPoints()
@@ -953,17 +944,6 @@ local CreateExtraBar = function(self)
 		ExtraActionBarFrame:Show()
 	end
 	SuperVillain:SetSVMovable(specialBar, "SVUI_SpecialAbility_MOVE", L["Boss Button"], nil, nil, nil, "ALL, ACTIONBAR")
-	
-	local exitButton = CreateFrame("Button", "SVUI_BailOut", SuperVillain.UIParent, "SecureHandlerClickTemplate")
-	exitButton:Size(64, 64)
-	exitButton:Point("TOPLEFT", SVUI_MinimapFrame, "BOTTOMLEFT", 2, -2)
-	exitButton:SetNormalTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Icons\\EXIT")
-	exitButton:SetPushedTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Icons\\EXIT")
-	exitButton:SetHighlightTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Icons\\EXIT")
-	exitButton:SetFixedPanelTemplate("Transparent")
-	exitButton:RegisterForClicks("AnyUp")
-	exitButton:SetScript("OnClick", VehicleExit)
-	RegisterStateDriver(exitButton, "visibility", "[vehicleui] show;hide")
 end
 
 local SVUIOptionsPanel_OnEvent = function()
@@ -975,131 +955,132 @@ local SVUIOptionsPanel_OnEvent = function()
 	InterfaceOptionsActionBarsPanelBottomLeft:SetScript('OnEnter',nil)
 	InterfaceOptionsActionBarsPanelRightTwo:SetScript('OnEnter',nil)
 	InterfaceOptionsActionBarsPanelRight:SetScript('OnEnter',nil)
-end;
+end 
 
 local SVUIButton_ShowOverlayGlow = function(self)
-	if not self.overlay then return end; 
+	if not self.overlay then return end  
 	local size = self:GetWidth() / 3;
 	self.overlay:WrapOuter(self, size)
-end;
+end 
 
 local function ResetAllBindings()
-	if InCombatLockdown()then return end;
+	if InCombatLockdown()then return end 
 	for barID,stored in pairs(MOD.Storage)do
 		local bar = stored.bar;
-		if not bar then return end;
+		if not bar then return end 
 		ClearOverrideBindings(bar);
-	end;
+	end 
 	MOD:RegisterEvent("PLAYER_REGEN_DISABLED","UpdateAllBindings")
-end;
+end 
 
 local function RemoveDefaults()
-  local removalManager=CreateFrame("Frame")
-  removalManager:Hide()
-  MultiBarBottomLeft:SetParent(removalManager)
-  MultiBarBottomRight:SetParent(removalManager)
-  MultiBarLeft:SetParent(removalManager)
-  MultiBarRight:SetParent(removalManager)
-  for i=1,12 do 
-  	_G["ActionButton"..i]:Hide()
-  	_G["ActionButton"..i]:UnregisterAllEvents()
-  	_G["ActionButton"..i]:SetAttribute("statehidden",true)
-  	_G["MultiBarBottomLeftButton"..i]:Hide()
-  	_G["MultiBarBottomLeftButton"..i]:UnregisterAllEvents()
-  	_G["MultiBarBottomLeftButton"..i]:SetAttribute("statehidden",true)
-  	_G["MultiBarBottomRightButton"..i]:Hide()
-  	_G["MultiBarBottomRightButton"..i]:UnregisterAllEvents()
-  	_G["MultiBarBottomRightButton"..i]:SetAttribute("statehidden",true)
-  	_G["MultiBarRightButton"..i]:Hide()
-  	_G["MultiBarRightButton"..i]:UnregisterAllEvents()
-  	_G["MultiBarRightButton"..i]:SetAttribute("statehidden",true)
-  	_G["MultiBarLeftButton"..i]:Hide()
-  	_G["MultiBarLeftButton"..i]:UnregisterAllEvents()
-  	_G["MultiBarLeftButton"..i]:SetAttribute("statehidden",true)
-  	if _G["VehicleMenuBarActionButton"..i] then 
-  		_G["VehicleMenuBarActionButton"..i]:Hide()
-  		_G["VehicleMenuBarActionButton"..i]:UnregisterAllEvents()
-  		_G["VehicleMenuBarActionButton"..i]:SetAttribute("statehidden",true)
-  	end;
-  	if _G['OverrideActionBarButton'..i] then 
-  		_G['OverrideActionBarButton'..i]:Hide()
-  		_G['OverrideActionBarButton'..i]:UnregisterAllEvents()
-  		_G['OverrideActionBarButton'..i]:SetAttribute("statehidden",true)
-  	end;
-  	_G['MultiCastActionButton'..i]:Hide()
-  	_G['MultiCastActionButton'..i]:UnregisterAllEvents()
-  	_G['MultiCastActionButton'..i]:SetAttribute("statehidden",true)
-  end;
-  ActionBarController:UnregisterAllEvents()
-  ActionBarController:RegisterEvent('UPDATE_EXTRA_ACTIONBAR')
-  MainMenuBar:EnableMouse(false)
-  MainMenuBar:SetAlpha(0)
-  MainMenuExpBar:UnregisterAllEvents()
-  MainMenuExpBar:Hide()
-  MainMenuExpBar:SetParent(removalManager)
-  local maxChildren = MainMenuBar:GetNumChildren();
-  for i=1,maxChildren do
-  	local child=select(i,MainMenuBar:GetChildren())
-  	if child then 
-  		child:UnregisterAllEvents()
-  		child:Hide()
-  		child:SetParent(removalManager)
-  	end 
-  end;
-  ReputationWatchBar:UnregisterAllEvents()
-  ReputationWatchBar:Hide()
-  ReputationWatchBar:SetParent(removalManager)
-  MainMenuBarArtFrame:UnregisterEvent("ACTIONBAR_PAGE_CHANGED")
-  MainMenuBarArtFrame:UnregisterEvent("ADDON_LOADED")
-  MainMenuBarArtFrame:Hide()
-  MainMenuBarArtFrame:SetParent(removalManager)
-  StanceBarFrame:UnregisterAllEvents()
-  StanceBarFrame:Hide()
-  StanceBarFrame:SetParent(removalManager)
-  OverrideActionBar:UnregisterAllEvents()
-  OverrideActionBar:Hide()
-  OverrideActionBar:SetParent(removalManager)
-  PossessBarFrame:UnregisterAllEvents()
-  PossessBarFrame:Hide()
-  PossessBarFrame:SetParent(removalManager)
-  PetActionBarFrame:UnregisterAllEvents()
-  PetActionBarFrame:Hide()
-  PetActionBarFrame:SetParent(removalManager)
-  MultiCastActionBarFrame:UnregisterAllEvents()
-  MultiCastActionBarFrame:Hide()
-  MultiCastActionBarFrame:SetParent(removalManager)
-  IconIntroTracker:UnregisterAllEvents()
-  IconIntroTracker:Hide()
-  IconIntroTracker:SetParent(removalManager)
-  InterfaceOptionsCombatPanelActionButtonUseKeyDown:SetScale(0.0001)
-  InterfaceOptionsCombatPanelActionButtonUseKeyDown:SetAlpha(0)
-  InterfaceOptionsActionBarsPanelAlwaysShowActionBars:EnableMouse(false)
-  InterfaceOptionsActionBarsPanelPickupActionKeyDropDownButton:SetScale(0.0001)
-  InterfaceOptionsActionBarsPanelLockActionBars:SetScale(0.0001)
-  InterfaceOptionsActionBarsPanelAlwaysShowActionBars:SetAlpha(0)
-  InterfaceOptionsActionBarsPanelPickupActionKeyDropDownButton:SetAlpha(0)
-  InterfaceOptionsActionBarsPanelLockActionBars:SetAlpha(0)
-  InterfaceOptionsActionBarsPanelPickupActionKeyDropDown:SetAlpha(0)
-  InterfaceOptionsActionBarsPanelPickupActionKeyDropDown:SetScale(0.00001)
-  InterfaceOptionsStatusTextPanelXP:SetAlpha(0)
-  InterfaceOptionsStatusTextPanelXP:SetScale(0.00001)
-  if PlayerTalentFrame then
-    PlayerTalentFrame:UnregisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
-  else
-    hooksecurefunc("TalentFrame_LoadUI", function() PlayerTalentFrame:UnregisterEvent("ACTIVE_TALENT_GROUP_CHANGED") end)
-  end
-end;
+	local removalManager=CreateFrame("Frame")
+	removalManager:Hide()
+	MultiBarBottomLeft:SetParent(removalManager)
+	MultiBarBottomRight:SetParent(removalManager)
+	MultiBarLeft:SetParent(removalManager)
+	MultiBarRight:SetParent(removalManager)
+	for i=1,12 do 
+		_G["ActionButton"..i]:Hide()
+		_G["ActionButton"..i]:UnregisterAllEvents()
+		_G["ActionButton"..i]:SetAttribute("statehidden",true)
+		_G["MultiBarBottomLeftButton"..i]:Hide()
+		_G["MultiBarBottomLeftButton"..i]:UnregisterAllEvents()
+		_G["MultiBarBottomLeftButton"..i]:SetAttribute("statehidden",true)
+		_G["MultiBarBottomRightButton"..i]:Hide()
+		_G["MultiBarBottomRightButton"..i]:UnregisterAllEvents()
+		_G["MultiBarBottomRightButton"..i]:SetAttribute("statehidden",true)
+		_G["MultiBarRightButton"..i]:Hide()
+		_G["MultiBarRightButton"..i]:UnregisterAllEvents()
+		_G["MultiBarRightButton"..i]:SetAttribute("statehidden",true)
+		_G["MultiBarLeftButton"..i]:Hide()
+		_G["MultiBarLeftButton"..i]:UnregisterAllEvents()
+		_G["MultiBarLeftButton"..i]:SetAttribute("statehidden",true)
+		if _G["VehicleMenuBarActionButton"..i] then 
+			_G["VehicleMenuBarActionButton"..i]:Hide()
+			_G["VehicleMenuBarActionButton"..i]:UnregisterAllEvents()
+			_G["VehicleMenuBarActionButton"..i]:SetAttribute("statehidden",true)
+		end 
+		if _G['OverrideActionBarButton'..i] then 
+			_G['OverrideActionBarButton'..i]:Hide()
+			_G['OverrideActionBarButton'..i]:UnregisterAllEvents()
+			_G['OverrideActionBarButton'..i]:SetAttribute("statehidden",true)
+		end 
+		_G['MultiCastActionButton'..i]:Hide()
+		_G['MultiCastActionButton'..i]:UnregisterAllEvents()
+		_G['MultiCastActionButton'..i]:SetAttribute("statehidden",true)
+	end 
+	ActionBarController:UnregisterAllEvents()
+	ActionBarController:RegisterEvent('UPDATE_EXTRA_ACTIONBAR')
+	MainMenuBar:EnableMouse(false)
+	MainMenuBar:SetAlpha(0)
+	MainMenuExpBar:UnregisterAllEvents()
+	MainMenuExpBar:Hide()
+	MainMenuExpBar:SetParent(removalManager)
+	local maxChildren = MainMenuBar:GetNumChildren();
+	for i=1,maxChildren do
+		local child=select(i,MainMenuBar:GetChildren())
+		if child then 
+			child:UnregisterAllEvents()
+			child:Hide()
+			child:SetParent(removalManager)
+		end 
+	end 
+	ReputationWatchBar:UnregisterAllEvents()
+	ReputationWatchBar:Hide()
+	ReputationWatchBar:SetParent(removalManager)
+	MainMenuBarArtFrame:UnregisterEvent("ACTIONBAR_PAGE_CHANGED")
+	MainMenuBarArtFrame:UnregisterEvent("ADDON_LOADED")
+	MainMenuBarArtFrame:Hide()
+	MainMenuBarArtFrame:SetParent(removalManager)
+	StanceBarFrame:UnregisterAllEvents()
+	StanceBarFrame:Hide()
+	StanceBarFrame:SetParent(removalManager)
+	OverrideActionBar:UnregisterAllEvents()
+	OverrideActionBar:Hide()
+	OverrideActionBar:SetParent(removalManager)
+	PossessBarFrame:UnregisterAllEvents()
+	PossessBarFrame:Hide()
+	PossessBarFrame:SetParent(removalManager)
+	PetActionBarFrame:UnregisterAllEvents()
+	PetActionBarFrame:Hide()
+	PetActionBarFrame:SetParent(removalManager)
+	MultiCastActionBarFrame:UnregisterAllEvents()
+	MultiCastActionBarFrame:Hide()
+	MultiCastActionBarFrame:SetParent(removalManager)
+	IconIntroTracker:UnregisterAllEvents()
+	IconIntroTracker:Hide()
+	IconIntroTracker:SetParent(removalManager)
+	
+	InterfaceOptionsCombatPanelActionButtonUseKeyDown:SetScale(0.0001)
+	InterfaceOptionsCombatPanelActionButtonUseKeyDown:SetAlpha(0)
+	InterfaceOptionsActionBarsPanelAlwaysShowActionBars:EnableMouse(false)
+	InterfaceOptionsActionBarsPanelPickupActionKeyDropDownButton:SetScale(0.0001)
+	InterfaceOptionsActionBarsPanelLockActionBars:SetScale(0.0001)
+	InterfaceOptionsActionBarsPanelAlwaysShowActionBars:SetAlpha(0)
+	InterfaceOptionsActionBarsPanelPickupActionKeyDropDownButton:SetAlpha(0)
+	InterfaceOptionsActionBarsPanelLockActionBars:SetAlpha(0)
+	InterfaceOptionsActionBarsPanelPickupActionKeyDropDown:SetAlpha(0)
+	InterfaceOptionsActionBarsPanelPickupActionKeyDropDown:SetScale(0.00001)
+	InterfaceOptionsStatusTextPanelXP:SetAlpha(0)
+	InterfaceOptionsStatusTextPanelXP:SetScale(0.00001)
+	if PlayerTalentFrame then
+		PlayerTalentFrame:UnregisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
+	else
+		hooksecurefunc("TalentFrame_LoadUI", function() PlayerTalentFrame:UnregisterEvent("ACTIVE_TALENT_GROUP_CHANGED") end)
+	end
+end 
 --[[ 
 ########################################################## 
 BUILD FUNCTION / UPDATE
 ##########################################################
 ]]--
-function MOD:UpdateThisPackage()
+function MOD:ReLoad()
 	self:RefreshActionBars();
-end;
+end 
 
-function MOD:ConstructThisPackage()
-	if not SuperVillain.db.SVBar.enable then return end;
+function MOD:Load()
+	if not SuperVillain.db.SVBar.enable then return end 
 	RemoveDefaults();
 	self:Protect("RefreshActionBars");
 	self:UpdateBarPagingDefaults();
@@ -1113,13 +1094,13 @@ function MOD:ConstructThisPackage()
 		ResetAllBindings()
 	else 
 		self:UpdateAllBindings()
-	end;
+	end 
 	NewHook("BlizzardOptionsPanel_OnEvent", SVUIOptionsPanel_OnEvent)
 	NewHook("ActionButton_ShowOverlayGlow", SVUIButton_ShowOverlayGlow)
-	if not GetCVarBool("lockActionBars") then SetCVar("lockActionBars", 1) end;
+	if not GetCVarBool("lockActionBars") then SetCVar("lockActionBars", 1) end 
 	SetSpellFlyoutHook()
 	MOD.IsLoaded = true
-end;
+end 
 
 SuperVillain.Registry:NewPackage(MOD, "SVBar")
 SuperVillain.Registry:Temp("SVBar", CreateExtraBar)

@@ -12,7 +12,27 @@ _____/\\\\\\\\\\\____/\\\________/\\\__/\\\________/\\\__/\\\\\\\\\\\_       #
 ##############################################################################
 S U P E R - V I L L A I N - U I   By: Munglunch                              #
 ##############################################################################
---]]
+########################################################## 
+LOCALIZED LUA FUNCTIONS
+##########################################################
+]]--
+--[[ GLOBALS ]]--
+local _G = _G;
+local unpack    = _G.unpack;
+local select    = _G.select;
+local pairs     = _G.pairs;
+local type      = _G.type;
+local string    = _G.string;
+local math      = _G.math;
+--[[ STRING METHODS ]]--
+local join = string.join;
+--[[ MATH METHODS ]]--
+local min = math.min;
+--[[ 
+########################################################## 
+GET ADDON DATA
+##########################################################
+]]--
 local SuperVillain, L = unpack(select(2, ...));
 local MOD = {};
 MOD.Anchors = {};
@@ -32,7 +52,6 @@ LOCAL VARIABLES
 ##########################################################
 ]]--
 --local LDB = LibStub:GetLibrary("LibDataBroker-1.1");
-local LSM = LibStub("LibSharedMedia-3.0");
 local hexString = "|cffFFFFFF";
 local myName = UnitName("player");
 local myClass = select(2,UnitClass("player"));
@@ -115,15 +134,15 @@ function MOD:ShowTip(noSpace)
   MOD.tooltip:Show()
 end;
 
-function MOD:NewAnchor(parent, max, tipAnchor, x, y)
+function MOD:NewAnchor(parent, maxCount, tipAnchor, x, y)
   ListNeedsUpdate = true
   MOD.Anchors[parent:GetName()] = parent;
   parent.holders = {};
-  parent.numPoints = max;
+  parent.numPoints = maxCount;
   parent.xOff = x;
   parent.yOff = y;
   parent.anchor = tipAnchor;
-  for i = 1, max do 
+  for i = 1, maxCount do 
     local this = MOD.PlotPoints[i]
     if not parent.holders[this] then
       parent.holders[this] = CreateFrame("Button", "DataText"..i, parent)
@@ -165,12 +184,12 @@ function MOD:NewAnchor(parent, max, tipAnchor, x, y)
       parent.holders[this].textframe:SetFrameStrata("HIGH")
       parent.holders[this].text = parent.holders[this].textframe:CreateFontString(nil, "OVERLAY", nil, 7)
       parent.holders[this].text:SetAllPoints()
-      parent.holders[this].text:SetFontTemplate(LSM:Fetch("font", MOD.db.font), MOD.db.fontSize, MOD.db.fontOutline)
+      parent.holders[this].text:SetFontTemplate(SuperVillain.Shared:Fetch("font", MOD.db.font), MOD.db.fontSize, MOD.db.fontOutline)
       parent.holders[this].text:SetJustifyH("CENTER")
       parent.holders[this].text:SetJustifyV("middle")
     end;
     parent.holders[this].MenuList = {};
-    parent.holders[this]:Point(GrabPlot(parent, i, max))
+    parent.holders[this]:Point(GrabPlot(parent, i, maxCount))
   end;
   parent:SetScript("OnSizeChanged", UpdateAnchor)
   UpdateAnchor(parent)
@@ -266,6 +285,8 @@ do
           tinsert(UISpecialFrames, StatMenuFrame:GetName())
           StatMenuFrame:Hide()
       end
+      local maxPerColumn = 25
+      local cols = 1
       for i=1, #StatMenuFrame.buttons do
           StatMenuFrame.buttons[i]:Hide()
       end
@@ -292,18 +313,22 @@ do
           StatMenuFrame.buttons[i]:SetScript("OnClick", DD_OnClick)
           if i == 1 then
               StatMenuFrame.buttons[i]:SetPoint("TOPLEFT", StatMenuFrame, "TOPLEFT", 10, -10)
+          elseif((i -1) % maxPerColumn == 0) then
+              StatMenuFrame.buttons[i]:SetPoint("TOPLEFT", StatMenuFrame.buttons[i - maxPerColumn], "TOPRIGHT", 10, 0)
+              cols = cols + 1
           else
-              StatMenuFrame.buttons[i]:SetPoint("TOPLEFT", StatMenuFrame.buttons[i-1], "BOTTOMLEFT")
+              StatMenuFrame.buttons[i]:SetPoint("TOPLEFT", StatMenuFrame.buttons[i - 1], "BOTTOMLEFT")
           end
       end
-      StatMenuFrame:SetHeight((#list * 16) + 20)
-      StatMenuFrame:SetWidth(155)    
+      local maxHeight = (min(maxPerColumn, #list) * 16) + 20
+      local maxWidth = (135 * cols) + (10 * cols)
+      StatMenuFrame:SetSize(maxWidth, maxHeight)    
       StatMenuFrame:ClearAllPoints()
       local point = _locate(self:GetParent()) 
       if strfind(point, "BOTTOM") then
-          StatMenuFrame:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 0)
+          StatMenuFrame:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 10, 10)
       else
-          StatMenuFrame:SetPoint("TOPLEFT", self, "BOTTOMLEFT", 0, 0)
+          StatMenuFrame:SetPoint("TOPLEFT", self, "BOTTOMLEFT", 10, -10)
       end
       ToggleFrame(StatMenuFrame)
   end
@@ -314,8 +339,9 @@ do
     elseif(self.onClick) then
       if(StatMenuFrame:IsShown()) then
         ToggleFrame(StatMenuFrame)
+      else
+        self.onClick(self, button);
       end
-      self.onClick(self, button);
     end
   end
 
@@ -417,7 +443,6 @@ do
   end
 
   local function SetMenuLists()
-    -- print(table.dump(MOD.Anchors))
     for place,parent in pairs(MOD.Anchors)do
       for h = 1, parent.numPoints do 
         local this = MOD.PlotPoints[h]
@@ -443,7 +468,7 @@ do
         parent.holders[this]:SetScript("OnEnter", nil)
         parent.holders[this]:SetScript("OnLeave", nil)
         parent.holders[this]:SetScript("OnClick", nil)
-        parent.holders[this].text:SetFontTemplate(LSM:Fetch("font", MOD.db.font), MOD.db.fontSize, MOD.db.fontOutline)
+        parent.holders[this].text:SetFontTemplate(SuperVillain.Shared:Fetch("font", MOD.db.font), MOD.db.fontSize, MOD.db.fontOutline)
         parent.holders[this].text:SetText(nil)
         if parent.holders[this].barframe then 
           parent.holders[this].barframe:Hide()
@@ -477,7 +502,7 @@ do
   end
 
   local BGStatColorUpdate = function()
-    BGStatString = string.join("","%s: ", hexString, "%s|r")
+    BGStatString = join("","%s: ", hexString, "%s|r")
     if BGStatPrev ~= nil then 
       BG_OnUpdate(BGStatPrev)
     end 
@@ -489,11 +514,11 @@ end;
 BUILD FUNCTION / UPDATE
 ##########################################################
 ]]--
-function MOD:UpdateThisPackage()
+function MOD:ReLoad()
   self:Generate()
 end;
 
-function MOD:ConstructThisPackage()
+function MOD:Load()
   hexString = SuperVillain:HexColor("highlight") or "|cffFFFFFF"
   SVUI_Global["Accountant"] = SVUI_Global["Accountant"] or {};
   SVUI_Global["Accountant"][SuperVillain.realm] = SVUI_Global["Accountant"][SuperVillain.realm] or {};
@@ -505,7 +530,8 @@ function MOD:ConstructThisPackage()
   SuperVillain.Registry:RunTemp("SVStats")
 
   StatMenuFrame:SetParent(SuperVillain.UIParent);
-  StatMenuFrame:SetPanelTemplate("Button");
+  StatMenuFrame:SetPanelTemplate("Transparent");
+  StatMenuFrame:Hide()
 	MOD.tooltip:SetParent(SuperVillain.UIParent)
   MOD.tooltip:SetFrameStrata("DIALOG")
 	MOD.tooltip:HookScript("OnShow", _hook_TooltipOnShow)

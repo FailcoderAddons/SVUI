@@ -56,7 +56,6 @@ local MOD = SuperVillain.Registry:Expose('SVStats');
 LOCALIZED GLOBALS
 ##########################################################
 ]]--
-local SVUI_CLASS_COLORS = _G.SVUI_CLASS_COLORS
 local RAID_CLASS_COLORS = _G.RAID_CLASS_COLORS
 --[[ 
 ########################################################## 
@@ -186,10 +185,12 @@ local function BuildBNTable(total)
 	wipe(BNTableWTCG)
 
 	local _, presenceID, presenceName, battleTag, isBattleTagPresence, toonName, toonID, client, isOnline, lastOnline, isAFK, isDND, messageText, noteText, isRIDFriend, messageTime, canSoR
-	local hasFocus, realmName, realmID, faction, race, class, guild, zoneName, level, gameText
+	local toonName, client, realmName, realmID, faction, race, class, zoneName, level, gameText, broadcastText, broadcastTime
 	for i = 1, total do
+	--  presenceID, presenceName, battleTag, isBattleTagPresence, toonName, toonID, client, isOnline, lastOnline, isAFK, isDND, messageText, noteText, isRIDFriend, broadcastTime, canSoR
 		presenceID, presenceName, battleTag, isBattleTagPresence, toonName, toonID, client, isOnline, lastOnline, isAFK, isDND, messageText, noteText, isRIDFriend, messageTime, canSoR = BNGetFriendInfo(i)
-		hasFocus, _, _, realmName, realmID, faction, race, class, guild, zoneName, level, gameText = BNGetToonInfo(presenceID);
+	--  unknown, toonName, client, realmName, realmID, faction, race, class, unknown, zoneName, level, gameText, broadcastText, broadcastTime, unknown, presenceID
+		_, _, _, realmName, realmID, faction, race, class, _, zoneName, level, gameText, broadcastText, broadcastTime, _, _ = BNGetToonInfo(presenceID);
 		
 		if isOnline then 
 			for k,v in pairs(LOCALIZED_CLASS_NAMES_MALE) do if class == v then class = k end end
@@ -207,7 +208,7 @@ local function BuildBNTable(total)
 		end
 	end
 	
-	sort(BNTable, Sort)	
+	--sort(BNTable, Sort)	
 	sort(BNTableWoW, Sort)
 	sort(BNTableSC, Sort)
 	sort(BNTableD3, Sort)
@@ -251,7 +252,7 @@ local function Click(self, btn)
 					menuCountInvites = menuCountInvites + 1
 					menuCountWhispers = menuCountWhispers + 1
 		
-					classc, levelc = (SVUI_CLASS_COLORS or RAID_CLASS_COLORS)[info[3]], GetQuestDifficultyColor(info[2])
+					classc, levelc = RAID_CLASS_COLORS[info[3]], GetQuestDifficultyColor(info[2])
 					classc = classc or GetQuestDifficultyColor(info[2]);
 		
 					menuList[2].menuList[menuCountInvites] = {text = format(levelNameString,levelc.r*255,levelc.g*255,levelc.b*255,info[2],classc.r*255,classc.g*255,classc.b*255,info[1]), arg1 = info[1],notCheckable=true, func = inviteClick}
@@ -269,7 +270,7 @@ local function Click(self, btn)
 					menuList[3].menuList[menuCountWhispers] = {text = realID, arg1 = realID, arg2 = true, notCheckable=true, func = whisperClick}
 
 					if info[6] == wowString and UnitFactionGroup("player") == info[12] then
-						classc, levelc = (SVUI_CLASS_COLORS or RAID_CLASS_COLORS)[info[14]], GetQuestDifficultyColor(info[16])
+						classc, levelc = RAID_CLASS_COLORS[info[14]], GetQuestDifficultyColor(info[16])
 						classc = classc or GetQuestDifficultyColor(info[16])
 
 						if UnitInParty(info[4]) or UnitInRaid(info[4]) then grouped = 1 else grouped = 2 end
@@ -315,7 +316,7 @@ local function OnEnter(self)
 			info = friendTable[i]
 			if info[5] then
 				if GetRealZoneText() == info[4] then zonec = activezone else zonec = inactivezone end
-				classc, levelc = (SVUI_CLASS_COLORS or RAID_CLASS_COLORS)[info[3]], GetQuestDifficultyColor(info[2])
+				classc, levelc = RAID_CLASS_COLORS[info[3]], GetQuestDifficultyColor(info[2])
 				
 				classc = classc or GetQuestDifficultyColor(info[2])
 				
@@ -327,25 +328,32 @@ local function OnEnter(self)
 
 	if numBNetOnline > 0 then
 		local status = 0
-		for client, BNTable in pairs(tableList) do
-			if #BNTable > 0 then
+		for client, list in pairs(tableList) do
+			if #list > 0 then
 				MOD.tooltip:AddLine(' ')
 				MOD.tooltip:AddLine(battleNetString..' ('..client..')')			
-				for i = 1, #BNTable do
-					info = BNTable[i]
+				for i = 1, #list do
+					info = list[i]
+					-- for x = 1, #info do
+					-- 	print(x)
+					-- 	print(info[x])
+					-- 	print("-----")
+					-- end
 					if info[6] then
 						if info[5] == wowString then
 							if (info[7] == true) then status = 1 elseif (info[8] == true) then status = 2 else status = 3 end
-							classc = (SVUI_CLASS_COLORS or RAID_CLASS_COLORS)[info[13]]
-							if info[15] ~= '' then
-								levelc = GetQuestDifficultyColor(info[15])
-							else
-								levelc = RAID_CLASS_COLORS["PRIEST"]
-								classc = RAID_CLASS_COLORS["PRIEST"]
-							end
+							classc = RAID_CLASS_COLORS[info[13]]
 
 							if UnitInParty(info[4]) or UnitInRaid(info[4]) then grouped = 1 else grouped = 2 end
-							MOD.tooltip:AddDoubleLine(format(levelNameString,levelc.r*255,levelc.g*255,levelc.b*255,info[15],classc.r*255,classc.g*255,classc.b*255,info[3],groupedTable[grouped], 255, 0, 0, statusTable[status]),info[2],238,238,238,238,238,238)
+
+							if info[15] ~= '' then
+								levelc = GetQuestDifficultyColor(info[15])
+								MOD.tooltip:AddDoubleLine(format(levelNameString, levelc.r*255, levelc.g*255, levelc.b*255, info[15], classc.r*255, classc.g*255, classc.b*255, info[3], groupedTable[grouped], 255, 0, 0, statusTable[status]), info[2], 238, 238, 238, 238, 238, 238)
+							else
+								classc = classc or RAID_CLASS_COLORS["PRIEST"]
+								MOD.tooltip:AddDoubleLine(format("|cff%02x%02x%02x%s|r", classc.r*255, classc.g*255, classc.b*255, info[3], groupedTable[grouped], 255, 0, 0, statusTable[status]), info[2], 238, 238, 238, 238, 238, 238)
+							end
+
 							if IsShiftKeyDown() then
 								if GetRealZoneText() == info[14] then zonec = activezone else zonec = inactivezone end
 								if GetRealmName() == info[10] then realmc = activezone else realmc = inactivezone end

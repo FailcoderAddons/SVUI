@@ -49,7 +49,6 @@ GET ADDON DATA
 ]]--
 local SuperVillain, L = unpack(select(2, ...));
 local MOD = SuperVillain.Registry:Expose('SVPlate');
-local LSM = LibStub("LibSharedMedia-3.0");
 --[[ 
 ########################################################## 
 LOCALS AND TRACKER FRAME
@@ -419,7 +418,7 @@ MODULE FUNCTIONS
 ##########################################################
 ]]--
 function MOD:UpdateAuraLocals()
-  AuraFont = LSM:Fetch("font", self.db.auras.font);
+  AuraFont = SuperVillain.Shared:Fetch("font", self.db.auras.font);
   AuraFSize = self.db.auras.fontSize;
   AuraFOutline = self.db.auras.fontOutline;
   AuraExtraFilter = self.db.auras.additionalFilter;

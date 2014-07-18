@@ -34,7 +34,6 @@ GET ADDON DATA
 ]]--
 local SuperVillain, L = unpack(select(2, ...));
 local MOD = SuperVillain.Registry:Expose('SVStats');
-local LSM = LibStub("LibSharedMedia-3.0");
 --[[ 
 ########################################################## 
 EXPERIENCE STATS
@@ -67,7 +66,7 @@ local function Experience_OnEvent(self, ...)
 		self.text:SetAllPoints(self)
 		self.text:SetJustifyH("CENTER")
 		self.barframe:Hide()
-		self.text:SetFontTemplate(LSM:Fetch("font",SuperVillain.db.SVStats.font),SuperVillain.db.SVStats.fontSize,SuperVillain.db.SVStats.fontOutline)
+		self.text:SetFontTemplate(SuperVillain.Shared:Fetch("font",SuperVillain.db.SVStats.font),SuperVillain.db.SVStats.fontSize,SuperVillain.db.SVStats.fontOutline)
 	end;
 	local f, g = getUnitXP("player")
 	local h = GetXPExhaustion()
@@ -84,7 +83,7 @@ local function ExperienceBar_OnEvent(self, ...)
 	if ((UnitLevel("player") ~= GetMaxPlayerLevel()) and not self.barframe:IsShown())then
 		self.barframe:Show()
 		self.barframe.icon.texture:SetTexture("Interface\\Addons\\SVUI\\assets\\artwork\\Icons\\STAT-XP")
-		self.text:SetFontTemplate(LSM:Fetch("font",SuperVillain.db.SVStats.font),SuperVillain.db.SVStats.fontSize,"NONE")
+		self.text:SetFontTemplate(SuperVillain.Shared:Fetch("font",SuperVillain.db.SVStats.font),SuperVillain.db.SVStats.fontSize,"NONE")
 	end;
 	if not self.barframe.bar.extra:IsShown() then
 		self.barframe.bar.extra:Show()
