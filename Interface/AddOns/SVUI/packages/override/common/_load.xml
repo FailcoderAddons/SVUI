@@ -1,5 +1,0 @@
-<Ui xmlns="http://www.blizzard.com/wow/ui/">
-	<Script file='alert.lua'/>
-	<Script file='looting.lua'/>
-	<Script file='mirror.lua'/>
-</Ui>

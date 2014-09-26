@@ -1,4 +1,0 @@
-<Ui xmlns="http://www.blizzard.com/wow/ui/">
-	<Script file='sorting.lua'/>
-	<Script file='breakstuff.lua'/>
-</Ui>

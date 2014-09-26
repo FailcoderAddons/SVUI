@@ -1,4 +1,0 @@
-<Ui xmlns="http://www.blizzard.com/wow/ui/">
-	<Script file='SVHenchmen.lua'/>
-	<Include file='common\_load.xml'/>
-</Ui>
