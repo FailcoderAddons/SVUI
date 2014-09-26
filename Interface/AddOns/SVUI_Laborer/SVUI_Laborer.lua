@@ -1,0 +1,668 @@
+--[[
+##############################################################################
+_____/\\\\\\\\\\\____/\\\________/\\\__/\\\________/\\\__/\\\\\\\\\\\_       #
+ ___/\\\/////////\\\_\/\\\_______\/\\\_\/\\\_______\/\\\_\/////\\\///__      #
+  __\//\\\______\///__\//\\\______/\\\__\/\\\_______\/\\\_____\/\\\_____     #
+   ___\////\\\__________\//\\\____/\\\___\/\\\_______\/\\\_____\/\\\_____    #
+    ______\////\\\________\//\\\__/\\\____\/\\\_______\/\\\_____\/\\\_____   #
+     _________\////\\\______\//\\\/\\\_____\/\\\_______\/\\\_____\/\\\_____  #
+      __/\\\______\//\\\______\//\\\\\______\//\\\______/\\\______\/\\\_____ #
+       _\///\\\\\\\\\\\/________\//\\\________\///\\\\\\\\\/____/\\\\\\\\\\\_#
+        ___\///////////___________\///___________\/////////_____\///////////_#
+##############################################################################
+S U P E R - V I L L A I N - U I   By: Munglunch                              #
+##############################################################################
+########################################################## 
+LOCALIZED LUA FUNCTIONS
+##########################################################
+]]--
+
+--[[  CONSTANTS ]]--
+
+BINDING_HEADER_SVUILABORER = "Supervillain UI: Laborer";
+BINDING_NAME_SVUILABORER_FISH = "Toggle Fishing Mode";
+BINDING_NAME_SVUILABORER_FARM = "Toggle Farming Mode";
+BINDING_NAME_SVUILABORER_COOK = "Toggle Cooking Mode";
+BINDING_NAME_SVUILABORER_ARCH = "Toggle Archaeology Mode";
+
+--[[ GLOBALS ]]--
+
+local _G = _G;
+local unpack 	= _G.unpack;
+local select 	= _G.select;
+local type 		= _G.type;
+local string    = _G.string;
+local math 		= _G.math;
+local table 	= _G.table;
+local rept      = string.rep; 
+local tsort,twipe = table.sort,table.wipe;
+local floor,ceil  = math.floor, math.ceil;
+--[[ 
+########################################################## 
+GET ADDON DATA
+##########################################################
+]]--
+local SVUIAddOnName, PLUGIN = ...;
+local SV = SVUI
+local SVLib = LibStub("LibSuperVillain-1.0")
+local L = SVLib:Lang()
+local NewHook = hooksecurefunc;
+
+local playerGUID = UnitGUID('player')
+local classColor = RAID_CLASS_COLORS
+
+PLUGIN = SVLib:NewPrototype(SVUIAddOnName)
+local Schema = PLUGIN.Schema;
+
+_G["LaborVillain"] = PLUGIN;
+--[[ 
+########################################################## 
+GLOBAL BINDINGS
+##########################################################
+]]--
+function SVUIFishingMode()
+	if InCombatLockdown() then SV:AddonMessage(ERR_NOT_IN_COMBAT); return; end
+	if PLUGIN.CurrentMode and PLUGIN.CurrentMode == "Fishing" then PLUGIN:EndJobModes() else PLUGIN:SetJobMode("Fishing") end
+end
+
+function SVUIFarmingMode()
+	if InCombatLockdown() then SV:AddonMessage(ERR_NOT_IN_COMBAT); return; end
+	if PLUGIN.CurrentMode and SV.CurrentMode == "Farming" then PLUGIN:EndJobModes() else PLUGIN:SetJobMode("Farming") end
+end
+
+function SVUIArchaeologyMode()
+	if InCombatLockdown() then SV:AddonMessage(ERR_NOT_IN_COMBAT); return; end
+	if PLUGIN.CurrentMode and PLUGIN.CurrentMode == "Archaeology" then PLUGIN:EndJobModes() else PLUGIN:SetJobMode("Archaeology") end
+end
+
+function SVUICookingMode()
+	if InCombatLockdown() then SV:AddonMessage(ERR_NOT_IN_COMBAT); return; end
+	if PLUGIN.CurrentMode and PLUGIN.CurrentMode == "Cooking" then PLUGIN:EndJobModes() else PLUGIN:SetJobMode("Cooking") end
+end
+--[[ 
+########################################################## 
+LOCALIZED GLOBALS
+##########################################################
+]]--
+local LOOT_ITEM_SELF = _G.LOOT_ITEM_SELF;
+local LOOT_ITEM_CREATED_SELF = _G.LOOT_ITEM_CREATED_SELF;
+local LOOT_ITEM_SELF_MULTIPLE = _G.LOOT_ITEM_SELF_MULTIPLE
+local LOOT_ITEM_PUSHED_SELF_MULTIPLE = _G.LOOT_ITEM_PUSHED_SELF_MULTIPLE
+local LOOT_ITEM_PUSHED_SELF = _G.LOOT_ITEM_PUSHED_SELF
+--[[ 
+########################################################## 
+LOCAL VARS
+##########################################################
+]]--
+local currentModeKey = false;
+local ModeLogsFrame = CreateFrame("Frame", "SVUI_ModeLogsFrame", UIParent)
+local classColors = SVUI_CLASS_COLORS[SV.class]
+local classR, classG, classB = classColors.r, classColors.g, classColors.b
+local classA = 0.35
+local lastClickTime;
+local ICON_FILE = [[Interface\AddOns\SVUI_Laborer\artwork\DOCK-LABORER]]
+local COOK_ICON = [[Interface\AddOns\SVUI_Laborer\artwork\LABORER-COOKING]]
+local FISH_ICON = [[Interface\AddOns\SVUI_Laborer\artwork\LABORER-FISHING]]
+local ARCH_ICON = [[Interface\AddOns\SVUI_Laborer\artwork\LABORER-SURVEY]]
+local FARM_ICON = [[Interface\AddOns\SVUI_Laborer\artwork\LABORER-FARMING]]
+--[[ 
+########################################################## 
+LOCAL FUNCTIONS
+##########################################################
+]]--
+local function SendModeMessage(...)
+	if not CombatText_AddMessage then return end 
+	CombatText_AddMessage(...)
+end 
+
+local function onMouseWheel(self, delta)
+	if (delta > 0) then
+		self:ScrollUp()
+	elseif (delta < 0) then
+		self:ScrollDown()
+	end
+end 
+
+local function CheckForDoubleClick()
+	if lastClickTime then
+		local pressTime = GetTime()
+		local doubleTime = pressTime - lastClickTime
+		if ( (doubleTime < 0.4) and (doubleTime > 0.05) ) then
+			lastClickTime = nil
+			return true
+		end
+	end
+	lastClickTime = GetTime()
+	return false
+end
+--[[ 
+########################################################## 
+CORE FUNCTIONS
+##########################################################
+]]--
+SV.configs[Schema] = {
+	["enable"] = true, 
+	["fontSize"] = 12, 
+	["farming"] = {
+		["buttonsize"] = 35, 
+		["buttonspacing"] = 3, 
+		["onlyactive"] = false, 
+		["droptools"] = true, 
+		["toolbardirection"] = "HORIZONTAL", 
+	}, 
+	["fishing"] = {
+		["autoequip"] = true, 
+	}, 
+	["cooking"] = {
+		["autoequip"] = true, 
+	}, 
+}
+
+function PLUGIN:WorldFrameHook(button)
+	if InCombatLockdown() then return end
+	if(currentModeKey and button == "RightButton" and CheckForDoubleClick()) then
+		local handle = PLUGIN[currentModeKey];
+		if(handle and handle.Bind) then
+			handle.Bind()
+		end
+	end
+end
+
+function SVUI_ModeCaptureWindow:PostClickHandler()
+	if InCombatLockdown() then 
+		self:RegisterEvent("PLAYER_REGEN_ENABLED")
+		return 
+	end
+	ClearOverrideBindings(self)
+	self.Grip:Hide()
+end
+
+function PLUGIN:LaborerReset()
+	self.TitleWindow:Clear();
+	self.LogWindow:Clear();
+	self.TitleWindow:AddMessage("Laborer Modes", 1, 1, 0);
+	self.LogWindow:AddMessage("Select a Tool to Begin", 1, 1, 1);
+	self.LogWindow:AddMessage(" ", 0, 1, 1);
+	collectgarbage("collect") 
+end
+
+function PLUGIN:ModeLootLoader(mode, msg, info)
+	self.TitleWindow:Clear();
+	self.LogWindow:Clear();
+	self.ModeAlert.HelpText = info
+	if(mode and self[mode]) then
+		if(self[mode].Log) then
+			local stored = self[mode].Log;
+			self.TitleWindow:AddMessage(msg, 1, 1, 1);
+			local previous = false
+			for name,data in pairs(stored) do
+				if type(data) == "table" and data.amount and data.texture then
+					self.LogWindow:AddMessage("|cff55FF55"..data.amount.." x|r |T".. data.texture ..":16:16:0:0:64:64:4:60:4:60|t".." "..name, 0.8, 0.8, 0.8);
+					previous = true
+				end
+			end 
+			if(previous) then
+				self.LogWindow:AddMessage("----------------", 0, 0, 0);
+				self.LogWindow:AddMessage(" ", 0, 0, 0);
+			end
+			self.LogWindow:AddMessage(info, 1, 1, 1);
+			self.LogWindow:AddMessage(" ", 1, 1, 1);
+		end
+	else
+		self:LaborerReset()
+	end 
+end
+
+function PLUGIN:CheckForModeLoot(msg)
+  	local item, amt = SV:DeFormat(msg, LOOT_ITEM_CREATED_SELF)
+	if not item then
+	  item = SV:DeFormat(msg, LOOT_ITEM_SELF_MULTIPLE)
+	  	if not item then
+		  item = SV:DeFormat(msg, LOOT_ITEM_SELF)
+		  	if not item then
+		      	item = SV:DeFormat(msg, LOOT_ITEM_PUSHED_SELF_MULTIPLE)
+		      	if not item then
+		        	item, amt = SV:DeFormat(msg, LOOT_ITEM_PUSHED_SELF)
+		        	--print(item)
+		      	end
+		    end
+		end
+	end
+	--print(msg)
+	if item then
+		if not amt then
+		  	amt = 1
+		end
+		return item, amt
+	end
+end 
+
+function PLUGIN:SetJobMode(category)
+	if InCombatLockdown() then return end
+	if(not category) then 
+		self:EndJobModes()
+		return;
+	end 
+	self:ChangeModeGear()
+	if(currentModeKey and self[currentModeKey] and self[currentModeKey].Disable) then
+		self[currentModeKey].Disable()
+	end
+	currentModeKey = category;
+	if(self[category] and self[category].Enable) then
+		self[category].Enable()
+	else
+		self:EndJobModes()
+		return;
+	end
+end
+
+function PLUGIN:EndJobModes()
+	if(currentModeKey and self[currentModeKey] and self[currentModeKey].Disable) then
+		self[currentModeKey].Disable()
+	end
+	currentModeKey = false;
+	if SVUI_ModesDockFrame:IsShown() then SVUI_ModesDockFrame_ToolBarButton:Click() end
+	self:ChangeModeGear()
+	self.ModeAlert:Hide();
+	SendModeMessage("Mode Disabled", CombatText_StandardScroll, 1, 0.35, 0);
+	PlaySound("UndeadExploration");
+	self:LaborerReset()
+end
+
+function PLUGIN:ChangeModeGear()
+	if(not self.InModeGear) then return end
+	if InCombatLockdown() then
+		_G["SVUI_ModeCaptureWindow"]:RegisterEvent("PLAYER_REGEN_ENABLED");
+		return
+	else
+		if(self.WornItems["HEAD"]) then
+			EquipItemByName(self.WornItems["HEAD"])
+			self.WornItems["HEAD"] = false
+		end
+		if(self.WornItems["TAB"]) then
+			EquipItemByName(self.WornItems["TAB"])
+			self.WornItems["TAB"] = false
+		end
+		if(self.WornItems["MAIN"]) then
+			EquipItemByName(self.WornItems["MAIN"])
+			self.WornItems["MAIN"] = false
+		end
+		if(self.WornItems["OFF"]) then
+			EquipItemByName(self.WornItems["OFF"])
+			self.WornItems["OFF"] = false
+		end
+
+		self.InModeGear = false
+	end
+end
+
+function PLUGIN:UpdateLogWindow()
+ 	self.LogWindow:SetFont(SV.Media.font.system, self.db.fontSize, "OUTLINE")
+end
+
+function PLUGIN:MakeLogWindow()
+	local DOCK_WIDTH = SVUI_ModesDockFrame:GetWidth();
+	local DOCK_HEIGHT = SVUI_ModesDockFrame:GetHeight();
+
+	ModeLogsFrame:SetFrameStrata("MEDIUM")
+	ModeLogsFrame:SetPoint("TOPLEFT",SVUI_ModeButton1,"TOPRIGHT",5,-5)
+	ModeLogsFrame:SetPoint("BOTTOMRIGHT",SVUI_ModesDockFrame,"BOTTOMRIGHT",-5,5)
+	ModeLogsFrame:SetParent(SVUI_ModesDockFrame)
+
+	local title = CreateFrame("ScrollingMessageFrame", nil, ModeLogsFrame)
+	title:SetSpacing(4)
+	title:SetClampedToScreen(false)
+	title:SetFrameStrata("MEDIUM")
+	title:SetPoint("TOPLEFT",ModeLogsFrame,"TOPLEFT",0,0)
+	title:SetPoint("BOTTOMRIGHT",ModeLogsFrame,"TOPRIGHT",0,-20)
+	title:SetFontTemplate(UNIT_NAME_FONT, 16, "OUTLINE", "CENTER", "MIDDLE")
+	title:SetMaxLines(1)
+	title:EnableMouseWheel(false)
+	title:SetFading(false)
+	title:SetInsertMode('TOP')
+
+	title.divider = title:CreateTexture(nil,"OVERLAY")
+    title.divider:SetTexture(0,0,0,0.5)
+    title.divider:SetPoint("BOTTOMLEFT")
+    title.divider:SetPoint("BOTTOMRIGHT")
+    title.divider:SetHeight(1)
+
+    local topleftline = title:CreateTexture(nil,"OVERLAY")
+    topleftline:SetTexture(0,0,0,0.5)
+    topleftline:SetPoint("TOPLEFT")
+    topleftline:SetPoint("BOTTOMLEFT")
+    topleftline:SetWidth(1)
+
+	local log = CreateFrame("ScrollingMessageFrame", nil, ModeLogsFrame)
+	log:SetSpacing(4)
+	log:SetClampedToScreen(false)
+	log:SetFrameStrata("MEDIUM")
+	log:SetPoint("TOPLEFT",title,"BOTTOMLEFT",0,0)
+	log:SetPoint("BOTTOMRIGHT",ModeLogsFrame,"BOTTOMRIGHT",0,0)
+	log:SetFontTemplate(nil, self.db.fontSize, "OUTLINE")
+	log:SetJustifyH("CENTER")
+	log:SetJustifyV("MIDDLE")
+	log:SetShadowColor(0, 0, 0, 0)
+	log:SetMaxLines(120)
+	log:EnableMouseWheel(true)
+	log:SetScript("OnMouseWheel", onMouseWheel)
+	log:SetFading(false)
+	log:SetInsertMode('TOP')
+
+	local bottomleftline = log:CreateTexture(nil,"OVERLAY")
+    bottomleftline:SetTexture(0,0,0,0.5)
+    bottomleftline:SetPoint("TOPLEFT")
+    bottomleftline:SetPoint("BOTTOMLEFT")
+    bottomleftline:SetWidth(1)
+
+	self.TitleWindow = title
+	self.LogWindow = log
+
+	self.ListenerEnabled = false;
+	SV:RegisterDocklet("SVUI_ModesDockFrame", "Laborer Modes", ICON_FILE, false)
+	self:LaborerReset()
+end
+
+function PLUGIN:SKILL_LINES_CHANGED()
+	if(currentModeKey and self[currentModeKey] and self[currentModeKey].Update) then
+		self[currentModeKey].Update()
+	end
+end
+--[[ 
+########################################################## 
+BUILD FUNCTION / UPDATE
+##########################################################
+]]--
+local ModeAlert_OnEnter = function(self)
+	if InCombatLockdown() then return; end
+	self:SetBackdropColor(0.9, 0.15, 0.1)
+	GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT", 0, 4)
+	GameTooltip:ClearLines()
+	GameTooltip:AddLine(self.ModeText, 1, 1, 0)
+	GameTooltip:AddLine("")
+	GameTooltip:AddLine("Click here end this mode.", 0.79, 0.23, 0.23)
+	GameTooltip:AddLine("")
+	GameTooltip:AddLine(self.HelpText, 0.74, 1, 0.57)
+	GameTooltip:Show()
+end
+
+local ModeAlert_OnLeave = function(self)
+	GameTooltip:Hide()
+	if InCombatLockdown() then return end 
+	self:SetBackdropColor(0.25, 0.52, 0.1)
+end
+
+local ModeAlert_OnHide = function()
+	if InCombatLockdown() then 
+		SV:AddonMessage(ERR_NOT_IN_COMBAT);  
+		return; 
+	end
+	SuperDockAlertRight:Deactivate()
+end
+
+local ModeAlert_OnShow = function(self)
+	if InCombatLockdown() then 
+		SV:AddonMessage(ERR_NOT_IN_COMBAT); 
+		self:Hide() 
+		return; 
+	end
+	SV:SecureFadeIn(self, 0.3, 0, 1)
+	SuperDockAlertRight:Activate(self)
+end
+
+local ModeAlert_OnMouseDown = function(self)
+	PLUGIN:EndJobModes()
+	SV:SecureFadeOut(self, 0.5, 1, 0, true)
+end
+
+local ModeButton_OnEnter = function(self)
+	if InCombatLockdown() then return; end
+	local name = self.modeName
+	self.icon:SetGradient(unpack(SV.Media.gradient.yellow))
+	GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT", 0, 4)
+	GameTooltip:ClearLines()
+	GameTooltip:AddLine(L[name .. " Mode"], 1, 1, 1)
+	GameTooltip:Show()
+end
+
+local ModeButton_OnLeave = function(self)
+	if InCombatLockdown() then return; end
+	self.icon:SetGradient("VERTICAL", 0.5, 0.53, 0.55, 0.8, 0.8, 1)
+	GameTooltip:Hide()
+end
+
+local ModeButton_OnMouseDown = function(self)
+	local name = self.modeName
+	PLUGIN:SetJobMode(name)
+end
+--[[ 
+########################################################## 
+BUILD FUNCTION
+##########################################################
+]]--
+function PLUGIN:Load()
+	if(not self.db.enable) then return end
+
+	lastClickTime = nil;
+	self.WornItems = {};
+	self.InModeGear = false;
+
+	local ALERT_HEIGHT = 60;
+	local DOCK_WIDTH = SuperDockWindowRight:GetWidth();
+	local DOCK_HEIGHT = SuperDockWindowRight:GetHeight();
+	local BUTTON_SIZE = (DOCK_HEIGHT * 0.25) - 4;
+
+	local modesDocklet = CreateFrame("Frame", "SVUI_ModesDockFrame", SuperDockWindowRight)
+	modesDocklet:SetWidth(DOCK_WIDTH - 4);
+	modesDocklet:SetHeight(DOCK_HEIGHT - 4);
+	modesDocklet:SetPoint("CENTER",SuperDockWindowRight,"CENTER",0,0);
+
+	local modesToolBar = CreateFrame("Frame", "SVUI_ModesDockToolBar", modesDocklet)
+	modesToolBar:SetWidth(BUTTON_SIZE + 4);
+	modesToolBar:SetHeight((BUTTON_SIZE + 4) * 4);
+	modesToolBar:SetPoint("BOTTOMLEFT",modesDocklet,"BOTTOMLEFT",0,0);
+
+	local mode4Button = CreateFrame("Frame", "SVUI_ModeButton4", modesToolBar)
+	mode4Button:SetPoint("BOTTOM",modesToolBar,"BOTTOM",0,0)
+	mode4Button:SetSize(BUTTON_SIZE,BUTTON_SIZE)
+	mode4Button.icon = mode4Button:CreateTexture(nil, 'OVERLAY')
+	mode4Button.icon:SetTexture(FARM_ICON)
+	mode4Button.icon:FillInner(mode4Button)
+	mode4Button.icon:SetGradient("VERTICAL", 0.5, 0.53, 0.55, 0.8, 0.8, 1)
+	mode4Button.modeName = "Farming"
+	mode4Button:SetScript('OnEnter', ModeButton_OnEnter)
+	mode4Button:SetScript('OnLeave', ModeButton_OnLeave)
+	mode4Button:SetScript('OnMouseDown', ModeButton_OnMouseDown)
+
+	local mode3Button = CreateFrame("Frame", "SVUI_ModeButton3", modesToolBar)
+	mode3Button:SetPoint("BOTTOM",mode4Button,"TOP",0,2)
+	mode3Button:SetSize(BUTTON_SIZE,BUTTON_SIZE)
+	mode3Button.icon = mode3Button:CreateTexture(nil, 'OVERLAY')
+	mode3Button.icon:SetTexture(ARCH_ICON)
+	mode3Button.icon:FillInner(mode3Button)
+	mode3Button.icon:SetGradient("VERTICAL", 0.5, 0.53, 0.55, 0.8, 0.8, 1)
+	mode3Button.modeName = "Archaeology"
+	mode3Button:SetScript('OnEnter', ModeButton_OnEnter)
+	mode3Button:SetScript('OnLeave', ModeButton_OnLeave)
+	mode3Button:SetScript('OnMouseDown', ModeButton_OnMouseDown)
+
+	local mode2Button = CreateFrame("Frame", "SVUI_ModeButton2", modesToolBar)
+	mode2Button:SetPoint("BOTTOM",mode3Button,"TOP",0,2)
+	mode2Button:SetSize(BUTTON_SIZE,BUTTON_SIZE)
+	mode2Button.icon = mode2Button:CreateTexture(nil, 'OVERLAY')
+	mode2Button.icon:SetTexture(FISH_ICON)
+	mode2Button.icon:FillInner(mode2Button)
+	mode2Button.icon:SetGradient("VERTICAL", 0.5, 0.53, 0.55, 0.8, 0.8, 1)
+	mode2Button.modeName = "Fishing"
+	mode2Button:SetScript('OnEnter', ModeButton_OnEnter)
+	mode2Button:SetScript('OnLeave', ModeButton_OnLeave)
+	mode2Button:SetScript('OnMouseDown', ModeButton_OnMouseDown)
+
+	local mode1Button = CreateFrame("Frame", "SVUI_ModeButton1", modesToolBar)
+	mode1Button:SetPoint("BOTTOM",mode2Button,"TOP",0,2)
+	mode1Button:SetSize(BUTTON_SIZE,BUTTON_SIZE)
+	mode1Button.icon = mode1Button:CreateTexture(nil, 'OVERLAY')
+	mode1Button.icon:SetTexture(COOK_ICON)
+	mode1Button.icon:FillInner(mode1Button)
+	mode1Button.icon:SetGradient("VERTICAL", 0.5, 0.53, 0.55, 0.8, 0.8, 1)
+	mode1Button.modeName = "Cooking"
+	mode1Button:SetScript('OnEnter', ModeButton_OnEnter)
+	mode1Button:SetScript('OnLeave', ModeButton_OnLeave)
+	mode1Button:SetScript('OnMouseDown', ModeButton_OnMouseDown)
+
+	local ModeAlert = CreateFrame("Frame", nil, SuperDockAlertRight)
+	ModeAlert:SetAllPoints(SuperDockAlertRight)
+	ModeAlert:SetBackdrop({
+        bgFile = [[Interface\AddOns\SVUI\assets\artwork\Bars\HALFTONE]],
+        edgeFile = [[Interface\BUTTONS\WHITE8X8]],
+        tile = true,
+        tileSize = 64,
+        edgeSize = 1,
+        insets = {
+            left = 1,
+            right = 1,
+            top = 1,
+            bottom = 1
+        }
+    })
+
+	ModeAlert:SetBackdropBorderColor(0,0,0,1)
+	ModeAlert:SetBackdropColor(0.25, 0.52, 0.1)
+	ModeAlert.text = ModeAlert:CreateFontString(nil, 'ARTWORK', 'GameFontWhite')
+	ModeAlert.text:SetAllPoints(ModeAlert)
+	ModeAlert.text:SetTextColor(1, 1, 1)
+	ModeAlert.text:SetJustifyH("CENTER")
+	ModeAlert.text:SetJustifyV("MIDDLE")
+	ModeAlert.text:SetText("Click to Exit")
+	ModeAlert.ModeText = "Click to Exit";
+	ModeAlert.HelpText = "";
+	ModeAlert:SetScript('OnEnter', ModeAlert_OnEnter)
+	ModeAlert:SetScript('OnLeave', ModeAlert_OnLeave)
+	ModeAlert:SetScript('OnHide', ModeAlert_OnHide)
+	ModeAlert:SetScript('OnShow', ModeAlert_OnShow)
+	ModeAlert:SetScript('OnMouseDown', ModeAlert_OnMouseDown)
+	ModeAlert:Hide()
+
+	self.ModeAlert = ModeAlert
+
+	self:MakeLogWindow()
+
+	modesDocklet:Hide()
+	
+	self:LoadCookingMode()
+	self:LoadFishingMode()
+	self:LoadArchaeologyMode()
+	self:PrepareFarmingTools()
+	self:RegisterEvent("SKILL_LINES_CHANGED")
+
+	local option = {
+		order = 2,
+		name = L["Font Size"],
+		desc = L["Set the font size of the log window."],
+		type = "range",
+		min = 6,
+		max = 22,
+		step = 1,
+		set = function(j,value)PLUGIN:ChangeDBVar(value,j[#j]);PLUGIN:UpdateLogWindow()end
+	}
+	self:AddOption("fontSize", option)
+	option = {
+		order = 3, 
+		type = "group", 
+		name = L["Fishing Mode Settings"], 
+		guiInline = true, 
+		args = {
+			autoequip = {
+				type = "toggle", 
+				order = 1, 
+				name = L['AutoEquip'], 
+				desc = L['Enable/Disable automatically equipping fishing gear.'], 
+				get = function(key)return self.db.fishing[key[#key]]end,
+				set = function(key, value)PLUGIN:ChangeDBVar(value, key[#key], "fishing")end
+			}
+		}	
+	}
+	self:AddOption("fishing", option)
+	option = {
+		order = 4, 
+		type = "group", 
+		name = L["Cooking Mode Settings"], 
+		guiInline = true, 
+		args = {
+			autoequip = {
+				type = "toggle", 
+				order = 1, 
+				name = L['AutoEquip'], 
+				desc = L['Enable/Disable automatically equipping cooking gear.'], 
+				get = function(key)return self.db.cooking[key[#key]]end,
+				set = function(key, value)PLUGIN:ChangeDBVar(value, key[#key], "cooking")end
+			}
+		}
+	}
+	self:AddOption("cooking", option)
+	option = {
+		order = 5, 
+		type = "group", 
+		name = L["Farming Mode Settings"], 
+		guiInline = true, 
+		get = function(key)return self.db.farming[key[#key]]end, 
+		set = function(key, value)self.db.farming[key[#key]] = value end, 
+		args = {
+			buttonsize = {
+				type = 'range', 
+				name = L['Button Size'], 
+				desc = L['The size of the action buttons.'], 
+				min = 15, 
+				max = 60, 
+				step = 1, 
+				order = 1, 
+				set = function(key, value)
+					PLUGIN:ChangeDBVar(value, key[#key],"farming");
+					PLUGIN:RefreshFarmingTools()
+				end,
+			},
+			buttonspacing = {
+				type = 'range', 
+				name = L['Button Spacing'], 
+				desc = L['The spacing between buttons.'], 
+				min = 1, 
+				max = 10, 
+				step = 1, 
+				order = 2, 
+				set = function(key, value)
+					PLUGIN:ChangeDBVar(value, key[#key],"farming");
+					PLUGIN:RefreshFarmingTools()
+				end,
+			},
+			onlyactive = {
+				order = 3, 
+				type = 'toggle', 
+				name = L['Only active buttons'], 
+				desc = L['Only show the buttons for the seeds, portals, tools you have in your bags.'], 
+				set = function(key, value)
+					PLUGIN:ChangeDBVar(value, key[#key],"farming");
+					PLUGIN:RefreshFarmingTools()
+				end,
+			},
+			droptools = {
+				order = 4, 
+				type = 'toggle', 
+				name = L['Drop '], 
+				desc = L['Automatically drop tools from your bags when leaving the farming area.'],
+			},
+			toolbardirection = {
+				order = 5, 
+				type = 'select', 
+				name = L['Bar Direction'], 
+				desc = L['The direction of the bar buttons (Horizontal or Vertical).'], 
+				set = function(key, value)PLUGIN:ChangeDBVar(value, key[#key],"farming"); PLUGIN:RefreshFarmingTools() end,
+				values = {
+						['VERTICAL'] = L['Vertical'], ['HORIZONTAL'] = L['Horizontal']
+				}
+			}
+		}
+	}
+	self:AddOption("farming", option)
+end
+
+SVLib:NewPlugin(PLUGIN)

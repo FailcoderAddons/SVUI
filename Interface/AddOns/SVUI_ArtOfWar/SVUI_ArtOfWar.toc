@@ -1,0 +1,13 @@
+## Interface: 60000
+## Author: Munglunch
+## Version: 4.5
+## Title: |cffFF9900SVUI |r|cffFFEF00Art of War|r
+## Notes: Supervillain UI [|cff9911FFPvP Tools|r].
+## SavedVariables: SVAOW_Data
+## SavedVariablesPerCharacter: SVAOW_Cache
+## RequiredDeps: SVUI
+## LoadOnDemand: 1
+## X-SVUI-Header: Art of War
+## X-SVUI-Schema: SVAOW
+
+SVUI_ArtOfWar.lua

@@ -1,0 +1,15 @@
+## Interface: 60000
+## Author: Munglunch
+## Version: 4.5
+## Title: |cffFF9900SVUI|r
+## Notes: Supervillain UI [|cff9911FFCore Framework|r].
+## SavedVariables: SVUI_Global
+## SavedVariablesPerCharacter: SVUI_Profile, SVUI_Cache
+## OptionalDeps: Blizzard_DebugTools, Blizzard_PetJournal, SharedMedia
+## X-SVUI-Header: SuperVillain UI
+## X-SVUI-Schema: Core
+## X-oUF: oUF_Villain
+## X-Notes: Special thanks to Elv and Tukz for their incredible work.
+## X-Email: munglunch@gmail.com
+
+SVUI.xml

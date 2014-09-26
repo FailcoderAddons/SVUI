@@ -1,0 +1,11 @@
+<Bindings>
+  <Binding name="SVUI_MARKERS" description="Raid Marker" category="ADDONS" header="SVUI" runOnUp="true">
+    RaidMark_HotkeyPressed(keystate)
+  </Binding>
+  <Binding name="SVUI_DOCKS" description="Toggle Docks" category="ADDONS" runOnUp="false">
+    HideSuperDocks()
+  </Binding>
+  <Binding name="SVUI_RIDE" description="Lets Ride" category="ADDONS" runOnUp="false">
+    SVUILetsRide()
+  </Binding>
+</Bindings>
