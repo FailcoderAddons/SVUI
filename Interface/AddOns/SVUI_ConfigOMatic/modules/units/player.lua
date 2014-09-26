@@ -58,7 +58,7 @@ SV.Options.args.SVUnit.args.player={
 			name = L['Restore Defaults'],
 			func = function(l,m)
 				MOD:ResetUnitOptions('player')
-				SV:ResetMovables('Player Frame')
+				SV.Mentalo:Reset('Player Frame')
 			end
 		},
 		tabGroups = {

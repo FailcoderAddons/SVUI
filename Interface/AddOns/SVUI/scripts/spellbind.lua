@@ -82,11 +82,6 @@ SpellBinder.list:SetPoint("BOTTOMRIGHT", _G["SVUI_SpellBinderInset"], "BOTTOMRIG
 SpellBinder.list:SetScrollChild(SpellBinder.list.child)
 
 local SpellBinderCache;
--- SVUI_Cache = SVUI_Cache or {}
--- SpellBinderCache = SpellBinderCache or {}
--- SpellBinderCache.spells = SpellBinderCache.spells or {}
--- SpellBinderCache.frames = SpellBinderCache.frames or {}
--- SpellBinderCache.keys = SpellBinderCache.keys or {}
 --[[ 
 ########################################################## 
 SCRIPT HANDLERS

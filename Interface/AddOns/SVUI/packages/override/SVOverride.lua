@@ -142,7 +142,7 @@ local Vehicle_OnSetPoint = function(self,_,parent)
 			VehicleSeatIndicator:Point("BOTTOM", VehicleSeatIndicator_MOVE, "BOTTOM", 0, 0)
 		else
 			VehicleSeatIndicator:Point("TOPLEFT", SV.UIParent, "TOPLEFT", 22, -45)
-			SV:SetSVMovable(VehicleSeatIndicator, L["Vehicle Seat Frame"])
+			SV.Mentalo:Add(VehicleSeatIndicator, L["Vehicle Seat Frame"])
 		end 
 		VehicleSeatIndicator:SetScale(0.8)
 	end 
@@ -1020,7 +1020,7 @@ function MOD:Load()
 	
 	TicketStatusFrame:ClearAllPoints()
 	TicketStatusFrame:SetPoint("TOPLEFT", SV.UIParent, "TOPLEFT", 250, -5)
-	SV:SetSVMovable(TicketStatusFrame, L["GM Ticket Frame"], nil, nil, nil, nil, "GM")
+	SV.Mentalo:Add(TicketStatusFrame, L["GM Ticket Frame"], nil, nil, nil, nil, "GM")
 	HelpOpenTicketButton:SetParent(Minimap)
 	HelpOpenTicketButton:ClearAllPoints()
 	HelpOpenTicketButton:SetPoint("TOPRIGHT", Minimap, "TOPRIGHT")
@@ -1036,7 +1036,7 @@ function MOD:Load()
 
 	SVUI_AlertFrame:SetParent(SV.UIParent)
 	SVUI_AlertFrame:SetPoint("TOP", SV.UIParent, "TOP", 0, -18);
-	SV:SetSVMovable(SVUI_AlertFrame, L["Loot  /  Alert Frames"], nil, nil, AlertFramePostMove_Hook)
+	SV.Mentalo:Add(SVUI_AlertFrame, L["Loot  /  Alert Frames"], nil, nil, AlertFramePostMove_Hook)
 	NewHook('AlertFrame_FixAnchors', AlertFramePostMove_Hook)
 	NewHook('AlertFrame_SetLootAnchors', _hook_AlertFrame_SetLootAnchors)
 	NewHook('AlertFrame_SetLootWonAnchors', _hook_AlertFrame_SetLootWonAnchors)
@@ -1052,7 +1052,7 @@ function MOD:Load()
 	LootFrame:UnregisterAllEvents();
 	SVUI_LootFrame:SetFixedPanelTemplate('Transparent');
 	SVUI_LootFrame.title:SetFont(LSM:Fetch("font", "SVUI Number Font"),18,"OUTLINE")
-	SV:SetSVMovable(SVUI_LootFrameHolder, L["Loot Frame"], nil, nil, nil, nil, "SVUI_LootFrame");
+	SV.Mentalo:Add(SVUI_LootFrameHolder, L["Loot Frame"], nil, nil, nil, nil, "SVUI_LootFrame");
 	tinsert(UISpecialFrames, "SVUI_LootFrame");
 
 	UIParent:UnregisterEvent("LOOT_BIND_CONFIRM")
@@ -1106,7 +1106,7 @@ function MOD:Load()
  	exit:SetScript("OnEvent", BailOut_OnEvent)
  	exit:Hide()
 
-	SV:SetSVMovable(exit, L["Bail Out"])
+	SV.Mentalo:Add(exit, L["Bail Out"])
 
 	local altPower = CreateFrame("Frame", "SVUI_AltPowerBar", UIParent)
 	altPower:SetPoint("TOP", SV.UIParent, "TOP", 0, -18)
@@ -1115,15 +1115,15 @@ function MOD:Load()
 	PlayerPowerBarAlt:SetPoint("CENTER", altPower, "CENTER")
 	PlayerPowerBarAlt:SetParent(altPower)
 	PlayerPowerBarAlt.ignoreFramePositionManager = true;
-	SV:SetSVMovable(altPower, L["Alternative Power"])
+	SV.Mentalo:Add(altPower, L["Alternative Power"])
 
 	local wsc = CreateFrame("Frame", "SVUI_WorldStateHolder", SV.UIParent)
 	wsc:SetSize(200, 45)
 	wsc:SetPoint("TOP", SV.UIParent, "TOP", 0, -100)
-	SV:SetSVMovable(wsc, L["Capture Bars"])
+	SV.Mentalo:Add(wsc, L["Capture Bars"])
 	NewHook("UIParent_ManageFramePositions", CaptureBarHandler)
 
-	SV:SetSVMovable(LossOfControlFrame, L["Loss Control Icon"], nil, nil, nil, nil, "LoC")
+	SV.Mentalo:Add(LossOfControlFrame, L["Loss Control Icon"], nil, nil, nil, nil, "LoC")
 end
 --[[ 
 ########################################################## 

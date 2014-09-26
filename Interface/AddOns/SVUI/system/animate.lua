@@ -356,7 +356,7 @@ end
 
 function Animate:Flash(frame, speed, looped)
 	if not frame.anim then
-		Animate:SetTemplate(frame, 'Flash', false, speed, looped)
+		self:SetTemplate(frame, 'Flash', false, speed, looped)
 	end
 	if not frame.anim:IsPlaying() then
 		frame.anim:Play()

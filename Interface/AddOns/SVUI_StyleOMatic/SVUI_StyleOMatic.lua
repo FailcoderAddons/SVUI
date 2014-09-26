@@ -262,8 +262,6 @@ function PLUGIN:PLAYER_ENTERING_WORLD(event, ...)
 			self:Style(name, fn, event, ...)
 		end 
 	end
-
-	collectgarbage("collect")
 end
 
 function PLUGIN:ADDON_LOADED(event, addon)

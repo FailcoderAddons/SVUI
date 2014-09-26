@@ -48,7 +48,7 @@ SV.Options.args.SVUnit.args.target={
 	set=function(l,m)MOD:ChangeDBVar(m, l[#l], "target");MOD:SetUnitFrame('target')end,
 	args={
 		enable={type='toggle',order=1,name=L['Enable']},
-		resetSettings={type='execute',order=2,name=L['Restore Defaults'],func=function(l,m)MOD:ResetUnitOptions('target')SV:ResetMovables('Target Frame')end},
+		resetSettings={type='execute',order=2,name=L['Restore Defaults'],func=function(l,m)MOD:ResetUnitOptions('target')SV.Mentalo:Reset('Target Frame')end},
 		tabGroups={
 			order=3,
 			type='group',
@@ -213,7 +213,7 @@ SV.Options.args.SVUnit.args.targettarget={
 	set=function(l,m)MOD:ChangeDBVar(m, l[#l], "targettarget");MOD:SetUnitFrame('targettarget')end,
 	args={
 		enable={type='toggle',order=1,name=L['Enable']},
-		resetSettings={type='execute',order=2,name=L['Restore Defaults'],func=function(l,m)MOD:ResetUnitOptions('targettarget')SV:ResetMovables('TargetTarget Frame')end},
+		resetSettings={type='execute',order=2,name=L['Restore Defaults'],func=function(l,m)MOD:ResetUnitOptions('targettarget')SV.Mentalo:Reset('TargetTarget Frame')end},
 		tabGroups={
 			order=3,
 			type='group',

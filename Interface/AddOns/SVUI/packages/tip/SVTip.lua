@@ -580,7 +580,7 @@ local _hook_GameTooltip_SetDefaultAnchor = function(self, parent)
 			self:SetOwner(parent, "ANCHOR_NONE")
 		end 
 	end 
-	if not SV:TestMovableMoved("SVUI_ToolTip_MOVE")then 
+	if not SV.Mentalo:HasMoved("SVUI_ToolTip_MOVE")then 
 		if(SVUI_ContainerFrame and SVUI_ContainerFrame:IsShown()) then 
 			self:SetPoint("BOTTOMLEFT", SVUI_ContainerFrame, "TOPLEFT", 0, 18)
 		elseif(RightSuperDock:GetAlpha() == 1 and RightSuperDock:IsShown()) then 
@@ -856,7 +856,7 @@ end
 
 function MOD:Load()
 	BNToastFrame:Point("TOPRIGHT", SVUI_MinimapFrame, "BOTTOMLEFT", 0, -10)
-	SV:SetSVMovable(BNToastFrame, L["BNet Frame"], nil, nil, nil, nil, "BNET")
+	SV.Mentalo:Add(BNToastFrame, L["BNet Frame"], nil, nil, nil, nil, "BNET")
 	NewHook(BNToastFrame, "SetPoint", _hook_BNToastOnShow)
 	if not self.db.enable then return end
 
@@ -864,7 +864,7 @@ function MOD:Load()
 	anchor:Point("BOTTOMRIGHT", RightSuperDock, "TOPRIGHT", 0, 60)
 	anchor:Size(130, 20)
 	anchor:SetFrameLevel(anchor:GetFrameLevel()  +  50)
-	SV:SetSVMovable(anchor, L["Tooltip"])
+	SV.Mentalo:Add(anchor, L["Tooltip"])
 
 	local barHeight = self.db.healthBar.height
 

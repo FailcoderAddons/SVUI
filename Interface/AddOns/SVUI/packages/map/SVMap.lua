@@ -632,7 +632,7 @@ function MOD:RefreshMiniMap()
 
 	if SVUI_AurasAnchor then
 		SVUI_AurasAnchor:Height(MM_HEIGHT)
-		if SVUI_AurasAnchor_MOVE and not SV:TestMovableMoved('SVUI_AurasAnchor_MOVE') and not SV:TestMovableMoved('SVUI_MinimapFrame_MOVE') then
+		if SVUI_AurasAnchor_MOVE and not SV.Mentalo:HasMoved('SVUI_AurasAnchor_MOVE') and not SV.Mentalo:HasMoved('SVUI_MinimapFrame_MOVE') then
 			SVUI_AurasAnchor_MOVE:ClearAllPoints()
 			SVUI_AurasAnchor_MOVE:Point("TOPRIGHT", SVUI_MinimapFrame_MOVE, "TOPLEFT", -8, 0)
 		end
@@ -872,9 +872,7 @@ function MOD:Load()
 		PetJournalParent:SetAttribute("UIPanelLayout-"..name, value);
 	end	
 	PetJournalParent:SetAttribute("UIPanelLayout-defined", true);
-	SV:SetSVMovable(mapHolder, L["Minimap"]) 
-
-	setfenv(WorldMapFrame_OnShow, setmetatable({ UpdateMicroButtons = SV.fubar }, { __index = _G }))
+	SV.Mentalo:Add(mapHolder, L["Minimap"]) 
 
 	if(SV.GameVersion < 60000) then
 		WorldMapShowDropDown:Point('BOTTOMRIGHT',WorldMapPositioningGuide,'BOTTOMRIGHT',-2,-4)
@@ -884,13 +882,15 @@ function MOD:Load()
 		WorldMapZoneDropDownButton:HookScript('OnClick', _hook_WorldMapZoneDropDownButton_OnClick)
 	end
 
-	WorldMapFrame:SetParent(SV.UIParent)
-	WorldMapFrame:SetFrameLevel(4)
-	WorldMapFrame:SetFrameStrata('HIGH')
-	WorldMapDetailFrame:SetFrameLevel(6)
-
-	WorldMapFrame:HookScript('OnShow', _hook_WorldMapFrame_OnShow)
-	WorldMapFrame:HookScript('OnHide', _hook_WorldMapFrame_OnHide)
+	if(self.db.tinyWorldMap) then
+		setfenv(WorldMapFrame_OnShow, setmetatable({ UpdateMicroButtons = SV.fubar }, { __index = _G }))
+		WorldMapFrame:SetParent(SV.UIParent)
+		WorldMapFrame:SetFrameLevel(4)
+		WorldMapFrame:SetFrameStrata('HIGH')
+		WorldMapDetailFrame:SetFrameLevel(6)
+		WorldMapFrame:HookScript('OnShow', _hook_WorldMapFrame_OnShow)
+		WorldMapFrame:HookScript('OnHide', _hook_WorldMapFrame_OnHide)
+	end
 
 	local CoordsHolder = CreateFrame('Frame', 'SVUI_WorldMapCoords', WorldMapFrame)
 	CoordsHolder:SetFrameLevel(WorldMapDetailFrame:GetFrameLevel()+1)
@@ -973,7 +973,7 @@ function MOD:Load()
 		MMBBar:SetPoint("CENTER", MMBHolder, "CENTER", 0, 0)
 		MMBBar:SetScript("OnEnter", MMB_OnEnter)
 		MMBBar:SetScript("OnLeave", MMB_OnLeave)
-		SV:SetSVMovable(MMBHolder, L["Minimap Button Bar"])
+		SV.Mentalo:Add(MMBHolder, L["Minimap Button Bar"])
 		self:UpdateMinimapButtonSettings()
 	end
 

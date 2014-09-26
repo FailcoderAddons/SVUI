@@ -170,7 +170,7 @@ SV.Options.args.primary = {
 					type = "execute", 
 					name = L["Move Frames"], 
 					desc = L["Unlock various elements of the UI to be repositioned."], 
-					func = function() SV:UseMentalo() end
+					func = function() SV.Mentalo:Toggle() end
 				},
 				ResetAllMovers = {
 					order = 5, 

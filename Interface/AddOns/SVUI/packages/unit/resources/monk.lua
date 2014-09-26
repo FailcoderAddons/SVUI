@@ -58,7 +58,7 @@ local Reposition = function(self)
 	local width = size * max;
 	bar.Holder:Size(width, size)
     if(not db.classbar.detachFromFrame) then
-    	SV:ResetMovables(L["Classbar"])
+    	SV.Mentalo:Reset(L["Classbar"])
     end
     local holderUpdate = bar.Holder:GetScript('OnSizeChanged')
     if holderUpdate then
@@ -154,7 +154,7 @@ function MOD:CreateClassBar(playerFrame)
 	classBarHolder:Point("TOPLEFT", playerFrame, "BOTTOMLEFT", 0, -2)
 	bar:SetPoint("TOPLEFT", classBarHolder, "TOPLEFT", 0, 0)
 	bar.Holder = classBarHolder
-	SV:SetSVMovable(bar.Holder, L["Classbar"], nil, nil, nil, "ALL, SOLO")
+	SV.Mentalo:Add(bar.Holder, L["Classbar"], nil, nil, nil, "ALL, SOLO")
 
 	playerFrame.MaxClassPower = max
 	playerFrame.DrunkenMaster = CreateDrunkenMasterBar(playerFrame)

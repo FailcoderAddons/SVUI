@@ -48,7 +48,7 @@ SV.Options.args.SVUnit.args.focus = {
 	set = function(l, m)MOD:ChangeDBVar(m, l[#l], "focus");MOD:SetUnitFrame("focus")end, 
 	args = {
 		enable = {type = "toggle", order = 1, name = L["Enable"]}, 
-		resetSettings = {type = "execute", order = 2, name = L["Restore Defaults"], func = function(l, m)MOD:ResetUnitOptions("focus");SV:ResetMovables("Focus Frame")end}, 
+		resetSettings = {type = "execute", order = 2, name = L["Restore Defaults"], func = function(l, m)MOD:ResetUnitOptions("focus");SV.Mentalo:Reset("Focus Frame")end}, 
 		tabGroups = {
 			order = 3, 
 			type = "group", 
@@ -161,7 +161,7 @@ SV.Options.args.SVUnit.args.focustarget = {
 	set = function(l, m)MOD:ChangeDBVar(m, l[#l], "focustarget");MOD:SetUnitFrame("focustarget")end, 
 	args = {
 		enable = {type = "toggle", order = 1, name = L["Enable"]}, 
-		resetSettings = {type = "execute", order = 2, name = L["Restore Defaults"], func = function(l, m)MOD:ResetUnitOptions("focustarget")SV:ResetMovables("FocusTarget Frame")end}, 
+		resetSettings = {type = "execute", order = 2, name = L["Restore Defaults"], func = function(l, m)MOD:ResetUnitOptions("focustarget")SV.Mentalo:Reset("FocusTarget Frame")end}, 
 		tabGroups = {
 			order = 3, 
 			type = "group", 

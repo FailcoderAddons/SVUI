@@ -262,7 +262,6 @@ end
 -- has no method for parsing them in LUA.
 local SVUI = SVLib:NewCore("SVUI_Global", "SVUI_Profile", "SVUI_Cache")
 
-SVUI.Snap               = {}
 SVUI.Media              = {}
 SVUI.DisplayAudit       = {}
 SVUI.DynamicOptions     = {}
@@ -294,7 +293,6 @@ SVUI.UIParent = CreateFrame("Frame", "SVUIParent", UIParent);
 SVUI.UIParent:SetFrameLevel(UIParent:GetFrameLevel());
 SVUI.UIParent:SetPoint("CENTER", UIParent, "CENTER");
 SVUI.UIParent:SetSize(UIParent:GetSize());
-SVUI.Snap[1] = SVUI.UIParent;
 
 SVUI.Cloaked = CreateFrame("Frame", nil, UIParent);
 SVUI.Cloaked:Hide();

@@ -359,21 +359,21 @@ local function removedefaults(db, src, nometa)
     end
 end
 
-local function setDefault(t, sub, sub2)
-    local data = t.db
+local ResetToDefaults = function(self, sub, sub2)
+    local data = self.db
     local sv = rawget(data, "data")
     local src = rawget(data, "defaults")
-    local savedProfile
+    local targetData
     if(sub2 and sv and sv[sub]) then
-        savedProfile = sv[sub][sub2]
+        targetData = sv[sub][sub2]
     elseif(sub and sv) then
-        savedProfile = sv[sub]
+        targetData = sv[sub]
     else
-        savedProfile = sv
+        targetData = sv
     end
-    if(savedProfile) then
-        for k,v in pairs(savedProfile) do
-            savedProfile[k] = nil
+    if(targetData) then
+        for k,v in pairs(targetData) do
+            targetData[k] = nil
         end
     else
         sv = {}
@@ -411,7 +411,6 @@ function lib:Remove(key)
     for k,v in pairs(GLOBAL_SV.profiles) do
         GLOBAL_SV.profileKeys[k] = k
     end
-    collectgarbage("collect")
 end
 
 function lib:GetProfiles()
@@ -467,6 +466,18 @@ function lib:WipeDatabase()
     end
 end
 
+function lib:WipeCache()
+    for k,v in pairs(CACHE_SV) do
+        CACHE_SV[k] = nil
+    end
+end
+
+function lib:WipeGlobal()
+    for k,v in pairs(GLOBAL_SV) do
+        GLOBAL_SV[k] = nil
+    end
+end
+
 function lib:UpdateDatabase(event)
     if event == "PLAYER_LOGOUT" then
         local sv = rawget(CoreObject.db, "data")
@@ -499,19 +510,15 @@ function lib:UpdateDatabase(event)
 end
 
 function lib:GetSafeData(index)
-    return PROFILE_SV.SAFEDATA[index]
+    if(index) then
+        return PROFILE_SV.SAFEDATA[index]
+    else
+        return PROFILE_SV.SAFEDATA
+    end
 end
 
 function lib:SaveSafeData(index, value)
     PROFILE_SV.SAFEDATA[index] = value
-    if(index == "dualSpecEnabled") then
-        if(value) then
-            self.EventManager:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
-            self:UpdateDatabase()
-        else
-            self.EventManager:UnregisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
-        end
-    end
 end
 
 function lib:CheckData(schema, key)
@@ -524,7 +531,6 @@ end
 function lib:NewDatabase(obj)
     local schema = obj.Schema
     obj.db = CoreObject.db[schema] or {}
-    obj.ResetData = setDefault
 end
 
 function lib:NewCache(index)
@@ -813,9 +819,9 @@ function lib:RunCallbacks()
     end
 end
 
-function lib:Update(schema, dataOnly)
+function lib:Update(schema)
     local obj = CoreObject[schema]
-    if obj and obj.ReLoad and not dataOnly then
+    if obj and obj.ReLoad then
         obj:ReLoad()
     end
 end
@@ -858,6 +864,19 @@ function lib:GetPlugins()
     return PluginString
 end
 
+function lib:CheckDualProfile()
+    return PROFILE_SV.SAFEDATA.dualSpecEnabled
+end
+
+function lib:ToggleDualProfile(enabled)
+    PROFILE_SV.SAFEDATA.dualSpecEnabled = enabled
+    if(enabled) then
+        self.EventManager:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
+        self:UpdateDatabase()
+    else
+        self.EventManager:UnregisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
+    end
+end
 
 --[[ CONSTRUCTORS ]]--
 
@@ -1040,7 +1059,7 @@ function lib:Initialize()
     db.data     = PROFILE_SV.STORED[SOURCE_KEY]
     db.defaults = CoreObject.configs
     
-    CoreObject.ResetData = setDefault
+    CoreObject.ResetData = ResetToDefaults
     CoreObject.db = db
 
     --check for LOD plugins

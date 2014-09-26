@@ -1214,104 +1214,105 @@ local function BarShuffle()
 	local tH = SV.db.SVBar.Bar1.buttonsize  +  (base - bS);
 	local b2h = bar2 and tH or base;
 	local sph = (400 - b2h);
-	if not SVUI_Cache.anchors then SVUI_Cache.anchors = {} end
-	SVUI_Cache.anchors.SVUI_SpecialAbility_MOVE = "BOTTOMSVUIParentBOTTOM0"..sph;
-	SVUI_Cache.anchors.SVUI_ActionBar2_MOVE = "BOTTOMSVUI_ActionBar1TOP0"..(-bS);
-	SVUI_Cache.anchors.SVUI_ActionBar3_MOVE = "BOTTOMLEFTSVUI_ActionBar1BOTTOMRIGHT40";
-	SVUI_Cache.anchors.SVUI_ActionBar5_MOVE = "BOTTOMRIGHTSVUI_ActionBar1BOTTOMLEFT-40";
+	local anchors = SV.Mentalo.Anchors
+	if not anchors then anchors = {} end
+	anchors.SVUI_SpecialAbility_MOVE = "BOTTOMSVUIParentBOTTOM0"..sph;
+	anchors.SVUI_ActionBar2_MOVE = "BOTTOMSVUI_ActionBar1TOP0"..(-bS);
+	anchors.SVUI_ActionBar3_MOVE = "BOTTOMLEFTSVUI_ActionBar1BOTTOMRIGHT40";
+	anchors.SVUI_ActionBar5_MOVE = "BOTTOMRIGHTSVUI_ActionBar1BOTTOMLEFT-40";
 	if bar2 then
-		SVUI_Cache.anchors.SVUI_PetActionBar_MOVE = "BOTTOMLEFTSVUI_ActionBar2TOPLEFT04"
-		SVUI_Cache.anchors.SVUI_StanceBar_MOVE = "BOTTOMRIGHTSVUI_ActionBar2TOPRIGHT04";
+		anchors.SVUI_PetActionBar_MOVE = "BOTTOMLEFTSVUI_ActionBar2TOPLEFT04"
+		anchors.SVUI_StanceBar_MOVE = "BOTTOMRIGHTSVUI_ActionBar2TOPRIGHT04";
 	else
-		SVUI_Cache.anchors.SVUI_PetActionBar_MOVE = "BOTTOMLEFTSVUI_ActionBar1TOPLEFT04"
-		SVUI_Cache.anchors.SVUI_StanceBar_MOVE = "BOTTOMRIGHTSVUI_ActionBar1TOPRIGHT04";
+		anchors.SVUI_PetActionBar_MOVE = "BOTTOMLEFTSVUI_ActionBar1TOPLEFT04"
+		anchors.SVUI_StanceBar_MOVE = "BOTTOMRIGHTSVUI_ActionBar1TOPRIGHT04";
 	end
 end 
 
 local function UFMoveBottomQuadrant(toggle)
-	if not SVUI_Cache.anchors then SVUI_Cache.anchors = {} end
+	local anchors = SV.Mentalo.Anchors
 	if not toggle then
-		SVUI_Cache.anchors.SVUI_Player_MOVE = "BOTTOMSVUIParentBOTTOM-278182"
-		SVUI_Cache.anchors.SVUI_PlayerCastbar_MOVE = "BOTTOMSVUIParentBOTTOM-278122"
-		SVUI_Cache.anchors.SVUI_Target_MOVE = "BOTTOMSVUIParentBOTTOM278182"
-		SVUI_Cache.anchors.SVUI_TargetCastbar_MOVE = "BOTTOMSVUIParentBOTTOM278122"
-		SVUI_Cache.anchors.SVUI_Pet_MOVE = "BOTTOMSVUIParentBOTTOM0181"
-		SVUI_Cache.anchors.SVUI_TargetTarget_MOVE = "BOTTOMSVUIParentBOTTOM0214"
-		SVUI_Cache.anchors.SVUI_Focus_MOVE = "BOTTOMSVUIParentBOTTOM310432"
-		SVUI_Cache.anchors.SVUI_ThreatBar_MOVE = "BOTTOMRIGHTSVUIParentBOTTOMRIGHT-495182"
+		anchors.SVUI_Player_MOVE = "BOTTOMSVUIParentBOTTOM-278182"
+		anchors.SVUI_PlayerCastbar_MOVE = "BOTTOMSVUIParentBOTTOM-278122"
+		anchors.SVUI_Target_MOVE = "BOTTOMSVUIParentBOTTOM278182"
+		anchors.SVUI_TargetCastbar_MOVE = "BOTTOMSVUIParentBOTTOM278122"
+		anchors.SVUI_Pet_MOVE = "BOTTOMSVUIParentBOTTOM0181"
+		anchors.SVUI_TargetTarget_MOVE = "BOTTOMSVUIParentBOTTOM0214"
+		anchors.SVUI_Focus_MOVE = "BOTTOMSVUIParentBOTTOM310432"
+		anchors.SVUI_ThreatBar_MOVE = "BOTTOMRIGHTSVUIParentBOTTOMRIGHT-495182"
 	elseif toggle == "shift" then
-		SVUI_Cache.anchors.SVUI_Player_MOVE = "BOTTOMSVUIParentBOTTOM-278210"
-		SVUI_Cache.anchors.SVUI_PlayerCastbar_MOVE = "BOTTOMSVUIParentBOTTOM-278150"
-		SVUI_Cache.anchors.SVUI_Target_MOVE = "BOTTOMSVUIParentBOTTOM278210"
-		SVUI_Cache.anchors.SVUI_TargetCastbar_MOVE = "BOTTOMSVUIParentBOTTOM278150"
-		SVUI_Cache.anchors.SVUI_Pet_MOVE = "BOTTOMSVUIParentBOTTOM0209"
-		SVUI_Cache.anchors.SVUI_TargetTarget_MOVE = "BOTTOMSVUIParentBOTTOM0242"
-		SVUI_Cache.anchors.SVUI_Focus_MOVE = "BOTTOMSVUIParentBOTTOM310432"
-		SVUI_Cache.anchors.SVUI_ThreatBar_MOVE = "BOTTOMRIGHTSVUIParentBOTTOMRIGHT-495210"
+		anchors.SVUI_Player_MOVE = "BOTTOMSVUIParentBOTTOM-278210"
+		anchors.SVUI_PlayerCastbar_MOVE = "BOTTOMSVUIParentBOTTOM-278150"
+		anchors.SVUI_Target_MOVE = "BOTTOMSVUIParentBOTTOM278210"
+		anchors.SVUI_TargetCastbar_MOVE = "BOTTOMSVUIParentBOTTOM278150"
+		anchors.SVUI_Pet_MOVE = "BOTTOMSVUIParentBOTTOM0209"
+		anchors.SVUI_TargetTarget_MOVE = "BOTTOMSVUIParentBOTTOM0242"
+		anchors.SVUI_Focus_MOVE = "BOTTOMSVUIParentBOTTOM310432"
+		anchors.SVUI_ThreatBar_MOVE = "BOTTOMRIGHTSVUIParentBOTTOMRIGHT-495210"
 	else
 		local c = 136;
 		local d = 135;
 		local e = 80;
-		SVUI_Cache.anchors.SVUI_Player_MOVE = "BOTTOMSVUIParentBOTTOM"..-c..""..d;
-		SVUI_Cache.anchors.SVUI_PlayerCastbar_MOVE = "BOTTOMSVUIParentBOTTOM"..-c..""..(d-60);
-		SVUI_Cache.anchors.SVUI_Target_MOVE = "BOTTOMSVUIParentBOTTOM"..c..""..d;
-		SVUI_Cache.anchors.SVUI_TargetCastbar_MOVE = "BOTTOMSVUIParentBOTTOM"..c..""..(d-60);
-		SVUI_Cache.anchors.SVUI_Pet_MOVE = "BOTTOMSVUIParentBOTTOM"..-c..""..e;
-		SVUI_Cache.anchors.SVUI_TargetTarget_MOVE = "BOTTOMSVUIParentBOTTOM"..c..""..e;
-		SVUI_Cache.anchors.SVUI_Focus_MOVE = "BOTTOMSVUIParentBOTTOM"..c..""..(d + 150);
-		SVUI_Cache.anchors.SVUI_ThreatBar_MOVE = "BOTTOMRIGHTSVUIParentBOTTOMRIGHT-495"..d;
+		anchors.SVUI_Player_MOVE = "BOTTOMSVUIParentBOTTOM"..-c..""..d;
+		anchors.SVUI_PlayerCastbar_MOVE = "BOTTOMSVUIParentBOTTOM"..-c..""..(d-60);
+		anchors.SVUI_Target_MOVE = "BOTTOMSVUIParentBOTTOM"..c..""..d;
+		anchors.SVUI_TargetCastbar_MOVE = "BOTTOMSVUIParentBOTTOM"..c..""..(d-60);
+		anchors.SVUI_Pet_MOVE = "BOTTOMSVUIParentBOTTOM"..-c..""..e;
+		anchors.SVUI_TargetTarget_MOVE = "BOTTOMSVUIParentBOTTOM"..c..""..e;
+		anchors.SVUI_Focus_MOVE = "BOTTOMSVUIParentBOTTOM"..c..""..(d + 150);
+		anchors.SVUI_ThreatBar_MOVE = "BOTTOMRIGHTSVUIParentBOTTOMRIGHT-495"..d;
 	end
 end 
 
 local function UFMoveLeftQuadrant(toggle)
-	if not SVUI_Cache.anchors then SVUI_Cache.anchors = {} end
+	local anchors = SV.Mentalo.Anchors
 	if not toggle then
-		SVUI_Cache.anchors.SVUI_Assist_MOVE = "TOPLEFTSVUIParentTOPLEFT"..XOFF.."-250"
-		SVUI_Cache.anchors.SVUI_Tank_MOVE = "TOPLEFTSVUIParentTOPLEFT"..XOFF.."-175"
-		SVUI_Cache.anchors.SVUI_Raidpet_MOVE = "TOPLEFTSVUIParentTOPLEFT"..XOFF.."-325"
-		SVUI_Cache.anchors.SVUI_Party_MOVE = "BOTTOMLEFTSVUIParentBOTTOMLEFT"..XOFF.."400"
-		SVUI_Cache.anchors.SVUI_Raid10_MOVE = "BOTTOMLEFTSVUIParentBOTTOMLEFT"..XOFF.."400"
-		SVUI_Cache.anchors.SVUI_Raid25_MOVE = "BOTTOMLEFTSVUIParentBOTTOMLEFT"..XOFF.."400"
-		SVUI_Cache.anchors.SVUI_Raid40_MOVE = "BOTTOMLEFTSVUIParentBOTTOMLEFT"..XOFF.."400"
+		anchors.SVUI_Assist_MOVE = "TOPLEFTSVUIParentTOPLEFT"..XOFF.."-250"
+		anchors.SVUI_Tank_MOVE = "TOPLEFTSVUIParentTOPLEFT"..XOFF.."-175"
+		anchors.SVUI_Raidpet_MOVE = "TOPLEFTSVUIParentTOPLEFT"..XOFF.."-325"
+		anchors.SVUI_Party_MOVE = "BOTTOMLEFTSVUIParentBOTTOMLEFT"..XOFF.."400"
+		anchors.SVUI_Raid10_MOVE = "BOTTOMLEFTSVUIParentBOTTOMLEFT"..XOFF.."400"
+		anchors.SVUI_Raid25_MOVE = "BOTTOMLEFTSVUIParentBOTTOMLEFT"..XOFF.."400"
+		anchors.SVUI_Raid40_MOVE = "BOTTOMLEFTSVUIParentBOTTOMLEFT"..XOFF.."400"
 	else
-		SVUI_Cache.anchors.SVUI_Assist_MOVE = "TOPLEFTSVUIParentTOPLEFT4-250"
-		SVUI_Cache.anchors.SVUI_Tank_MOVE = "TOPLEFTSVUIParentTOPLEFT4-175"
-		SVUI_Cache.anchors.SVUI_Raidpet_MOVE = "TOPLEFTSVUIParentTOPLEFT4-325"
-		SVUI_Cache.anchors.SVUI_Party_MOVE = "BOTTOMLEFTSVUIParentBOTTOMLEFT4300"
-		SVUI_Cache.anchors.SVUI_Raid40_MOVE = "BOTTOMLEFTSVUIParentBOTTOMLEFT4300"
-		SVUI_Cache.anchors.SVUI_Raid10_MOVE = "BOTTOMLEFTSVUIParentBOTTOMLEFT4300"
-		SVUI_Cache.anchors.SVUI_Raid25_MOVE = "BOTTOMLEFTSVUIParentBOTTOMLEFT4300"
+		anchors.SVUI_Assist_MOVE = "TOPLEFTSVUIParentTOPLEFT4-250"
+		anchors.SVUI_Tank_MOVE = "TOPLEFTSVUIParentTOPLEFT4-175"
+		anchors.SVUI_Raidpet_MOVE = "TOPLEFTSVUIParentTOPLEFT4-325"
+		anchors.SVUI_Party_MOVE = "BOTTOMLEFTSVUIParentBOTTOMLEFT4300"
+		anchors.SVUI_Raid40_MOVE = "BOTTOMLEFTSVUIParentBOTTOMLEFT4300"
+		anchors.SVUI_Raid10_MOVE = "BOTTOMLEFTSVUIParentBOTTOMLEFT4300"
+		anchors.SVUI_Raid25_MOVE = "BOTTOMLEFTSVUIParentBOTTOMLEFT4300"
 	end
 end 
 
 local function UFMoveTopQuadrant(toggle)
-	if not SVUI_Cache.anchors then SVUI_Cache.anchors = {} end
+	local anchors = SV.Mentalo.Anchors
 	if not toggle then
-		SVUI_Cache.anchors.GM_MOVE = "TOPLEFTSVUIParentTOPLEFT250-25"
-		SVUI_Cache.anchors.SVUI_LootFrame_MOVE = "BOTTOMSVUIParentBOTTOM0350"
-		SVUI_Cache.anchors.SVUI_AltPowerBar_MOVE = "TOPSVUIParentTOP0-40"
-		SVUI_Cache.anchors.LoC_MOVE = "BOTTOMSVUIParentBOTTOM0350"
-		SVUI_Cache.anchors.BNET_MOVE = "TOPRIGHTSVUIParentTOPRIGHT-4-250"
+		anchors.GM_MOVE = "TOPLEFTSVUIParentTOPLEFT250-25"
+		anchors.SVUI_LootFrame_MOVE = "BOTTOMSVUIParentBOTTOM0350"
+		anchors.SVUI_AltPowerBar_MOVE = "TOPSVUIParentTOP0-40"
+		anchors.LoC_MOVE = "BOTTOMSVUIParentBOTTOM0350"
+		anchors.BNET_MOVE = "TOPRIGHTSVUIParentTOPRIGHT-4-250"
 	else
-		SVUI_Cache.anchors.GM_MOVE = "TOPLEFTSVUIParentTOPLEFT344-25"
-		SVUI_Cache.anchors.SVUI_LootFrame_MOVE = "BOTTOMSVUIParentBOTTOM0254"
-		SVUI_Cache.anchors.SVUI_AltPowerBar_MOVE = "TOPSVUIParentTOP0-39"
-		SVUI_Cache.anchors.LoC_MOVE = "BOTTOMSVUIParentBOTTOM0443"
-		SVUI_Cache.anchors.BNET_MOVE = "TOPRIGHTSVUIParentTOPRIGHT-4-248"
+		anchors.GM_MOVE = "TOPLEFTSVUIParentTOPLEFT344-25"
+		anchors.SVUI_LootFrame_MOVE = "BOTTOMSVUIParentBOTTOM0254"
+		anchors.SVUI_AltPowerBar_MOVE = "TOPSVUIParentTOP0-39"
+		anchors.LoC_MOVE = "BOTTOMSVUIParentBOTTOM0443"
+		anchors.BNET_MOVE = "TOPRIGHTSVUIParentTOPRIGHT-4-248"
 	end
 end 
 
 local function UFMoveRightQuadrant(toggle)
-	if not SVUI_Cache.anchors then SVUI_Cache.anchors = {} end
+	local anchors = SV.Mentalo.Anchors
 	local dH = SV.db.SVDock.dockRightHeight  +  60
 	if not toggle or toggle == "high" then
-		SVUI_Cache.anchors.SVUI_BossHolder_MOVE = "RIGHTSVUIParentRIGHT-1050"
-		SVUI_Cache.anchors.SVUI_ArenaHolder_MOVE = "RIGHTSVUIParentRIGHT-1050"
-		SVUI_Cache.anchors.Tooltip_MOVE = "BOTTOMRIGHTSVUIParentBOTTOMRIGHT-284"..dH;
+		anchors.SVUI_BossHolder_MOVE = "RIGHTSVUIParentRIGHT-1050"
+		anchors.SVUI_ArenaHolder_MOVE = "RIGHTSVUIParentRIGHT-1050"
+		anchors.Tooltip_MOVE = "BOTTOMRIGHTSVUIParentBOTTOMRIGHT-284"..dH;
 	else
-		SVUI_Cache.anchors.SVUI_BossHolder_MOVE = "RIGHTSVUIParentRIGHT-1050"
-		SVUI_Cache.anchors.SVUI_ArenaHolder_MOVE = "RIGHTSVUIParentRIGHT-1050"
-		SVUI_Cache.anchors.Tooltip_MOVE = "BOTTOMRIGHTSVUIParentBOTTOMRIGHT-284"..dH;
+		anchors.SVUI_BossHolder_MOVE = "RIGHTSVUIParentRIGHT-1050"
+		anchors.SVUI_ArenaHolder_MOVE = "RIGHTSVUIParentRIGHT-1050"
+		anchors.Tooltip_MOVE = "BOTTOMRIGHTSVUIParentBOTTOMRIGHT-284"..dH;
 	end
 end 
 
@@ -1431,8 +1432,8 @@ local function InitializeChatFrames(mungs)
 	if not mungs then
 		if SV.Chat then 
 			SV.Chat:ReLoad(true)
-			if SVUI_Cache["Dock"].RightSuperDockFaded  == true then RightSuperDockToggleButton:Click()end 
-			if SVUI_Cache["Dock"].LeftSuperDockFaded  == true then LeftSuperDockToggleButton:Click()end 
+			if SV.SVDock.Cache.RightSuperDockFaded  == true then RightSuperDockToggleButton:Click()end 
+			if SV.SVDock.Cache.LeftSuperDockFaded  == true then LeftSuperDockToggleButton:Click()end 
 		end
 		SV:SavedPopup()
 	end
@@ -1441,13 +1442,12 @@ end
 local function SetUserScreen(rez, preserve)
 	if not preserve then
 		if okToResetMOVE then 
-			SV:ResetMovables("")
+			SV.Mentalo:Reset("")
 			okToResetMOVE = false;
 		end
-		SV.SVUnit:ResetData()
+		SV:ResetData("SVUnit")
 	end
 
-	if not SVUI_Cache.anchors then SVUI_Cache.anchors = {} end
 	if rez == "low" then 
 		if not preserve then 
 			SV.db.SVDock.dockLeftWidth = 350;
@@ -1483,8 +1483,8 @@ local function SetUserScreen(rez, preserve)
 		end
 		SV.ghettoMonitor = true 
 	else
-		SV.SVDock:ResetData()
-		SV.SVAura:ResetData()
+		SV:ResetData("SVDock")
+		SV:ResetData("SVAura")
 		if not mungs then
 			UFMoveBottomQuadrant()
 			UFMoveLeftQuadrant()
@@ -1496,7 +1496,7 @@ local function SetUserScreen(rez, preserve)
 
 	if(not preserve and not mungs) then
 		BarShuffle()
-    	SV:SetSVMovablesPositions()
+    	SV.Mentalo:SetPositions()
 		SVLib:Update('SVDock')
 		SVLib:Update('SVAura')
 		SVLib:Update('SVBar')
@@ -1553,13 +1553,11 @@ end
 local function SetUnitframeLayout(style, preserve)
 	style = style or "default";
 
-	if not SVUI_Cache.anchors then SVUI_Cache.anchors = {} end
-
 	if not preserve then
-		SV.SVUnit:ResetData()
-		SV.SVStats:ResetData()
+		SV:ResetData("SVUnit")
+		SV:ResetData("SVStats")
 		if okToResetMOVE then
-			SV:ResetMovables('')
+			SV.Mentalo:Reset('')
 			okToResetMOVE = false
 		end
 	end
@@ -1578,7 +1576,7 @@ local function SetUnitframeLayout(style, preserve)
 			else
 				UFMoveBottomQuadrant()
 			end
-			SV:SetSVMovablesPositions()
+			SV.Mentalo:SetPositions()
 		end
 		SVLib:Update('SVStats')
 		SVLib:Update('SVUnit')
@@ -1605,11 +1603,10 @@ end
 local function SetupBarLayout(style, preserve)
 	style = style or "default";
 
-	if not SVUI_Cache.anchors then SVUI_Cache.anchors = {} end 
 	if not preserve then 
-		SV.SVBar:ResetData()
+		SV:ResetData("SVBar")
 		if okToResetMOVE then
-			SV:ResetMovables('')
+			SV.Mentalo:Reset('')
 			okToResetMOVE=false
 		end
 	end 
@@ -1627,7 +1624,7 @@ local function SetupBarLayout(style, preserve)
 		end
 		if(not preserve) then
 			BarShuffle()
-			SV:SetSVMovablesPositions()
+			SV.Mentalo:SetPositions()
 		end
 		SVLib:Update('SVStats')
 		SVLib:Update('SVBar')
@@ -1664,7 +1661,7 @@ local function PlayThemeSong()
 end
 
 local function InstallComplete()
-	SVUI_Profile.SAFEDATA.install_version = SV.Version;
+	SVLib:SaveSafeData("install_version", SV.Version)
 	StopMusic()
 	SetCVar("Sound_MusicVolume",user_music_vol)
 	okToResetMOVE = false;
@@ -1683,7 +1680,7 @@ local function InstallMungsChoice()
 	SV.db.LAYOUT.barstyle = nil;
 	SetupBarLayout();
 	SetupAuralayout();
-	SVUI_Profile.SAFEDATA.install_version = SV.Version;
+	SVLib:SaveSafeData("install_version", SV.Version)
 	StopMusic()
 	SetCVar("Sound_MusicVolume",user_music_vol)
 	ReloadUI()
@@ -1747,7 +1744,7 @@ local function SetPage(newPage)
 	]]--
 	ShowLayout()
 	if newPage == 1 then
-		local hasOldConfig = SVUI_Profile.SAFEDATA.install_version
+		local hasOldConfig = SVLib:GetSafeData("install_version")
 		SVUI_InstallPrevButton:Disable()
 		SVUI_InstallPrevButton:Hide()
 		okToResetMOVE = true
@@ -2024,12 +2021,6 @@ local function PreviousPage()
 		CURRENT_PAGE = CURRENT_PAGE - 1;
 		SetPage(CURRENT_PAGE)
 	end 
-end 
-
-local function ResetGlobalVariables()
-	for k,v in pairs(SVUI_Cache) do
-		SVUI_Cache[k] = nil
-	end
 end
 
 function Setup:Reset()
@@ -2037,7 +2028,7 @@ function Setup:Reset()
 	okToResetMOVE = false;
 	InitializeChatFrames(true);
 	SVLib:WipeDatabase()
-	SetUserScreen();
+	SetUserScreen()
 
 	if SV.db.LAYOUT.mediastyle then
         SetColorTheme(SV.db.LAYOUT.mediastyle)
@@ -2067,8 +2058,8 @@ function Setup:Reset()
     	SetupAuralayout()
     end
 
-	SVUI_Profile.SAFEDATA.install_version = SV.Version;
-	ResetGlobalVariables()
+    SVLib:WipeCache()
+	SVLib:SaveSafeData("install_version", SV.Version);
 	ReloadUI()
 end 
 
@@ -2077,7 +2068,7 @@ function Setup:Install(autoLoaded)
 		user_music_vol = GetCVar("Sound_MusicVolume") 
 	end
 
-	local old = SVUI_Profile.SAFEDATA
+	local old = SVLib:GetSafeData()
     local media = old.mediastyle or ""
     local bars = old.barstyle or ""
     local units = old.unitstyle or ""

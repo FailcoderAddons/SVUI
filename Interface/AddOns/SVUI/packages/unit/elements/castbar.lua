@@ -697,7 +697,7 @@ function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss)
 	castbar.SparkColor = oUF_Villain.colors.spark
 
 	if moverName then 
-		SV:SetSVMovable(castbar.Holder, moverName, nil, -6, nil, "ALL, SOLO")
+		SV.Mentalo:Add(castbar.Holder, moverName, nil, -6, nil, "ALL, SOLO")
 	end 
 	
 	if useFader then

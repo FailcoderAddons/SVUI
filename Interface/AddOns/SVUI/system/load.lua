@@ -53,52 +53,32 @@ local playerClass = select(2,UnitClass("player"));
 
 local function DeleteOldSavedVars()
 	--[[ BEGIN DEPRECATED ]]--
-    if SVUI_DATA then SVUI_DATA = nil end 
-    if SVUI_SAFE_DATA then SVUI_SAFE_DATA = nil end 
-    if SVUI_TRACKER then SVUI_TRACKER = nil end 
-    if SVUI_ENEMIES then SVUI_ENEMIES = nil end 
-    if SVUI_JOURNAL then SVUI_JOURNAL = nil end 
-    if SVUI_CHARACTER_LOG then SVUI_CHARACTER_LOG = nil end 
-    if SVUI_MOVED_FRAMES then SVUI_MOVED_FRAMES = nil end 
-    if SVUI_SystemData then SVUI_SystemData = nil end 
-    if SVUI_ProfileData then SVUI_ProfileData = nil end
-    if SVUI_Filters then SVUI_Filters = nil end
-    if SVUI_AuraFilters then SVUI_AuraFilters = nil end
-    if SVUI_AuraWatch then SVUI_AuraWatch = nil end
-    if SVUI_Cache["Mentalo"]["Blizzard"] then SVUI_Cache["Mentalo"]["Blizzard"] = nil end 
-    if SVUI_Cache["Mentalo"]["UI"] then SVUI_Cache["Mentalo"]["UI"] = nil end
-    if(SVUI_Profile.SAFEDATA.install_complete) then SVUI_Profile.SAFEDATA.install_complete = nil end
+
     --[[ END DEPRECATED ]]--
 end
 
 function SV:VersionCheck()
 	local minimumVersion = 4.06;
-	local installedVersion = SVUI_Profile.SAFEDATA.install_version
+	local installedVersion = SVLib:GetSafeData("install_version");
 	if(installedVersion) then
 		if(type(installedVersion) == "string") then
-			installedVersion = tonumber(SVUI_Profile.SAFEDATA.install_version)
+			installedVersion = tonumber(installedVersion)
 		end
 		if(type(installedVersion) == "number" and installedVersion < minimumVersion) then
-			DeleteOldSavedVars()
+			--DeleteOldSavedVars()  -- No current deprecated entries to remove
 			self.Setup:Install(true)
 		end
 	else
-		DeleteOldSavedVars()
 		self.Setup:Install(true)
 	end
 end
 
 function SV:RefreshEverything(bypass)
 	self:RefreshAllSystemMedia();
-
-	SV.UIParent:Hide();
-
-	self:SetSVMovablesPositions();
-	SVLib:Update('SVUnit');
+	self.UIParent:Hide();
+	self.Mentalo:SetPositions();
 	SVLib:UpdateAll();
-
-	SV.UIParent:Show();
-
+	self.UIParent:Show();
 	if not bypass then
 		self:VersionCheck()
 	end
@@ -116,7 +96,8 @@ function SV:Load()
 	local gxWidth = tonumber(match(rez,"(%d+)x%d+"));
 
     SVLib:Initialize()
-    
+    self.Mentalo:Initialize()
+
     self.DisplaySettings = SVLib:NewCache("Display")
     if(not self.DisplaySettings.screenheight or (self.DisplaySettings.screenheight and type(self.DisplaySettings.screenheight) ~= "number")) then 
     	self.DisplaySettings.screenheight = gxHeight 
@@ -124,8 +105,6 @@ function SV:Load()
     if(not self.DisplaySettings.screenwidth or (self.DisplaySettings.screenwidth and type(self.DisplaySettings.screenwidth) ~= "number")) then 
     	self.DisplaySettings.screenwidth = gxWidth 
     end
-
-    self:InitializeMentalo()
 
 	self:ScreenCalibration();
 	self:RefreshSystemFonts();
@@ -140,8 +119,9 @@ function SV:Launch()
 
 	self:ScreenCalibration("PLAYER_LOGIN");
 	self:DefinePlayerRole();
-	self:LoadMovables();
-	self:SetSVMovablesPositions();
+
+	self.Mentalo:Launch()
+	self.Mentalo:SetPositions()
 
 	self:VersionCheck()
 
@@ -163,12 +143,8 @@ function SV:Launch()
 	self.UIParent:RegisterEvent("SPELLS_CHANGED");
 
 	SVLib:Update("SVMap");
-	SVLib:Update("SVUnit", true);
-	collectgarbage("collect") 
 
-	_G["SVUI_Mentalo"]:SetFixedPanelTemplate("Component")
-	_G["SVUI_Mentalo"]:SetPanelColor("yellow")
-	_G["SVUI_MentaloPrecision"]:SetPanelTemplate("Transparent")
+	collectgarbage("collect") 
 
 	if self.db.general.loginmessage then
 		local logMsg = (L["LOGIN_MSG"]):format("|cffFFFF1A", "|cffAA78FF", self.Version)
@@ -242,8 +218,8 @@ local SVUISystem_OnEvent = function(self, event, arg, ...)
 				forceClosed = true 
 			end 
 		end 
-		if SV.MentaloFrames then 
-			for frame,_ in pairs(SV.MentaloFrames) do 
+		if SV.Mentalo.Frames then 
+			for frame,_ in pairs(SV.Mentalo.Frames) do 
 				if _G[frame] and _G[frame]:IsShown() then 
 					forceClosed = true;
 					_G[frame]:Hide()

@@ -133,12 +133,12 @@ SV.Options.args.profiles = {
 			name = "",
 			width = "full",
 		},
-		dualSpecEnabled = {
+		dualSpec = {
 			order = 14,
 			type = "toggle",
 			name = "Dual-Spec Switching",
-			get = function() return SVLib:GetSafeData("dualSpecEnabled") end,
-			set = function(key, value) SVLib:SaveSafeData("dualSpecEnabled", value) end,
+			get = function() return SVLib:CheckDualProfile() end,
+			set = function(key, value) SVLib:ToggleDualProfile(value) end,
 		},
 	}
 }

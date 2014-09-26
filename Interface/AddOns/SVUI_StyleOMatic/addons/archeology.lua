@@ -25,7 +25,7 @@ ARCHEOLOGYFRAME STYLER
 local progressBarHolder = CreateFrame("Frame", "SVUI_ArcheologyProgressBar", nil)
 progressBarHolder:SetSize(240, 24)
 progressBarHolder:SetPoint("BOTTOM", CastingBarFrame, "TOP", 0, 10)
-SV:SetSVMovable(progressBarHolder, "Archeology Progress Bar")
+SV.Mentalo:Add(progressBarHolder, "Archeology Progress Bar")
 
 local function ArchaeologyStyle()
 	if SV.db.SVStyle.blizzard.enable ~= true or SV.db.SVStyle.blizzard.archaeology ~= true then return end 

@@ -347,7 +347,7 @@ local function CreateQuestDocklet()
 		ObjectiveTrackerFrame.HeaderMenu:RemoveTextures(true)
 		ObjectiveTrackerFrame.BlockDropDown:RemoveTextures(true)
 
-		SV:SetSVMovable(frame, "Quest Watch");
+		SV.Mentalo:Add(frame, "Quest Watch");
 	elseif(not SV.db.general.questWatch) then
 		local frame = CreateFrame("Frame", "SVUI_QuestFrame", UIParent);
 		frame:SetSize(200, WatchFrame:GetHeight());
@@ -364,7 +364,7 @@ local function CreateQuestDocklet()
 		WatchFrameLines.SetPoint = SV.fubar;
 		WatchFrameLines.SetAllPoints = SV.fubar;
 
-		SV:SetSVMovable(frame, "Quest Watch");
+		SV.Mentalo:Add(frame, "Quest Watch");
 	else
 		local bgTex = [[Interface\BUTTONS\WHITE8X8]]
 		local bdTex = SV.Media.bar.glow

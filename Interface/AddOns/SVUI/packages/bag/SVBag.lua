@@ -694,7 +694,7 @@ do
 
 	    if not SVUI_BagBar_MOVE then
 	    	SVUI_BagBar:SetPanelTemplate("Default")
-	        SV:SetSVMovable(SVUI_BagBar, L["Bags Bar"])
+	        SV.Mentalo:Add(SVUI_BagBar, L["Bags Bar"])
 	    end
 
 	    if self.db.bagBar.showBackdrop then 

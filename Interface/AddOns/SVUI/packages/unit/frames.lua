@@ -321,7 +321,7 @@ CONSTRUCTORS["player"] = function(self, unit)
     self.AuraBars = MOD:CreateAuraBarHeader(self, key)
     self.CombatFade = true;
     self:Point("BOTTOMLEFT", SV.UIParent, "BOTTOM", -413, 182)
-    SV:SetSVMovable(self, L["Player Frame"], nil, nil, nil, "ALL, SOLO")
+    SV.Mentalo:Add(self, L["Player Frame"], nil, nil, nil, "ALL, SOLO")
 
     self.MediaUpdate = MOD.RefreshUnitMedia
     self.Update = UpdatePlayerFrame
@@ -437,7 +437,7 @@ CONSTRUCTORS["target"] = function(self, unit)
     self.XRay = MOD:CreateXRay(self)
     self.XRay:SetPoint("TOPRIGHT", 12, 12)
     self:Point("BOTTOMRIGHT", SV.UIParent, "BOTTOM", 413, 182)
-    SV:SetSVMovable(self, L["Target Frame"], nil, nil, nil, "ALL, SOLO")
+    SV.Mentalo:Add(self, L["Target Frame"], nil, nil, nil, "ALL, SOLO")
 
     self.MediaUpdate = MOD.RefreshUnitMedia
     self.Update = UpdateTargetFrame
@@ -479,7 +479,7 @@ CONSTRUCTORS["targettarget"] = function(self, unit)
     self.RaidIcon = MOD:CreateRaidIcon(self)
     self.Range = { insideAlpha = 1, outsideAlpha = 1 }
     self:Point("BOTTOM", SV.UIParent, "BOTTOM", 0, 213)
-    SV:SetSVMovable(self, L["TargetTarget Frame"], nil, nil, nil, "ALL, SOLO")
+    SV.Mentalo:Add(self, L["TargetTarget Frame"], nil, nil, nil, "ALL, SOLO")
 
     self.MediaUpdate = MOD.RefreshUnitMedia
     self.Update = UpdateTargetTargetFrame
@@ -530,7 +530,7 @@ CONSTRUCTORS["pet"] = function(self, unit)
     self.RaidIcon = MOD:CreateRaidIcon(self)
     self.Range = { insideAlpha = 1, outsideAlpha = 1 }
     self:Point("BOTTOM", SV.UIParent, "BOTTOM", 0, 182)
-    SV:SetSVMovable(self, L["Pet Frame"], nil, nil, nil, "ALL, SOLO")
+    SV.Mentalo:Add(self, L["Pet Frame"], nil, nil, nil, "ALL, SOLO")
     self.MediaUpdate = MOD.RefreshUnitMedia
     self.Update = UpdatePetFrame
     return self 
@@ -574,7 +574,7 @@ CONSTRUCTORS["pettarget"] = function(self, unit)
     self.Debuffs = MOD:CreateDebuffs(self, key)
     self.Range = { insideAlpha = 1, outsideAlpha = 1 }
     self:Point("BOTTOM", SVUI_Pet, "TOP", 0, 7)
-    SV:SetSVMovable(self, L["PetTarget Frame"], nil, -7, nil, "ALL, SOLO")
+    SV.Mentalo:Add(self, L["PetTarget Frame"], nil, -7, nil, "ALL, SOLO")
 
     self.MediaUpdate = MOD.RefreshUnitMedia
     self.Update = UpdatePetTargetFrame
@@ -638,7 +638,7 @@ CONSTRUCTORS["focus"] = function(self, unit)
     self.XRay = MOD:CreateXRay_Closer(self)
     self.XRay:SetPoint("RIGHT", 20, 0)
     self:Point("BOTTOMRIGHT", SVUI_Target, "TOPRIGHT", 0, 220)
-    SV:SetSVMovable(self, L["Focus Frame"], nil, nil, nil, "ALL, SOLO")
+    SV.Mentalo:Add(self, L["Focus Frame"], nil, nil, nil, "ALL, SOLO")
 
     self.MediaUpdate = MOD.RefreshUnitMedia
     self.Update = UpdateFocusFrame
@@ -679,7 +679,7 @@ CONSTRUCTORS["focustarget"] = function(self, unit)
     self.RaidIcon = MOD:CreateRaidIcon(self)
     self.Range = { insideAlpha = 1, outsideAlpha = 1 }
     self:Point("BOTTOM", SVUI_Focus, "TOP", 0, 7)
-    SV:SetSVMovable(self, L["FocusTarget Frame"], nil, -7, nil, "ALL, SOLO")
+    SV.Mentalo:Add(self, L["FocusTarget Frame"], nil, -7, nil, "ALL, SOLO")
 
     self.MediaUpdate = MOD.RefreshUnitMedia
     self.Update = UpdateFocusTargetFrame
@@ -752,7 +752,7 @@ CONSTRUCTORS["boss"] = function(self, unit)
 
     if(not _G["SVUI_Boss_MOVE"]) then
         self:Point("RIGHT", SV.UIParent, "RIGHT", -105, 0)
-        SV:SetSVMovable(self, L["Boss Frames"], nil, nil, nil, "ALL, PARTY, RAID10, RAID25, RAID40", "SVUI_Boss")
+        SV.Mentalo:Add(self, L["Boss Frames"], nil, nil, nil, "ALL, PARTY, RAID10, RAID25, RAID40", "SVUI_Boss")
     else
         self:Point("TOPRIGHT", lastBossFrame, "BOTTOMRIGHT", 0, -20)
     end
@@ -919,7 +919,7 @@ CONSTRUCTORS["arena"] = function(self, unit)
 
     if(not _G["SVUI_Arena_MOVE"]) then
         self:Point("RIGHT", SV.UIParent, "RIGHT", -105, 0)
-        SV:SetSVMovable(self, L["Arena Frames"], nil, nil, nil, "ALL, ARENA", "SVUI_Arena")
+        SV.Mentalo:Add(self, L["Arena Frames"], nil, nil, nil, "ALL, ARENA", "SVUI_Arena")
     else
         self:Point("TOPRIGHT", lastArenaFrame, "BOTTOMRIGHT", 0, -20)
     end
@@ -1210,7 +1210,7 @@ GROUP_UPDATES["raid10"] = function(self)
     if not frame.positioned then 
         frame:ClearAllPoints()
         frame:Point("LEFT", SV.UIParent, "LEFT", 4, 0)
-        SV:SetSVMovable(frame, L["Raid 10 Frames"], nil, nil, nil, "ALL, RAID"..10)
+        SV.Mentalo:Add(frame, L["Raid 10 Frames"], nil, nil, nil, "ALL, RAID"..10)
         frame:RegisterEvent("PLAYER_ENTERING_WORLD")
         frame:SetScript("OnEvent", Raid10Visibility)
         PROXY_UPDATES["raid10"] = function() Raid10Visibility(frame) end;
@@ -1239,7 +1239,7 @@ GROUP_UPDATES["raid25"] = function(self)
     if not frame.positioned then 
         frame:ClearAllPoints()
         frame:Point("LEFT", SV.UIParent, "LEFT", 4, 0)
-        SV:SetSVMovable(frame, L["Raid 25 Frames"], nil, nil, nil, "ALL, RAID"..25)
+        SV.Mentalo:Add(frame, L["Raid 25 Frames"], nil, nil, nil, "ALL, RAID"..25)
         frame:RegisterEvent("PLAYER_ENTERING_WORLD")
         frame:SetScript("OnEvent", Raid25Visibility)
         PROXY_UPDATES["raid25"] = function() Raid25Visibility(frame) end;
@@ -1268,7 +1268,7 @@ GROUP_UPDATES["raid40"] = function(self)
     if not frame.positioned then 
         frame:ClearAllPoints()
         frame:Point("LEFT", SV.UIParent, "LEFT", 4, 0)
-        SV:SetSVMovable(frame, L["Raid 40 Frames"], nil, nil, nil, "ALL, RAID"..40)
+        SV.Mentalo:Add(frame, L["Raid 40 Frames"], nil, nil, nil, "ALL, RAID"..40)
         frame:RegisterEvent("PLAYER_ENTERING_WORLD")
         frame:SetScript("OnEvent", Raid40Visibility)
         PROXY_UPDATES["raid40"] = function() Raid40Visibility(frame) end;
@@ -1401,7 +1401,7 @@ GROUP_UPDATES["raidpet"] = function(self)
     if not raidPets.positioned then 
         raidPets:ClearAllPoints()
         raidPets:Point("BOTTOMLEFT", SV.UIParent, "BOTTOMLEFT", 4, 433)
-        SV:SetSVMovable(raidPets, L["Raid Pet Frames"], nil, nil, nil, "ALL, RAID10, RAID25, RAID40")
+        SV.Mentalo:Add(raidPets, L["Raid Pet Frames"], nil, nil, nil, "ALL, RAID10, RAID25, RAID40")
         raidPets:RegisterEvent("PLAYER_ENTERING_WORLD")
         raidPets:SetScript("OnEvent", RaidPetVisibility)
         PROXY_UPDATES["raidpet"] = function() RaidPetVisibility(raidPets) end;
@@ -1545,7 +1545,7 @@ GROUP_UPDATES["party"] = function(self)
     if not group.positioned then 
         group:ClearAllPoints()
         group:Point("LEFT",SV.UIParent,"LEFT",40,0)
-        SV:SetSVMovable(group, L['Party Frames'], nil, nil, nil, 'ALL,PARTY,ARENA');
+        SV.Mentalo:Add(group, L['Party Frames'], nil, nil, nil, 'ALL,PARTY,ARENA');
         group:RegisterEvent("PLAYER_ENTERING_WORLD")
         group:SetScript("OnEvent", PartyVisibility)
         PROXY_UPDATES["party"] = function() PartyVisibility(group) end;
@@ -1689,7 +1689,7 @@ local UpdateTankFrame = function(self)
     if not self.positioned then 
         self:ClearAllPoints()
         self:Point("TOPLEFT", SV.UIParent, "TOPLEFT", 4, -40)
-        SV:SetSVMovable(self, L["Tank Frames"], nil, nil, nil, "ALL, RAID10, RAID25, RAID40")
+        SV.Mentalo:Add(self, L["Tank Frames"], nil, nil, nil, "ALL, RAID10, RAID25, RAID40")
         self.Avatar.positionOverride = "TOPLEFT"
         self:SetAttribute("minHeight", self.dirtyHeight)
         self:SetAttribute("minWidth", self.dirtyWidth)
@@ -1784,7 +1784,7 @@ local UpdateAssistFrame = function(self)
     if not self.positioned then 
         self:ClearAllPoints()
         self:Point("TOPLEFT", SV.UIParent, "TOPLEFT", 4, -140)
-        SV:SetSVMovable(self, L["Assist Frames"], nil, nil, nil, "ALL, RAID10, RAID25, RAID40")
+        SV.Mentalo:Add(self, L["Assist Frames"], nil, nil, nil, "ALL, RAID10, RAID25, RAID40")
         self.Avatar.positionOverride = "TOPLEFT"
         self:SetAttribute("minHeight", self.dirtyHeight)
         self:SetAttribute("minWidth", self.dirtyWidth)

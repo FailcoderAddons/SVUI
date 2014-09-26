@@ -61,7 +61,7 @@ SV.Options.args.SVUnit.args.party = {
 			type = 'execute',
 			order = 3,
 			name = L['Restore Defaults'],
-			func = function(l, m)MOD:ResetUnitOptions('party')SV:ResetMovables('Party Frames')end,
+			func = function(l, m)MOD:ResetUnitOptions('party')SV.Mentalo:Reset('Party Frames')end,
 		},
 		tabGroups= {
 			order=3,

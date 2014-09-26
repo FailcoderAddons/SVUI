@@ -848,7 +848,7 @@ do
 				bar:Hide()
 				UnregisterStateDriver(bar, "visibility")
 			end
-			SV:SetSnapOffset(("SVUI_Action%d_MOVE"):format(id), (space  /  2))
+			SV.Mentalo:ChangeSnapOffset(("SVUI_Action%d_MOVE"):format(id), (space  /  2))
 		end
 	end 
 end 
@@ -1039,7 +1039,7 @@ CreateActionBars = function(self)
 		]])
 
 		self:RefreshBar(barID)
-		SV:SetSVMovable(thisBar, L[barID], nil, nil, nil, "ALL, ACTIONBARS")
+		SV.Mentalo:Add(thisBar, L[barID], nil, nil, nil, "ALL, ACTIONBARS")
 	end 
 end
 
@@ -1191,7 +1191,7 @@ do
 	  self:RegisterEvent("UPDATE_SHAPESHIFT_FORM", SetStanceBarButtons)
 	  self:RegisterEvent("ACTIONBAR_PAGE_CHANGED", SetStanceBarButtons)
 	  UpdateShapeshiftForms()
-	  SV:SetSVMovable(stanceBar, L["Stance Bar"], nil, -3, nil, "ALL, ACTIONBARS")
+	  SV.Mentalo:Add(stanceBar, L["Stance Bar"], nil, -3, nil, "ALL, ACTIONBARS")
 	  self:RefreshBar("Stance")
 	  SetStanceBarButtons()
 	  self:UpdateBarBindings(false, true)
@@ -1309,7 +1309,7 @@ do
 		self:RegisterEvent("PLAYER_FARSIGHT_FOCUS_CHANGED", RefreshPet)
 		self:RegisterEvent("PET_BAR_UPDATE_COOLDOWN", PetActionBar_UpdateCooldowns)
 
-		SV:SetSVMovable(petBar, L["Pet Bar"], nil, nil, nil, "ALL, ACTIONBARS")
+		SV.Mentalo:Add(petBar, L["Pet Bar"], nil, nil, nil, "ALL, ACTIONBARS")
 	end 
 end
 
@@ -1378,7 +1378,7 @@ CreateMicroBar = function(self)
 	SVUIMicroButtonsParent(microBar)
 	SVUIMicroButton_SetNormal()
 
-	SV:SetSVMovable(microBar, L["Micro Bar"])
+	SV.Mentalo:Add(microBar, L["Micro Bar"])
 
 	RefreshMicrobar()
 
@@ -1426,7 +1426,7 @@ local CreateExtraBar = function(self)
 	if HasExtraActionBar()then 
 		ExtraActionBarFrame:Show()
 	end
-	SV:SetSVMovable(specialBar, L["Boss Button"], nil, nil, nil, "ALL, ACTIONBAR")
+	SV.Mentalo:Add(specialBar, L["Boss Button"], nil, nil, nil, "ALL, ACTIONBAR")
 end
 --[[ 
 ########################################################## 

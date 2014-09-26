@@ -594,7 +594,7 @@ function MOD:Load()
 
 	self:Update_ConsolidatedBuffsSettings()
 
-	SV:SetSVMovable(auras, L["Auras Frame"])
+	SV.Mentalo:Add(auras, L["Auras Frame"])
 end
 --[[ 
 ########################################################## 

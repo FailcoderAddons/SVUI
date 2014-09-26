@@ -48,7 +48,7 @@ SV.Options.args.SVUnit.args.pet = {
 	set = function(l, m)MOD:ChangeDBVar(m, l[#l], "pet");MOD:SetUnitFrame("pet")end, 
 	args = {
 		enable = {type = "toggle", order = 1, name = L["Enable"]}, 
-		resetSettings = {type = "execute", order = 2, name = L["Restore Defaults"], func = function(l, m)MOD:ResetUnitOptions("pet")SV:ResetMovables("Pet Frame")end}, 
+		resetSettings = {type = "execute", order = 2, name = L["Restore Defaults"], func = function(l, m)MOD:ResetUnitOptions("pet")SV.Mentalo:Reset("Pet Frame")end}, 
 		tabGroups = {
 			order = 3, 
 			type = "group", 
@@ -159,7 +159,7 @@ SV.Options.args.SVUnit.args.pettarget = {
 	set = function(l, m)MOD:ChangeDBVar(m, l[#l], "pettarget");MOD:SetUnitFrame("pettarget")end, 
 	args = {
 		enable = {type = "toggle", order = 1, name = L["Enable"]}, 
-		resetSettings = {type = "execute", order = 2, name = L["Restore Defaults"], func = function(l, m)MOD:ResetUnitOptions("pettarget")SV:ResetMovables("PetTarget Frame")end}, 
+		resetSettings = {type = "execute", order = 2, name = L["Restore Defaults"], func = function(l, m)MOD:ResetUnitOptions("pettarget")SV.Mentalo:Reset("PetTarget Frame")end}, 
 		tabGroups = {
 			order = 3, 
 			type = "group", 

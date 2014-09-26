@@ -83,7 +83,7 @@ local function BarConfigLoader()
 					desc = L["Restore the actionbars default settings"], 
 					func = function()
 						MOD.db:Reset("Bar"..d)
-						SV:ResetMovables("Bar "..d)
+						SV.Mentalo:Reset("Bar "..d)
 						MOD:RefreshBar("Bar"..d)
 					end, 
 					disabled = function()return not SV.db.SVBar["Bar"..d].enable end, 
@@ -329,7 +329,7 @@ local function BarConfigLoader()
 				desc = L["Restore the actionbars default settings"],
 				func = function()
 					MOD.db:Reset("Pet")
-					SV:ResetMovables("Pet Bar")
+					SV.Mentalo:Reset("Pet Bar")
 					MOD:RefreshBar("Pet")
 				end,
 				disabled = function()return not SV.db.SVBar["Pet"].enable end,
@@ -482,7 +482,7 @@ local function BarConfigLoader()
 				desc = L["Restore the actionbars default settings"],
 				func = function()
 					SVLib:SetDefault("SVBar","Stance")
-					SV:ResetMovables("Stance Bar")
+					SV.Mentalo:Reset("Stance Bar")
 					MOD:RefreshBar("Stance")
 				end,
 				disabled = function()return not SV.db.SVBar["Stance"].enable end,

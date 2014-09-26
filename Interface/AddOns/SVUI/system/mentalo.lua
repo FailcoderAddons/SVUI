@@ -37,12 +37,17 @@ local SVUI_ADDON_NAME, SV = ...
 local SVLib = LibStub("LibSuperVillain-1.0")
 local L = SVLib:Lang();
 
-SV.MentaloFrames = {}
+local Mentalo = {}
 
-local MentaloMover = CreateFrame("Frame", nil)
-local MentaloCache, AnchorCache;
+Mentalo.Frames = {}
+Mentalo.Anchors = {}
+Mentalo.Blizzard = {}
+
+local MentaloEventHandler = CreateFrame("Frame", nil)
 
 local Sticky = {};
+Sticky.Frames = {};
+Sticky.Frames[1] = SV.UIParent;
 Sticky.scripts = Sticky.scripts or {}
 Sticky.rangeX = 15
 Sticky.rangeY = 15
@@ -130,7 +135,7 @@ local function SnapStickyFrame(frameA, frameB, left, top, right, bottom)
 	end
 end
 
-local function GetStickyUpdate(frame, frameList, xoffset, yoffset, left, top, right, bottom)
+function Sticky:GetStickyUpdate(frame, xoffset, yoffset, left, top, right, bottom)
 	return function()
 		local x, y = GetCursorPosition()
 		local s = frame:GetEffectiveScale()
@@ -138,12 +143,12 @@ local function GetStickyUpdate(frame, frameList, xoffset, yoffset, left, top, ri
 		x, y = x / s, y / s
 		frame:ClearAllPoints()
 		frame:SetPoint("CENTER", UIParent, "BOTTOMLEFT", x + xoffset, y + yoffset)
-		Sticky.sticky[frame] = nil
-		for i = 1, #frameList do
-			local v = frameList[i]
-			if frame  ~= v and frame  ~= v:GetParent() and not IsShiftKeyDown() and v:IsVisible() then
+		self.sticky[frame] = nil
+		for i = 1, #Sticky.Frames do
+			local v = Sticky.Frames[i]
+			if(frame ~= v and frame ~= v:GetParent() and not IsShiftKeyDown() and v:IsVisible()) then
 				if SnapStickyFrame(frame, v, left, top, right, bottom) then
-					Sticky.sticky[frame] = v
+					self.sticky[frame] = v
 					break
 				end
 			end
@@ -151,14 +156,14 @@ local function GetStickyUpdate(frame, frameList, xoffset, yoffset, left, top, ri
 	end
 end
 
-function Sticky:StartMoving(frame, frameList, left, top, right, bottom)
+function Sticky:StartMoving(frame, left, top, right, bottom)
 	local x, y = GetCursorPosition()
 	local aX, aY = frame:GetCenter()
 	local aS = frame:GetEffectiveScale()
 	aX, aY = aX * aS, aY * aS
 	local xoffset, yoffset = (aX - x), (aY - y)
 	self.scripts[frame] = frame:GetScript("OnUpdate")
-	frame:SetScript("OnUpdate", GetStickyUpdate(frame, frameList, xoffset, yoffset, left, top, right, bottom))
+	frame:SetScript("OnUpdate", Sticky.GetStickyUpdate(Sticky, frame, xoffset, yoffset, left, top, right, bottom))
 end
 
 function Sticky:StopMoving(frame)
@@ -179,7 +184,6 @@ LOCAL VARS
 ]]--
 local CurrentFrameTarget = false;
 local UpdateFrameTarget = false;
-local userHolding = false;
 local HandledFrames = {};
 local DraggableFrames = {
 	"AchievementFrame",
@@ -234,27 +238,6 @@ local DraggableFrames = {
 	"VoidStorageFrame",
 	--"WorldStateAlwaysUpFrame"
 };
--- local MentaloUIFrames = {
--- 	"ArcheologyDigsiteProgressBar",
--- };
-local theHand = CreateFrame("Frame", "SVUI_HandOfMentalo", SV.UIParent)
-theHand:SetFrameStrata("DIALOG")
-theHand:SetFrameLevel(99)
-theHand:SetClampedToScreen(true)
-theHand:SetSize(128,128)
-theHand:SetPoint("CENTER")
-theHand.bg = theHand:CreateTexture(nil, "OVERLAY")
-theHand.bg:SetAllPoints(theHand)
-theHand.bg:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Doodads\MENTALO-HAND-OFF]])
-theHand.energy = theHand:CreateTexture(nil, "OVERLAY")
-theHand.energy:SetAllPoints(theHand)
-theHand.energy:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Doodads\MENTALO-ENERGY]])
-SV.Animate:Orbit(theHand.energy, 10)
-theHand.flash = theHand.energy.anim;
-theHand.energy:Hide()
-theHand.elapsedTime = 0;
-theHand.flash:Stop()
-theHand:Hide()
 --[[ 
 ########################################################## 
 LOCAL FUNCTIONS
@@ -292,118 +275,9 @@ local function Pinpoint(parent)
         result = "CENTER"
     end 
     return result 
-end 
-
-local function TheHand_SetPos(frame)
-	theHand:SetPoint("CENTER", frame, "TOP", 0, 0) 
 end
 
-local TheHand_OnUpdate = function(self, elapsed)
-	self.elapsedTime = self.elapsedTime  +  elapsed
-	if self.elapsedTime > 0.1 then
-		self.elapsedTime = 0
-		local x, y = GetCursorPosition()
-		local scale = SV.UIParent:GetEffectiveScale()
-		self:SetPoint("CENTER", SV.UIParent, "BOTTOMLEFT", (x  /  scale)  +  50, (y  /  scale)  +  50)
-	end 
-end
-
-local function EnableTheHand()
-	theHand:Show()
-	theHand.bg:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Doodads\MENTALO-HAND-ON]])
-	theHand.energy:Show()
-	theHand.flash:Play()
-	theHand:SetScript("OnUpdate", TheHand_OnUpdate) 
-end
-
-local function DisableTheHand()
-	theHand.flash:Stop()
-	theHand.energy:Hide()
-	theHand.bg:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Doodads\MENTALO-HAND-OFF]])
-	theHand:SetScript("OnUpdate", nil)
-	theHand.elapsedTime = 0
-	theHand:Hide()
-end
-
-local function Mentalo_OnSizeChanged(frame)
-	if InCombatLockdown()then return end 
-	if frame.dirtyWidth and frame.dirtyHeight then 
-		frame.Avatar:Size(frame.dirtyWidth, frame.dirtyHeight)
-	else 
-		frame.Avatar:Size(frame:GetSize())
-	end 
-end
-
-function MentaloMover:MakeMovable(frame)
-	if HandledFrames then 
-		for _, f in pairs(HandledFrames)do 
-			if frame:GetName() == f then return end 
-		end 
-	end 
-	if SVUI and frame:GetName() == "LossOfControlFrame" then return end 
-	frame:EnableMouse(true)
-	if frame:GetName() == "LFGDungeonReadyPopup" then 
-		LFGDungeonReadyDialog:EnableMouse(false)
-	end 
-	frame:SetMovable(true)
-	frame:RegisterForDrag("LeftButton")
-	frame:SetClampedToScreen(true)
-	frame:HookScript("OnUpdate", function(this)
-		if InCombatLockdown() or this:GetName() == "GameMenuFrame" then return end 
-		if this.IsMoving then return end 
-		this:ClearAllPoints()
-		if this:GetName() == "QuestFrame" then 
-			if MentaloCache["GossipFrame"].Points  ~= nil then 
-				this:SetPoint(unpack(MentaloCache["GossipFrame"].Points))
-			end 
-		elseif MentaloCache[this:GetName()].Points  ~= nil then 
-			this:SetPoint(unpack(MentaloCache[this:GetName()].Points))
-		end 
-	end)
-	frame:SetScript("OnDragStart", function(this)
-		if not this:IsMovable() then return end 
-		this:StartMoving()
-		this.IsMoving = true 
-	end)
-	frame:SetScript("OnDragStop", function(this)
-		if not this:IsMovable() then return end 
-		this.IsMoving = false;
-		this:StopMovingOrSizing()
-		if this:GetName() == "GameMenuFrame"then return end 
-		local anchor1, parent, anchor2, x, y = this:GetPoint()
-		parent = this:GetParent():GetName()
-		this:ClearAllPoints()
-		this:SetPoint(anchor1, parent, anchor2, x, y)
-		if this:GetName() == "QuestFrame" then 
-			MentaloCache["GossipFrame"].Points = {anchor1, parent, anchor2, x, y}
-		else 
-			MentaloCache[this:GetName()].Points = {anchor1, parent, anchor2, x, y}
-		end 
-	end)
-	tinsert(HandledFrames, frame:GetName())
-end
-
-local Movable_OnEvent = function(self) 
-	for _, frame in pairs(DraggableFrames)do 
-		if _G[frame] then
-			if MentaloCache[frame] == nil then 
-				MentaloCache[frame] = {}
-			end 
-			MentaloCache["GameMenuFrame"] = {}
-			MakeMovable(_G[frame])
-		end 
-	end
-end
-
-local function GrabUsableRegions(frame)
-	local parent = frame or SV.UIParent
-	local right = parent:GetRight()
-	local top = parent:GetTop()
-	local center = parent:GetCenter()
-	return right, top, center
-end 
-
-local function FindLoc(frame)
+local function CurrentPosition(frame)
 	if not frame then return end 
 	local anchor1, parent, anchor2, x, y = frame:GetPoint()
 	local parentName
@@ -417,281 +291,403 @@ local function FindLoc(frame)
 	return ("%s\031%s\031%s\031%d\031%d"):format(anchor1, parentName, anchor2, parsefloat(x), parsefloat(y))
 end
 
-local function ghost(list, alpha)
-	local frame;
-	for f, _ in pairs(list)do 
-		frame = _G[f]
-		if frame then 
-			frame:SetAlpha(alpha)
-		end 
+local function GrabUsableRegions(frame)
+	local parent = frame or SV.UIParent
+	local right = parent:GetRight()
+	local top = parent:GetTop()
+	local center = parent:GetCenter()
+	return right, top, center
+end
+
+local function CalculateOffsets(frame)
+	if(not CurrentFrameTarget) then return end
+	local right, top, center = GrabUsableRegions()
+	local xOffset, yOffset = CurrentFrameTarget:GetCenter()
+	local screenLeft = (right * 0.33);
+	local screenRight = (right * 0.66);
+	local topMedian = (top * 0.5);
+	local anchor, a1, a2;
+
+	if(yOffset >= (top * 0.5)) then
+		a1 = "TOP"
+		yOffset = -(top - CurrentFrameTarget:GetTop())
+	else
+		a1 = "BOTTOM"
+		yOffset = CurrentFrameTarget:GetBottom()
 	end 
+
+	if xOffset >= screenRight then
+		a2 = "RIGHT"
+		xOffset = (CurrentFrameTarget:GetRight() - right) 
+	elseif xOffset <= screenLeft then
+		a2 = "LEFT"
+		xOffset = CurrentFrameTarget:GetLeft() 
+	else
+		a2 = ""
+		xOffset = (xOffset - center) 
+	end 
+
+	xOffset = parsefloat(xOffset, 0)
+	yOffset = parsefloat(yOffset, 0)
+	anchor = ("%s%s"):format(a1,a2)
+	return xOffset, yOffset, anchor
+end
+
+--[[
+ /$$$$$$$$/$$   /$$ /$$$$$$$$       /$$   /$$  /$$$$$$  /$$   /$$ /$$$$$$$ 
+|__  $$__/ $$  | $$| $$_____/      | $$  | $$ /$$__  $$| $$$ | $$| $$__  $$
+   | $$  | $$  | $$| $$            | $$  | $$| $$  \ $$| $$$$| $$| $$  \ $$
+   | $$  | $$$$$$$$| $$$$$         | $$$$$$$$| $$$$$$$$| $$ $$ $$| $$  | $$
+   | $$  | $$__  $$| $$__/         | $$__  $$| $$__  $$| $$  $$$$| $$  | $$
+   | $$  | $$  | $$| $$            | $$  | $$| $$  | $$| $$\  $$$| $$  | $$
+   | $$  | $$  | $$| $$$$$$$$      | $$  | $$| $$  | $$| $$ \  $$| $$$$$$$/
+   |__/  |__/  |__/|________/      |__/  |__/|__/  |__/|__/  \__/|_______/ 
+--]]
+
+local TheHand = CreateFrame("Frame", "SVUI_HandOfMentalo", SV.UIParent)
+TheHand:SetFrameStrata("DIALOG")
+TheHand:SetFrameLevel(99)
+TheHand:SetClampedToScreen(true)
+TheHand:SetSize(128,128)
+TheHand:SetPoint("CENTER")
+TheHand.bg = TheHand:CreateTexture(nil, "OVERLAY")
+TheHand.bg:SetAllPoints(TheHand)
+TheHand.bg:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Doodads\MENTALO-HAND-OFF]])
+TheHand.energy = TheHand:CreateTexture(nil, "OVERLAY")
+TheHand.energy:SetAllPoints(TheHand)
+TheHand.energy:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Doodads\MENTALO-ENERGY]])
+SV.Animate:Orbit(TheHand.energy, 10)
+TheHand.flash = TheHand.energy.anim;
+TheHand.energy:Hide()
+TheHand.elapsedTime = 0;
+TheHand.flash:Stop()
+TheHand:Hide()
+TheHand.UserHeld = false;
+
+local TheHand_OnUpdate = function(self, elapsed)
+	self.elapsedTime = self.elapsedTime  +  elapsed
+	if self.elapsedTime > 0.1 then
+		self.elapsedTime = 0
+		local x, y = GetCursorPosition()
+		local scale = SV.UIParent:GetEffectiveScale()
+		self:SetPoint("CENTER", SV.UIParent, "BOTTOMLEFT", (x  /  scale)  +  50, (y  /  scale)  +  50)
+	end 
+end
+
+function TheHand:Enable()
+	self:Show()
+	self.bg:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Doodads\MENTALO-HAND-ON]])
+	self.energy:Show()
+	self.flash:Play()
+	self:SetScript("OnUpdate", TheHand_OnUpdate) 
+end
+
+function TheHand:Disable()
+	self.flash:Stop()
+	self.energy:Hide()
+	self.bg:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Doodads\MENTALO-HAND-OFF]])
+	self:SetScript("OnUpdate", nil)
+	self.elapsedTime = 0
+	self:Hide()
+end
+--[[ 
+########################################################## 
+HANDLERS
+##########################################################
+]]--
+local Movable_OnMouseUp = function(self)
+	CurrentFrameTarget = self;
+	local xOffset, yOffset, anchor = CalculateOffsets()
+	SVUI_MentaloPrecisionSetX:SetText(xOffset)
+	SVUI_MentaloPrecisionSetY:SetText(yOffset)
+	SVUI_MentaloPrecisionSetX.CurrentValue = xOffset;
+	SVUI_MentaloPrecisionSetY.CurrentValue = yOffset;
+	SVUI_MentaloPrecision.Title:SetText(self.textString)
 end 
 
-local function SetSVMovable(frame, moveName, title, raised, snap, dragStopFunc)
+local Movable_OnSizeChanged = function(self)
+	if InCombatLockdown()then return end 
+	if self.dirtyWidth and self.dirtyHeight then 
+		self.Avatar:Size(self.dirtyWidth, self.dirtyHeight)
+	else 
+		self.Avatar:Size(self:GetSize())
+	end 
+end
+
+local Movable_OnDragStart = function(self)
+	if InCombatLockdown() then SV:AddonMessage(ERR_NOT_IN_COMBAT)return end 
+	if SV.db.general.stickyFrames then 
+		Sticky:StartMoving(self, self.snapOffset, self.snapOffset, self.snapOffset, self.snapOffset)
+	else 
+		self:StartMoving()
+	end 
+	UpdateFrameTarget = self;
+	MentaloEventHandler:Show()
+	TheHand:Enable()
+	TheHand.UserHeld = true 
+end
+
+local Movable_OnDragStop = function(self)
+	if InCombatLockdown()then SV:AddonMessage(ERR_NOT_IN_COMBAT)return end 
+	TheHand.UserHeld = false;
+	if SV.db.general.stickyFrames then 
+		Sticky:StopMoving(self)
+	else 
+		self:StopMovingOrSizing()
+	end 
+	local pR, pT, pC = GrabUsableRegions()
+	local cX, cY = self:GetCenter()
+	local newAnchor;
+	if cY >= (pT * 0.5) then 
+		newAnchor = "TOP"; 
+		cY = (-(pT - self:GetTop()))
+	else 
+		newAnchor = "BOTTOM"
+		cY = self:GetBottom()
+	end 
+	if cX >= (pR * 0.66) then 
+		newAnchor = newAnchor.."RIGHT"
+		cX = self:GetRight() - pR 
+	elseif cX <= (pR * 0.33) then 
+		newAnchor = newAnchor.."LEFT"
+		cX = self:GetLeft()
+	else 
+		cX = cX - pC 
+	end 
+	if self.positionOverride then 
+		self.parent:ClearAllPoints()
+		self.parent:Point(self.positionOverride, self, self.positionOverride)
+	end
+
+	self:ClearAllPoints()
+	self:Point(newAnchor, SV.UIParent, newAnchor, cX, cY)
+
+	Mentalo:SaveMovable(moveName)
+
+	if SVUI_MentaloPrecision then 
+		Movable_OnMouseUp(self)
+	end
+
+	UpdateFrameTarget = nil;
+	MentaloEventHandler:Hide()
+	if(dragStopFunc ~= nil and type(dragStopFunc) == "function") then 
+		dragStopFunc(self, Pinpoint(self))
+	end 
+	self:SetUserPlaced(false)
+	TheHand:Disable()
+end
+
+local Movable_OnEnter = function(self)
+	if TheHand.UserHeld then return end 
+	self:SetAlpha(1)
+	self.text:SetTextColor(1, 1, 1)
+	UpdateFrameTarget = self;
+	MentaloEventHandler:GetScript("OnUpdate")(MentaloEventHandler)
+	SVUI_Mentalo.Avatar:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Doodads\MENTALO-ON]])
+	TheHand:SetPoint("CENTER", self, "TOP", 0, 0)
+	TheHand:Show()
+	if CurrentFrameTarget ~= self then 
+		SVUI_MentaloPrecision:Hide()
+		Movable_OnMouseUp(self)
+	end 
+end
+
+local Movable_OnLeave = function(self)
+	if TheHand.UserHeld then return end 
+	self:SetAlpha(0.4)
+	self.text:SetTextColor(0.1, 0.8, 0.8)
+	SVUI_Mentalo.Avatar:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Doodads\MENTALO-OFF]])
+	TheHand:Hide()
+end
+
+local Movable_OnMouseDown = function(self, arg)
+	if arg == "RightButton"then 
+		TheHand.UserHeld = false;
+		SVUI_MentaloPrecision:Show()
+		if SV.db.general.stickyFrames then 
+			Sticky:StopMoving(self)
+		else 
+			self:StopMovingOrSizing()
+		end 
+	end 
+end
+
+local Movable_OnShow = function(self)
+	self:SetBackdropBorderColor(0.1, 0.8, 0.8)
+end
+--[[ 
+########################################################## 
+CONSTRUCTS
+##########################################################
+]]--
+function Mentalo:New(frame, moveName, title, raised, snap, dragStopFunc)
 	if(not frame) then return end
-	if SV.MentaloFrames[moveName].Created then return end 
+	if self.Frames[moveName].Created then return end 
 	if raised == nil then raised = true end 
+
 	local movable = CreateFrame("Button", moveName, SV.UIParent)
 	movable:SetFrameLevel(frame:GetFrameLevel() + 1)
 	movable:SetClampedToScreen(true)
 	movable:SetWidth(frame:GetWidth())
 	movable:SetHeight(frame:GetHeight())
+
 	movable.parent = frame;
 	movable.name = moveName;
 	movable.textString = title;
 	movable.postdrag = dragStopFunc;
 	movable.overlay = raised;
 	movable.snapOffset = snap or -2;
-	SV.MentaloFrames[moveName].Avatar = movable;
-	SV["Snap"][#SV["Snap"] + 1] = movable;
+
 	if raised == true then 
 		movable:SetFrameStrata("DIALOG")
 	else 
 		movable:SetFrameStrata("BACKGROUND")
 	end 
-	local anchor1, anchorParent, anchor2, xPos, yPos = split("\031", FindLoc(frame))
-	if AnchorCache and AnchorCache[moveName] then 
-		if type(AnchorCache[moveName]) == "table"then 
-			movable:SetPoint(AnchorCache[moveName]["p"], SV.UIParent, AnchorCache[moveName]["p2"], AnchorCache[moveName]["p3"], AnchorCache[moveName]["p4"])
-			AnchorCache[moveName] = FindLoc(movable)
+
+	local anchor1, anchorParent, anchor2, xPos, yPos = split("\031", CurrentPosition(frame))
+	if(self.Anchors and self.Anchors[moveName]) then 
+		if(type(self.Anchors[moveName]) == "table") then 
+			movable:SetPoint(self.Anchors[moveName]["p"], SV.UIParent, self.Anchors[moveName]["p2"], self.Anchors[moveName]["p3"], self.Anchors[moveName]["p4"])
+			self.Anchors[moveName] = CurrentPosition(movable)
 			movable:ClearAllPoints()
 		end 
-		anchor1, anchorParent, anchor2, xPos, yPos = split("\031", AnchorCache[moveName])
+		anchor1, anchorParent, anchor2, xPos, yPos = split("\031", self.Anchors[moveName])
 		movable:SetPoint(anchor1, anchorParent, anchor2, xPos, yPos)
 	else 
 		movable:SetPoint(anchor1, anchorParent, anchor2, xPos, yPos)
 	end 
+
 	movable:SetFixedPanelTemplate("Transparent")
 	movable:SetAlpha(0.4)
-	movable:RegisterForDrag("LeftButton", "RightButton")
-	movable:SetScript("OnDragStart", function(this)
-		if InCombatLockdown()then SV:AddonMessage(ERR_NOT_IN_COMBAT)return end 
-		if SV.db.general.stickyFrames then 
-			Sticky:StartMoving(this, SV["Snap"], movable.snapOffset, movable.snapOffset, movable.snapOffset, movable.snapOffset)
-		else 
-			this:StartMoving()
-		end 
-		UpdateFrameTarget = this;
-		_G["SVUI_MentaloEventHandler"]:Show()
-		EnableTheHand()
-		userHolding = true 
-	end)
-	movable:SetScript("OnMouseUp", SV.MovableFocused)
-	movable:SetScript("OnDragStop", function(this)
-		if InCombatLockdown()then SV:AddonMessage(ERR_NOT_IN_COMBAT)return end 
-		userHolding = false;
-		if SV.db.general.stickyFrames then 
-			Sticky:StopMoving(this)
-		else 
-			this:StopMovingOrSizing()
-		end 
-		local pR, pT, pC = GrabUsableRegions()
-		local cX, cY = this:GetCenter()
-		local newAnchor;
-		if cY   >= (pT   /   2) then 
-			newAnchor = "TOP"; 
-			cY = (-(pT - this:GetTop()))
-		else 
-			newAnchor = "BOTTOM"
-			cY = this:GetBottom()
-		end 
-		if cX   >= ((pR   *   2)   /   3) then 
-			newAnchor = newAnchor.."RIGHT"
-			cX = this:GetRight() - pR 
-		elseif cX   <= (pR   /   3) then 
-			newAnchor = newAnchor.."LEFT"
-			cX = this:GetLeft()
-		else 
-			cX = cX - pC 
-		end 
-		if this.positionOverride then 
-			this.parent:ClearAllPoints()
-			this.parent:Point(this.positionOverride, this, this.positionOverride)
-		end 
-		this:ClearAllPoints()
-		this:Point(newAnchor, SV.UIParent, newAnchor, cX, cY)
-		SV:SaveMovableLoc(moveName)
-		if SVUI_MentaloPrecision then 
-			SV:MentaloFocusUpdate(this)
-		end 
-		UpdateFrameTarget = nil;
-		_G["SVUI_MentaloEventHandler"]:Hide()
-		if dragStopFunc  ~= nil and type(dragStopFunc) == "function" then 
-			dragStopFunc(this, Pinpoint(this))
-		end 
-		this:SetUserPlaced(false)
-		DisableTheHand()
-	end)
 
-	frame:SetScript("OnSizeChanged", Mentalo_OnSizeChanged)
+	self.Frames[moveName].Avatar = movable;
+	Sticky.Frames[#Sticky.Frames + 1] = movable;
+
+	frame:SetScript("OnSizeChanged", Movable_OnSizeChanged)
 	frame.Avatar = movable;
 	frame:ClearAllPoints()
 	frame:SetPoint(anchor1, movable, 0, 0)
 
-	local u = movable:CreateFontString(nil, "OVERLAY")
-	u:SetFontTemplate()
-	u:SetJustifyH("CENTER")
-	u:SetPoint("CENTER")
-	u:SetText(title or moveName)
-	u:SetTextColor(unpack(SV.Media.color.highlight))
+	local mtext = movable:CreateFontString(nil, "OVERLAY")
+	mtext:SetFontTemplate()
+	mtext:SetJustifyH("CENTER")
+	mtext:SetPoint("CENTER")
+	mtext:SetText(title or moveName)
+	mtext:SetTextColor(0.1, 0.8, 0.8)
 
-	movable:SetFontString(u)
-	movable.text = u;
-	movable:SetScript("OnEnter", function(this)
-		if userHolding then return end 
-		this:SetAlpha(1)
-		this.text:SetTextColor(1, 1, 1)
-		UpdateFrameTarget = this;
-		_G["SVUI_MentaloEventHandler"]:GetScript("OnUpdate")(_G["SVUI_MentaloEventHandler"])
-		SVUI_Mentalo.Avatar:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Doodads\MENTALO-ON]])
-		TheHand_SetPos(this)
-		theHand:Show()
-		if CurrentFrameTarget  ~= this then 
-			SVUI_MentaloPrecision:Hide()
-			SV.MovableFocused(this)
-		end 
-	end)
-	movable:SetScript("OnMouseDown", function(this, arg)
-		if arg == "RightButton"then 
-			userHolding = false;
-			SVUI_MentaloPrecision:Show()
-			if SV.db.general.stickyFrames then 
-				Sticky:StopMoving(this)
-			else 
-				this:StopMovingOrSizing()
-			end 
-		end 
-	end)
-	movable:SetScript("OnLeave", function(this)
-		if userHolding then return end 
-		this:SetAlpha(0.4)
-		this.text:SetTextColor(unpack(SV.Media.color.highlight))
-		SVUI_Mentalo.Avatar:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Doodads\MENTALO-OFF]])
-		theHand:Hide()
-	end)
-	movable:SetScript("OnShow", function(this)this:SetBackdropBorderColor(unpack(SV.Media.color.highlight))end)
+	movable:SetFontString(mtext)
+	movable.text = mtext;
+
+	movable:RegisterForDrag("LeftButton", "RightButton")
+	movable:SetScript("OnMouseUp", Movable_OnMouseUp)
+	movable:SetScript("OnDragStart", Movable_OnDragStart)
+	movable:SetScript("OnDragStop", Movable_OnDragStop)
+	movable:SetScript("OnEnter", Movable_OnEnter)
+	movable:SetScript("OnMouseDown", Movable_OnMouseDown)
+	movable:SetScript("OnLeave", Movable_OnLeave)
+	movable:SetScript("OnShow", Movable_OnShow)
+
 	movable:SetMovable(true)
 	movable:Hide()
-	if dragStopFunc  ~= nil and type(dragStopFunc) == "function"then 
+
+	if dragStopFunc ~= nil and type(dragStopFunc) == "function" then 
 		movable:RegisterEvent("PLAYER_ENTERING_WORLD")
 		movable:SetScript("OnEvent", function(this, event)
-			dragStopFunc(movable, Pinpoint(movable))
+			local point = Pinpoint(this)
+			dragStopFunc(this, point)
 			this:UnregisterAllEvents()
 		end)
 	end 
-	SV.MentaloFrames[moveName].Created = true 
-end 
---[[ 
-########################################################## 
-GLOBAL/MODULE FUNCTIONS
-##########################################################
-]]--
-function SV:MentaloForced(frame)
-	if _G[frame] and _G[frame]:GetScript("OnDragStop") then 
-		_G[frame]:GetScript("OnDragStop")(_G[frame])
-	end 
-end 
 
-function SV:TestMovableMoved(frame)
-	if AnchorCache and AnchorCache[frame] then 
+	self.Frames[moveName].Created = true 
+end
+
+function Mentalo:HasMoved(frame)
+	if self.Anchors and self.Anchors[frame] then 
 		return true 
 	else 
 		return false 
 	end 
 end 
 
-function SV:SaveMovableLoc(frame)
+function Mentalo:SaveMovable(frame)
 	if not _G[frame] then return end 
-	if not AnchorCache then 
-		AnchorCache = {}
+	if not self.Anchors then 
+		self.Anchors = {}
 	end 
-	AnchorCache[frame] = FindLoc(_G[frame])
+	self.Anchors[frame] = CurrentPosition(_G[frame])
 end 
 
-function SV:SetSnapOffset(frame, snapOffset)
-	if not _G[frame] or not SV.MentaloFrames[frame] then return end 
-	SV.MentaloFrames[frame].Avatar.snapOffset = snapOffset or -2;
-	SV.MentaloFrames[frame]["snapoffset"] = snapOffset or -2 
+function Mentalo:ChangeSnapOffset(frame, snapOffset)
+	if not _G[frame] or not self.Frames[frame] then return end 
+	self.Frames[frame].Avatar.snapOffset = snapOffset or -2;
+	self.Frames[frame]["snapoffset"] = snapOffset or -2 
 end 
 
-function SV:SaveMovableOrigin(frame)
-	if not _G[frame] then return end 
-	SV.MentaloFrames[frame]["point"] = FindLoc(_G[frame])
-	SV.MentaloFrames[frame]["postdrag"](_G[frame], Pinpoint(_G[frame]))
-end 
-
-function SV:SetSVMovable(frame, title, raised, snapOffset, dragStopFunc, movableGroup, overrideName)
+function Mentalo:Add(frame, title, raised, snapOffset, dragStopFunc, movableGroup, overrideName)
 	if(not frame or (not overrideName and not frame:GetName())) then return end
 	local frameName = overrideName or frame:GetName()
 	local moveName = ("%s_MOVE"):format(frameName)
 	if not movableGroup then movableGroup = "ALL, GENERAL" end 
-	if SV.MentaloFrames[moveName] == nil then 
-		SV.MentaloFrames[moveName] = {}
-		SV.MentaloFrames[moveName]["parent"] = frame;
-		SV.MentaloFrames[moveName]["text"] = title;
-		SV.MentaloFrames[moveName]["overlay"] = raised;
-		SV.MentaloFrames[moveName]["postdrag"] = dragStopFunc;
-		SV.MentaloFrames[moveName]["snapoffset"] = snapOffset;
-		SV.MentaloFrames[moveName]["point"] = FindLoc(frame)
-		SV.MentaloFrames[moveName]["type"] = {}
+	if self.Frames[moveName] == nil then 
+		self.Frames[moveName] = {}
+		self.Frames[moveName]["parent"] = frame;
+		self.Frames[moveName]["text"] = title;
+		self.Frames[moveName]["overlay"] = raised;
+		self.Frames[moveName]["postdrag"] = dragStopFunc;
+		self.Frames[moveName]["snapoffset"] = snapOffset;
+		self.Frames[moveName]["point"] = CurrentPosition(frame)
+		self.Frames[moveName]["type"] = {}
 		local group = {split(", ", movableGroup)}
 		for i = 1, #group do 
 			local this = group[i]
-			SV.MentaloFrames[moveName]["type"][this] = true 
+			self.Frames[moveName]["type"][this] = true 
+		end 
+	end
+
+	self:New(frame, moveName, title, raised, snapOffset, dragStopFunc)
+
+	local ghost;
+	for entry,_ in pairs(self.Frames) do 
+		ghost = _G[entry]
+		if(ghost) then 
+			ghost:SetAlpha(0.5)
 		end 
 	end 
-	SetSVMovable(frame, moveName, title, raised, snapOffset, dragStopFunc)
-end 
+end
 
-function SV:ToggleMovables(enabled, configType)
-	for frameName, _ in pairs(SV.MentaloFrames)do 
-		if(_G[frameName]) then 
-			local movable = _G[frameName] 
-			if(not enabled) then 
-				movable:Hide() 
-			else 
-				if SV.MentaloFrames[frameName]["type"][configType]then 
-					movable:Show() 
-				else 
-					movable:Hide() 
-				end 
-			end 
-		end 
-	end 
-end 
-
-function SV:ResetMovables(request)
+function Mentalo:Reset(request)
 	if request == "" or request == nil then 
-		for name, _ in pairs(SV.MentaloFrames)do 
+		for name, _ in pairs(self.Frames)do 
 			local frame = _G[name];
-			if SV.MentaloFrames[name]["point"] then
-				local u, v, w, x, y = split("\031", SV.MentaloFrames[name]["point"])
+			if self.Frames[name]["point"] then
+				local u, v, w, x, y = split("\031", self.Frames[name]["point"])
 				frame:ClearAllPoints()
 				frame:SetPoint(u, v, w, x, y)
-				for arg, func in pairs(SV.MentaloFrames[name])do 
+				for arg, func in pairs(self.Frames[name])do 
 					if arg == "postdrag" and type(func) == "function" then 
 						func(frame, Pinpoint(frame))
 					end 
 				end
 			end 
 		end 
-		MentaloCache:Reset("anchors") 
+		self.Blizzard:Reset("anchors") 
 	else 
-		for name, _ in pairs(SV.MentaloFrames)do
-			if SV.MentaloFrames[name]["point"] then
-				for arg1, arg2 in pairs(SV.MentaloFrames[name])do 
+		for name, _ in pairs(self.Frames)do
+			if self.Frames[name]["point"] then
+				for arg1, arg2 in pairs(self.Frames[name])do 
 					local mover;
 					if arg1 == "text" then 
 						if request == arg2 then 
 							local frame = _G[name]
-							local u, v, w, x, y = split("\031", SV.MentaloFrames[name]["point"])
+							local u, v, w, x, y = split("\031", self.Frames[name]["point"])
 							frame:ClearAllPoints()
 							frame:SetPoint(u, v, w, x, y)
-							if AnchorCache then 
-								AnchorCache[name] = nil 
+							if self.Anchors then 
+								self.Anchors[name] = nil 
 							end 
-							if (SV.MentaloFrames[name]["postdrag"] ~= nil and type(SV.MentaloFrames[name]["postdrag"]) == "function")then 
-								SV.MentaloFrames[name]["postdrag"](frame, Pinpoint(frame))
+							if (self.Frames[name]["postdrag"] ~= nil and type(self.Frames[name]["postdrag"]) == "function")then 
+								self.Frames[name]["postdrag"](frame, Pinpoint(frame))
 							end 
 						end 
 					end 
@@ -701,17 +697,17 @@ function SV:ResetMovables(request)
 	end 
 end 
 
-function SV:SetSVMovablesPositions()
-	for name, _ in pairs(SV.MentaloFrames)do 
+function Mentalo:SetPositions()
+	for name, _ in pairs(self.Frames)do 
 		local frame = _G[name];
 		local anchor1, parent, anchor2, x, y;
 		if frame then
-			if (AnchorCache and AnchorCache[name] and type(AnchorCache[name]) == "string") then 
-				anchor1, parent, anchor2, x, y = split("\031", AnchorCache[name])
+			if (self.Anchors and self.Anchors[name] and type(self.Anchors[name]) == "string") then 
+				anchor1, parent, anchor2, x, y = split("\031", self.Anchors[name])
 				frame:ClearAllPoints()
 				frame:SetPoint(anchor1, parent, anchor2, x, y)
-			elseif SV.MentaloFrames[name]["point"] then 
-				anchor1, parent, anchor2, x, y = split("\031", SV.MentaloFrames[name]["point"])
+			elseif self.Frames[name]["point"] then 
+				anchor1, parent, anchor2, x, y = split("\031", self.Frames[name]["point"])
 				frame:ClearAllPoints()
 				frame:SetPoint(anchor1, parent, anchor2, x, y)
 			end
@@ -719,10 +715,10 @@ function SV:SetSVMovablesPositions()
 	end 
 end 
 
-function SV:LoadMovables()
-	for name, _ in pairs(self.MentaloFrames)do 
+function Mentalo:Initialize()
+	for name, _ in pairs(self.Frames)do 
 		local parent, text, overlay, snapoffset, postdrag;
-		for key, value in pairs(self.MentaloFrames[name])do 
+		for key, value in pairs(self.Frames[name])do 
 			if(key == "parent") then 
 				parent = value 
 			elseif(key == "text") then 
@@ -735,12 +731,11 @@ function SV:LoadMovables()
 				postdrag = value 
 			end 
 		end 
-		self:SetMentaloAlphas()
-		SetSVMovable(parent, name, text, overlay, snapoffset, postdrag)
+		self:New(parent, name, text, overlay, snapoffset, postdrag)
 	end
 end 
 
-function SV:UseMentalo(isConfigMode, configType)
+function Mentalo:Toggle(isConfigMode, configType)
 	if(InCombatLockdown()) then return end 
 	local enabled = false;
 	if(isConfigMode  ~= nil and isConfigMode  ~= "") then 
@@ -768,69 +763,185 @@ function SV:UseMentalo(isConfigMode, configType)
 
 	if(not configType or (configType and type(configType)  ~= "string")) then 
 		configType = "ALL" 
-	end 
+	end
 
-	self:ToggleMovables(enabled, configType)
+	for frameName, _ in pairs(self.Frames)do 
+		if(_G[frameName]) then 
+			local movable = _G[frameName] 
+			if(not enabled) then 
+				movable:Hide() 
+			else 
+				if self.Frames[frameName]["type"][configType]then 
+					movable:Show() 
+				else 
+					movable:Hide() 
+				end 
+			end 
+		end 
+	end
 end 
 
-function SV:MentaloFocus()
+function Mentalo:Focus()
 	local frame = CurrentFrameTarget;
-	local s, t, u = GrabUsableRegions()
-	local v, w = frame:GetCenter()
-	local x;
-	local y = s / 3;
-	local z = s * 2 / 3;
-	local A = t / 2;
-	if w >= A then x = "TOP"else x = "BOTTOM"end 
-	if v >= z then x = x.."RIGHT"elseif v <= y then x = x.."LEFT"end 
-	v = tonumber(SVUI_MentaloPrecisionSetX.CurrentValue)
-	w = tonumber(SVUI_MentaloPrecisionSetY.CurrentValue)
+	local xOffset, yOffset, anchor = CalculateOffsets()
 	frame:ClearAllPoints()
-	frame:Point(x, SV.UIParent, x, v, w)
-	SV:SaveMovableLoc(frame.name)
-end 
-
-function SV:MentaloFocusUpdate(frame)
-	local s, t, u = GrabUsableRegions()
-	local v, w = frame:GetCenter()
-	local y = (s / 3);
-	local z = ((s * 2) / 3);
-	local A = (t / 2);
-	if w  >= A then w = -(t - frame:GetTop())else w = frame:GetBottom()end 
-	if v >= z then v = (frame:GetRight() - s) elseif v  <= y then v = frame:GetLeft()else v = (v - u) end 
-	v = parsefloat(v, 0)
-	w = parsefloat(w, 0)
-	SVUI_MentaloPrecisionSetX:SetText(v)
-	SVUI_MentaloPrecisionSetY:SetText(w)
-	SVUI_MentaloPrecisionSetX.CurrentValue = v;
-	SVUI_MentaloPrecisionSetY.CurrentValue = w;
-	SVUI_MentaloPrecision.Title:SetText(frame.textString)
-end 
-
-function SV:MovableFocused()
-	CurrentFrameTarget = self;
-	SV:MentaloFocusUpdate(self)
-end 
-
-function SV:SetMentaloAlphas()
-	hooksecurefunc(SV, "SetSVMovable", function(_, frame)
-		frame.Avatar:SetAlpha(0.5)
-	end)
-	ghost(SV.MentaloFrames, 0.5)
+	frame:Point(anchor, SV.UIParent, anchor, xOffset, yOffset)
+	self:SaveMovable(frame.name)
 end
 
-function SV:InitializeMentalo()
-	MentaloCache = SVLib:NewCache("Mentalo")
-	AnchorCache = SVLib:NewCache("Anchors")
-	MentaloMover:SetScript("OnEvent", Movable_OnEvent)
+local BlizzardFrame_OnUpdate = function(self)
+	if InCombatLockdown() or self:GetName() == "GameMenuFrame" then return end 
+	if self.IsMoving then return end 
+	self:ClearAllPoints()
+	if self:GetName() == "QuestFrame" then 
+		if HandledFrames["GossipFrame"].Points  ~= nil then 
+			self:SetPoint(unpack(HandledFrames["GossipFrame"].Points))
+		end 
+	elseif HandledFrames[self:GetName()].Points  ~= nil then 
+		self:SetPoint(unpack(HandledFrames[self:GetName()].Points))
+	end 
 end
+
+local BlizzardFrame_OnDragStart = function(self)
+	if not self:IsMovable() then return end 
+	self:StartMoving()
+	self.IsMoving = true
+end
+
+local BlizzardFrame_OnDragStop = function(self)
+	if not self:IsMovable() then return end 
+	self.IsMoving = false;
+	self:StopMovingOrSizing()
+	if self:GetName() == "GameMenuFrame" then return end 
+	local anchor1, parent, anchor2, x, y = self:GetPoint()
+	parent = self:GetParent():GetName()
+	self:ClearAllPoints()
+	self:SetPoint(anchor1, parent, anchor2, x, y)
+	if self:GetName() == "QuestFrame" then 
+		HandledFrames["GossipFrame"].Points = {anchor1, parent, anchor2, x, y}
+	else 
+		HandledFrames[self:GetName()].Points = {anchor1, parent, anchor2, x, y}
+	end 
+end
+
+local BlizzFrameHandler_OnEvent = function(self) 
+	for _, frameName in pairs(DraggableFrames) do
+		local frame = _G[frameName] 
+		if(frame) then
+			if(not frameName == "LossOfControlFrame" and (not HandledFrames[frameName])) then 
+				frame:EnableMouse(true)
+
+				if(frameName == "LFGDungeonReadyPopup") then 
+					LFGDungeonReadyDialog:EnableMouse(false)
+				end
+
+				frame:SetMovable(true)
+				frame:RegisterForDrag("LeftButton")
+				frame:SetClampedToScreen(true)
+				frame:HookScript("OnUpdate", BlizzardFrame_OnUpdate)
+				frame:SetScript("OnDragStart", BlizzardFrame_OnDragStart)
+				frame:SetScript("OnDragStop", BlizzardFrame_OnDragStop)
+				HandledFrames[frameName] = {}
+			end
+		end 
+	end
+	if(not HandledFrames["GameMenuFrame"]) then 
+		HandledFrames["GameMenuFrame"] = {}
+	end
+end
+
+local BlizzFrameHandler = CreateFrame("Frame", nil)
+BlizzFrameHandler:RegisterEvent("PLAYER_LOGIN")
+BlizzFrameHandler:RegisterEvent("ADDON_LOADED")
+BlizzFrameHandler:RegisterEvent("LFG_UPDATE")
+BlizzFrameHandler:RegisterEvent("ROLE_POLL_BEGIN")
+BlizzFrameHandler:RegisterEvent("READY_CHECK")
+BlizzFrameHandler:RegisterEvent("UPDATE_WORLD_STATES")
+BlizzFrameHandler:RegisterEvent("WORLD_STATE_TIMER_START")
+BlizzFrameHandler:RegisterEvent("WORLD_STATE_UI_TIMER_UPDATE")
+BlizzFrameHandler:SetScript("OnEvent", BlizzFrameHandler_OnEvent)
+
+function Mentalo:Launch()
+	SVUI_Mentalo:SetFixedPanelTemplate("Component")
+	SVUI_Mentalo:SetPanelColor("yellow")
+	SVUI_MentaloPrecision:SetPanelTemplate("Transparent")
+
+	self.Anchors = SVLib:NewCache("Anchors")
+end
+
+SV.Mentalo = Mentalo
 --[[ 
 ########################################################## 
 XML FRAME SCRIPT HANDLERS
 ##########################################################
 ]]--
-function SVUI_MentaloEventHandler_Update(self)
-	_G["SVUI_MentaloEventHandler"] = self;
+function SVUI_Mentalo_OnLoad(self)
+	self:RegisterEvent("PLAYER_REGEN_DISABLED")
+	self:RegisterForDrag("LeftButton");
+	self:SetButtonTemplate()
+end 
+
+function SVUI_Mentalo_OnEvent(self)
+	if self:IsShown() then 
+		self:Hide()
+		SV.Mentalo:Toggle(true)
+	end
+end 
+
+function SVUI_MentaloLockButton_OnClick()
+	SV.Mentalo:Toggle(true)
+	if IsAddOnLoaded("SVUI_ConfigOMatic")then 
+		LibStub("AceConfigDialog-3.0"):Open("SVUI")
+	end 
+end 
+
+function SVUI_MentaloPrecisionResetButton_OnClick()
+	local name = CurrentFrameTarget.name
+	SV.Mentalo:Reset(name)
+end 
+
+function SVUI_MentaloPrecisionInput_EscapePressed(self)
+	self:SetText(parsefloat(self.CurrentValue))
+	EditBox_ClearFocus(self)
+end 
+
+function SVUI_MentaloPrecisionInput_EnterPressed(self)
+	local txt = tonumber(self:GetText())
+	if(txt) then 
+		self.CurrentValue = txt;
+		SV.Mentalo:Focus()
+	end 
+	self:SetText(parsefloat(self.CurrentValue))
+	EditBox_ClearFocus(self)
+end 
+
+function SVUI_MentaloPrecisionInput_FocusLost(self)
+	self:SetText(parsefloat(self.CurrentValue))
+end 
+
+function SVUI_MentaloPrecisionInput_OnShow(self)
+	EditBox_ClearFocus(self)
+	self:SetText(parsefloat(self.CurrentValue or 0))
+end 
+
+function SVUI_MentaloPrecision_OnLoad()
+	_G["SVUI_MentaloPrecisionSetX"].CurrentValue = 0;
+	_G["SVUI_MentaloPrecisionSetY"].CurrentValue = 0;
+	_G["SVUI_MentaloPrecision"]:EnableMouse(true)
+	_G["SVUI_MentaloPrecisionSetX"]:SetEditboxTemplate()
+	_G["SVUI_MentaloPrecisionSetY"]:SetEditboxTemplate()
+	_G["SVUI_MentaloPrecisionUpButton"]:SetButtonTemplate()
+	_G["SVUI_MentaloPrecisionDownButton"]:SetButtonTemplate()
+	_G["SVUI_MentaloPrecisionLeftButton"]:SetButtonTemplate()
+	_G["SVUI_MentaloPrecisionRightButton"]:SetButtonTemplate()
+	CurrentFrameTarget = false;
+end
+--[[ 
+########################################################## 
+EVENT HANDLER
+##########################################################
+]]--
+local MentaloEventHandler_OnUpdate = function(self)
 	local frame = UpdateFrameTarget;
 	local rightPos, topPos, centerPos = GrabUsableRegions()
 	local centerX, centerY = frame:GetCenter()
@@ -860,67 +971,7 @@ function SVUI_MentaloEventHandler_Update(self)
 	end 
 	SVUI_MentaloPrecision:ClearAllPoints()
 	SVUI_MentaloPrecision:SetPoint(anchor1, frame, anchor2, 0, 0)
-	SV:MentaloFocusUpdate(frame)
-end 
+	Movable_OnMouseUp(frame)
+end
 
-function SVUI_Mentalo_OnLoad()
-	_G["SVUI_Mentalo"]:RegisterEvent("PLAYER_REGEN_DISABLED")
-	_G["SVUI_Mentalo"]:RegisterForDrag("LeftButton");
-	_G["SVUI_Mentalo"]:SetButtonTemplate()
-end 
-
-function SVUI_Mentalo_OnEvent()
-	if _G["SVUI_Mentalo"]:IsShown() then 
-		_G["SVUI_Mentalo"]:Hide()
-		SV:UseMentalo(true)
-	end
-end 
-
-function SVUI_MentaloLockButton_OnClick()
-	SV:UseMentalo(true)
-	if IsAddOnLoaded("SVUI_ConfigOMatic")then 
-		LibStub("AceConfigDialog-3.0"):Open("SVUI")
-	end 
-end 
-
-function SVUI_MentaloPrecisionResetButton_OnClick()
-	local name = CurrentFrameTarget.name
-	SV:ResetMovables(name)
-end 
-
-function SVUI_MentaloPrecisionInput_EscapePressed(self)
-	self:SetText(parsefloat(self.CurrentValue))
-	EditBox_ClearFocus(self)
-end 
-
-function SVUI_MentaloPrecisionInput_EnterPressed(self)
-	local txt = tonumber(self:GetText())
-	if(txt) then 
-		self.CurrentValue = txt;
-		SV:MentaloFocus()
-	end 
-	self:SetText(parsefloat(self.CurrentValue))
-	EditBox_ClearFocus(self)
-end 
-
-function SVUI_MentaloPrecisionInput_FocusLost(self)
-	self:SetText(parsefloat(self.CurrentValue))
-end 
-
-function SVUI_MentaloPrecisionInput_OnShow(self)
-	EditBox_ClearFocus(self)
-	self:SetText(parsefloat(self.CurrentValue or 0))
-end 
-
-function SVUI_MentaloPrecision_OnLoad()
-	_G["SVUI_MentaloPrecisionSetX"].CurrentValue = 0;
-	_G["SVUI_MentaloPrecisionSetY"].CurrentValue = 0;
-	_G["SVUI_MentaloPrecision"]:EnableMouse(true)
-	_G["SVUI_MentaloPrecisionSetX"]:SetEditboxTemplate()
-	_G["SVUI_MentaloPrecisionSetY"]:SetEditboxTemplate()
-	_G["SVUI_MentaloPrecisionUpButton"]:SetButtonTemplate()
-	_G["SVUI_MentaloPrecisionDownButton"]:SetButtonTemplate()
-	_G["SVUI_MentaloPrecisionLeftButton"]:SetButtonTemplate()
-	_G["SVUI_MentaloPrecisionRightButton"]:SetButtonTemplate()
-	CurrentFrameTarget = false;
-end 
+MentaloEventHandler:SetScript("OnUpdate", MentaloEventHandler_OnUpdate)

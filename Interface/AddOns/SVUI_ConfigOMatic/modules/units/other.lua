@@ -49,7 +49,7 @@ SV.Options.args.SVUnit.args.boss = {
 	args = {
 		enable = {type = "toggle", order = 1, name = L["Enable"]},
 		displayFrames = {type = "execute", order = 2, name = L["Display Frames"], desc = L["Force the frames to show, they will act as if they are the player frame."], func = function()MOD:SwapElement("boss", 4)end}, 
-		resetSettings = {type = "execute", order = 3, name = L["Restore Defaults"], func = function(l, m)MOD:ResetUnitOptions("boss")SV:ResetMovables("Boss Frames")end}, 
+		resetSettings = {type = "execute", order = 3, name = L["Restore Defaults"], func = function(l, m)MOD:ResetUnitOptions("boss")SV.Mentalo:Reset("Boss Frames")end}, 
 		tabGroups = {
 			order = 3, 
 			type = "group", 
@@ -118,7 +118,7 @@ SV.Options.args.SVUnit.args.arena = {
 	args = {
 		enable = {type = "toggle", order = 1, name = L["Enable"]}, 
 		displayFrames = {type = "execute", order = 2, name = L["Display Frames"], desc = L["Force the frames to show, they will act as if they are the player frame."], func = function()MOD:SwapElement("arena", 5)end},
-		resetSettings = {type = "execute", order = 3, name = L["Restore Defaults"], func = function(l, m)MOD:ResetUnitOptions("arena")SV:ResetMovables("Arena Frames")end}, 
+		resetSettings = {type = "execute", order = 3, name = L["Restore Defaults"], func = function(l, m)MOD:ResetUnitOptions("arena")SV.Mentalo:Reset("Arena Frames")end}, 
 		tabGroups = {
 			order = 3, 
 			type = "group", 

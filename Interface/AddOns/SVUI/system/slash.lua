@@ -48,7 +48,7 @@ local function SVUIMasterCommand(msg)
 		if (msg == "install") then
 			SV.Setup:Install()
 		elseif (msg == "move" or msg == "mentalo") then
-			SV:UseMentalo()
+			SV.Mentalo:Toggle()
 		elseif (msg == "kb" or msg == "bind") and SV.db.SVBar.enable then
 			SV.SVBar:ToggleKeyBindingMode()
 		elseif (msg == "reset" or msg == "resetui") then

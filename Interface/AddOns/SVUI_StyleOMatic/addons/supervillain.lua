@@ -41,7 +41,7 @@ local ProxyType = {
 }
 
 local function Widget_OnEnter(b)
-	b:SetBackdropBorderColor(unpack(SV.Media.color.highlight))
+	b:SetBackdropBorderColor(0.1, 0.8, 0.8)
 end
 
 local function Widget_OnLeave(b)

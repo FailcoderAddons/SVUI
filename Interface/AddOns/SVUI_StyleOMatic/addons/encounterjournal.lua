@@ -25,7 +25,7 @@ local PVP_LOST = [[Interface\WorldMap\Skull_64Red]]
 
 local function Tab_OnEnter(this)
   this.backdrop:SetPanelColor("highlight")
-  this.backdrop:SetBackdropBorderColor(unpack(SV.Media.color.highlight))
+  this.backdrop:SetBackdropBorderColor(0.1, 0.8, 0.8)
 end
 
 local function Tab_OnLeave(this)

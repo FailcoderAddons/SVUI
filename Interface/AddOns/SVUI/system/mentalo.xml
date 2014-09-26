@@ -1,31 +1,6 @@
 ﻿<Ui xmlns="http://www.blizzard.com/wow/ui/">
     <Script file="mentalo.lua"/>
     
-    <Frame name="SVUI_MoveEventHandler" hidden="true">
-        <Scripts>
-            <OnLoad>
-                self:RegisterEvent("PLAYER_LOGIN")
-                self:RegisterEvent("ADDON_LOADED")
-                self:RegisterEvent("LFG_UPDATE")
-                self:RegisterEvent("ROLE_POLL_BEGIN")
-                self:RegisterEvent("READY_CHECK")
-                self:RegisterEvent("UPDATE_WORLD_STATES")
-                self:RegisterEvent("WORLD_STATE_TIMER_START")
-                self:RegisterEvent("WORLD_STATE_UI_TIMER_UPDATE")
-            </OnLoad>
-            <OnEvent function="SVUI_MoveEventHandler_OnEvent"/> 
-        </Scripts>
-    </Frame>
-
-    <Frame name="SVUI_MentaloEventHandler" hidden="true">
-        <Scripts>
-            <OnLoad>
-                self.UpdateFrameTarget = false;
-            </OnLoad>
-            <OnUpdate function="SVUI_MentaloEventHandler_Update"/> 
-        </Scripts>
-    </Frame>
-
     <Frame name="SVUI_MentaloPrecision" inherits="SVUI_PanelTemplate" hidden="true" frameStrata="DIALOG">
         <Size x="130" y="60"/>
         <Anchors>

@@ -589,7 +589,7 @@ function MOD:PrepareFarmingTools()
 			seedBar:SetPoint("TOPRIGHT", _G["FarmSeedBarAnchor"], "TOPRIGHT", (horizontal and 0 or -((BUTTONSIZE + BUTTONSPACE) * i)), (horizontal and -((BUTTONSIZE + BUTTONSPACE) * i) or 0))
 			seedBar.ButtonSize = BUTTONSIZE;
 		end
-		SV:SetSVMovable(farmSeedBarAnchor, "Farming Seeds")
+		SV.Mentalo:Add(farmSeedBarAnchor, "Farming Seeds")
 
 		-- FARM TOOLS
 		local farmToolBarAnchor = CreateFrame("Frame", "FarmToolBarAnchor", SV.UIParent)
@@ -599,7 +599,7 @@ function MOD:PrepareFarmingTools()
 		farmToolBar:Size(horizontal and ((BUTTONSIZE + BUTTONSPACE) * 4) or (BUTTONSIZE + BUTTONSPACE), horizontal and (BUTTONSIZE + BUTTONSPACE) or ((BUTTONSIZE + BUTTONSPACE) * 4))
 		farmToolBar:SetPoint("TOPRIGHT", farmToolBarAnchor, "TOPRIGHT", (horizontal and -BUTTONSPACE or -(BUTTONSIZE + BUTTONSPACE)), (horizontal and -(BUTTONSIZE + BUTTONSPACE) or -BUTTONSPACE))
 		farmToolBar.ButtonSize = BUTTONSIZE;
-		SV:SetSVMovable(farmToolBarAnchor, "Farming Tools")
+		SV.Mentalo:Add(farmToolBarAnchor, "Farming Tools")
 
 		-- PORTALS
 		local farmPortalBarAnchor = CreateFrame("Frame", "FarmPortalBarAnchor", SV.UIParent)
@@ -609,6 +609,6 @@ function MOD:PrepareFarmingTools()
 		farmPortalBar:Size(horizontal and ((BUTTONSIZE + BUTTONSPACE) * 4) or (BUTTONSIZE + BUTTONSPACE), horizontal and (BUTTONSIZE + BUTTONSPACE) or ((BUTTONSIZE + BUTTONSPACE) * 4))
 		farmPortalBar:SetPoint("TOPRIGHT", farmPortalBarAnchor, "TOPRIGHT", (horizontal and -BUTTONSPACE or -(BUTTONSIZE + BUTTONSPACE)), (horizontal and -(BUTTONSIZE + BUTTONSPACE) or -BUTTONSPACE))
 		farmPortalBar.ButtonSize = BUTTONSIZE;
-		SV:SetSVMovable(farmPortalBarAnchor, "Farming Portals")
+		SV.Mentalo:Add(farmPortalBarAnchor, "Farming Portals")
 	end
 end

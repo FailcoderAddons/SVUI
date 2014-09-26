@@ -65,8 +65,8 @@ HELPERS
 ##########################################################
 ]]--
 local function Tab_OnEnter(this)
-	this.backdrop:SetBackdropColor(unpack(SV.Media.color.highlight))
-	this.backdrop:SetBackdropBorderColor(unpack(SV.Media.color.highlight))
+	this.backdrop:SetBackdropColor(0.1, 0.8, 0.8)
+	this.backdrop:SetBackdropBorderColor(0.1, 0.8, 0.8)
 end
 
 local function Tab_OnLeave(this)

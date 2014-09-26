@@ -62,7 +62,7 @@ for w=10,40,15 do
 				type = "execute", 
 				order = 3, 
 				name = L["Restore Defaults"], 
-				func = function(l, m)MOD:ResetUnitOptions("raid" .. w)SV:ResetMovables("Raid 1-" .. w .. " Frames")end, 
+				func = function(l, m)MOD:ResetUnitOptions("raid" .. w)SV.Mentalo:Reset("Raid 1-" .. w .. " Frames")end, 
 			}, 
 			tabGroups = {
 				order = 3, 
@@ -447,7 +447,7 @@ SV.Options.args.SVUnit.args.raidpet ={
 			type = 'execute',
 			order = 3,
 			name = L['Restore Defaults'],
-			func = function(l, m)MOD:ResetUnitOptions('raidpet')SV:ResetMovables('Raid Pet Frames')MOD:SetGroupFrame('raidpet', nil, nil, true)end,
+			func = function(l, m)MOD:ResetUnitOptions('raidpet')SV.Mentalo:Reset('Raid Pet Frames')MOD:SetGroupFrame('raidpet', nil, nil, true)end,
 		},
 		tabGroups={
 			order=3,

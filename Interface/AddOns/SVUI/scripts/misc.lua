@@ -539,7 +539,7 @@ local function CreateTotemBar()
 	else
 		frame_name = L["Totem Bar"]
 	end
-	SV:SetSVMovable(TotemBar, frame_name)
+	SV.Mentalo:Add(TotemBar, frame_name)
 end 
 
 SVLib:NewScript(CreateTotemBar)
@@ -649,7 +649,7 @@ local function LoadThreatBar()
 		ThreatBar:RegisterEvent('GROUP_ROSTER_UPDATE')
 		ThreatBar:RegisterEvent('UNIT_PET')
 		ThreatBar:SetScript("OnEvent", ThreatBar_OnEvent)
-		SV:SetSVMovable(ThreatBar, "Threat Bar");
+		SV.Mentalo:Add(ThreatBar, "Threat Bar");
 	end
 end
 

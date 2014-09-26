@@ -109,7 +109,7 @@ end
 ##########################################################
 ]]--
 local Button_OnEnter = function(self)
-    self:SetBackdropColor(unpack(SV.Media.color.highlight))
+    self:SetBackdropColor(0.1, 0.8, 0.8)
 end
 
 local Button_OnLeave = function(self)
@@ -122,7 +122,7 @@ function STYLE:ApplyButtonStyle(this)
 end
 
 local ArrowButton_OnEnter = function(self)
-    self:SetBackdropBorderColor(unpack(SV.Media.color.highlight))
+    self:SetBackdropBorderColor(0.1, 0.8, 0.8)
 end
 
 local ArrowButton_OnLeave = function(self)
@@ -147,7 +147,7 @@ end
 
 --[[ CLOSE BUTTON ]]--
 local CloseButton_OnEnter = function(self)
-    self:SetBackdropBorderColor(unpack(SV.Media.color.highlight))
+    self:SetBackdropBorderColor(0.1, 0.8, 0.8)
 end
 
 local CloseButton_OnLeave = function(self)
@@ -364,7 +364,7 @@ end
 --]]
 local Tab_OnEnter = function(self)
 	self.backdrop:SetPanelColor("highlight")
-	self.backdrop:SetBackdropBorderColor(unpack(SV.Media.color.highlight))
+	self.backdrop:SetBackdropBorderColor(0.1, 0.8, 0.8)
 end
 
 local Tab_OnLeave = function(self)

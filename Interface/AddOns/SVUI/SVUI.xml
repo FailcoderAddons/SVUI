@@ -26,6 +26,7 @@
     <Script file="system\timers.lua"/>
     <Script file="system\slash.lua"/>
     <Script file="system\alerts.lua"/>
+    <Script file="system\moveable.lua"/>
     <Include file="system\mentalo.xml"/>
     <Script file="system\setup.lua"/>
 

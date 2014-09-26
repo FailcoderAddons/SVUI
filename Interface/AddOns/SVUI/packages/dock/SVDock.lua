@@ -114,12 +114,12 @@ end
 
 local ToggleDocks = function(self)
 	GameTooltip:Hide()
-	if SVUI_Cache.Docks.SuperDockFaded then 
-		SVUI_Cache.Docks.SuperDockFaded = nil;
+	if MOD.Cache.SuperDockFaded then 
+		MOD.Cache.SuperDockFaded = nil;
 		SV:SecureFadeIn(LeftSuperDock, 0.2, LeftSuperDock:GetAlpha(), 1)
 		SV:SecureFadeIn(RightSuperDock, 0.2, RightSuperDock:GetAlpha(), 1)
 	else 
-		SVUI_Cache.Docks.SuperDockFaded = true;
+		MOD.Cache.SuperDockFaded = true;
 		SV:SecureFadeOut(LeftSuperDock, 0.2, LeftSuperDock:GetAlpha(), 0, true)
 		SV:SecureFadeOut(RightSuperDock, 0.2, RightSuperDock:GetAlpha(), 0, true)
 	end
@@ -156,7 +156,7 @@ local DockButtonDeactivate = function(self)
 end
 
 local DockletButton_OnEnter = function(self, ...)
-	if SVUI_Cache.Docks.SuperDockFaded then 
+	if MOD.Cache.SuperDockFaded then 
 		LeftSuperDock:Show()
 		SV:SecureFadeIn(LeftSuperDock, 0.2, LeftSuperDock:GetAlpha(), 1)
 		RightSuperDock:Show()
@@ -177,7 +177,7 @@ local DockletButton_OnEnter = function(self, ...)
 end 
 
 local DockletButton_OnLeave = function(self, ...)
-	if SVUI_Cache.Docks.SuperDockFaded then 
+	if MOD.Cache.SuperDockFaded then 
 		SV:SecureFadeOut(LeftSuperDock, 0.2, LeftSuperDock:GetAlpha(), 0, true)
 		SV:SecureFadeOut(RightSuperDock, 0.2, RightSuperDock:GetAlpha(), 0, true)
 	end
@@ -469,7 +469,7 @@ function MOD:CreateDockPanels()
 	leftdock:SetFrameStrata("BACKGROUND")
 	leftdock:Point("BOTTOMLEFT", SV.UIParent, "BOTTOMLEFT", 1, buttonsize + 10)
 	leftdock:Size(leftWidth, leftHeight)
-	SV:SetSVMovable(leftdock, L["Left Dock"])
+	SV.Mentalo:Add(leftdock, L["Left Dock"])
 
 	leftalert:SetParent(leftdock)
 	leftalert:SetFrameStrata("BACKGROUND")
@@ -513,7 +513,7 @@ function MOD:CreateDockPanels()
 	rightdock:SetFrameStrata("BACKGROUND")
 	rightdock:Point("BOTTOMRIGHT", SV.UIParent, "BOTTOMRIGHT", -1, buttonsize + 10)
 	rightdock:Size(rightWidth, rightHeight)
-	SV:SetSVMovable(rightdock, L["Right Dock"])
+	SV.Mentalo:Add(rightdock, L["Right Dock"])
 
 	rightalert:SetParent(rightdock)
 	rightalert:SetFrameStrata("BACKGROUND")
@@ -529,7 +529,7 @@ function MOD:CreateDockPanels()
 	rightwindow:Size(rightWidth, rightHeight)
 	rightdock.backdrop = SetSuperDockStyle(rightwindow)
 
-	if SVUI_Cache.Docks.SuperDockFaded then LeftSuperDock:Hide() RightSuperDock:Hide() end
+	if self.Cache.SuperDockFaded then LeftSuperDock:Hide() RightSuperDock:Hide() end
 
 	local toolbarTop = CreateFrame("Frame", "SuperDockToolBarTop", SV.UIParent)
 	toolbarTop:Point("TOPLEFT", SV.UIParent, "TOPLEFT", 2, -4)
@@ -958,8 +958,10 @@ function MOD:ReLoad()
 end 
 
 function MOD:Load()
-	SVUI_Cache = SVUI_Cache or {}
-	SVUI_Cache.Docks = SVUI_Cache.Docks or { SuperDockFaded = false }
+	self.Cache = SVLib:NewCache("Docks")
+	if(not self.Cache.SuperDockFaded) then 
+		self.Cache.SuperDockFaded = false
+	end
 	self:CreateSuperBorders()
 	self:CreateDockPanels()
 	local width = RightSuperDock:GetWidth();
