@@ -1,0 +1,13 @@
+## Interface: 60000
+## Author: Munglunch
+## Version: 4.7
+## Title: |cffFF9900SVUI |r|cffFFEF00Craft-O-Matic|r
+## Notes: Supervillain UI [|cff9911FFProfession Tools|r].
+## Interface: 60000
+## RequiredDeps: SVUI
+## LoadOnDemand: 1
+## X-Email: munglunch@gmail.com
+## X-SVUI-Header: Craft-O-Matic
+## X-SVUI-Schema: CraftOMatic
+
+SVUI_CraftOMatic.xml

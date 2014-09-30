@@ -1,0 +1,47 @@
+﻿<Ui xmlns="http://www.blizzard.com/wow/ui/">
+    <Script file='Loader.lua'/>
+    <Script file='SVUI_TrackOMatic.lua'/>
+    <Script file='libs\oUF_GPS\oUF_GPS.lua'/>
+
+	<Frame name="SVUI_TrackingDoodad" movable="true" frameStrata="DIALOG">
+        <Size x="70" y="70"/>
+        <Anchors>
+            <Anchor point="CENTER" relativeTo="UIParent" relativePoint="CENTER"/>
+        </Anchors>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture parentKey="BG" setAllPoints="true" file="Interface\AddOns\SVUI_TrackOMatic\artwork\DOODAD-BG"/>
+            </Layer>
+            <Layer level="BORDER">
+                <Texture parentKey="Border" setAllPoints="true" file="Interface\AddOns\SVUI_TrackOMatic\artwork\DOODAD-BORDER"/>
+                <Texture parentKey="Arrow" file="Interface\AddOns\SVUI_TrackOMatic\artwork\DOODAD-ARROW">
+                    <Size x="35" y="35"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <Texture parentKey="Radar" setAllPoints="true" file="Interface\AddOns\SVUI_TrackOMatic\artwork\DOODAD-RADAR"/>
+            </Layer>
+            <Layer level="ARTWORK">
+                <FontString parentKey="Range" inherits="GameFontNormal">
+                    <Anchors>
+                        <Anchor point="TOP" relativeTo="$parent" relativePoint="BOTTOM"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnLoad function="SVUI_TrackingDoodad_OnLoad"/>
+            <OnDragStart>
+                _G["SVUI_TrackingDoodad"].moving = true;
+                _G["SVUI_TrackingDoodad"]:StartMoving();
+            </OnDragStart>
+            <OnDragStop>
+                _G["SVUI_TrackingDoodad"].moving = nil;
+                _G["SVUI_TrackingDoodad"]:StopMovingOrSizing();
+            </OnDragStop>
+        </Scripts>
+    </Frame>
+</Ui>
