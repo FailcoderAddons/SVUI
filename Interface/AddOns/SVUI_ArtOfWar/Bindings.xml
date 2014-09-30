@@ -1,5 +1,0 @@
-<Bindings>
-  <Binding name="SVUIAOW_RADIO" category="ADDONS" header="SVUIAOW" runOnUp="false">
-    SVUISayIncoming()
-  </Binding>
-</Bindings>

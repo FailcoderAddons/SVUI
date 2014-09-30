@@ -1,8 +1,0 @@
-## Interface: 50001
-## Title: oUF Arcane Charge
-## Notes: Adds support for arcane charge indicators to oUF.
-## Author: Munglunch
-## Version: 4.5
-## Dependencies: oUF
-
-oUF_ArcaneCharge.lua
