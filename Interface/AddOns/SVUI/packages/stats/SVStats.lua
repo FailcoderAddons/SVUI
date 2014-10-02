@@ -24,10 +24,12 @@ local pairs     = _G.pairs;
 local type      = _G.type;
 local string    = _G.string;
 local math      = _G.math;
+local table 	= _G.table;
 --[[ STRING METHODS ]]--
-local join = string.join;
+local join, len = string.join, string.len;
 --[[ MATH METHODS ]]--
 local min = math.min;
+local tsort, twipe = table.sort, _G.wipe;
 --[[ 
 ########################################################## 
 GET ADDON DATA
@@ -36,11 +38,12 @@ GET ADDON DATA
 local SV = select(2, ...)
 local L = SV.L
 local LSM = LibStub("LibSharedMedia-3.0")
-local LDB = LibStub("LibDataBroker-1.1")
+local LDB = LibStub("LibDataBroker-1.1", true)
 local MOD = SV:NewPackage("SVStats", L["Statistics"]);
 
 MOD.Anchors = {};
 MOD.Statistics = {};
+MOD.DisabledList = {};
 MOD.StatListing = {[""] = "None"};
 MOD.tooltip = CreateFrame("GameTooltip", "StatisticTooltip", UIParent, "GameTooltipTemplate")
 MOD.BGPanels = {
@@ -62,6 +65,7 @@ MOD.BGStats = {
 	["Changes"] = {13, RATING_CHANGE},
 	["Spec"] = {16, SPECIALIZATION}
 };
+MOD.ListNeedsUpdate = true
 --[[ 
 ########################################################## 
 LOCALIZED GLOBALS
@@ -81,9 +85,9 @@ local myName = UnitName("player");
 local myClass = select(2,UnitClass("player"));
 local classColor = RAID_CLASS_COLORS[myClass];
 local StatMenuFrame = CreateFrame("Frame", "SVUI_StatMenu", UIParent);
-local ListNeedsUpdate = true
 local SCORE_CACHE = {};
-
+local hexHighlight = "FFFFFF";
+local StatMenuListing = {}
 -- When its vertical then "left" = "top" and "right" = "bottom". Yes I know thats ghetto, bite me!
 local positionIndex = {{"middle", "left", "right"}, {"middle", "top", "bottom"}};
 --[[ 
@@ -182,7 +186,7 @@ function MOD:ShowTip(noSpace)
 end 
 
 function MOD:NewAnchor(parent, maxCount, tipAnchor, isTop, customTemplate, isVertical)
-	ListNeedsUpdate = true
+	self.ListNeedsUpdate = true
 
 	local activeIndex = isVertical and 2 or 1
 	local template, strata
@@ -272,6 +276,7 @@ function MOD:Extend(newStat, eventList, onEvents, update, click, focus, blur, in
 	if not newStat then return end 
 	self.Statistics[newStat] = {}
 	self.StatListing[newStat] = newStat
+	tinsert(StatMenuListing, newStat)
 	if type(eventList) == "table" then 
 		self.Statistics[newStat]["events"] = eventList;
 		self.Statistics[newStat]["event_handler"] = onEvents 
@@ -291,14 +296,6 @@ function MOD:Extend(newStat, eventList, onEvents, update, click, focus, blur, in
 	if init and type(init) == "function" then 
 		self.Statistics[newStat]["init_handler"] = init 
 	end 
-end
-
-function MOD:UnSet(parent)
-	parent:UnregisterAllEvents()
-	parent:SetScript("OnUpdate", nil)
-	parent:SetScript("OnEnter", nil)
-	parent:SetScript("OnLeave", nil)
-	parent:SetScript("OnClick", nil)
 end
 
 do
@@ -385,6 +382,7 @@ do
 		for i=1, #StatMenuFrame.buttons do
 			StatMenuFrame.buttons[i]:Hide()
 		end
+
 		for i=1, #list do 
 			if not StatMenuFrame.buttons[i] then
 				StatMenuFrame.buttons[i] = CreateFrame("Button", nil, StatMenuFrame)
@@ -440,7 +438,8 @@ do
 		end
 	end
 
-	local function _load(parent, config)
+	local function _load(parent, name, config)
+		parent.StatParent = name
 		if config["events"]then 
 			for _, event in pairs(config["events"])do 
 				parent:RegisterEvent(event)
@@ -543,22 +542,34 @@ do
 		SV:AddonMessage(L["Battleground statistics temporarily hidden, to show type \"/sv bg\" or \"/sv pvp\""])
 	end
 
-	local function SetMenuLists()
-		for place,parent in pairs(MOD.Anchors)do
+	local sortMenuList = function(a, b) return a < b end
+
+	function MOD:SetMenuLists()
+		local stats = self.Anchors;
+		local list = StatMenuListing;
+		local disabled = self.DisabledList;
+
+		tsort(list)
+
+		for place,parent in pairs(stats)do
 			for i = 1, parent.numPoints do 
 				local this = positionIndex[parent.useIndex][i]
-				tinsert(parent.holders[this].MenuList,{text = NONE, func = function() MOD:ChangeDBVar(NONE, this, "panels", place); MOD:Generate() end});
-				for name,config in pairs(MOD.Statistics) do
-					tinsert(parent.holders[this].MenuList,{text = name, func = function() MOD:ChangeDBVar(name, this, "panels", place); MOD:Generate() end});
-				end 
+				local subList = twipe(parent.holders[this].MenuList)
+
+				tinsert(subList,{text = NONE, func = function() MOD:ChangeDBVar(NONE, this, "panels", place); MOD:Generate() end});
+				for _,name in pairs(list) do
+					if(not disabled[name]) then
+						tinsert(subList,{text = name, func = function() MOD:ChangeDBVar(name, this, "panels", place); MOD:Generate() end});
+					end
+				end
 			end
-			ListNeedsUpdate = false;
+			self.ListNeedsUpdate = false;
 		end
 	end 
 
 	function MOD:Generate()
-		if(ListNeedsUpdate) then
-			SetMenuLists()
+		if(self.ListNeedsUpdate) then
+			self:SetMenuLists()
 		end
 		local instance, groupType = IsInInstance()
 		local anchorTable = self.Anchors
@@ -606,11 +617,11 @@ do
 						for panelName, panelData in pairs(db.panels) do 
 							if(panelData and type(panelData) == "table") then 
 								if(panelName == place and panelData[position] and panelData[position] == name) then 
-									_load(parent.holders[position], config)
+									_load(parent.holders[position], name, config)
 								end 
 							elseif(panelData and type(panelData) == "string" and panelData == name) then 
 								if(name == place) then 
-									_load(parent.holders[position], config)
+									_load(parent.holders[position], name, config)
 								end 
 							end 
 						end
@@ -622,52 +633,14 @@ do
 	end
 end
 
-local function LoadStatBroker()
-	local OnEnter, OnLeave, lastObj;
-  	for dataName, dataObj in LDB:DataObjectIterator()do 
-	    OnEnter = nil;
-	    OnLeave = nil;
-	    lastObj = nil;
-	    if dataObj.OnEnter then 
-	      	OnEnter = function(self)
-				MOD:Tip(self)
-				dataObj.OnTooltipShow(MOD.tooltip)
-				MOD:ShowTip()
-			end
-	    elseif dataObj.OnTooltipShow then 
-	      	OnEnter = function(self)
-				MOD:Tip(self)
-				dataObj.OnTooltipShow(MOD.tooltip)
-				MOD:ShowTip()
-			end
-	    end;
-	    if dataObj.OnLeave then 
-			OnLeave = function(self)
-				dataObj.OnLeave(self)
-				MOD.tooltip:Hide()
-			end 
-	    end;
-	    local OnClick = function(self, e)
-	      	dataObj.OnClick(self, e)
-	    end;
-	    local CallBack = function(_, name, _, value, _)
-	    	local newText;
-			if(value == nil or string.len(value) > 5 or value == "n / a" or name == value) then
-				newText = value ~= "n / a" and value or name
-				lastObj.text:SetText(newText)
-			else
-				newText = ("%s: %s%s|r"):format(name, hexString, value)
-				lastObj.text:SetText(newText)
-			end 
-	    end;
-	    local OnEvent = function(self)
-			lastObj = self;
-			LDB:RegisterCallback("LibDataBroker_AttributeChanged_"..dataName.."_text", CallBack)
-			LDB:RegisterCallback("LibDataBroker_AttributeChanged_"..dataName.."_value", CallBack)
-			LDB.callbacks:Fire("LibDataBroker_AttributeChanged_"..dataName.."_text", dataName, nil, dataObj.text, dataObj)
-	    end;
-	    MOD:Extend(dataName, {"PLAYER_ENTER_WORLD"}, OnEvent, nil, OnClick, OnEnter, OnLeave)
-  	end
+function MOD:UnSet(parent)
+	parent:UnregisterAllEvents()
+	parent:SetScript("OnUpdate", nil)
+	parent:SetScript("OnEnter", nil)
+	parent:SetScript("OnLeave", nil)
+	parent:SetScript("OnClick", nil)
+	self.DisabledList[parent.StatParent] = true
+	self:SetMenuLists()
 end
 --[[ 
 ########################################################## 
@@ -679,7 +652,7 @@ function MOD:ReLoad()
 end 
 
 function MOD:Load()
-	local hexHighlight = SV:HexColor("highlight") or "FFFFFF"
+	hexHighlight = SV:HexColor("highlight") or "FFFFFF"
 	local hexClass = classColor.colorStr
 	BGStatString = "|cff" .. hexHighlight .. "%s: |c" .. hexClass .. "%s|r";
 
@@ -692,8 +665,6 @@ function MOD:Load()
 	self.Accountant[playerRealm]["tokens"] = self.Accountant[playerRealm]["tokens"] or {};
 	self.Accountant[playerRealm]["tokens"][playerName] = self.Accountant[playerRealm]["tokens"][playerName] or 738;
 
-	LoadStatBroker()
-
 	self:LoadServerGold()
 	self:CacheRepData()
 	self:CacheTokenData()
@@ -705,6 +676,59 @@ function MOD:Load()
 	self.tooltip:SetParent(SV.UIParent)
 	self.tooltip:SetFrameStrata("DIALOG")
 	self.tooltip:HookScript("OnShow", _hook_TooltipOnShow)
+
+	if(LDB) then
+	  	for dataName, dataObj in LDB:DataObjectIterator() do
+
+		    local OnEnter, OnLeave, OnClick, lastObj;
+
+		    if dataObj.OnTooltipShow then 
+		      	function OnEnter(self)
+					MOD:Tip(self)
+					dataObj.OnTooltipShow(MOD.tooltip)
+					MOD:ShowTip()
+				end
+		    end
+
+		    if dataObj.OnEnter then 
+		      	function OnEnter(self)
+					MOD:Tip(self)
+					dataObj.OnEnter(MOD.tooltip)
+					MOD:ShowTip()
+				end
+		    end
+
+		    if dataObj.OnLeave then 
+				function OnLeave(self)
+					dataObj.OnLeave(self)
+					MOD.tooltip:Hide()
+				end 
+		    end
+
+		    if dataObj.OnClick then
+		    	function OnClick(self, button)
+			      	dataObj.OnClick(self, button)
+			    end
+			end
+
+			local function textUpdate(event, name, key, value, dataobj)
+				if value == nil or (len(value) > 5) or value == 'n/a' or name == value then
+					lastObj.text:SetText(value ~= 'n/a' and value or name)
+				else
+					lastObj.text:SetText(name..': '.. '|cff' .. hexHighlight ..value..'|r')
+				end
+			end
+
+		    local function OnEvent(self)
+				lastObj = self;
+				LDB:RegisterCallback("LibDataBroker_AttributeChanged_"..dataName.."_text", textUpdate)
+				LDB:RegisterCallback("LibDataBroker_AttributeChanged_"..dataName.."_value", textUpdate)
+				LDB.callbacks:Fire("LibDataBroker_AttributeChanged_"..dataName.."_text", dataName, nil, dataObj.text, dataObj)
+		    end
+
+		    MOD:Extend(dataName, {"PLAYER_ENTERING_WORLD"}, OnEvent, nil, OnClick, OnEnter, OnLeave)
+	  	end
+	end
 
 	self:Generate()
 	self:RegisterEvent("PLAYER_ENTERING_WORLD", "Generate")

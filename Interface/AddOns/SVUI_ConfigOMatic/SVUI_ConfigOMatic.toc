@@ -1,7 +1,7 @@
 ## Interface: 60000
 ## Author: Munglunch
-## Version: 4.7
-## Title: |cffFF9900SVUI |r|cffFFEF00Config O Matic|r
+## Version: 4.8
+## Title: |cffFF9900SVUI |r|cffFFEF00Config-O-Matic|r
 ## Notes: Supervillain UI [|cff9911FFConfig Options|r]
 ## RequiredDeps: SVUI
 ## LoadOnDemand: 1

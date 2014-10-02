@@ -334,14 +334,4 @@ function PLUGIN:Load()
 	--[[ APPLY HOOKS ]]--
 	self:AppendChatFunctions()
 	NewHook(CHAT, "ReLoad", self.AppendChatFunctions)
-
-	local saveChats = {
-		order = 2, 
-		type = "toggle", 
-		name = L["Save Chats"], 
-		desc = L["Retain chat messages even after logging out."],
-		get = function(a)return SV.db[Schema].saveChats end, 
-		set = function(a,b) SV.db[Schema].saveChats = b; SV:StaticPopup_Show("RL_CLIENT") end
-	}
-	self:AddOption("saveChats", saveChats)
 end

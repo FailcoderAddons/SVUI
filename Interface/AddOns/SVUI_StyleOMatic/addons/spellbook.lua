@@ -15,7 +15,8 @@ S U P E R - V I L L A I N - U I   By: Munglunch                              #
 --]]
 local SV = _G["SVUI"];
 local L = SV.L;
-local STYLE = _G.StyleOMatic
+local STYLE = select(2, ...);
+local Schema = STYLE.Schema;
 --[[ 
 ########################################################## 
 FRAME LISTS

@@ -1,7 +1,7 @@
 ## Interface: 60000
 ## Author: Munglunch
-## Version: 4.7
-## Title: |cffFF9900SVUI |r|cffFFEF00Log O Matic|r
+## Version: 4.8
+## Title: |cffFF9900SVUI |r|cffFFEF00Log-O-Matic|r
 ## Notes: Supervillain UI [|cff9911FFData Logging|r].
 ## SavedVariables: LogOMatic_Data
 ## SavedVariablesPerCharacter: LogOMatic_Cache

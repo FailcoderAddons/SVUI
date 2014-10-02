@@ -19,6 +19,7 @@ STATS:Extend EXAMPLE USAGE: MOD:Extend(newStat,eventList,onEvents,update,click,f
 LOCALIZED LUA FUNCTIONS
 ##########################################################
 ]]--
+if (UnitLevel("player") == GetMaxPlayerLevel()) then return end;
 --[[ GLOBALS ]]--
 local _G = _G;
 local unpack 	= _G.unpack;
@@ -129,7 +130,7 @@ local function Experience_OnEnter(self)
 end
 
 local function ExperienceBar_OnLoad(self)
-	if (UnitLevel("player") == GetMaxPlayerLevel())then
+	if (UnitLevel("player") == GetMaxPlayerLevel()) then
 		self:Hide()
 		MOD:UnSet(self)
 	end

@@ -11,6 +11,5 @@
 	<Script file='plate.lua'/>
 	<Script file='tip.lua'/>
 	<Include file='units\_load.xml'/>
-	<Script file='dynamic.lua'/>
 	<Script file='profiles.lua'/>
 </Ui>

@@ -24,7 +24,25 @@ local PLUGIN = LibSuperVillain:NewPlugin(AddonName, AddonObject)
 
 local Schema = PLUGIN.Schema;
 local SV = _G["SVUI"];
-
+local L = SV.L
+--[[ 
+########################################################## 
+CONFIG DATA
+##########################################################
+]]--
 SV.configs[Schema] = {
 	["enable"] = true,  
 }
+--[[ 
+########################################################## 
+CONFIG OPTIONS
+##########################################################
+]]--
+-- SV.Options.args.plugins.args.pluginOptions.args[Schema].args[""] = {
+--     order = 2, 
+-- 	name = L[""], 
+-- 	desc = L[""],
+--     type = "toggle",
+--     get = function(key) return SV.db[Schema][key[#key]] end,
+--     set = function(key,value) PLUGIN:ChangeDBVar(value, key[#key]) end
+-- }

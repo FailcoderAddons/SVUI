@@ -127,18 +127,17 @@ function SV:Launch()
 
 	NewHook("StaticPopup_Show", self.StaticPopup_Show)
 
+	self.UIParent:RegisterEvent("PLAYER_ENTERING_WORLD");
+	self.UIParent:RegisterEvent("UI_SCALE_CHANGED");
+	self.UIParent:RegisterEvent("PET_BATTLE_CLOSE");
+	self.UIParent:RegisterEvent("PET_BATTLE_OPENING_START");
+	self.UIParent:RegisterEvent("ADDON_ACTION_BLOCKED");
+	self.UIParent:RegisterEvent("ADDON_ACTION_FORBIDDEN");
 	self.UIParent:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED");
 	self.UIParent:RegisterEvent("PLAYER_TALENT_UPDATE");
 	self.UIParent:RegisterEvent("CHARACTER_POINTS_CHANGED");
 	self.UIParent:RegisterEvent("UNIT_INVENTORY_CHANGED");
 	self.UIParent:RegisterEvent("UPDATE_BONUS_ACTIONBAR");
-	self.UIParent:RegisterEvent("UI_SCALE_CHANGED");
-	self.UIParent:RegisterEvent("PLAYER_ENTERING_WORLD");
-	self.UIParent:RegisterEvent("PET_BATTLE_CLOSE");
-	self.UIParent:RegisterEvent("PET_BATTLE_OPENING_START");
-	self.UIParent:RegisterEvent("ADDON_ACTION_BLOCKED");
-	self.UIParent:RegisterEvent("ADDON_ACTION_FORBIDDEN");
-	self.UIParent:RegisterEvent("SPELLS_CHANGED");
 
 	SVLib:Update("SVMap");
 
@@ -156,9 +155,6 @@ end
 EVENT HANDLERS
 ##########################################################
 ]]--
-local PlayerClass = select(2,UnitClass("player"));
-local droodSpell1, droodSpell2 = GetSpellInfo(110309), GetSpellInfo(4987);
-
 local SVUISystem_OnEvent = function(self, event, arg, ...)
 	if(event == "ADDON_LOADED" and arg == "SVUI") then
 		if(not SV.AddonLoaded) then
@@ -192,16 +188,6 @@ local SVUISystem_OnEvent = function(self, event, arg, ...)
 		end
 		if(not InCombatLockdown()) then
 			collectgarbage("collect") 
-		end
-	elseif(event == "SPELLS_CHANGED") then
-		if (PlayerClass ~= "DRUID") then
-			self:UnregisterEvent("SPELLS_CHANGED")
-			return 
-		end 
-		if GetSpellInfo(droodSpell1) == droodSpell2 then 
-			SV.Dispellable["Disease"] = true 
-		elseif(SV.Dispellable["Disease"]) then
-			SV.Dispellable["Disease"] = nil 
 		end
 	elseif(event == "PET_BATTLE_CLOSE") then
 		SV:PushDisplayAudit()

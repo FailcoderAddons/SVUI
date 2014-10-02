@@ -33,11 +33,23 @@ GET ADDON DATA
 local STYLE = select(2, ...);
 local Schema = STYLE.Schema;
 local activePanels = {};
+local SkadaHolder, SkadaHolder2
 --[[ 
 ########################################################## 
 SKADA
 ##########################################################
 ]]--
+local function CheckForHolders()
+  if(not SkadaHolder) then
+    SkadaHolder = CreateFrame("Frame", "SkadaHolder", SuperDockletMain)
+  end
+  if(not SkadaHolder2) then
+    SkadaHolder2 = CreateFrame("Frame", "SkadaHolder2", SuperDockletExtra)
+  end
+  SkadaHolder:SetSize(SuperDockletMain:GetSize())
+  SkadaHolder2:SetSize(SuperDockletExtra:GetSize())
+end
+
 local function skada_panel_loader(holder, window)
   if not window then return end 
 
@@ -66,16 +78,10 @@ end
 
 function STYLE:Docklet_Skada()
   if not Skada then return end 
-  if(not SkadaHolder) then
-    local SkadaHolder = CreateFrame("Frame", "SkadaHolder", SuperDockletMain)
-    SkadaHolder:SetAllPoints(SuperDockletMain)
-  end
-  if(not SkadaHolder2) then
-    local SkadaHolder2 = CreateFrame("Frame", "SkadaHolder2", SuperDockletExtra)
-    SkadaHolder2:SetAllPoints(SuperDockletExtra)
-  end
+  CheckForHolders()
   for index,window in pairs(Skada:GetWindows()) do
-    local key = "Skada"..window.db.name
+    local wname = window.db.name or ""
+    local key = "Skada" .. wname
     if(SVUI.db.SVDock.docklets.DockletMain == key)then 
       skada_panel_loader(SkadaHolder, window)
     elseif(SVUI.db.SVDock.docklets.enableExtra and SVUI.db.SVDock.docklets.DockletExtra == key) then
@@ -93,14 +99,7 @@ end
 local function StyleSkada()
   assert(Skada, "AddOn Not Loaded")
 
-  if(not SkadaHolder) then
-    local SkadaHolder = CreateFrame("Frame", "SkadaHolder", SuperDockletMain)
-    SkadaHolder:SetAllPoints(SuperDockletMain)
-  end
-  if(not SkadaHolder2) then
-    local SkadaHolder2 = CreateFrame("Frame", "SkadaHolder2", SuperDockletExtra)
-    SkadaHolder2:SetAllPoints(SuperDockletExtra)
-  end
+  CheckForHolders()
   Skada.ShowPopup = Skada_ShowPopup
   
   local SkadaDisplayBar = Skada.displays['bar']
@@ -143,12 +142,6 @@ local function StyleSkada()
   end)
 
   hooksecurefunc(Skada, 'DeleteWindow', function()
-    if SVUI.CurrentlyDocked["SkadaHolder"] or SVUI.CurrentlyDocked["SkadaHolder2"] then
-      STYLE:Docklet_Skada()
-    end
-  end)
-
-  hooksecurefunc(Skada, 'UpdateDisplay', function()
     if SVUI.CurrentlyDocked["SkadaHolder"] or SVUI.CurrentlyDocked["SkadaHolder2"] then
       STYLE:Docklet_Skada()
     end

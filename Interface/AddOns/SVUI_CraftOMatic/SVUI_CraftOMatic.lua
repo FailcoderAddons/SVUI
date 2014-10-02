@@ -19,11 +19,11 @@ LOCALIZED LUA FUNCTIONS
 
 --[[  CONSTANTS ]]--
 
-BINDING_HEADER_SVUILABORER = "Supervillain UI: Crafting";
-BINDING_NAME_SVUILABORER_FISH = "Toggle Fishing Mode";
-BINDING_NAME_SVUILABORER_FARM = "Toggle Farming Mode";
-BINDING_NAME_SVUILABORER_COOK = "Toggle Cooking Mode";
-BINDING_NAME_SVUILABORER_ARCH = "Toggle Archaeology Mode";
+BINDING_HEADER_SVUICRAFT = "Supervillain UI: Craft-O-Matic";
+BINDING_NAME_SVUICRAFT_FISH = "Toggle Fishing Mode";
+BINDING_NAME_SVUICRAFT_FARM = "Toggle Farming Mode";
+BINDING_NAME_SVUICRAFT_COOK = "Toggle Cooking Mode";
+BINDING_NAME_SVUICRAFT_ARCH = "Toggle Archaeology Mode";
 
 --[[ GLOBALS ]]--
 
@@ -337,7 +337,7 @@ function PLUGIN:MakeLogWindow()
 	self.LogWindow = log
 
 	self.ListenerEnabled = false;
-	SV:RegisterDocklet("SVUI_ModesDockFrame", "Crafting Modes", ICON_FILE, false)
+	SV:RegisterDocklet("SVUI_ModesDockFrame", self.TitleID, ICON_FILE, false)
 	self:CraftingReset()
 end
 
@@ -532,114 +532,4 @@ function PLUGIN:Load()
 	self:LoadArchaeologyMode()
 	self:PrepareFarmingTools()
 	self:RegisterEvent("SKILL_LINES_CHANGED")
-
-	local option = {
-		order = 2,
-		name = L["Font Size"],
-		desc = L["Set the font size of the log window."],
-		type = "range",
-		min = 6,
-		max = 22,
-		step = 1,
-		get = function(key)return SV.db[Schema][key[#key]] end,
-		set = function(j,value) PLUGIN:ChangeDBVar(value,j[#j]);PLUGIN:UpdateLogWindow()end
-	}
-	self:AddOption("fontSize", option)
-	option = {
-		order = 3, 
-		type = "group", 
-		name = L["Fishing Mode Settings"], 
-		guiInline = true, 
-		args = {
-			autoequip = {
-				type = "toggle", 
-				order = 1, 
-				name = L['AutoEquip'], 
-				desc = L['Enable/Disable automatically equipping fishing gear.'], 
-				get = function(key)return SV.db[Schema].fishing[key[#key]]end,
-				set = function(key, value)PLUGIN:ChangeDBVar(value, key[#key], "fishing")end
-			}
-		}	
-	}
-	self:AddOption("fishing", option)
-	option = {
-		order = 4, 
-		type = "group", 
-		name = L["Cooking Mode Settings"], 
-		guiInline = true, 
-		args = {
-			autoequip = {
-				type = "toggle", 
-				order = 1, 
-				name = L['AutoEquip'], 
-				desc = L['Enable/Disable automatically equipping cooking gear.'], 
-				get = function(key)return SV.db[Schema].cooking[key[#key]]end,
-				set = function(key, value)PLUGIN:ChangeDBVar(value, key[#key], "cooking")end
-			}
-		}
-	}
-	self:AddOption("cooking", option)
-	option = {
-		order = 5, 
-		type = "group", 
-		name = L["Farming Mode Settings"], 
-		guiInline = true, 
-		get = function(key)return SV.db[Schema].farming[key[#key]]end, 
-		set = function(key, value)SV.db[Schema].farming[key[#key]] = value end, 
-		args = {
-			buttonsize = {
-				type = 'range', 
-				name = L['Button Size'], 
-				desc = L['The size of the action buttons.'], 
-				min = 15, 
-				max = 60, 
-				step = 1, 
-				order = 1, 
-				set = function(key, value)
-					PLUGIN:ChangeDBVar(value, key[#key],"farming");
-					PLUGIN:RefreshFarmingTools()
-				end,
-			},
-			buttonspacing = {
-				type = 'range', 
-				name = L['Button Spacing'], 
-				desc = L['The spacing between buttons.'], 
-				min = 1, 
-				max = 10, 
-				step = 1, 
-				order = 2, 
-				set = function(key, value)
-					PLUGIN:ChangeDBVar(value, key[#key],"farming");
-					PLUGIN:RefreshFarmingTools()
-				end,
-			},
-			onlyactive = {
-				order = 3, 
-				type = 'toggle', 
-				name = L['Only active buttons'], 
-				desc = L['Only show the buttons for the seeds, portals, tools you have in your bags.'], 
-				set = function(key, value)
-					PLUGIN:ChangeDBVar(value, key[#key],"farming");
-					PLUGIN:RefreshFarmingTools()
-				end,
-			},
-			droptools = {
-				order = 4, 
-				type = 'toggle', 
-				name = L['Drop '], 
-				desc = L['Automatically drop tools from your bags when leaving the farming area.'],
-			},
-			toolbardirection = {
-				order = 5, 
-				type = 'select', 
-				name = L['Bar Direction'], 
-				desc = L['The direction of the bar buttons (Horizontal or Vertical).'], 
-				set = function(key, value)PLUGIN:ChangeDBVar(value, key[#key],"farming"); PLUGIN:RefreshFarmingTools() end,
-				values = {
-						['VERTICAL'] = L['Vertical'], ['HORIZONTAL'] = L['Horizontal']
-				}
-			}
-		}
-	}
-	self:AddOption("farming", option)
 end

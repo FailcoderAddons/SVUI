@@ -264,9 +264,6 @@ local SVUI = SVLib:NewCore("SVUI_Global", "SVUI_Profile", "SVUI_Cache")
 SVUI.ConfigID           = "SVUI_ConfigOMatic";
 
 SVUI.Media              = {}
-SVUI.DisplayAudit       = {}
-SVUI.DynamicOptions     = {}
-SVUI.Dispellable        = {}
 
 SVUI.class              = playerClass
 SVUI.ClassRole          = ""

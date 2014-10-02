@@ -47,7 +47,7 @@ local band = bit.band;
 GET ADDON DATA
 ##########################################################
 ]]--
-local PLUGIN = LibSuperVillain:NewPlugin(...)
+local PLUGIN = select(2, ...)
 local Schema = PLUGIN.Schema;
 local VERSION = PLUGIN.Version;
 
@@ -58,12 +58,13 @@ local L = SV.L;
 LOCALS AND BINDING
 ##########################################################
 ]]--
-BINDING_HEADER_SVUITRACK = "Supervillain UI: Tracking Device";
+BINDING_HEADER_SVUITRACK = "Supervillain UI: Track-O-Matic";
+BINDING_NAME_SVUITRACK_DOODAD = "Toggle Tracking Device";
 
 local NewHook = hooksecurefunc;
 local playerGUID = UnitGUID('player')
 local classColor = RAID_CLASS_COLORS
-local radian90 = (3.141592653589793  /  2) * -1;
+local radian90 = (3.141592653589793 / 2) * -1;
 local GetDistance, GetTarget, GetFromPlayer;
 --[[ 
 ########################################################## 
@@ -72,13 +73,27 @@ BUILD
 ]]--
 function SVUI_TrackingDoodad_OnLoad()
     local frame = _G["SVUI_TrackingDoodad"]
-    --frame.Border:SetGradient(unpack(SV.Media.gradient.dark))
+    frame.Border:SetGradient(unpack(SV.Media.gradient.special))
     frame.Arrow:SetVertexColor(0.1, 0.8, 0.8)
     frame.Range:SetFont(SV.Media.font.roboto, 14, "OUTLINE")
     frame.Range:SetTextColor(1, 1, 1, 0.75)
     SV.Animate:Orbit(frame.Radar, 8, true)
     frame:RegisterForDrag("LeftButton");
     frame:Hide()
+end
+
+function SVUIToggleTrackingDoodad()
+    if(not SVUI_TrackingDoodad.Trackable) then
+        SVUI_TrackingDoodad.Trackable = true
+        if((UnitInParty("target") or UnitInRaid("target")) and not UnitIsUnit("target", "player")) then
+            SVUI_TrackingDoodad:Show()
+        end
+        SV:AddonMessage("Tracking Device |cff00FF00Enabled|r")
+    else
+        SVUI_TrackingDoodad.Trackable = false
+        SVUI_TrackingDoodad:Hide()
+        SV:AddonMessage("Tracking Device |cffFF0000Disabled|r")
+    end
 end
 
 do
@@ -567,34 +582,30 @@ local Tracker_OnUpdate = function(self, elapsed)
     if self.elapsed and self.elapsed > (self.throttle or 0.02) then
         if(self.Trackable) then
             local distance, angle = Triangulate("target", true)
-            local _ARROW = self.Arrow
-            local _SPINNER = self.Radar
-            local _TEXT = self.Range
-            local _BG = self.BG
             if not angle then
                 self.throttle = 4
-                _ARROW:SetAlpha(0)
-                _SPINNER:SetVertexColor(0.8,0.1,0.1,0.15)
-                _BG:SetVertexColor(1,0,0,0.15)
+                self.Arrow:SetAlpha(0)
+                self.Radar:SetVertexColor(0.8,0.1,0.1,0.15)
+                self.BG:SetVertexColor(1,0,0,0.15)
             else
                 self.throttle = 0.02
-                local out = floor(tonumber(distance))
+                local range = floor(tonumber(distance))
                 self:Spin(angle)
-                if(out > 100) then
-                    _ARROW:SetVertexColor(1,0.1,0.1,0.4)
-                    _SPINNER:SetVertexColor(0.8,0.1,0.1,0.25)
-                    _BG:SetVertexColor(0.8,0.4,0.1,0.25)
-                elseif(out > 40) then
-                    _ARROW:SetVertexColor(1,0.8,0.1,0.6)
-                    _SPINNER:SetVertexColor(0.8,0.8,0.1,0.5)
-                    _BG:SetVertexColor(0.4,0.8,0.1,0.5)
-                elseif(out > 5) then
-                    _ARROW:SetVertexColor(0.1,1,0.8,0.9)
-                    _SPINNER:SetVertexColor(0.1,0.8,0.8,0.75)
-                    _BG:SetVertexColor(0.1,0.8,0.1,0.75)
+                if(range > 100) then
+                    self.Arrow:SetVertexColor(1,0.1,0.1,0.4)
+                    self.Radar:SetVertexColor(0.8,0.1,0.1,0.25)
+                    self.BG:SetVertexColor(0.8,0.4,0.1,0.25)
+                elseif(range > 40) then
+                    self.Arrow:SetVertexColor(1,0.8,0.1,0.6)
+                    self.Radar:SetVertexColor(0.8,0.8,0.1,0.5)
+                    self.BG:SetVertexColor(0.4,0.8,0.1,0.5)
+                elseif(range > 5) then
+                    self.Arrow:SetVertexColor(0.1,1,0.8,0.9)
+                    self.Radar:SetVertexColor(0.1,0.8,0.8,0.75)
+                    self.BG:SetVertexColor(0.1,0.8,0.1,0.75)
                 end
-                _ARROW:SetAlpha(1)
-                _TEXT:SetText(out)
+                self.Arrow:SetAlpha(1)
+                self.Range:SetText(range)
             end            
         else
             self:Hide()
@@ -698,40 +709,4 @@ function PLUGIN:Load()
     end
 
     NewHook(SV.SVUnit, "RefreshUnitLayout", RefreshGPS)
-
-    local options = {
-        order = 3,
-        name = L["GPS"],
-        desc = L["Use group frame GPS elements"],
-        type = "toggle",
-        get = function() return SV.db[Schema].groups end,
-        set = function(key,value) PLUGIN:ChangeDBVar(value, key[#key]); PLUGIN:UpdateLogWindow() end
-    }
-    
-    self:AddOption("groups", options)
-
-    options = {
-        order = 4,
-        name = L["GPS Proximity"],
-        desc = L["Only point to closest low health unit"],
-        type = "toggle",
-        get = function() return SV.db[Schema].proximity end,
-        set = function(key,value) PLUGIN:ChangeDBVar(value, key[#key]); PLUGIN:UpdateLogWindow() end
-    }
-    
-    self:AddOption("proximity", options)
-
-    options = {
-        order = 5,
-        name = L["Font Size"],
-        desc = L["Set the font size of the range text"],
-        type = "range",
-        min = 6,
-        max = 22,
-        step = 1,
-        get = function() return SV.db[Schema].fontSize end,
-        set = function(key,value) PLUGIN:ChangeDBVar(value, key[#key]); PLUGIN:UpdateLogWindow() end
-    }
-    
-    self:AddOption("fontSize", options)
 end

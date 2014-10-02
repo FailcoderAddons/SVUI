@@ -498,7 +498,7 @@ end
 
 function lib:NewCache(index)
     index = index or CoreObject.Schema
-    AllowedIndexes.C[index] = true
+    AllowedIndexes.C[index] = index
     if(not CACHE_SV[index]) then
         CACHE_SV[index] = {}
     end
@@ -507,7 +507,7 @@ end
 
 function lib:NewGlobal(index)
     index = index or CoreObject.Schema
-    AllowedIndexes.G[index] = true
+    AllowedIndexes.G[index] = index
     if(not GLOBAL_SV[index]) then
         GLOBAL_SV[index] = {}
     end
@@ -628,14 +628,6 @@ local unregisterUpdate = function(self, updatefunc)
     else
         self.___updateframe:SetScript("OnUpdate", nil)
     end
-end
-
-local appendOptions = function(self, index, data)
-    local addonName = self.NameID
-    local schema = self.Schema
-    local header = GetAddOnMetadata(addonName, HeaderFromMeta)
-
-    CoreObject.Options.args.plugins.args.pluginOptions.args[schema].args[index] = data
 end
 
 local function SetPluginString(addonName)
@@ -781,7 +773,6 @@ function lib:NewPlugin(addonName, addonObject)
     addonObject.UnregisterEvent     = unregisterEvent
     addonObject.RegisterUpdate      = registerUpdate
     addonObject.UnregisterUpdate    = unregisterUpdate
-    addonObject.AddOption           = appendOptions
 
     if(IsAddOnLoaded(addonName) and not lod) then
         CoreObject.Options.args.plugins.args.pluginOptions.args[schema] = {
@@ -810,7 +801,7 @@ function lib:NewPlugin(addonName, addonObject)
     if(not PLUGINS) then PLUGINS = {} end
 
     PLUGINS[#PLUGINS+1] = schema
-    AllowedIndexes.P[schema] = true
+    AllowedIndexes.P[schema] = schema
 
     local infoString = SetPluginString(addonName)
     local oldString = PluginString
@@ -888,7 +879,7 @@ local Core_NewPackage = function(self, schema, header)
     if(not MODULES) then MODULES = {} end
     MODULES[#MODULES+1] = schema
 
-    AllowedIndexes.P[schema] = true
+    AllowedIndexes.P[schema] = schema
 
     local addonName = ("SVUI [%s]"):format(schema)
 
@@ -1002,8 +993,8 @@ function lib:Initialize()
         GLOBAL_SV.profileKeys[k] = k
     end
 
-    AllowedIndexes.G["profileKeys"] = true
-    AllowedIndexes.G["profiles"] = true
+    AllowedIndexes.G["profileKeys"] = "profileKeys"
+    AllowedIndexes.G["profiles"] = "profiles"
 
     --CACHE SAVED VARIABLES
     if not _G[CACHE_FILENAME] then _G[CACHE_FILENAME] = {} end

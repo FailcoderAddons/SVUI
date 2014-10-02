@@ -1,14 +1,14 @@
 <Bindings>
-  <Binding name="SVUILABORER_FISH" category="ADDONS" header="SVUILABORER" runOnUp="false">
+  <Binding name="SVUICRAFT_FISH" category="ADDONS" header="SVUICRAFT" runOnUp="false">
     SVUIFishingMode()
   </Binding> 
-   <Binding name="SVUILABORER_FARM" category="ADDONS" runOnUp="false">
+   <Binding name="SVUICRAFT_FARM" category="ADDONS" runOnUp="false">
     SVUIFarmingMode()
   </Binding>
-  <Binding name="SVUILABORER_ARCH" category="ADDONS" runOnUp="false">
+  <Binding name="SVUICRAFT_ARCH" category="ADDONS" runOnUp="false">
     SVUIArchaeologyMode()
   </Binding> 
-  <Binding name="SVUILABORER_COOK" category="ADDONS" runOnUp="false">
+  <Binding name="SVUICRAFT_COOK" category="ADDONS" runOnUp="false">
     SVUICookingMode()
   </Binding>
 </Bindings>

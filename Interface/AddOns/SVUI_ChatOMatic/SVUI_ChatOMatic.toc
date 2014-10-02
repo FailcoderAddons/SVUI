@@ -1,6 +1,6 @@
 ## Interface: 60000
 ## Author: Munglunch
-## Version: 4.7
+## Version: 4.8
 ## Title: |cffFF9900SVUI |r|cffFFEF00Chat-O-Matic|r
 ## Notes: Supervillain UI [|cff9911FFAuto-Chat Gadgets|r]
 ## RequiredDeps: SVUI

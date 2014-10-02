@@ -24,9 +24,34 @@ local PLUGIN = LibSuperVillain:NewPlugin(AddonName, AddonObject)
 
 local Schema = PLUGIN.Schema;
 local SV = _G["SVUI"];
-
+local L = SV.L
+--[[ 
+########################################################## 
+CONFIG DATA
+##########################################################
+]]--
 SV.configs[Schema] = {
-	["enable"] = true,
-	["autoAnswer"] = false, 
-	["prefix"] = true
+  	["enable"] = true,
+  	["autoAnswer"] = false, 
+  	["prefix"] = true
+}
+--[[ 
+########################################################## 
+CONFIG OPTIONS
+##########################################################
+]]--
+SV.Options.args.plugins.args.pluginOptions.args[Schema].args["autoAnswer"] = {
+    order = 2, 
+    name = "Auto Answer", 
+    type = "toggle", 
+    get = function(key) return SV.db[Schema][key[#key]] end,
+    set = function(key,value) SV.db[Schema][key[#key]] = value end
+}
+
+SV.Options.args.plugins.args.pluginOptions.args[Schema].args["prefix"] = {
+    order = 3, 
+    name = "Prefix Messages", 
+    type = "toggle", 
+    get = function(key) return SV.db[Schema][key[#key]] end,
+    set = function(key,value) SV.db[Schema][key[#key]] = value end
 }

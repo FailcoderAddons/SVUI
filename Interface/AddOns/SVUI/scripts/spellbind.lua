@@ -16,6 +16,7 @@ S U P E R - V I L L A I N - U I   By: Munglunch                              #
 LOCALIZED LUA FUNCTIONS
 ##########################################################
 ]]--
+local SV = select(2, ...)
 --[[ GLOBALS ]]--
 local _G = _G;
 local unpack 	= _G.unpack;

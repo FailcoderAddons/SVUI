@@ -24,11 +24,50 @@ local PLUGIN = LibSuperVillain:NewPlugin(AddonName, AddonObject)
 
 local Schema = PLUGIN.Schema;
 local SV = _G["SVUI"];
-
+local L = SV.L
+--[[ 
+########################################################## 
+CONFIG DATA
+##########################################################
+]]--
 SV.configs[Schema] = {
     ["enable"] = true,
     ["size"] = 75, 
     ["fontSize"] = 12,
     ["groups"] = true,
     ["proximity"] = false, 
+}
+--[[ 
+########################################################## 
+CONFIG OPTIONS
+##########################################################
+]]--
+SV.Options.args.plugins.args.pluginOptions.args[Schema].args["groups"] = {
+    order = 3,
+    name = L["GPS"],
+    desc = L["Use group frame GPS elements"],
+    type = "toggle",
+    get = function(key) return SV.db[Schema][key[#key]] end,
+    set = function(key,value) PLUGIN:ChangeDBVar(value, key[#key]); PLUGIN:UpdateLogWindow() end
+}
+
+SV.Options.args.plugins.args.pluginOptions.args[Schema].args["proximity"] = {
+    order = 4,
+    name = L["GPS Proximity"],
+    desc = L["Only point to closest low health unit"],
+    type = "toggle",
+    get = function(key) return SV.db[Schema][key[#key]] end,
+    set = function(key,value) PLUGIN:ChangeDBVar(value, key[#key]); PLUGIN:UpdateLogWindow() end
+}
+
+SV.Options.args.plugins.args.pluginOptions.args[Schema].args["fontSize"] = {
+    order = 5,
+    name = L["Font Size"],
+    desc = L["Set the font size of the range text"],
+    type = "range",
+    min = 6,
+    max = 22,
+    step = 1,
+    get = function(key) return SV.db[Schema][key[#key]] end,
+    set = function(key,value) PLUGIN:ChangeDBVar(value, key[#key]); PLUGIN:UpdateLogWindow() end
 }

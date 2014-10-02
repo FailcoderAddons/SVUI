@@ -331,7 +331,7 @@ do
 			pass = true 
 		end 
 		if _test(auraDB.filterDispellable, friendly) then 
-			if (auraType == "buffs" and not isStealable) or (auraType == "debuffs" and debuffType and not SV.Dispellable[debuffType]) or debuffType == nil then 
+			if (auraType == "buffs" and not isStealable) or (auraType == "debuffs" and debuffType and not MOD.Dispellable[debuffType]) or debuffType == nil then 
 				filtered = false 
 			end 
 			pass = true 
@@ -407,7 +407,7 @@ do
 			pass = true 
 		end 
 		if _test(barDB.filterDispellable, friendly) then 
-			if (debuffType and not SV.Dispellable[debuffType]) or debuffType == nil then 
+			if (debuffType and not MOD.Dispellable[debuffType]) or debuffType == nil then 
 				filtered = false 
 			end 
 			pass = true 

@@ -67,6 +67,7 @@ MODULE AND INNER CLASSES
 local MOD = SV:NewPackage("SVUnit", L["UnitFrames"])
 MOD.Units = {}
 MOD.Headers = {}
+MOD.Dispellable = {}
 
 oUF_Villain.SVConfigs = {}
 --[[ 
@@ -1436,6 +1437,62 @@ local UnitFrameThreatIndicator_Hook = function(unit, unitFrame)
 end
 --[[ 
 ########################################################## 
+CLASS SPECIFIC INFO
+##########################################################
+]]--
+local RefMagicSpec;
+local PlayerClass = select(2,UnitClass("player"));
+local droodSpell1, droodSpell2 = GetSpellInfo(110309), GetSpellInfo(4987);
+
+if(PlayerClass == "PRIEST") then
+    MOD.Dispellable = {["Magic"] = true, ["Disease"] = true}
+elseif(PlayerClass == "MAGE") then
+    MOD.Dispellable = {["Curse"] = true}
+elseif(PlayerClass == "DRUID") then
+    RefMagicSpec = 4
+    MOD.Dispellable = {["Curse"] = true, ["Poison"] = true}
+elseif(PlayerClass == "SHAMAN") then
+    RefMagicSpec = 3
+    MOD.Dispellable = {["Curse"] = true}
+elseif(PlayerClass == "MONK") then
+    RefMagicSpec = 2
+    MOD.Dispellable = {["Disease"] = true, ["Poison"] = true}
+elseif(PlayerClass == "PALADIN") then
+    RefMagicSpec = 1
+    MOD.Dispellable = {["Poison"] = true, ["Disease"] = true}
+end
+
+local function GetTalentInfo(arg)
+    if type(arg) == "number" then 
+        return arg == GetActiveSpecGroup();
+    else
+        return false;
+    end 
+end
+
+function MOD:CanClassDispel()
+	if RefMagicSpec then 
+        if(GetTalentInfo(RefMagicSpec)) then 
+            self.Dispellable["Magic"] = true 
+        elseif(self.Dispellable["Magic"]) then
+            self.Dispellable["Magic"] = nil 
+        end
+    end
+end 
+
+function MOD:SPELLS_CHANGED()
+	if (PlayerClass ~= "DRUID") then
+		self:UnregisterEvent("SPELLS_CHANGED")
+		return 
+	end 
+	if GetSpellInfo(droodSpell1) == droodSpell2 then 
+		self.Dispellable["Disease"] = true 
+	elseif(self.Dispellable["Disease"]) then
+		self.Dispellable["Disease"] = nil 
+	end
+end
+--[[ 
+########################################################## 
 BUILD FUNCTION / UPDATE
 ##########################################################
 ]]--
@@ -1451,9 +1508,18 @@ function MOD:Load()
 	local SVUI_UnitFrameParent = CreateFrame("Frame", "SVUI_UnitFrameParent", SV.UIParent, "SecureHandlerStateTemplate")
 	RegisterStateDriver(SVUI_UnitFrameParent, "visibility", "[petbattle] hide; show")
 
+	self:CanClassDispel()
+
 	self:FrameForge()
 	self:RegisterEvent("PLAYER_ENTERING_WORLD")
 	self:RegisterEvent("PLAYER_REGEN_DISABLED")
+	self:RegisterEvent("SPELLS_CHANGED")
+
+	self:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED", "CanClassDispel")
+	self:RegisterEvent("PLAYER_TALENT_UPDATE", "CanClassDispel")
+	self:RegisterEvent("CHARACTER_POINTS_CHANGED", "CanClassDispel")
+	self:RegisterEvent("UNIT_INVENTORY_CHANGED", "CanClassDispel")
+	self:RegisterEvent("UPDATE_BONUS_ACTIONBAR", "CanClassDispel")
 
 	if(SV.db.SVUnit.disableBlizzard) then 
 		self:KillBlizzardRaidFrames()

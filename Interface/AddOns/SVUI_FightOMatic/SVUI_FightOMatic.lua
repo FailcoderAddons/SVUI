@@ -18,8 +18,8 @@ LOCALIZED LUA FUNCTIONS
 ]]--
 --[[  CONSTANTS ]]--
 
-BINDING_HEADER_SVUIAOW = "Supervillain UI: Fight-O-Matic";
-BINDING_NAME_SVUIAOW_RADIO = "Call Out Incoming";
+BINDING_HEADER_SVUIFIGHT = "Supervillain UI: Fight-O-Matic";
+BINDING_NAME_SVUIFIGHT_RADIO = "Call Out Incoming";
 
 --[[ GLOBALS ]]--
 
@@ -1131,7 +1131,7 @@ function PLUGIN:Load()
 	MakeUtilityWindow()
 	MakeInfoWindow()
 
-	SV:RegisterDocklet("SVUI_FightOMaticDock", "Art of War", ICON_FILE)
+	SV:RegisterDocklet("SVUI_FightOMaticDock", self.TitleID, ICON_FILE)
 
 	holder:Hide()
 

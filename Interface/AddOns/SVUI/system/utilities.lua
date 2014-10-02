@@ -45,13 +45,11 @@ MISC UTILITY FUNCTIONS
 ##########################################################
 ]]--
 local RefClassRoles, RefUnitRoles;
-local RefMagicSpec;
 local PlayerClass = select(2,UnitClass("player"));
 
 if(PlayerClass == "PRIEST") then
     RefClassRoles = {"C", "C", "C"}
     RefUnitRoles = {"HEALER", "HEALER", "DAMAGER"}
-    SV.Dispellable = {["Magic"] = true, ["Disease"] = true}
 elseif(PlayerClass == "WARLOCK") then
     RefClassRoles = {"C", "C", "C"}
     RefUnitRoles = {"DAMAGER", "DAMAGER", "DAMAGER"}
@@ -67,38 +65,21 @@ elseif(PlayerClass == "ROGUE") then
 elseif(PlayerClass == "MAGE") then
     RefClassRoles = {"C", "C", "C"}
     RefUnitRoles = {"DAMAGER", "DAMAGER", "DAMAGER"}
-    SV.Dispellable = {["Curse"] = true}
 elseif(PlayerClass == "DEATHKNIGHT") then
     RefClassRoles = {"T", "M", "M"}
     RefUnitRoles = {"TANK", "DAMAGER", "DAMAGER"}
 elseif(PlayerClass == "DRUID") then
-    RefMagicSpec = 4
     RefClassRoles = {"C", "M", "T", "C"}
     RefUnitRoles = {"DAMAGER", "DAMAGER", "TANK", "HEALER"}
-    SV.Dispellable = {["Curse"] = true, ["Poison"] = true}
 elseif(PlayerClass == "SHAMAN") then
-    RefMagicSpec = 3
     RefClassRoles = {"C", "M", "C"}
     RefUnitRoles = {"DAMAGER", "DAMAGER", "HEALER"}
-    SV.Dispellable = {["Curse"] = true}
 elseif(PlayerClass == "MONK") then
-    RefMagicSpec = 2
     RefClassRoles = {"T", "C", "M"}
     RefUnitRoles = {"TANK", "HEALER", "DAMAGER"}
-    SV.Dispellable = {["Disease"] = true, ["Poison"] = true}
 elseif(PlayerClass == "PALADIN") then
-    RefMagicSpec = 1
     RefClassRoles = {"C", "T", "M"}
     RefUnitRoles = {"HEALER", "TANK", "DAMAGER"}
-    SV.Dispellable = {["Poison"] = true, ["Disease"] = true}
-end
-
-local function GetTalentInfo(arg)
-    if type(arg) == "number" then 
-        return arg == GetActiveSpecGroup();
-    else
-        return false;
-    end 
 end
 
 function SV:DefinePlayerRole()
@@ -135,13 +116,6 @@ function SV:DefinePlayerRole()
         if self.RoleChangedCallback then
             self.RoleChangedCallback()
         end
-    end
-    if RefMagicSpec then 
-        if(GetTalentInfo(RefMagicSpec)) then 
-            self.Dispellable["Magic"] = true 
-        elseif(self.Dispellable["Magic"]) then
-            self.Dispellable["Magic"] = nil 
-        end 
     end
 end  
 --[[ 

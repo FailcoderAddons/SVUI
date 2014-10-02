@@ -58,10 +58,6 @@ local function SVUIMasterCommand(msg)
 			MOD.ForceHideBGStats = nil;
 			MOD:Generate()
 			SV:AddonMessage(L['Battleground statistics will now show again if you are inside a battleground.'])
-		elseif (msg == "toasty" or msg == "kombat") then
-			SV:ToastyKombat()
-		elseif (msg == "lol") then
-			PlaySoundFile("Sound\\Character\\Human\\HumanVocalFemale\\HumanFemalePissed04.wav")
 		else
 			SV:ToggleConfig()
 		end
@@ -150,6 +146,16 @@ do
 			PullCountdown.Pull()
 		end
 	end
+end
+
+SLASH_KOMBAT1 = "/kombat"
+SlashCmdList["KOMBAT"] = function(msg)
+	SV:ToastyKombat()
+end
+
+SLASH_LOLWUT1 = "/lolwut"
+SlashCmdList["LOLWUT"] = function(msg)
+	PlaySoundFile("Sound\\Character\\Human\\HumanVocalFemale\\HumanFemalePissed04.wav")
 end
 --[[ 
 ########################################################## 

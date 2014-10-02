@@ -52,7 +52,8 @@ local PLUGIN = select(2, ...)
 local Schema = PLUGIN.Schema;
 local PlayersName = UnitName("player")
 
-local SV = _G["SVUI"];
+local SV = _G["SVUI"]
+local L = SV.L
 --[[ 
 ########################################################## 
 LOCAL VARS
@@ -958,7 +959,6 @@ function PLUGIN:Load()
 	self.Window = window
 	self.Window:Hide()
 
-
 	local strMsg
 	if SV.db[Schema].autoAnswer == true then
 		strMsg = "The Henchmen Operators Are Screening Your Calls.."
@@ -966,22 +966,4 @@ function PLUGIN:Load()
 		strMsg = "The Henchmen Operators Are Standing By.."
 	end
 	SV:AddonMessage(strMsg)
-
-	local option = {
-		order = 2, 
-		type = "toggle", 
-		name = "Auto Answer", 
-		get = function(a) return SV.db[Schema].autoAnswer end, 
-		set = function(a,b) SV.db[Schema].autoAnswer = b end
-	};
-	self:AddOption("autoAnswer", option)
-
-	option = {
-		order = 3, 
-		type = "toggle", 
-		name = "Prefix Messages", 
-		get = function(a) return SV.db[Schema].prefix end, 
-		set = function(a,b) SV.db[Schema].prefix = b end
-	};
-	self:AddOption("prefix", option)
 end

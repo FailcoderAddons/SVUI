@@ -34,6 +34,7 @@ LOCALS
 ##########################################################
 ]]--
 local DisplayEventHandler = CreateFrame("Frame");
+local DisplayFrames = {};
 local SecureFadeManager = CreateFrame("Frame");
 local SecureFadeFrames = {};
 --[[ 
@@ -42,27 +43,24 @@ FRAME VISIBILITY MANAGEMENT
 ##########################################################
 ]]--
 function SV:AddToDisplayAudit(frame)
-    if frame.IsVisible and frame:GetName() then
-        self.DisplayAudit[frame:GetName()] = true
+    if frame.IsVisible and frame.GetParent then
+        DisplayFrames[frame] = frame:GetParent()
     end 
 end 
 
 function SV:FlushDisplayAudit()
     if InCombatLockdown() then return end 
-    for frame,_ in pairs(self.DisplayAudit)do 
-        if _G[frame] then 
-            _G[frame]:SetParent(SV.Cloaked)
-        end 
+    for frame,_ in pairs(DisplayFrames)do 
+        frame:SetParent(SV.Cloaked) 
     end 
     DisplayEventHandler:RegisterEvent("PLAYER_REGEN_DISABLED")
 end 
 
 function SV:PushDisplayAudit()
-    if InCombatLockdown() then return end 
-    for frame,_ in pairs(self.DisplayAudit)do 
-        if _G[frame] then 
-            _G[frame]:SetParent(UIParent)
-        end 
+    if InCombatLockdown() then return end
+    local default = self.UIParent
+    for frame,parent in pairs(DisplayFrames)do 
+        frame:SetParent(parent or default) 
     end 
     DisplayEventHandler:UnregisterEvent("PLAYER_REGEN_DISABLED")
 end 

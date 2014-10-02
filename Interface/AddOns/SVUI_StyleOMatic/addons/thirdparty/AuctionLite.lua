@@ -31,7 +31,8 @@ GET ADDON DATA
 ]]--
 local SV = _G["SVUI"];
 local L = SV.L;
-local STYLE = _G.StyleOMatic
+local STYLE = select(2, ...);
+local Schema = STYLE.Schema;
 --[[ 
 ########################################################## 
 AUCTIONLITE

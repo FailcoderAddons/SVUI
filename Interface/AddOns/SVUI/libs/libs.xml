@@ -4,6 +4,5 @@
     <Script file="CallbackHandler-1.0\CallbackHandler-1.0.lua"/>
     <Script file="LibSharedMedia-3.0\LibSharedMedia-3.0.lua"/>
     <Script file="LibActionButton-1.0\LibActionButton-1.0.lua"/>
-    <Script file="LibDataBroker-1.1\LibDataBroker-1.1.lua"/>
     <Include file="oUF_Villain\oUF_Villain.xml"/>
 </Ui>
