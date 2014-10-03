@@ -363,10 +363,10 @@ function MOD:Layout(isBank, isReagent)
 		if (not isReagent and (not isBank and bagID <= 3) or (isBank and bagID ~= -1 and numContainerSlots >= 1 and not (i - 1 > numContainerSlots)))  then 
 			if not f.ContainerHolder[i] then
 				if isBank then
-					globalName = "SuperBankBag" .. (bagID - 4);
+					globalName = "SV_BankBag" .. (bagID - 4);
 					f.ContainerHolder[i] = NewFrame("CheckButton", globalName, f.ContainerHolder, "BankItemButtonBagTemplate")
 				else 
-					globalName = "SuperMainBag" .. bagID .. "Slot";
+					globalName = "SV_MainBag" .. bagID .. "Slot";
 					f.ContainerHolder[i] = NewFrame("CheckButton", globalName, f.ContainerHolder, "BagSlotButtonTemplate")
 				end
 				--f.ContainerHolder[i]:SetSlotTemplate(true, 2, 4, 4, true)
@@ -375,22 +375,18 @@ function MOD:Layout(isBank, isReagent)
 				f.ContainerHolder[i]:SetPushedTexture("")
 				f.ContainerHolder[i]:SetScript("OnClick", nil)
 				f.ContainerHolder[i].id = isBank and bagID or bagID + 1;
-				f.ContainerHolder[i]:HookScript("OnEnter", function(self) 
-					MOD.UseSlotFading(self, f) end)
-				f.ContainerHolder[i]:HookScript("OnLeave", function(self) 
-					MOD.FlushSlotFading(self, f) end)
-				if isBank then 
-					f.ContainerHolder[i]:SetID(bagID)
-					if not f.ContainerHolder[i].tooltipText then 
-						f.ContainerHolder[i].tooltipText = "" 
-					end 
+				f.ContainerHolder[i]:SetID(isBank and bagID or (bagID + 1))
+				f.ContainerHolder[i]:HookScript("OnEnter", function(self) MOD.UseSlotFading(self, f) end)
+				f.ContainerHolder[i]:HookScript("OnLeave", function(self) MOD.FlushSlotFading(self, f) end)
+				if(isBank and (not f.ContainerHolder[i].tooltipText)) then 
+					f.ContainerHolder[i].tooltipText = ""
 				end 
 				f.ContainerHolder[i].iconTexture = _G[f.ContainerHolder[i]:GetName().."IconTexture"];
 				f.ContainerHolder[i].iconTexture:FillInner()
 				f.ContainerHolder[i].iconTexture:SetTexCoord(0.1, 0.9, 0.1, 0.9 )
 			end 
 			f.ContainerHolder:Size(((buttonSize + buttonSpacing) * (isBank and i - 1 or i)) + buttonSpacing, buttonSize + (buttonSpacing * 2))
-			if isBank then 
+			if(isBank and f.ContainerHolder[i].GetInventorySlot) then 
 				BankFrameItemButton_Update(f.ContainerHolder[i])
 				BankFrameItemButton_UpdateLocked(f.ContainerHolder[i])
 			end 
@@ -479,7 +475,7 @@ function MOD:Layout(isBank, isReagent)
 				f.Bags[bagID].numSlots = numSlots;
 			end 
 			if(self.isBank and not self.isReagent) then 
-				if self.ContainerHolder[i] then 
+				if(self.ContainerHolder[i] and self.ContainerHolder[i].GetInventorySlot) then 
 					BankFrameItemButton_Update(self.ContainerHolder[i])
 					BankFrameItemButton_UpdateLocked(self.ContainerHolder[i])
 				end 

@@ -85,10 +85,6 @@ local PluginString = ""
 local AllowedIndexes, LoadOnDemand = {},{};
 local Callbacks, ScriptQueue = {},{};
 
-AllowedIndexes.G = {}
-AllowedIndexes.C = {}
-AllowedIndexes.P = {}
-
 local playerClass = select(2,UnitClass("player"));
 
 local INFO_FORMAT = "|cffFFFF00%s|r\n        |cff33FF00Version: %s|r |cff0099FFby %s|r";
@@ -452,16 +448,6 @@ function lib:UpdateDatabase(event)
                 removedefaults(sv[k], src[k])
             end
         end
-        for k,v in pairs(CACHE_SV) do
-            if(not AllowedIndexes.C[k]) then
-                CACHE_SV[k] = nil
-            end
-        end
-        for k,v in pairs(GLOBAL_SV) do
-            if(not AllowedIndexes.G[k]) then
-                GLOBAL_SV[k] = nil
-            end
-        end
     elseif(event == "ACTIVE_TALENT_GROUP_CHANGED") then
         if(PROFILE_SV.SAFEDATA and PROFILE_SV.SAFEDATA.dualSpecEnabled) then 
             SOURCE_KEY = GetSpecialization() or 1
@@ -498,7 +484,6 @@ end
 
 function lib:NewCache(index)
     index = index or CoreObject.Schema
-    AllowedIndexes.C[index] = index
     if(not CACHE_SV[index]) then
         CACHE_SV[index] = {}
     end
@@ -507,7 +492,6 @@ end
 
 function lib:NewGlobal(index)
     index = index or CoreObject.Schema
-    AllowedIndexes.G[index] = index
     if(not GLOBAL_SV[index]) then
         GLOBAL_SV[index] = {}
     end
@@ -801,7 +785,7 @@ function lib:NewPlugin(addonName, addonObject)
     if(not PLUGINS) then PLUGINS = {} end
 
     PLUGINS[#PLUGINS+1] = schema
-    AllowedIndexes.P[schema] = schema
+    AllowedIndexes[schema] = schema
 
     local infoString = SetPluginString(addonName)
     local oldString = PluginString
@@ -879,7 +863,7 @@ local Core_NewPackage = function(self, schema, header)
     if(not MODULES) then MODULES = {} end
     MODULES[#MODULES+1] = schema
 
-    AllowedIndexes.P[schema] = schema
+    AllowedIndexes[schema] = schema
 
     local addonName = ("SVUI [%s]"):format(schema)
 
@@ -993,9 +977,6 @@ function lib:Initialize()
         GLOBAL_SV.profileKeys[k] = k
     end
 
-    AllowedIndexes.G["profileKeys"] = "profileKeys"
-    AllowedIndexes.G["profiles"] = "profiles"
-
     --CACHE SAVED VARIABLES
     if not _G[CACHE_FILENAME] then _G[CACHE_FILENAME] = {} end
     CACHE_SV = _G[CACHE_FILENAME]
@@ -1033,7 +1014,7 @@ function lib:Initialize()
                     tablecopy(v, PROFILE_SV.STORED[1][coreSchema])
                 elseif(k == "media" or k == "filter") then
                     PROFILE_SV.STORED[1][coreSchema][k] = v
-                elseif(AllowedIndexes.P[k]) then
+                elseif(AllowedIndexes[k]) then
                     PROFILE_SV.STORED[1][k] = v
                 end
             end

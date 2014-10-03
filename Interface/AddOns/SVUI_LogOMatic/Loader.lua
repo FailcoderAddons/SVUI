@@ -32,18 +32,4 @@ CONFIG DATA
 ]]--
 SV.configs[Schema] = {
 	["enable"] = true,
-	["saveChats"] = false
-}
---[[ 
-########################################################## 
-CONFIG OPTIONS
-##########################################################
-]]--
-SV.Options.args.plugins.args.pluginOptions.args[Schema].args["saveChats"] = {
-    order = 2, 
-    name = L["Save Chats"], 
-    desc = L["Retain chat messages even after logging out."],
-    type = "toggle",
-    get = function(key) return SV.db[Schema][key[#key]] end,
-    set = function(key,value) PLUGIN:ChangeDBVar(value, key[#key]); SV:StaticPopup_Show("RL_CLIENT") end
 }

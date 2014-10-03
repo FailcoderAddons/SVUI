@@ -95,7 +95,7 @@ AceGUI STYLE
 ##########################################################
 ]]--
 local function StyleAceGUI(event, addon)
-	assert((LibStub("AceGUI-3.0") and (addon == SV.ConfigID)), "Addon Not Loaded")
+	assert((LibStub("AceGUI-3.0")), "Addon Not Loaded")
 	local AceGUI = LibStub("AceGUI-3.0")
 
 	local regWidget = AceGUI.RegisterAsWidget;
@@ -303,4 +303,4 @@ end
 STYLE LOADING
 ##########################################################
 ]]--
-STYLE:SaveAddonStyle("ConfigOMatic", StyleAceGUI, nil, true)
+STYLE:SaveAddonStyle("AceGUI", StyleAceGUI, nil, true)

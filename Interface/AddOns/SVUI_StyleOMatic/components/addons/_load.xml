@@ -1,4 +1,5 @@
 ﻿<Ui xmlns="http://www.blizzard.com/wow/ui/">
+	<Script file='Ace3.lua'/>
 	<Script file='ACP.lua'/>
 	<Script file='AdiBags.lua'/>
 	<Script file='Altoholic.lua'/>

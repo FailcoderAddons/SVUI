@@ -36,8 +36,5 @@
     </Frame>
 	<Script file='Loader.lua'/>
     <Script file='SVUI_CraftOMatic.lua'/>
-	<Script file="modes\archaeology.lua"/>
-	<Script file="modes\cooking.lua"/>
-	<Script file="modes\fishing.lua"/>
-	<Script file="modes\farming.lua"/>
+    <Include file="components\_load.xml"/>
 </Ui>

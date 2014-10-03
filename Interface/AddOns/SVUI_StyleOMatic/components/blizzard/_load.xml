@@ -1,5 +1,4 @@
 ﻿<Ui xmlns="http://www.blizzard.com/wow/ui/">
-	<Script file='supervillain.lua'/>
 	<Script file='achievement.lua'/>
 	<Script file='alert.lua'/>
 	<Script file='archeology.lua'/>
@@ -49,5 +48,4 @@
 	<Script file='worldstate.lua'/>
 	<Script file='store.lua'/>
 	<Script file='system.lua'/>
-	<Include file='thirdparty\_load.xml'/>
 </Ui>

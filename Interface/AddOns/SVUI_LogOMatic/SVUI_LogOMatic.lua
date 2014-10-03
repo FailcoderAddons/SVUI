@@ -53,27 +53,6 @@ LOCAL VARIABLES
 local nameKey = UnitName("player");
 local realmKey = GetRealmName();
 local NewHook = hooksecurefunc;
-local LoggingEvents = {
-	"CHAT_MSG_CHANNEL",
-	"CHAT_MSG_EMOTE",
-	"CHAT_MSG_GUILD_ACHIEVEMENT",
-	"CHAT_MSG_RAID_WARNING",
-	"CHAT_MSG_SAY",
-	"CHAT_MSG_YELL",
-	"CHAT_MSG_WHISPER_INFORM",
-	"CHAT_MSG_WHISPER",
-	"CHAT_MSG_GUILD",
-	"CHAT_MSG_OFFICER",
-	"CHAT_MSG_PARTY",
-	"CHAT_MSG_PARTY_LEADER",
-	"CHAT_MSG_RAID",
-	"CHAT_MSG_RAID_LEADER",
-	"CHAT_MSG_INSTANCE_CHAT",
-	"CHAT_MSG_INSTANCE_CHAT_LEADER",
-	"CHAT_MSG_BN_CONVERSATION",
-	"CHAT_MSG_BN_WHISPER",
-	"CHAT_MSG_BN_WHISPER_INFORM"
-};
 --[[ 
 ########################################################## 
 CORE DATA
@@ -191,76 +170,10 @@ end
 CORE FUNCTIONS
 ##########################################################
 ]]--
-function CHAT:LoadSavedChatLog()
-	local temp, data = {}
-	for id, _ in pairs(LogOMatic_Cache["chat"]) do
-		tinsert(temp, tonumber(id))
-	end
-	tsort(temp, function(a, b)
-		return a < b
-	end)
-	for i = 1, #temp do
-		data = LogOMatic_Cache["chat"][tostring(temp[i])]
-		if type(data) == "table" and data[20] ~= nil then
-			self.timeOverride = temp[i]
-			ChatFrame_MessageEventHandler(DEFAULT_CHAT_FRAME, data[20], unpack(data))
-		end
-	end
-end
-
-function CHAT:LogCurrentChat(event, ...)
-	local temp = {}
-	for i = 1, select('#', ...) do	
-		temp[i] = select(i, ...) or false
-	end
-	if #temp > 0 then
-	  temp[20] = event
-	  local randomTime = select(2, ("."):split(GetTime() or "0."..random(1, 999), 2)) or 0;
-	  local timeForMessage = time().."."..randomTime;
-	  LogOMatic_Cache["chat"][timeForMessage] = temp
-		local c, k = 0
-		for id, data in pairs(LogOMatic_Cache["chat"]) do
-			c = c + 1
-			if (not k) or k > id then
-				k = id
-			end
-		end
-		if c > 128 then
-			LogOMatic_Cache["chat"][k] = nil
-		end	  
-	end
-end 
-
-function CHAT:PLAYER_ENTERING_WORLD()
-	local temp, data = {}
-	for id, _ in pairs(LogOMatic_Cache["chat"]) do
-		tinsert(temp, tonumber(id))
-	end
-	tsort(temp, function(a, b)
-		return a < b
-	end)
-	for i = 1, #temp do
-		data = LogOMatic_Cache["chat"][tostring(temp[i])]
-		if type(data) == "table" and data[20] ~= nil then
-			ChatFrame_MessageEventHandler(DEFAULT_CHAT_FRAME, data[20], unpack(data))
-		end
-	end
-	self:UnregisterEvent("PLAYER_ENTERING_WORLD")
-end 
-
 function PLUGIN:AppendBankFunctions()
 	local BAGS = SV.SVBag;
 	if(BAGS.BankFrame) then
 		BAGS.BankFrame.RefreshBagsSlots = RefreshLoggedBagsSlots
-	end
-end
-
-function PLUGIN:AppendChatFunctions()
-	if SV.db.SVChat.enable and SV.db[Schema].saveChats then
-		for _,event in pairs(LoggingEvents) do
-			SV.SVChat:RegisterEvent(event, "LogCurrentChat")
-		end
-		SV.SVChat:RegisterEvent("PLAYER_ENTERING_WORLD")
 	end
 end
 --[[ 
@@ -306,8 +219,6 @@ function PLUGIN:Load()
 	self.chronicle = LogOMatic_Data[realmKey]["quests"][nameKey];
 
 	NewHook(SV, "ResetAllUI", ResetAllLogs);
-
-	if not LogOMatic_Cache["chat"] then LogOMatic_Cache["chat"] = {} end 
 	
 	for alt,_ in pairs(LogOMatic_Data[realmKey]["bags"]) do
 		for bag,items in pairs(LogOMatic_Data[realmKey]["bags"][alt]) do
@@ -330,8 +241,4 @@ function PLUGIN:Load()
 	if SV.db.SVTip.enable then
 		GameTooltip:HookScript("OnTooltipSetItem", GameTooltip_LogTooltipSetItem)
 	end
-
-	--[[ APPLY HOOKS ]]--
-	self:AppendChatFunctions()
-	NewHook(CHAT, "ReLoad", self.AppendChatFunctions)
 end

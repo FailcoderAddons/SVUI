@@ -39,7 +39,6 @@ local L = SV.L;
 local Mentalo = {}
 
 Mentalo.Frames = {}
-Mentalo.Anchors = {}
 
 local MentaloUpdateHandler = CreateFrame("Frame", nil)
 
@@ -612,10 +611,7 @@ function Mentalo:HasMoved(frame)
 end 
 
 function Mentalo:SaveMovable(frame)
-	if not _G[frame] then return end 
-	if not self.Anchors then 
-		self.Anchors = {}
-	end 
+	if(not _G[frame] or not self.Anchors) then return end 
 	self.Anchors[frame] = CurrentPosition(_G[frame])
 end 
 
@@ -671,8 +667,10 @@ function Mentalo:Reset(request)
 					end 
 				end
 			end 
+		end
+		if(self.Anchors) then 
+			self.Anchors = {}
 		end 
-		wipe(self.Anchors)
 	else 
 		for name, _ in pairs(self.Frames)do
 			if self.Frames[name]["point"] then
@@ -684,7 +682,7 @@ function Mentalo:Reset(request)
 							local u, v, w, x, y = split("\031", self.Frames[name]["point"])
 							frame:ClearAllPoints()
 							frame:SetPoint(u, v, w, x, y)
-							if self.Anchors then 
+							if(self.Anchors and self.Anchors[name]) then 
 								self.Anchors[name] = nil 
 							end 
 							if (self.Frames[name]["postdrag"] ~= nil and type(self.Frames[name]["postdrag"]) == "function")then 

@@ -1,15 +1,64 @@
+--[[
+##############################################################################
+_____/\\\\\\\\\\\____/\\\________/\\\__/\\\________/\\\__/\\\\\\\\\\\_       #
+ ___/\\\/////////\\\_\/\\\_______\/\\\_\/\\\_______\/\\\_\/////\\\///__      #
+  __\//\\\______\///__\//\\\______/\\\__\/\\\_______\/\\\_____\/\\\_____     #
+   ___\////\\\__________\//\\\____/\\\___\/\\\_______\/\\\_____\/\\\_____    #
+    ______\////\\\________\//\\\__/\\\____\/\\\_______\/\\\_____\/\\\_____   #
+     _________\////\\\______\//\\\/\\\_____\/\\\_______\/\\\_____\/\\\_____  #
+      __/\\\______\//\\\______\//\\\\\______\//\\\______/\\\______\/\\\_____ #
+       _\///\\\\\\\\\\\/________\//\\\________\///\\\\\\\\\/____/\\\\\\\\\\\_#
+        ___\///////////___________\///___________\/////////_____\///////////_#
+##############################################################################
+S U P E R - V I L L A I N - U I   By: Munglunch                              #
+##############################################################################
+########################################################## 
+LOCALIZED LUA FUNCTIONS
+##########################################################
+]]--
+--[[ GLOBALS ]]--
+local _G = _G;
+local unpack    = _G.unpack;
+local select    = _G.select;
+local pairs     = _G.pairs;
+local type      = _G.type;
+local tostring  = _G.tostring;
+local tonumber  = _G.tonumber;
+local tinsert   = _G.tinsert;
+local tremove   = _G.tremove;
+local string    = _G.string;
+local math      = _G.math;
+local bit       = _G.bit;
+local table     = _G.table;
+--[[ STRING METHODS ]]--
+local format, find, lower, match = string.format, string.find, string.lower, string.match;
+--[[ MATH METHODS ]]--
+local abs, ceil, floor, round = math.abs, math.ceil, math.floor, math.round;  -- Basic
+local fmod, modf, sqrt = math.fmod, math.modf, math.sqrt;   -- Algebra
+local atan2, cos, deg, rad, sin = math.atan2, math.cos, math.deg, math.rad, math.sin;  -- Trigonometry
+local min, huge, random = math.min, math.huge, math.random;  -- Uncommon
+local sqrt2, max = math.sqrt(2), math.max;
+--[[ TABLE METHODS ]]--
+local tcopy, twipe, tsort, tconcat, tdump = table.copy, table.wipe, table.sort, table.concat, table.dump;
+--[[ BINARY METHODS ]]--
+local band = bit.band;
+--[[ 
+########################################################## 
+GET ADDON DATA
+##########################################################
+]]--
 local oUF = oUF_Villain or oUF
 assert(oUF, 'oUF not loaded')
 
 local PLUGIN = select(2, ...);
 
-local max, floor = math.max, math.floor;
-local tinsert, tremove, tsort, twipe = table.insert, table.remove, table.sort, table.wipe;
+local GPS_UpdateHandler = CreateFrame("Frame");
 
 local playerGUID = UnitGUID("player")
-local _FRAMES, _PROXIMITY, OnUpdateFrame = {}, {}
+local _FRAMES, _PROXIMITY = {}, {}
 local minThrottle = 0.02
 local numArrows, inRange, GPS
+local Triangulate = Triangulate
 --[[ 
 ########################################################## 
 oUF TAGS
@@ -99,6 +148,75 @@ oUF.Tags.Methods["distance"] = function(unit)
 end
 --[[ 
 ########################################################## 
+GPS CONSTRUCTOR
+##########################################################
+]]--
+local GPS_Rotate_Arrow = function(self, angle)
+    local radius, ULx, ULy, LLx, LLy, URx, URy, LRx, LRy
+
+    radius = angle - 0.785398163
+    URx = 0.5 + cos(radius) / sqrt2
+    URy =  0.5 + sin(radius) / sqrt2
+    -- (-1)
+    radius = angle + 0.785398163
+    LRx = 0.5 + cos(radius) / sqrt2
+    LRy =  0.5 + sin(radius) / sqrt2
+    -- 1
+    radius = angle + 2.35619449
+    LLx = 0.5 + cos(radius) / sqrt2
+    LLy =  0.5 + sin(radius) / sqrt2
+    -- 3
+    radius = angle + 3.92699082
+    ULx = 0.5 + cos(radius) / sqrt2
+    ULy =  0.5 + sin(radius) / sqrt2
+    -- 5
+    
+    self.Arrow:SetTexCoord(ULx, ULy, LLx, LLy, URx, URy, LRx, LRy);
+end
+
+local RefreshGPS = function(self, frame, template)
+    if(frame.GPS) then
+        local config = SV.db[Schema]
+        if(config.groups) then
+            frame.GPS.OnlyProximity = config.proximity
+            local actualSz = min(frame.GPS.DefaultSize, (frame:GetHeight() - 2))
+            if(not frame:IsElementEnabled("GPS")) then
+                frame:EnableElement("GPS")
+            end
+        else
+            if(frame:IsElementEnabled("GPS")) then
+                frame:DisableElement("GPS")
+            end
+        end
+    end 
+end
+
+local function CreateGPS(frame)
+    if not frame then return end
+    local size = 32
+
+    local gps = CreateFrame("Frame", nil, frame.InfoPanel)
+    gps:SetFrameLevel(99)
+    gps:Size(size, size)
+    gps.DefaultSize = size
+    gps:Point("RIGHT", frame, "RIGHT", 0, 0)
+
+    gps.Arrow = gps:CreateTexture(nil, "OVERLAY", nil, 7)
+    gps.Arrow:SetTexture([[Interface\AddOns\SVUI_TrackOMatic\artwork\GPS-ARROW]])
+    gps.Arrow:Size(size, size)
+    gps.Arrow:SetPoint("CENTER", gps, "CENTER", 0, 0)
+    gps.Arrow:SetVertexColor(0.1, 0.8, 0.8)
+    gps.Arrow:SetBlendMode("ADD")
+
+    gps.onMouseOver = true
+    gps.OnlyProximity = false
+
+    gps.Spin = GPS_Rotate_Arrow
+
+    frame.GPS = gps
+end
+--[[ 
+########################################################## 
 GPS ELEMENT
 ##########################################################
 ]]--
@@ -120,7 +238,7 @@ local Update = function(self, elapsed)
 					if(not unit or not (UnitInParty(unit) or UnitInRaid(unit)) or UnitIsUnit(unit, "player") or not UnitIsConnected(unit) or (not GPS.OnlyProximity and ((GPS.onMouseOver and (GetMouseFocus() ~= object)) or outOfRange))) then
 						GPS:Hide()
 					else
-						local distance, angle = Triangulate(unit)
+						local distance, angle = self.Track(unit)
 						if not angle then 
 							GPS:Hide()
 						else
@@ -178,15 +296,10 @@ end
 local Enable = function(self)
 	local unit = self.unit 
 	if(unit:find("raid") or unit:find("party")) then
-		if not self.GPS then PLUGIN:CreateGPS(self) end
+		if not self.GPS then CreateGPS(self) end
 		tinsert(_FRAMES, self)
 
-		if not OnUpdateFrame then
-			OnUpdateFrame = CreateFrame("Frame")
-			OnUpdateFrame:SetScript("OnUpdate", Update)
-		end
-
-		OnUpdateFrame:Show()
+		GPS_UpdateHandler:Show()
 		return true
 	end
 end
@@ -202,10 +315,15 @@ local Disable = function(self)
 			end
 		end
 
-		if #_FRAMES == 0 and OnUpdateFrame then
-			OnUpdateFrame:Hide()
+		if #_FRAMES == 0 and GPS_UpdateHandler then
+			GPS_UpdateHandler:Hide()
 		end
 	end
 end
 
-oUF:AddElement('GPS', nil, Enable, Disable)
+function PLUGIN:EnableGPS()
+	GPS_UpdateHandler.Track = Triangulate
+	GPS_UpdateHandler:SetScript("OnUpdate", Update)
+    oUF:AddElement('GPS', nil, Enable, Disable)
+    NewHook(SV.SVUnit, "RefreshUnitLayout", RefreshGPS)
+end

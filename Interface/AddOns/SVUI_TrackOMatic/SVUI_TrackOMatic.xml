@@ -1,8 +1,4 @@
 ﻿<Ui xmlns="http://www.blizzard.com/wow/ui/">
-    <Script file='Loader.lua'/>
-    <Script file='SVUI_TrackOMatic.lua'/>
-    <Script file='libs\oUF_GPS\oUF_GPS.lua'/>
-
 	<Frame name="SVUI_TrackingDoodad" movable="true" frameStrata="DIALOG">
         <Size x="70" y="70"/>
         <Anchors>
@@ -33,7 +29,6 @@
             </Layer>
         </Layers>
         <Scripts>
-            <OnLoad function="SVUI_TrackingDoodad_OnLoad"/>
             <OnDragStart>
                 _G["SVUI_TrackingDoodad"].moving = true;
                 _G["SVUI_TrackingDoodad"]:StartMoving();
@@ -44,4 +39,8 @@
             </OnDragStop>
         </Scripts>
     </Frame>
+
+    <Script file='Loader.lua'/>
+    <Script file='SVUI_TrackOMatic.lua'/>
+    <Include file='components\_load.xml'/>
 </Ui>

@@ -35,6 +35,7 @@ local Ace3Config = LibStub("AceConfig-3.0");
 local Ace3ConfigDialog = LibStub("AceConfigDialog-3.0");
 Ace3Config:RegisterOptionsTable(SV.NameID, SV.Options);
 Ace3ConfigDialog:SetDefaultSize(SV.NameID, 890, 651);
+
 local AceGUI = LibStub("AceGUI-3.0", true);
 local posOpts = {TOPLEFT='TOPLEFT',LEFT='LEFT',BOTTOMLEFT='BOTTOMLEFT',RIGHT='RIGHT',TOPRIGHT='TOPRIGHT',BOTTOMRIGHT='BOTTOMRIGHT',CENTER='CENTER',TOP='TOP',BOTTOM='BOTTOM'};
 local GEAR = SV.SVGear;
