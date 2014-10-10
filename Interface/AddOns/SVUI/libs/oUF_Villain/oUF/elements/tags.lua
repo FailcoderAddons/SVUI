@@ -1,6 +1,23 @@
 --[[
 -- Credits: Vika, Cladhaire, Tekkub
 ]]
+--GLOBAL NAMESPACE
+local _G = _G;
+--LUA
+local unpack        = _G.unpack;
+local select        = _G.select;
+local assert        = _G.assert;
+local error         = _G.error;
+local print         = _G.print;
+local pairs         = _G.pairs;
+local next          = _G.next;
+local rawset      	= _G.rawset;
+local type  		= _G.type;
+
+--BLIZZARD API
+local CreateFrame   = _G.CreateFrame;
+local UnitExists 	= _G.UnitExists;
+
 
 local parent, ns = ...
 local oUF = ns.oUF

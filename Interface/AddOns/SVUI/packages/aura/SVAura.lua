@@ -270,9 +270,9 @@ do
 			if aura.SetDisabledTexture then aura:SetDisabledTexture("") end
 			aura:SetBackdrop({
 				bgFile = [[Interface\BUTTONS\WHITE8X8]], 
-					tile = false, 
-					tileSize = 0, 
-					edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
+				tile = false, 
+				tileSize = 0, 
+				edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
 				edgeSize = 2, 
 				insets = {
 					left = 0, 
@@ -281,7 +281,7 @@ do
 					bottom = 0
 				}
 			 })
-		 	aura:SetBackdropColor(0, 0, 0, 0)
+		 	aura:SetBackdropColor(0, 0, 0)
 		 	aura:SetBackdropBorderColor(0, 0, 0)
 		 	local cd = aura:GetName() and _G[aura:GetName().."Cooldown"]
 			if cd then 
@@ -290,6 +290,7 @@ do
 			end 
 			aura.Skinned = true
 		end
+		
 		local font = LSM:Fetch("font", SV.db.SVAura.font)
 		aura.texture = aura:CreateTexture(nil, "BORDER")
 		aura.texture:FillInner(aura, 2, 2)

@@ -1,3 +1,19 @@
+--GLOBAL NAMESPACE
+local _G = _G;
+--LUA
+local unpack        = _G.unpack;
+local select        = _G.select;
+local assert        = _G.assert;
+local type         	= _G.type;
+--BLIZZARD API
+local UnitIsConnected 		= _G.UnitIsConnected;
+local UnitIsTappedByPlayer 	= _G.UnitIsTappedByPlayer;
+local UnitIsTapped       	= _G.UnitIsTapped;
+local UnitIsPlayer       	= _G.UnitIsPlayer;
+local UnitIsFriend       	= _G.UnitIsFriend;
+local UnitIsDeadOrGhost  	= _G.UnitIsDeadOrGhost;
+local UnitClassification 	= _G.UnitClassification;
+
 local parent, ns = ...
 local oUF = ns.oUF
 

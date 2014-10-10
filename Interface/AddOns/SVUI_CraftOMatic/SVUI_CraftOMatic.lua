@@ -17,14 +17,6 @@ LOCALIZED LUA FUNCTIONS
 ##########################################################
 ]]--
 
---[[  CONSTANTS ]]--
-
-BINDING_HEADER_SVUICRAFT = "Supervillain UI: Craft-O-Matic";
-BINDING_NAME_SVUICRAFT_FISH = "Toggle Fishing Mode";
-BINDING_NAME_SVUICRAFT_FARM = "Toggle Farming Mode";
-BINDING_NAME_SVUICRAFT_COOK = "Toggle Cooking Mode";
-BINDING_NAME_SVUICRAFT_ARCH = "Toggle Archaeology Mode";
-
 --[[ GLOBALS ]]--
 
 local _G = _G;
@@ -37,6 +29,15 @@ local table 	= _G.table;
 local rept      = string.rep; 
 local tsort,twipe = table.sort,table.wipe;
 local floor,ceil  = math.floor, math.ceil;
+
+--[[  CONSTANTS ]]--
+
+_G.BINDING_HEADER_SVUICRAFT = "Supervillain UI: Craft-O-Matic";
+_G.BINDING_NAME_SVUICRAFT_FISH = "Toggle Fishing Mode";
+_G.BINDING_NAME_SVUICRAFT_FARM = "Toggle Farming Mode";
+_G.BINDING_NAME_SVUICRAFT_COOK = "Toggle Cooking Mode";
+_G.BINDING_NAME_SVUICRAFT_ARCH = "Toggle Archaeology Mode";
+
 --[[ 
 ########################################################## 
 GET ADDON DATA
@@ -133,10 +134,10 @@ local function CheckForDoubleClick()
 end
 --[[ 
 ########################################################## 
-CORE FUNCTIONS
+WORLDFRAME HANDLER
 ##########################################################
 ]]--
-function PLUGIN:WorldFrameHook(button)
+local _hook_WorldFrame_OnMouseDown = function(self, button)
 	if InCombatLockdown() then return end
 	if(currentModeKey and button == "RightButton" and CheckForDoubleClick()) then
 		local handle = PLUGIN[currentModeKey];
@@ -146,7 +147,7 @@ function PLUGIN:WorldFrameHook(button)
 	end
 end
 
-function SVUI_ModeCaptureWindow:PostClickHandler()
+local ModeCapture_PostClickHandler = function(self, button)
 	if InCombatLockdown() then 
 		self:RegisterEvent("PLAYER_REGEN_ENABLED")
 		return 
@@ -155,6 +156,36 @@ function SVUI_ModeCaptureWindow:PostClickHandler()
 	self.Grip:Hide()
 end
 
+local ModeCapture_EventHandler = function(self, event, ...)
+	if event == "PLAYER_REGEN_ENABLED" then
+		self:UnregisterEvent("PLAYER_REGEN_ENABLED")
+		PLUGIN:ChangeModeGear()
+		self:GetScript("PostClick")()
+	end
+	if event == "PLAYER_ENTERING_WORLD" then
+		if (IsSpellKnown(131474) or IsSpellKnown(80451) or IsSpellKnown(818)) then
+			WorldFrame:HookScript("OnMouseDown", _hook_WorldFrame_OnMouseDown)
+		end
+		self:UnregisterEvent("PLAYER_ENTERING_WORLD")
+	end
+end
+
+local ModeHandler = CreateFrame("Frame")
+ModeHandler:SetPoint("LEFT", UIParent, "RIGHT", 10000, 0)
+local ModeCapture = CreateFrame("Button", "SVUI_ModeCaptureWindow", ModeHandler, "SecureActionButtonTemplate")
+ModeCapture.Grip = ModeHandler
+ModeCapture:EnableMouse(true)
+ModeCapture:RegisterForClicks("RightButtonUp")
+ModeCapture:RegisterEvent("PLAYER_ENTERING_WORLD")
+ModeCapture:SetScript("PostClick", ModeCapture_PostClickHandler)
+ModeCapture:SetScript("OnEvent", ModeCapture_EventHandler)
+
+ModeCapture:Hide()
+--[[ 
+########################################################## 
+CORE FUNCTIONS
+##########################################################
+]]--
 function PLUGIN:CraftingReset()
 	self.TitleWindow:Clear();
 	self.LogWindow:Clear();
@@ -531,5 +562,6 @@ function PLUGIN:Load()
 	self:LoadFishingMode()
 	self:LoadArchaeologyMode()
 	self:PrepareFarmingTools()
+	
 	self:RegisterEvent("SKILL_LINES_CHANGED")
 end

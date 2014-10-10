@@ -16,19 +16,52 @@ S U P E R - V I L L A I N - U I   By: Munglunch                              #
 LOCALIZED LUA FUNCTIONS
 ##########################################################
 ]]--
---[[ GLOBALS ]]--
+--GLOBAL NAMESPACE
 local _G = _G;
-local unpack    = _G.unpack;
-local select    = _G.select;
-local pairs     = _G.pairs;
-local tonumber  = _G.tonumber;
-local string    = _G.string;
-local table     = _G.table;
---[[ STRING METHODS ]]--
-local find, format, len, upper = string.find, string.format, string.len, string.upper;
-local match, sub, gsub = string.match, string.sub, string.gsub;
---[[ TABLE METHODS ]]--
-local twipe = table.wipe;
+--LUA
+local unpack        = _G.unpack;
+local select        = _G.select;
+local assert        = _G.assert;
+local type          = _G.type;
+local error         = _G.error;
+local pcall         = _G.pcall;
+local print         = _G.print;
+local ipairs        = _G.ipairs;
+local pairs         = _G.pairs;
+local next          = _G.next;
+local rawset        = _G.rawset;
+local rawget        = _G.rawget;
+local tostring      = _G.tostring;
+local tonumber      = _G.tonumber;
+local getmetatable  = _G.getmetatable;
+local setmetatable  = _G.setmetatable;
+--STRING
+local string        = _G.string;
+local upper         = string.upper;
+local format        = string.format;
+local find          = string.find;
+local match         = string.match;
+local gsub          = string.gsub;
+local len          	= string.len;
+local sub          	= string.sub;
+--MATH
+local math          = _G.math;
+local floor         = math.floor
+--TABLE
+local table         = _G.table;
+local tsort         = table.sort;
+local tconcat       = table.concat;
+local tinsert       = _G.tinsert;
+local tremove       = _G.tremove;
+local twipe         = _G.wipe;
+--BLIZZARD API
+local time 					= _G.time;
+local difftime 				= _G.difftime;
+local BetterDate 			= _G.BetterDate;
+local ReloadUI              = _G.ReloadUI;
+local UnitName   			= _G.UnitName;
+local IsInGroup             = _G.IsInGroup;
+local CreateFrame           = _G.CreateFrame;
 --[[ 
 ########################################################## 
 GET ADDON DATA
@@ -83,25 +116,26 @@ local THROTTLE_CACHE = {}
 INIT SETTINGS
 ##########################################################
 ]]--
-CHAT_GUILD_GET = "|Hchannel:GUILD|hG|h %s ";
-CHAT_OFFICER_GET = "|Hchannel:OFFICER|hO|h %s ";
-CHAT_RAID_GET = "|Hchannel:RAID|hR|h %s ";
-CHAT_RAID_WARNING_GET = "RW %s ";
-CHAT_RAID_LEADER_GET = "|Hchannel:RAID|hRL|h %s ";
-CHAT_PARTY_GET = "|Hchannel:PARTY|hP|h %s ";
-CHAT_PARTY_LEADER_GET = "|Hchannel:PARTY|hPL|h %s ";
-CHAT_PARTY_GUIDE_GET = "|Hchannel:PARTY|hPG|h %s ";
-CHAT_INSTANCE_CHAT_GET = "|Hchannel:Battleground|hI.|h %s: ";
-CHAT_INSTANCE_CHAT_LEADER_GET = "|Hchannel:Battleground|hIL.|h %s: ";
-CHAT_WHISPER_INFORM_GET = "to %s ";
-CHAT_WHISPER_GET = "from %s ";
-CHAT_BN_WHISPER_INFORM_GET = "to %s ";
-CHAT_BN_WHISPER_GET = "from %s ";
-CHAT_SAY_GET = "%s ";
-CHAT_YELL_GET = "%s ";
-CHAT_FLAG_AFK = "[AFK] ";
-CHAT_FLAG_DND = "[DND] ";
-CHAT_FLAG_GM = "[GM] ";
+local CHAT_FRAMES = _G.CHAT_FRAMES
+local CHAT_GUILD_GET = "|Hchannel:GUILD|hG|h %s ";
+local CHAT_OFFICER_GET = "|Hchannel:OFFICER|hO|h %s ";
+local CHAT_RAID_GET = "|Hchannel:RAID|hR|h %s ";
+local CHAT_RAID_WARNING_GET = "RW %s ";
+local CHAT_RAID_LEADER_GET = "|Hchannel:RAID|hRL|h %s ";
+local CHAT_PARTY_GET = "|Hchannel:PARTY|hP|h %s ";
+local CHAT_PARTY_LEADER_GET = "|Hchannel:PARTY|hPL|h %s ";
+local CHAT_PARTY_GUIDE_GET = "|Hchannel:PARTY|hPG|h %s ";
+local CHAT_INSTANCE_CHAT_GET = "|Hchannel:Battleground|hI.|h %s: ";
+local CHAT_INSTANCE_CHAT_LEADER_GET = "|Hchannel:Battleground|hIL.|h %s: ";
+local CHAT_WHISPER_INFORM_GET = "to %s ";
+local CHAT_WHISPER_GET = "from %s ";
+local CHAT_BN_WHISPER_INFORM_GET = "to %s ";
+local CHAT_BN_WHISPER_GET = "from %s ";
+local CHAT_SAY_GET = "%s ";
+local CHAT_YELL_GET = "%s ";
+local CHAT_FLAG_AFK = "[AFK] ";
+local CHAT_FLAG_DND = "[DND] ";
+local CHAT_FLAG_GM = "[GM] ";
 --[[ 
 ########################################################## 
 LOCAL FUNCTIONS
@@ -260,7 +294,7 @@ do
 	local ChatEventFilter = function(self, event, message, author, ...)
 		local filter = nil
 		if locale == 'enUS' or locale == 'enGB' then
-			if strfind(message, '[\227-\237]') then
+			if message:find('[\227-\237]') then
 				filter = true
 			end
 		end

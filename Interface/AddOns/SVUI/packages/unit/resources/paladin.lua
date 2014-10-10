@@ -179,7 +179,7 @@ function MOD:CreateClassBar(playerFrame)
 	end 
 	bar.Override = Update;
 	
-	local classBarHolder = CreateFrame("Frame", "Player_ClassBar", classBar)
+	local classBarHolder = CreateFrame("Frame", "Player_ClassBar", bar)
 	classBarHolder:Point("TOPLEFT", playerFrame, "BOTTOMLEFT", 0, -2)
 	bar:SetPoint("TOPLEFT", classBarHolder, "TOPLEFT", 0, 0)
 	bar.Holder = classBarHolder

@@ -267,7 +267,7 @@ function MOD:CreateClassBar(playerFrame)
 		end
 	}
 	
-	local classBarHolder = CreateFrame("Frame", "Player_ClassBar", classBar)
+	local classBarHolder = CreateFrame("Frame", "Player_ClassBar", bar)
 	classBarHolder:Point("TOPLEFT", playerFrame, "BOTTOMLEFT", 0, -2)
 	bar:SetPoint("TOPLEFT", classBarHolder, "TOPLEFT", 0, 0)
 	bar.Holder = classBarHolder
@@ -309,7 +309,7 @@ local ShowSmallPoint = function(self)
 	self:SetAlpha(1)
 end 
 
-local HideSmallPoint = function(self)
+local HideSmallPoint = function(self, i)
 	self.Icon:SetVertexColor(unpack(cpointColor[i]))
 	self:SetAlpha(0)
 end 

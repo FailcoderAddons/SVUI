@@ -16,17 +16,17 @@ S U P E R - V I L L A I N - U I   By: Munglunch                              #
 LOCALIZED LUA FUNCTIONS
 ##########################################################
 ]]--
-if(select(4, GetBuildInfo()) >= 60000) then return end;
 --[[ GLOBALS ]]--
 local _G = _G;
-local unpack 	= _G.unpack;
-local select 	= _G.select;
-local pairs 	= _G.pairs;
-local tonumber	= _G.tonumber;
-local tinsert 	= _G.tinsert;
-local table 	= _G.table;
-local bit 		= _G.bit;
-
+local unpack 		= _G.unpack;
+local select 		= _G.select;
+local pairs 		= _G.pairs;
+local tonumber		= _G.tonumber;
+local tinsert 		= _G.tinsert;
+local table 		= _G.table;
+local math 			= _G.math;
+local bit 			= _G.bit;
+local random 		= math.random; 
 local twipe,band 	= table.wipe, bit.band;
 --[[ 
 ########################################################## 
@@ -41,14 +41,55 @@ LOCAL VARIABLES
 ##########################################################
 ]]--
 local ttSummary = "";
+local NewHook = hooksecurefunc;
+local CountMounts, MountInfo, RandomMount, MountUp, UnMount;
+
 local MountListener = CreateFrame("Frame");
+MountListener.favorites = 0
 --[[ 
 ########################################################## 
 LOCAL FUNCTIONS
 ##########################################################
 ]]--
+if(select(4, GetBuildInfo()) >= 60000) then
+	function CountMounts()
+		return C_MountJournal.GetNumMounts()
+	end
+	function MountInfo(index)
+		return C_MountJournal.GetMountInfo(index)
+	end
+	function RandomMount()
+		if(MountListener.favorites > 0) then
+			return 0
+		end
+		maxMounts = C_MountJournal.GetNumMounts()
+		return random(1, maxMounts)
+	end
+	function MountUp(index)
+		index = index or RandomMount()
+		return C_MountJournal.Summon(index)
+	end
+	UnMount = C_MountJournal.Dismiss
+else
+	function CountMounts()
+		return GetNumCompanions("MOUNT")
+	end
+	function MountInfo(index)
+		return GetCompanionInfo("MOUNT", index)
+	end
+	function RandomMount()
+		maxMounts = GetNumCompanions("MOUNT")
+		return random(1, maxMounts)
+	end
+	function MountUp(index)
+		index = index or random(1, maxMounts)
+		return CallCompanion("MOUNT", index)
+	end
+	UnMount = Dismount
+end
+
 local function UpdateMountCheckboxes(button, index)
-	local _, creatureName = GetCompanionInfo("MOUNT", index);
+	local _, creatureName = MountInfo(index);
 
 	local n = button.MountBar
 	local bar = _G[n]
@@ -63,36 +104,36 @@ local function UpdateMountCheckboxes(button, index)
 	    bar["SPECIAL"].index = index
 	    bar["SPECIAL"].name = creatureName
 
-		if(MountCache.names["GROUND"] == creatureName) then
-			if(MountCache.types["GROUND"] ~= index) then
-				MountCache.types["GROUND"] = index
+		if(SV.cache.Mounts.names["GROUND"] == creatureName) then
+			if(SV.cache.Mounts.types["GROUND"] ~= index) then
+				SV.cache.Mounts.types["GROUND"] = index
 			end
 			bar["GROUND"]:SetChecked(1)
 		else
 			bar["GROUND"]:SetChecked(0)
 		end
 
-		if(MountCache.names["FLYING"] == creatureName) then
-			if(MountCache.types["FLYING"] ~= index) then
-				MountCache.types["FLYING"] = index
+		if(SV.cache.Mounts.names["FLYING"] == creatureName) then
+			if(SV.cache.Mounts.types["FLYING"] ~= index) then
+				SV.cache.Mounts.types["FLYING"] = index
 			end
 			bar["FLYING"]:SetChecked(1)
 		else
 			bar["FLYING"]:SetChecked(0)
 		end
 
-		if(MountCache.names["SWIMMING"] == creatureName) then
-			if(MountCache.types["SWIMMING"] ~= index) then
-				MountCache.types["SWIMMING"] = index
+		if(SV.cache.Mounts.names["SWIMMING"] == creatureName) then
+			if(SV.cache.Mounts.types["SWIMMING"] ~= index) then
+				SV.cache.Mounts.types["SWIMMING"] = index
 			end
 			bar["SWIMMING"]:SetChecked(1)
 		else
 			bar["SWIMMING"]:SetChecked(0)
 		end
 
-		if(MountCache.names["SPECIAL"] == creatureName) then
-			if(MountCache.types["SPECIAL"] ~= index) then
-				MountCache.types["SPECIAL"] = index
+		if(SV.cache.Mounts.names["SPECIAL"] == creatureName) then
+			if(SV.cache.Mounts.types["SPECIAL"] ~= index) then
+				SV.cache.Mounts.types["SPECIAL"] = index
 			end
 			bar["SPECIAL"]:SetChecked(1)
 		else
@@ -101,29 +142,29 @@ local function UpdateMountCheckboxes(button, index)
 	end
 end
 
-local function UpdateMountCache()
+local function UpdateMountsCache()
 	if(not MountJournal or not MountJournal.cachedMounts) then return end
-	local num = GetNumCompanions("MOUNT")
+	local num = CountMounts()
 	for index = 1, num, 1 do
-		local _, info, id = GetCompanionInfo("MOUNT", index)
-		if(MountCache.names["GROUND"] == info) then
-			if(MountCache.types["GROUND"] ~= index) then
-				MountCache.types["GROUND"] = index
+		local _, info, id = MountInfo(index)
+		if(SV.cache.Mounts.names["GROUND"] == info) then
+			if(SV.cache.Mounts.types["GROUND"] ~= index) then
+				SV.cache.Mounts.types["GROUND"] = index
 			end
 		end
-		if(MountCache.names["FLYING"] == info) then
-			if(MountCache.types["FLYING"] ~= index) then
-				MountCache.types["FLYING"] = index
+		if(SV.cache.Mounts.names["FLYING"] == info) then
+			if(SV.cache.Mounts.types["FLYING"] ~= index) then
+				SV.cache.Mounts.types["FLYING"] = index
 			end
 		end
-		if(MountCache.names["SWIMMING"] == info) then
-			if(MountCache.types["SWIMMING"] ~= index) then
-				MountCache.types["SWIMMING"] = index
+		if(SV.cache.Mounts.names["SWIMMING"] == info) then
+			if(SV.cache.Mounts.types["SWIMMING"] ~= index) then
+				SV.cache.Mounts.types["SWIMMING"] = index
 			end
 		end
-		if(MountCache.names["SPECIAL"] == info) then
-			if(MountCache.types["SPECIAL"] ~= index) then
-				MountCache.types["SPECIAL"] = index
+		if(SV.cache.Mounts.names["SPECIAL"] == info) then
+			if(SV.cache.Mounts.types["SPECIAL"] ~= index) then
+				SV.cache.Mounts.types["SPECIAL"] = index
 			end
 		end
 	end
@@ -148,7 +189,7 @@ end
 
 local ProxyUpdate_Mounts = function(self, event, ...)
 	if(event == "COMPANION_LEARNED" or event == "COMPANION_UNLEARNED") then
-		UpdateMountCache()
+		UpdateMountsCache()
 	end
 	Update_MountCheckButtons()
 end
@@ -157,29 +198,29 @@ local function UpdateCurrentMountSelection()
 	ttSummary = ""
 	local creatureName
 
-	if(MountCache.types["FLYING"]) then
-		creatureName = MountCache.names["FLYING"]
+	if(SV.cache.Mounts.types["FLYING"]) then
+		creatureName = SV.cache.Mounts.names["FLYING"]
 		if(creatureName) then
 			ttSummary = ttSummary .. "\nFlying: " .. creatureName
 		end
 	end
 
-	if(MountCache.types["SWIMMING"]) then
-		creatureName = MountCache.names["SWIMMING"]
+	if(SV.cache.Mounts.types["SWIMMING"]) then
+		creatureName = SV.cache.Mounts.names["SWIMMING"]
 		if(creatureName) then
 			ttSummary = ttSummary .. "\nSwimming: " .. creatureName
 		end
 	end
 
-	if(MountCache.types["GROUND"]) then
-		creatureName = MountCache.names["GROUND"]
+	if(SV.cache.Mounts.types["GROUND"]) then
+		creatureName = SV.cache.Mounts.names["GROUND"]
 		if(creatureName) then
 			ttSummary = ttSummary .. "\nGround: " .. creatureName
 		end
 	end
 
-	if(MountCache.types["SPECIAL"]) then
-		creatureName = MountCache.names["SPECIAL"]
+	if(SV.cache.Mounts.types["SPECIAL"]) then
+		creatureName = SV.cache.Mounts.names["SPECIAL"]
 		if(creatureName) then
 			ttSummary = ttSummary .. "\nSpecial: " .. creatureName
 		end
@@ -193,11 +234,11 @@ local CheckButton_OnClick = function(self)
 
 	if(index) then
 		if(self:GetChecked() == 1) then
-			MountCache.types[key] = index
-			MountCache.names[key] = name
+			SV.cache.Mounts.types[key] = index
+			SV.cache.Mounts.names[key] = name
 		else
-			MountCache.types[key] = false
-			MountCache.names[key] = ""
+			SV.cache.Mounts.types[key] = false
+			SV.cache.Mounts.names[key] = ""
 		end
 		Update_MountCheckButtons()
 		UpdateCurrentMountSelection()
@@ -232,17 +273,18 @@ ADDING CHECKBOXES TO JOURNAL
 ##########################################################
 ]]--
 local function SetMountCheckButtons()
-	MountCache = LibSuperVillain:NewCache("Mounts")
-	if not MountCache.types then 
-		MountCache.types = {
+	SV.cache.Mounts = SV.cache.Mounts or {}
+
+	if not SV.cache.Mounts.types then 
+		SV.cache.Mounts.types = {
 			["GROUND"] = false, 
 			["FLYING"] = false, 
 			["SWIMMING"] = false, 
 			["SPECIAL"] = false
 		}
 	end
-	if not MountCache.names then 
-		MountCache.names = {
+	if not SV.cache.Mounts.names then 
+		SV.cache.Mounts.names = {
 			["GROUND"] = "", 
 			["FLYING"] = "", 
 			["SWIMMING"] = "", 
@@ -250,10 +292,10 @@ local function SetMountCheckButtons()
 		} 
 	end
 
-	UpdateMountCache()
+	UpdateMountsCache()
 
 	local scrollFrame = MountJournal.ListScrollFrame;
-	local scrollBar = _G["MountJournalListScrollFrameScrollBar"]
+	-- local scrollBar = _G["MountJournalListScrollFrameScrollBar"]
     local buttons = scrollFrame.buttons;
 
 	for i = 1, #buttons do
@@ -276,11 +318,7 @@ local function SetMountCheckButtons()
 	    buttonBar["GROUND"]:SetPanelColor(0.2, 0.7, 0.1, 0.15)
 	    buttonBar["GROUND"]:GetCheckedTexture():SetVertexColor(0.2, 0.7, 0.1, 1)
 	    buttonBar["GROUND"].key = "GROUND"
-		if(enabled) then
-			buttonBar["GROUND"]:SetChecked(1)
-		else
-			buttonBar["GROUND"]:SetChecked(0)
-		end
+		buttonBar["GROUND"]:SetChecked(0)
 		buttonBar["GROUND"]:SetScript("OnClick", CheckButton_OnClick)
 		buttonBar["GROUND"]:SetScript("OnEnter", CheckButton_OnEnter)
 		buttonBar["GROUND"]:SetScript("OnLeave", CheckButton_OnLeave)
@@ -293,11 +331,7 @@ local function SetMountCheckButtons()
 	    buttonBar["FLYING"]:SetPanelColor(1, 1, 0.2, 0.15)
 	    buttonBar["FLYING"]:GetCheckedTexture():SetVertexColor(1, 1, 0.2, 1)
 	    buttonBar["FLYING"].key = "FLYING"
-		if(enabled) then
-			buttonBar["FLYING"]:SetChecked(1)
-		else
-			buttonBar["FLYING"]:SetChecked(0)
-		end
+		buttonBar["FLYING"]:SetChecked(0)
 		buttonBar["FLYING"]:SetScript("OnClick", CheckButton_OnClick)
 		buttonBar["FLYING"]:SetScript("OnEnter", CheckButton_OnEnter)
 		buttonBar["FLYING"]:SetScript("OnLeave", CheckButton_OnLeave)
@@ -310,11 +344,7 @@ local function SetMountCheckButtons()
 	    buttonBar["SWIMMING"]:SetPanelColor(0.2, 0.42, 0.76, 0.15)
 	    buttonBar["SWIMMING"]:GetCheckedTexture():SetVertexColor(0.2, 0.42, 0.76, 1)
 	    buttonBar["SWIMMING"].key = "SWIMMING"
-		if(enabled) then
-			buttonBar["SWIMMING"]:SetChecked(1)
-		else
-			buttonBar["SWIMMING"]:SetChecked(0)
-		end
+		buttonBar["SWIMMING"]:SetChecked(0)
 		buttonBar["SWIMMING"]:SetScript("OnClick", CheckButton_OnClick)
 		buttonBar["SWIMMING"]:SetScript("OnEnter", CheckButton_OnEnter)
 		buttonBar["SWIMMING"]:SetScript("OnLeave", CheckButton_OnLeave)
@@ -327,11 +357,7 @@ local function SetMountCheckButtons()
 	    buttonBar["SPECIAL"]:SetPanelColor(0.7, 0.1, 0.1, 0.15)
 	    buttonBar["SPECIAL"]:GetCheckedTexture():SetVertexColor(0.7, 0.1, 0.1, 1)
 	    buttonBar["SPECIAL"].key = "SPECIAL"	
-		if(special) then
-			buttonBar["SPECIAL"]:SetChecked(1)
-		else
-			buttonBar["SPECIAL"]:SetChecked(0)
-		end
+		buttonBar["SPECIAL"]:SetChecked(0)
 		buttonBar["SPECIAL"]:SetScript("OnClick", CheckButton_OnClick)
 		buttonBar["SPECIAL"]:SetScript("OnEnter", CheckButton_OnEnter)
 		buttonBar["SPECIAL"]:SetScript("OnLeave", CheckButton_OnLeave)
@@ -342,8 +368,8 @@ local function SetMountCheckButtons()
 	end
 
 
-	scrollFrame:HookScript("OnMouseWheel", Update_MountCheckButtons)
-	scrollBar:HookScript("OnValueChanged", Update_MountCheckButtons)
+	-- scrollFrame:HookScript("OnMouseWheel", Update_MountCheckButtons)
+	-- scrollBar:HookScript("OnValueChanged", Update_MountCheckButtons)
 	UpdateCurrentMountSelection()
 
 	if(SV.GameVersion >= 60000) then
@@ -354,90 +380,52 @@ local function SetMountCheckButtons()
 	MountListener:RegisterEvent("COMPANION_UNLEARNED")
 	MountListener:RegisterEvent("COMPANION_UPDATE")
 	MountListener:SetScript("OnEvent", ProxyUpdate_Mounts)
+
+	NewHook("MountJournal_UpdateMountList", Update_MountCheckButtons)
 end
 --[[ 
 ########################################################## 
 SLASH FUNCTION
 ##########################################################
 ]]--
-function SVUILetsRide()
-	local checkList = MountCache.types
-	local letsFly, letsSwim, letsSeahorse, vjZone, IbelieveIcantFly
-	local maxMounts = GetNumCompanions("MOUNT")
+_G.SVUILetsRide = function()
+	local maxMounts = CountMounts()
+
 	if(not maxMounts or IsMounted()) then
-		Dismount()
+		UnMount()
 		return
 	end
+
 	if(CanExitVehicle()) then
 		VehicleExit()
 		return
 	end
-	if(IsUsableSpell(59569) == nil) then
-		IbelieveIcantFly = true
-	end
-	if(not IbelieveIcantFly and IsFlyableArea()) then
-		letsFly = true
-	end
-	for i = 1, 40 do
-		local auraID = select(11, UnitBuff("player", i))
-		if(auraID == 73701 or auraID == 76377) then
-			vjZone = true
-		end
-	end
-	if(vjZone and IsSwimming()) then
-		letsSeahorse = true
-	end
-	if(IsSwimming() and IbelieveIcantFly and not letsSeahorse) then
-		letsSwim = true
-	end
-	if(IsModifierKeyDown()) then
-		if(checkList["SPECIAL"]) then
-			CallCompanion("MOUNT", checkList["SPECIAL"])
-			return
-		elseif(checkList["GROUND"]) then
-			CallCompanion("MOUNT", checkList["GROUND"])
-			return
-		end
-	end
-	if(letsSeahorse) then
-		for index = 1, maxMounts, 1 do
-			local _, info, id = GetCompanionInfo("MOUNT", index)
-			if(letsSeahorse and id == 75207) then CallCompanion("MOUNT", index) end
-		end
-	end
-	if(letsFly and not letsSwim) then
-		if(checkList["FLYING"]) then
-			CallCompanion("MOUNT", checkList["FLYING"])
-			return
-		else
-			if(checkList["GROUND"]) then
-				SV:AddonMessage("No flying mount selected! Using your ground mount.")
-				CallCompanion("MOUNT", checkList["GROUND"])
-				return
+
+	local checkList = SV.cache.Mounts.types
+	local letsFly = IsFlyableArea() 
+	local letsSwim = IsSwimming()
+
+	if(IsModifierKeyDown() and checkList["SPECIAL"]) then
+		MountUp(checkList["SPECIAL"])
+	else
+		if(letsSwim) then
+			if(checkList["SWIMMING"]) then
+				MountUp(checkList["SWIMMING"])
+			elseif(letsFly) then
+				MountUp(checkList["FLYING"])
+			else
+				MountUp(checkList["GROUND"])
 			end
+		elseif(letsFly) then
+			if(checkList["FLYING"]) then
+				MountUp(checkList["FLYING"])
+			else
+				MountUp(checkList["GROUND"])
+			end
+		else
+			MountUp(checkList["GROUND"])
 		end
-	elseif(not letsFly and not letsSwim) then
-		if(checkList["GROUND"]) then
-			CallCompanion("MOUNT", checkList["GROUND"])
-			return
-		end
-	elseif(letsSwim) then
-		if(checkList["SWIMMING"]) then
-			CallCompanion("MOUNT", checkList["SWIMMING"])
-			return
-		elseif(letsFly and checkList["FLYING"]) then
-			SV:AddonMessage("No swimming mount selected! Using your flying mount.")
-			CallCompanion("MOUNT", checkList["FLYING"])
-			return
-		end
-	elseif(checkList["GROUND"]) then
-		CallCompanion("MOUNT", checkList["GROUND"])
-		return
 	end
-	if(not checkList["GROUND"] and not checkList["FLYING"] and not checkList["SWIMMING"]) then
-		CallCompanion("MOUNT", random(1, maxMounts))
-	end
-	return
 end
 --[[ 
 ########################################################## 

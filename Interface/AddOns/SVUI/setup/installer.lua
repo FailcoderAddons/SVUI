@@ -18,9 +18,20 @@ LOCALIZED LUA FUNCTIONS
 ]]--
 --[[ GLOBALS ]]--
 local _G = _G;
-local unpack 	= _G.unpack;
-local select 	= _G.select;
-local type 		= _G.type;
+local unpack        = _G.unpack;
+local select        = _G.select;
+local assert        = _G.assert;
+local type          = _G.type;
+local error         = _G.error;
+local pcall         = _G.pcall;
+local print         = _G.print;
+local ipairs        = _G.ipairs;
+local pairs         = _G.pairs;
+local next          = _G.next;
+local rawset        = _G.rawset;
+local rawget        = _G.rawget;
+local tostring      = _G.tostring;
+local tonumber      = _G.tonumber;
 local string 	= _G.string;
 local table     = _G.table;
 local format = string.format;
@@ -31,7 +42,7 @@ GET ADDON DATA
 ##########################################################
 ]]--
 local SV = select(2, ...)
-local SVLib = LibSuperVillain;
+local SVLib = _G.LibSuperVillain;
 local L = SV.L;
 --[[ 
 ########################################################## 
@@ -51,6 +62,9 @@ local rcc = RAID_CLASS_COLORS[SV.class];
 local r2 = .1 + (rcc.r * .1)
 local g2 = .1 + (rcc.g * .1)
 local b2 = .1 + (rcc.b * .1)
+local SetCVar = _G.SetCVar;
+local ToggleChatColorNamesByClassGroup = _G.ToggleChatColorNamesByClassGroup;
+local ChatFrame_AddMessageGroup = _G.ChatFrame_AddMessageGroup;
 --[[ 
 ########################################################## 
 SETUP CLASS OBJECT
@@ -117,7 +131,7 @@ local function BarShuffle()
 	local tH = SV.db.SVBar.Bar1.buttonsize  +  (base - bS);
 	local b2h = bar2 and tH or base;
 	local sph = (400 - b2h);
-	local anchors = SV.Mentalo.Anchors
+	local anchors = SV.cache.Anchors
 	if not anchors then anchors = {} end
 	anchors.SVUI_SpecialAbility_MOVE = "BOTTOMSVUIParentBOTTOM0"..sph;
 	anchors.SVUI_ActionBar2_MOVE = "BOTTOMSVUI_ActionBar1TOP0"..(-bS);
@@ -133,7 +147,7 @@ local function BarShuffle()
 end 
 
 local function UFMoveBottomQuadrant(toggle)
-	local anchors = SV.Mentalo.Anchors
+	local anchors = SV.cache.Anchors
 	if not toggle then
 		anchors.SVUI_Player_MOVE = "BOTTOMSVUIParentBOTTOM-278182"
 		anchors.SVUI_PlayerCastbar_MOVE = "BOTTOMSVUIParentBOTTOM-278122"
@@ -168,7 +182,7 @@ local function UFMoveBottomQuadrant(toggle)
 end 
 
 local function UFMoveLeftQuadrant(toggle)
-	local anchors = SV.Mentalo.Anchors
+	local anchors = SV.cache.Anchors
 	if not toggle then
 		anchors.SVUI_Assist_MOVE = "TOPLEFTSVUIParentTOPLEFT"..XOFF.."-250"
 		anchors.SVUI_Tank_MOVE = "TOPLEFTSVUIParentTOPLEFT"..XOFF.."-175"
@@ -189,7 +203,7 @@ local function UFMoveLeftQuadrant(toggle)
 end 
 
 local function UFMoveTopQuadrant(toggle)
-	local anchors = SV.Mentalo.Anchors
+	local anchors = SV.cache.Anchors
 	if not toggle then
 		anchors.GM_MOVE = "TOPLEFTSVUIParentTOPLEFT250-25"
 		anchors.SVUI_LootFrame_MOVE = "BOTTOMSVUIParentBOTTOM0350"
@@ -206,7 +220,7 @@ local function UFMoveTopQuadrant(toggle)
 end 
 
 local function UFMoveRightQuadrant(toggle)
-	local anchors = SV.Mentalo.Anchors
+	local anchors = SV.cache.Anchors
 	local dH = SV.db.SVDock.dockRightHeight  +  60
 	if not toggle or toggle == "high" then
 		anchors.SVUI_BossHolder_MOVE = "RIGHTSVUIParentRIGHT-1050"
@@ -281,23 +295,31 @@ function SV.Setup:UserScreen(rez, preserve)
 	if(not preserve and not mungs) then
 		BarShuffle()
     	SV.Mentalo:SetPositions()
-		SVLib:Update('SVDock')
-		SVLib:Update('SVAura')
-		SVLib:Update('SVBar')
-		SVLib:Update('SVUnit')
+		SVLib:RefreshModule('SVDock')
+		SVLib:RefreshModule('SVAura')
+		SVLib:RefreshModule('SVBar')
+		SVLib:RefreshModule('SVUnit')
 		SV:SavedPopup()
 	end
 end
 
 function SV.Setup:ChatConfigs(mungs)
 	forceCVars()
+
+	local ChatFrame1 = _G.ChatFrame1;
 	FCF_ResetChatWindows()
 	FCF_SetLocked(ChatFrame1, 1)
+
+	local ChatFrame2 = _G.ChatFrame2;
 	FCF_DockFrame(ChatFrame2)
 	FCF_SetLocked(ChatFrame2, 1)
+
 	FCF_OpenNewWindow(LOOT)
+
+	local ChatFrame3 = _G.ChatFrame3;
 	FCF_DockFrame(ChatFrame3)
 	FCF_SetLocked(ChatFrame3, 1)
+
 	for i = 1, NUM_CHAT_WINDOWS do
 		local chat = _G["ChatFrame"..i]
 		local chatID = chat:GetID()
@@ -431,8 +453,8 @@ function SV.Setup:ColorTheme(style, preserve)
 	
 	if(not mungs) then
 		SV:MediaUpdate()
-		SVLib:Update('SVStats')
-		SVLib:Update('SVUnit')
+		SVLib:RefreshModule('SVStats')
+		SVLib:RefreshModule('SVUnit')
 		if(not preserve) then
 			SV:SavedPopup()
 		end
@@ -467,8 +489,8 @@ function SV.Setup:UnitframeLayout(style, preserve)
 			end
 			SV.Mentalo:SetPositions()
 		end
-		SVLib:Update('SVStats')
-		SVLib:Update('SVUnit')
+		SVLib:RefreshModule('SVStats')
+		SVLib:RefreshModule('SVUnit')
 		if(not preserve) then
 			SV:SavedPopup()
 		end
@@ -482,7 +504,7 @@ function SV.Setup:GroupframeLayout(style, preserve)
 	SV.db.LAYOUT.groupstyle = style
 
 	if(not mungs) then
-		SVLib:Update('SVUnit')
+		SVLib:RefreshModule('SVUnit')
 		if(not preserve) then
 			SV:SavedPopup()
 		end
@@ -515,8 +537,8 @@ function SV.Setup:BarLayout(style, preserve)
 			BarShuffle()
 			SV.Mentalo:SetPositions()
 		end
-		SVLib:Update('SVStats')
-		SVLib:Update('SVBar')
+		SVLib:RefreshModule('SVStats')
+		SVLib:RefreshModule('SVBar')
 		if(not preserve) then
 			SV:SavedPopup()
 		end
@@ -530,9 +552,9 @@ function SV.Setup:Auralayout(style, preserve)
 	SV.db.LAYOUT.aurastyle = style;
 
 	if(not mungs) then
-		SVLib:Update('SVStats')
-		SVLib:Update('SVAura')
-		SVLib:Update('SVUnit')
+		SVLib:RefreshModule('SVStats')
+		SVLib:RefreshModule('SVAura')
+		SVLib:RefreshModule('SVUnit')
 		if(not preserve) then
 			SV:SavedPopup()
 		end

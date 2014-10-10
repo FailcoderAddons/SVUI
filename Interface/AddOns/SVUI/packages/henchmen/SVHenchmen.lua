@@ -13,6 +13,60 @@ _____/\\\\\\\\\\\____/\\\________/\\\__/\\\________/\\\__/\\\\\\\\\\\_       #
 S U P E R - V I L L A I N - U I   By: Munglunch                              #
 ##############################################################################
 --]]
+--[[ GLOBALS ]]--
+
+local _G = _G;
+--LUA
+local unpack        = _G.unpack;
+local select        = _G.select;
+local assert        = _G.assert;
+local type          = _G.type;
+local error         = _G.error;
+local pcall         = _G.pcall;
+local print         = _G.print;
+local ipairs        = _G.ipairs;
+local pairs         = _G.pairs;
+local next          = _G.next;
+local rawset        = _G.rawset;
+local rawget        = _G.rawget;
+local tostring      = _G.tostring;
+local tonumber      = _G.tonumber;
+local getmetatable  = _G.getmetatable;
+local setmetatable  = _G.setmetatable;
+--STRING
+local string        = _G.string;
+local upper         = string.upper;
+local format        = string.format;
+local find          = string.find;
+local match         = string.match;
+local gsub          = string.gsub;
+--MATH
+local math          = _G.math;
+local floor         = math.floor;
+local random        = math.random;
+--TABLE
+local table         = _G.table;
+local tsort         = table.sort;
+local tconcat       = table.concat;
+local tinsert       = _G.tinsert;
+local tremove       = _G.tremove;
+local twipe         = _G.wipe;
+--BLIZZARD API
+local ReloadUI              = _G.ReloadUI;
+local GetLocale             = _G.GetLocale;
+local CreateFrame           = _G.CreateFrame;
+local IsAddOnLoaded         = _G.IsAddOnLoaded;
+local InCombatLockdown      = _G.InCombatLockdown;
+local GetAddOnInfo          = _G.GetAddOnInfo;
+local LoadAddOn             = _G.LoadAddOn;
+local SendAddonMessage      = _G.SendAddonMessage;
+local LibStub               = _G.LibStub;
+local GetAddOnMetadata      = _G.GetAddOnMetadata;
+local GetCVarBool           = _G.GetCVarBool;
+local GameTooltip           = _G.GameTooltip;
+local StaticPopup_Hide      = _G.StaticPopup_Hide;
+local ERR_NOT_IN_COMBAT     = _G.ERR_NOT_IN_COMBAT;
+
 local SV = select(2, ...)
 local L = SV.L
 local MOD = SV:NewPackage("SVHenchmen", L["Henchmen"]);
@@ -108,7 +162,7 @@ end
 
 local Option_OnMouseUp = function(self)
 	if(type(self.callback) == "function") then
-		self:callback(param)
+		self:callback()
 	end
 end 
 

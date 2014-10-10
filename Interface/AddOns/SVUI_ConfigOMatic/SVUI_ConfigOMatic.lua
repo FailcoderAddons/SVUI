@@ -1,4 +1,4 @@
-﻿--[[
+--[[
 ##############################################################################
 _____/\\\\\\\\\\\____/\\\________/\\\__/\\\________/\\\__/\\\\\\\\\\\_       #
  ___/\\\/////////\\\_\/\\\_______\/\\\_\/\\\_______\/\\\_\/////\\\///__      #
@@ -500,7 +500,7 @@ SV.Options.args.common = {
 								return SV.db.media.textures[key[#key]]
 							end,
 							set = function(key, value)
-								SV.db.media.textures[key[#key]] = {"background", value}
+								SV.db.media.textures[key[#key]] = value
 								SV:RefreshEverything(true)
 							end,
 							args = {

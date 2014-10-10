@@ -18,9 +18,20 @@ LOCALIZED LUA FUNCTIONS
 ]]--
 --[[ GLOBALS ]]--
 local _G = _G;
-local unpack 	= _G.unpack;
-local select 	= _G.select;
-local type 		= _G.type;
+local unpack        = _G.unpack;
+local select        = _G.select;
+local assert        = _G.assert;
+local type          = _G.type;
+local error         = _G.error;
+local pcall         = _G.pcall;
+local print         = _G.print;
+local ipairs        = _G.ipairs;
+local pairs         = _G.pairs;
+local next          = _G.next;
+local rawset        = _G.rawset;
+local rawget        = _G.rawget;
+local tostring      = _G.tostring;
+local tonumber      = _G.tonumber;
 local string 	= _G.string;
 local table     = _G.table;
 local format = string.format;
@@ -31,7 +42,7 @@ GET ADDON DATA
 ##########################################################
 ]]--
 local SV = select(2, ...)
-local SVLib = LibSuperVillain
+local SVLib = _G.LibSuperVillain
 local L = SV.L;
 --[[ 
 ########################################################## 
@@ -40,6 +51,11 @@ LOCAL VARS
 ]]--
 local SVUI_CLASS_COLORS = _G.SVUI_CLASS_COLORS
 local RAID_CLASS_COLORS = _G.RAID_CLASS_COLORS
+
+local CONTINUED = _G.CONTINUED
+local SETTINGS = _G.SETTINGS
+local HIGH = _G.HIGH
+local LOW = _G.LOW
 local scc = SVUI_CLASS_COLORS[SV.class];
 local rcc = RAID_CLASS_COLORS[SV.class];
 local r2 = .1 + (rcc.r * .1)

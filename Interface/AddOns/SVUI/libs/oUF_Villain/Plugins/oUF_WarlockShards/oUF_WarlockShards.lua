@@ -1,3 +1,18 @@
+--GLOBAL NAMESPACE
+local _G = _G;
+--LUA
+local unpack        = _G.unpack;
+local select        = _G.select;
+local assert        = _G.assert;
+--MATH
+local math          = _G.math;
+local floor         = math.floor
+--BLIZZARD API
+local UnitPower     	= _G.UnitPower;
+local UnitPowerMax 		= _G.UnitPowerMax;
+local UnitHasVehicleUI 	= _G.UnitHasVehicleUI;
+local GetSpecialization = _G.GetSpecialization;
+
 if select(2, UnitClass('player')) ~= "WARLOCK" then return end
 
 local _, ns = ...
@@ -122,7 +137,7 @@ local function Enable(self, unit)
 		
 		for i = 1, 4 do
 			if not wsb[i]:GetStatusBarTexture() then
-				Point:SetStatusBarTexture([=[Interface\TargetingFrame\UI-StatusBar]=])
+				wsb[i]:SetStatusBarTexture([=[Interface\TargetingFrame\UI-StatusBar]=])
 			end
 
 			wsb[i]:SetFrameLevel(wsb:GetFrameLevel() + 1)

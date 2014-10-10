@@ -13,6 +13,46 @@ _____/\\\\\\\\\\\____/\\\________/\\\__/\\\________/\\\__/\\\\\\\\\\\_       #
 S U P E R - V I L L A I N - U I   By: Munglunch                              #
 ##############################################################################
 --]]
+--[[ GLOBALS ]]--
+local _G = _G;
+local select  		= _G.select;
+local unpack  		= _G.unpack;
+local pairs   		= _G.pairs;
+local ipairs  		= _G.ipairs;
+local type    		= _G.type;
+local tostring      = _G.tostring;
+local tonumber      = _G.tonumber;
+local print         = _G.print;
+local string  		= _G.string;
+local math    		= _G.math;
+local table   		= _G.table;
+local GetTime 		= _G.GetTime;
+--[[ STRING METHODS ]]--
+local format = string.format;
+local lower, trim = string.lower, string.trim
+--[[ MATH METHODS ]]--
+local floor, modf = math.floor, math.modf;
+--[[ TABLE METHODS ]]--
+local twipe, tsort = table.wipe, table.sort;
+--BLIZZARD API
+local ReloadUI              = _G.ReloadUI;
+local UnitName   			= _G.UnitName;
+local IsInGroup             = _G.IsInGroup;
+local CreateFrame           = _G.CreateFrame;
+local IsInRaid         		= _G.IsInRaid;
+local UnitIsGroupLeader     = _G.UnitIsGroupLeader;
+local GetAddOnInfo          = _G.GetAddOnInfo;
+local UnitIsGroupAssistant  = _G.UnitIsGroupAssistant;
+local EnableAddOn           = _G.EnableAddOn;
+local DisableAddOn          = _G.DisableAddOn;
+local IsEveryoneAssistant   = _G.IsEveryoneAssistant;
+local GetAddOnMetadata      = _G.GetAddOnMetadata;
+local SendChatMessage   	= _G.SendChatMessage;
+local PlaySoundFile   		= _G.PlaySoundFile;
+
+local LE_PARTY_CATEGORY_HOME = _G.LE_PARTY_CATEGORY_HOME;
+local LE_PARTY_CATEGORY_INSTANCE = _G.LE_PARTY_CATEGORY_INSTANCE;
+
 local SV = select(2, ...)
 local L = SV.L;
 --[[ 
@@ -20,8 +60,6 @@ local L = SV.L;
 LOCAL VARS
 ##########################################################
 ]]--
-local lower, trim = string.lower, string.trim
-
 local MsgTest = function(warning)
 	if IsInGroup(LE_PARTY_CATEGORY_INSTANCE) then
 		return "INSTANCE_CHAT"
@@ -36,7 +74,6 @@ local MsgTest = function(warning)
 	end
 	return "SAY"
 end
-
 --[[ 
 ########################################################## 
 LOCAL SLASH FUNCTIONS
@@ -138,8 +175,8 @@ do
 		end
 	end
 	
-	SLASH_PULLCOUNTDOWN1 = "/jenkins"
-	SlashCmdList["PULLCOUNTDOWN"] = function(msg)
+	_G.SLASH_PULLCOUNTDOWN1 = "/jenkins"
+	_G.SlashCmdList["PULLCOUNTDOWN"] = function(msg)
 		if(tonumber(msg) ~= nil) then
 			PullCountdown.Pull(msg)
 		else
@@ -147,26 +184,29 @@ do
 		end
 	end
 end
-
-SLASH_KOMBAT1 = "/kombat"
-SlashCmdList["KOMBAT"] = function(msg)
-	SV:ToastyKombat()
-end
-
-SLASH_LOLWUT1 = "/lolwut"
-SlashCmdList["LOLWUT"] = function(msg)
-	PlaySoundFile("Sound\\Character\\Human\\HumanVocalFemale\\HumanFemalePissed04.wav")
-end
 --[[ 
 ########################################################## 
 LOAD ALL SLASH FUNCTIONS
 ##########################################################
 ]]--
-SLASH_SVUI_SV1="/sv"
-SlashCmdList["SVUI_SV"] = SVUIMasterCommand;
-SLASH_SVUI_SVUI1="/svui"
-SlashCmdList["SVUI_SVUI"] = SVUIMasterCommand;
-SLASH_SVUI_ENABLE1="/enable"
-SlashCmdList["SVUI_ENABLE"] = EnableAddon;
-SLASH_SVUI_DISABLE1="/disable"
-SlashCmdList["SVUI_DISABLE"] = DisableAddon;
+_G.SlashCmdList["SVUISV"] = SVUIMasterCommand;
+_G.SLASH_SVUISV1="/sv"
+
+_G.SlashCmdList["SVUISVUI"] = SVUIMasterCommand;
+_G.SLASH_SVUISVUI1="/svui"
+
+_G.SlashCmdList["SVUIENABLE"] = EnableAddon;
+_G.SLASH_SVUIENABLE1="/enable"
+
+_G.SlashCmdList["SVUIDISABLE"] = DisableAddon;
+_G.SLASH_SVUIDISABLE1="/disable"
+
+_G.SlashCmdList["KOMBAT"] = function(msg)
+	SV:ToastyKombat()
+end
+_G.SLASH_KOMBAT1 = "/kombat"
+
+_G.SlashCmdList["LOLWUT"] = function(msg)
+	PlaySoundFile("Sound\\Character\\Human\\HumanVocalFemale\\HumanFemalePissed04.wav")
+end
+_G.SLASH_LOLWUT1 = "/lolwut"

@@ -13,6 +13,18 @@ _____/\\\\\\\\\\\____/\\\________/\\\__/\\\________/\\\__/\\\\\\\\\\\_       #
 S U P E R - V I L L A I N - U I   By: Munglunch                              #
 ##############################################################################
 --]]
+--[[ GLOBALS ]]--
+local _G = _G;
+local unpack  = _G.unpack;
+local select  = _G.select;
+local string 	= _G.string;
+local math 		= _G.math;
+local table 	= _G.table;
+--[[ STRING METHODS ]]--
+local format, join, gsub = string.format, string.join, string.gsub;
+--[[ MATH METHODS ]]--
+local ceil = math.ceil;  -- Basic
+--[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
 local STYLE = select(2, ...);
@@ -22,6 +34,9 @@ local Schema = STYLE.Schema;
 FRAME LISTS
 ##########################################################
 ]]--
+local CHAT_CONFIG_CHANNEL_LIST = _G.CHAT_CONFIG_CHANNEL_LIST;
+local CHANNELS = _G.CHANNELS;
+
 local ChatMenuList = {
 	"ChatMenu",
 	"EmoteMenu",
@@ -414,7 +429,13 @@ local function ChatStyle()
 
 	ChatConfigChannelSettingsLeft:HookScript("OnShow", ChatConfigChannelSettingsLeft_OnEvent)
 
-	CreateChatChannelList(ChatConfigChannelSettings, GetChannelList())
+	-- do
+	-- 	local chatchannellist = GetChannelList()
+	-- 	local CreateChatChannelList = _G.CreateChatChannelList;
+	-- 	local ChatConfigChannelSettings = _G.ChatConfigChannelSettings;
+	-- 	CreateChatChannelList(ChatConfigChannelSettings, chatchannellist)
+	-- end
+
 	ChatConfig_CreateCheckboxes(ChatConfigChannelSettingsLeft, CHAT_CONFIG_CHANNEL_LIST, "ChatConfigCheckBoxWithSwatchAndClassColorTemplate", CHANNELS)
 	ChatConfig_UpdateCheckboxes(ChatConfigChannelSettingsLeft)
 

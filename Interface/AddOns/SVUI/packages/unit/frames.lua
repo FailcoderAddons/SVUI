@@ -979,7 +979,7 @@ local ArenaPrepHandler_OnEvent = function(self, event)
                 if(prepframe) then
                     if i <= numOpps then
                         local s = GetArenaOpponentSpec(i)
-                        local _, spec, class = nil, "UNKNOWN", "UNKNOWN"
+                        local _, spec, class, icon = nil, "UNKNOWN", "UNKNOWN", [[INTERFACE\ICONS\INV_MISC_QUESTIONMARK]]
                         if s and s > 0 then
                             _, spec, _, icon, _, _, class = GetSpecializationInfoByID(s)
                         end
@@ -1095,10 +1095,10 @@ local GroupMediaUpdate = function(self)
     while childFrame do
         MOD.RefreshUnitMedia(childFrame, key)
         if(_G[childFrame:GetName().."Pet"]) then 
-            MOD.RefreshUnitMedia(_G[childFrame:GetName().."Pet"], key, updateElements)
+            MOD.RefreshUnitMedia(_G[childFrame:GetName().."Pet"], key)
         end
         if(_G[childFrame:GetName().."Target"]) then 
-            MOD.RefreshUnitMedia(_G[childFrame:GetName().."Target"], key, updateElements)
+            MOD.RefreshUnitMedia(_G[childFrame:GetName().."Target"], key)
         end
         childFrame:UpdateAllElements()
         index = index + 1;
@@ -1874,7 +1874,7 @@ local GroupSetConfigEnvironment = function(self)
             end
             if not frame.isForced then 
                 if not frame.initialized then 
-                    frame:SetAttribute("startingIndex", db.customSorting and (-min(db.groupCount * db.gRowCol * 5, MAX_RAID_MEMBERS) + 1) or -4)
+                    frame:SetAttribute("startingIndex", db.customSorting and (-numMin(db.groupCount * db.gRowCol * 5, MAX_RAID_MEMBERS) + 1) or -4)
                     frame:Show()
                     frame.initialized = true 
                 end

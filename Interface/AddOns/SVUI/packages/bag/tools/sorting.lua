@@ -20,10 +20,20 @@ LOCALIZED LUA FUNCTIONS
 ]]--
 --[[ GLOBALS ]]--
 local _G = _G;
-local unpack 	= _G.unpack;
-local select 	= _G.select;
-local pairs 	= _G.pairs;
-local ipairs 	= _G.ipairs;
+local unpack        = _G.unpack;
+local select        = _G.select;
+local assert        = _G.assert;
+local type          = _G.type;
+local error         = _G.error;
+local pcall         = _G.pcall;
+local print         = _G.print;
+local ipairs        = _G.ipairs;
+local pairs         = _G.pairs;
+local next          = _G.next;
+local rawset        = _G.rawset;
+local rawget        = _G.rawget;
+local tostring      = _G.tostring;
+local tonumber      = _G.tonumber;
 local tinsert 	= _G.tinsert;
 local string 	= _G.string;
 local math 		= _G.math;
@@ -293,6 +303,8 @@ BAG ITERATION METHOD
 ##########################################################
 ]]--
 do
+	local bagRole;
+	
 	local function GetNumSortingSlots(bag, role)
 		if (bag > 50 and bag <= 58) then
 			if not role then role = "deposit" end
@@ -562,7 +574,7 @@ do
 		twipe(sourceUsed)
 	end
 
-	function MOD.Stack(bags)
+	function MOD.Stack(bags, canMove)
 		if not canMove then canMove = true end
 		for _, bag, slot in IterateBagsForSorting(bags, nil, "deposit") do
 			local bagSlot = (bag*100) + slot
@@ -717,6 +729,7 @@ do
 				end		
 			end
 			if lockStop then
+				local i = 1;
 				for slot, itemID in pairs(moveTracker) do
 					local actualItemID = GetSortingItemID(floor(slot/100), slot % 100)
 					if actualItemID  ~= itemid then
@@ -744,6 +757,7 @@ do
 						return
 					end
 					moveTracker[slot] = nil
+					i = i + 1;
 				end
 			end
 			lastItemID, lockStop, lastDestination, lastMove = nil, nil, nil, nil

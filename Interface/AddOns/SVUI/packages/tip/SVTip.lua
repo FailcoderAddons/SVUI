@@ -40,6 +40,7 @@ local SV = select(2, ...)
 local L = SV.L
 local LSM = LibStub("LibSharedMedia-3.0")
 local MOD = SV:NewPackage("SVTip", L["Tooltip"]);
+local ID = _G.ID;
 --[[ 
 ########################################################## 
 LOCAL VARIABLES
@@ -580,8 +581,8 @@ local _hook_GameTooltip_SetDefaultAnchor = function(self, parent)
 		end 
 	end 
 	if not SV.Mentalo:HasMoved("SVUI_ToolTip_MOVE")then 
-		if(SVUI_ContainerFrame and SVUI_ContainerFrame:IsShown()) then 
-			self:SetPoint("BOTTOMLEFT", SVUI_ContainerFrame, "TOPLEFT", 0, 18)
+		if(SV.SVBag.BagFrame and SV.SVBag.BagFrame:IsShown()) then 
+			self:SetPoint("BOTTOMLEFT", SV.SVBag.BagFrame, "TOPLEFT", 0, 18)
 		elseif(RightSuperDock:GetAlpha() == 1 and RightSuperDock:IsShown()) then 
 			self:SetPoint("BOTTOMRIGHT", RightSuperDock, "TOPRIGHT", -44, 18)
 		else 
@@ -613,10 +614,10 @@ local _hook_OnTipCleared = function(self)
 	self.itemCleared = nil 
 end
 
-local _hook_OnItemRef = function(link,text,button,chatFrame)
-	if find(link,"^spell:") then 
+local _hook_OnItemRef = function(link, text, button, chatFrame)
+	if link:find("^spell:") then 
 		local ref = sub(link,7)
-		ItemRefTooltip:AddLine(("|cFFCA3C3C%s|r %d"):format(ID,ref))
+		ItemRefTooltip:AddLine(("|cFFCA3C3C%s|r %d"):format(ID, ref))
 		ItemRefTooltip:Show()
 	end 
 end

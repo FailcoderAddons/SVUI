@@ -1,39 +1,4 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/">	
-	<Frame name="SVUI_ModesHandler" hidden="true" frameStrata="LOW" parent="UIParent">
-		<Anchors>
-            <Anchor point="LEFT" relativeTo="UIParent" relativePoint="RIGHT">
-                <Offset x="10000" y="0"/>
-            </Anchor>
-        </Anchors>
-        <Frames>
-            <Button name="SVUI_ModeCaptureWindow" inherits="SecureActionButtonTemplate" enableMouse="true">
-            	<Scripts>
-		            <PostClick>
-						if(self.PostClickHandler) then self:PostClickHandler() end
-		            </PostClick>
-		            <OnLoad>
-						self.Grip = _G["SVUI_ModesHandler"];
-						self:RegisterForClicks("RightButtonUp");
-					    self:Hide();
-						self:RegisterEvent("PLAYER_ENTERING_WORLD")
-						self:SetScript("OnEvent", function(self, event, ...)
-							if event == "PLAYER_REGEN_ENABLED" then
-								self:UnregisterEvent("PLAYER_REGEN_ENABLED")
-								CraftOMatic:ChangeModeGear()
-								self:PostClickHandler()
-							end
-							if event == "PLAYER_ENTERING_WORLD" then
-								if (IsSpellKnown(131474) or IsSpellKnown(80451) or IsSpellKnown(818)) then
-									WorldFrame:HookScript("OnMouseDown", CraftOMatic.WorldFrameHook)
-								end
-								self:UnregisterEvent("PLAYER_ENTERING_WORLD")
-							end
-						end)
-		            </OnLoad>
-		        </Scripts>
-            </Button>
-        </Frames>
-    </Frame>
 	<Script file='Loader.lua'/>
     <Script file='SVUI_CraftOMatic.lua'/>
     <Include file="components\_load.xml"/>

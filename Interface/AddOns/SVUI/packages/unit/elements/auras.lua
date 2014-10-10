@@ -44,6 +44,8 @@ local match         = string.match;
 local gsub          = string.gsub;
 --MATH
 local math          = math;
+local floor         = math.floor
+local ceil         	= math.ceil
 --TABLE
 local table         = table;
 local tsort         = table.sort;

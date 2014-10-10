@@ -1,4 +1,4 @@
-﻿--[[
+--[[
 ##############################################################################
 _____/\\\\\\\\\\\____/\\\________/\\\__/\\\________/\\\__/\\\\\\\\\\\_       #
  ___/\\\/////////\\\_\/\\\_______\/\\\_\/\\\_______\/\\\_\/////\\\///__      #
@@ -30,7 +30,7 @@ GET ADDON DATA
 ##########################################################
 ]]--
 local SV = _G["SVUI"];
-local SVLib = LibSuperVillain;
+local SVLib = _G.LibSuperVillain;
 local L = SV.L;
 
 local playerRealm = GetRealmName()
@@ -64,7 +64,7 @@ SV.Options.args.profiles = {
 			order = 4,
 			type = "execute",
 			name = SAVE,
-			desc = function() return SAVE .. " " .. L["current"] .. " " .. NORMAL_FONT_COLOR_CODE .. profileKey .. FONT_COLOR_CODE_CLOSE end,
+			desc = function() return _G.SAVE .. " " .. L["current"] .. " |cffFFFF00" .. profileKey .. "|r" end,
 			func = function() SVLib:ExportDatabase(profileKey) SV:SavedPopup() end,
 		},
 		export = {
@@ -122,7 +122,7 @@ SV.Options.args.profiles = {
 		reset = {
 			order = 12,
 			type = "execute",
-			name = function() return L["reset"] .. " " .. NORMAL_FONT_COLOR_CODE .. profileKey .. FONT_COLOR_CODE_CLOSE end,
+			name = function() return L["reset"] .. " " .. " |cffFFFF00" .. profileKey .. "|r" end,
 			desc = L["reset_sub"],
 			func = function() SV:StaticPopup_Show("RESET_PROFILE_PROMPT") end,
 			width = "full",

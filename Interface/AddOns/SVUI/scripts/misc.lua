@@ -26,6 +26,8 @@ local type 		= _G.type;
 local tinsert 	= _G.tinsert;
 local math 		= _G.math;
 local cos, deg, rad, sin = math.cos, math.deg, math.rad, math.sin;
+
+local hooksecurefunc = _G.hooksecurefunc;
 --[[ 
 ########################################################## 
 GET ADDON DATA
@@ -39,8 +41,7 @@ local toonclass = select(2, UnitClass('player'))
 MERCHANT MAX STACK
 ##########################################################
 ]]--
-local savedMerchantItemButton_OnModifiedClick = MerchantItemButton_OnModifiedClick
-function MerchantItemButton_OnModifiedClick(self, ...)
+local BuyMaxStack = function(self, ...)
 	if ( IsAltKeyDown() ) then
 		local itemLink = GetMerchantItemLink(self:GetID())
 		if not itemLink then return end
@@ -49,8 +50,8 @@ function MerchantItemButton_OnModifiedClick(self, ...)
 			BuyMerchantItem(self:GetID(), GetMerchantItemMaxStack(self:GetID()))
 		end
 	end
-	savedMerchantItemButton_OnModifiedClick(self, ...)
 end
+hooksecurefunc("MerchantItemButton_OnModifiedClick", BuyMaxStack);
 --[[ 
 ########################################################## 
 CHAT BUBBLES
@@ -361,7 +362,7 @@ local function RaidMarkShowIcons()
 	RaidMarkFrame:Show()
 end
 
-function RaidMark_HotkeyPressed(button)
+_G.RaidMark_HotkeyPressed = function(button)
 	ButtonIsDown = button == "down" and RaidMarkAllowed()
 	if(RaidMarkFrame) then
 		if ButtonIsDown then 
@@ -568,8 +569,8 @@ local function GetThreatBarColor(unitWithHighestThreat)
 		local colors = RAID_CLASS_COLORS[unitClass]
 		if not colors then return 15,15,15 end 
 		return colors.r*255, colors.g*255, colors.b*255 
-	elseif react then 
-		local reaction=oUF_Villain['colors'].reaction[react]
+	elseif(react and SV.oUF) then 
+		local reaction = SV.oUF['colors'].reaction[react]
 		return reaction[1]*255, reaction[2]*255, reaction[3]*255 
 	else 
 		return 15,15,15 
@@ -624,13 +625,18 @@ end
 
 local function LoadThreatBar()
 	if(SV.db.general.threatbar == true) then
+		local anchor = _G.SVUI_Target
 		local ThreatBar = CreateFrame('StatusBar', 'SVUI_ThreatBar', SV.UIParent);
 		ThreatBar:SetStatusBarTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Doodads\\THREAT-BAR")
 		ThreatBar:SetSize(50,100)
 		ThreatBar:SetFrameStrata('MEDIUM')
 		ThreatBar:SetOrientation("VERTICAL")
 		ThreatBar:SetMinMaxValues(0,100)
-		ThreatBar:Point('LEFT',SVUI_Target,'RIGHT',0,10)
+		if(anchor) then
+			ThreatBar:Point('LEFT', _G.SVUI_Target, 'RIGHT', 0, 10)
+		else
+			ThreatBar:Point('LEFT', UIParent, 'CENTER', 50, -50)
+		end
 		ThreatBar.backdrop = ThreatBar:CreateTexture(nil,"BACKGROUND")
 		ThreatBar.backdrop:SetAllPoints(ThreatBar)
 		ThreatBar.backdrop:SetTexture(BARFILE)

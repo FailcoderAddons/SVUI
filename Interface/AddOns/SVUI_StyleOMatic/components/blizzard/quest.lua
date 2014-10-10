@@ -15,6 +15,13 @@ S U P E R - V I L L A I N - U I   By: Munglunch                              #
 credit: Elv.                      original logic from ElvUI. Adapted to SVUI #
 ##############################################################################
 --]]
+--[[ GLOBALS ]]--
+local _G = _G;
+local unpack  = _G.unpack;
+local select  = _G.select;
+local ipairs  = _G.ipairs;
+local pairs   = _G.pairs;
+--[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
 local STYLE = select(2, ...);
@@ -46,6 +53,8 @@ local function QuestScrollHelper(b, c, d, e)
 end 
 
 local function QueuedWatchFrameItems()
+	local WATCHFRAME_NUM_ITEMS = _G.WATCHFRAME_NUM_ITEMS
+	if(not WATCHFRAME_NUM_ITEMS) then return end;
 	for i=1, WATCHFRAME_NUM_ITEMS do
 		local button = _G["WatchFrameItem"..i]
 		local point, relativeTo, relativePoint, xOffset, yOffset = button:GetPoint(1)
@@ -75,6 +84,8 @@ local QuestRewardScrollFrame_OnShow = function(self)
 end
 
 local Hook_QuestInfo_Display = function(self, ...)
+	local MAX_NUM_ITEMS = _G.MAX_NUM_ITEMS
+	if(not MAX_NUM_ITEMS) then return end;
 	for i = 1, MAX_NUM_ITEMS do
 		local name = ("QuestInfoItem%d"):format(i)
 		local item = _G[name]
@@ -92,13 +103,43 @@ local Hook_QuestInfo_Display = function(self, ...)
 end
 
 local Hook_QuestInfoItem_OnClick = function(self)
-	QuestInfoItemHighlight:ClearAllPoints()
-	QuestInfoItemHighlight:SetAllPoints(self)
+	_G.QuestInfoItemHighlight:ClearAllPoints()
+	_G.QuestInfoItemHighlight:SetAllPoints(self)
 end
 
 local Hook_QuestNPCModel = function(self, _, _, _, x, y)
-	QuestNPCModel:ClearAllPoints()
-	QuestNPCModel:SetPoint("TOPLEFT", self, "TOPRIGHT", x + 18, y)
+	_G.QuestNPCModel:ClearAllPoints()
+	_G.QuestNPCModel:SetPoint("TOPLEFT", self, "TOPRIGHT", x + 18, y)
+end
+
+local _hook_GreetingPanelShow = function(self)
+	self:RemoveTextures()
+
+	_G.QuestFrameGreetingGoodbyeButton:SetButtonTemplate()
+	_G.QuestGreetingFrameHorizontalBreak:Die()
+end
+
+local _hook_DetailScrollShow = function(self)
+	if not self.Panel then
+		self:SetPanelTemplate("Default")
+		QuestScrollHelper(self, 509, 630, false)
+	end 
+	self.spellTex:Height(self:GetHeight() + 217)
+end
+
+local _hook_QuestLogFrameShow = function(self)
+	local QuestLogScrollFrame = _G.QuestLogScrollFrame;
+	if not QuestLogScrollFrame.spellTex then
+		QuestLogScrollFrame:SetFixedPanelTemplate("Default")
+		QuestLogScrollFrame.spellTex = QuestLogScrollFrame:CreateTexture(nil, 'ARTWORK')
+		QuestLogScrollFrame.spellTex:SetTexture([[Interface\QuestFrame\QuestBookBG]])
+		QuestLogScrollFrame.spellTex:SetPoint("TOPLEFT", 2, -2)
+		QuestLogScrollFrame.spellTex:Size(514, 616)
+		QuestLogScrollFrame.spellTex:SetTexCoord(0, 1, 0.02, 1)
+		QuestLogScrollFrame.spellTex2 = QuestLogScrollFrame:CreateTexture(nil, 'BORDER')
+		QuestLogScrollFrame.spellTex2:SetTexture([[Interface\FrameGeneral\UI-Background-Rock]])
+		QuestLogScrollFrame.spellTex2:FillInner()
+	end
 end
 --[[ 
 ########################################################## 
@@ -109,12 +150,7 @@ local function QuestGreetingStyle()
 	if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.greeting ~= true then
 		return 
 	end
-
-	QuestFrameGreetingPanel:HookScript("OnShow", function()
-		QuestFrameGreetingPanel:RemoveTextures()
-		QuestFrameGreetingGoodbyeButton:SetButtonTemplate()
-		QuestGreetingFrameHorizontalBreak:Die()
-	end)
+	_G.QuestFrameGreetingPanel:HookScript("OnShow", _hook_GreetingPanelShow)
 end 
 
 local function QuestFrameStyle()
@@ -148,29 +184,8 @@ local function QuestFrameStyle()
 
 		QuestLogFramePushQuestButton:Point("LEFT", QuestLogFrameAbandonButton, "RIGHT", 2, 0)
 		QuestLogFramePushQuestButton:Point("RIGHT", QuestLogFrameTrackButton, "LEFT", -2, 0)
-
-		QuestLogDetailScrollFrame:HookScript('OnShow', function(k)
-			if not QuestLogDetailScrollFrame.Panel then
-				QuestLogDetailScrollFrame:SetPanelTemplate("Default")
-				QuestScrollHelper(QuestLogDetailScrollFrame, 509, 630, false)
-				QuestLogDetailScrollFrame:Height(k:GetHeight() - 2)
-			end 
-			QuestLogDetailScrollFrame.spellTex:Height(k:GetHeight() + 217)
-		end)
-
-		QuestLogFrame:HookScript("OnShow", function()
-			if not QuestLogScrollFrame.spellTex then
-				QuestLogScrollFrame:SetFixedPanelTemplate("Default")
-				QuestLogScrollFrame.spellTex = QuestLogScrollFrame:CreateTexture(nil, 'ARTWORK')
-				QuestLogScrollFrame.spellTex:SetTexture([[Interface\QuestFrame\QuestBookBG]])
-				QuestLogScrollFrame.spellTex:SetPoint("TOPLEFT", 2, -2)
-				QuestLogScrollFrame.spellTex:Size(514, 616)
-				QuestLogScrollFrame.spellTex:SetTexCoord(0, 1, 0.02, 1)
-				QuestLogScrollFrame.spellTex2 = QuestLogScrollFrame:CreateTexture(nil, 'BORDER')
-				QuestLogScrollFrame.spellTex2:SetTexture([[Interface\FrameGeneral\UI-Background-Rock]])
-				QuestLogScrollFrame.spellTex2:FillInner()
-			end 
-		end)
+		QuestLogDetailScrollFrame:HookScript('OnShow', _hook_DetailScrollShow)
+		QuestLogFrame:HookScript("OnShow", _hook_QuestLogFrameShow)
 	end
 	--[[ ############################### ]]--
 

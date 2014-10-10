@@ -47,7 +47,7 @@ function PLUGIN:CHAT_MSG_BN_WHISPER(event, ...)
 	if(SV.db.SVChat.enable and SV.db[Schema].saveChats) then
 		self:SAVE_CHAT_HISTORY(event, ...)
 	end
-	if(SV.db[Schema].service) then
+	if(SV.db[Schema].service and self.ServiceEnabled) then
 		self:AUTO_MSG_BN_WHISPER(event, ...)
 	end
 end
@@ -57,6 +57,7 @@ LOAD AND CONSTRUCT
 ##########################################################
 ]]--
 function PLUGIN:Load()
+	if not ChatOMatic_Cache then ChatOMatic_Cache = {} end
 	if(not SV.db[Schema].enable) then return end
 
 	if(SV.db.SVChat.enable and SV.db[Schema].saveChats) then

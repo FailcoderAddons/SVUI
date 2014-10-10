@@ -3,6 +3,23 @@
 	THIS FILE HEAVILY MODIFIED FOR USE WITH SUPERVILLAIN UI
 
 ]]
+--GLOBAL NAMESPACE
+local _G = _G;
+--LUA
+local unpack        = _G.unpack;
+local select        = _G.select;
+local assert        = _G.assert;
+--BLIZZARD API
+local UnitClass     			= _G.UnitClass;
+local UnitReaction     			= _G.UnitReaction;
+local UnitGUID     				= _G.UnitGUID;
+local UnitIsUnit     			= _G.UnitIsUnit;
+local UnitExists     			= _G.UnitExists;
+local UnitIsVisible     		= _G.UnitIsVisible;
+local UnitIsConnected			= _G.UnitIsConnected;
+local UnitIsPlayer 				= _G.UnitIsPlayer;
+local SetPortraitTexture 		= _G.SetPortraitTexture;
+
 local parent, ns = ...
 local oUF = ns.oUF
 

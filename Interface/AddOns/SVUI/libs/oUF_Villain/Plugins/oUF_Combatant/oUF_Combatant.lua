@@ -1,3 +1,36 @@
+--GLOBAL NAMESPACE
+local _G = _G;
+--LUA
+local unpack        = _G.unpack;
+local select        = _G.select;
+local assert        = _G.assert;
+local error         = _G.error;
+local print         = _G.print;
+local pairs         = _G.pairs;
+local next          = _G.next;
+local tostring      = _G.tostring;
+local setmetatable  = _G.setmetatable;
+--STRING
+local string        = _G.string;
+local format        = string.format;
+--MATH
+local math          = _G.math;
+local floor         = math.floor
+local ceil          = math.ceil
+--BLIZZARD API
+local GetTime       			= _G.GetTime;
+local CreateFrame       		= _G.CreateFrame;
+local UnitIsEnemy         		= _G.UnitIsEnemy;
+local UnitGUID      			= _G.UnitGUID;
+local IsActiveBattlefieldArena  = _G.IsActiveBattlefieldArena;
+local UnitFactionGroup 			= _G.UnitFactionGroup;
+local GetNumArenaOpponentSpecs 	= _G.GetNumArenaOpponentSpecs;
+local GetArenaOpponentSpec      = _G.GetArenaOpponentSpec;
+local GetSpecializationInfoByID = _G.GetSpecializationInfoByID;
+local UnitName       			= _G.UnitName;
+local SendChatMessage  			= _G.SendChatMessage;
+local CooldownFrame_SetTimer 	= _G.CooldownFrame_SetTimer;
+
 local _, ns = ...
 local oUF = ns.oUF
 
@@ -61,7 +94,7 @@ local function LogUpdate(self, event, ...)
 	elseif(alert and event == "UNIT_SPELLCAST_SUCCEEDED") then
 		local unitID, spellName, _, _, spellID = ...
 		if UnitIsEnemy("player", unitID) and (spellID == 118358 or spellID == 104270 or spellName:find("Drink")) then
-			SendChatMessage(UnitName(unit)..L[" is drinking."], "RAID_WARNING")
+			SendChatMessage(("%s is drinking."):format(UnitName(self.unit)), "RAID_WARNING")
 		end
 	end
 end

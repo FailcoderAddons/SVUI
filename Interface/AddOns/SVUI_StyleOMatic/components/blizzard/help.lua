@@ -13,6 +13,12 @@ _____/\\\\\\\\\\\____/\\\________/\\\__/\\\________/\\\__/\\\\\\\\\\\_       #
 S U P E R - V I L L A I N - U I   By: Munglunch                              #
 ##############################################################################
 --]]
+--[[ GLOBALS ]]--
+local _G = _G;
+local unpack  = _G.unpack;
+local select  = _G.select;
+local tinsert = _G.tinsert;
+--[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
 local STYLE = select(2, ...);

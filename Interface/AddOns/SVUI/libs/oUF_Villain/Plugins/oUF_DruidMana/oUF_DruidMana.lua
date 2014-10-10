@@ -1,3 +1,37 @@
+--GLOBAL NAMESPACE
+local _G = _G;
+--LUA
+local unpack        = _G.unpack;
+local select        = _G.select;
+local assert        = _G.assert;
+local error         = _G.error;
+local print         = _G.print;
+local pairs         = _G.pairs;
+local next          = _G.next;
+local tostring      = _G.tostring;
+local type  		= _G.type;
+--STRING
+local string        = _G.string;
+local format        = string.format;
+--MATH
+local math          = _G.math;
+local floor         = math.floor
+local ceil          = math.ceil
+--TABLE
+local table         = _G.table;
+local wipe          = _G.wipe;
+--BLIZZARD API
+local BEAR_FORM       		= _G.BEAR_FORM;
+local CAT_FORM 				= _G.CAT_FORM;
+local SPELL_POWER_MANA      = _G.SPELL_POWER_MANA;
+local UnitClass         	= _G.UnitClass;
+local UnitPower         	= _G.UnitPower;
+local UnitReaction         	= _G.UnitReaction;
+local UnitPowerMax         	= _G.UnitPowerMax;
+local UnitIsPlayer      	= _G.UnitIsPlayer;
+local UnitPlayerControlled  = _G.UnitPlayerControlled;
+local GetShapeshiftFormID 	= _G.GetShapeshiftFormID;
+
 if(select(2, UnitClass('player')) ~= 'DRUID') then return end
 
 local _, ns = ...

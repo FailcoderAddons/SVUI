@@ -13,6 +13,17 @@ _____/\\\\\\\\\\\____/\\\________/\\\__/\\\________/\\\__/\\\\\\\\\\\_       #
 S U P E R - V I L L A I N - U I   By: Munglunch                              #
 ##############################################################################
 --]]
+--[[ GLOBALS ]]--
+local _G = _G;
+local unpack  	= _G.unpack;
+local select  	= _G.select;
+local ipairs  	= _G.ipairs;
+local pairs   	= _G.pairs;
+local next    	= _G.next;
+local time 		= _G.time;
+local date 		= _G.date;
+local ceil, modf = math.ceil, math.modf;
+--[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
 local STYLE = select(2, ...);
@@ -232,7 +243,7 @@ local function GuildBankStyle()
 		local f = GetCurrentGuildBankTab()
 		local e, g, h, i, j, k, l, m;
 		for b = 1, MAX_GUILDBANK_SLOTS_PER_TAB do
-			g = mod(b, NUM_SLOTS_PER_GUILDBANK_GROUP)
+			g = modf(b, NUM_SLOTS_PER_GUILDBANK_GROUP)
 			if g == 0 then
 				g = NUM_SLOTS_PER_GUILDBANK_GROUP 
 			end 

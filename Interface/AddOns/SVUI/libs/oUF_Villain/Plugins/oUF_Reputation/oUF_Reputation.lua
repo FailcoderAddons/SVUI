@@ -1,3 +1,30 @@
+--GLOBAL NAMESPACE
+local _G = _G;
+--LUA
+local unpack        = _G.unpack;
+local select        = _G.select;
+local assert        = _G.assert;
+local error         = _G.error;
+local print         = _G.print;
+local pairs         = _G.pairs;
+local next          = _G.next;
+local tostring      = _G.tostring;
+local type  		= _G.type;
+--STRING
+local string        = _G.string;
+local format        = string.format;
+--MATH
+local math          = _G.math;
+local floor         = math.floor
+--BLIZZARD API
+local UnitXP       		= _G.UnitXP;
+local UnitXPMax 		= _G.UnitXPMax;
+local GetXPExhaustion   = _G.GetXPExhaustion;
+local UnitSex         	= _G.UnitSex;
+local GetText  			= _G.GetText;
+local GetWatchedFactionInfo = _G.GetWatchedFactionInfo;
+local FACTION_BAR_COLORS  	= _G.FACTION_BAR_COLORS;
+
 local __, ns = ...
 local oUF = ns.oUF or oUF
 assert(oUF, 'oUF Reputation was unable to locate oUF install')

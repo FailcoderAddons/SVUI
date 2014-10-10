@@ -1,3 +1,14 @@
+--GLOBAL NAMESPACE
+local _G = _G;
+--LUA
+local unpack        = _G.unpack;
+local select        = _G.select;
+local assert        = _G.assert;
+--BLIZZARD API
+local UnitPower     	= _G.UnitPower;
+local UnitPowerMax 		= _G.UnitPowerMax;
+local UnitHasVehicleUI 	= _G.UnitHasVehicleUI;
+
 if select(2, UnitClass('player')) ~= "MONK" then return end
 
 local _, ns = ...

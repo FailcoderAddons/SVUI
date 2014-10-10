@@ -1,3 +1,13 @@
+--GLOBAL NAMESPACE
+local _G = _G;
+--LUA
+local unpack        = _G.unpack;
+local select        = _G.select;
+--BLIZZARD API
+local GameTooltip   = _G.GameTooltip;
+local MAX_TOTEMS 	= _G.MAX_TOTEMS;
+local TotemFrame 	= _G.TotemFrame;
+
 local class = select(2, UnitClass('player'))
 if(class ~= 'SHAMAN') then return end
 
@@ -51,7 +61,7 @@ local Update = function(self, event)
 			if(timeLeft > 0) then
 				totem.expirationTime = (start + duration)
 				totem:SetValue(timeLeft)
-				totem:SetScript('OnUpdate', UpdateBar)
+				totem:SetScript('OnUpdate', Totem_OnUpdate)
 			else
 				totem:SetValue(0)
 				totem:SetScript('OnUpdate', nil)

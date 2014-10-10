@@ -64,6 +64,14 @@ local SuperDockWindowRight;
 local currentQuestItems = {};
 local QuestDockletFrame, QuestDockletFrameTitle, QuestDockletFrameList, QuestDockletFrameSlider;
 local ICON_FILE = [[Interface\AddOns\SVUI\assets\artwork\Icons\DOCK-QUESTS]]
+local WATCHFRAME_MAXLINEWIDTH = _G.WATCHFRAME_MAXLINEWIDTH;
+local WATCHFRAME_EXPANDEDWIDTH = _G.WATCHFRAME_EXPANDEDWIDTH;
+local WATCHFRAME_FILTER_TYPE = _G.WATCHFRAME_FILTER_TYPE;
+local WATCHFRAME_FILTER_COMPLETED_QUESTS = _G.WATCHFRAME_FILTER_COMPLETED_QUESTS;
+local WATCHFRAME_FILTER_ACHIEVEMENTS = _G.WATCHFRAME_FILTER_ACHIEVEMENTS;
+local WATCHFRAME_FILTER_REMOTE_ZONES = _G.WATCHFRAME_FILTER_REMOTE_ZONES;
+local OBJECTIVES_TRACKER_LABEL = _G.OBJECTIVES_TRACKER_LABEL;
+local WATCHFRAME_NUM_ITEMS = _G.WATCHFRAME_NUM_ITEMS;
 --[[ 
 ########################################################## 
 PRE VARS/FUNCTIONS
@@ -257,14 +265,16 @@ end
 
 local function SetQuestDockEvents()
 	WatchFrame:HookScript("OnEvent", QWQuestItems)
-	WatchFrame.ScrollListUpdate = function()
+	WatchFrame.ScrollListUpdate = function(self)
+		local WatchFrame = _G.WatchFrame
 		QWSetWatchFrameTitle();
 		WATCHFRAME_MAXLINEWIDTH = WatchFrame:GetWidth();
 		if QuestDockletFrameList then 
 			WATCHFRAME_MAXLINEWIDTH = QuestDockletFrameList:GetWidth() - 62
 		end 
 	end 
-	WatchFrame.OnUpdate = function()
+	WatchFrame.OnUpdate = function(self)
+		local WatchFrame = _G.WatchFrame
 		WATCHFRAME_MAXLINEWIDTH = WatchFrame:GetWidth()
 		if QuestDockletFrameList then 
 			WATCHFRAME_MAXLINEWIDTH = QuestDockletFrameList:GetWidth() - 62
@@ -273,21 +283,22 @@ local function SetQuestDockEvents()
 		--QWSetAllLevels()
 		WatchFrame.ScrollListUpdate()
 	end 
-	WatchFrame.OnShow = function()
-		Collapsed = (WatchFrame.collapsed or false);
-		if WatchFrameHeader == nil then 
-			WatchFrame.userCollapsed = true 
-		end 
-		UserCollapsed = (WatchFrame.userCollapsed or false);
-		if Collapsed then 
-			WatchFrame_Collapse(WatchFrame)
-			WatchFrame.userCollapsed=UserCollapsed 
-		else 
-			WatchFrame_Expand(WatchFrame)
-		end 
-		WatchFrame.OnUpdate();
-	end 
-	WatchFrame.OnShow()
+	-- WatchFrame.OnShow = function(self)
+	-- 	local WatchFrame = _G.WatchFrame
+	-- 	Collapsed = (WatchFrame.collapsed or false);
+	-- 	if WatchFrameHeader == nil then 
+	-- 		WatchFrame.userCollapsed = true 
+	-- 	end 
+	-- 	UserCollapsed = (WatchFrame.userCollapsed or false);
+	-- 	if Collapsed then 
+	-- 		WatchFrame_Collapse(WatchFrame)
+	-- 		WatchFrame.userCollapsed=UserCollapsed 
+	-- 	else 
+	-- 		WatchFrame_Expand(WatchFrame)
+	-- 	end 
+	-- 	WatchFrame.OnUpdate();
+	-- end 
+	-- WatchFrame.OnShow()
 
 	hooksecurefunc("QuestLog_Update", WatchFrame.OnUpdate)
 end 
@@ -296,9 +307,9 @@ end
 CORE FUNCTIONS
 ##########################################################
 ]]--
-local QuestDocklet_OnEvent = function(self, event)
+local QuestDocklet_OnEvent = function(self, event, arg)
 	if event == "CVAR_UPDATE" then
-		if action == "WATCH_FRAME_WIDTH_TEXT"then 
+		if arg == "WATCH_FRAME_WIDTH_TEXT" then 
 			if WatchFrame then 
 				WatchFrame.OnUpdate()
 			end 

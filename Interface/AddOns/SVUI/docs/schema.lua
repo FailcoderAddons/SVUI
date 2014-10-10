@@ -42,7 +42,7 @@ S U P E R - V I L L A I N - U I   By: Munglunch                              #
 
 ]]--
 
-local lib = LibSuperVillain
+local lib = _G.LibSuperVillain
 local PKG = {};
 
 --Here you would build your package object, then...

@@ -3,10 +3,37 @@
 	THIS FILE HEAVILY MODIFIED FOR USE WITH SUPERVILLAIN UI
 
 ]]
+--GLOBAL NAMESPACE
+local _G = _G;
+--LUA
+local unpack        = _G.unpack;
+local select        = _G.select;
+local assert        = _G.assert;
+--MATH
+local math          = _G.math;
+local max         	= math.max
+local random 		= math.random
+--BLIZZARD API
+local UnitClass     			= _G.UnitClass;
+local UnitReaction     			= _G.UnitReaction;
+local UnitIsEnemy     			= _G.UnitIsEnemy;
+local GetCVarBool     			= _G.GetCVarBool;
+local SetCVar     				= _G.SetCVar;
+local UnitHealth     			= _G.UnitHealth;
+local UnitHealthMax     		= _G.UnitHealthMax;
+local UnitIsConnected			= _G.UnitIsConnected;
+local UnitIsDeadOrGhost 		= _G.UnitIsDeadOrGhost;
+local UnitIsPlayer 				= _G.UnitIsPlayer;
+local UnitPlayerControlled 		= _G.UnitPlayerControlled;
+local UnitIsTapped 				= _G.UnitIsTapped;
+local UnitIsTappedByPlayer 		= _G.UnitIsTappedByPlayer;
+local UnitIsTappedByAllThreatList = _G.UnitIsTappedByAllThreatList;
+
+
 local parent, ns = ...
 local oUF = ns.oUF
 local updateFrequentUpdates
-local random = math.random
+
 oUF.colors.health = {49/255, 207/255, 37/255}
 
 local Update = function(self, event, unit)
@@ -155,7 +182,7 @@ local CustomUpdate = function(self, event, unit)
 		health:SetStatusBarColor(0.6,0.4,1,0.5)
 		health.animation[1]:SetVertexColor(0.8,0.3,1,0.4)
 	elseif(health.colorOverlay) then
-		local t = oUF_Villain.colors.health
+		local t = oUF.colors.health
 		health:SetStatusBarColor(t[1], t[2], t[3], 0.9)
 	else
 		health:SetStatusBarColor(1, 0.25 * mu, 0, 0.85)

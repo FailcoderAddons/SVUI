@@ -18,10 +18,20 @@ LOCALIZED LUA FUNCTIONS
 ]]--
 --[[ GLOBALS ]]--
 local _G = _G;
-local unpack    = _G.unpack;
-local select    = _G.select;
-local pairs     = _G.pairs;
-local type      = _G.type;
+local unpack        = _G.unpack;
+local select        = _G.select;
+local assert        = _G.assert;
+local type          = _G.type;
+local error         = _G.error;
+local pcall         = _G.pcall;
+local print         = _G.print;
+local ipairs        = _G.ipairs;
+local pairs         = _G.pairs;
+local next          = _G.next;
+local rawset        = _G.rawset;
+local rawget        = _G.rawget;
+local tostring      = _G.tostring;
+local tonumber      = _G.tonumber;
 local string    = _G.string;
 local math      = _G.math;
 local table 	= _G.table;
@@ -29,7 +39,13 @@ local table 	= _G.table;
 local join, len = string.join, string.len;
 --[[ MATH METHODS ]]--
 local min = math.min;
-local tsort, twipe = table.sort, _G.wipe;
+--TABLE
+local table         = _G.table;
+local tsort         = table.sort;
+local tconcat       = table.concat;
+local tinsert       = _G.tinsert;
+local tremove       = _G.tremove;
+local twipe         = _G.wipe;
 --[[ 
 ########################################################## 
 GET ADDON DATA
@@ -122,18 +138,19 @@ end
 local UpdateAnchor = function()
 	local backdrops, width, height = SV.db.SVStats.showBackground
 	for _, anchor in pairs(MOD.Anchors) do
+		local numPoints = anchor.numPoints
 		if(anchor.vertical) then
 			width = anchor:GetWidth() - 4;
-			height = anchor:GetHeight() / anchor.numPoints - 4;
+			height = anchor:GetHeight() / numPoints - 4;
 		else
-			width = anchor:GetWidth() / anchor.numPoints - 4;
+			width = anchor:GetWidth() / numPoints - 4;
 			height = anchor:GetHeight() - 4;
 			if(backdrops) then
 				height = RightSuperDockToggleButton:GetHeight() - 6
 			end
 		end
 
-		for i = 1, anchor.numPoints do 
+		for i = 1, numPoints do 
 			local this = positionIndex[anchor.useIndex][i]
 			anchor.holders[this]:Width(width)
 			anchor.holders[this]:Height(height)
@@ -418,7 +435,7 @@ do
 		StatMenuFrame:SetSize(maxWidth, maxHeight)    
 		StatMenuFrame:ClearAllPoints()
 		local point = _locate(self:GetParent()) 
-		if strfind(point, "BOTTOM") then
+		if point:find("BOTTOM") then
 			StatMenuFrame:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 10, 10)
 		else
 			StatMenuFrame:SetPoint("TOPLEFT", self, "BOTTOMLEFT", 10, -10)
@@ -656,7 +673,7 @@ function MOD:Load()
 	local hexClass = classColor.colorStr
 	BGStatString = "|cff" .. hexHighlight .. "%s: |c" .. hexClass .. "%s|r";
 
-	self.Accountant = LibSuperVillain:NewGlobal("Accountant")
+	self.Accountant = _G.LibSuperVillain:NewGlobal("Accountant")
 
 	self.Accountant = self.Accountant or {};
 	self.Accountant[playerRealm] = self.Accountant[playerRealm] or {};

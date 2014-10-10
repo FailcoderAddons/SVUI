@@ -1,3 +1,17 @@
+--GLOBAL NAMESPACE
+local _G = _G;
+--LUA
+local unpack        = _G.unpack;
+local select        = _G.select;
+local assert        = _G.assert;
+local pairs         = _G.pairs;
+local type  		= _G.type;
+--MATH
+local math          = _G.math;
+local abs         	= math.abs;
+--BLIZZARD API
+local GetFramerate      = _G.GetFramerate;
+
 local _, ns = ...
 local oUF = ns.oUF or oUF
 if not oUF then return end

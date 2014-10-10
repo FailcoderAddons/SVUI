@@ -1,3 +1,24 @@
+--GLOBAL NAMESPACE
+local _G = _G;
+--LUA
+local unpack        = _G.unpack;
+local select        = _G.select;
+local assert        = _G.assert;
+local error         = _G.error;
+local print         = _G.print;
+local pairs         = _G.pairs;
+local next          = _G.next;
+local tostring      = _G.tostring;
+local type  		= _G.type;
+
+--BLIZZARD API
+local InCombatLockdown  = _G.InCombatLockdown;
+local UnitHealth        = _G.UnitHealth;
+local UnitExists        = _G.UnitExists;
+local UnitHealthMax     = _G.UnitHealthMax;
+local UnitCastingInfo   = _G.UnitCastingInfo;
+local UnitChannelInfo   = _G.UnitChannelInfo;
+
 local parent, ns = ...
 local oUF = ns.oUF
 local frames, allFrames = {}, {}
@@ -73,7 +94,7 @@ local Update = function(self, arg1, arg2)
 end
 
 local Enable = function(self, unit)
-	if(not CORE) then CORE = SVUI end
+	if(not CORE) then CORE = ns end
 
 	if self.CombatFade then
 		frames[self] = self.unit

@@ -1,3 +1,34 @@
+--GLOBAL NAMESPACE
+local _G = _G;
+--LUA
+local unpack        = _G.unpack;
+local select        = _G.select;
+local assert        = _G.assert;
+local error         = _G.error;
+local print         = _G.print;
+local pairs         = _G.pairs;
+local next          = _G.next;
+local tostring      = _G.tostring;
+local type  		= _G.type;
+--STRING
+local string        = _G.string;
+local format        = string.format;
+--MATH
+local math          = _G.math;
+local floor         = math.floor
+local ceil          = math.ceil
+--TABLE
+local table         = _G.table;
+local wipe          = _G.wipe;
+--BLIZZARD API
+local GetTime       		= _G.GetTime;
+local GetSpecialization 	= _G.GetSpecialization;
+local UnitAura         		= _G.UnitAura;
+local UnitIsCharmed         = _G.UnitIsCharmed;
+local UnitCanAttack         = _G.UnitCanAttack;
+local GetSpellInfo      	= _G.GetSpellInfo;
+local GetActiveSpecGroup  	= _G.GetActiveSpecGroup;
+
 local _, ns = ...
 local oUF = ns.oUF or oUF
 
@@ -6,10 +37,7 @@ local CleanseName = GetSpellInfo(4987)
 
 local addon = {}
 ns.oUF_RaidDebuffs = addon
-oUF_RaidDebuffs = ns.oUF_RaidDebuffs
-if not _G.oUF_RaidDebuffs then
-	_G.oUF_RaidDebuffs = addon
-end
+_G.oUF_RaidDebuffs = ns.oUF_RaidDebuffs
 
 local debuff_data = {}
 addon.DebuffData = debuff_data

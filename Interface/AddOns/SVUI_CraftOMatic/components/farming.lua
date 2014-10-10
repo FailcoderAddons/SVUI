@@ -18,10 +18,30 @@ LOCALIZED LUA FUNCTIONS
 ]]--
 --[[ GLOBALS ]]--
 local _G = _G;
-local unpack 	= _G.unpack;
-local select 	= _G.select;
-local type 		= _G.type;
-local string    = _G.string;
+local unpack        = _G.unpack;
+local select        = _G.select;
+local assert        = _G.assert;
+local type          = _G.type;
+local error         = _G.error;
+local pcall         = _G.pcall;
+local print         = _G.print;
+local ipairs        = _G.ipairs;
+local pairs         = _G.pairs;
+local next          = _G.next;
+local rawset        = _G.rawset;
+local rawget        = _G.rawget;
+local tostring      = _G.tostring;
+local tonumber      = _G.tonumber;
+local getmetatable  = _G.getmetatable;
+local setmetatable  = _G.setmetatable;
+--STRING
+local string        = _G.string;
+local upper         = string.upper;
+local format        = string.format;
+local find          = string.find;
+local match         = string.match;
+local gsub          = string.gsub;
+
 local math 		= _G.math;
 local table 	= _G.table;
 local rept      = string.rep; 
@@ -280,17 +300,23 @@ do
 	function LoadFarmingModeTools()
 		local itemError = false
 		for k, v in pairs(refSeeds) do
-			if select(2, GetItemInfo(k)) == nil then itemError = true end
+			if select(2, GetItemInfo(k)) == nil then print(GetItemInfo(k)) itemError = true end
 		end
 		for k, v in pairs(refTools) do
-			if select(2, GetItemInfo(k)) == nil then itemError = true end
+			if select(2, GetItemInfo(k)) == nil then print(GetItemInfo(k)) itemError = true end
 		end
 		for k, v in pairs(refPortals) do
-			if select(2, GetItemInfo(k)) == nil then itemError = true end
+			if select(2, GetItemInfo(k)) == nil then print(GetItemInfo(k)) itemError = true end
 		end
 		if InCombatLockdown() or itemError then
+			if PLUGIN.FarmLoadTimer then
+				PLUGIN.FarmLoadTimer = nil
+				PLUGIN.Farming:Disable()
+				PLUGIN.TitleWindow:AddMessage("|cffffff11The Loader is Being Dumb...|r|cffff1111PLEASE TRY AGAIN|r")
+				return 
+			end
 			PLUGIN.TitleWindow:AddMessage("|cffffff11Loading Farm Tools...|r|cffff1111PLEASE WAIT|r")
-			SV.Timers:ExecuteTimer(LoadFarmingModeTools, 5)
+			PLUGIN.FarmLoadTimer = SV.Timers:ExecuteTimer(LoadFarmingModeTools, 5)
 		else
 			local horizontal = SV.db[Schema].farming.toolbardirection == 'HORIZONTAL'
 
@@ -337,7 +363,8 @@ do
 			end
 
 			PLUGIN.Farming.Loaded = true
-			SV.Timers:ExecuteTimer(PLUGIN.Farming.Enable, 1.5)
+			PLUGIN.FarmLoadTimer = nil
+			PLUGIN.FarmEnableTimer = SV.Timers:ExecuteTimer(PLUGIN.Farming.Enable, 1.5)
 		end
 	end
 end

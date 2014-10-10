@@ -1,3 +1,29 @@
+--GLOBAL NAMESPACE
+local _G = _G;
+--LUA
+local unpack        = _G.unpack;
+local select        = _G.select;
+local assert        = _G.assert;
+local error         = _G.error;
+local print         = _G.print;
+local pairs         = _G.pairs;
+local next          = _G.next;
+local tostring      = _G.tostring;
+local type  		= _G.type;
+--STRING
+local string        = _G.string;
+local format        = string.format;
+--MATH
+local math          = _G.math;
+local floor         = math.floor
+--BLIZZARD API
+local UnitXP       		= _G.UnitXP;
+local UnitXPMax 		= _G.UnitXPMax;
+local GetXPExhaustion   = _G.GetXPExhaustion;
+local UnitLevel         = _G.UnitLevel;
+local UnitHasVehicleUI  = _G.UnitHasVehicleUI;
+local MAX_PLAYER_LEVEL  = _G.MAX_PLAYER_LEVEL;
+
 local __, ns = ...
 local oUF = ns.oUF or oUF
 assert(oUF, 'oUF Experience was unable to locate oUF install')
@@ -10,7 +36,7 @@ for tag, func in pairs({
 		return UnitXPMax(unit)
 	end,
 	['perxp'] = function(unit)
-		return math.floor(UnitXP(unit) / UnitXPMax(unit) * 100 + 0.5)
+		return floor(UnitXP(unit) / UnitXPMax(unit) * 100 + 0.5)
 	end,
 	['currested'] = function()
 		return GetXPExhaustion()
@@ -18,7 +44,7 @@ for tag, func in pairs({
 	['perrested'] = function(unit)
 		local rested = GetXPExhaustion()
 		if(rested and rested > 0) then
-			return math.floor(rested / UnitXPMax(unit) * 100 + 0.5)
+			return floor(rested / UnitXPMax(unit) * 100 + 0.5)
 		end
 	end,
 }) do

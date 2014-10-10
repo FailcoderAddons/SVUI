@@ -42,6 +42,11 @@ local sqrt2, max = math.sqrt(2), math.max;
 local tcopy, twipe, tsort, tconcat, tdump = table.copy, table.wipe, table.sort, table.concat, table.dump;
 --[[ BINARY METHODS ]]--
 local band = bit.band;
+
+--[[  CONSTANTS ]]--
+
+_G.BINDING_HEADER_SVUITRACK = "Supervillain UI: Track-O-Matic";
+_G.BINDING_NAME_SVUITRACK_DOODAD = "Toggle Tracking Device";
 --[[ 
 ########################################################## 
 GET ADDON DATA
@@ -55,12 +60,9 @@ local SV = _G["SVUI"];
 local L = SV.L;
 --[[ 
 ########################################################## 
-LOCALS AND BINDING
+LOCALS
 ##########################################################
 ]]--
-BINDING_HEADER_SVUITRACK = "Supervillain UI: Track-O-Matic";
-BINDING_NAME_SVUITRACK_DOODAD = "Toggle Tracking Device";
-
 local NewHook = hooksecurefunc;
 local playerGUID = UnitGUID('player')
 local classColor = RAID_CLASS_COLORS
@@ -198,7 +200,7 @@ function PLUGIN:Load()
         _TRACKER.Range:SetFont(SV.Media.font.roboto, 14, "OUTLINE")
         _TRACKER.Range:SetTextColor(1, 1, 1, 0.75)
         _TRACKER.Spin = Rotate_Arrow
-        _TRACKER.Track = Triangulate
+        _TRACKER.Track = _G.Triangulate
 
         _TRACKER:RegisterForDrag("LeftButton");
         _TRACKER:SetScript("OnUpdate", Tracker_OnUpdate)

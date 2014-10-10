@@ -1564,7 +1564,7 @@ SV.Options.args.SVUnit = {
 						return SV.db.media.textures[key[#key]]
 					end,
 					set = function(key, value)
-						SV.db.media.textures[key[#key]] = {"background", value}
+						SV.db.media.textures[key[#key]] = value
 						SV:RefreshEverything(true)
 					end,
 					args = {

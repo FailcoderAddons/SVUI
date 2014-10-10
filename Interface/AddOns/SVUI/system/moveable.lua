@@ -21,6 +21,7 @@ local _G = _G;
 local unpack 	= _G.unpack;
 local select 	= _G.select;
 local type 		= _G.type;
+local pairs     = _G.pairs;
 local string 	= _G.string;
 local math 		= _G.math;
 --[[ STRING METHODS ]]--

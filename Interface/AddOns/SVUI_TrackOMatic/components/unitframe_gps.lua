@@ -51,6 +51,10 @@ local oUF = oUF_Villain or oUF
 assert(oUF, 'oUF not loaded')
 
 local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
+
+local SV = _G["SVUI"];
+local L = SV.L;
 
 local GPS_UpdateHandler = CreateFrame("Frame");
 
@@ -59,6 +63,7 @@ local _FRAMES, _PROXIMITY = {}, {}
 local minThrottle = 0.02
 local numArrows, inRange, GPS
 local Triangulate = Triangulate
+local NewHook = hooksecurefunc;
 --[[ 
 ########################################################## 
 oUF TAGS
@@ -231,7 +236,7 @@ local Update = function(self, elapsed)
 				GPS = object.GPS
 				local unit = object.unit
 				if(unit) then
-					if(GPS.PreUpdate) then GPS:PreUpdate(frame) end
+					if(GPS.PreUpdate) then GPS:PreUpdate(object) end
 
 					local outOfRange = GPS.outOfRange and UnitInRange(unit) or false
 
@@ -269,7 +274,7 @@ local Update = function(self, elapsed)
 								GPS.Text:SetText(floor(distance))
 							end
 
-							if(GPS.PostUpdate) then GPS:PostUpdate(frame, distance, angle) end
+							if(GPS.PostUpdate) then GPS:PostUpdate(object, distance, angle) end
 							numArrows = numArrows + 1
 						end
 					end				

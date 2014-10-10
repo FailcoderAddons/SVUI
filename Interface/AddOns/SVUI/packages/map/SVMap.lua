@@ -64,6 +64,8 @@ local Initialized = false
 DATA UPVALUES
 ##########################################################
 ]]--
+local MM_XY_COORD = "SIMPLE";
+local WM_TINY = false;
 local NARR_TEXT = "Meanwhile";
 local NARR_PREFIX = "In ";
 local NARR_ENABLE = true;

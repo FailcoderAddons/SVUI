@@ -13,6 +13,13 @@ _____/\\\\\\\\\\\____/\\\________/\\\__/\\\________/\\\__/\\\\\\\\\\\_       #
 S U P E R - V I L L A I N - U I   By: Munglunch                              #
 ##############################################################################
 --]]
+--[[ GLOBALS ]]--
+local _G = _G;
+local unpack  = _G.unpack;
+local select  = _G.select;
+local ipairs        = _G.ipairs;
+local pairs         = _G.pairs;
+--[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
 local STYLE = select(2, ...);
@@ -53,12 +60,6 @@ local function CalendarStyle()
 			cfframe:Width(155)
 			cfframe:SetPanelTemplate("Default")
 
-			local cftext = _G["CalendarFilterFrameText"]
-			if(cftext) then
-				cftext:ClearAllPoints()
-				cftext:SetPoint("RIGHT", cfbutton, "LEFT", -2, 0)
-			end
-
 			local cfbutton = _G["CalendarFilterButton"];
 			if(cfbutton) then
 				cfbutton:ClearAllPoints()
@@ -66,6 +67,12 @@ local function CalendarStyle()
 				STYLE:ApplyPaginationStyle(cfbutton, true)
 				cfframe.Panel:SetPoint("TOPLEFT", 20, 2)
 				cfframe.Panel:SetPoint("BOTTOMRIGHT", cfbutton, "BOTTOMRIGHT", 2, -2)
+
+				local cftext = _G["CalendarFilterFrameText"]
+				if(cftext) then
+					cftext:ClearAllPoints()
+					cftext:SetPoint("RIGHT", cfbutton, "LEFT", -2, 0)
+				end
 			end
 		end
 	end

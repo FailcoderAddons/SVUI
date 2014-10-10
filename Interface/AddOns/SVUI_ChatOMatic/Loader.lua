@@ -16,11 +16,18 @@ S U P E R - V I L L A I N - U I   By: Munglunch                              #
 LOCALIZED LUA FUNCTIONS
 ##########################################################
 ]]--
+--GLOBAL NAMESPACE
+local _G = _G;
+--LUA
+local unpack        = _G.unpack;
+local select        = _G.select;
+local assert        = _G.assert;
+
 local AddonName, AddonObject = ...
 
-assert(LibSuperVillain, AddonName .. " requires LibSuperVillain")
+assert(_G.LibSuperVillain, AddonName .. " requires LibSuperVillain")
 
-local PLUGIN = LibSuperVillain:NewPlugin(AddonName, AddonObject)
+local PLUGIN = _G.LibSuperVillain:NewPlugin(AddonName, AddonObject)
 
 local Schema = PLUGIN.Schema;
 local SV = _G["SVUI"];

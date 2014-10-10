@@ -433,10 +433,8 @@ function MOD:RefreshUnitMedia(unitName)
         end
         if(self.Castbar and (unitDB.castbar)) then
             if(unitDB.castbar.useCustomColor) then
-				cr,cg,cb = unitDB.castbar.castingColor[1], unitDB.castbar.castingColor[2], unitDB.castbar.castingColor[3];
-				self.Castbar.CastColor = {cr,cg,cb}
-				cr,cg,cb = unitDB.castbar.sparkColor[1], unitDB.castbar.sparkColor[2], unitDB.castbar.sparkColor[3];
-				self.Castbar.SparkColor = {cr,cg,cb}
+				self.Castbar.CastColor = unitDB.castbar.castingColor
+				self.Castbar.SparkColor = unitDB.castbar.sparkColor
 			else
 				self.Castbar.CastColor = oUF_Villain.colors.casting
 				self.Castbar.SparkColor = oUF_Villain.colors.spark
@@ -1009,7 +1007,7 @@ function MOD:RefreshUnitLayout(frame, template)
 			elseif(db.aurabar.attachTo == "DEBUFFS" and frame.Debuffs and frame.Debuffs:IsShown()) then 
 				attachTo = frame.Debuffs
 				preOffset = 10
-			elseif not isPlayer and SVUI_Player and db.aurabar.attachTo == "PLAYER_AURABARS" then
+			elseif template ~= "player" and SVUI_Player and db.aurabar.attachTo == "PLAYER_AURABARS" then
 				attachTo = SVUI_Player.AuraBars
 				preOffset = 10
 			end

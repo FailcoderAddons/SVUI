@@ -57,6 +57,7 @@ local lockoutColorExtended, lockoutColorNormal = { r=0.3,g=1,b=0.3 }, { r=.8,g=.
 local lockoutFormatString = { "%dd %02dh %02dm", "%dd %dh %02dm", "%02dh %02dm", "%dh %02dm", "%dh %02dm", "%dm" }
 local curHr, curMin, curAmPm
 local enteredFrame = false;
+local date = _G.date
 
 local Update, lastPanel; -- UpValue
 local localizedName, isActive, canQueue, startTime, canEnter, _
@@ -91,7 +92,7 @@ local function CalculateTimeValues(tooltip)
 	if (tooltip and SV.db.SVStats.localtime) or (not tooltip and not SV.db.SVStats.localtime) then
 		return ConvertTime(GetGameTime())
 	else
-		local	dateTable =	date("*t")
+		local dateTable = date("*t")
 		return ConvertTime(dateTable["hour"], dateTable["min"])
 	end
 end
@@ -105,7 +106,7 @@ local function OnLeave(self)
 	enteredFrame = false;
 end
 
-local function OnEvent()
+local function OnEvent(self, event)
 	if event == "UPDATE_INSTANCE_INFO" and enteredFrame then
 		RequestRaidInfo()
 	end

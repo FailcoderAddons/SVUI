@@ -39,7 +39,7 @@ local lower, upper = string.lower, string.upper;
 local find, format, split = string.find, string.format, string.split;
 local match, gmatch, gsub = string.match, string.gmatch, string.gsub;
 --[[ MATH METHODS ]]--
-local floor = math.floor;  -- Basic
+local floor, ceil = math.floor, math.ceil;  -- Basic
 --[[ BINARY METHODS ]]--
 local band, bor = bit.band, bit.bor;
 --[[ TABLE METHODS ]]--
@@ -642,7 +642,8 @@ PLATE UPDATE HANDLERS
 ]]--
 do
 	local function IsNamePlate(frame)
-		if frame:GetName() and strfind(frame:GetName(), '^NamePlate%d') then
+		local frameName = frame:GetName()
+		if frameName and frameName:find('^NamePlate%d') then
 			local textObj = select(2, frame:GetChildren())
 			if textObj then
 				local textRegions = textObj:GetRegions()

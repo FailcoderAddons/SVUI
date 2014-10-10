@@ -13,6 +13,14 @@ _____/\\\\\\\\\\\____/\\\________/\\\__/\\\________/\\\__/\\\\\\\\\\\_       #
 S U P E R - V I L L A I N - U I   By: Munglunch                              #
 ##############################################################################
 --]]
+--[[ GLOBALS ]]--
+local _G = _G;
+local unpack  	= _G.unpack;
+local select  	= _G.select;
+local ipairs  	= _G.ipairs;
+local pairs   	= _G.pairs;
+local type 		= _G.type;
+--[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
 local STYLE = select(2, ...);
@@ -64,24 +72,24 @@ local function TabardFrameStyle()
 		local c = "TabardFrameCustomization"..b;_G[c]:RemoveTextures()
 		STYLE:ApplyPaginationStyle(_G[c.."LeftButton"])
 		STYLE:ApplyPaginationStyle(_G[c.."RightButton"])
-		if b>1 then
+		if b > 1 then
 			 _G[c]:ClearAllPoints()
 			_G[c]:Point("TOP", _G["TabardFrameCustomization"..b-1], "BOTTOM", 0, -6)
 		else
 			local d, e, f, g, h = _G[c]:GetPoint()
-			_G[c]:Point(d, e, f, g, h+4)
+			_G[c]:Point(d, e, f, g, h + 4)
 		end 
 	end 
-	TabardCharacterModelRotateLeftButton:Point("BOTTOMLEFT", 4, 4)
-	TabardCharacterModelRotateRightButton:Point("TOPLEFT", TabardCharacterModelRotateLeftButton, "TOPRIGHT", 4, 0)
-	hooksecurefunc(TabardCharacterModelRotateLeftButton, "SetPoint", function(i, d, j, k, l, m)
-		if d ~= "BOTTOMLEFT"or l ~= 4 or m ~= 4 then
-			 i:Point("BOTTOMLEFT", 4, 4)
+	TabardCharacterModelRotateLeftButton:SetPoint("BOTTOMLEFT", 4, 4)
+	TabardCharacterModelRotateRightButton:SetPoint("TOPLEFT", TabardCharacterModelRotateLeftButton, "TOPRIGHT", 4, 0)
+	hooksecurefunc(TabardCharacterModelRotateLeftButton, "SetPoint", function(self, d, j, k, l, m)
+		if d ~= "BOTTOMLEFT" or l ~= 4 or m ~= 4 then
+			 self:SetPoint("BOTTOMLEFT", 4, 4)
 		end 
 	end)
-	hooksecurefunc(TabardCharacterModelRotateRightButton, "SetPoint", function(i, d, j, k, l, m)
-		if d ~= "TOPLEFT"or l ~= 4 or m ~= 0 then
-			 i:Point("TOPLEFT", TabardCharacterModelRotateLeftButton, "TOPRIGHT", 4, 0)
+	hooksecurefunc(TabardCharacterModelRotateRightButton, "SetPoint", function(self, d, j, k, l, m)
+		if d ~= "TOPLEFT" or l ~= 4 or m ~= 0 then
+			 self:SetPoint("TOPLEFT", _G.TabardCharacterModelRotateLeftButton, "TOPRIGHT", 4, 0)
 		end 
 	end)
 end 

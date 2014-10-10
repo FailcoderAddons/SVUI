@@ -431,7 +431,7 @@ SV.Options.args.SVPlate = {
 					order = 4,
 					name = L["Target Indicator"],
 					get = function(d)return SV.db.SVPlate.pointer[d[#d]]end,
-					set = function(d,e)MOD:ChangeDBVar(e,d[#d],"pointer");WorldFrame.elapsed = 3;MOD:UpdateAllPlates()end,
+					set = function(d,e) MOD:ChangeDBVar(e,d[#d],"pointer"); _G.WorldFrame.elapsed = 3; MOD:UpdateAllPlates() end,
 					args = {
 						enable = {
 							order = 1,
@@ -446,7 +446,7 @@ SV.Options.args.SVPlate = {
 							set = function(key, value)
 								MOD:ChangeDBVar(value, key[#key], "pointer");
 								if value then
-									WorldFrame.elapsed = 3 
+									_G.WorldFrame.elapsed = 3 
 								end 
 							end
 						},
@@ -530,7 +530,7 @@ SV.Options.args.SVPlate = {
 							name = L["Additional Filter"],
 							values = function()
 								filters = {}
-								filters[""] = NONE;
+								filters[""] = _G.NONE;
 								for j in pairs(SV.db.filter) do 
 									filters[j] = j 
 								end 
@@ -701,7 +701,7 @@ SV.Options.args.SVPlate = {
 							name = L["Remove Name"],
 							get = function(d)return""end,
 							set = function(d,e)
-								if G["SVPlate"]["filter"][e]then 
+								if SV.db["SVPlate"]["filter"][e] then 
 									SV.db["SVPlate"]["filter"][e].enable = false;
 									SV:AddonMessage(L["You can't remove a default name from the filter,disabling the name."])
 								else 

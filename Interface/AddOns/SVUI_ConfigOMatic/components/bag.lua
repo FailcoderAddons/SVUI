@@ -82,7 +82,7 @@ SV.Options.args.SVBag = {
 							min = 15, 
 							max = 45, 
 							step = 1, 
-							set = function(a,b)MOD:ChangeDBVar(b,a[#a])MOD:Layout()end
+							set = function(a,b) MOD:ChangeDBVar(b,a[#a]) MOD:RefreshBagFrames("BagFrame") end
 						},
 						bankSize = {
 							order = 2, 
@@ -92,7 +92,7 @@ SV.Options.args.SVBag = {
 							min = 15, 
 							max = 45, 
 							step = 1, 
-							set = function(a,b)MOD:ChangeDBVar(b,a[#a])MOD:Layout(true)end
+							set = function(a,b) MOD:ChangeDBVar(b,a[#a]) MOD:RefreshBagFrames("BankFrame") end
 						},
 						sortInverted = {
 							order = 3, 
@@ -108,7 +108,7 @@ SV.Options.args.SVBag = {
 							min = 150, 
 							max = 700, 
 							step = 1, 
-							set = function(a,b)MOD:ChangeDBVar(b,a[#a])MOD:Layout()end, 
+							set = function(a,b) MOD:ChangeDBVar(b,a[#a]) MOD:RefreshBagFrames("BagFrame") end, 
 							disabled = function()return SV.db.SVBag.alignToChat end
 						},
 						bankWidth = {
@@ -119,8 +119,8 @@ SV.Options.args.SVBag = {
 							min = 150, 
 							max = 700, 
 							step = 1, 
-							set = function(a,b)MOD:ChangeDBVar(b,a[#a])MOD:Layout(true)end, 
-							disabled = function()return SV.db.SVBag.alignToChat end
+							set = function(a,b) MOD:ChangeDBVar(b,a[#a]) MOD:RefreshBagFrames("BankFrame") end, 
+							disabled = function() return SV.db.SVBag.alignToChat end
 						},
 						currencyFormat = {
 							order = 6, 
@@ -131,7 +131,7 @@ SV.Options.args.SVBag = {
 								["ICON"] = L["Icons Only"], 
 								["ICON_TEXT"] = L["Icons and Text"]
 							},
-							set = function(a,b)MOD:ChangeDBVar(b,a[#a])MOD:RefreshTokens()end
+							set = function(a,b)MOD:ChangeDBVar(b,a[#a]) MOD:RefreshTokens() end
 						},
 						bagTools = {
 							order = 7, 
@@ -163,7 +163,7 @@ SV.Options.args.SVBag = {
 							type = "toggle", 
 							name = L["Align To Chat"], 
 							desc = L["Align the width of the bag frame to fit inside the chat box."], 
-							set = function(a,b)MOD:ChangeDBVar(b,a[#a])MOD:Layout()MOD:Layout(true)end
+							set = function(a,b)MOD:ChangeDBVar(b,a[#a]) MOD:RefreshBagFrames() end
 						},
 						bags = {
 							order = 2, 

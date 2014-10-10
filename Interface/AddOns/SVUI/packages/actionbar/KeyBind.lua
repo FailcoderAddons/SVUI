@@ -204,7 +204,7 @@ function MOD:ToggleKeyBindingMode(deactivate, saveRequested)
   end
 end 
 
-blockedButtons = { LSHIFT = true, RSHIFT = true, LCTRL = true, RCTRL = true, LALT = true, RALT = true, UNKNOWN = true, LeftButton = true}
+local blockedButtons = { LSHIFT = true, RSHIFT = true, LCTRL = true, RCTRL = true, LALT = true, RALT = true, UNKNOWN = true, LeftButton = true}
 
 --[[ HANDLERS ]]--
 local tipTimeLapse = 0;
@@ -415,7 +415,7 @@ function MOD:LoadKeyBinder()
   Binder:EnableKeyboard(true)
   Binder:EnableMouseWheel(true)
   Binder.texture = Binder:CreateTexture()
-  Binder.texture:SetAllPoints(a)
+  Binder.texture:SetAllPoints(Binder)
   Binder.texture:SetTexture(0, 0, 0, .25)
   Binder:Hide()
 

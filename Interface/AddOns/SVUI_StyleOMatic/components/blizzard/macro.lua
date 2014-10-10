@@ -13,6 +13,11 @@ _____/\\\\\\\\\\\____/\\\________/\\\__/\\\________/\\\__/\\\\\\\\\\\_       #
 S U P E R - V I L L A I N - U I   By: Munglunch                              #
 ##############################################################################
 --]]
+--[[ GLOBALS ]]--
+local _G = _G;
+local unpack  = _G.unpack;
+local select  = _G.select;
+--[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
 local STYLE = select(2, ...);
@@ -34,34 +39,66 @@ MACRO UI STYLER
 ##########################################################
 ]]--
 local function MacroUIStyle()
-	if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.macro ~= true then return end 
+	if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.macro ~= true then return end
+
+	local MacroFrame = _G.MacroFrame;
+	local MacroFrameCloseButton = _G.MacroFrameCloseButton;
+	local MacroButtonScrollFrameScrollBar = _G.MacroButtonScrollFrameScrollBar;
+	local MacroFrameScrollFrameScrollBar = _G.MacroFrameScrollFrameScrollBar;
+	local MacroPopupScrollFrameScrollBar = _G.MacroPopupScrollFrameScrollBar;
+
+	local MacroPopupScrollFrame = _G.MacroPopupScrollFrame;
+	local MacroPopupFrame = _G.MacroPopupFrame;
+	local MacroFrameSelectedMacroButton = _G.MacroFrameSelectedMacroButton;
+	local MacroFrameSelectedMacroButtonIcon = _G.MacroFrameSelectedMacroButtonIcon;
+
 	STYLE:ApplyCloseButtonStyle(MacroFrameCloseButton)
 	STYLE:ApplyScrollFrameStyle(MacroButtonScrollFrameScrollBar)
 	STYLE:ApplyScrollFrameStyle(MacroFrameScrollFrameScrollBar)
 	STYLE:ApplyScrollFrameStyle(MacroPopupScrollFrameScrollBar)
+
 	MacroFrame:Width(360)
-	for b = 1, #MacroButtonList do
-		_G[MacroButtonList[b]]:RemoveTextures()
-		_G[MacroButtonList[b]]:SetButtonTemplate()
+
+	for i = 1, #MacroButtonList do
+		local button = _G[MacroButtonList[i]]
+		if(button) then
+			button:RemoveTextures()
+			button:SetButtonTemplate()
+		end
 	end 
-	for b = 1, #MacroButtonList2 do
-		local a1,p,a2,x,y = _G[MacroButtonList2[b]]:GetPoint()
-		_G[MacroButtonList2[b]]:SetPoint(a1,p,a2,x,-25)
+
+	for i = 1, #MacroButtonList2 do
+		local button = _G[MacroButtonList2[i]]
+		if(button) then
+			local a1,p,a2,x,y = button:GetPoint()
+			button:SetPoint(a1,p,a2,x,-25)
+		end
 	end 
-	for b = 1, 2 do
-		tab = _G[format("MacroFrameTab%s", b)]
-		tab:Height(22)
+
+	local firstTab
+	for i = 1, 2 do
+		local tab = _G[("MacroFrameTab%d"):format(i)]
+		if(tab) then
+			tab:Height(22)
+			if(i == 1) then
+				tab:Point("TOPLEFT", MacroFrame, "TOPLEFT", 85, -39)
+				firstTab = tab
+			elseif(firstTab) then
+				tab:Point("LEFT", firstTab, "RIGHT", 4, 0)
+			end
+		end
 	end 
-	MacroFrameTab1:Point("TOPLEFT", MacroFrame, "TOPLEFT", 85, -39)
-	MacroFrameTab2:Point("LEFT", MacroFrameTab1, "RIGHT", 4, 0)
+
 	MacroFrame:RemoveTextures()
 	MacroFrame:SetPanelTemplate("Action")
 	MacroFrame.Panel:SetPoint("BOTTOMRIGHT",MacroFrame,"BOTTOMRIGHT",0,-25)
 	MacroFrameText:SetFont(SV.Media.font.roboto, 10, "OUTLINE")
 	MacroFrameTextBackground:RemoveTextures()
 	MacroFrameTextBackground:SetBasicPanel()
+
 	MacroPopupFrame:RemoveTextures()
 	MacroPopupFrame:SetBasicPanel()
+
 	MacroPopupScrollFrame:RemoveTextures()
 	MacroPopupScrollFrame:SetPanelTemplate("Pattern")
 	MacroPopupScrollFrame.Panel:Point("TOPLEFT", 51, 2)
@@ -71,20 +108,25 @@ local function MacroUIStyle()
 	MacroPopupNameLeft:SetTexture(0,0,0,0)
 	MacroPopupNameMiddle:SetTexture(0,0,0,0)
 	MacroPopupNameRight:SetTexture(0,0,0,0)
+
 	MacroFrameInset:Die()
 	MacroEditButton:ClearAllPoints()
 	MacroEditButton:Point("BOTTOMLEFT", MacroFrameSelectedMacroButton, "BOTTOMRIGHT", 10, 0)
+
 	STYLE:ApplyScrollFrameStyle(MacroButtonScrollFrame)
+
 	MacroPopupFrame:HookScript("OnShow", function(c)
 		c:ClearAllPoints()
 		c:Point("TOPLEFT", MacroFrame, "TOPRIGHT", 5, -2)
 	end)
+
 	MacroFrameSelectedMacroButton:RemoveTextures()
 	MacroFrameSelectedMacroButton:SetSlotTemplate()
 	MacroFrameSelectedMacroButtonIcon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 	MacroFrameSelectedMacroButtonIcon:FillInner()
 	MacroFrameCharLimitText:ClearAllPoints()
 	MacroFrameCharLimitText:Point("BOTTOM", MacroFrameTextBackground, -25, -35)
+
 	for b = 1, MAX_ACCOUNT_MACROS do 
 		local d = _G["MacroButton"..b]
 		local e = _G["MacroButton"..b.."Icon"]

@@ -1,3 +1,14 @@
+--GLOBAL NAMESPACE
+local _G = _G;
+--LUA
+local unpack        = _G.unpack;
+local select        = _G.select;
+local assert        = _G.assert;
+--BLIZZARD API
+local UnitInRaid       		= _G.UnitInRaid;
+local GetRaidRosterInfo 	= _G.GetRaidRosterInfo;
+local UnitHasVehicleUI      = _G.UnitHasVehicleUI;
+
 local parent, ns = ...
 local oUF = ns.oUF
 

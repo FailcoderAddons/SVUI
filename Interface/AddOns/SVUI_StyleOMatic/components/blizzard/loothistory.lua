@@ -13,6 +13,14 @@ _____/\\\\\\\\\\\____/\\\________/\\\__/\\\________/\\\__/\\\\\\\\\\\_       #
 S U P E R - V I L L A I N - U I   By: Munglunch                              #
 ##############################################################################
 --]]
+--[[ GLOBALS ]]--
+local _G = _G;
+local unpack  = _G.unpack;
+local select  = _G.select;
+local math    = _G.math;
+--[[ MATH METHODS ]]--
+local ceil = math.ceil;  -- Basic
+--[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
 local STYLE = select(2, ...);
@@ -22,48 +30,92 @@ local Schema = STYLE.Schema;
 HELPERS
 ##########################################################
 ]]--
-local MissingLootFrame_OnShow = function()
-  local N = GetNumMissingLootItems()
-  for u = 1, N do 
-    local O = _G["MissingLootFrameItem"..u]
-    local icon = O.icon;
-    STYLE:ApplyItemButtonStyle(O, true)
-    local g, f, y, P = GetMissingLootItemInfo(u)
-    local color = GetItemQualityColor(P) or 0,0,0,1
-    icon:SetTexture(g)
-    M:SetBackdropBorderColor(color)
+local MissingLootFrame_OnShow = function(self)
+  local numMissing = GetNumMissingLootItems()
+  for i = 1, numMissing do 
+    local slot = _G["MissingLootFrameItem"..i]
+    local icon = slot.icon;
+    STYLE:ApplyItemButtonStyle(slot, true)
+    local texture, name, count, quality = GetMissingLootItemInfo(i);
+    local r,g,b,hex = GetItemQualityColor(quality)
+    if(not r) then
+      r,g,b = 0,0,0
+    end
+    icon:SetTexture(texture)
+    _G.MissingLootFrame:SetBackdropBorderColor(r,g,b)
   end 
-  local Q = ceil(N/2)
-  MissingLootFrame:SetHeight(Q * 43 + 38 + MissingLootFrameLabel:GetHeight())
+  local calc = (ceil(numMissing * 0.5) * 43) + 38
+  _G.MissingLootFrame:SetHeight(calc + _G.MissingLootFrameLabel:GetHeight())
 end 
 
-local LootHistoryFrame_OnUpdate = function(o)
-  local N = C_LootHistory.GetNumItems()
-  for u = 1, N do   
-    local M = LootHistoryFrame.itemFrames[u]
-    if not M.isStyled then 
-      local Icon = M.Icon:GetTexture()
-      M:RemoveTextures()
-      M.Icon:SetTexture(Icon)
-      M.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-      M:SetFixedPanelTemplate("Button")
-      M.Panel:WrapOuter(M.Icon)
-      M.Icon:SetParent(M.Panel)
-      M.isStyled = true 
+local LootHistoryFrame_OnUpdate = function(self)
+  local numItems = _G.C_LootHistory.GetNumItems()
+  for i = 1, numItems do   
+    local frame = _G.LootHistoryFrame.itemFrames[i]
+    if not frame.isStyled then 
+      local Icon = frame.Icon:GetTexture()
+      frame:RemoveTextures()
+      frame.Icon:SetTexture(Icon)
+      frame.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+
+      frame:SetFixedPanelTemplate("Button")
+      frame.Panel:WrapOuter(frame.Icon)
+      frame.Icon:SetParent(frame.Panel)
+
+      frame.isStyled = true 
     end 
   end 
-end 
+end
+
+local _hook_MasterLootFrame_OnShow = function()
+  local MasterLooterFrame = _G.MasterLooterFrame;
+  local item = MasterLooterFrame.Item;
+  local LootFrame = _G.LootFrame;
+  if item then 
+    local icon = item.Icon;
+    local tex = icon:GetTexture()
+    local colors = ITEM_QUALITY_COLORS[LootFrame.selectedQuality]
+    item:RemoveTextures()
+    icon:SetTexture(tex)
+    icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+    item:SetPanelTemplate("Pattern")
+    item.Panel:WrapOuter(icon)
+    item.Panel:SetBackdropBorderColor(colors.r, colors.g, colors.b)
+  end 
+  for i = 1, MasterLooterFrame:GetNumChildren()do 
+    local child = select(i, MasterLooterFrame:GetChildren())
+    if child and not child.isStyled and not child:GetName() then
+      if child:GetObjectType() == "Button" then 
+        if child:GetPushedTexture() then
+          STYLE:ApplyCloseButtonStyle(child)
+        else
+          child:SetFixedPanelTemplate()
+          child:SetButtonTemplate()
+        end 
+        child.isStyled = true 
+      end 
+    end 
+  end 
+end
 --[[ 
 ########################################################## 
 LOOTHISTORY STYLER
 ##########################################################
 ]]--
 local function LootHistoryStyle()
-  LootHistoryFrame:SetFrameStrata('HIGH')
   if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.loot ~= true then return end 
-  local M = MissingLootFrame;
-  M:RemoveTextures()
-  M:SetPanelTemplate("Pattern")
+
+  local MasterLooterFrame = _G.MasterLooterFrame;
+  local MissingLootFrame = _G.MissingLootFrame;
+  local LootHistoryFrame = _G.LootHistoryFrame;
+  local BonusRollFrame = _G.BonusRollFrame;
+  local MissingLootFramePassButton = _G.MissingLootFramePassButton;
+
+  LootHistoryFrame:SetFrameStrata('HIGH')
+
+  MissingLootFrame:RemoveTextures()
+  MissingLootFrame:SetPanelTemplate("Pattern")
+
   STYLE:ApplyCloseButtonStyle(MissingLootFramePassButton)
   hooksecurefunc("MissingLootFrame_Show", MissingLootFrame_OnShow)
   LootHistoryFrame:RemoveTextures()
@@ -87,37 +139,13 @@ local function LootHistoryStyle()
   LootHistoryFrameScrollFrame:RemoveTextures()
   STYLE:ApplyScrollFrameStyle(LootHistoryFrameScrollFrameScrollBar)
   hooksecurefunc("LootHistoryFrame_FullUpdate", LootHistoryFrame_OnUpdate)
+
   MasterLooterFrame:RemoveTextures()
   MasterLooterFrame:SetFixedPanelTemplate()
   MasterLooterFrame:SetFrameStrata('FULLSCREEN_DIALOG')
-  hooksecurefunc("MasterLooterFrame_Show", function()
-    local J = MasterLooterFrame.Item;
-    if J then 
-      local u = J.Icon;
-      local icon = u:GetTexture()
-      local S = ITEM_QUALITY_COLORS[LootFrame.selectedQuality]
-      J:RemoveTextures()
-      u:SetTexture(icon)
-      u:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-      J:SetPanelTemplate("Pattern")
-      J.Panel:WrapOuter(u)
-      J.Panel:SetBackdropBorderColor(S.r, S.g, S.b)
-    end 
-    for u = 1, MasterLooterFrame:GetNumChildren()do 
-      local T = select(u, MasterLooterFrame:GetChildren())
-      if T and not T.isStyled and not T:GetName() then
-        if T:GetObjectType() == "Button" then 
-          if T:GetPushedTexture() then
-            STYLE:ApplyCloseButtonStyle(T)
-          else
-            T:SetFixedPanelTemplate()
-            T:SetButtonTemplate()
-          end 
-          T.isStyled = true 
-        end 
-      end 
-    end 
-  end)
+
+  hooksecurefunc("MasterLooterFrame_Show", _hook_MasterLootFrame_OnShow)
+
   BonusRollFrame:RemoveTextures()
   STYLE:ApplyAlertStyle(BonusRollFrame)
   BonusRollFrame.PromptFrame.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)

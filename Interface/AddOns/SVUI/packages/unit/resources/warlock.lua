@@ -30,7 +30,7 @@ local tonumber  = _G.tonumber;
 local assert 	= _G.assert;
 local math 		= _G.math;
 --[[ MATH METHODS ]]--
-local random = math.random;
+local random, floor = math.random, math.floor;
 --[[ 
 ########################################################## 
 GET ADDON DATA
@@ -356,7 +356,7 @@ function MOD:CreateClassBar(playerFrame)
 	bar.CurrentSpec = 0;
 	bar.Override = Update;
 
-	local classBarHolder = CreateFrame("Frame", "Player_ClassBar", classBar)
+	local classBarHolder = CreateFrame("Frame", "Player_ClassBar", bar)
 	classBarHolder:Point("TOPLEFT", playerFrame, "BOTTOMLEFT", 0, -2)
 	bar:SetPoint("TOPLEFT", classBarHolder, "TOPLEFT", 0, 0)
 	bar.Holder = classBarHolder

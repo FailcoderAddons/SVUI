@@ -16,10 +16,6 @@ S U P E R - V I L L A I N - U I   By: Munglunch                              #
 LOCALIZED LUA FUNCTIONS
 ##########################################################
 ]]--
---[[  CONSTANTS ]]--
-
-BINDING_HEADER_SVUIFIGHT = "Supervillain UI: Fight-O-Matic";
-BINDING_NAME_SVUIFIGHT_RADIO = "Call Out Incoming";
 
 --[[ GLOBALS ]]--
 
@@ -42,11 +38,16 @@ local bit       = _G.bit;
 --[[ STRING METHODS ]]--
 local format, sub = string.format, string.sub;
 --[[ MATH METHODS ]]--
-local abs, ceil, floor, round = math.abs, math.ceil, math.floor, math.round;
+local abs, ceil, floor, round, random = math.abs, math.ceil, math.floor, math.round, math.random;
 --[[ TABLE METHODS ]]--
-local tremove, twipe = table.remove, table.wipe;
+local tremove, wipe = table.remove, table.wipe;
 --[[ BINARY METHODS ]]--
 local band, bor = bit.band, bit.bor;
+
+--[[  CONSTANTS ]]--
+
+_G.BINDING_HEADER_SVUIFIGHT = "Supervillain UI: Fight-O-Matic";
+_G.BINDING_NAME_SVUIFIGHT_RADIO = "Call Out Incoming";
 --[[ 
 ########################################################## 
 GET ADDON DATA
@@ -592,7 +593,7 @@ local function ParseIncomingLog(timestamp, event, eGuid, eName, pGuid)
 	if(cached) then
 		if(needsUpdate) then
 			EnemyAlarm(eName, cached.class, cached.colors, kos)
-			cached.time = timeStamp
+			cached.time = timestamp
 		end
 
 		if(pGuid == playerGUID and not AlertedCache[eName]) then

@@ -155,7 +155,7 @@ end
 
 local Slide_FadeStart = function(self)
 	local parent = self.parent
-	UIFrameFadeOut(parent, 0.3, 1, 0)
+	_G.UIFrameFadeOut(parent, 0.3, 1, 0)
 end 
 
 local Slide_FadeStop = function(self)

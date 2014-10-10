@@ -22,6 +22,9 @@ local unpack 	= _G.unpack;
 local select 	= _G.select;
 local pairs 	= _G.pairs;
 local type 		= _G.type;
+local tostring 	= _G.tostring;
+local print 	= _G.print;
+local pcall 	= _G.pcall;
 local tinsert 	= _G.tinsert;
 local string 	= _G.string;
 local math 		= _G.math;
@@ -32,6 +35,8 @@ local format,find = string.format, string.find;
 local floor = math.floor;
 --[[ TABLE METHODS ]]--
 local twipe, tcopy = table.wipe, table.copy;
+local IsAddOnLoaded = _G.IsAddOnLoaded;
+local LoadAddOn = _G.LoadAddOn;
 --[[ 
 ########################################################## 
 GET ADDON DATA
@@ -373,7 +378,7 @@ function PLUGIN:Load()
 	alert.Accept.Text = alert.Accept:CreateFontString(nil, "OVERLAY");
 	alert.Accept.Text:SetFont(SV.Media.font.default, 10);
 	alert.Accept.Text:SetPoint('CENTER');
-	alert.Accept.Text:SetText(YES);
+	alert.Accept.Text:SetText(_G.YES);
 	alert.Close = CreateFrame('Button', nil, alert);
 	alert.Close:SetSize(70, 25);
 	alert.Close:SetPoint('LEFT', alert, 'BOTTOM', 10, 20);
@@ -381,7 +386,7 @@ function PLUGIN:Load()
 	alert.Close.Text = alert.Close:CreateFontString(nil, "OVERLAY");
 	alert.Close.Text:SetFont(SV.Media.font.default, 10);
 	alert.Close.Text:SetPoint('CENTER');
-	alert.Close.Text:SetText(NO);
+	alert.Close.Text:SetText(_G.NO);
 	alert.Accept:SetButtonTemplate();
 	alert.Close:SetButtonTemplate();
 	alert:Hide();

@@ -13,6 +13,18 @@ _____/\\\\\\\\\\\____/\\\________/\\\__/\\\________/\\\__/\\\\\\\\\\\_       #
 S U P E R - V I L L A I N - U I   By: Munglunch                              #
 ##############################################################################
 --]]
+--[[ GLOBALS ]]--
+local _G = _G;
+local unpack        = _G.unpack;
+local select        = _G.select;
+local assert        = _G.assert;
+local type          = _G.type;
+local error         = _G.error;
+local pcall         = _G.pcall;
+local print         = _G.print;
+local ipairs        = _G.ipairs;
+local pairs         = _G.pairs;
+--[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
 local STYLE = select(2, ...);
@@ -283,7 +295,7 @@ local function AchievementStyle()
 				track:RemoveTextures()
 				track:SetCheckboxTemplate(true)
 				track:ClearAllPoints()
-				track:Point("BOTTOMLEFT", d, "BOTTOMLEFT", -1, -3)
+				track:Point("BOTTOMLEFT", -1, -3)
 				track.ListParent = button
 
 				hooksecurefunc(track, "SetPoint", _hook_TrackingPoint)

@@ -27,6 +27,7 @@ local table 	= _G.table;
 local rept      = string.rep; 
 local tsort,twipe = table.sort,table.wipe;
 local floor,ceil  = math.floor, math.ceil;
+local band 		= _G.bit.band;
 --[[ 
 ########################################################## 
 GET ADDON DATA
@@ -101,12 +102,13 @@ EVENT HANDLER
 ]]--
 local EnableListener, DisableListener
 do
+	local proxyTest = false;
 	local CookEventHandler = CreateFrame("Frame")
 	local LootProxy = function(item, name)
 		if(item) then
 			local mask = [[0x10000]];
 			local itemType = GetItemFamily(item);
-			local pass = bit.band(itemType, mask);
+			local pass = band(itemType, mask);
 			if pass > 0 then
 				proxyTest = true;
 			end

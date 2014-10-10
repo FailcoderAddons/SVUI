@@ -18,9 +18,15 @@ LOCALIZED LUA FUNCTIONS
 ]]--
 --[[ GLOBALS ]]--
 local _G = _G;
-local unpack 	= _G.unpack;
-local select 	= _G.select;
-local type 		= _G.type;
+local unpack    = _G.unpack;
+local select    = _G.select;
+local pairs     = _G.pairs;
+local ipairs    = _G.ipairs;
+local type      = _G.type;
+local error     = _G.error;
+local pcall     = _G.pcall;
+local tostring  = _G.tostring;
+local tonumber  = _G.tonumber;
 local string 	= _G.string;
 local math 		= _G.math;
 --[[ STRING METHODS ]]--
@@ -463,8 +469,8 @@ local Movable_OnDragStop = function(self)
 	MentaloUpdateHandler:SetScript("OnUpdate", nil)
 	MentaloUpdateHandler:Hide()
 
-	if(dragStopFunc ~= nil and type(dragStopFunc) == "function") then 
-		dragStopFunc(self, Pinpoint(self))
+	if(self.postdrag ~= nil and type(self.postdrag) == "function") then 
+		self:postdrag(Pinpoint(self))
 	end 
 	self:SetUserPlaced(false)
 	TheHand:Disable()
@@ -545,13 +551,13 @@ function Mentalo:New(frame, moveName, title, raised, snap, dragStopFunc)
 	end 
 
 	local anchor1, anchorParent, anchor2, xPos, yPos = split("\031", CurrentPosition(frame))
-	if(self.Anchors and self.Anchors[moveName]) then 
-		if(type(self.Anchors[moveName]) == "table") then 
-			movable:SetPoint(self.Anchors[moveName]["p"], SV.UIParent, self.Anchors[moveName]["p2"], self.Anchors[moveName]["p3"], self.Anchors[moveName]["p4"])
-			self.Anchors[moveName] = CurrentPosition(movable)
+	if(SV.cache.Anchors and SV.cache.Anchors[moveName]) then 
+		if(type(SV.cache.Anchors[moveName]) == "table") then 
+			movable:SetPoint(SV.cache.Anchors[moveName]["p"], SV.UIParent, SV.cache.Anchors[moveName]["p2"], SV.cache.Anchors[moveName]["p3"], SV.cache.Anchors[moveName]["p4"])
+			SV.cache.Anchors[moveName] = CurrentPosition(movable)
 			movable:ClearAllPoints()
 		end 
-		anchor1, anchorParent, anchor2, xPos, yPos = split("\031", self.Anchors[moveName])
+		anchor1, anchorParent, anchor2, xPos, yPos = split("\031", SV.cache.Anchors[moveName])
 		movable:SetPoint(anchor1, anchorParent, anchor2, xPos, yPos)
 	else 
 		movable:SetPoint(anchor1, anchorParent, anchor2, xPos, yPos)
@@ -603,7 +609,7 @@ function Mentalo:New(frame, moveName, title, raised, snap, dragStopFunc)
 end
 
 function Mentalo:HasMoved(frame)
-	if self.Anchors and self.Anchors[frame] then 
+	if SV.cache.Anchors and SV.cache.Anchors[frame] then 
 		return true 
 	else 
 		return false 
@@ -611,8 +617,8 @@ function Mentalo:HasMoved(frame)
 end 
 
 function Mentalo:SaveMovable(frame)
-	if(not _G[frame] or not self.Anchors) then return end 
-	self.Anchors[frame] = CurrentPosition(_G[frame])
+	if(not _G[frame] or not SV.cache.Anchors) then return end 
+	SV.cache.Anchors[frame] = CurrentPosition(_G[frame])
 end 
 
 function Mentalo:ChangeSnapOffset(frame, snapOffset)
@@ -668,8 +674,8 @@ function Mentalo:Reset(request)
 				end
 			end 
 		end
-		if(self.Anchors) then 
-			self.Anchors = {}
+		if(SV.cache.Anchors) then 
+			SV.cache.Anchors = {}
 		end 
 	else 
 		for name, _ in pairs(self.Frames)do
@@ -682,8 +688,8 @@ function Mentalo:Reset(request)
 							local u, v, w, x, y = split("\031", self.Frames[name]["point"])
 							frame:ClearAllPoints()
 							frame:SetPoint(u, v, w, x, y)
-							if(self.Anchors and self.Anchors[name]) then 
-								self.Anchors[name] = nil 
+							if(SV.cache.Anchors and SV.cache.Anchors[name]) then 
+								SV.cache.Anchors[name] = nil 
 							end 
 							if (self.Frames[name]["postdrag"] ~= nil and type(self.Frames[name]["postdrag"]) == "function")then 
 								self.Frames[name]["postdrag"](frame, Pinpoint(frame))
@@ -701,8 +707,8 @@ function Mentalo:SetPositions()
 		local frame = _G[name];
 		local anchor1, parent, anchor2, x, y;
 		if frame then
-			if (self.Anchors and self.Anchors[name] and type(self.Anchors[name]) == "string") then 
-				anchor1, parent, anchor2, x, y = split("\031", self.Anchors[name])
+			if (SV.cache.Anchors and SV.cache.Anchors[name] and type(SV.cache.Anchors[name]) == "string") then 
+				anchor1, parent, anchor2, x, y = split("\031", SV.cache.Anchors[name])
 				frame:ClearAllPoints()
 				frame:SetPoint(anchor1, parent, anchor2, x, y)
 			elseif self.Frames[name]["point"] then 
@@ -845,7 +851,7 @@ function Mentalo:Initialize()
 	SVUI_MentaloPrecisionLeftButton:SetButtonTemplate()
 	SVUI_MentaloPrecisionRightButton:SetButtonTemplate()
 
-	self.Anchors = LibSuperVillain:NewCache("Anchors")
+	SV.cache.Anchors = SV.cache.Anchors or {}
 
 	for name, _ in pairs(self.Frames)do 
 		local parent, text, overlay, snapoffset, postdrag;

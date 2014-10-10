@@ -217,7 +217,7 @@ local BreakStuff_OnClick = function(self)
 		if(not MOD.BagFrame:IsShown()) then
 			GameTooltip:Hide()
 			MOD.BagFrame:Show()
-			MOD.BagFrame:RefreshBagsSlots()
+			MOD.BagFrame:RefreshBags()
 			TTIP.GameTooltip_SetDefaultAnchor(GameTooltip,self)
 		end
 	end

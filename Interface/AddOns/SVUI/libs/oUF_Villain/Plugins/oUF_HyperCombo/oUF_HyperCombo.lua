@@ -1,11 +1,41 @@
+--GLOBAL NAMESPACE
+local _G = _G;
+--LUA
+local unpack        = _G.unpack;
+local select        = _G.select;
+local assert        = _G.assert;
+local error         = _G.error;
+local print         = _G.print;
+local pairs         = _G.pairs;
+local next          = _G.next;
+local tostring      = _G.tostring;
+local type  		= _G.type;
+--STRING
+local string        = _G.string;
+local format        = string.format;
+--MATH
+local math          = _G.math;
+local floor         = math.floor
+local ceil          = math.ceil
+--TABLE
+local table         = _G.table;
+local wipe          = _G.wipe;
+--BLIZZARD API
+local GetShapeshiftForm         = _G.GetShapeshiftForm;
+local UnitHasVehicleUI 			= _G.UnitHasVehicleUI;
+local UnitBuff         			= _G.UnitBuff;
+local CombatText_AddMessage 	= _G.CombatText_AddMessage;
+local CombatText_StandardScroll = _G.CombatText_StandardScroll;
+local MAX_COMBO_POINTS      	= _G.MAX_COMBO_POINTS;
+local GetSpellInfo      		= _G.GetSpellInfo;
+local GetComboPoints  			= _G.GetComboPoints;
+
 local class = select(2, UnitClass("player"));
 if(class ~= "ROGUE" and class ~= "DRUID") then return end
 
 local parent, ns = ...
 local oUF = ns.oUF
 
-local GetComboPoints = GetComboPoints
-local MAX_COMBO_POINTS = MAX_COMBO_POINTS
 local GUILE1 = GetSpellInfo(84745)
 local GUILE2 = GetSpellInfo(84746)
 local GUILE3 = GetSpellInfo(84747)
@@ -69,7 +99,7 @@ local Update = function(self, event, unit)
 			else
 				cpoints[i]:Hide()
 				if(bar.PointHide) then
-					bar.PointHide(cpoints[i])
+					bar.PointHide(cpoints[i], i)
 				end
 			end
 		end
@@ -131,7 +161,7 @@ local Update = function(self, event, unit)
 	end
 
 	if(bar.PostUpdate) then
-		return bar:PostUpdate(cp)
+		return bar:PostUpdate(current)
 	end
 end
 

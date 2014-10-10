@@ -1,3 +1,15 @@
+--GLOBAL NAMESPACE
+local _G = _G;
+--LUA
+local unpack        = _G.unpack;
+local select        = _G.select;
+local assert        = _G.assert;
+local type         	= _G.type;
+--BLIZZARD API
+local GetTime       	= _G.GetTime;
+local GetSpecialization = _G.GetSpecialization;
+local UnitDebuff      	= _G.UnitDebuff;
+
 if select(2, UnitClass('player')) ~= "MAGE" then return end
 
 local _, ns = ...

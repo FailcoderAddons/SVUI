@@ -13,6 +13,11 @@ _____/\\\\\\\\\\\____/\\\________/\\\__/\\\________/\\\__/\\\\\\\\\\\_       #
 S U P E R - V I L L A I N - U I   By: Munglunch                              #
 ##############################################################################
 --]]
+--[[ GLOBALS ]]--
+local _G = _G;
+local unpack  = _G.unpack;
+local select  = _G.select;
+--[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
 local STYLE = select(2, ...);
@@ -382,10 +387,10 @@ local SystemFrameList21 = {
 HELPER FUNCTIONS
 ##########################################################
 ]]--
-local function forceBackdropColor(self, r, g, b, a)
+local _hook_GhostFrameBackdropColor = function(self, r, g, b, a)
 	if r ~= 0 or g ~= 0 or b ~= 0 or a ~= 0 then
-		GhostFrame:SetBackdropColor(0,0,0,0)
-		GhostFrame:SetBackdropBorderColor(0,0,0,0)
+		self:SetBackdropColor(0,0,0,0)
+		self:SetBackdropBorderColor(0,0,0,0)
 	end
 end
 --[[ 
@@ -395,6 +400,14 @@ SYSTEM WIDGET STYLERS
 ]]--
 local function SystemPanelQue()
 	if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.misc ~= true then return end
+
+	local GhostFrame = _G.GhostFrame;
+	local ReadyCheckFrame = _G.ReadyCheckFrame;
+	local InterfaceOptionsFrame = _G.InterfaceOptionsFrame;
+	local MacOptionsFrame = _G.MacOptionsFrame;
+	local GuildInviteFrame = _G.GuildInviteFrame;
+	local BattleTagInviteFrame = _G.BattleTagInviteFrame;
+	local SideDressUpFrame = _G.SideDressUpFrame;
 
 	QueueStatusFrame:RemoveTextures()
 
@@ -456,12 +469,13 @@ local function SystemPanelQue()
 	if IsAddOnLoaded("OptionHouse") then
 		GameMenuButtonOptionHouse:SetButtonTemplate()
 	end
+
 	do
 		GhostFrame:SetButtonTemplate()
 		GhostFrame:SetBackdropColor(0,0,0,0)
 		GhostFrame:SetBackdropBorderColor(0,0,0,0)
-		hooksecurefunc(GhostFrame, "SetBackdropColor", forceBackdropColor)
-		hooksecurefunc(GhostFrame, "SetBackdropBorderColor", forceBackdropColor)
+		hooksecurefunc(GhostFrame, "SetBackdropColor", _hook_GhostFrameBackdropColor)
+		hooksecurefunc(GhostFrame, "SetBackdropBorderColor", _hook_GhostFrameBackdropColor)
 		GhostFrame:ClearAllPoints()
 		GhostFrame:SetPoint("TOP", SV.UIParent, "TOP", 0, -150)
 		GhostFrameContentsFrame:SetButtonTemplate()

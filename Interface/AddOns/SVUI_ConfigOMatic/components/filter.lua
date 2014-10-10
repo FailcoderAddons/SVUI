@@ -18,8 +18,22 @@ LOCALIZED LUA FUNCTIONS
 ]]--
 --[[ GLOBALS ]]--
 local _G = _G;
-local unpack 	 =  _G.unpack;
-local pairs 	 =  _G.pairs;
+local unpack        = _G.unpack;
+local select        = _G.select;
+local assert        = _G.assert;
+local type          = _G.type;
+local error         = _G.error;
+local pcall         = _G.pcall;
+local print         = _G.print;
+local ipairs        = _G.ipairs;
+local pairs         = _G.pairs;
+local next          = _G.next;
+local rawset        = _G.rawset;
+local rawget        = _G.rawget;
+local tostring      = _G.tostring;
+local tonumber      = _G.tonumber;
+local getmetatable  = _G.getmetatable;
+local setmetatable  = _G.setmetatable;
 local tinsert 	 =  _G.tinsert;
 local table 	 =  _G.table;
 --[[ TABLE METHODS ]]--
@@ -33,6 +47,7 @@ local SV = _G["SVUI"];
 local L = SV.L;
 local MOD = SV.SVUnit
 if(not MOD) then return end
+
 local _, ns = ...;
 local selectedSpell,filterType,filters;
 local nameMapping = {
@@ -46,6 +61,10 @@ local nameMapping = {
 	["BuffWatch"] = "(AuraWatch) Player Buffs",
 	["PetBuffWatch"] = "(AuraWatch) Pet Buffs",
 }
+
+local NONE = _G.NONE;
+local GetSpellInfo = _G.GetSpellInfo;
+local collectgarbage = _G.collectgarbage;
 
 local function generateFilterOptions()
 	if filterType == 'AuraBar Colors' then 
@@ -472,8 +491,11 @@ local function generateFilterOptions()
 				}
 			}
 		}
+
 		local registeredSpell;
+
 		for t,l in pairs(SV.db.filter.BuffWatch)do if l.id==selectedSpell then registeredSpell=t end end 
+
 		if selectedSpell and registeredSpell then 
 			local currentSpell=GetSpellInfo(selectedSpell)
 			SV.Options.args.filters.args.filterGroup.args[currentSpell] = {
@@ -667,7 +689,7 @@ local function generateFilterOptions()
 					name = L["Enable"], 
 					type = "toggle", 
 					get = function()
-						if selectedFolder or not selectedSpell then 
+						if not selectedSpell then 
 							return false 
 						else 
 							return SV.db.filter[filterType][selectedSpell].enable 
@@ -683,7 +705,7 @@ local function generateFilterOptions()
 					name = L["Priority"], 
 					type = "range", 
 					get = function()
-						if selectedFolder or not selectedSpell then 
+						if not selectedSpell then 
 							return 0 
 						else 
 							return SV.db.filter[filterType][selectedSpell].priority 
@@ -704,7 +726,8 @@ local function generateFilterOptions()
 	end 
 	MOD:RefreshUnitFrames()
 	collectgarbage("collect")
-end 
+end
+
 SV.Options.args.filters = {
 	type = "group",
 	name = L["Filters"],
@@ -777,5 +800,5 @@ SV.Options.args.filters = {
 function ns:SetToFilterConfig(newFilter)
 	filterType = newFilter or "BuffWatch"
 	generateFilterOptions()
-	LibStub("AceConfigDialog-3.0"):SelectGroup(SV.NameID, "filters")
+	_G.LibStub("AceConfigDialog-3.0"):SelectGroup(SV.NameID, "filters")
 end

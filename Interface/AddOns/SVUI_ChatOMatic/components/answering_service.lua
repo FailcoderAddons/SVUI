@@ -12,10 +12,23 @@ _____/\\\\\\\\\\\____/\\\________/\\\__/\\\________/\\\__/\\\\\\\\\\\_       #
 ##############################################################################
 S U P E R - V I L L A I N - U I   By: Munglunch                              #
 ##############################################################################
-########################################################## 
-LOCALIZED LUA FUNCTIONS
-##########################################################
+
+CONCEPT AND SOME CODE COURTESY OF:
+##############################################################################
+_____/\\\\\\\\\________/\\\\\\\\\\\\__/\\\\\\\\\\\\\\\_        
+ ___/\\\\\\\\\\\\\____/\\\//////////__\///////\\\/////__       
+  __/\\\/////////\\\__/\\\___________________\/\\\_______      
+   _\/\\\_______\/\\\_\/\\\____/\\\\\\\_______\/\\\_______     
+    _\/\\\\\\\\\\\\\\\_\/\\\___\/////\\\_______\/\\\_______    
+     _\/\\\/////////\\\_\/\\\_______\/\\\_______\/\\\_______   
+      _\/\\\_______\/\\\_\/\\\_______\/\\\_______\/\\\_______  
+       _\/\\\_______\/\\\_\//\\\\\\\\\\\\/________\/\\\_______ 
+        _\///________\///___\////////////__________\///________
+##############################################################################
+AUTOMATIC GOBLIN THERAPIST   By: Duugu                                       #
+##############################################################################
 ]]--
+
 --[[ GLOBALS ]]--
 local _G = _G;
 local unpack    = _G.unpack;
@@ -26,6 +39,7 @@ local type      = _G.type;
 local error     = _G.error;
 local pcall     = _G.pcall;
 local assert    = _G.assert;
+local print    	= _G.print;
 local tostring  = _G.tostring;
 local tonumber  = _G.tonumber;
 local tinsert   = _G.tinsert;
@@ -481,7 +495,7 @@ do
 	end
 
 	local function PadString(strng)
-		aString = " "..strng.." "
+		local aString = " "..strng.." "
 		for i = 1, 12, 1 do
 			aString = gsub(aString, punctuations[i].pattern, " "..punctuations[i].value.." ")
 		end
@@ -489,7 +503,7 @@ do
 	end
 
 	local function UnPadString(strng)
-		aString = strng
+		local aString = strng
 		aString = gsub(aString, "  ", " ") 		
 		if sub(aString, 1, 1) == " " then
 			aString = sub(aString, 2)
@@ -539,7 +553,7 @@ do
 		local phrase;
 		local wordkey = Responses[keyid].Key;
 		local links = Responses[keyid].Dialog;
-		idrange = #links
+		local idrange = #links
 		if idrange > 1 then
 			while(not phrase) do
 				local mod = floor(random(1, idrange))
@@ -551,7 +565,7 @@ do
 		else
 			data.LastKey = 1
 		end
-		local tempt = sub(phrase, -1, -1)		
+		local tempt = phrase and sub(phrase, -1, -1) or ''	
 		local sTemp = ""
 		if tempt == "*" or tempt == "@" then
 			sTemp = PadString(sString)
@@ -839,7 +853,8 @@ function PLUGIN:AUTO_MSG_BN_WHISPER(event, inbound_message, sender, _, _, _, _, 
 	if(not presenceID) then return end
 	if not UnitIsAFK("player") and not UnitIsDND("player") then
 		local _, bnToon = BNGetToonInfo(presenceID);
-		local caller = bnToon or sender;
+		local realToon = select(5, BNGetFriendInfoByID(presenceID))
+		local caller = realToon or bnToon or sender;
 		if (not PhoneLines[caller]) then
 			self:AddCaller(caller)
 		end
@@ -931,7 +946,7 @@ function PLUGIN:EnableAnsweringService()
 	title:SetPoint("TOP", window, "TOP", 0, -2)
 	title:SetText("Henchman Answering Service")
 
-	for x = 1, 5, 1 do
+	for x = 1, 5 do
 		local phLn = CreateFrame("Button", "HenchmenPhoneLine"..x, window)
 		phLn:SetWidth(124)  
 		phLn:SetHeight(20) 
@@ -960,6 +975,7 @@ function PLUGIN:EnableAnsweringService()
 		strMsg = "The Henchmen Operators Are Standing By.."
 	end
 	SV:AddonMessage(strMsg)
+	self.ServiceEnabled = true
 end
 
 function PLUGIN:DisableAnsweringService()

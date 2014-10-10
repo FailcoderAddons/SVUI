@@ -110,7 +110,7 @@ end
 local function GetGuildStatMembers()
 	twipe(GuildStatMembers)
 	local statusFormat;
-	local _, name, rank, level, zone, note, officernote, online, status, classFileName, isMobile;
+	local _, name, rank, level, zone, note, officernote, online, status, classFileName, isMobile, rankIndex;
 	for i = 1, GetNumGuildMembers() do
 		name, rank, rankIndex, level, _, zone, note, officernote, online, status, classFileName, _, _, isMobile = GetGuildRosterInfo(i)
 		statusFormat = isMobile and MobileFlagFormat[status]() or UnitFlagFormat[status]()

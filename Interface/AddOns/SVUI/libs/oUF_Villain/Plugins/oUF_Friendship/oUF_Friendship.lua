@@ -1,3 +1,33 @@
+--GLOBAL NAMESPACE
+local _G = _G;
+--LUA
+local unpack        = _G.unpack;
+local select        = _G.select;
+local assert        = _G.assert;
+local error         = _G.error;
+local print         = _G.print;
+local pairs         = _G.pairs;
+local next          = _G.next;
+local tostring      = _G.tostring;
+local type  		= _G.type;
+--STRING
+local string        = _G.string;
+local format        = string.format;
+--MATH
+local math          = _G.math;
+local floor         = math.floor
+local ceil          = math.ceil
+--TABLE
+local table         = _G.table;
+local wipe          = _G.wipe;
+--BLIZZARD API
+local UnitExists       			= _G.UnitExists;
+local UnitIsPlayer 				= _G.UnitIsPlayer;
+local UnitName         			= _G.UnitName;
+local GetFriendshipReputation	= _G.GetFriendshipReputation;
+local GameTooltip         		= _G.GameTooltip;
+local GameTooltip_Hide      	= _G.GameTooltip_Hide;
+
 local _, ns = ...
 local oUF = ns.oUF or oUF
 assert(oUF, 'oUF Friendship was unable to locate oUF install')

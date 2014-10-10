@@ -55,11 +55,13 @@ local GetContainerNumSlots = GetContainerNumSlots
 local GetContainerItemInfo = GetContainerItemInfo
 local GetContainerItemID = GetContainerItemID
 local DockButton, ModeLogsFrame; 
+
+local COUNT_TEX = [[Interface\AddOns\SVUI\assets\artwork\icons\COUNT-]]
+
 local refArtifacts = {};
 for i = 1, 12 do
 	refArtifacts[i] = {}
 end
-local NEEDS_UPDATE = true;
 local ArchCrafting = CreateFrame("Frame", "SVUI_ArchCrafting", UIParent)
 --[[ 
 ########################################################## 
@@ -77,12 +79,6 @@ LOCAL FUNCTIONS
 local function EnableSolve(index, button)
 	button:SetAlpha(1)
 	button.text:SetTextColor(1, 1, 1)
-	button:SetScript("OnEnter", function(self)
-		self.text:SetTextColor(1, 1, 0)
-	end)
-	button:SetScript("OnLeave", function(self)
-		self.text:SetTextColor(1, 1, 1)
-	end)
 	button:SetScript("OnClick", function(self)
 		SetSelectedArtifact(index)
 		local _, _, _, _, _, numSockets = GetActiveArtifactByRace(index)
@@ -107,9 +103,7 @@ local function DisableSolve(button)
 	button:SetAlpha(0)
 	button.text:SetTextColor(0.5, 0.5, 0.5)
 	button.text:SetText("")
-	button:SetScript("OnEnter", SV.fubar)
-	button:SetScript("OnLeave", SV.fubar)
-	button:SetScript("OnMouseUp", SV.fubar)
+	button:SetScript("OnClick", SV.fubar)
 end
 
 local function UpdateArtifactBars(index)
@@ -120,7 +114,7 @@ local function UpdateArtifactBars(index)
 
 	if GetNumArtifactsByRace(index) ~= 0 then
 		local keystoneBonus = 0
-		bar["race"]:SetTextColor(1, 1, 1)
+		bar["race"]:SetTextColor(1, 0.8, 0)
 		bar["progress"]:SetTextColor(1, 1, 1)
 		if cache["numKeysockets"] then
 			keystoneBonus = min(cache["numKeystones"], cache["numKeysockets"]) * 12
@@ -205,7 +199,6 @@ local function UpdateArtifactCache()
 		end
 		UpdateArtifactBars(index)
 	end
-	NEEDS_UPDATE = false
 end
 
 local function GetTitleAndSkill()
@@ -230,7 +223,12 @@ EVENT HANDLER
 ]]--
 do
 	local SURVEYCDFONT = SV.Media.font.numbers
-	local SURVEYRED = {0,0.5,1}
+	local SURVEYCOLOR = {
+		{0.1, 1, 0.1, 0.2},
+		{1, 0.5, 0.1, 0.4},
+		{1, 0.1, 0, 0.6}
+	}
+	local SURVEYSCALE = {3, 2, 1}
 	local last = 0
 	local time = 3
 
@@ -239,26 +237,28 @@ do
 	local ArchSiteFound;
 	local ArchCanSurvey, ArchWillSurvey = false, false;
 
-	SurveyCooldown:SetPoint("CENTER", 0, -80)
-	SurveyCooldown:SetSize(150, 150)
-	SurveyCooldown.text = SurveyCooldown:CreateFontString(nil, "OVERLAY")
+	SurveyCooldown:SetPoint("TOP", UIParent, "CENTER", 0, 0)
+	SurveyCooldown:SetSize(50, 50)
+	SurveyCooldown.text = SurveyCooldown:CreateTexture(nil, "OVERLAY")
 	SurveyCooldown.text:SetAllPoints(SurveyCooldown)
-	SurveyCooldown.text:SetFont(SURVEYCDFONT, 150, "OUTLINE")
-	SurveyCooldown.text:SetTextColor(0,1,0.12,0.5)
-	SurveyCooldown.text:SetPoint("CENTER")
-	SurveyCooldown:SetScale(1.5)
+	SurveyCooldown.text:SetVertexColor(0,1,0.12,0.5)
+	SurveyCooldown:SetScale(1)
 
 	local Arch_OnEvent = function(self, event, ...)
 		if(InCombatLockdown() or not archSpell) then return end
+		local NEEDS_UPDATE = false;
 		if(event == "CURRENCY_DISPLAY_UPDATE" or event == "CHAT_MSG_SKILL" or event == "ARTIFACT_COMPLETE") then
 			local msg = GetTitleAndSkill()
 			PLUGIN.TitleWindow:Clear()
 			PLUGIN.TitleWindow:AddMessage(msg)
+			if(event ~= "CHAT_MSG_SKILL") then
+				NEEDS_UPDATE = true
+			end
 		end
 		if(CanScanResearchSite() and (event == "CURRENCY_DISPLAY_UPDATE")) then
-			UpdateArtifactCache()
+			NEEDS_UPDATE = true
 		elseif(event == "ARCHAEOLOGY_SURVEY_CAST" or event == "ARTIFACT_COMPLETE" or event == "ARTIFACT_DIG_SITE_UPDATED") then
-			UpdateArtifactCache()
+			NEEDS_UPDATE = true
 		elseif(event == "ARTIFACT_HISTORY_READY" or event == "ARTIFACT_DIGSITE_COMPLETE") then
 			NEEDS_UPDATE = true
 		else
@@ -284,9 +284,10 @@ do
 					ArchSiteFound = nil
 				end
 			end
-			if(NEEDS_UPDATE) then
-				UpdateArtifactCache()
-			end
+		end
+
+		if(NEEDS_UPDATE) then
+			UpdateArtifactCache()
 		end
 	end 
 
@@ -294,13 +295,17 @@ do
 		last = last + elapsed
 		if last > 1 then
 			time = time - 1
-			self.text:SetText(time)
+			local img = COUNT_TEX .. time
 			if time <= 0 then
 				self:SetScript("OnUpdate", nil)
-				self.text:SetText("")
+				self.text:SetTexture(nil)
+				self:SetScale(1)
 				time = 3
+			else
+				self.text:SetTexture(img)
+				self.text:SetVertexColor(unpack(SURVEYCOLOR[time]))
+				self:SetScale(SURVEYSCALE[time])
 			end
-			self.text:SetTextColor(SURVEYRED[time],1,0.12,0.8)
 			last = 0
 		end
 	end 
@@ -308,7 +313,8 @@ do
 	local Survey_OnEvent = function(self, event, unit, _, _, _, spellid)
 		if not unit == "player" then return end
 		if spellid == 80451 then
-			self.text:SetText("3")
+			self.text:SetTexture(COUNT_TEX .. 3)
+			self:SetScale(1)
 			self:SetScript("OnUpdate", Survey_OnUpdate)
 		end
 	end 
@@ -439,7 +445,7 @@ function PLUGIN:LoadArchaeologyMode()
 		local solve = CreateFrame("Button", nil, bar, "SecureHandlerClickTemplate")
 		local yOffset;
 
-		bar:SetPanelTemplate("Inset")
+		bar:SetPanelTemplate("Bar")
 		bar:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]])
 		bar:SetSize(BAR_WIDTH,BAR_HEIGHT)
 		if(i > 6) then
@@ -450,11 +456,42 @@ function PLUGIN:LoadArchaeologyMode()
 			bar:SetPoint("TOPLEFT", ArchCrafting, "TOPLEFT", 2, -yOffset)
 		end
 		bar:SetStatusBarColor(0.2, 0.2, 0.8, 0.5)
-		bar:SetScript("OnEnter", function(self)
+		
+		local sOffset = SV.Scale(1)
+		-- Race Text
+		race:SetFontObject(NumberFont_Outline_Large)
+		race:SetText(RACE)
+		race:SetPoint("TOPLEFT", bar, "TOPLEFT", sOffset, -sOffset)
+		race:SetTextColor(1,0.8,0)
+
+		-- Progress Text
+		progress:SetFont(SV.Media.font.roboto, 11, "OUTLINE")
+		progress:SetText("")
+		progress:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT", -sOffset, sOffset)
+
+		-- Solve
+		solve:SetAllPoints(bar)
+
+		solve.bg = solve:CreateTexture(nil,"BORDER")
+		solve.bg:SetAllPoints(solve)
+		solve.bg:SetTexture(SV.Media.bar.default)
+		solve.bg:SetVertexColor(0.1,0.5,0)
+
+		solve.text = solve:CreateFontString(nil,"OVERLAY")
+		solve.text:SetFont(SV.Media.font.roboto, 14, "NONE")
+		solve.text:SetShadowOffset(-1,-1)
+		solve.text:SetShadowColor(0,0,0,0.5)
+		solve.text:SetText(SOLVE)
+		solve.text:SetPoint("CENTER", solve, "CENTER", 2, 0)
+		solve.RaceIndex = i
+		solve.border = bar
+		solve:SetScript("OnEnter", function(self)
 			GameTooltip:SetOwner(self, "ANCHOR_BOTTOMRIGHT", 2, 250)
 			GameTooltip:ClearLines()
-			if GetNumArtifactsByRace(i) > 0 then
-				SetSelectedArtifact(i)
+			if GetNumArtifactsByRace(self.RaceIndex) > 0 then
+				self.text:SetTextColor(1, 1, 0)
+				self.border:SetBackdropBorderColor(0,0.8,1)
+				SetSelectedArtifact(self.RaceIndex)
 				local artifactName, artifactDescription, artifactRarity, _, _, keystoneCount = GetSelectedArtifactInfo()
 				local numFragmentsCollected, numFragmentsAdded, numFragmentsRequired = GetArtifactProgress()
 				local r, g, b
@@ -473,34 +510,11 @@ function PLUGIN:LoadArchaeologyMode()
 				GameTooltip:Show()
 			end
 		end)
-		bar:SetScript("OnLeave", function()
+		solve:SetScript("OnLeave", function(self)
+			self.text:SetTextColor(0.7, 0.7, 0.7)
+			self.border:SetBackdropBorderColor(0,0,0)
 			GameTooltip:Hide()
 		end)
-
-		-- Race Text
-		race:SetFont(SV.Media.font.roboto, 12, "OUTLINE")
-		race:SetText(RACE)
-		race:SetPoint("LEFT", bar, "LEFT", 2, 0)
-
-		-- Progress Text
-		progress:SetFont(SV.Media.font.roboto, 12, "OUTLINE")
-		progress:SetText("")
-		progress:SetPoint("RIGHT", bar, "RIGHT", 1, 0)
-
-		-- Solve
-		solve:SetAllPoints(bar)
-
-		solve.bg = solve:CreateTexture(nil,"BORDER")
-		solve.bg:SetAllPoints(solve)
-		solve.bg:SetTexture(SV.Media.bar.default)
-		solve.bg:SetVertexColor(0.1,0.5,0)
-
-		solve.text = solve:CreateFontString(nil,"OVERLAY")
-		solve.text:SetFont(SV.Media.font.roboto, 14, "NONE")
-		solve.text:SetShadowOffset(-1,-1)
-		solve.text:SetShadowColor(0,0,0,0.5)
-		solve.text:SetText(SOLVE)
-		solve.text:SetPoint("CENTER", solve, "CENTER", 2, 0)
 
 		progressBars[i] = {
 			["bar"] = bar,

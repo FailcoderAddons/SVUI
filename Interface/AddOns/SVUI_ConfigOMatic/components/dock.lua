@@ -152,8 +152,8 @@ local function GetLiveDockletsA()
 	local t = {["None"] = L["None"]};
 	for n,l in pairs(acceptableDocklets) do
 		if IsAddOnLoaded(n) or IsAddOnLoaded(l) then
-			if n=="Skada" and Skada then
-				for index,window in pairs(Skada:GetWindows()) do
+			if n == "Skada" and _G.Skada then
+				for index,window in pairs(_G.Skada:GetWindows()) do
 				    local key = window.db.name
 				    t["Skada"..key] = (key=="Skada") and "Skada - Main" or "Skada - "..key;
 				end 
@@ -170,8 +170,8 @@ local function GetLiveDockletsB()
 	local t = {["None"] = L["None"]};
 	for n,l in pairs(acceptableDocklets) do
 		if IsAddOnLoaded(n) or IsAddOnLoaded(l) then
-			if n=="Skada" and Skada then
-				for index,window in pairs(Skada:GetWindows()) do
+			if n == "Skada" and _G.Skada then
+				for index,window in pairs(_G.Skada:GetWindows()) do
 				    local key = window.db.name
 				    t["Skada"..key] = (key=="Skada") and "Skada - Main" or "Skada - "..key;
 				end 
@@ -230,8 +230,8 @@ SV.Options.args.SVDock.args["rightDockGroup"] = {
 				MOD:ChangeDBVar(value,key[#key]);
 				MOD:UpdateSuperDock(true)
 				CHAT:RefreshChatFrames(true)
-				BAG:Layout()
-				BAG:Layout(true)
+				BAG.BagFrame:UpdateLayout()
+				BAG.BankFrame:UpdateLayout()
 			end,
 		},
 		quest = {

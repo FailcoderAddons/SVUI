@@ -30,7 +30,7 @@ GET ADDON DATA
 ##########################################################
 ]]--
 local SV = _G["SVUI"];
-local SVLib = LibSuperVillain;
+local SVLib = _G.LibSuperVillain;
 local L = SV.L;
 local MOD = SV.SVBar;
 --[[ 
@@ -237,58 +237,8 @@ local function BarConfigLoader()
 		}
 	end 
 
-	bar_configs["Micro"] = {
-		order = d,
-		name = L["Micro Menu"],
-		type = "group",
-		order = 100,
-		guiInline = false,
-		disabled = function()return not SV.db.SVBar.enable end,
-		get = function(key) 
-			return SV.db.SVBar["Micro"][key[#key]] 
-		end, 
-		set = function(key, value)
-			MOD:ChangeDBVar(value, key[#key], "Micro");
-			MOD:UpdateMicroButtons()
-		end,
-		args = {
-			enable = {
-				order = 1,
-				type = "toggle",
-				name = L["Enable"]
-			},
-			mouseover = {
-				order = 2,
-				name = L["Mouse Over"],
-				desc = L["The frame is not shown unless you mouse over the frame."],
-				disabled = function()return not SV.db.SVBar["Micro"].enable end,
-				type = "toggle"
-			},
-			buttonsize = {
-				order = 3,
-				type = "range",
-				name = L["Button Size"],
-				desc = L["The size of the action buttons."],
-				min = 15,
-				max = 60,
-				step = 1,
-				disabled = function()return not SV.db.SVBar["Micro"].enable end,
-			},
-			buttonspacing = {
-				order = 4,
-				type = "range",
-				name = L["Button Spacing"],
-				desc = L["The spacing between buttons."],
-				min = 1,
-				max = 10,
-				step = 1,
-				disabled = function()return not SV.db.SVBar["Micro"].enable end,
-			},
-		}
-	};
-
 	bar_configs["Pet"] = {
-		order = d,
+		order = 7,
 		name = L["Pet Bar"],
 		type = "group",
 		order = 200,
@@ -439,7 +389,7 @@ local function BarConfigLoader()
 	};
 
 	bar_configs["Stance"] = {
-		order = d,
+		order = 8,
 		name = L["Stance Bar"],
 		type = "group",
 		order = 300,
@@ -606,7 +556,57 @@ local function BarConfigLoader()
 				}
 			}
 		}
-	}
+	};
+
+	bar_configs["Micro"] = {
+		order = 9,
+		name = L["Micro Menu"],
+		type = "group",
+		order = 100,
+		guiInline = false,
+		disabled = function()return not SV.db.SVBar.enable end,
+		get = function(key) 
+			return SV.db.SVBar["Micro"][key[#key]] 
+		end, 
+		set = function(key, value)
+			MOD:ChangeDBVar(value, key[#key], "Micro");
+			MOD:UpdateMicroButtons()
+		end,
+		args = {
+			enable = {
+				order = 1,
+				type = "toggle",
+				name = L["Enable"]
+			},
+			mouseover = {
+				order = 2,
+				name = L["Mouse Over"],
+				desc = L["The frame is not shown unless you mouse over the frame."],
+				disabled = function()return not SV.db.SVBar["Micro"].enable end,
+				type = "toggle"
+			},
+			buttonsize = {
+				order = 3,
+				type = "range",
+				name = L["Button Size"],
+				desc = L["The size of the action buttons."],
+				min = 15,
+				max = 60,
+				step = 1,
+				disabled = function()return not SV.db.SVBar["Micro"].enable end,
+			},
+			buttonspacing = {
+				order = 4,
+				type = "range",
+				name = L["Button Spacing"],
+				desc = L["The spacing between buttons."],
+				min = 1,
+				max = 10,
+				step = 1,
+				disabled = function()return not SV.db.SVBar["Micro"].enable end,
+			},
+		}
+	};
 end 
 
 SV.Options.args.SVBar = {

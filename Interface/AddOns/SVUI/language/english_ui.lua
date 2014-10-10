@@ -1,4 +1,4 @@
-local L = LibSuperVillain:Lang("enUS", true);
+local L = _G.LibSuperVillain:Lang("enUS", true);
 if not L then return; end
 --[[REACTION TEXTS]]--
 L[" is drinking."] = true;

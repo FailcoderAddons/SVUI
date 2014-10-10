@@ -1,3 +1,19 @@
+--GLOBAL NAMESPACE
+local _G = _G;
+--LUA
+local unpack        = _G.unpack;
+local select        = _G.select;
+local assert        = _G.assert;
+--MATH
+local math          = _G.math;
+local max         	= math.max
+--BLIZZARD API
+local UnitHealth     			= _G.UnitHealth;
+local UnitHealthMax     		= _G.UnitHealthMax;
+local UnitGetTotalHealAbsorbs	= _G.UnitGetTotalHealAbsorbs;
+local UnitGetTotalAbsorbs 		= _G.UnitGetTotalAbsorbs;
+local UnitGetIncomingHeals 		= _G.UnitGetIncomingHeals;
+
 local _, ns = ...
 local oUF = ns.oUF
 

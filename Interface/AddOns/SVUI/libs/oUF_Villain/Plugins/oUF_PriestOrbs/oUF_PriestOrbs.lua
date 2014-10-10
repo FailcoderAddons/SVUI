@@ -1,3 +1,19 @@
+--GLOBAL NAMESPACE
+local _G = _G;
+--LUA
+local unpack        = _G.unpack;
+local select        = _G.select;
+local assert        = _G.assert;
+--BLIZZARD API
+local UnitPower     	= _G.UnitPower;
+local UnitPowerMax 		= _G.UnitPowerMax;
+local UnitHasVehicleUI 	= _G.UnitHasVehicleUI;
+local GetSpecialization = _G.GetSpecialization;
+local UnitLevel 		= _G.UnitLevel;
+local UnitBuff 			= _G.UnitBuff;
+
+local SPELL_POWER_SHADOW_ORBS = _G.SPELL_POWER_SHADOW_ORBS;
+
 if select(2, UnitClass('player')) ~= "PRIEST" then return end
 
 local _, ns = ...

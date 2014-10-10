@@ -43,7 +43,7 @@ local gmatch, gsub = string.gmatch, string.gsub;
 --[[ MATH METHODS ]]--
 local abs, ceil, floor, round = math.abs, math.ceil, math.floor, math.round;  -- Basic
 --[[ TABLE METHODS ]]--
-local twipe, tsort = table.wipe, table.sort;
+local wipe, sort = table.wipe, table.sort;
 --[[ 
 ########################################################## 
 GET ADDON DATA
@@ -292,7 +292,7 @@ end
 
 local function OnEnter(self)
 	MOD:Tip(self)
-
+	local grouped
 	local numberOfFriends, onlineFriends = GetNumFriends()
 	local totalBNet, numBNetOnline = BNGetNumFriends()
 		

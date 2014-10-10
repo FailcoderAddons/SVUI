@@ -26,14 +26,24 @@ local ipairs 	= _G.ipairs;
 local type 		= _G.type;
 local tinsert 	= _G.tinsert;
 local string 	= _G.string;
+--TABLE
+local table         = _G.table;
+local tsort         = table.sort;
+local tconcat       = table.concat;
+local tinsert       = _G.tinsert;
+local tremove       = _G.tremove;
 
-local SVLib = LibSuperVillain
+local SVLib = _G.LibSuperVillain
 --[[ 
 ########################################################## 
 Simple click2cast spell SpellBinder(sBinder by Fernir)
 ##########################################################
 ]]--
-ClickCastFrames = _G.ClickCastFrames or {}
+local ClickCastFrames
+do
+	_G.ClickCastFrames = _G.ClickCastFrames or {}
+	ClickCastFrames = _G.ClickCastFrames
+end
 
 local UnitParseListing = {
 	"PlayerFrame", "PetFrame",
@@ -81,8 +91,6 @@ SpellBinder.list.child = CreateFrame("Frame", nil, SpellBinder.list)
 SpellBinder.list:SetPoint("TOPLEFT", _G["SVUI_SpellBinderInset"], "TOPLEFT", 0, -5)
 SpellBinder.list:SetPoint("BOTTOMRIGHT", _G["SVUI_SpellBinderInset"], "BOTTOMRIGHT", -30, 5)
 SpellBinder.list:SetScrollChild(SpellBinder.list.child)
-
-local SpellBinderCache;
 --[[ 
 ########################################################## 
 SCRIPT HANDLERS
@@ -168,9 +176,9 @@ local SpellBindMask_OnClick = function(self, button)
 				button = SecureButton_GetButtonSuffix(button)
 			end
 
-			for i, v in pairs(SpellBinderCache.spells) do if v.spell == spellname then return end end
+			for i, v in pairs(SV.cache.SpellBinder.spells) do if v.spell == spellname then return end end
 
-			tinsert(SpellBinderCache.spells, {["id"] = slot, ["modifier"] = modifier, ["button"] = button, ["spell"] = spellname, ["rank"] = rank, ["texture"] = texture, ["origbutton"] = originalbutton,})
+			tinsert(SV.cache.SpellBinder.spells, {["id"] = slot, ["modifier"] = modifier, ["button"] = button, ["spell"] = spellname, ["rank"] = "", ["texture"] = texture, ["origbutton"] = originalbutton,})
 			SpellBinder:BuildSpells(false)
 		end
 	end
@@ -178,7 +186,7 @@ end
 
 local SpellBindDelete_OnClick = function(self)
 	local spell = self.spell
-	for j, k in ipairs(SpellBinderCache.spells) do
+	for j, k in ipairs(SV.cache.SpellBinder.spells) do
 		if k ~= spell.spell then
 			k.checked = false
 			_G[j.."_cbs"]:SetBackdropColor(0, 0, 0, 0)
@@ -201,14 +209,21 @@ METHODS
 ##########################################################
 ]]--
 function SpellBinder:BuildSpells(delete)
-	if(not SpellBinderCache) then return end
+	if(not SV.cache.SpellBinder) then return end
+
+	if(not SV.cache.SpellBinder.spells) then
+		SV.cache.SpellBinder.spells = {}
+		SV.cache.SpellBinder.frames = {}
+		SV.cache.SpellBinder.keys = {}
+	end
+	
 	local oldb, spellName
 	local scroll = self.list.child
 	scroll:SetPoint("TOPLEFT")
 	scroll:SetSize(270, 300)
 
 	if delete then
-		i = 1
+		local i = 1
 		while _G[i.."_cbs"] do
 			_G[i.."_fs"]:SetText("")
 			_G[i.."_texture"]:SetTexture(0,0,0,0)
@@ -219,7 +234,7 @@ function SpellBinder:BuildSpells(delete)
 		end
 	end
 
-	for i, spell in ipairs(SpellBinderCache.spells) do
+	for i, spell in ipairs(SV.cache.SpellBinder.spells) do
 		spellName = spell.spell
 		if spellName then
 			local bf = _G[i.."_cbs"] or CreateFrame("Button", i.."_cbs", scroll)
@@ -259,7 +274,7 @@ function SpellBinder:BuildSpells(delete)
 			bf.fs:SetPoint("RIGHT", bf.delete, "LEFT", -4, 0)
 
 			for frame,_ in pairs(ClickCastFrames) do
-				if frame and SpellBinderCache.frames[frame] then
+				if frame and SV.cache.SpellBinder.frames[frame] then
 					if frame:CanChangeAttribute() or frame:CanChangeProtectedState() then
 						if frame:GetAttribute(spell.modifier.."type"..spell.button) ~= "menu" then
 							--frame:RegisterForClicks("AnyDown")
@@ -268,15 +283,15 @@ function SpellBinder:BuildSpells(delete)
 								frame:SetAttribute(spell.modifier.."type-"..spell.spell, "spell")
 								frame:SetAttribute(spell.modifier.."spell-"..spell.spell, spell.spell)
 
-								SpellBinderCache.keys[spell.modifier..spell.button] = spell.spell
-								SpellBinderCache.keys[spell.modifier.."type-"..spell.spell] = "spell"
-								SpellBinderCache.keys[spell.modifier.."spell-"..spell.spell] = spell.spell
+								SV.cache.SpellBinder.keys[spell.modifier..spell.button] = spell.spell
+								SV.cache.SpellBinder.keys[spell.modifier.."type-"..spell.spell] = "spell"
+								SV.cache.SpellBinder.keys[spell.modifier.."spell-"..spell.spell] = spell.spell
 							else
 								frame:SetAttribute(spell.modifier.."type"..spell.button, "spell")
 								frame:SetAttribute(spell.modifier.."spell"..spell.button, spell.spell)
 
-								SpellBinderCache.keys[spell.modifier.."type"..spell.button] = "spell"
-								SpellBinderCache.keys[spell.modifier.."spell"..spell.button] = spell.spell
+								SV.cache.SpellBinder.keys[spell.modifier.."type"..spell.button] = "spell"
+								SV.cache.SpellBinder.keys[spell.modifier.."spell"..spell.button] = spell.spell
 							end
 						end
 					end
@@ -290,9 +305,9 @@ function SpellBinder:BuildSpells(delete)
 end
 
 function SpellBinder:BuildList()
-	if(SpellBinderCache and SpellBinderCache.frames) then
+	if(SV.cache.SpellBinder and SV.cache.SpellBinder.frames) then
 		for frame,_ in pairs(ClickCastFrames) do
-			SpellBinderCache.frames[frame] = SpellBinderCache.frames[frame] or true
+			SV.cache.SpellBinder.frames[frame] = SV.cache.SpellBinder.frames[frame] or true
 		end
 	end
 end
@@ -318,8 +333,8 @@ function SpellBinder:ToggleButtons()
 end
 
 function SpellBinder:DeleteSpell()
-	local count = table.getn(SpellBinderCache.spells)
-	for i, spell in ipairs(SpellBinderCache.spells) do
+	local count = table.getn(SV.cache.SpellBinder.spells)
+	for i, spell in ipairs(SV.cache.SpellBinder.spells) do
 		if spell.checked then
 			for frame,_ in pairs(ClickCastFrames) do
 				local f
@@ -339,7 +354,7 @@ function SpellBinder:DeleteSpell()
 					end
 				end
 			end
-			tremove(SpellBinderCache.spells, i)
+			tremove(SV.cache.SpellBinder.spells, i)
 		end
 	end
 	self:BuildSpells(true)
@@ -381,6 +396,7 @@ local _hook_SpellBookFrame_OnUpdate = function(self)
 end
 
 local _hook_SpellBookFrame_OnHide = function(self)
+	if not SpellBinder then return end
 	SpellBinder:Hide()
 	SpellBinder.sbOpen = false
 	SpellBinder:ToggleButtons()
@@ -427,11 +443,11 @@ SpellBinder:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 SpellBinder:RegisterEvent("ZONE_CHANGED")
 
 local function LoadSpellBinder()
-	SpellBinderCache = SVLib:NewCache("SpellBinder")
-	SpellBinderCache.spells = SpellBinderCache.spells or {}
-	SpellBinderCache.frames = SpellBinderCache.frames or {}
-	SpellBinderCache.keys = SpellBinderCache.keys or {}
-	
+	SV.cache.SpellBinder = SV.cache.SpellBinder or {}
+	SV.cache.SpellBinder.spells = SV.cache.SpellBinder.spells or {}
+	SV.cache.SpellBinder.frames = SV.cache.SpellBinder.frames or {}
+	SV.cache.SpellBinder.keys = SV.cache.SpellBinder.keys or {}
+
 	SpellBinder:BuildList()
 	SpellBinder:BuildSpells(true)
 

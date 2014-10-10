@@ -1,3 +1,22 @@
+--GLOBAL NAMESPACE
+local _G = _G;
+--LUA
+local unpack        = _G.unpack;
+local select        = _G.select;
+local assert        = _G.assert;
+local error         = _G.error;
+local print         = _G.print;
+local pairs         = _G.pairs;
+local next          = _G.next;
+local tostring      = _G.tostring;
+local type  		= _G.type;
+--BLIZZARD API
+local GetLocale 					= _G.GetLocale;
+local GetShapeshiftFormID 			= _G.GetShapeshiftFormID;
+local UnitAura         				= _G.UnitAura;
+local UnitHasVehiclePlayerFrameUI 	= _G.UnitHasVehiclePlayerFrameUI;
+local MonkStaggerBar 				= _G.MonkStaggerBar;
+
 if select(2, UnitClass('player')) ~= "MONK" then return end
 
 local parent, ns = ...

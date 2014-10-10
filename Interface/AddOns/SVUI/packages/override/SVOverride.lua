@@ -18,16 +18,27 @@ LOCALIZED LUA FUNCTIONS
 ]]--
 --[[ GLOBALS ]]--
 local _G = _G;
-local unpack 	= _G.unpack;
-local select 	= _G.select;
-local pairs 	= _G.pairs;
+local unpack        = _G.unpack;
+local select        = _G.select;
+local assert        = _G.assert;
+local type          = _G.type;
+local error         = _G.error;
+local pcall         = _G.pcall;
+local print         = _G.print;
+local ipairs        = _G.ipairs;
+local pairs         = _G.pairs;
+local next          = _G.next;
+local rawset        = _G.rawset;
+local rawget        = _G.rawget;
+local tostring      = _G.tostring;
+local tonumber      = _G.tonumber;
 local tinsert 	= _G.tinsert;
 local string 	= _G.string;
 local math 		= _G.math;
 --[[ STRING METHODS ]]--
 local find, format, len, split = string.find, string.format, string.len, string.split;
 --[[ MATH METHODS ]]--
-local abs, ceil, floor, round = math.abs, math.ceil, math.floor, math.round;
+local abs, ceil, floor, round, max = math.abs, math.ceil, math.floor, math.round, math.max;
 --[[ 
 ########################################################## 
 GET ADDON DATA
@@ -38,6 +49,8 @@ local L = SV.L
 local LSM = LibStub("LibSharedMedia-3.0")
 local MOD = SV:NewPackage("SVOverride", "Overrides");
 MOD.LewtRollz = {};
+
+local MyName = UnitName("player");
 --[[ 
 ########################################################## 
 LOCAL VARS
@@ -161,7 +174,7 @@ function MOD:DisbandRaidGroup()
 	if UnitInRaid("player") then
 		for i = 1, GetNumGroupMembers() do
 			local name, _, _, _, _, _, _, online = GetRaidRosterInfo(i)
-			if online and name ~= E.myname then
+			if online and name ~= MyName then
 				UninviteUnit(name)
 			end
 		end
@@ -395,7 +408,7 @@ local function MirrorBarRegistry(barType)
 	bar:SetStatusBarColor(r, g, b)
 	bar.type = barType;
 	bar.Start = MirrorBar_Start;
-	bar.Stop = Stop;
+	-- bar.Stop = nil;
 	SetMirrorPosition(bar)
 	RegisteredMirrorBars[barType] = bar;
 	return bar 
@@ -983,7 +996,7 @@ local LootComplexEventsHandler = function(_, event, arg1, arg2)
 	end
 end 
 
-local GroupLootDropDown_GiveLoot = function(self)
+_G.GroupLootDropDown_GiveLoot = function(self)
 	if lastQuality >= MASTER_LOOT_THREHOLD then 
 		local confirmed = SV:StaticPopup_Show("CONFIRM_LOOT_DISTRIBUTION",ITEM_QUALITY_COLORS[lastQuality].hex..lastName..FONT_COLOR_CODE_CLOSE,self:GetText());
 		if confirmed then confirmed.data = self.value end 
@@ -1052,7 +1065,9 @@ function MOD:Load()
 	SVUI_LootFrame:SetFixedPanelTemplate('Transparent');
 	SVUI_LootFrame.title:SetFont(LSM:Fetch("font", "SVUI Number Font"),18,"OUTLINE")
 	SV.Mentalo:Add(SVUI_LootFrameHolder, L["Loot Frame"], nil, nil, nil, nil, "SVUI_LootFrame");
-	tinsert(UISpecialFrames, "SVUI_LootFrame");
+	SV:AddToDisplayAudit(SVUI_LootFrame);
+	SVUI_LootFrame:Hide();
+	--tinsert(UISpecialFrames, "SVUI_LootFrame");
 
 	UIParent:UnregisterEvent("LOOT_BIND_CONFIRM")
 	UIParent:UnregisterEvent("CONFIRM_DISENCHANT_ROLL")
@@ -1077,8 +1092,6 @@ function MOD:Load()
 		UIParent:UnregisterEvent("START_LOOT_ROLL");
 		UIParent:UnregisterEvent("CANCEL_LOOT_ROLL");
 	end 
-
-	_G.GroupLootDropDown_GiveLoot = GroupLootDropDown_GiveLoot
 
 	UIParent:UnregisterEvent("MIRROR_TIMER_START")
 	self:RegisterEvent("CVAR_UPDATE", MirrorBarUpdateHandler)

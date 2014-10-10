@@ -1,6 +1,6 @@
-local L = LibSuperVillain:Lang("esES");
+local L = _G.LibSuperVillain:Lang("esES");
 if not L then
-	L = LibSuperVillain:Lang("esMX")
+	L = _G.LibSuperVillain:Lang("esMX")
 end
 if not L then return; end
 --[[REACTION TEXTS]]--

@@ -13,6 +13,11 @@ _____/\\\\\\\\\\\____/\\\________/\\\__/\\\________/\\\__/\\\\\\\\\\\_       #
 S U P E R - V I L L A I N - U I   By: Munglunch                              #
 ##############################################################################
 --]]
+--[[ GLOBALS ]]--
+local _G = _G;
+local unpack  = _G.unpack;
+local select  = _G.select;
+--[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
 local STYLE = select(2, ...);
@@ -22,9 +27,9 @@ local Schema = STYLE.Schema;
 HELPERS
 ##########################################################
 ]]--
-local function AlphaHelper(this, value, flag)
-	if value ~= 1 and flag ~= true then 
-		d:SetAlpha(1, true)
+local AlphaHelper = function(self, value, flag)
+	if(not flag and value ~= 1) then 
+		self:SetAlpha(1, true)
 	end 
 end 
 --[[ 
@@ -52,7 +57,7 @@ local function AlertStyle()
 		end
 	end
 
-	hooksecurefunc("AlertFrame_SetAchievementAnchors", function(g)
+	hooksecurefunc("AlertFrame_SetAchievementAnchors", function()
 		for i = 1, MAX_ACHIEVEMENT_ALERTS do 
 			local frame = _G["AchievementAlertFrame"..i]
 			if frame then 
@@ -86,17 +91,23 @@ local function AlertStyle()
 		end 
 	end)
 
-	hooksecurefunc("AlertFrame_SetDungeonCompletionAnchors", function(g)
+	hooksecurefunc("AlertFrame_SetDungeonCompletionAnchors", function()
 		for i = 1, DUNGEON_COMPLETION_MAX_REWARDS do 
 			local frame = _G["DungeonCompletionAlertFrame"..i]
 			if frame then 
 				frame:SetAlpha(1)
-				hooksecurefunc(frame, "SetAlpha", AlphaHelper)
-				if not frame.Panel then 
+				
+				if(not frame.AlphaHooked) then 
+					hooksecurefunc(frame, "SetAlpha", AlphaHelper)
+					frame.AlphaHooked = true
+				end
+
+				if(not frame.Panel) then 
 					frame:SetBasicPanel()
 					frame.Panel:Point("TOPLEFT", frame, "TOPLEFT", -2, -6)
 					frame.Panel:Point("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -2, 6)
-				end 
+				end
+
 				frame.shine:Die()
 				frame.glowFrame:Die()
 				frame.glowFrame.glow:Die()
@@ -110,6 +121,7 @@ local function AlertStyle()
 				frame.dungeonTexture:SetDrawLayer("OVERLAY")
 				frame.dungeonTexture:ClearAllPoints()
 				frame.dungeonTexture:Point("LEFT", frame, 7, 0)
+
 				if not frame.dungeonTexture.b then 
 					frame.dungeonTexture.b = CreateFrame("Frame", nil, frame)
 					frame.dungeonTexture.b:SetFixedPanelTemplate("Default")
@@ -120,20 +132,27 @@ local function AlertStyle()
 		end 
 	end)
 
-	hooksecurefunc("AlertFrame_SetGuildChallengeAnchors", function(g)
+	hooksecurefunc("AlertFrame_SetGuildChallengeAnchors", function()
 		local frame = GuildChallengeAlertFrame;
 		if frame then 
 			frame:SetAlpha(1)
-			hooksecurefunc(frame, "SetAlpha", AlphaHelper)
-			if not frame.Panel then 
+			
+			if(not frame.AlphaHooked) then 
+				hooksecurefunc(frame, "SetAlpha", AlphaHelper)
+				frame.AlphaHooked = true
+			end
+
+			if(not frame.Panel) then 
 				frame:SetBasicPanel()
 				frame.Panel:Point("TOPLEFT", frame, "TOPLEFT", -2, -6)
 				frame.Panel:Point("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -2, 6)
-			end 
+			end
+
 			local j = select(2, frame:GetRegions())
 			if j:GetObjectType() == "Texture"then 
 				if j:GetTexture() == "Interface\\GuildFrame\\GuildChallenges"then j:Die()end 
-			end 
+			end
+
 			GuildChallengeAlertFrameGlow:Die()
 			GuildChallengeAlertFrameShine:Die()
 			GuildChallengeAlertFrameEmblemBorder:Die()
@@ -148,7 +167,7 @@ local function AlertStyle()
 		end 
 	end)
 
-	hooksecurefunc("AlertFrame_SetChallengeModeAnchors", function(g)
+	hooksecurefunc("AlertFrame_SetChallengeModeAnchors", function()
 		local frame = ChallengeModeAlertFrame1;
 		if frame then 
 			frame:SetAlpha(1)
@@ -180,7 +199,7 @@ local function AlertStyle()
 		end 
 	end)
 
-	hooksecurefunc("AlertFrame_SetScenarioAnchors", function(g)
+	hooksecurefunc("AlertFrame_SetScenarioAnchors", function()
 		local frame = ScenarioAlertFrame1;
 		if frame then 
 			frame:SetAlpha(1)

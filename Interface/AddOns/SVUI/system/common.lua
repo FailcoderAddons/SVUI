@@ -169,6 +169,15 @@ function SV:ScreenCalibration(event)
         self.ActualWidth = self.UIParent:GetWidth()
     end 
 end
+
+local function scaled(value)
+    if(not SCREEN_MOD) then
+        SV:ScreenCalibration()
+    end
+    return SCREEN_MOD * floor(value / SCREEN_MOD + .5);
+end
+
+SV.Scale = scaled
 --[[ 
 ########################################################## 
 APPENDED POSITIONING METHODS
@@ -176,13 +185,6 @@ APPENDED POSITIONING METHODS
 ]]-- 
 do
     local PARAMS = {}
-
-    local function scaled(value)
-        if(not SCREEN_MOD) then
-            SV:ScreenCalibration()
-        end
-        return SCREEN_MOD * floor(value / SCREEN_MOD + .5);
-    end
 
     function SizeScaled(self, width, height)
         if(type(width) == "number") then
@@ -240,7 +242,7 @@ do
         end 
         self:SetPoint("TOPLEFT", parent, "TOPLEFT", nx, -ny)
         self:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", -nx, ny)
-    end 
+    end
 end
 --[[ 
 ########################################################## 
@@ -857,10 +859,10 @@ local function CreatePanelTemplate(frame, templateName, underlay, noupdate, padd
         needsHooks = true
 
         local panel = NewFrame('Frame', nil, frame)
-        panel:Point('TOPLEFT', frame, 'TOPLEFT', (xOffset * -1), yOffset)
-        panel:Point('BOTTOMRIGHT', frame, 'BOTTOMRIGHT', xOffset, (yOffset * -1))
+        panel:SetPoint('TOPLEFT', frame, 'TOPLEFT', (xOffset * -1), yOffset)
+        panel:SetPoint('BOTTOMRIGHT', frame, 'BOTTOMRIGHT', xOffset, yOffset * -1)
 
-        if(padding > 0 and type(t) == 'table') then 
+        if(padding > 0) then 
             panel[1] = panel:CreateTexture(nil,"BORDER")
             panel[1]:SetTexture(0,0,0)
             panel[1]:SetPoint("TOPLEFT")
@@ -903,12 +905,12 @@ local function CreatePanelTemplate(frame, templateName, underlay, noupdate, padd
         if(not frame.Panel[5]) then
             if(underlay) then
                 frame.Panel[5] = NewFrame('Frame', nil, frame.Panel)
-                frame.Panel[5]:Point('TOPLEFT', frame.Panel, 'TOPLEFT', -3, 3)
-                frame.Panel[5]:Point('BOTTOMRIGHT', frame.Panel, 'BOTTOMRIGHT', 3, -3)
+                frame.Panel[5]:SetPoint('TOPLEFT', frame.Panel, 'TOPLEFT', -3, 3)
+                frame.Panel[5]:SetPoint('BOTTOMRIGHT', frame.Panel, 'BOTTOMRIGHT', 3, -3)
             else
                 frame.Panel[5] = NewFrame('Frame', nil, frame)
-                frame.Panel[5]:Point('TOPLEFT', frame, 'TOPLEFT', -3, 3)
-                frame.Panel[5]:Point('BOTTOMRIGHT', frame, 'BOTTOMRIGHT', 3, -3)
+                frame.Panel[5]:SetPoint('TOPLEFT', frame, 'TOPLEFT', -3, 3)
+                frame.Panel[5]:SetPoint('BOTTOMRIGHT', frame, 'BOTTOMRIGHT', 3, -3)
             end
         end
 
@@ -1322,10 +1324,7 @@ local function SetButtonTemplate(self, invisible, overridePadding, xOffset, yOff
             FillInner(hover, self.Panel)
             self.hover = hover;
         end
-
-        local color = SV.Media.color.highlight
-        self.hover:SetTexture(color[1], color[2], color[3], 0.5)
-
+        self.hover:SetTexture(0.1, 0.8, 0.8, 0.5)
         self:SetHighlightTexture(self.hover) 
     end 
 
@@ -1390,7 +1389,7 @@ local function SetCheckboxTemplate(self, underlay, x, y)
     self.__hooked = true
 end 
 
-local function SetEditboxTemplate(self, x, y)
+local function SetEditboxTemplate(self, x, y, fixed)
     if(not self or (self and self.Panel)) then return end
 
     if self.TopLeftTex then Die(self.TopLeftTex) end 
@@ -1402,8 +1401,9 @@ local function SetEditboxTemplate(self, x, y)
     if self.LeftTex then Die(self.LeftTex) end 
     if self.RightTex then Die(self.RightTex) end 
     if self.MiddleTex then Die(self.MiddleTex) end 
-
-    CreatePanelTemplate(self, "Inset", true, true, 1, x, y)
+    local underlay = true
+    if(fixed ~= nil) then underlay = fixed end
+    CreatePanelTemplate(self, "Inset", underlay, true, 1, x, y)
 
     local globalName = self:GetName();
     if globalName then 

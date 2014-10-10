@@ -28,6 +28,9 @@ local string 	= _G.string;
 --[[ STRING METHODS ]]--
 local format = string.format;
 local gsub = string.gsub;
+--MATH
+local math          = _G.math;
+local min         = math.min
 --[[ 
 ########################################################## 
 GET ADDON DATA

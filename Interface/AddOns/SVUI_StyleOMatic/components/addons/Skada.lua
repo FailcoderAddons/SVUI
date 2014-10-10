@@ -55,6 +55,8 @@ local function skada_panel_loader(holder, window)
 
   local bars = Skada.displays['bar']
 
+  if(not bars or (bars and not bars.ApplySettings)) then return end
+
   local width,height = holder:GetSize()
 
   window.db.barspacing = 1;
@@ -63,8 +65,8 @@ local function skada_panel_loader(holder, window)
   window.db.spark=false;
   window.db.barslocked = true;
   window.bargroup:ClearAllPoints()
-  window.bargroup:SetPoint('BOTTOMLEFT',holder,'BOTTOMLEFT',0,0)
-  window.bargroup:SetParent(holder)
+  window.bargroup:SetPoint('BOTTOMLEFT', holder, 'BOTTOMLEFT', 0, 0)
+  window.bargroup:SetParent(UIParent)
   window.bargroup:SetFrameStrata('LOW')
 
   local bgroup = window.bargroup.backdrop;
@@ -73,7 +75,8 @@ local function skada_panel_loader(holder, window)
     bgroup:SetFixedPanelTemplate('Transparent',true) 
   end 
 
-  bars.ApplySettings(bars, window)
+  bars:ApplySettings(window)
+  window.bargroup:SetParent(holder)
 end
 
 function STYLE:Docklet_Skada()

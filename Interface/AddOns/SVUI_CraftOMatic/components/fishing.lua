@@ -18,15 +18,35 @@ LOCALIZED LUA FUNCTIONS
 ]]--
 --[[ GLOBALS ]]--
 local _G = _G;
-local unpack 	= _G.unpack;
-local select 	= _G.select;
-local type 		= _G.type;
-local string    = _G.string;
+local unpack        = _G.unpack;
+local select        = _G.select;
+local assert        = _G.assert;
+local type          = _G.type;
+local error         = _G.error;
+local pcall         = _G.pcall;
+local print         = _G.print;
+local ipairs        = _G.ipairs;
+local pairs         = _G.pairs;
+local next          = _G.next;
+local rawset        = _G.rawset;
+local rawget        = _G.rawget;
+local tostring      = _G.tostring;
+local tonumber      = _G.tonumber;
+local getmetatable  = _G.getmetatable;
+local setmetatable  = _G.setmetatable;
+--STRING
+local string        = _G.string;
+local upper         = string.upper;
+local format        = string.format;
+local find          = string.find;
+local match         = string.match;
+local gsub          = string.gsub;
+local rept      = string.rep; 
 local math 		= _G.math;
 local table 	= _G.table;
-local rept      = string.rep; 
 local tsort,twipe = table.sort,table.wipe;
 local floor,ceil  = math.floor, math.ceil;
+local band 		= _G.bit.band;
 --[[ 
 ########################################################## 
 GET ADDON DATA
@@ -202,7 +222,7 @@ local function LootProxy(item, name)
 	if(item) then
 		local mask = [[0x100000]];
 		local itemType = GetItemFamily(item);
-		local pass = bit.band(itemType, mask);
+		local pass = band(itemType, mask);
 		if pass > 0 then
 			proxyTest = true;
 		end
@@ -242,7 +262,7 @@ do
 		if(item) then
 			local mask = [[0x10000]];
 			local itemType = GetItemFamily(item);
-			local pass = bit.band(itemType, mask);
+			local pass = band(itemType, mask);
 			if pass > 0 then
 				proxyTest = true;
 			end

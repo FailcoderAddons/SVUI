@@ -1,4 +1,4 @@
-local L = LibSuperVillain:Lang("zhCN");
+local L = _G.LibSuperVillain:Lang("zhCN");
 if not L then return end
 --[[REACTION TEXTS]]--
 L[" is drinking."] = true;

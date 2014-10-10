@@ -14,18 +14,45 @@ S U P E R - V I L L A I N - U I  By: Munglunch               #
 ##############################################################################
 ]]--
 --[[ GLOBALS ]]--
-local _G 		= _G;
-local unpack 	= unpack;
-local select 	= select;
-local pairs 	= pairs;
-local assert 	= assert;
-local table 	= table;
-local string 	= string;
---[[ STRING METHODS ]]--
-local find, format, byte, upper = string.find, string.format, string.byte, string.upper;
-local sub, gsub, len = string.sub, string.gsub, string.len;
---[[ TABLE METHODS ]]--
-local twipe = _G.wipe;
+local _G = _G;
+--LUA
+local unpack        = _G.unpack;
+local select        = _G.select;
+local assert        = _G.assert;
+local type          = _G.type;
+local error         = _G.error;
+local pcall         = _G.pcall;
+local print         = _G.print;
+local ipairs        = _G.ipairs;
+local pairs         = _G.pairs;
+local next          = _G.next;
+local rawset        = _G.rawset;
+local rawget        = _G.rawget;
+local tostring      = _G.tostring;
+local tonumber      = _G.tonumber;
+local getmetatable  = _G.getmetatable;
+local setmetatable  = _G.setmetatable;
+--STRING
+local string        = _G.string;
+local upper         = string.upper;
+local format        = string.format;
+local find          = string.find;
+local match         = string.match;
+local sub         	= string.sub;
+local gsub          = string.gsub;
+local byte 			= string.byte;
+local upper 		= string.upper;
+local len         	= string.len;
+--MATH
+local math          = _G.math;
+local floor         = math.floor
+--TABLE
+local table         = _G.table;
+local tsort         = table.sort;
+local tconcat       = table.concat;
+local tinsert       = _G.tinsert;
+local tremove       = _G.tremove;
+local twipe         = _G.wipe;
 --[[ 
 ########################################################## 
 GET ADDON DATA
@@ -56,10 +83,12 @@ LOCAL FUNCTIONS
 ##########################################################
 ]]--
 local function Hex(r, g, b)
-	if type(r) == "table" then
+	if(not r) then
+		r, g, b = 1, 1, 1;
+	elseif type(r) == "table" then
 		if r.r then r, g, b = r.r, r.g, r.b else r, g, b = unpack(r) end
 	end
-	return format("|cff%02x%02x%02x", r*255, g*255, b*255)
+	return ("|cff%02x%02x%02x"):format(r*255, g*255, b*255)
 end
 
 local function TruncateString(value)
@@ -82,22 +111,28 @@ local function SetTagStyle(style, min, max)
 		if result <= 0 then 
 			return ""
 		else 
-			return format("-%s", TruncateString(result))
+			return ("-%s"):format(TruncateString(result))
 		end 
-	elseif style == "PERCENT" then 
-		result = format("%s%%", format("%.1f", min / max * 100))
+	elseif style == "PERCENT" then
+		local prct = min / max * 100
+		result = ("%.1f"):format(prct)
+		result = ("%s%%"):format(result)
 		result = result:gsub(".0%%", "%%")
 		return result 
 	elseif style == "CURRENT" or ((style == "CURRENT_MAX" or style == "CURRENT_MAX_PERCENT" or style == "CURRENT_PERCENT") and min == max) then 
-		return format("%s", TruncateString(min))
+		return ("%s"):format(TruncateString(min))
 	elseif style == "CURRENT_MAX" then 
-		return format("%s - %s", TruncateString(min), TruncateString(max))
-	elseif style == "CURRENT_PERCENT" then 
-		result = format("%s - %s%%", TruncateString(min), format("%.1f", min / max * 100))
+		return ("%s - %s"):format(TruncateString(min), TruncateString(max))
+	elseif style == "CURRENT_PERCENT" then
+		local prct = min / max * 100
+		result = ("%.1f"):format(prct)
+		result = ("%s - %s%%"):format(TruncateString(min), result)
 		result = result:gsub(".0%%", "%%")
 		return result 
-	elseif style == "CURRENT_MAX_PERCENT" then 
-		result = format("%s - %s - %s%%", TruncateString(min), TruncateString(max), format("%.1f", min / max * 100))
+	elseif style == "CURRENT_MAX_PERCENT" then
+		local prct = min / max * 100
+		result = ("%.1f"):format(prct)
+		result = ("%s - %s - %s%%"):format(TruncateString(min), TruncateString(max), result)
 		result = result:gsub(".0%%", "%%")
 		return result 
 	end 
@@ -158,8 +193,8 @@ local function GetClassPower(class)
 		if spec == SPEC_WARLOCK_DESTRUCTION then 
 			currentPower = UnitPower("player", SPELL_POWER_BURNING_EMBERS, true)
 			maxPower = UnitPowerMax("player", SPELL_POWER_BURNING_EMBERS, true)
-			currentPower = math.floor(currentPower / 10)
-			maxPower = math.floor(maxPower / 10)
+			currentPower = floor(currentPower / 10)
+			maxPower = floor(maxPower / 10)
 			r, g, b = 230 / 255, 95 / 255, 95 / 255 
 		elseif spec == SPEC_WARLOCK_AFFLICTION then 
 			currentPower = UnitPower("player", SPELL_POWER_SOUL_SHARDS)
@@ -367,7 +402,7 @@ oUF_Villain.Tags.Methods["power:curmax-percent"] = function(f)local j = UnitPowe
 
 oUF_Villain.Tags.Methods["power:percent"] = function(f)local j = UnitPowerType(f)local p = UnitPower(f, j)return p == 0 and" "or SetTagStyle("PERCENT", p, UnitPowerMax(f, j))end 
 
-oUF_Villain.Tags.Methods["power:deficit"] = function(f)local j = UnitPowerType(f)return SetTagStyle("DEFICIT", UnitPower(f, j), UnitPowerMax(f, j), r, g, b)end
+oUF_Villain.Tags.Methods["power:deficit"] = function(f)local j = UnitPowerType(f) return SetTagStyle("DEFICIT", UnitPower(f, j), UnitPowerMax(f, j))end
 --[[ 
 ########################################################## 
 MISC TAG METHODS
@@ -413,7 +448,7 @@ oUF_Villain.Tags.Methods["classpower"] = function()
 	else
 		local color = Hex(r, g, b)
 		local amt = SetTagStyle("CURRENT", currentPower, maxPower)
-		return format("%s%s ", color, amt)
+		return ("%s%s "):format(color, amt)
 	end
 end
 
@@ -425,7 +460,7 @@ oUF_Villain.Tags.Methods["altpower"] = function(unit)
 			r, g, b = 1, 1, 1 
 		end
 		local color = Hex(r, g, b)
-		return format("%s%s ", color, power)
+		return ("%s%s "):format(color, power)
 	else 
 		return " " 
 	end 

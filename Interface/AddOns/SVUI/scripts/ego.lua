@@ -31,27 +31,55 @@ GET ADDON DATA
 local SV = select(2, ...)
 local L = SV.L
 
-local EgoFrame = CreateFrame("Frame", "EgoFrame", UIParent);
+local Sequences = {
+	{65, 1000}, --shrug
+	{68, 1000}, --cheer
+	{70, 1000}, --laugh
+	{74, 1000}, --roar
+	{77, 1000}, --cry
+	{84, 1000}, --point
+	{82, 1000}, --flex
+};
 
-local LaunchPopup = function(self, emote)
+local EgoFrame = CreateFrame("PlayerModel", "SVUI_EgoModel", UIParent);
+
+local function rng()
+	return random(1, #Sequences)
+end
+
+local LaunchAnimation = function(self, key)
+	key = key or rng()
+	local emote = Sequences[key][1]
+	self:Show()
+	self:SetAnimation(emote)
+	self.anim:Play()
+end
+
+local LaunchFreezeFrame = function(self, key)
+	key = key or rng()
+	local animation = Sequences[key]
 	local size = SVUIParent:GetHeight()
-	self.Model:Show()
+	self:Show()
+	self:SetSequenceTime(unpack(animation))
 	self.anim[2]:SetOffset(size, -size)
 	self.anim[2]:SetOffset(0, 0)
 	self.anim:Play()
-	self.Model:SetAnimation(emote)
-end 
+end
+
+local ResetPosition = function(self)
+	local size = SVUIParent:GetHeight()
+	self:SetPoint("TOP", SV.UIParent, "TOP", 0, 0)
+	self:SetWidth(size)
+	self:SetHeight(size)
+	self:SetUnit("player")
+end
 
 local Ego_OnEvent = function(self, event)
 	if event == "ACHIEVEMENT_EARNED" then 
-		self:LaunchPopup(74)
+		self:LaunchAnimation(4)
 	else
-		self:LaunchPopup(84)
+		self:LaunchAnimation(6)
 	end  
-end
-
-function BeAwesome()
-	EgoFrame:LaunchPopup(74)
 end
 
 function SV:ToggleEgo()
@@ -74,21 +102,19 @@ local function LoadSVEgo()
 	EgoFrame:SetPoint("TOP", SV.UIParent, "TOP", 0, 0)
 	EgoFrame:SetWidth(size)
 	EgoFrame:SetHeight(size)
-	EgoFrame.LaunchPopup = LaunchPopup
-
-	local model = CreateFrame("PlayerModel", "EgoFrameModel", EgoFrame)
-	model:SetAllPoints(EgoFrame)
-	model:SetUnit("player")
-	model:Hide()
-
-	EgoFrame.Model = model
-
-	SV.Animate:Slide(EgoFrame, size, -size, true, 1.5)
-	EgoFrame:SetAlpha(0)
+	EgoFrame:SetUnit("player")
+	EgoFrame.LaunchAnimation = LaunchAnimation
+	EgoFrame.LaunchFreezeFrame = LaunchFreezeFrame
+	EgoFrame.ResetPosition = ResetPosition
+	SV.Animate:Slide(EgoFrame, 0, 0, true, 1.5)
 	EgoFrame.anim[4]:SetScript("OnFinished", EgoPop_OnUpdate)
 
-	SLASH_SVUI_BADASS1="/badass"
-	SlashCmdList["SVUI_BADASS"] = BeAwesome;
+	EgoFrame:Hide()
 end
+
+_G.SlashCmdList["BADASS"] = function()
+	EgoFrame:LaunchAnimation(4)
+end
+_G.SLASH_BADASS1 = "/badass"
 
 SV:NewScript(LoadSVEgo)

@@ -25,25 +25,25 @@ core add-ins functioning outside of the core object.
 --]]
 
 --[[ LOCALIZED GLOBALS ]]--
-local _G            = getfenv(0);
+--GLOBAL NAMESPACE
+local _G = getfenv(0);
 --LUA
 local unpack        = _G.unpack;
 local select        = _G.select;
-local pairs         = _G.pairs;
+local assert        = _G.assert;
 local type          = _G.type;
+local error         = _G.error;
+local pcall         = _G.pcall;
+local print         = _G.print;
+local ipairs        = _G.ipairs;
+local pairs         = _G.pairs;
+local next          = _G.next;
 local rawset        = _G.rawset;
 local rawget        = _G.rawget;
 local tostring      = _G.tostring;
-local error         = _G.error;
-local next          = _G.next;
-local pcall         = _G.pcall;
+local tonumber      = _G.tonumber;
 local getmetatable  = _G.getmetatable;
 local setmetatable  = _G.setmetatable;
-local assert        = _G.assert;
---BLIZZARD
-local tinsert       = _G.tinsert;
-local tremove       = _G.tremove;
-local twipe         = _G.wipe;
 --STRING
 local string        = _G.string;
 local upper         = string.upper;
@@ -58,12 +58,28 @@ local floor         = math.floor
 local table         = _G.table;
 local tsort         = table.sort;
 local tconcat       = table.concat;
+local tinsert       = _G.tinsert;
+local tremove       = _G.tremove;
+local twipe         = _G.wipe;
+--BLIZZARD API
+local ReloadUI              = _G.ReloadUI;
+local GetLocale             = _G.GetLocale;
+local CreateFrame           = _G.CreateFrame;
+local IsAddOnLoaded         = _G.IsAddOnLoaded;
+local GetNumAddOns          = _G.GetNumAddOns;
+local GetAddOnInfo          = _G.GetAddOnInfo;
+local LoadAddOn             = _G.LoadAddOn;
+local EnableAddOn           = _G.EnableAddOn;
+local GetSpecialization     = _G.GetSpecialization;
+local GetAddOnMetadata      = _G.GetAddOnMetadata;
+local IsAddOnLoadOnDemand   = _G.IsAddOnLoadOnDemand;
+
 
 --[[ LIB CONSTRUCT ]]--
-local lib = _G["LibSuperVillain"]
-if not lib then
-    _G["LibSuperVillain"] = {}
-    lib = _G["LibSuperVillain"]
+local lib
+do
+    _G.LibSuperVillain = {}
+    lib = _G.LibSuperVillain
 end
 
 --[[ ADDON DATA ]]--
@@ -183,8 +199,9 @@ function string.link(this, prefix, text, color)
 end
 
 function string.explode(str, delim)
-   local res = { }
+   local res = {}
    local pattern = format("([^%s]+)%s()", delim, delim)
+   local line, pos
    while (true) do
       line, pos = match(str, pattern, pos)
       if line == nil then break end
@@ -246,14 +263,14 @@ function lib:Lang(locale, isDefault)
     if(not locale) then
         return self.Localization
     else
-        local gameLocale = GetLocale()
-        if gameLocale == "enGB" then gameLocale = "enUS" end
+        local GAME_LOCALE = GetLocale()
+        if GAME_LOCALE == "enGB" then GAME_LOCALE = "enUS" end
 
         activeLocale = self.Localization
 
         if isDefault then
             return defaultwrite
-        elseif(locale == GAME_LOCALE or locale == gameLocale) then
+        elseif(locale == GAME_LOCALE) then
             return metawrite
         end
     end
@@ -276,11 +293,13 @@ It's main purpose is to keep all methods and logic needed to properly maintain
 valid data outside of the core object.
 --]]
 
---DATABASE STORAGE
-local IndexExceptions = {};
-
 --DATABASE LOCAL HELPERS
-local function tablecopy(d, s)
+local function tablecopy(d, s, debug)
+    if(debug) then
+        print(debug)
+        assert(type(s) == "table", "tablecopy ERROR: source (" .. debug .. ") is not a table")
+        assert(type(d) == "table", "tablecopy ERROR: destination (" .. debug .. ") is not a table")
+    end
     if(type(s) ~= "table") then return end
     if(type(d) ~= "table") then return end
     for k, v in pairs(s) do
@@ -365,11 +384,25 @@ local meta_database = {
   end,
 }
 
+local meta_cache = { 
+  __index = function(t, k)
+    if(not k or k == "") then return end
+    local sv = rawget(t, "data")
+    if(not sv[k]) then sv[k] = {} end
+    rawset(t, k, sv[k])
+    return rawget(t, k)  
+  end,
+}
+
 --DATABASE PUBLIC METHODS
 function lib:Remove(key)
     if(GLOBAL_SV.profiles[key]) then GLOBAL_SV.profiles[key] = nil end
+    if(GLOBAL_SV.cache[key]) then GLOBAL_SV.cache[key] = nil end
     twipe(GLOBAL_SV.profileKeys)
     for k,v in pairs(GLOBAL_SV.profiles) do
+        GLOBAL_SV.profileKeys[k] = k
+    end
+    for k,v in pairs(GLOBAL_SV.cache) do
         GLOBAL_SV.profileKeys[k] = k
     end
 end
@@ -390,44 +423,50 @@ end
 
 function lib:ImportDatabase(key)
     if(not GLOBAL_SV.profiles[key]) then GLOBAL_SV.profiles[key] = {} end;
-    local import = GLOBAL_SV.profiles[key];
-    local saved = CoreObject.db;
+    PROFILE_SV.STORED[SOURCE_KEY] = GLOBAL_SV.profiles[key]
 
-    import.importTest = true; --Testing value, will be removed next time the UI is reloaded
-    tablecopy(saved, import);
+    if(not GLOBAL_SV.cache[key]) then GLOBAL_SV.cache[key] = {} end;
+    CACHE_SV.STORED[SOURCE_KEY] = GLOBAL_SV.cache[key]
 
-    --Ensure that import was successful
-    if(not CoreObject.db.importTest) then
-        --If no test value found, might need reloading
-        --Not the most clever thing in the world but....
-        ReloadUI()
-    else
-        print("Profile Successfully Copied")
-    end
+    ReloadUI()
 end
 
 function lib:ExportDatabase(key)
+    local export, saved
+
     if(not GLOBAL_SV.profiles[key]) then GLOBAL_SV.profiles[key] = {} end;
-    local export = rawget(CoreObject.db, "data");
-    local saved = GLOBAL_SV.profiles[key];
+    export = rawget(CoreObject.db, "data");
+    saved = GLOBAL_SV.profiles[key];
     tablecopy(saved, export);
+
+    if not GLOBAL_SV.cache[key] then GLOBAL_SV.cache[key] = {} end
+    export = rawget(CoreObject.cache, "data")
+    saved = GLOBAL_SV.cache[key]
+    tablecopy(saved, export);
+
 
     twipe(GLOBAL_SV.profileKeys)
     for k,v in pairs(GLOBAL_SV.profiles) do
         GLOBAL_SV.profileKeys[k] = k
     end
-end
-
-function lib:WipeDatabase()
-    local sv = rawget(CoreObject.db, "data")
-    for k,v in pairs(sv) do
-        sv[k] = nil
+    for k,v in pairs(GLOBAL_SV.cache) do
+        GLOBAL_SV.profileKeys[k] = k
     end
 end
 
-function lib:WipeCache()
-    for k,v in pairs(CACHE_SV) do
-        CACHE_SV[k] = nil
+function lib:WipeDatabase()
+    for k,v in pairs(PROFILE_SV.STORED[SOURCE_KEY]) do
+        PROFILE_SV.STORED[SOURCE_KEY][k] = nil
+    end
+end
+
+function lib:WipeCache(index)
+    if(index) then
+        CACHE_SV.STORED[SOURCE_KEY][index] = nil
+    else
+        for k,v in pairs(CACHE_SV.STORED[SOURCE_KEY]) do
+            CACHE_SV.STORED[SOURCE_KEY][k] = nil
+        end
     end
 end
 
@@ -448,18 +487,42 @@ function lib:UpdateDatabase(event)
                 removedefaults(sv[k], src[k])
             end
         end
+        for k,v in pairs(CACHE_SV) do
+            if(k ~= "STORED") then
+                CACHE_SV[k] = nil
+            end
+        end
     elseif(event == "ACTIVE_TALENT_GROUP_CHANGED") then
+        local LastKey = SOURCE_KEY
         if(PROFILE_SV.SAFEDATA and PROFILE_SV.SAFEDATA.dualSpecEnabled) then 
-            SOURCE_KEY = GetSpecialization() or 1
+            SOURCE_KEY = GetSpecialization()
             self.EventManager:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
+
+            if(not SOURCE_KEY) then
+                SOURCE_KEY = 1
+            end
+
+            if(LastKey ~= SOURCE_KEY) then
+                --construct core dataset
+                local db           = setmetatable({}, meta_database)
+                db.data            = PROFILE_SV.STORED[SOURCE_KEY]
+                db.defaults        = CoreObject.configs
+                CoreObject.db      = db
+
+                local cache        = setmetatable({}, meta_cache)
+                cache.data         = CACHE_SV.STORED[SOURCE_KEY]
+                CoreObject.cache   = cache
+
+                if(CoreObject.ReLoad) then
+                    CoreObject:ReLoad()
+                end
+
+                self:RefreshAll()
+            end
         else
             SOURCE_KEY = 1
             self.EventManager:UnregisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
         end
-
-        local data = CoreObject.db
-        local source = PROFILE_SV.STORED[SOURCE_KEY]
-        rawset(data, "data", source)
     end
 end
 
@@ -480,14 +543,6 @@ function lib:CheckData(schema, key)
     print("______" .. schema .. ".db[" .. key .. "]_____")
     print(file[key])
     print("______SAVED_____")
-end
-
-function lib:NewCache(index)
-    index = index or CoreObject.Schema
-    if(not CACHE_SV[index]) then
-        CACHE_SV[index] = {}
-    end
-    return CACHE_SV[index]
 end
 
 function lib:NewGlobal(index)
@@ -632,23 +687,28 @@ function lib:RunCallbacks()
     end
 end
 
-function lib:Update(schema)
+function lib:RefreshModule(schema)
     local obj = CoreObject[schema]
     if obj and obj.ReLoad then
         obj:ReLoad()
     end
 end
 
-function lib:UpdateAll()
+function lib:RefreshPlugin(schema)
+    local obj = _G[schema]
+    if obj and obj.ReLoad then
+        obj:ReLoad()
+    end
+end
+
+function lib:RefreshAll()
     for _,schema in pairs(MODULES) do
         local obj = CoreObject[schema]
         if obj and obj.ReLoad then
             obj:ReLoad()
         end
     end
-end
 
-function lib:UpdatePlugins()
     for _,schema in pairs(PLUGINS) do
         local obj = _G[schema]
         if obj and obj.ReLoad then
@@ -685,7 +745,6 @@ function lib:LoadQueuedModules()
             local schema = MODULES[i]
             local obj = CoreObject[schema]
             if obj and not obj.initialized then
-                obj.initialized = true;
                 local halt = false
                 local data = CoreObject.db[schema]
                 if(data and data.incompatible) then
@@ -693,11 +752,9 @@ function lib:LoadQueuedModules()
                         if IsAddOnLoaded(addon) then halt = true end
                     end
                 end
-                if(obj.Load) then
-                    if(not halt) then
-                        obj:Load()
-                        obj.Load = nil
-                    end
+                if(obj.Load and (not halt)) then
+                    obj:Load()
+                    obj.initialized = true
                 end
             end 
         end
@@ -710,7 +767,6 @@ function lib:LoadQueuedPlugins()
             local schema = PLUGINS[i]
             local obj = _G[schema]
             if obj and not obj.initialized then
-                obj.initialized = true;
                 local halt = false
                 local data = CoreObject.db[schema]
                 if(data and data.incompatible) then
@@ -718,11 +774,9 @@ function lib:LoadQueuedPlugins()
                         if IsAddOnLoaded(addon) then halt = true end
                     end
                 end
-                if(obj.Load) then
-                    if(not halt) then
-                        obj:Load()
-                        obj.Load = nil
-                    end
+                if(obj.Load and (not halt)) then
+                    obj:Load()
+                    obj.initialized = true
                 end
             end 
         end
@@ -972,14 +1026,32 @@ function lib:Initialize()
     end
 
     GLOBAL_SV.profiles = GLOBAL_SV.profiles or {}
-
     for k,v in pairs(GLOBAL_SV.profiles) do
+        GLOBAL_SV.profileKeys[k] = k
+    end
+
+    GLOBAL_SV.cache = GLOBAL_SV.cache or {}
+    for k,v in pairs(GLOBAL_SV.cache) do
         GLOBAL_SV.profileKeys[k] = k
     end
 
     --CACHE SAVED VARIABLES
     if not _G[CACHE_FILENAME] then _G[CACHE_FILENAME] = {} end
     CACHE_SV = _G[CACHE_FILENAME]
+    if(not CACHE_SV.STORED) then
+        CACHE_SV.STORED = {}
+        CACHE_SV.STORED[1] = {}
+        CACHE_SV.STORED[2] = {}
+        CACHE_SV.STORED[3] = {}
+        if playerClass == "DRUID" then
+            CACHE_SV.STORED[4] = {}
+        end
+        for k,v in pairs(CACHE_SV) do
+            if(k ~= "STORED") then
+                CACHE_SV.STORED[1][k] = v
+            end
+        end
+    end
 
     --PROFILE SAVED VARIABLES
     if not _G[PROFILE_FILENAME] then _G[PROFILE_FILENAME] = {} end
@@ -1049,10 +1121,14 @@ function lib:Initialize()
     end
 
     --construct core dataset
-    local db        = setmetatable({}, meta_database)
-    db.data         = PROFILE_SV.STORED[SOURCE_KEY]
-    db.defaults     = CoreObject.configs
-    CoreObject.db   = db
+    local db           = setmetatable({}, meta_database)
+    db.data            = PROFILE_SV.STORED[SOURCE_KEY]
+    db.defaults        = CoreObject.configs
+    CoreObject.db      = db
+
+    local cache        = setmetatable({}, meta_cache)
+    cache.data         = CACHE_SV.STORED[SOURCE_KEY]
+    CoreObject.cache   = cache
 
     --check for LOD plugins
     local addonCount = GetNumAddOns()

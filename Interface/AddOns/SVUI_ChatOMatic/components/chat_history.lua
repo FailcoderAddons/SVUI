@@ -22,10 +22,13 @@ local unpack 	= _G.unpack;
 local select 	= _G.select;
 local pairs 	= _G.pairs;
 local type 		= _G.type;
+local tostring  = _G.tostring;
+local tonumber  = _G.tonumber;
 local tinsert 	= _G.tinsert;
 local string 	= _G.string;
 local math 		= _G.math;
 local table 	= _G.table;
+local time 		= _G.time;
 --[[ STRING METHODS ]]--
 local format, split = string.format, string.split;
 --[[ MATH METHODS ]]--

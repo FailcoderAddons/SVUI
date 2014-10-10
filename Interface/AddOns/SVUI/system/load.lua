@@ -36,7 +36,7 @@ GET ADDON DATA
 ##########################################################
 ]]--
 local SV = select(2, ...)
-local SVLib = LibSuperVillain
+local SVLib = _G.LibSuperVillain
 local L = SV.L
 --[[ 
 ########################################################## 
@@ -77,7 +77,7 @@ function SV:RefreshEverything(bypass)
 	self:RefreshAllSystemMedia();
 	self.UIParent:Hide();
 	self.Mentalo:SetPositions();
-	SVLib:UpdateAll();
+	SVLib:RefreshAll();
 	self.UIParent:Show();
 	if not bypass then
 		self:VersionCheck()
@@ -88,6 +88,13 @@ end
 SVUI LOAD PROCESS
 ##########################################################
 ]]--
+function SV:ReLoad()
+	self.Timers:ClearAllTimers();
+	self:RefreshAllSystemMedia();
+	self.Mentalo:SetPositions();
+	self:AddonMessage("All user settings reloaded");
+end
+
 function SV:Load()
 	self.Timers:ClearAllTimers()
 
@@ -139,7 +146,7 @@ function SV:Launch()
 	self.UIParent:RegisterEvent("UNIT_INVENTORY_CHANGED");
 	self.UIParent:RegisterEvent("UPDATE_BONUS_ACTIONBAR");
 
-	SVLib:Update("SVMap");
+	SVLib:RefreshModule("SVMap");
 
 	collectgarbage("collect") 
 

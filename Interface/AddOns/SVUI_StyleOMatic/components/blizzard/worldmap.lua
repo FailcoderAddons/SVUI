@@ -13,6 +13,11 @@ _____/\\\\\\\\\\\____/\\\________/\\\__/\\\________/\\\__/\\\\\\\\\\\_       #
 S U P E R - V I L L A I N - U I   By: Munglunch                              #
 ##############################################################################
 --]]
+--[[ GLOBALS ]]--
+local _G = _G;
+local unpack  = _G.unpack;
+local select  = _G.select;
+--[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
 local STYLE = select(2, ...);
@@ -23,7 +28,8 @@ HELPERS
 ##########################################################
 ]]--
 local function AdjustMapLevel()
-  if InCombatLockdown()then return end 
+  if InCombatLockdown()then return end
+    local WorldMapFrame = _G.WorldMapFrame;
     WorldMapFrame:SetFrameLevel(4)
     WorldMapDetailFrame:SetFrameLevel(6)
     WorldMapFrame:SetFrameStrata('HIGH')
@@ -32,12 +38,14 @@ local function AdjustMapLevel()
 end
 
 local function WorldMap_SmallView()
+  local WorldMapFrame = _G.WorldMapFrame;
   WorldMapFrame.Panel:ClearAllPoints()
   WorldMapFrame.Panel:WrapOuter(WorldMapFrame, 4, 4)
   WorldMapFrame.Panel.Panel:WrapOuter(WorldMapFrame.Panel)
 end 
 
 local function WorldMap_FullView()
+  local WorldMapFrame = _G.WorldMapFrame;
   WorldMapFrame.Panel:ClearAllPoints()
 
   if(SV.GameVersion >= 60000) then
@@ -84,6 +92,8 @@ local function WorldMap_QuestView()
 end
 
 local function StripQuestMapFrame()
+  local WorldMapFrame = _G.WorldMapFrame;
+
   WorldMapFrame.BorderFrame:RemoveTextures(true)
   WorldMapFrame.BorderFrame.ButtonFrameEdge:SetTexture(0,0,0,0)
   WorldMapFrame.BorderFrame.InsetBorderTop:SetTexture(0,0,0,0)
@@ -137,7 +147,8 @@ local function StripQuestMapFrame()
 end
 
 local function WorldMap_OnShow()
-
+  local WorldMapFrame = _G.WorldMapFrame;
+  
   if(SV.GameVersion >= 60000) then
     --StripQuestMapFrame()
     if WORLDMAP_SETTINGS.size == WORLDMAP_FULLMAP_SIZE then

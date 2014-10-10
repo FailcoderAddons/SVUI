@@ -18,16 +18,48 @@ LOCALIZED LUA FUNCTIONS
 ]]--
 --[[ GLOBALS ]]--
 local _G = _G;
-local unpack    = _G.unpack;
-local select    = _G.select;
-local pairs     = _G.pairs;
-local type      = _G.type;
-local math      = _G.math;
-local table 	= _G.table; 
---[[ MATH METHODS ]]--
-local min = math.min;
-local tinsert, twipe, pairs, ipairs, unpack, pcall, select = tinsert, table.wipe, pairs, ipairs, unpack, pcall, select;
-local format, gsub, strfind, strmatch, tonumber = format, gsub, strfind, strmatch, tonumber;
+local unpack        = _G.unpack;
+local select        = _G.select;
+local assert        = _G.assert;
+local type          = _G.type;
+local error         = _G.error;
+local pcall         = _G.pcall;
+local print         = _G.print;
+local ipairs        = _G.ipairs;
+local pairs         = _G.pairs;
+local tostring      = _G.tostring;
+local tonumber      = _G.tonumber;
+
+--STRING
+local string        = _G.string;
+local upper         = string.upper;
+local format        = string.format;
+local find          = string.find;
+local match         = string.match;
+local gsub          = string.gsub;
+--TABLE
+local table 		= _G.table; 
+local tinsert       = _G.tinsert;
+local tremove       = _G.tremove;
+local twipe 		= _G.wipe;
+--MATH
+local math      	= _G.math;
+local min 			= math.min;
+local floor         = math.floor
+local ceil          = math.ceil
+--BLIZZARD API
+local GameTooltip          	= _G.GameTooltip;
+local InCombatLockdown     	= _G.InCombatLockdown;
+local CreateFrame          	= _G.CreateFrame;
+local GetTime         		= _G.GetTime;
+local GetItemCooldown       = _G.GetItemCooldown;
+local GetItemCount         	= _G.GetItemCount;
+local GetItemInfo          	= _G.GetItemInfo;
+local GetSpellInfo         	= _G.GetSpellInfo;
+local IsSpellKnown         	= _G.IsSpellKnown;
+local GetProfessions       	= _G.GetProfessions;
+local GetProfessionInfo    	= _G.GetProfessionInfo;
+local hooksecurefunc     	= _G.hooksecurefunc;
 --[[ 
 ########################################################## 
 GET ADDON DATA
@@ -87,6 +119,14 @@ local function CycleDocklets()
 	end
 end
 
+local function GetDefaultWindow()
+	local window = DEFAULT_DOCKLET
+	if window and _G[window] then
+		SuperDockWindowRight.FrameName = window
+		SuperDockWindowRight:Show()
+	end
+end
+
 local AlertActivate = function(self, child)
 	local size = SV.db.SVDock.buttonSize or 22;
 	self:Height(size)
@@ -114,12 +154,12 @@ end
 
 local ToggleDocks = function(self)
 	GameTooltip:Hide()
-	if MOD.Cache.SuperDockFaded then 
-		MOD.Cache.SuperDockFaded = nil;
+	if SV.cache.Docks.SuperDockFaded then 
+		SV.cache.Docks.SuperDockFaded = nil;
 		SV:SecureFadeIn(LeftSuperDock, 0.2, LeftSuperDock:GetAlpha(), 1)
 		SV:SecureFadeIn(RightSuperDock, 0.2, RightSuperDock:GetAlpha(), 1)
 	else 
-		MOD.Cache.SuperDockFaded = true;
+		SV.cache.Docks.SuperDockFaded = true;
 		SV:SecureFadeOut(LeftSuperDock, 0.2, LeftSuperDock:GetAlpha(), 0, true)
 		SV:SecureFadeOut(RightSuperDock, 0.2, RightSuperDock:GetAlpha(), 0, true)
 	end
@@ -156,7 +196,7 @@ local DockButtonDeactivate = function(self)
 end
 
 local DockletButton_OnEnter = function(self, ...)
-	if MOD.Cache.SuperDockFaded then 
+	if SV.cache.Docks.SuperDockFaded then 
 		LeftSuperDock:Show()
 		SV:SecureFadeIn(LeftSuperDock, 0.2, LeftSuperDock:GetAlpha(), 1)
 		RightSuperDock:Show()
@@ -177,7 +217,7 @@ local DockletButton_OnEnter = function(self, ...)
 end 
 
 local DockletButton_OnLeave = function(self, ...)
-	if MOD.Cache.SuperDockFaded then 
+	if SV.cache.Docks.SuperDockFaded then 
 		SV:SecureFadeOut(LeftSuperDock, 0.2, LeftSuperDock:GetAlpha(), 0, true)
 		SV:SecureFadeOut(RightSuperDock, 0.2, RightSuperDock:GetAlpha(), 0, true)
 	end
@@ -306,7 +346,7 @@ SV.CycleDocklets = CycleDocklets
 CORE FUNCTIONS
 ##########################################################
 ]]--
-function HideSuperDocks()
+_G.HideSuperDocks = function()
 	ToggleDocks(LeftDockToggleButton)
 end
 --[[ 
@@ -314,14 +354,6 @@ end
 DOCKLET HELPERS
 ##########################################################
 ]]--
-local function GetDefaultWindow()
-	local window = DEFAULT_DOCKLET
-	if window and _G[window] then
-		SuperDockWindowRight.FrameName = window
-		SuperDockWindowRight:Show()
-	end
-end
-
 function MOD:ActivateDockletButton(button, clickFunction, tipFunction)
 	button._panelGradient = "default"
 	button._iconGradient = "icon"
@@ -529,7 +561,7 @@ function MOD:CreateDockPanels()
 	rightwindow:Size(rightWidth, rightHeight)
 	rightdock.backdrop = SetSuperDockStyle(rightwindow)
 
-	if self.Cache.SuperDockFaded then LeftSuperDock:Hide() RightSuperDock:Hide() end
+	if SV.cache.Docks.SuperDockFaded then LeftSuperDock:Hide() RightSuperDock:Hide() end
 
 	local toolbarTop = CreateFrame("Frame", "SuperDockToolBarTop", SV.UIParent)
 	toolbarTop:Point("TOPLEFT", SV.UIParent, "TOPLEFT", 2, -4)
@@ -642,8 +674,7 @@ do
 		SuperDockMacroBar:Size(width, height)
 	end 
 
-	local function CreateMacroToolButton(proName, proID, itemID, size)
-		if proName == "Mining" then proName = "Smelting" end 
+	local function CreateMacroToolButton(proName, proID, itemID, size) 
 		local data = TOOL_DATA[proID]
 		if(not data) then return end
 		local button = CreateFrame("Button", ("%s_MacroBarButton"):format(itemID), SuperDockMacroBar, "SecureActionButtonTemplate")
@@ -658,6 +689,8 @@ do
 		button.skillName = proName;
 		button.itemId = itemID;
 		button.TText = proName;
+
+		if proID == 186 then proName = "Smelting" end
 
 		if(data[5]) then
 			local rightClick
@@ -958,10 +991,12 @@ function MOD:ReLoad()
 end 
 
 function MOD:Load()
-	self.Cache = LibSuperVillain:NewCache("Docks")
-	if(not self.Cache.SuperDockFaded) then 
-		self.Cache.SuperDockFaded = false
+	SV.cache.Docks = SV.cache.Docks	or {}
+
+	if(not SV.cache.Docks.SuperDockFaded) then 
+		SV.cache.Docks.SuperDockFaded = false
 	end
+
 	self:CreateSuperBorders()
 	self:CreateDockPanels()
 	local width = RightSuperDock:GetWidth();

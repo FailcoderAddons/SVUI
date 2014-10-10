@@ -373,7 +373,7 @@ local function ModifyActionButton(parent)
 	if icon then 
 		icon:SetTexCoord(.1,.9,.1,.9)
 		--icon:SetGradient("VERTICAL",.5,.5,.5,1,1,1)
-		icon:FillInner()
+		icon:FillInner(button)
 	end 
 	if shine then shine:SetAllPoints()end 
 	if SV.db.SVBar.hotkeytext then 

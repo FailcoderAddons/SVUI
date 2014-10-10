@@ -1,6 +1,6 @@
 ## Interface: 60000
 ## Author: Munglunch
-## Version: 4.8
+## Version: 4.9
 ## Title: |cffFF9900SVUI |r|cffFFEF00Craft-O-Matic|r
 ## Notes: Supervillain UI [|cff9911FFProfession Tools|r].
 ## Interface: 60000

@@ -13,6 +13,11 @@ _____/\\\\\\\\\\\____/\\\________/\\\__/\\\________/\\\__/\\\\\\\\\\\_       #
 S U P E R - V I L L A I N - U I   By: Munglunch                              #
 ##############################################################################
 --]]
+--[[ GLOBALS ]]--
+local _G = _G;
+local unpack  = _G.unpack;
+local select  = _G.select;
+--[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
 local STYLE = select(2, ...);
@@ -22,12 +27,32 @@ local Schema = STYLE.Schema;
 PVP STYLER
 ##########################################################
 ]]--
--- LoadAddOn("Blizzard_PVPUI")
+local _hook_PVPReadyDialogDisplay = function(self, _, _, _, queueType, _, queueRole)
+	if(queueRole == "DAMAGER") then
+		local coords = _G.LFDQueueFrameRoleButtonDPS.background:GetTexCoord()
+		_G.PVPReadyDialogRoleIcon.texture:SetTexCoord(coords)
+	elseif(queueRole == "TANK") then
+		local coords = _G.LFDQueueFrameRoleButtonTank.background:GetTexCoord()
+		_G.PVPReadyDialogRoleIcon.texture:SetTexCoord(coords)
+	elseif(queueRole == "HEALER") then
+		local coords = _G.LFDQueueFrameRoleButtonHealer.background:GetTexCoord()
+		_G.PVPReadyDialogRoleIcon.texture:SetTexCoord(coords)
+	end
+	if(queueType == "ARENA") then
+		self:SetHeight(100)
+	end
+end
 
 local function PVPFrameStyle()
 	if (SV.db[Schema] and (SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.pvp ~= true)) then
 		return 
 	end
+
+	local HonorFrame = _G.HonorFrame;
+	local ConquestFrame = _G.ConquestFrame;
+	local PVPUIFrame = _G.PVPUIFrame;
+	local WarGamesFrame = _G.WarGamesFrame;
+	local PVPReadyDialog = _G.PVPReadyDialog;
 
 	STYLE:ApplyWindowStyle(PVPUIFrame, true)
 	
@@ -102,6 +127,8 @@ local function PVPFrameStyle()
 		end
 	end)
 	
+	local ConquestPointsBar = _G.ConquestPointsBar;
+	
 	ConquestFrame.Inset:RemoveTextures()
 	ConquestPointsBarLeft:Die()
 	ConquestPointsBarRight:Die()
@@ -141,18 +168,7 @@ local function PVPFrameStyle()
 	ConquestFrame.Inset:SetFixedPanelTemplate("Inset")
 	WarGamesFrameScrollFrame:SetPanelTemplate("Inset",false,2,2,6)
 
-	hooksecurefunc("PVPReadyDialog_Display", function(self, l, N, O, P, Q, R)
-		if R == "DAMAGER" then
-			PVPReadyDialogRoleIcon.texture:SetTexCoord(LFDQueueFrameRoleButtonDPS.background:GetTexCoord())
-		elseif R == "TANK" then 
-			PVPReadyDialogRoleIcon.texture:SetTexCoord(LFDQueueFrameRoleButtonTank.background:GetTexCoord())
-		elseif R == "HEALER" then 
-			PVPReadyDialogRoleIcon.texture:SetTexCoord(LFDQueueFrameRoleButtonHealer.background:GetTexCoord())
-		end
-		if P == "ARENA" then
-			self:SetHeight(100)
-		end
-	end)
+	hooksecurefunc("PVPReadyDialog_Display", _hook_PVPReadyDialogDisplay)
 end 
 --[[ 
 ########################################################## 

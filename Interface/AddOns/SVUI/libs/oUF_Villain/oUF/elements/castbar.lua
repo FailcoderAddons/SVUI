@@ -3,6 +3,35 @@
 	THIS FILE HEAVILY MODIFIED FOR USE WITH SUPERVILLAIN UI
 
 ]]
+--GLOBAL NAMESPACE
+local _G = _G;
+--LUA
+local unpack        = _G.unpack;
+local select        = _G.select;
+local assert        = _G.assert;
+local error         = _G.error;
+local print         = _G.print;
+local pairs         = _G.pairs;
+local next          = _G.next;
+local tostring      = _G.tostring;
+local setmetatable  = _G.setmetatable;
+--STRING
+local string        = _G.string;
+local format        = string.format;
+--MATH
+local math          = _G.math;
+local floor         = math.floor
+local ceil          = math.ceil
+--BLIZZARD API
+local GetTime       	= _G.GetTime;
+local CreateFrame       = _G.CreateFrame;
+local GetNetStats       = _G.GetNetStats;
+local UnitCastingInfo   = _G.UnitCastingInfo;
+local UnitChannelInfo   = _G.UnitChannelInfo;
+local GetTradeskillRepeatCount  = _G.GetTradeskillRepeatCount;
+local CastingBarFrame   	= _G.CastingBarFrame;
+local PetCastingBarFrame   	= _G.PetCastingBarFrame;
+
 local parent, ns = ...
 local oUF = ns.oUF
 

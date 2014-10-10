@@ -1,3 +1,17 @@
+--GLOBAL NAMESPACE
+local _G = _G;
+--LUA
+local unpack        = _G.unpack;
+local select        = _G.select;
+local assert        = _G.assert;
+local type         	= _G.type;
+--BLIZZARD API
+local UnitAura       	 = _G.UnitAura;
+local UnitCanAssist      = _G.UnitCanAssist;
+local GetSpellInfo       = _G.GetSpellInfo;
+local GetSpecialization  = _G.GetSpecialization;
+local GetActiveSpecGroup = _G.GetActiveSpecGroup;
+
 local _, ns = ...
 local oUF = oUF or ns.oUF
 if not oUF then return end

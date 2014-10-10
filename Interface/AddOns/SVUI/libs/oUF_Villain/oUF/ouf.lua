@@ -1,3 +1,12 @@
+--GLOBAL NAMESPACE
+local _G = _G;
+--LUA
+local unpack        = _G.unpack;
+local select        = _G.select;
+local assert        = _G.assert;
+local type          = _G.type;
+local next          = _G.next;
+
 local parent, ns = ...
 local global = GetAddOnMetadata(parent, 'X-oUF')
 local _VERSION = GetAddOnMetadata(parent, 'version')

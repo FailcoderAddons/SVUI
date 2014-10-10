@@ -13,6 +13,11 @@ _____/\\\\\\\\\\\____/\\\________/\\\__/\\\________/\\\__/\\\\\\\\\\\_       #
 S U P E R - V I L L A I N - U I   By: Munglunch                              #
 ##############################################################################
 --]]
+--[[ GLOBALS ]]--
+local _G = _G;
+local unpack  = _G.unpack;
+local select  = _G.select;
+--[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
 local STYLE = select(2, ...);
@@ -36,8 +41,7 @@ local ProxyType = {
 	["InlineGroup"] = true, 
 	["TreeGroup"] = true, 
 	["TabGroup"] = true, 
-	["SimpleGroup"] = true, 
-	["Frame"] = true, 
+	["SimpleGroup"] = true,
 	["DropdownGroup"] = true
 }
 
@@ -62,9 +66,9 @@ local function Widget_ButtonStyle(frame, strip, bypass)
 	if frame.SetPushedTexture then frame:SetPushedTexture(0,0,0,0) end 
 	if frame.SetDisabledTexture then frame:SetDisabledTexture("") end 
 	if strip then frame:RemoveTextures() end 
-	if not frame.Panel and not bypass then frame:SetButtonTemplate() end 
-	frame:HookScript("OnEnter", Widget_OnEnter)
-	frame:HookScript("OnLeave", Widget_OnLeave)
+	if not bypass then 
+		frame:SetButtonTemplate()
+	end
 end 
 
 local function Widget_PaginationStyle(...)
@@ -96,6 +100,7 @@ AceGUI STYLE
 ]]--
 local function StyleAceGUI(event, addon)
 	assert((LibStub("AceGUI-3.0")), "Addon Not Loaded")
+
 	local AceGUI = LibStub("AceGUI-3.0")
 
 	local regWidget = AceGUI.RegisterAsWidget;
@@ -104,7 +109,7 @@ local function StyleAceGUI(event, addon)
 	AceGUI.RegisterAsWidget = function(self, widget)
 
 		local widgetType = widget.type;
-
+		-- print("RegisterAsWidget: " .. widgetType);
 		if(widgetType == "MultiLineEditBox") then 
 			local widgetFrame = widget.frame;
 			widgetFrame:SetFixedPanelTemplate("Default")
@@ -150,42 +155,20 @@ local function StyleAceGUI(event, addon)
 
 		elseif(widgetType == "EditBox") then 
 			local widgetEditbox = widget.editbox;
-			local boxName = widgetEditbox:GetName()
-
-			if(_G[boxName.."Left"]) then
-				_G[boxName.."Left"]:Die()
-			end
-
-			if(_G[boxName.."Middle"]) then
-				_G[boxName.."Middle"]:Die()
-			end
-
-			if(_G[boxName.."Right"]) then
-				_G[boxName.."Right"]:Die()
-			end
-
-			widgetEditbox:Height(17)
-			--widgetEditbox:SetFixedPanelTemplate("Default")
-			Widget_ButtonStyle(widget.button)
+			widgetEditbox:Height(15)
+			widgetEditbox:SetEditboxTemplate(2, -2, false)
 
 		elseif(widgetType == "Button") then 
 			local widgetFrame = widget.frame;
-			Widget_ButtonStyle(widgetFrame, nil, true)
-			
-			if(not widgetFrame.Panel) then
-				widgetFrame:RemoveTextures()
-				widgetFrame:SetFixedPanelTemplate("Button", true)
-			end
+			Widget_ButtonStyle(widgetFrame, true)
 			widget.text:SetParent(widgetFrame.Panel)
 
 		elseif(widgetType == "Slider") then 
 			local widgetSlider = widget.slider;
 			local widgetEditbox = widget.editbox;
 
-			if(not widgetSlider.Panel) then
-				widgetSlider:RemoveTextures()
-				widgetSlider:SetFixedPanelTemplate("Bar")
-			end
+			widgetSlider:RemoveTextures()
+			widgetSlider:SetFixedPanelTemplate("Bar")
 
 			widgetSlider:Height(20)
 			widgetSlider:SetThumbTexture("Interface\\Buttons\\UI-ScrollBar-Knob")
@@ -193,10 +176,6 @@ local function StyleAceGUI(event, addon)
 
 			widgetEditbox:Height(15)
 			widgetEditbox:SetPoint("TOP", widgetSlider, "BOTTOM", 0, -1)
-
-			-- if(not widgetEditbox.Panel) then
-			-- 	widgetEditbox:SetFixedPanelTemplate("Default")
-			-- end
 
 			widget.lowtext:SetPoint("TOPLEFT", widgetSlider, "BOTTOMLEFT", 2, -2)
 			widget.hightext:SetPoint("TOPRIGHT", widgetSlider, "BOTTOMRIGHT", -2, -2)
@@ -238,26 +217,25 @@ local function StyleAceGUI(event, addon)
 
 	AceGUI.RegisterAsContainer = function(self, widget)
 		local widgetType = widget.type;
+		-- print("RegisterAsContainer: " .. widgetType);
 		local widgetParent = widget.content:GetParent()
 		if widgetType == "ScrollFrame" then 
 			STYLE:ApplyScrollFrameStyle(widget.scrollBar) 
-		elseif widgetType == "Window" then
-			widgetParent:SetPanelTemplate("Halftone")
-		elseif(ProxyType[widgetType]) then 
-			if widgetType == "Frame" then 
-				widgetParent:RemoveTextures()
-				for i = 1, widgetParent:GetNumChildren()do 
-					local childFrame = select(i, widgetParent:GetChildren())
-					if childFrame:GetObjectType() == "Button" and childFrame:GetText() then 
-						Widget_ButtonStyle(childFrame)
-					else 
-						childFrame:RemoveTextures()
-					end 
+		elseif widgetType == "Frame" then
+			widgetParent:RemoveTextures()
+			for i = 1, widgetParent:GetNumChildren()do 
+				local childFrame = select(i, widgetParent:GetChildren())
+				if childFrame:GetObjectType() == "Button" and childFrame:GetText() then 
+					Widget_ButtonStyle(childFrame)
+				else 
+					childFrame:RemoveTextures()
 				end 
 			end
+			widgetParent:SetPanelTemplate("Halftone") 
+		elseif(ProxyType[widgetType]) then
 
 			if widget.treeframe then 
-				widget.treeframe:SetBasicPanel()
+				widget.treeframe:SetFixedPanelTemplate("Transparent")
 				widgetParent:SetPoint("TOPLEFT", widget.treeframe, "TOPRIGHT", 1, 0)
 				local oldFunc = widget.CreateButton;
 				widget.CreateButton = function(self)
@@ -273,13 +251,7 @@ local function StyleAceGUI(event, addon)
 					return newButton 
 				end
 			else
-				if not externaltest then 
-					widgetParent:SetPanelTemplate("Halftone")
-					widgetParent.Panel:SetFrameLevel(0)
-					externaltest = true 
-				else 
-					widgetParent:SetFixedPanelTemplate("Default")
-				end
+				widgetParent:SetFixedPanelTemplate("Default")
 			end
 
 			if(widgetType == "TabGroup") then 

@@ -67,10 +67,11 @@ PLUGIN.HasAltInventory = false;
 LOCAL FUNCTIONS
 ##########################################################
 ]]--
-local RefreshLoggedSlot = function(self, bag, slotID, save)
-	if self.Bags[bag] and self.Bags[bag].numSlots ~= GetContainerNumSlots(bag) or not self.Bags[bag] or not self.Bags[bag][slotID] then return end 
-	local slot, _ = self.Bags[bag][slotID], nil;
-	local bagType = self.Bags[bag].bagFamily;
+local RefreshLoggedSlot = function(self, slotID, save)
+	if(not self[slotID]) then return end
+	local bag = self:GetID()
+	local slot, _ = self[slotID], nil;
+	local bagType = self.bagFamily;
 	local texture, count, locked = GetContainerItemInfo(bag, slotID)
 	local itemLink = GetContainerItemLink(bag, slotID);
 	local key;
@@ -119,30 +120,25 @@ local RefreshLoggedSlot = function(self, bag, slotID, save)
 	SetItemButtonDesaturated(slot, locked, 0.5, 0.5, 0.5)
 end
 
-local RefreshLoggedBagSlots = function(self, bag, save)
-	if(not bag) then return end 
-	for i = 1, GetContainerNumSlots(bag)do 
-		local container = self
-		if not self.RefreshSlot then 
-			container = self:GetParent()
-		end 
-		RefreshLoggedSlot(container, bag, i, save)
+local RefreshLoggedSlots = function(self, bagID, save)
+	local id = bagID or self:GetID()
+	if(not id or (not self.SlotUpdate)) then return end
+	local maxcount = GetContainerNumSlots(id)
+	for i = 1, maxcount do
+		RefreshLoggedSlot(self, i, save)
 	end
 end 
 
-local RefreshLoggedBagsSlots = function(self)
-	for _,bag in ipairs(self.BagIDs)do
-		local container = self.Bags[bag]
-		if container then
-			if PLUGIN.myStash[bag] then
-				twipe(PLUGIN.myStash[bag])
-			else
-				PLUGIN.myStash[bag] = {};
-			end
-			RefreshLoggedBagSlots(container, bag, true)
-		end 
+local RefreshLoggedBags = function(self)
+	for id,bag in ipairs(self.Bags)do
+		if PLUGIN.myStash[id] then
+			twipe(PLUGIN.myStash[id])
+		else
+			PLUGIN.myStash[id] = {};
+		end
+		RefreshLoggedSlots(bag, id, true) 
 	end
-	for bag,items in pairs(PLUGIN.myStash) do
+	for id,items in pairs(PLUGIN.myStash) do
 		for id,amt in pairs(items) do
 			PLUGIN.BagItemCache[id] = PLUGIN.BagItemCache[id] or {}
 			PLUGIN.BagItemCache[id][nameKey] = amt
@@ -173,7 +169,7 @@ CORE FUNCTIONS
 function PLUGIN:AppendBankFunctions()
 	local BAGS = SV.SVBag;
 	if(BAGS.BankFrame) then
-		BAGS.BankFrame.RefreshBagsSlots = RefreshLoggedBagsSlots
+		BAGS.BankFrame.RefreshBags = RefreshLoggedBags
 	end
 end
 --[[ 
@@ -233,9 +229,9 @@ function PLUGIN:Load()
 	if SV.db.SVBag.enable then
 		local BAGS = SV.SVBag;
 		if BAGS.BagFrame then
-			BAGS.BagFrame.RefreshBagsSlots = RefreshLoggedBagsSlots;
+			BAGS.BagFrame.RefreshBags = RefreshLoggedBags;
 			NewHook(BAGS, "MakeBankOrReagent", self.AppendBankFunctions);
-			RefreshLoggedBagsSlots(BAGS.BagFrame)
+			RefreshLoggedBags(BAGS.BagFrame)
 		end
 	end
 	if SV.db.SVTip.enable then

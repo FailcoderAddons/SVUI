@@ -42,7 +42,7 @@ GET ADDON DATA
 ##########################################################
 ]]--
 local SV = select(2, ...)
-local SVLib = LibSuperVillain;
+local SVLib = _G.LibSuperVillain;
 local L = SV.L;
 --[[ 
 ########################################################## 
@@ -193,6 +193,8 @@ SV.SystemAlert["RESET_PROFILE_PROMPT"] = {
 	hideOnEscape = 1, 
 	OnAccept = function()
 		SVLib:WipeDatabase()
+		SVLib:WipeCache("Anchors")
+		ReloadUI()
 	end
 };
 SV.SystemAlert["COPY_PROFILE_PROMPT"] = {
@@ -819,8 +821,8 @@ local function rng()
 end
 
 local function SetConfigAlertAnim(f)
-	local x = x or 50;
-	local y = y or 150;
+	local x = 50;
+	local y = 150;
 	f.trans = f:CreateAnimationGroup()
 	f.trans[1] = f.trans:CreateAnimation("Translation")
 	f.trans[1]:SetOrder(1)
@@ -871,6 +873,7 @@ function SV:LoadSystemAlerts()
 		configAlert:Size(300, 300)
 		configAlert:Point("CENTER", 200, -150)
 		configAlert:Hide()
+
 		configAlert.bg = CreateFrame("Frame", nil, configAlert)
 		configAlert.bg:Size(300, 300)
 		configAlert.bg:Point("CENTER")
@@ -879,6 +882,8 @@ function SV:LoadSystemAlerts()
 		local bgtex = configAlert.bg:CreateTexture(nil, "BACKGROUND")
 		bgtex:SetAllPoints()
 		bgtex:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Template\\SAVED-BG")
+		SetConfigAlertAnim(configAlert.bg)
+
 		configAlert.fg = CreateFrame("Frame", nil, configAlert)
 		configAlert.fg:Size(300, 300)
 		configAlert.fg:Point("CENTER", bgtex, "CENTER")
@@ -887,8 +892,8 @@ function SV:LoadSystemAlerts()
 		local fgtex = configAlert.fg:CreateTexture(nil, "ARTWORK")
 		fgtex:SetAllPoints()
 		fgtex:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Template\\SAVED-FG")
-		SetConfigAlertAnim(configAlert.bg, configAlert)
-		SetConfigAlertAnim(configAlert.fg, configAlert)
+		SetConfigAlertAnim(configAlert.fg)
+
 		SV.Animate:Orbit(configAlert.bg, 10, false, true)
 	end 
 	for i = 1, 4 do 

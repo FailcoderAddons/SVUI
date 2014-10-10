@@ -1,18 +1,41 @@
 --[[ MODIFIED FOR SVUI BY MUNGLUNCH ]]--
+
+--GLOBAL NAMESPACE
+local _G = _G;
+--LUA
+local unpack        = _G.unpack;
+local select        = _G.select;
+local assert        = _G.assert;
+local type         	= _G.type;
+--STRING
+local string        = _G.string;
+local format        = string.format;
+--MATH
+local math          = _G.math;
+local floor         = math.floor;
+local huge          = math.huge;
+local min 			= math.min;
+--TABLE
+local table 		= _G.table;
+local tsort 		= table.sort;
+--BLIZZARD API
+local GetTime       = _G.GetTime;
+local CreateFrame   = _G.CreateFrame;
+local UnitAura      = _G.UnitAura;
+local UnitIsFriend  = _G.UnitIsFriend;
+local GameTooltip  	= _G.GameTooltip;
+local DebuffTypeColor  = _G.DebuffTypeColor;
+
 local _, ns = ...
 local oUF = oUF or ns.oUF
 assert(oUF, 'oUF_AuraBars was unable to locate oUF install.')
 
-local format = string.format
-local floor, huge, min = math.floor, math.huge, math.min
-local tsort = table.sort
-
 local function Round(number, decimalPlaces)
 	if decimalPlaces and decimalPlaces > 0 then
 		local mult = 10^decimalPlaces
-		return floor(number * mult + .5) / mult
+		return floor((number * mult) + .5) / mult
 	end
-	return floor(num + .5)
+	return floor(number + .5)
 end
 
 local DAY, HOUR, MINUTE = 86400, 3600, 60

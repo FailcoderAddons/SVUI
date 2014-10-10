@@ -16,15 +16,36 @@ S U P E R - V I L L A I N - U I   By: Munglunch                              #
 LOCALIZED LUA FUNCTIONS
 ##########################################################
 ]]--
+local _G = _G;
 --LUA
-local unpack        = unpack;
-local select        = select;
-local assert        = assert;
---BLIZZARD
-local _G            = _G;
+local unpack        = _G.unpack;
+local select        = _G.select;
+local assert        = _G.assert;
+local type          = _G.type;
+local error         = _G.error;
+local pcall         = _G.pcall;
+local print         = _G.print;
+local ipairs        = _G.ipairs;
+local pairs         = _G.pairs;
+local next          = _G.next;
+local rawset        = _G.rawset;
+local rawget        = _G.rawget;
+local tostring      = _G.tostring;
+local tonumber      = _G.tonumber;
+local getmetatable  = _G.getmetatable;
+local setmetatable  = _G.setmetatable;
+--STRING
+local string        = _G.string;
+local upper         = string.upper;
+local format        = string.format;
+local find          = string.find;
+local match         = string.match;
+local gsub          = string.gsub;
 --MATH
-local math          = math;
+local math          = _G.math;
 local random        = math.random;
+local floor         = math.floor
+local ceil         	= math.ceil
 --[[ 
 ########################################################## 
 GET ADDON DATA
@@ -82,7 +103,7 @@ local Anim_OnStop = function(self)
 end 
 
 local function SetNewAnimation(frame, animType, parent)
-	local anim = frame:CreateAnimation(animType, subType)
+	local anim = frame:CreateAnimation(animType)
 	anim.parent = parent
 	return anim
 end
@@ -313,7 +334,7 @@ local function CreateNameText(frame, unitName)
 	name:SetFont(LSM:Fetch("font", db.font), db.fontSize, db.fontOutline)
 	name:SetShadowOffset(2, -2)
 	name:SetShadowColor(0, 0, 0, 1)
-	if unitNmae == "target" then
+	if unitName == "target" then
 		name:SetPoint("RIGHT", frame)
 		name:SetJustifyH("RIGHT")
     	name:SetJustifyV("MIDDLE")

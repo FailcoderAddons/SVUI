@@ -662,8 +662,8 @@ SV.Options.args.SVUnit.args.raidpet ={
 							type = "toggle", 
 							name = L["Enable"], 
 							order = 1,
-							get = function(l)return SV.db.SVUnit["raid" .. w].auraWatch.enable end, 
-							set = function(l, m)MOD:ChangeDBVar(m, "enable", "raid" .. w, "auraWatch");MOD:SetGroupFrame("raid" .. w)end, 
+							get = function(l)return SV.db.SVUnit["raidpet"].auraWatch.enable end, 
+							set = function(l, m)MOD:ChangeDBVar(m, "enable", "raidpet", "auraWatch");MOD:SetGroupFrame("raidpet")end, 
 						}, 
 						size = {
 							type = "range", 
@@ -673,8 +673,8 @@ SV.Options.args.SVUnit.args.raidpet ={
 							min = 4, 
 							max = 15, 
 							step = 1,
-							get = function(l)return SV.db.SVUnit["raid" .. w].auraWatch.size end, 
-							set = function(l, m)MOD:ChangeDBVar(m, "size", "raid" .. w, "auraWatch");MOD:SetGroupFrame("raid" .. w)end, 
+							get = function(l)return SV.db.SVUnit["raidpet"].auraWatch.size end, 
+							set = function(l, m)MOD:ChangeDBVar(m, "size", "raidpet", "auraWatch");MOD:SetGroupFrame("raidpet")end, 
 						}, 
 						configureButton ={
 							type = 'execute',

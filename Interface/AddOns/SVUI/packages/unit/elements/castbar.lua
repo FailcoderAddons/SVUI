@@ -16,22 +16,21 @@ S U P E R - V I L L A I N - U I  By: Munglunch               #
 LOCALIZED LUA FUNCTIONS
 ##########################################################
 ]]--
---LUA
-local unpack        = unpack;
-local select        = select;
-local pairs         = pairs;
-local type          = type;
-local rawset        = rawset;
-local rawget        = rawget;
-local tostring      = tostring;
-local error         = error;
-local next          = next;
-local pcall         = pcall;
-local getmetatable  = getmetatable;
-local setmetatable  = setmetatable;
-local assert        = assert;
---BLIZZARD
 local _G            = _G;
+local unpack        = _G.unpack;
+local select        = _G.select;
+local assert        = _G.assert;
+local type          = _G.type;
+local error         = _G.error;
+local pcall         = _G.pcall;
+local print         = _G.print;
+local ipairs        = _G.ipairs;
+local pairs         = _G.pairs;
+local next          = _G.next;
+local rawset        = _G.rawset;
+local rawget        = _G.rawget;
+local tostring      = _G.tostring;
+local tonumber      = _G.tonumber;
 local tinsert       = _G.tinsert;
 local tremove       = _G.tremove;
 local twipe         = _G.wipe;

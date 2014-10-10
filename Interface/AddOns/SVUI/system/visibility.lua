@@ -21,6 +21,9 @@ local _G = _G;
 local unpack    = _G.unpack;
 local select    = _G.select;
 local pairs     = _G.pairs;
+local tinsert       = _G.tinsert;
+local tremove       = _G.tremove;
+local twipe         = _G.wipe;
 --[[ 
 ########################################################## 
 GET ADDON DATA
