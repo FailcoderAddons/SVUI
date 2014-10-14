@@ -1067,7 +1067,6 @@ function MOD:Load()
 	SV.Mentalo:Add(SVUI_LootFrameHolder, L["Loot Frame"], nil, nil, nil, nil, "SVUI_LootFrame");
 	SV:AddToDisplayAudit(SVUI_LootFrame);
 	SVUI_LootFrame:Hide();
-	--tinsert(UISpecialFrames, "SVUI_LootFrame");
 
 	UIParent:UnregisterEvent("LOOT_BIND_CONFIRM")
 	UIParent:UnregisterEvent("CONFIRM_DISENCHANT_ROLL")

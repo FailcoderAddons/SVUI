@@ -127,9 +127,12 @@ LSM:Register("font","SVUI Pixel Font",[[Interface\AddOns\SVUI\assets\fonts\Pixel
 LSM:Register("font","Roboto",[[Interface\AddOns\SVUI\assets\fonts\Roboto.ttf]],LSM.LOCALE_BIT_ruRU+LSM.LOCALE_BIT_western)
 --[[ 
 ########################################################## 
-POPULATE MEDIA TABLE
+CREATE AND POPULATE MEDIA DATA
 ##########################################################
 ]]--
+
+SV.Media = {}
+
 do
   local myclass = select(2,UnitClass("player"))
   local cColor1 = SVUI_CLASS_COLORS[myclass]

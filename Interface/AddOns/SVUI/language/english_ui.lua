@@ -1,5 +1,8 @@
 local L = _G.LibSuperVillain:Lang("enUS", true);
 if not L then return; end
+--[[LOGIN MESSAGE]]--
+L["LOGIN_MSG"] = "Welcome to |cffFFFF1ASupervillain UI|r! Keep your %s and your %s."
+L["LOGIN_MSG2"] = "Version |cffAA78FF%s|r, type /sv to access the in-game configuration menu."
 --[[REACTION TEXTS]]--
 L[" is drinking."] = true;
 L["Leeeeeroy!"] = true;
@@ -110,7 +113,6 @@ L["THE_BUTTON_BELOW"] = "THE\nBUTTON\nBELOW";
 L["Meanwhile..."]=true;
 L["..at "]=true;
 L["INCOMPATIBLE_ADDON"]="The addon %s is not compatible with SVUI's %s package. Please select either the addon or the SVUI package to disable.";
-L["LOGIN_MSG"]="Welcome to %sSupervillain UI|r version %s%s|r, type /sv to access the in-game configuration menu."
 L["Binding"]=true;
 L["Key"]=true;
 L["KEY_ALT"]="A"

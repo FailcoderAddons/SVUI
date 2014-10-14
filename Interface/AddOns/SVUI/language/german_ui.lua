@@ -1,5 +1,8 @@
 local L = _G.LibSuperVillain:Lang("deDE");
 if not L then return end
+--[[LOGIN MESSAGE]]--
+L["LOGIN_MSG"] = "Willkommen zu |cffFFFF1ASupervillain UI|r! halten Sie Ihre %s und Ihre %s."
+L["LOGIN_MSG2"] = "Version |cffAA78FF%s|r, Tippe /sv um das Konfigurationsmenü aufzurufen."
 --[[REACTION TEXTS]]--
 L[" is drinking."] = true;
 L["Leeeeeroy!"] = true;
@@ -111,7 +114,6 @@ L["Meanwhile..."]=true;
 L["..at "]=true;
 L["A taint has occured that is preventing you from using the queue system. Please reload your user interface and try again."]=true;
 L["INCOMPATIBLE_ADDON"]="Das Addon %s ist nicht mit dem SVUI %s Modul kompatibel. Bitte deaktiviere entweder das Addon oder deaktiviere das SVUI Modul."
-L["LOGIN_MSG"]="Willkommen zu %sSVUI|r Version %s%s|r, Tippe /sv um das Konfigurationsmenü aufzurufen. Für technische Hilfe, besuche das Supportforum unter http://www.wowinterface.com"
 L["Binding"]="Belegung"
 L["Key"]="Taste"
 L["KEY_ALT"]="A"

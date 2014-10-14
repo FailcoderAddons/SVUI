@@ -69,52 +69,52 @@ LOCAL FUNCTIONS
 ]]--
 local RefreshLoggedSlot = function(self, slotID, save)
 	if(not self[slotID]) then return end
-	local bag = self:GetID()
-	local slot, _ = self[slotID], nil;
+	--print(self[slotID]:GetName())
+	local bag = self:GetID();
+	local slot = self[slotID];
 	local bagType = self.bagFamily;
-	local texture, count, locked = GetContainerItemInfo(bag, slotID)
-	local itemLink = GetContainerItemLink(bag, slotID);
-	local key;
+
 	slot:Show()
-	slot.name, slot.rarity = nil, nil;
-	local start, duration, enable = GetContainerItemCooldown(bag, slotID)
-	CooldownFrame_SetTimer(slot.cooldown, start, duration, enable)
-	if duration > 0 and enable == 0 then 
+
+	local texture, count, locked, rarity = GetContainerItemInfo(bag, slotID);
+	local start, duration, enable = GetContainerItemCooldown(bag, slotID);
+	local itemLink = GetContainerItemLink(bag, slotID);
+
+	CooldownFrame_SetTimer(slot.cooldown, start, duration, enable);
+
+	if(duration > 0 and enable == 0) then 
 		SetItemButtonTextureVertexColor(slot, 0.4, 0.4, 0.4)
 	else 
 		SetItemButtonTextureVertexColor(slot, 1, 1, 1)
-	end 
-	if bagType then
+	end
+
+	if(bagType) then
 		local r, g, b = bagType[1], bagType[2], bagType[3];
 		slot:SetBackdropColor(r, g, b, 0.5)
 		slot:SetBackdropBorderColor(r, g, b, 1)
-	elseif itemLink then
-		local class, subclass, maxStack;
-		key, _, slot.rarity, _, _, class, subclass, maxStack = GetItemInfo(itemLink)
-		slot.name = key
-		local z, A, C = GetContainerItemQuestInfo(bag, slotID)
-		if A and not isActive then 
-			slot:SetBackdropBorderColor(1.0, 0.3, 0.3)
-		elseif A or z then 
-			slot:SetBackdropBorderColor(1.0, 0.3, 0.3)
-		elseif slot.rarity and slot.rarity>1 then 
-			local D, E, F = GetItemQualityColor(slot.rarity)
-			slot:SetBackdropBorderColor(D, E, F)
+	elseif(itemLink) then
+		local key, _, rarity, _, _, class, subclass, maxStack = GetItemInfo(itemLink)
+		if(rarity and rarity > 1) then 
+			local r, g, b = GetItemQualityColor(rarity)
+			slot:SetBackdropBorderColor(r, g, b)
 		else 
 			slot:SetBackdropBorderColor(0, 0, 0)
 		end
-		if (key and save) then
+
+		if(key and save) then
 			local id = GetContainerItemID(bag,slotID)
 			if id ~= 6948 then PLUGIN.myStash[bag][key] = GetItemCount(id,true) end
 		end
 	else 
 		slot:SetBackdropBorderColor(0, 0, 0)
-	end 
-	if C_NewItems.IsNewItem(bag, slotID)then 
+	end
+
+	if(C_NewItems.IsNewItem(bag, slotID)) then 
 		ActionButton_ShowOverlayGlow(slot)
 	else 
 		ActionButton_HideOverlayGlow(slot)
-	end 
+	end
+
 	SetItemButtonTexture(slot, texture)
 	SetItemButtonCount(slot, count)
 	SetItemButtonDesaturated(slot, locked, 0.5, 0.5, 0.5)
@@ -130,7 +130,7 @@ local RefreshLoggedSlots = function(self, bagID, save)
 end 
 
 local RefreshLoggedBags = function(self)
-	for id,bag in ipairs(self.Bags)do
+	for id,bag in pairs(self.Bags)do
 		if PLUGIN.myStash[id] then
 			twipe(PLUGIN.myStash[id])
 		else

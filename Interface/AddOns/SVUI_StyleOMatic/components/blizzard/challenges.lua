@@ -38,16 +38,17 @@ local function ChallengesFrameStyle()
   select(10, ChallengesFrameDetails:GetRegions()):Hide()
   select(11, ChallengesFrameDetails:GetRegions()):Hide()
   ChallengesFrameDungeonButton1:SetPoint("TOPLEFT", ChallengesFrame, "TOPLEFT", 8, -83)
+
   for u = 1, 9 do 
     local v = ChallengesFrame["button"..u]
-    v:SetButtonTemplate()
     v:SetButtonTemplate()
     v:SetHighlightTexture("")
     v.selectedTex:SetAlpha(.2)
     v.selectedTex:SetPoint("TOPLEFT", 1, -1)
     v.selectedTex:SetPoint("BOTTOMRIGHT", -1, 1)
-  v.NoMedal:Die()
-  end 
+    v.NoMedal:Die()
+  end
+   
   for u = 1, 3 do 
     local F = ChallengesFrame["RewardRow"..u]
     for A = 1, 2 do 

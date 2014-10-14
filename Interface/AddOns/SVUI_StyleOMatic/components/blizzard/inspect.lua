@@ -91,9 +91,9 @@ local function InspectStyle()
 		local r = GetInventoryItemQuality(unit, q:GetID())
 		if r and q.Panel then 
 			local s, t, f = GetItemQualityColor(r)
-			q.Panel:SetBackdropBorderColor(s, t, f)
+			q:SetBackdropBorderColor(s, t, f)
 		elseif q.Panel then 
-			q.Panel:SetBackdropBorderColor(0,0,0,1)
+			q:SetBackdropBorderColor(0,0,0,1)
 		end 
 	end)
 	InspectGuildFrameBG:Die()

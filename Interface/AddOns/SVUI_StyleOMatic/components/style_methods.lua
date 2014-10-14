@@ -184,7 +184,7 @@ function STYLE:ApplyItemButtonStyle(frame, adjust, shrink, noScript)
 
 	if(not frame.Panel) then
 		if shrink then 
-			frame:SetPanelTemplate("Button", true, 1, -2, -2)
+			frame:SetPanelTemplate("Button", true, 1, -1, -1)
 		else
 			frame:SetFixedPanelTemplate("Button")
 		end
@@ -348,7 +348,7 @@ function STYLE:ApplyScrollBarStyle(this)
 	this:RemoveTextures()
 	this:SetBackdrop(nil)
 	this:SetFixedPanelTemplate("Component")
-    this.Panel:SetBackdropBorderColor(0.2,0.2,0.2)
+    this:SetBackdropBorderColor(0.2,0.2,0.2)
 	this:SetThumbTexture("Interface\\Buttons\\UI-ScrollBar-Knob")
 
 	this.StyleHooked = true

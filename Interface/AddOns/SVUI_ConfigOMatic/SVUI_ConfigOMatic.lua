@@ -177,7 +177,7 @@ SV.Options.args.primary = {
 					type = "execute", 
 					name = L["Reset Anchors"], 
 					desc = L["Reset all frames to their original positions."], 
-					func = function() SV:ResetUI() end
+					func = function() SV.Mentalo:Reset() end
 				},
 				toggleKeybind = {
 					order = 6, 
@@ -836,35 +836,40 @@ SV.Options.args.common = {
 	}
 };
 
-local q, r, dnt = "", "", "";
+local q, r, community, dnt = "", "", "", "";
 local s = "\n";
 local p = "\n"..format("|cff4f4f4f%s|r", "---------------------------------------------");
-local t = {"Munglunch", "Elv", "Tukz", "Azilroka", "Sortokk", "AlleyKat", "Quokka", "Haleth", "P3lim", "Haste", "Totalpackage", "Kryso", "Thepilli"};
-local u = {"Wowinterface Community", "Doonga - (The man who keeps me busy)", "Judicate", "Cazart506", "Movster", "MuffinMonster", "Joelsoul", "Trendkill09", "Luamar", "Zharooz", "Lyn3x5", "Madh4tt3r", "Xarioth", "Sinnisterr", "Melonmaniac", "Hojowameeat", "Xandeca", "Bkan", "Daigan - (My current 2nd in command)", "AtomicKiller", "Meljen", "Moondoggy", "Stormblade", "Schreibstift", "Anj", "Risien", "Penguinsane", "Cromax", "Nitro_Turtle", "Shinzou", "Autolykus", "Taotao"};
+local t = {"Munglunch", "Elv", "Tukz", "Azilroka", "Sortokk", "Kkthnx", "AlleyKat", "Quokka", "Haleth", "P3lim", "Haste", "Totalpackage", "Kryso", "Thepilli"};
+local u = {"Sinnisterr - (My wife, the MOST ruthless Warlock you will ever meet)", "Doonga - (The man who keeps me busy)", "Daigan - (My current 2nd in command)", "Penguinsane - (Tester extraordinaire)", "FaolanKing - (King of the bug report portal)"};
 local v = {"Movster", "Cazart506", "FaolanKing", "Doonga", "Other Silent Partners.. (Let me know if I have forgotten you)"};
+local w = {"Wowinterface Community", "Judicate", "Cazart506", "Movster", "MuffinMonster", "Joelsoul", "Trendkill09", "Luamar", "Zharooz", "Lyn3x5", "Madh4tt3r", "Xarioth", "Melonmaniac", "Hojowameeat", "Xandeca", "Bkan", "AtomicKiller", "Meljen", "Moondoggy", "Stormblade", "Schreibstift", "Anj", "Risien", "Cromax", "Nitro_Turtle", "Shinzou", "Autolykus", "Taotao"};
 local credit_header = format("|cffff9900%s|r", "SUPERVILLAIN CREDITS:")..p;
 local credit_sub = format("|cffff9900%s|r", "CREATED BY:").."  Munglunch"..p;
-local credit_sub2 = format("|cffff9900%s|r", "USING ORIGINAL CODE BY:").."  Elv, Tukz, Azilroka, Sortokk"..p;
-local special_thanks = format("|cffff9900%s|r", "A VERY SPECIAL THANKS TO:  ")..format("|cffffff00%s|r", "Movster").."  ..who inspired me to bring this project back to life!"..p;
-local coding = format("|cff3399ff%s|r", L['CODE MONKEYS  (aka ORIGINAL AUTHORS):'])..p;
-local testing = format("|cffaa33ff%s|r", L['PERFECTIONISTS  (aka TESTERS):'])..p;
+local credit_sub2 = format("|cffff9900%s|r", "CODE GRANTS BY:").."  Elv, Tukz, Azilroka, Sortokk"..p;
+local special_thanks = format("|cffff9900%s|r", "SPECIAL THANKS TO:  ")..format("|cfff81422%s|r |cff2288cc(@WowInterface.com)|r", "Cairenn").."  ..the most patient and accomodating person I know!\n\n"..format("|cffff9900%s|r", "A VERY SPECIAL THANKS TO:  ")..format("|cffffff00%s|r", "Movster").."  ..who inspired me to bring this project back to life!"..p;
+local coding = format("|cff3399ff%s|r", L['CODE MONKEYS  (aka CONTRIBUTORS):'])..p;
+local testing = format("|cffaa33ff%s|r", L['PERFECTIONISTS  (aka CORE TESTING TEAM):'])..p;
+local testing2 = format("|cffaa33ff%s|r", L['MINIONS  (aka COMMUNITY TESTERS):'])..p;
 local doners = format("|cff99ff33%s|r", L['KINGPINS  (aka INVESTORS):'])..p;
 local music = format("|cff00ccff%s|r", 'Theme Song By: Fingathing [taken from the song: SuperHero Music]');
 
-tsort(t, function(o,n) return o < n end)
 for _, x in pairs(t) do
 	q = q..s..x 
-end 
-tsort(u, function(o,n) return o < n end)
-for _, y in pairs(u) do
-	r = r..s..y 
-end 
-tsort(u, function(o,n) return o < n end)
-for _, z in pairs(v) do
-	dnt = dnt..s..z 
+end
+
+for _, x in pairs(u) do
+	r = r..s..x 
 end 
 
-local creditsString = credit_header..'\n'..credit_sub..'\n'..credit_sub2..'\n'..special_thanks..'\n\n'..coding..q..'\n\n'..testing..r..'\n\n'..doners..dnt..'\n\n'..music..'\n\n';
+for _, x in pairs(v) do
+	dnt = dnt..s..x 
+end 
+
+for _, x in pairs(w) do
+	community = community..s..x 
+end 
+
+local creditsString = credit_header..'\n'..credit_sub..'\n'..credit_sub2..'\n'..special_thanks..'\n\n'..coding..q..'\n\n'..testing..r..'\n\n'..testing2..community..'\n\n'..doners..dnt..'\n\n'..music..'\n\n';
 
 SV.Options.args.credits = {
 	type = "group", 

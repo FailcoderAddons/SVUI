@@ -41,7 +41,7 @@ local MOD = SV.SVStats;
 REPUTATION STATS
 ##########################################################
 ]]--
-local StatEvents = {"PLAYER_ENTERING_WORLD","UPDATE_FACTION"};
+local StatEvents = {"PLAYER_ENTERING_WORLD", "UPDATE_FACTION"};
 local RepMenuList = {};
 local standingName = {
 	[1] = "Hated",

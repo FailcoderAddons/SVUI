@@ -1,5 +1,8 @@
 local L = _G.LibSuperVillain:Lang("zhTW");
 if not L then return; end
+--[[LOGIN MESSAGE]]--
+L["LOGIN_MSG"] = "歡迎使用 |cffFFFF1ASupervillain UI|r! 让您的 %s 和你 %s."
+L["LOGIN_MSG2"] = "|cffAA78FF%s|r 版, 請輸入/sv 進入設定介面."
 --[[REACTION TEXTS]]--
 L[" is drinking."] = true;
 L["Leeeeeroy!"] = true;
@@ -111,7 +114,6 @@ L["Meanwhile..."]=true;
 L["..at "]=true;
 L["A taint has occured that is preventing you from using the queue system. Please reload your user interface and try again."]="發生一個錯誤導致你無法使用隊列系統,請重新加載你的用戶界面,然後再試一次."
 L["INCOMPATIBLE_ADDON"]="插件 %s 與 SVUI 的 %s 模組不相容。請停用不相容的插件，或停用模組."
-L["LOGIN_MSG"]="歡迎使用%sSVUI |r %s%s|r 版, 請輸入/sv 進入設定介面. 如需技術支援請至http://www.wowinterface.com"
 L["Binding"]="綁定"
 L["Key"]="鍵"
 L["KEY_ALT"]="A"

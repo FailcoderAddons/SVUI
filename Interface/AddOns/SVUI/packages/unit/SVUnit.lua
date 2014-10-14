@@ -875,15 +875,19 @@ function MOD:RefreshUnitLayout(frame, template)
 		else 
 			castbar.SafeZone = nil;
 			castbar.LatencyTexture:Hide()
-		end 
+		end
+
+		if castbar.Grip then
+			castbar.Grip:Width(castHeight + 2)
+			castbar.Grip:Height(castHeight + 2)
+		end
+
 		if castbar.Icon then
 			if db.castbar.icon then
-				castbar.Icon.bg:Width(castHeight + 2)
-				castbar.Icon.bg:Height(castHeight + 2)
-				castbar.Icon.bg:Show()
-			else 
-				castbar.Icon.bg:Hide()
-				castbar.Icon = nil 
+				castbar.Grip.Icon:SetAllPoints(castbar.Grip)
+				castbar.Grip.Icon:Show()
+			else
+				castbar.Grip.Icon:Hide() 
 			end 
 		end
 		

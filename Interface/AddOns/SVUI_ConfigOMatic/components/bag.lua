@@ -82,7 +82,8 @@ SV.Options.args.SVBag = {
 							min = 15, 
 							max = 45, 
 							step = 1, 
-							set = function(a,b) MOD:ChangeDBVar(b,a[#a]) MOD:RefreshBagFrames("BagFrame") end
+							set = function(a,b) MOD:ChangeDBVar(b,a[#a]) MOD:RefreshBagFrames("BagFrame") end,
+							disabled = function()return SV.db.SVBag.alignToChat end
 						},
 						bankSize = {
 							order = 2, 
@@ -92,7 +93,8 @@ SV.Options.args.SVBag = {
 							min = 15, 
 							max = 45, 
 							step = 1, 
-							set = function(a,b) MOD:ChangeDBVar(b,a[#a]) MOD:RefreshBagFrames("BankFrame") end
+							set = function(a,b) MOD:ChangeDBVar(b,a[#a]) MOD:RefreshBagFrames("BankFrame") end,
+							disabled = function()return SV.db.SVBag.alignToChat end
 						},
 						sortInverted = {
 							order = 3, 
@@ -161,8 +163,8 @@ SV.Options.args.SVBag = {
 						alignToChat = {
 							order = 1, 
 							type = "toggle", 
-							name = L["Align To Chat"], 
-							desc = L["Align the width of the bag frame to fit inside the chat box."], 
+							name = L["Align To Docks"], 
+							desc = L["Align the width of the bag frame to fit inside dock windows."], 
 							set = function(a,b)MOD:ChangeDBVar(b,a[#a]) MOD:RefreshBagFrames() end
 						},
 						bags = {

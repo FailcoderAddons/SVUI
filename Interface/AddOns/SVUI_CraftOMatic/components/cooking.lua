@@ -42,8 +42,7 @@ local Schema = PLUGIN.Schema;
 LOCAL VARS
 ##########################################################
 ]]--
-local cookingSpell, campFire, skillRank, skillModifier;
-local DockButton;
+local cookingSpell, campFire, skillRank, skillModifier, DockButton;
 --[[ 
 ########################################################## 
 LOCAL FUNCTIONS
@@ -172,7 +171,7 @@ CORE METHODS
 ]]--
 function PLUGIN.Cooking:Enable()
 	PLUGIN.Cooking:Update()
-	if(not SVUI_ModesDockFrame:IsShown()) then DockButton:Click() end
+	if(not PLUGIN.Docklet:IsShown()) then PLUGIN.Docklet.ToolbarButton:Click() end
 	if(SV.db[Schema].cooking.autoequip) then
 		UpdateChefWear();
 	end
@@ -228,5 +227,5 @@ LOADER
 ##########################################################
 ]]--
 function PLUGIN:LoadCookingMode()
-	DockButton = _G["SVUI_ModesDockFrame_ToolBarButton"];
+	self.Cooking:Update()
 end

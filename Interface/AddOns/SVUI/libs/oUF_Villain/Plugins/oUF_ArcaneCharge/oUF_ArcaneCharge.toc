@@ -2,7 +2,7 @@
 ## Title: oUF Arcane Charge
 ## Notes: Adds support for arcane charge indicators to oUF.
 ## Author: Munglunch
-## Version: 4.9
+## Version: 5.0
 ## Dependencies: oUF
 
 oUF_ArcaneCharge.lua

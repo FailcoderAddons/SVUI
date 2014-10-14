@@ -29,14 +29,11 @@ PVP STYLER
 ]]--
 local _hook_PVPReadyDialogDisplay = function(self, _, _, _, queueType, _, queueRole)
 	if(queueRole == "DAMAGER") then
-		local coords = _G.LFDQueueFrameRoleButtonDPS.background:GetTexCoord()
-		_G.PVPReadyDialogRoleIcon.texture:SetTexCoord(coords)
+		PVPReadyDialogRoleIcon.texture:SetTexCoord(LFDQueueFrameRoleButtonDPS.background:GetTexCoord())
 	elseif(queueRole == "TANK") then
-		local coords = _G.LFDQueueFrameRoleButtonTank.background:GetTexCoord()
-		_G.PVPReadyDialogRoleIcon.texture:SetTexCoord(coords)
+		PVPReadyDialogRoleIcon.texture:SetTexCoord(LFDQueueFrameRoleButtonTank.background:GetTexCoord())
 	elseif(queueRole == "HEALER") then
-		local coords = _G.LFDQueueFrameRoleButtonHealer.background:GetTexCoord()
-		_G.PVPReadyDialogRoleIcon.texture:SetTexCoord(coords)
+		PVPReadyDialogRoleIcon.texture:SetTexCoord(LFDQueueFrameRoleButtonHealer.background:GetTexCoord())
 	end
 	if(queueType == "ARENA") then
 		self:SetHeight(100)

@@ -395,6 +395,8 @@ function MOD:CreateBasicToolButton(name,texture,onclick,frameName,isdefault)
 		DEFAULT_DOCKLET = fName
 		button:SaveColors("green", "green")
 	end
+
+	return button
 end
 --[[ 
 ########################################################## 
@@ -879,7 +881,7 @@ function SV:RegisterDocklet(name, tooltip, texture, onclick, isdefault)
 		frame.FrameName = name;
 		tinsert(DOCKLET_CACHE, frame);
 		frame.listIndex = #DOCKLET_CACHE;
-		self.SVDock:CreateBasicToolButton(tooltip, texture, onclick, name, isdefault)
+		frame.ToolbarButton = self.SVDock:CreateBasicToolButton(tooltip, texture, onclick, name, isdefault)
 	end
 end
 

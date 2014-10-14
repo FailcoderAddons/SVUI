@@ -1,0 +1,5 @@
+﻿<Ui xmlns="http://www.blizzard.com/wow/ui/">
+	<Include file='system.xml'/>
+	<Include file='widgets.xml'/>
+	<Include file='mentalo.xml'/>
+</Ui>

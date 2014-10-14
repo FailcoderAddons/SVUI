@@ -1,0 +1,10 @@
+﻿<Ui xmlns="http://www.blizzard.com/wow/ui/">
+	<Script file="misc.lua"/>
+    <Script file="mounts.lua"/>
+    <Script file="comix.lua"/>
+    <Script file="questwatch.lua"/>
+    <Script file="raid.lua"/>
+    <Script file="reactions.lua"/>
+    <Script file="spellbind.lua"/>
+    <Script file="ego.lua"/>
+</Ui>

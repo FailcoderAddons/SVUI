@@ -28,41 +28,57 @@ BARBERSHOP STYLER
 ##########################################################
 ]]--
 local function BarberShopStyle()
-	if SV.db[Schema].blizzard.enable~=true or SV.db[Schema].blizzard.barber~=true then return end 
+	if SV.db[Schema].blizzard.enable~=true or SV.db[Schema].blizzard.barber~=true then return end
+
 	local buttons = {"BarberShopFrameOkayButton", "BarberShopFrameCancelButton", "BarberShopFrameResetButton"}
+
 	BarberShopFrameOkayButton:Point("RIGHT", BarberShopFrameSelector4, "BOTTOM", 2, -50)
+
 	for b = 1, #buttons do 
 		_G[buttons[b]]:RemoveTextures()
 		_G[buttons[b]]:SetButtonTemplate()
-	end 
-	for b = 1, 4 do 
-		local c = _G["BarberShopFrameSelector"..b]
-		local d = _G["BarberShopFrameSelector"..b-1]
-		STYLE:ApplyPaginationStyle(_G["BarberShopFrameSelector"..b.."Prev"])
-		STYLE:ApplyPaginationStyle(_G["BarberShopFrameSelector"..b.."Next"])
-		if b ~= 1 then 
-			c:ClearAllPoints()c:Point("TOP", d, "BOTTOM", 0, -3)
-		end 
-		if c then 
-			c:RemoveTextures()
-		end 
-	end 
-	BarberShopFrameSelector1:ClearAllPoints()
-	BarberShopFrameSelector1:Point("TOP", 0, -12)
-	BarberShopFrameResetButton:ClearAllPoints()
-	BarberShopFrameResetButton:Point("BOTTOM", 0, 12)
+	end
+
 	BarberShopFrame:RemoveTextures()
 	BarberShopFrame:SetPanelTemplate("Halftone")
 	BarberShopFrame:Size(BarberShopFrame:GetWidth()-30, BarberShopFrame:GetHeight()-56)
+
+	local lastframe;
+	for i = 1, 5 do 
+		local selector = _G["BarberShopFrameSelector"..i] 
+		if selector then
+			STYLE:ApplyPaginationStyle(_G["BarberShopFrameSelector"..i.."Prev"])
+			STYLE:ApplyPaginationStyle(_G["BarberShopFrameSelector"..i.."Next"])
+			selector:ClearAllPoints()
+
+			if lastframe then 
+				selector:Point("TOP", lastframe, "BOTTOM", 0, -3)
+			else
+				selector:Point("TOP", BarberShopFrame, "TOP", 0, -12)
+			end
+
+			selector:RemoveTextures()
+			if(selector:IsShown()) then
+				lastframe = selector
+			end
+		end 
+	end
+
 	BarberShopFrameMoneyFrame:RemoveTextures()
-	BarberShopFrameMoneyFrame:SetPanelTemplate()
+	BarberShopFrameMoneyFrame:SetPanelTemplate("Inset")
+	BarberShopFrameMoneyFrame:Point("TOP", lastframe, "BOTTOM", 0, -10)
+
 	BarberShopFrameBackground:Die()
 	BarberShopBannerFrameBGTexture:Die()
 	BarberShopBannerFrame:Die()
+
 	BarberShopAltFormFrameBorder:RemoveTextures()
 	BarberShopAltFormFrame:Point("BOTTOM", BarberShopFrame, "TOP", 0, 5)
 	BarberShopAltFormFrame:RemoveTextures()
-	BarberShopAltFormFrame:SetBasicPanel()
+	BarberShopAltFormFrame:SetPanelTemplate("Action")
+
+	BarberShopFrameResetButton:ClearAllPoints()
+	BarberShopFrameResetButton:Point("BOTTOM", BarberShopFrame.Panel, "BOTTOM", 0, 4)
 end 
 --[[ 
 ########################################################## 

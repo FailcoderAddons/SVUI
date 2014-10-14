@@ -112,6 +112,8 @@ do
 		MMBBar:SetPoint("CENTER", MMBHolder, "CENTER", 0, 0)
 		MMBBar:Height(SV.db.SVMap.minimapbar.buttonSize + 4)
 		MMBBar:Width(SV.db.SVMap.minimapbar.buttonSize + 4)
+		MMBBar:SetFrameStrata("LOW")
+		MMBBar:SetFrameLevel(0)
 
 		local lastButton, anchor, relative, xPos, yPos;
 		local list  = MOD.MinimapButtons
@@ -189,9 +191,9 @@ do
 			end
 		end
 
-		btn:SetPushedTexture(nil)
-		btn:SetHighlightTexture(nil)
-		btn:SetDisabledTexture(nil)
+		btn:SetPushedTexture("")
+		btn:SetHighlightTexture("")
+		btn:SetDisabledTexture("")
 		 
 		if not btn.isStyled then
 			btn:HookScript("OnEnter", MMB_OnEnter)
@@ -695,10 +697,6 @@ function MOD:PLAYER_REGEN_DISABLED()
 	WorldMapFrameSizeDownButton:Disable()
 	WorldMapFrameSizeUpButton:Disable()
 end
-
-function MOD:PET_BATTLE_CLOSE()
-	self:UpdateMinimapButtonSettings()
-end
 --[[ 
 ########################################################## 
 BUILD FUNCTION / UPDATE
@@ -723,6 +721,7 @@ end
 function MOD:ReLoad()
 	if(not SV.db.SVMap.enable) then return; end
 	self:RefreshMiniMap()
+	self:UpdateMinimapButtonSettings()
 end
 
 function MOD:Load()

@@ -33,88 +33,66 @@ local L = SV.L
 
 local Sequences = {
 	{65, 1000}, --shrug
-	{68, 1000}, --cheer
 	{70, 1000}, --laugh
 	{74, 1000}, --roar
-	{77, 1000}, --cry
-	{84, 1000}, --point
 	{82, 1000}, --flex
 };
-
-local EgoFrame = CreateFrame("PlayerModel", "SVUI_EgoModel", UIParent);
 
 local function rng()
 	return random(1, #Sequences)
 end
 
-local LaunchAnimation = function(self, key)
+local GoGoGadget = function(self, key)
 	key = key or rng()
 	local emote = Sequences[key][1]
-	self:Show()
-	self:SetAnimation(emote)
-	self.anim:Play()
+	self:SetAlpha(1)
+	self.Model1:SetAnimation(emote)
+	self.Model2:SetAnimation(emote)
 end
-
-local LaunchFreezeFrame = function(self, key)
-	key = key or rng()
-	local animation = Sequences[key]
-	local size = SVUIParent:GetHeight()
-	self:Show()
-	self:SetSequenceTime(unpack(animation))
-	self.anim[2]:SetOffset(size, -size)
-	self.anim[2]:SetOffset(0, 0)
-	self.anim:Play()
-end
-
-local ResetPosition = function(self)
-	local size = SVUIParent:GetHeight()
-	self:SetPoint("TOP", SV.UIParent, "TOP", 0, 0)
-	self:SetWidth(size)
-	self:SetHeight(size)
-	self:SetUnit("player")
-end
-
-local Ego_OnEvent = function(self, event)
-	if event == "ACHIEVEMENT_EARNED" then 
-		self:LaunchAnimation(4)
-	else
-		self:LaunchAnimation(6)
-	end  
-end
-
-function SV:ToggleEgo()
-	if not SV.db.general.ego then 
-		EgoFrame:UnregisterEvent("ACHIEVEMENT_EARNED")
-		EgoFrame:UnregisterEvent("SCREENSHOT_SUCCEEDED")
-		EgoFrame:SetScript("OnEvent", nil)
-	else 
-		EgoFrame:RegisterEvent("ACHIEVEMENT_EARNED")
-		EgoFrame:RegisterEvent("SCREENSHOT_SUCCEEDED")
-		EgoFrame:SetScript("OnEvent", Ego_OnEvent)
-	end 
-end
-
-local EgoPop_OnUpdate = function(self) self.parent:SetAlpha(0) end
 
 local function LoadSVEgo()
-	local size = UIParent:GetWidth()
-	EgoFrame:SetParent(SV.UIParent)
-	EgoFrame:SetPoint("TOP", SV.UIParent, "TOP", 0, 0)
-	EgoFrame:SetWidth(size)
-	EgoFrame:SetHeight(size)
-	EgoFrame:SetUnit("player")
-	EgoFrame.LaunchAnimation = LaunchAnimation
-	EgoFrame.LaunchFreezeFrame = LaunchFreezeFrame
-	EgoFrame.ResetPosition = ResetPosition
-	SV.Animate:Slide(EgoFrame, 0, 0, true, 1.5)
-	EgoFrame.anim[4]:SetScript("OnFinished", EgoPop_OnUpdate)
+	local GameMenuFrame = _G.GameMenuFrame
 
-	EgoFrame:Hide()
-end
+	local EgoFrame = CreateFrame("Frame", "SVUI_EgoFrame", UIParent);
+	EgoFrame:SetParent(GameMenuFrame)
+	EgoFrame:SetFrameLevel(0)
+	EgoFrame:SetAllPoints(SV.UIParent)
 
-_G.SlashCmdList["BADASS"] = function()
-	EgoFrame:LaunchAnimation(4)
+	EgoFrame.BG1 = EgoFrame:CreateTexture(nil, "BACKGROUND", nil, -7)
+    EgoFrame.BG1:SetPoint("TOPLEFT", EgoFrame, "TOPLEFT", 0, 0)
+    EgoFrame.BG1:SetPoint("BOTTOMRIGHT", EgoFrame, "TOPRIGHT", 0, -300)
+    EgoFrame.BG1:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]])
+	EgoFrame.BG1:SetVertexColor(0, 0, 0, 0.8)
+
+	EgoFrame.BG2 = EgoFrame:CreateTexture(nil, "BACKGROUND", nil, -7)
+    EgoFrame.BG2:SetPoint("BOTTOMLEFT", EgoFrame, "BOTTOMLEFT", 0, 0)
+    EgoFrame.BG2:SetPoint("TOPRIGHT", EgoFrame, "BOTTOMRIGHT", 0, 300)
+    EgoFrame.BG2:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]])
+	EgoFrame.BG2:SetVertexColor(0, 0, 0, 0.8)
+
+	EgoFrame.Model1 = CreateFrame("PlayerModel", "SVUI_EgoModel1", EgoFrame);
+	EgoFrame.Model1:SetUnit("player")
+	EgoFrame.Model1:SetRotation(1)
+	EgoFrame.Model1:SetPortraitZoom(0.3)
+	EgoFrame.Model1:SetPosition(0,0,-0.25)
+	EgoFrame.Model1:SetFrameStrata("BACKGROUND")
+	EgoFrame.Model1:SetPoint("TOPLEFT", EgoFrame, "TOPLEFT", -250, -300)
+	EgoFrame.Model1:SetPoint("BOTTOMRIGHT", EgoFrame, "BOTTOM", 0, 300)
+
+	EgoFrame.Model2 = CreateFrame("PlayerModel", "SVUI_EgoModel2", EgoFrame);
+	EgoFrame.Model2:SetUnit("player")
+	EgoFrame.Model2:SetRotation(-1)
+	EgoFrame.Model2:SetPortraitZoom(0.3)
+	EgoFrame.Model2:SetPosition(0,0,-0.25)
+	EgoFrame.Model2:SetFrameStrata("BACKGROUND")
+	EgoFrame.Model2:SetPoint("TOPRIGHT", EgoFrame, "TOPRIGHT", 250, -300)
+	EgoFrame.Model2:SetPoint("BOTTOMLEFT", EgoFrame, "BOTTOM", 250, 300)
+
+	EgoFrame.GoGoGadget = GoGoGadget
+
+	EgoFrame:SetScript("OnShow", function(self) 
+		self:GoGoGadget()
+	end)
 end
-_G.SLASH_BADASS1 = "/badass"
 
 SV:NewScript(LoadSVEgo)

@@ -841,7 +841,7 @@ function MOD:CHAT_MSG_COMBAT_FACTION_CHANGE(event, msg)
 		for factionIndex = 1, GetNumFactions() do
 			local name = GetFactionInfo(factionIndex)
 			if name == faction and name ~= active then
-				-- local inactive = IsFactionInactive(factionIndex) or SetWatchedFactionIndex(factionIndex)
+				SetWatchedFactionIndex(factionIndex)
 				local strMsg = ("Watching Faction: %s"):format(name)
 				SV:AddonMessage(strMsg)
 				break

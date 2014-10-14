@@ -54,7 +54,7 @@ local CanSolveArtifact = CanSolveArtifact
 local GetContainerNumSlots = GetContainerNumSlots
 local GetContainerItemInfo = GetContainerItemInfo
 local GetContainerItemID = GetContainerItemID
-local DockButton, ModeLogsFrame; 
+local ModeLogsFrame; 
 
 local COUNT_TEX = [[Interface\AddOns\SVUI\assets\artwork\icons\COUNT-]]
 
@@ -359,7 +359,7 @@ CORE FUNCTIONS
 ]]--
 function PLUGIN.Archaeology:Enable()
 	PLUGIN.Archaeology:Update()
-	if(not SVUI_ModesDockFrame:IsShown()) then DockButton:Click() end
+	if(not PLUGIN.Docklet:IsShown()) then PLUGIN.Docklet.ToolbarButton:Click() end
 
 	PlaySoundFile("Sound\\Item\\UseSounds\\UseCrinklingPaper.wav")
 	PLUGIN.ModeAlert:SetBackdropColor(0.25, 0.52, 0.1)
@@ -426,10 +426,9 @@ LOADER
 ##########################################################
 ]]--
 function PLUGIN:LoadArchaeologyMode()
-	ModeLogsFrame = PLUGIN.LogWindow;
-	DockButton = _G["SVUI_ModesDockFrame_ToolBarButton"];
+	ModeLogsFrame = self.LogWindow;
 
-	local progressBars = PLUGIN.Archaeology.Bars
+	local progressBars = self.Archaeology.Bars
 
 	ArchCrafting:SetParent(ModeLogsFrame)
 	ArchCrafting:SetFrameStrata("MEDIUM")
@@ -440,8 +439,6 @@ function PLUGIN:LoadArchaeologyMode()
 
 	for i = 1, 12 do
 		local bar = CreateFrame("StatusBar", nil, ArchCrafting)
-		local race = bar:CreateFontString()
-		local progress = bar:CreateFontString()
 		local solve = CreateFrame("Button", nil, bar, "SecureHandlerClickTemplate")
 		local yOffset;
 
@@ -459,12 +456,14 @@ function PLUGIN:LoadArchaeologyMode()
 		
 		local sOffset = SV.Scale(1)
 		-- Race Text
+		local race = bar:CreateFontString()
 		race:SetFontObject(NumberFont_Outline_Large)
 		race:SetText(RACE)
 		race:SetPoint("TOPLEFT", bar, "TOPLEFT", sOffset, -sOffset)
 		race:SetTextColor(1,0.8,0)
 
 		-- Progress Text
+		local progress = bar:CreateFontString()
 		progress:SetFont(SV.Media.font.roboto, 11, "OUTLINE")
 		progress:SetText("")
 		progress:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT", -sOffset, sOffset)
@@ -524,6 +523,6 @@ function PLUGIN:LoadArchaeologyMode()
 		}
 	end
 	ArchCrafting:Hide()
-	PLUGIN.Archaeology:Update()
+	self.Archaeology:Update()
 	UpdateArtifactCache()
 end

@@ -267,7 +267,7 @@ local function SaveActionButton(parent)
 		SV.Timers:AddCooldown(cooldown)
 		MOD.ButtonCache[parent] = true 
 	end
-	parent:SetSlotTemplate(true, 2, 0, 0)
+	parent:SetSlotTemplate(true, 2, 0, 0, 0.75)
 end 
 
 local function SetFlyoutButton(button)

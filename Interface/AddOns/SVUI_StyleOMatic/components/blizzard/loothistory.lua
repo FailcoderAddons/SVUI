@@ -80,7 +80,7 @@ local _hook_MasterLootFrame_OnShow = function()
     icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
     item:SetPanelTemplate("Pattern")
     item.Panel:WrapOuter(icon)
-    item.Panel:SetBackdropBorderColor(colors.r, colors.g, colors.b)
+    item:SetBackdropBorderColor(colors.r, colors.g, colors.b)
   end 
   for i = 1, MasterLooterFrame:GetNumChildren()do 
     local child = select(i, MasterLooterFrame:GetChildren())

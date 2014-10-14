@@ -350,7 +350,7 @@ SV.configs["SVBar"] = {
 		["mouseover"] = false, 
 		["buttons"] = NUM_STANCE_SLOTS, 
 		["buttonsPerRow"] = NUM_STANCE_SLOTS, 
-		["point"] = "BOTTOMRIGHT", 
+		["point"] = "BOTTOMLEFT", 
 		["backdrop"] = false, 
 		["buttonsize"] = 24, 
 		["buttonspacing"] = 5, 
@@ -687,7 +687,7 @@ SV.configs["SVUnit"] = {
 
 	["smoothbars"] = false, 
 	["statusbar"] = "SVUI BasicBar", 
-	["auraBarStatusbar"] = "SVUI GlowBar", 
+	["auraBarStatusbar"] = "SVUI BasicBar", 
 
 	["font"] = "SVUI Number Font", 
 	["fontSize"] = 12, 
@@ -974,7 +974,7 @@ SV.configs["SVUnit"] = {
 			["yOffset"] = 36, 
 			["font"] = "SVUI Name Font", 
 			["fontSize"] = 15, 
-			["fontOutline"] = "NONE", 
+			["fontOutline"] = "OUTLINE", 
 		}, 
 		["portrait"] = 
 		{

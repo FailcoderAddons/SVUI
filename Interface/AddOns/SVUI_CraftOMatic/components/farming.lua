@@ -396,7 +396,7 @@ function PLUGIN.Farming:Enable()
 			PLUGIN.Farming.ToolsLoaded = true
 			EnableListener()
 			if not FarmModeFrame:IsShown() then FarmModeFrame:Show() end
-			if(not SVUI_ModesDockFrame:IsShown()) then DockButton:Click() end
+			if(not PLUGIN.Docklet:IsShown()) then DockButton:Click() end
 		end
 	end
 end
@@ -527,8 +527,8 @@ function PLUGIN:PrepareFarmingTools()
 	local horizontal = SV.db[Schema].farming.toolbardirection == "HORIZONTAL"
 	local BUTTONSPACE = SV.db[Schema].farming.buttonspacing or 2;
 
-	ModeLogsFrame = PLUGIN.LogWindow;
-	DockButton = _G["SVUI_ModesDockFrame_ToolBarButton"]
+	ModeLogsFrame = self.LogWindow;
+	DockButton = self.Docklet.ToolbarButton
 
 	if not SV.db[Schema].farming.undocked then
 		local bgTex = [[Interface\BUTTONS\WHITE8X8]]

@@ -91,7 +91,7 @@ elseif(PlayerClass == "PALADIN") then
     RefUnitRoles = {"HEALER", "TANK", "DAMAGER"}
 end
 
-function SV:DefinePlayerRole()
+function SV:PlayerInfoUpdate()
     local spec = GetSpecialization()
     local role, unitRole;
     if spec then

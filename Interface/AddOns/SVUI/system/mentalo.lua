@@ -675,7 +675,7 @@ function Mentalo:Reset(request)
 			end 
 		end
 		if(SV.cache.Anchors) then 
-			SV.cache.Anchors = {}
+			wipe(SV.cache.Anchors)
 		end 
 	else 
 		for name, _ in pairs(self.Frames)do

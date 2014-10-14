@@ -238,7 +238,7 @@ local ChatLogHandler_OnEvent = function(self, event, ...)
 			elseif (spellID == 126499 or spellID == 126500) then
 				outbound = (L["%s has prepared a %s - [%s]."]):format(sourceName, GetSpellLink(spellID), SPELL_STAT5_NAME)
 			elseif (spellID == 104958 or spellID == 105193 or spellID == 126503 or spellID == 126504 or spellID == 145166 or spellID == 145169 or spellID == 145196) then
-				outbound = (L["%s has prepared a %s - [%s]."]):format(sourceName, GetSpellLink(spellID))
+				outbound = (L["%s has prepared a %s."]):format(sourceName, GetSpellLink(spellID))
 			-- Refreshment Table
 			elseif spellID == 43987 then
 				outbound = (L["%s has prepared a %s."]):format(sourceName, GetSpellLink(spellID))

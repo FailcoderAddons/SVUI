@@ -294,6 +294,47 @@ valid data outside of the core object.
 --]]
 
 --DATABASE LOCAL HELPERS
+local function SanitizeStorage(data)
+    for k,v in pairs(data) do
+        if(k == "STORED" or k == "SAFEDATA" or k == "LAYOUT") then
+            data[k] = nil
+        end
+    end
+end
+
+local function LiveProfileChange()
+    local LastKey = SOURCE_KEY
+    if(PROFILE_SV.SAFEDATA and PROFILE_SV.SAFEDATA.dualSpecEnabled) then 
+        SOURCE_KEY = GetSpecialization()
+        lib.EventManager:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
+
+        if(not SOURCE_KEY) then
+            SOURCE_KEY = 1
+        end
+
+        if(LastKey ~= SOURCE_KEY) then
+            --construct core dataset
+            local db           = setmetatable({}, meta_database)
+            db.data            = PROFILE_SV.STORED[SOURCE_KEY]
+            db.defaults        = CoreObject.configs
+            CoreObject.db      = db
+
+            local cache        = setmetatable({}, meta_cache)
+            cache.data         = CACHE_SV.STORED[SOURCE_KEY]
+            CoreObject.cache   = cache
+
+            if(CoreObject.ReLoad) then
+                CoreObject:ReLoad()
+            end
+
+            lib:RefreshAll()
+        end
+    else
+        SOURCE_KEY = 1
+        lib.EventManager:UnregisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
+    end
+end
+
 local function tablecopy(d, s, debug)
     if(debug) then
         print(debug)
@@ -476,56 +517,6 @@ function lib:WipeGlobal()
     end
 end
 
-function lib:UpdateDatabase(event)
-    if event == "PLAYER_LOGOUT" then
-        local sv = rawget(CoreObject.db, "data")
-        local src = rawget(CoreObject.db, "defaults")
-        for k,v in pairs(sv) do
-            if(not src[k]) then
-                sv[k] = nil
-            elseif(src[k] ~= nil and (not LoadOnDemand[k])) then
-                removedefaults(sv[k], src[k])
-            end
-        end
-        for k,v in pairs(CACHE_SV) do
-            if(k ~= "STORED") then
-                CACHE_SV[k] = nil
-            end
-        end
-    elseif(event == "ACTIVE_TALENT_GROUP_CHANGED") then
-        local LastKey = SOURCE_KEY
-        if(PROFILE_SV.SAFEDATA and PROFILE_SV.SAFEDATA.dualSpecEnabled) then 
-            SOURCE_KEY = GetSpecialization()
-            self.EventManager:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
-
-            if(not SOURCE_KEY) then
-                SOURCE_KEY = 1
-            end
-
-            if(LastKey ~= SOURCE_KEY) then
-                --construct core dataset
-                local db           = setmetatable({}, meta_database)
-                db.data            = PROFILE_SV.STORED[SOURCE_KEY]
-                db.defaults        = CoreObject.configs
-                CoreObject.db      = db
-
-                local cache        = setmetatable({}, meta_cache)
-                cache.data         = CACHE_SV.STORED[SOURCE_KEY]
-                CoreObject.cache   = cache
-
-                if(CoreObject.ReLoad) then
-                    CoreObject:ReLoad()
-                end
-
-                self:RefreshAll()
-            end
-        else
-            SOURCE_KEY = 1
-            self.EventManager:UnregisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
-        end
-    end
-end
-
 function lib:GetSafeData(index)
     if(index) then
         return PROFILE_SV.SAFEDATA[index]
@@ -592,7 +583,7 @@ local changeDBVar = function(self, value, key, sub1, sub2, sub3)
 end
 
 local innerOnEvent = function(self, event, ...)
-    local obj = self.module
+    local obj = self.___owner
     if self[event] and type(self[event]) == "function" then
         self[event](obj, event, ...)
     end
@@ -601,7 +592,7 @@ end
 local registerEvent = function(self, eventname, eventfunc)
     if not self.___eventframe then
         self.___eventframe = CreateFrame("Frame", nil)
-        self.___eventframe.module = self
+        self.___eventframe.___owner = self
         self.___eventframe:SetScript("OnEvent", innerOnEvent)
     end
 
@@ -626,7 +617,7 @@ end
 
 local innerOnUpdate = function(self, elapsed)
     if self.elapsed and self.elapsed > (self.throttle) then
-        local obj = self.module
+        local obj = self.___owner
         local callbacks = self.callbacks
 
         for name, fn in pairs(callbacks) do
@@ -645,7 +636,7 @@ end
 local registerUpdate = function(self, updatefunc, throttle)
     if not self.___updateframe then
         self.___updateframe = CreateFrame("Frame", nil);
-        self.___updateframe.module = self;
+        self.___updateframe.___owner = self;
         self.___updateframe.callbacks = {};
         self.___updateframe.elapsed = 0;
         self.___updateframe.throttle = throttle or 0.2;
@@ -717,6 +708,13 @@ function lib:RefreshAll()
     end
 end
 
+function lib:LiveUpdate()
+    if(PROFILE_SV.SAFEDATA.NEEDSLIVEUPDATE and not C_PetBattles.IsInBattle()) then
+        self:RefreshAll()
+        PROFILE_SV.SAFEDATA.NEEDSLIVEUPDATE = false
+    end
+end
+
 function lib:GetModuletable()
     return MODULES
 end
@@ -733,7 +731,7 @@ function lib:ToggleDualProfile(enabled)
     PROFILE_SV.SAFEDATA.dualSpecEnabled = enabled
     if(enabled) then
         self.EventManager:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
-        self:UpdateDatabase()
+        LiveProfileChange()
     else
         self.EventManager:UnregisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
     end
@@ -883,22 +881,40 @@ local function NewLoadOnDemand(addonName, schema, header)
     }
 end
 
-local function SanitizeStorage(data)
-    for k,v in pairs(data) do
-        if(k == "STORED" or k == "SAFEDATA" or k == "LAYOUT") then
-            data[k] = nil
-        end
-    end
-end
+--LIBRARY EVENT HANDLING
 
---DATABASE EVENT HANDLER
-local DataBase_OnEvent = function(self, event)
-    if(event == "PLAYER_LOGOUT" or event == "ACTIVE_TALENT_GROUP_CHANGED") then
-        lib:UpdateDatabase(event)
+local Library_OnEvent = function(self, event, arg, ...)
+    if(event == "PLAYER_LOGOUT") then
+        local sv = rawget(CoreObject.db, "data")
+        local src = rawget(CoreObject.db, "defaults")
+        for k,v in pairs(sv) do
+            if(not src[k]) then
+                sv[k] = nil
+            elseif(src[k] ~= nil and (not LoadOnDemand[k])) then
+                removedefaults(sv[k], src[k])
+            end
+        end
+    elseif(event == "ADDON_LOADED") then
+        if(arg == CoreName) then
+            if(not CoreObject.___loaded and CoreObject.Load) then
+                CoreObject:Load()
+                CoreObject.___loaded = true
+                self:UnregisterEvent("ADDON_LOADED")
+            end
+        end
+    elseif(event == "PLAYER_LOGIN") then
+        if(not CoreObject.___initialized and CoreObject.Initialize and IsLoggedIn()) then
+            CoreObject:Initialize()
+            CoreObject.___initialized = true
+            self:UnregisterEvent("PLAYER_LOGIN")
+        end
+    elseif(event == "ACTIVE_TALENT_GROUP_CHANGED") then
+        LiveProfileChange()
     end
 end
 
 -- CORE OBJECT CONSTRUCT
+
 local Core_NewCallback = function(self, fn)
     if(fn and type(fn) == "function") then
         Callbacks[#Callbacks+1] = fn
@@ -947,12 +963,14 @@ local Core_NewPackage = function(self, schema, header)
     return self[schema]
 end
 
-local Core_ResetData = function(self, sub, sub2)
+local Core_ResetData = function(self, sub, sub2, sub3)
     local data = self.db
     local sv = rawget(data, "data")
     local src = rawget(data, "defaults")
     local targetData
-    if(sub2 and sv and sv[sub]) then
+    if(sub3 and sub2 and sv and sv[sub] and sv[sub][sub2]) then
+        targetData = sv[sub][sub2][sub3]
+    elseif(sub2 and sv and sv[sub]) then
         targetData = sv[sub][sub2]
     elseif(sub and sv) then
         targetData = sv[sub]
@@ -986,24 +1004,32 @@ function lib:NewCore(gfile, pfile, cfile)
 
     --events
     if(not self.EventManager.Initialized) then
+        self.EventManager:RegisterEvent("ADDON_LOADED")
+        self.EventManager:RegisterEvent("PLAYER_LOGIN")
         self.EventManager:RegisterEvent("PLAYER_LOGOUT")
-        self.EventManager:SetScript("OnEvent", DataBase_OnEvent)
+        self.EventManager:SetScript("OnEvent", Library_OnEvent)
         self.EventManager.Initialized = true
     end
 
     --internals
-    CoreObject.NameID       = CoreName;
-    CoreObject.Version      = AddonVersion;
-    CoreObject.GameVersion  = tonumber(InterfaceVersion);
-    CoreObject.DebugMode    = false;
-    CoreObject.Schema       = GetAddOnMetadata(CoreName, SchemaFromMeta);
-    CoreObject.TitleID      = GetAddOnMetadata(CoreName, HeaderFromMeta);
-    CoreObject.NewCallback  = Core_NewCallback
-    CoreObject.NewScript    = Core_NewScript
-    CoreObject.NewPackage   = Core_NewPackage
-    CoreObject.ResetData    = Core_ResetData
-    CoreObject.db           = tablesplice(CoreObject.configs, {})
-    CoreObject.L            = self:Lang()
+    CoreObject.NameID               = CoreName;
+    CoreObject.Version              = AddonVersion;
+    CoreObject.GameVersion          = tonumber(InterfaceVersion);
+    CoreObject.DebugMode            = false;
+    CoreObject.Schema               = GetAddOnMetadata(CoreName, SchemaFromMeta);
+    CoreObject.TitleID              = GetAddOnMetadata(CoreName, HeaderFromMeta);
+
+    CoreObject.RegisterEvent        = registerEvent
+    CoreObject.UnregisterEvent      = unregisterEvent
+    CoreObject.RegisterUpdate       = registerUpdate
+    CoreObject.UnregisterUpdate     = unregisterUpdate
+
+    CoreObject.NewCallback          = Core_NewCallback
+    CoreObject.NewScript            = Core_NewScript
+    CoreObject.NewPackage           = Core_NewPackage
+    CoreObject.ResetData            = Core_ResetData
+    CoreObject.db                   = tablesplice(CoreObject.configs, {})
+    CoreObject.L                    = self:Lang()
 
     --set global
     _G[CoreName] = CoreObject;
@@ -1057,6 +1083,8 @@ function lib:Initialize()
     if not _G[PROFILE_FILENAME] then _G[PROFILE_FILENAME] = {} end
     PROFILE_SV = _G[PROFILE_FILENAME]
     PROFILE_SV.SAFEDATA = PROFILE_SV.SAFEDATA or {dualSpecEnabled = false}
+
+    if not PROFILE_SV.SAFEDATA.NEEDSLIVEUPDATE then PROFILE_SV.SAFEDATA.NEEDSLIVEUPDATE = false end
 
     if(PROFILE_SV.SAFEDATA and PROFILE_SV.SAFEDATA.dualSpecEnabled) then 
         SOURCE_KEY = GetSpecialization() or 1
@@ -1172,4 +1200,6 @@ function lib:Launch()
 
         ScriptQueue = nil
     end
+
+    PROFILE_SV.SAFEDATA.NEEDSLIVEUPDATE = C_PetBattles.IsInBattle()
 end

@@ -171,10 +171,10 @@ local ColorizeAuraBars = function(self)
 		end 
 		if color then 
 			auraBar.statusBar:SetStatusBarColor(unpack(color))
-			auraBar:SetBackdropColor(color[1] * 0.25, color[2] * 0.25, color[3] * 0.25, 0.25)
+			auraBar:SetBackdropColor(color[1] * 0.25, color[2] * 0.25, color[3] * 0.25, 0.5)
 		else
 			local r, g, b = auraBar.statusBar:GetStatusBarColor()
-			auraBar:SetBackdropColor(r * 0.25, g * 0.25, b * 0.25, 0.25)
+			auraBar:SetBackdropColor(r * 0.25, g * 0.25, b * 0.25, 0.5)
 		end 
 	end 
 end

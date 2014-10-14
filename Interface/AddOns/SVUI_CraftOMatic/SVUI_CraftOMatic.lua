@@ -270,7 +270,7 @@ function PLUGIN:EndJobModes()
 		self[currentModeKey].Disable()
 	end
 	currentModeKey = false;
-	if SVUI_ModesDockFrame:IsShown() then SVUI_ModesDockFrame_ToolBarButton:Click() end
+	if self.Docklet:IsShown() then self.Docklet.ToolbarButton:Click() end
 	self:ChangeModeGear()
 	self.ModeAlert:Hide();
 	SendModeMessage("Mode Disabled", CombatText_StandardScroll, 1, 0.35, 0);
@@ -307,69 +307,6 @@ end
 
 function PLUGIN:UpdateLogWindow()
  	self.LogWindow:SetFont(SV.Media.font.system, SV.db[Schema].fontSize, "OUTLINE")
-end
-
-function PLUGIN:MakeLogWindow()
-	local DOCK_WIDTH = SVUI_ModesDockFrame:GetWidth();
-	local DOCK_HEIGHT = SVUI_ModesDockFrame:GetHeight();
-
-	ModeLogsFrame:SetFrameStrata("MEDIUM")
-	ModeLogsFrame:SetPoint("TOPLEFT",SVUI_ModeButton1,"TOPRIGHT",5,-5)
-	ModeLogsFrame:SetPoint("BOTTOMRIGHT",SVUI_ModesDockFrame,"BOTTOMRIGHT",-5,5)
-	ModeLogsFrame:SetParent(SVUI_ModesDockFrame)
-
-	local title = CreateFrame("ScrollingMessageFrame", nil, ModeLogsFrame)
-	title:SetSpacing(4)
-	title:SetClampedToScreen(false)
-	title:SetFrameStrata("MEDIUM")
-	title:SetPoint("TOPLEFT",ModeLogsFrame,"TOPLEFT",0,0)
-	title:SetPoint("BOTTOMRIGHT",ModeLogsFrame,"TOPRIGHT",0,-20)
-	title:SetFontTemplate(UNIT_NAME_FONT, 16, "OUTLINE", "CENTER", "MIDDLE")
-	title:SetMaxLines(1)
-	title:EnableMouseWheel(false)
-	title:SetFading(false)
-	title:SetInsertMode('TOP')
-
-	title.divider = title:CreateTexture(nil,"OVERLAY")
-    title.divider:SetTexture(0,0,0,0.5)
-    title.divider:SetPoint("BOTTOMLEFT")
-    title.divider:SetPoint("BOTTOMRIGHT")
-    title.divider:SetHeight(1)
-
-    local topleftline = title:CreateTexture(nil,"OVERLAY")
-    topleftline:SetTexture(0,0,0,0.5)
-    topleftline:SetPoint("TOPLEFT")
-    topleftline:SetPoint("BOTTOMLEFT")
-    topleftline:SetWidth(1)
-
-	local log = CreateFrame("ScrollingMessageFrame", nil, ModeLogsFrame)
-	log:SetSpacing(4)
-	log:SetClampedToScreen(false)
-	log:SetFrameStrata("MEDIUM")
-	log:SetPoint("TOPLEFT",title,"BOTTOMLEFT",0,0)
-	log:SetPoint("BOTTOMRIGHT",ModeLogsFrame,"BOTTOMRIGHT",0,0)
-	log:SetFontTemplate(nil, SV.db[Schema].fontSize, "OUTLINE")
-	log:SetJustifyH("CENTER")
-	log:SetJustifyV("MIDDLE")
-	log:SetShadowColor(0, 0, 0, 0)
-	log:SetMaxLines(120)
-	log:EnableMouseWheel(true)
-	log:SetScript("OnMouseWheel", onMouseWheel)
-	log:SetFading(false)
-	log:SetInsertMode('TOP')
-
-	local bottomleftline = log:CreateTexture(nil,"OVERLAY")
-    bottomleftline:SetTexture(0,0,0,0.5)
-    bottomleftline:SetPoint("TOPLEFT")
-    bottomleftline:SetPoint("BOTTOMLEFT")
-    bottomleftline:SetWidth(1)
-
-	self.TitleWindow = title
-	self.LogWindow = log
-
-	self.ListenerEnabled = false;
-	SV:RegisterDocklet("SVUI_ModesDockFrame", self.TitleID, ICON_FILE, false)
-	self:CraftingReset()
 end
 
 function PLUGIN:SKILL_LINES_CHANGED()
@@ -459,11 +396,13 @@ function PLUGIN:Load()
 	local ALERT_HEIGHT = 60;
 	local DOCK_WIDTH = SuperDockWindowRight:GetWidth();
 	local DOCK_HEIGHT = SuperDockWindowRight:GetHeight();
+	local DOCKLET_WIDTH = DOCK_WIDTH - 4
+	local DOCKLET_HEIGHT = DOCK_HEIGHT - 4
 	local BUTTON_SIZE = (DOCK_HEIGHT * 0.25) - 4;
 
 	local modesDocklet = CreateFrame("Frame", "SVUI_ModesDockFrame", SuperDockWindowRight)
-	modesDocklet:SetWidth(DOCK_WIDTH - 4);
-	modesDocklet:SetHeight(DOCK_HEIGHT - 4);
+	modesDocklet:SetWidth(DOCKLET_WIDTH);
+	modesDocklet:SetHeight(DOCKLET_HEIGHT);
 	modesDocklet:SetPoint("CENTER",SuperDockWindowRight,"CENTER",0,0);
 
 	local modesToolBar = CreateFrame("Frame", "SVUI_ModesDockToolBar", modesDocklet)
@@ -552,12 +491,69 @@ function PLUGIN:Load()
 	ModeAlert:SetScript('OnMouseDown', ModeAlert_OnMouseDown)
 	ModeAlert:Hide()
 
-	self.ModeAlert = ModeAlert
+	ModeLogsFrame:SetFrameStrata("MEDIUM")
+	ModeLogsFrame:SetPoint("TOPLEFT", mode1Button, "TOPRIGHT", 5, -5)
+	ModeLogsFrame:SetPoint("BOTTOMRIGHT", modesDocklet, "BOTTOMRIGHT", -5, 5)
+	ModeLogsFrame:SetParent(modesDocklet)
 
-	self:MakeLogWindow()
+	local title = CreateFrame("ScrollingMessageFrame", nil, ModeLogsFrame)
+	title:SetSpacing(4)
+	title:SetClampedToScreen(false)
+	title:SetFrameStrata("MEDIUM")
+	title:SetPoint("TOPLEFT",ModeLogsFrame,"TOPLEFT",0,0)
+	title:SetPoint("BOTTOMRIGHT",ModeLogsFrame,"TOPRIGHT",0,-20)
+	title:SetFontTemplate(UNIT_NAME_FONT, 16, "OUTLINE", "CENTER", "MIDDLE")
+	title:SetMaxLines(1)
+	title:EnableMouseWheel(false)
+	title:SetFading(false)
+	title:SetInsertMode('TOP')
 
-	modesDocklet:Hide()
-	
+	title.divider = title:CreateTexture(nil,"OVERLAY")
+    title.divider:SetTexture(0,0,0,0.5)
+    title.divider:SetPoint("BOTTOMLEFT")
+    title.divider:SetPoint("BOTTOMRIGHT")
+    title.divider:SetHeight(1)
+
+    local topleftline = title:CreateTexture(nil,"OVERLAY")
+    topleftline:SetTexture(0,0,0,0.5)
+    topleftline:SetPoint("TOPLEFT")
+    topleftline:SetPoint("BOTTOMLEFT")
+    topleftline:SetWidth(1)
+
+	local log = CreateFrame("ScrollingMessageFrame", nil, ModeLogsFrame)
+	log:SetSpacing(4)
+	log:SetClampedToScreen(false)
+	log:SetFrameStrata("MEDIUM")
+	log:SetPoint("TOPLEFT",title,"BOTTOMLEFT",0,0)
+	log:SetPoint("BOTTOMRIGHT",ModeLogsFrame,"BOTTOMRIGHT",0,0)
+	log:SetFontTemplate(nil, SV.db[Schema].fontSize, "OUTLINE")
+	log:SetJustifyH("CENTER")
+	log:SetJustifyV("MIDDLE")
+	log:SetShadowColor(0, 0, 0, 0)
+	log:SetMaxLines(120)
+	log:EnableMouseWheel(true)
+	log:SetScript("OnMouseWheel", onMouseWheel)
+	log:SetFading(false)
+	log:SetInsertMode('TOP')
+
+	local bottomleftline = log:CreateTexture(nil,"OVERLAY")
+    bottomleftline:SetTexture(0,0,0,0.5)
+    bottomleftline:SetPoint("TOPLEFT")
+    bottomleftline:SetPoint("BOTTOMLEFT")
+    bottomleftline:SetWidth(1)
+
+    self.ModeAlert = ModeAlert
+	self.TitleWindow = title
+	self.LogWindow = log
+	self.Docklet = modesDocklet
+
+	SV:RegisterDocklet("SVUI_ModesDockFrame", self.TitleID, ICON_FILE, false)
+
+	self.Docklet:Hide()
+
+	self.ListenerEnabled = false;
+
+	self:CraftingReset()
 	self:LoadCookingMode()
 	self:LoadFishingMode()
 	self:LoadArchaeologyMode()

@@ -106,7 +106,6 @@ local refPoles = {
 	{ ["id"] = 84660, ["weight"] = 10 },  --Pandaren
 	{ ["id"] = 6256,  ["weight"] = 1 }    --Standard
 }
-local DockButton;
 --[[ 
 ########################################################## 
 LOCAL FUNCTIONS
@@ -334,7 +333,7 @@ CORE METHODS
 ]]--
 function PLUGIN.Fishing:Enable()
 	PLUGIN:UpdateFishingMode()
-	if(not SVUI_ModesDockFrame:IsShown()) then DockButton:Click() end
+	if(not PLUGIN.Docklet:IsShown()) then PLUGIN.Docklet.ToolbarButton:Click() end
 	UpdateFishingGear(SV.db[Schema].fishing.autoequip);
 	PlaySoundFile("Sound\\Spells\\Tradeskills\\FishCast.wav")
 	PLUGIN.ModeAlert:SetBackdropColor(0.25, 0.52, 0.1)
@@ -397,6 +396,5 @@ function PLUGIN:UpdateFishingMode()
 end
 
 function PLUGIN:LoadFishingMode()
-	DockButton = _G["SVUI_ModesDockFrame_ToolBarButton"]
-	PLUGIN:UpdateFishingMode()
+	self:UpdateFishingMode()
 end

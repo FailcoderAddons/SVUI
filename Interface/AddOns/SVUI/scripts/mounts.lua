@@ -42,24 +42,26 @@ LOCAL VARIABLES
 ]]--
 local ttSummary = "";
 local NewHook = hooksecurefunc;
-local CountMounts, MountInfo, RandomMount, MountUp, UnMount;
+local CountMounts, MountInfo, RandomMount, MountUp, UnMount, CHECKED, UNCHECKED;
 
 local MountListener = CreateFrame("Frame");
-MountListener.favorites = 0
+MountListener.favorites = false
 --[[ 
 ########################################################## 
 LOCAL FUNCTIONS
 ##########################################################
 ]]--
 if(select(4, GetBuildInfo()) >= 60000) then
+	CHECKED = true;
+	UNCHECKED = false;
 	function CountMounts()
 		return C_MountJournal.GetNumMounts()
 	end
 	function MountInfo(index)
-		return C_MountJournal.GetMountInfo(index)
+		return true, C_MountJournal.GetMountInfo(index)
 	end
 	function RandomMount()
-		if(MountListener.favorites > 0) then
+		if(MountListener.favorites) then
 			return 0
 		end
 		maxMounts = C_MountJournal.GetNumMounts()
@@ -71,6 +73,8 @@ if(select(4, GetBuildInfo()) >= 60000) then
 	end
 	UnMount = C_MountJournal.Dismiss
 else
+	CHECKED = 1;
+	UNCHECKED = 0;
 	function CountMounts()
 		return GetNumCompanions("MOUNT")
 	end
@@ -82,7 +86,7 @@ else
 		return random(1, maxMounts)
 	end
 	function MountUp(index)
-		index = index or random(1, maxMounts)
+		index = index or RandomMount()
 		return CallCompanion("MOUNT", index)
 	end
 	UnMount = Dismount
@@ -108,45 +112,50 @@ local function UpdateMountCheckboxes(button, index)
 			if(SV.cache.Mounts.types["GROUND"] ~= index) then
 				SV.cache.Mounts.types["GROUND"] = index
 			end
-			bar["GROUND"]:SetChecked(1)
+			bar["GROUND"]:SetChecked(CHECKED)
 		else
-			bar["GROUND"]:SetChecked(0)
+			bar["GROUND"]:SetChecked(UNCHECKED)
 		end
 
 		if(SV.cache.Mounts.names["FLYING"] == creatureName) then
 			if(SV.cache.Mounts.types["FLYING"] ~= index) then
 				SV.cache.Mounts.types["FLYING"] = index
 			end
-			bar["FLYING"]:SetChecked(1)
+			bar["FLYING"]:SetChecked(CHECKED)
 		else
-			bar["FLYING"]:SetChecked(0)
+			bar["FLYING"]:SetChecked(UNCHECKED)
 		end
 
 		if(SV.cache.Mounts.names["SWIMMING"] == creatureName) then
 			if(SV.cache.Mounts.types["SWIMMING"] ~= index) then
 				SV.cache.Mounts.types["SWIMMING"] = index
 			end
-			bar["SWIMMING"]:SetChecked(1)
+			bar["SWIMMING"]:SetChecked(CHECKED)
 		else
-			bar["SWIMMING"]:SetChecked(0)
+			bar["SWIMMING"]:SetChecked(UNCHECKED)
 		end
 
 		if(SV.cache.Mounts.names["SPECIAL"] == creatureName) then
 			if(SV.cache.Mounts.types["SPECIAL"] ~= index) then
 				SV.cache.Mounts.types["SPECIAL"] = index
 			end
-			bar["SPECIAL"]:SetChecked(1)
+			bar["SPECIAL"]:SetChecked(CHECKED)
 		else
-			bar["SPECIAL"]:SetChecked(0)
+			bar["SPECIAL"]:SetChecked(UNCHECKED)
 		end
 	end
 end
 
 local function UpdateMountsCache()
-	if(not MountJournal or not MountJournal.cachedMounts) then return end
+	if(not MountJournal) then return end
 	local num = CountMounts()
+	MountListener.favorites = false
+
 	for index = 1, num, 1 do
-		local _, info, id = MountInfo(index)
+		local _, info, id, _, _, _, _, _, favorite = MountInfo(index)
+		if(favorite == true) then
+			MountListener.favorites = true
+		end
 		if(SV.cache.Mounts.names["GROUND"] == info) then
 			if(SV.cache.Mounts.types["GROUND"] ~= index) then
 				SV.cache.Mounts.types["GROUND"] = index
@@ -171,7 +180,7 @@ local function UpdateMountsCache()
 end
 
 local function Update_MountCheckButtons()
-	if(not MountJournal or not MountJournal.cachedMounts) then return end
+	if(not MountJournal or (MountJournal and not MountJournal.cachedMounts)) then return end
 	local count = #MountJournal.cachedMounts
 	if(type(count) ~= "number") then return end 
 	local scrollFrame = MountJournal.ListScrollFrame;
@@ -233,7 +242,7 @@ local CheckButton_OnClick = function(self)
 	local key = self.key
 
 	if(index) then
-		if(self:GetChecked() == 1) then
+		if(self:GetChecked() == true) then
 			SV.cache.Mounts.types[key] = index
 			SV.cache.Mounts.names[key] = name
 		else
@@ -318,7 +327,7 @@ local function SetMountCheckButtons()
 	    buttonBar["GROUND"]:SetPanelColor(0.2, 0.7, 0.1, 0.15)
 	    buttonBar["GROUND"]:GetCheckedTexture():SetVertexColor(0.2, 0.7, 0.1, 1)
 	    buttonBar["GROUND"].key = "GROUND"
-		buttonBar["GROUND"]:SetChecked(0)
+		buttonBar["GROUND"]:SetChecked(UNCHECKED)
 		buttonBar["GROUND"]:SetScript("OnClick", CheckButton_OnClick)
 		buttonBar["GROUND"]:SetScript("OnEnter", CheckButton_OnEnter)
 		buttonBar["GROUND"]:SetScript("OnLeave", CheckButton_OnLeave)
@@ -331,7 +340,7 @@ local function SetMountCheckButtons()
 	    buttonBar["FLYING"]:SetPanelColor(1, 1, 0.2, 0.15)
 	    buttonBar["FLYING"]:GetCheckedTexture():SetVertexColor(1, 1, 0.2, 1)
 	    buttonBar["FLYING"].key = "FLYING"
-		buttonBar["FLYING"]:SetChecked(0)
+		buttonBar["FLYING"]:SetChecked(UNCHECKED)
 		buttonBar["FLYING"]:SetScript("OnClick", CheckButton_OnClick)
 		buttonBar["FLYING"]:SetScript("OnEnter", CheckButton_OnEnter)
 		buttonBar["FLYING"]:SetScript("OnLeave", CheckButton_OnLeave)
@@ -344,7 +353,7 @@ local function SetMountCheckButtons()
 	    buttonBar["SWIMMING"]:SetPanelColor(0.2, 0.42, 0.76, 0.15)
 	    buttonBar["SWIMMING"]:GetCheckedTexture():SetVertexColor(0.2, 0.42, 0.76, 1)
 	    buttonBar["SWIMMING"].key = "SWIMMING"
-		buttonBar["SWIMMING"]:SetChecked(0)
+		buttonBar["SWIMMING"]:SetChecked(UNCHECKED)
 		buttonBar["SWIMMING"]:SetScript("OnClick", CheckButton_OnClick)
 		buttonBar["SWIMMING"]:SetScript("OnEnter", CheckButton_OnEnter)
 		buttonBar["SWIMMING"]:SetScript("OnLeave", CheckButton_OnLeave)
@@ -357,7 +366,7 @@ local function SetMountCheckButtons()
 	    buttonBar["SPECIAL"]:SetPanelColor(0.7, 0.1, 0.1, 0.15)
 	    buttonBar["SPECIAL"]:GetCheckedTexture():SetVertexColor(0.7, 0.1, 0.1, 1)
 	    buttonBar["SPECIAL"].key = "SPECIAL"	
-		buttonBar["SPECIAL"]:SetChecked(0)
+		buttonBar["SPECIAL"]:SetChecked(UNCHECKED)
 		buttonBar["SPECIAL"]:SetScript("OnClick", CheckButton_OnClick)
 		buttonBar["SPECIAL"]:SetScript("OnEnter", CheckButton_OnEnter)
 		buttonBar["SPECIAL"]:SetScript("OnLeave", CheckButton_OnLeave)

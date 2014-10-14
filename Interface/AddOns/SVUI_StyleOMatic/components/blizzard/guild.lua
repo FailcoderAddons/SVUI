@@ -117,9 +117,9 @@ local function GCTabHelper(tab)
 	tab.bg3:SetAllPoints(tab.Panel) 
 end 
 
-local RankOrder_OnUpdate = function()
-	for b=1,GuildControlGetNumRanks()do 
-		local frame = _G["GuildControlUIRankOrderFrameRank"..b]
+local _hook_RankOrder_OnUpdate = function()
+	for i = 1, GuildControlGetNumRanks()do 
+		local frame = _G["GuildControlUIRankOrderFrameRank"..i]
 		if frame then 
 			frame.downButton:SetButtonTemplate()
 			frame.upButton:SetButtonTemplate()
@@ -168,6 +168,87 @@ function GuildInfoEvents_SetButton(button, eventIndex)
 		button.icon:SetTexture("Interface\\LFGFrame\\LFGIcon-"..textureName)
 	end 
 end
+
+local _hook_UIRankOrder = function(self)
+	SV.Timers:ExecuteTimer(1, _hook_RankOrder_OnUpdate)
+end
+
+local _hook_GuildBankFrame_Update = function(self)
+	if GuildBankFrame.mode ~= "bank" then return end 
+	local curTab = GetCurrentGuildBankTab()
+	local numSlots = NUM_SLOTS_PER_GUILDBANK_GROUP
+	local maxSlots = MAX_GUILDBANK_SLOTS_PER_TAB
+	local button, btnName, btnID, slotID, itemLink;
+	for i = 1, maxSlots do
+		btnID = i % numSlots
+		if btnID == 0 then
+			btnID = numSlots 
+		end
+		slotID = ceil((i - 0.5) / numSlots)
+		btnName = ("GuildBankColumn%dButton%d"):format(slotID, btnID)
+		button = _G[btnName]
+		if(button) then
+			itemLink = GetGuildBankItemLink(curTab, i)
+			local r, g, b, a = 0,0,0,1
+			if(itemLink) then
+				local quality = select(3, GetItemInfo(itemLink))
+				if(quality > 1) then
+					r, g, b = GetItemQualityColor(quality)
+				end
+			end 
+			button:SetBackdropBorderColor(r, g, b, a)
+		end
+	end 
+end
+
+local _hook_BankTabPermissions = function(self)
+	local tab, tabs, baseName, ownedName, purchase, view, stack, deposit, update
+
+	tabs = GetNumGuildBankTabs()
+
+	if tabs < MAX_BUY_GUILDBANK_TABS then 
+		tabs = tabs + 1 
+	end
+
+	for i = 1, tabs do 
+		baseName = ("GuildControlBankTab%d"):format(i)
+		ownedName = ("%sOwned"):format(baseName)
+		tab = _G[ownedName]
+		
+		if(tab) then
+			if(tab.tabIcon) then tab.tabIcon:SetTexCoord(0.1, 0.9, 0.1, 0.9) end
+			if(tab.editBox) then tab.editBox:SetEditboxTemplate() end
+
+			if internalTest == false then
+				purchase =  _G[baseName.."BuyPurchaseButton"]
+				if(purchase) then
+					purchase:SetButtonTemplate()
+				end
+				view =  _G[ownedName.."ViewCheck"]
+				if(view) then
+					view:SetCheckboxTemplate(true)
+					GCTabHelper(view)
+				end
+				stack =  _G[ownedName.."StackBox"]
+				if(stack) then
+					stack:SetEditboxTemplate()
+					GCTabHelper(stack)
+				end
+				deposit =  _G[ownedName.."DepositCheck"]
+				if(deposit) then
+					deposit:SetCheckboxTemplate(true)
+					GCTabHelper(deposit)
+				end
+				update =  _G[ownedName.."UpdateInfoCheck"]
+				if(update) then
+					update:SetCheckboxTemplate(true)
+					GCTabHelper(update)
+				end
+			end
+		end
+	end 
+	internalTest = true 
+end
 --[[ 
 ########################################################## 
 GUILDFRAME STYLERS
@@ -184,10 +265,10 @@ local function GuildBankStyle()
 	GuildBankMoneyFrameBackground:Die()
 	STYLE:ApplyScrollFrameStyle(GuildBankPopupScrollFrameScrollBar)
 
-	for b = 1, GuildBankFrame:GetNumChildren() do 
-		local c = select(b, GuildBankFrame:GetChildren())
-		if c.GetPushedTexture and c:GetPushedTexture() and not c:GetName() then
-			STYLE:ApplyCloseButtonStyle(c)
+	for i = 1, GuildBankFrame:GetNumChildren() do 
+		local child = select(i, GuildBankFrame:GetChildren())
+		if(child and child.GetPushedTexture and child:GetPushedTexture() and not child:GetName()) then
+			STYLE:ApplyCloseButtonStyle(child)
 		end 
 	end
 
@@ -201,68 +282,62 @@ local function GuildBankStyle()
 	GuildBankInfoScrollFrame:Width(GuildBankInfoScrollFrame:GetWidth()-8)
 	GuildBankTransactionsScrollFrame:RemoveTextures()
 	
-	for b = 1, NUM_GUILDBANK_COLUMNS do
-		if(_G["GuildBankColumn"..b]) then
-			_G["GuildBankColumn"..b]:RemoveTextures()
+	for i = 1, NUM_GUILDBANK_COLUMNS do
+		local frame = _G["GuildBankColumn"..i]
+		if(frame) then
+			frame:RemoveTextures()
+			local baseName = ("GuildBankColumn%dButton"):format(i)
+			for slotID = 1, NUM_SLOTS_PER_GUILDBANK_GROUP do 
+				local btnName = ("%s%d"):format(baseName, slotID)
+				local button = _G[btnName]
+				if(button) then
+					local texture = _G[btnName.."NormalTexture"]
+					if texture then
+						texture:SetTexture(0,0,0,0)
+					end
 
-			for d = 1, NUM_SLOTS_PER_GUILDBANK_GROUP do 
-				local e = _G["GuildBankColumn"..b.."Button"..d]
-				local icon = _G["GuildBankColumn"..b.."Button"..d.."IconTexture"]
-				local texture = _G["GuildBankColumn"..b.."Button"..d.."NormalTexture"]
-				if texture then
-					texture:SetTexture(0,0,0,0)
-				end 
-				e:SetSlotTemplate()
-				icon:FillInner()
-				icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+					button:SetSlotTemplate()
+
+					local icon = _G[btnName.."IconTexture"]
+					if(icon) then
+						icon:FillInner()
+						icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+					end
+				end
 			end
 		end
 	end 
 
-	for b = 1, 8 do 
-		local e = _G["GuildBankTab"..b.."Button"]
-		if(e) then
-			local texture = _G["GuildBankTab"..b.."ButtonIconTexture"]
-			_G["GuildBankTab"..b]:RemoveTextures(true)
-			e:RemoveTextures()
-			e:SetButtonTemplate()
-			e:SetFixedPanelTemplate("Default")
-			texture:FillInner()
-			texture:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+	for i = 1, 8 do
+		local baseName = ("GuildBankTab%d"):format(i)
+		local tab = _G[baseName]
+		if(tab) then
+			local btnName = ("%sButton"):format(baseName)
+			local button = _G[baseName]
+			if(button) then
+				tab:RemoveTextures(true)
+				button:RemoveTextures()
+				button:SetButtonTemplate()
+				button:SetFixedPanelTemplate("Default")
+
+				local texture = _G[btnName.."IconTexture"]
+				if(texture) then
+					texture:FillInner()
+					texture:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+				end
+			end
 		end
 	end 
 
-	for b = 1, 4 do
-		STYLE:ApplyTabStyle(_G["GuildBankFrameTab"..b])
+	for i = 1, 4 do
+		local baseName = ("GuildBankFrameTab%d"):format(i)
+		local frame = _G[baseName]
+		if(frame) then
+			STYLE:ApplyTabStyle(_G[baseName])
+		end
 	end 
 
-	hooksecurefunc('GuildBankFrame_Update', function()
-		if GuildBankFrame.mode ~= "bank" then
-			return 
-		end 
-		local f = GetCurrentGuildBankTab()
-		local e, g, h, i, j, k, l, m;
-		for b = 1, MAX_GUILDBANK_SLOTS_PER_TAB do
-			g = modf(b, NUM_SLOTS_PER_GUILDBANK_GROUP)
-			if g == 0 then
-				g = NUM_SLOTS_PER_GUILDBANK_GROUP 
-			end 
-			h = ceil((b-0.5)/NUM_SLOTS_PER_GUILDBANK_GROUP)
-			e = _G["GuildBankColumn"..h.."Button"..g]
-			i = GetGuildBankItemLink(f, b)
-			if i then
-				j = select(3, GetItemInfo(i))
-				if j > 1 then
-					k, l, m = GetItemQualityColor(j)
-				else
-					k, l, m = 0,0,0,1
-				end 
-			else
-				k, l, m = 0,0,0,1
-			end 
-			e:SetBackdropBorderColor(k, l, m)
-		end 
-	end)
+	hooksecurefunc('GuildBankFrame_Update', _hook_GuildBankFrame_Update)
 
 	GuildBankPopupFrame:RemoveTextures()
 	GuildBankPopupScrollFrame:RemoveTextures()
@@ -279,15 +354,19 @@ local function GuildBankStyle()
 	GuildItemSearchBox.Panel:Point("TOPLEFT", 10, -1)
 	GuildItemSearchBox.Panel:Point("BOTTOMRIGHT", 4, 1)
 
-	for b = 1, 16 do 
-		local e = _G["GuildBankPopupButton"..b]
-		if(e) then
-			local icon = _G[e:GetName().."Icon"]
-			e:RemoveTextures()
-			e:SetFixedPanelTemplate("Default")
-			e:SetButtonTemplate()
-			icon:FillInner()
-			icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+	for i = 1, 16 do
+		local btnName = ("GuildBankPopupButton%d"):format(i)
+		local button = _G[btnName]
+		if(button) then
+			button:RemoveTextures()
+			button:SetFixedPanelTemplate("Default")
+			button:SetButtonTemplate()
+
+			local icon = _G[btnName.."Icon"]
+			if(icon) then
+				icon:FillInner()
+				icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+			end
 		end
 	end 
 
@@ -553,11 +632,8 @@ local function GuildControlStyle()
 
 	STYLE:ApplyScrollFrameStyle(GuildControlUIRankBankFrameInsetScrollFrameScrollBar)
 
-	hooksecurefunc("GuildControlUI_RankOrder_Update",RankOrder_OnUpdate)
-
-	GuildControlUIRankOrderFrameNewButton:HookScript("OnClick", function()
-		SV.Timers:ExecuteTimer(1,RankOrder_OnUpdate)
-	end)
+	hooksecurefunc("GuildControlUI_RankOrder_Update", _hook_RankOrder_OnUpdate)
+	GuildControlUIRankOrderFrameNewButton:HookScript("OnClick", _hook_UIRankOrder)
 
 	STYLE:ApplyDropdownStyle(GuildControlUINavigationDropDown)
 	STYLE:ApplyDropdownStyle(GuildControlUIRankSettingsFrameRankDropDown,180)
@@ -576,36 +652,7 @@ local function GuildControlStyle()
 	GuildControlUIRankSettingsFrameGoldBox:RemoveTextures()
 	GuildControlUIRankBankFrame:RemoveTextures()
 
-	hooksecurefunc("GuildControlUI_BankTabPermissions_Update",function()
-		local tabs = GetNumGuildBankTabs()
-
-		if tabs < MAX_BUY_GUILDBANK_TABS then 
-			tabs = tabs + 1 
-		end
-
-		for i=1, tabs do 
-			local tab = _G["GuildControlBankTab"..i.."Owned"]
-
-			if(tab) then
-				if(tab.tabIcon) then tab.tabIcon:SetTexCoord(0.1, 0.9, 0.1, 0.9) end
-				if(tab.editBox) then tab.editBox:SetEditboxTemplate() end
-
-				if internalTest == false then 
-					_G["GuildControlBankTab"..i.."BuyPurchaseButton"]:SetButtonTemplate()
-					_G["GuildControlBankTab"..i.."OwnedStackBox"]:SetEditboxTemplate()
-					_G["GuildControlBankTab"..i.."OwnedViewCheck"]:SetCheckboxTemplate(true)
-					_G["GuildControlBankTab"..i.."OwnedDepositCheck"]:SetCheckboxTemplate(true)
-					_G["GuildControlBankTab"..i.."OwnedUpdateInfoCheck"]:SetCheckboxTemplate(true)
-
-					GCTabHelper(_G["GuildControlBankTab"..i.."OwnedStackBox"])
-					GCTabHelper(_G["GuildControlBankTab"..i.."OwnedViewCheck"])
-					GCTabHelper(_G["GuildControlBankTab"..i.."OwnedDepositCheck"])
-					GCTabHelper(_G["GuildControlBankTab"..i.."OwnedUpdateInfoCheck"])
-				end
-			end
-		end 
-		internalTest = true 
-	end)
+	hooksecurefunc("GuildControlUI_BankTabPermissions_Update", _hook_BankTabPermissions)
 
 	STYLE:ApplyDropdownStyle(GuildControlUIRankBankFrameRankDropDown, 180)
 

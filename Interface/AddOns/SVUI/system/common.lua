@@ -71,11 +71,7 @@ end
 UI SCALING
 ##########################################################
 ]]--
--- function SV:ScreenCalibration(event)
---     return
--- end
-
-function SV:ScreenCalibration(event)
+function SV:UI_SCALE_CHANGED(event)
     local scale, evalwidth
     local gxWidth, gxHeight, gxMod = GetUsableScreen()
 
@@ -172,7 +168,7 @@ end
 
 local function scaled(value)
     if(not SCREEN_MOD) then
-        SV:ScreenCalibration()
+        SV:UI_SCALE_CHANGED()
     end
     return SCREEN_MOD * floor(value / SCREEN_MOD + .5);
 end
@@ -346,426 +342,29 @@ end
 SV:NewCallback(FontTemplateUpdates)
 --[[ 
 ########################################################## 
-APPENDED TEMPLATING METHODS
+XML TEMPLATE LOOKUP TABLE
 ##########################################################
 ]]--
 local _templates = {
-    ["Default"] = {
-        backdrop = {
-            bgFile = [[Interface\BUTTONS\WHITE8X8]], 
-            edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
-            tile = false, 
-            tileSize = 0, 
-            edgeSize = 1, 
-            insets = 
-            {
-                left = 0, 
-                right = 0, 
-                top = 0, 
-                bottom = 0, 
-            },
-        }, 
-        color = "default",
-        gradient = "default", 
-        texture = [[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]], 
-        texupdate = false,
-        padding = 1, 
-        shadow = false, 
-        noupdate = false,
-    },
-    ["Transparent"] = {
-        backdrop = {
-            bgFile = [[Interface\BUTTONS\WHITE8X8]], 
-            edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
-            tile = false, 
-            tileSize = 0, 
-            edgeSize = 1, 
-            insets = 
-            {
-                left = 0, 
-                right = 0, 
-                top = 0, 
-                bottom = 0, 
-            }, 
-        },
-        color = "transparent",
-        gradient = false, 
-        texture = false, 
-        texupdate = false,
-        padding = 1, 
-        shadow = false, 
-        noupdate = true, 
-    },
-    ["Component"] = {
-        backdrop = {
-            bgFile = [[Interface\BUTTONS\WHITE8X8]], 
-            edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
-            tile = false, 
-            tileSize = 0, 
-            edgeSize = 2, 
-            insets = 
-            {
-                left = 0, 
-                right = 0, 
-                top = 0, 
-                bottom = 0, 
-            },
-        }, 
-        color = "default",
-        gradient = "default", 
-        texture = [[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]], 
-        texupdate = false,
-        padding = 1, 
-        shadow = true, 
-        noupdate = false, 
-    },   
-    ["Button"] = {
-        backdrop = {
-            bgFile = [[Interface\AddOns\SVUI\assets\artwork\Template\BUTTON]], 
-            edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
-            tile = false, 
-            tileSize = 0, 
-            edgeSize = 1, 
-            insets = 
-            {
-                left = 1, 
-                right = 1, 
-                top = 1, 
-                bottom = 1, 
-            }, 
-        },
-        color = "default",
-        gradient = false, 
-        texture = false, 
-        texupdate = false,
-        padding = 1, 
-        shadow = true, 
-        noupdate = false, 
-    },
-    ["FramedTop"] = {
-        backdrop = {
-            bgFile = [[Interface\BUTTONS\WHITE8X8]], 
-            edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
-            tile = false, 
-            tileSize = 0, 
-            edgeSize = 1, 
-            insets = 
-            {
-                left = 0, 
-                right = 0, 
-                top = 0, 
-                bottom = 0, 
-            },
-        }, 
-        color = "default",
-        gradient = "darkest2", 
-        texture = [[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT2]], 
-        texupdate = true,
-        padding = 1, 
-        shadow = false, 
-        noupdate = false,
-    },
-    ["FramedBottom"] = {
-        backdrop = {
-            bgFile = [[Interface\BUTTONS\WHITE8X8]], 
-            edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
-            tile = false, 
-            tileSize = 0, 
-            edgeSize = 1, 
-            insets = 
-            {
-                left = 0, 
-                right = 0, 
-                top = 0, 
-                bottom = 0, 
-            },
-        }, 
-        color = "default",
-        gradient = "darkest", 
-        texture = [[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]], 
-        texupdate = true,
-        padding = 1, 
-        shadow = false, 
-        noupdate = false,
-    },
-    ["Bar"] = {
-        backdrop = {
-            bgFile = [[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]], 
-            edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
-            tile = false, 
-            tileSize = 0, 
-            edgeSize = 1, 
-            insets = 
-            {
-                left = 0, 
-                right = 0, 
-                top = 0, 
-                bottom = 0, 
-            }, 
-        }, 
-        color = "transparent",
-        gradient = false, 
-        texture = false, 
-        texupdate = false,
-        padding = 1, 
-        shadow = false, 
-        noupdate = true, 
-    },
-    ["Slot"] = {
-        backdrop = {
-            bgFile = [[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]], 
-            edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
-            tile = false, 
-            tileSize = 0, 
-            edgeSize = 1, 
-            insets = 
-            {
-                left = 1, 
-                right = 1, 
-                top = 1, 
-                bottom = 1, 
-            }, 
-        }, 
-        color = "transparent",
-        gradient = false, 
-        texture = false, 
-        texupdate = false,
-        padding = 2, 
-        shadow = true, 
-        noupdate = true, 
-    },
-    ["Inset"] = {
-        backdrop = {
-            bgFile = [[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]], 
-            edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
-            tile = false, 
-            tileSize = 0, 
-            edgeSize = 2, 
-            insets = 
-            {
-                left = 0, 
-                right = 0, 
-                top = 0, 
-                bottom = 0, 
-            }, 
-        }, 
-        color = "transparent",
-        gradient = false, 
-        texture = false, 
-        texupdate = false,
-        padding = 2, 
-        shadow = false, 
-        noupdate = true, 
-    },
-    ["Comic"] = {
-        backdrop = {
-            bgFile = [[Interface\AddOns\SVUI\assets\artwork\Template\Background\COMIC1]], 
-            edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
-            tile = false, 
-            tileSize = 0, 
-            edgeSize = 2, 
-            insets = 
-            {
-                left = 1, 
-                right = 1, 
-                top = 1, 
-                bottom = 1, 
-            },  
-        }, 
-        color = "class",
-        gradient = "class", 
-        texture = [[Interface\AddOns\SVUI\assets\artwork\Template\Background\COMIC1]], 
-        texupdate = true,
-        padding = 2, 
-        shadow = false, 
-        noupdate = false, 
-    },
-    ["ModelComic"] = {
-        backdrop = {
-            bgFile = [[Interface\AddOns\SVUI\assets\artwork\Template\Background\COMIC-MODEL]], 
-            edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
-            tile = false, 
-            tileSize = 0, 
-            edgeSize = 3, 
-            insets = 
-            {
-                left = 0, 
-                right = 0, 
-                top = 0, 
-                bottom = 0, 
-            },  
-        }, 
-        color = "special",
-        gradient = "class", 
-        texture = [[Interface\AddOns\SVUI\assets\artwork\Template\Background\COMIC-MODEL]], 
-        texupdate = false,
-        padding = 3,
-        shadow = false, 
-        noupdate = true, 
-    },
-    ["Paper"] = {
-        backdrop = {
-            bgFile = [[Interface\AddOns\SVUI\assets\artwork\Template\Background\PAPER]], 
-            edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
-            tile = false, 
-            tileSize = 0, 
-            edgeSize = 2, 
-            insets = 
-            {
-                left = 1, 
-                right = 1, 
-                top = 1, 
-                bottom = 1, 
-            },  
-        }, 
-        color = "white",
-        gradient = "white", 
-        texture = [[Interface\AddOns\SVUI\assets\artwork\Template\Background\PAPER]], 
-        texupdate = false,
-        padding = 2, 
-        shadow = false, 
-        noupdate = true, 
-    },
-    ["Container"] = {
-        backdrop = {
-            bgFile = [[Interface\AddOns\SVUI\assets\artwork\Template\Background\PATTERN3]], 
-            edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
-            tile = false, 
-            tileSize = 0, 
-            edgeSize = 2, 
-            insets = 
-            {
-                left = 1, 
-                right = 1, 
-                top = 1, 
-                bottom = 1, 
-            },  
-        }, 
-        color = "special",
-        gradient = "special", 
-        texture = [[Interface\AddOns\SVUI\assets\artwork\Template\Background\PATTERN3]], 
-        texupdate = true,
-        padding = 2, 
-        shadow = true, 
-        noupdate = false, 
-    },
-    ["Pattern"] = {
-        backdrop = {
-            bgFile = [[Interface\AddOns\SVUI\assets\artwork\Template\Background\PATTERN1]], 
-            edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
-            tile = false, 
-            tileSize = 0, 
-            edgeSize = 2, 
-            insets = 
-            {
-                left = 1, 
-                right = 1, 
-                top = 1, 
-                bottom = 1, 
-            }, 
-        }, 
-        color = "special",
-        gradient = "special", 
-        texture = [[Interface\AddOns\SVUI\assets\artwork\Template\Background\PATTERN1]], 
-        texupdate = true,
-        padding = 2, 
-        shadow = true, 
-        noupdate = false, 
-    }, 
-    ["Halftone"] = {
-        backdrop = {
-            bgFile = [[Interface\BUTTONS\WHITE8X8]], 
-            edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
-            tile = false, 
-            tileSize = 0, 
-            edgeSize = 2, 
-            insets = 
-            {
-                left = 1, 
-                right = 1, 
-                top = 1, 
-                bottom = 1, 
-            }, 
-        }, 
-        color = "default",
-        gradient = "special", 
-        texture = [[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]], 
-        texupdate = true,
-        padding = 2, 
-        shadow = true, 
-        noupdate = false, 
-        extended = [[HALFTONE]], 
-    }, 
-    ["Action"] = {
-        backdrop = {
-            bgFile = [[Interface\BUTTONS\WHITE8X8]], 
-            edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
-            tile = false, 
-            tileSize = 0, 
-            edgeSize = 2, 
-            insets = 
-            {
-                left = 1, 
-                right = 1, 
-                top = 1, 
-                bottom = 1, 
-            },  
-        }, 
-        color = "default",
-        gradient = "special", 
-        texture = [[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]], 
-        texupdate = true,
-        padding = 2, 
-        shadow = true, 
-        noupdate = false, 
-        extended = [[ACTION]], 
-    },
-    ["Blackout"] = {
-        backdrop = {
-            bgFile = [[Interface\BUTTONS\WHITE8X8]], 
-            edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
-            tile = false, 
-            tileSize = 0, 
-            edgeSize = 2, 
-            insets = 
-            {
-                left = 1, 
-                right = 1, 
-                top = 1, 
-                bottom = 1, 
-            },  
-        }, 
-        color = "transparent",
-        gradient = false, 
-        texture = [[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]], 
-        texupdate = false,
-        padding = 2,
-        forcedOffset = 2, 
-        shadow = true, 
-        noupdate = true, 
-    }, 
-    ["UnitLarge"] = {
-        backdrop = false, 
-        color = "special",
-        gradient = false, 
-        texture = [[Interface\AddOns\SVUI\assets\artwork\Unitframe\Background\UNIT-BG1]], 
-        texupdate = true,
-        padding = 0,
-        forcedOffset = 0,
-        shadow = false, 
-        noupdate = false, 
-    }, 
-    ["UnitSmall"] = {
-        backdrop = false, 
-        color = "special",
-        gradient = false, 
-        texture = [[Interface\AddOns\SVUI\assets\artwork\Unitframe\Background\UNIT-SMALL-BG1]], 
-        texupdate = true,
-        padding = 0,
-        forcedOffset = 0,
-        shadow = false, 
-        noupdate = false, 
-    } 
+    ["Default"] = "SVUI_PanelTemplate_Default",
+    ["Transparent"] = "SVUI_PanelTemplate_Transparent",
+    ["Component"] = "SVUI_PanelTemplate_Component",  
+    ["Button"] = "SVUI_PanelTemplate_Button",
+    ["FramedTop"] = "SVUI_PanelTemplate_FramedTop",
+    ["FramedBottom"] = "SVUI_PanelTemplate_FramedBottom",
+    ["Bar"] = "SVUI_PanelTemplate_Bar",
+    ["Slot"] = "SVUI_PanelTemplate_Slot",
+    ["Inset"] = "SVUI_PanelTemplate_Inset",
+    ["Comic"] = "SVUI_PanelTemplate_Comic",
+    ["ModelComic"] = "SVUI_PanelTemplate_ModelComic",
+    ["Paper"] = "SVUI_PanelTemplate_Paper",
+    ["Container"] = "SVUI_PanelTemplate_Container",
+    ["Pattern"] = "SVUI_PanelTemplate_Pattern",
+    ["Halftone"] = "SVUI_PanelTemplate_Halftone",
+    ["Action"] = "SVUI_PanelTemplate_Action",
+    ["Blackout"] = "SVUI_PanelTemplate_Blackout",
+    ["UnitLarge"] = "SVUI_PanelTemplate_UnitLarge", 
+    ["UnitSmall"] = "SVUI_PanelTemplate_UnitSmall" 
 };
 --[[ 
 ########################################################## 
@@ -773,14 +372,15 @@ INTERNAL HANDLERS
 ##########################################################
 ]]--
 local HookPanelBorderColor = function(self,r,g,b,a)
-    if self[1]then 
-        self[1]:SetTexture(r,g,b,a)
-        self[2]:SetTexture(r,g,b,a)
-        self[3]:SetTexture(r,g,b,a)
-        self[4]:SetTexture(r,g,b,a)
-        if self[5]then 
-            self[5]:SetBackdropBorderColor(r,g,b,0.7)
-        end 
+    if self.BorderLeft then 
+        self.BorderLeft:SetVertexColor(r,g,b,a)
+        self.BorderRight:SetVertexColor(r,g,b,a)
+        self.BorderTop:SetVertexColor(r,g,b,a)
+        self.BorderBottom:SetVertexColor(r,g,b,a) 
+    end
+    if self.Shadow then
+        local alpha = self.Shadow:GetAttribute("shadowAlpha") or 0.5
+        self.Shadow:SetBackdropBorderColor(r,g,b,alpha)
     end 
 end 
 
@@ -797,7 +397,7 @@ local HookBackdropBorderColor = function(self,...)
 end 
 
 local HookVertexColor = function(self,...) 
-    self._skin:SetVertexColor(...) 
+    self.Panel.Skin:SetVertexColor(...) 
 end 
 
 local HookCustomBackdrop = function(self)
@@ -832,58 +432,14 @@ TEMPLATE HELPERS
 local function CreatePanelTemplate(frame, templateName, underlay, noupdate, padding, xOffset, yOffset, defaultColor)
     if(not templateName or not _templates[templateName]) then templateName = frame._template or 'Default' end
 
-    local settings = _templates[templateName]
-    local colorName = defaultColor or settings.color or "default"
-    local gradientName = settings.gradient
-    local texFile = settings.texture
-    local hasShadow = settings.shadow
-    local bd = settings.backdrop
-    local bypass = noupdate or settings.noupdate
-    local bgColor = SV.Media.color[colorName] or {0.18,0.18,0.18,1}
+    local xmlTemplate = _templates[templateName]
     local borderColor = {0,0,0,1}
-    local initLevel = 0;
     local needsHooks = false;
-
-    padding = padding or settings.padding or 1
-
-    xOffset = settings.forcedOffset or xOffset or 1
-    yOffset = settings.forcedOffset or yOffset or 1
-
-    frame._template = templateName;
-    frame._color = colorName;
-    frame._gradient = gradientName;
-    frame._texture = false;
-    frame._noupdate = bypass;
 
     if(not frame.Panel) then
         needsHooks = true
 
-        local panel = NewFrame('Frame', nil, frame)
-        panel:SetPoint('TOPLEFT', frame, 'TOPLEFT', (xOffset * -1), yOffset)
-        panel:SetPoint('BOTTOMRIGHT', frame, 'BOTTOMRIGHT', xOffset, yOffset * -1)
-
-        if(padding > 0) then 
-            panel[1] = panel:CreateTexture(nil,"BORDER")
-            panel[1]:SetTexture(0,0,0)
-            panel[1]:SetPoint("TOPLEFT")
-            panel[1]:SetPoint("BOTTOMLEFT")
-            panel[1]:SetWidth(padding)
-            panel[2] = panel:CreateTexture(nil,"BORDER")
-            panel[2]:SetTexture(0,0,0)
-            panel[2]:SetPoint("TOPRIGHT")
-            panel[2]:SetPoint("BOTTOMRIGHT")
-            panel[2]:SetWidth(padding)
-            panel[3] = panel:CreateTexture(nil,"BORDER")
-            panel[3]:SetTexture(0,0,0)
-            panel[3]:SetPoint("TOPLEFT")
-            panel[3]:SetPoint("TOPRIGHT")
-            panel[3]:SetHeight(padding)
-            panel[4] = panel:CreateTexture(nil,"BORDER")
-            panel[4]:SetTexture(0,0,0)
-            panel[4]:SetPoint("BOTTOMLEFT")
-            panel[4]:SetPoint("BOTTOMRIGHT")
-            panel[4]:SetHeight(padding)
-        end
+        local panel = NewFrame('Frame', nil, frame, xmlTemplate)
 
         local level = frame:GetFrameLevel()
         if(level == 0 and not InCombatLockdown()) then
@@ -899,54 +455,62 @@ local function CreatePanelTemplate(frame, templateName, underlay, noupdate, padd
         NewHook(frame, "SetFrameLevel", HookFrameLevel)
 
         frame.Panel = panel
-    end 
+    end
 
-    if(hasShadow) then
-        if(not frame.Panel[5]) then
-            if(underlay) then
-                frame.Panel[5] = NewFrame('Frame', nil, frame.Panel)
-                frame.Panel[5]:SetPoint('TOPLEFT', frame.Panel, 'TOPLEFT', -3, 3)
-                frame.Panel[5]:SetPoint('BOTTOMRIGHT', frame.Panel, 'BOTTOMRIGHT', 3, -3)
-            else
-                frame.Panel[5] = NewFrame('Frame', nil, frame)
-                frame.Panel[5]:SetPoint('TOPLEFT', frame, 'TOPLEFT', -3, 3)
-                frame.Panel[5]:SetPoint('BOTTOMRIGHT', frame, 'BOTTOMRIGHT', 3, -3)
-            end
-        end
+    local colorName = defaultColor or frame.Panel:GetAttribute("panelColor") or "default"
+    local gradientName = frame.Panel:GetAttribute("panelGradient")
+    local bypass = noupdate or frame.Panel:GetAttribute("panelSkipUpdate")
 
-        frame.Panel[5]:SetBackdrop({
-            edgeFile = [[Interface\AddOns\SVUI\assets\artwork\Template\GLOW]],
-            edgeSize = 3,
-            insets = {
-                left = 0,
-                right = 0,
-                top = 0,
-                bottom = 0
-            }
-        });
+    frame._template = templateName;
+    frame._color = colorName;
+    frame._gradient = gradientName;
+    frame._texture = false;
+    frame._noupdate = bypass;
 
-        frame.Panel[5]:SetBackdropBorderColor(0,0,0,0.5)
+    local forcedOffset = frame.Panel:GetAttribute("panelOffset")
 
-        local level = frame.Panel[5]:GetFrameLevel() - 1
+    xOffset = forcedOffset or xOffset or 1
+    yOffset = forcedOffset or yOffset or 1
 
+    frame.Panel:WrapOuter(frame, xOffset, yOffset)
+
+    padding = padding or frame.Panel:GetAttribute("panelPadding")
+    
+    if(padding and frame.Panel.BorderLeft) then 
+        frame.Panel.BorderLeft:SetWidth(padding)
+        frame.Panel.BorderRight:SetWidth(padding)
+        frame.Panel.BorderTop:SetHeight(padding)
+        frame.Panel.BorderBottom:SetHeight(padding)
+    end
+
+    if(frame.Panel.Shadow) then
+        frame.Panel.Shadow:SetPoint('TOPLEFT', frame.Panel, 'TOPLEFT', -3, 3)
+        frame.Panel.Shadow:SetPoint('BOTTOMRIGHT', frame.Panel, 'BOTTOMRIGHT', 3, -3)
+
+        local alpha = frame.Panel.Shadow:GetAttribute("shadowAlpha") or 0.5
+        frame.Panel.Shadow:SetBackdropBorderColor(0,0,0,alpha)
+
+        local level = frame.Panel.Shadow:GetFrameLevel() - 1
         if(level >= 0) then 
-            frame.Panel[5]:SetFrameLevel(level)
+            frame.Panel.Shadow:SetFrameLevel(level)
         else 
-            frame.Panel[5]:SetFrameLevel(0)
+            frame.Panel.Shadow:SetFrameLevel(0)
         end
     end
 
+    local bgColor = SV.Media.color[colorName] or {0.18,0.18,0.18,1}
 
-    if(bd) then
-        initLevel = 1;
+    if(not frame.Panel:GetAttribute("panelNoBackdrop")) then
         if(underlay) then
-            frame.Panel:SetBackdrop(bd)
             frame.Panel:SetBackdropColor(bgColor[1],bgColor[2],bgColor[3],bgColor[4] or 1)
             frame.Panel:SetBackdropBorderColor(0,0,0,1)
         else
+            local bd = frame.Panel:GetBackdrop()
             frame:SetBackdrop(bd)
             frame:SetBackdropColor(bgColor[1],bgColor[2],bgColor[3],bgColor[4] or 1)
             frame:SetBackdropBorderColor(0,0,0,1)
+
+            frame.Panel:SetBackdrop(nil)
         end
 
         if(needsHooks and templateName ~= 'Transparent') then
@@ -964,28 +528,20 @@ local function CreatePanelTemplate(frame, templateName, underlay, noupdate, padd
         end
     end
 
-    if(texFile) then
-        if(not frame._skin) then
-            if(underlay) then
-                frame._skin = frame.Panel:CreateTexture(nil,"BACKGROUND",nil,initLevel)
-                frame._skin:SetAllPoints(frame.Panel)
-            else
-                frame._skin = frame:CreateTexture(nil,"BACKGROUND",nil,initLevel)
-                frame._skin:SetAllPoints(frame)
-            end
+    if(frame.Panel.Skin) then
+        if(not underlay) then
+            frame.Panel.Skin:SetParent(frame)
+            frame.Panel.Skin:FillInner(frame, xOffset, yOffset)
+        else
+            frame.Panel.Skin:FillInner(frame.Panel, xOffset, yOffset)
         end
-        
-        frame._skin:SetTexture(texFile)
-
         if(gradientName and SV.Media.gradient[gradientName]) then
-            frame._skin:SetGradient(unpack(SV.Media.gradient[gradientName]))
+            frame.Panel.Skin:SetGradient(unpack(SV.Media.gradient[gradientName]))
         else 
-            frame._skin:SetVertexColor(bgColor[1], bgColor[2], bgColor[3], bgColor[4] or 1)
+            frame.Panel.Skin:SetVertexColor(bgColor[1], bgColor[2], bgColor[3], bgColor[4] or 1)
         end
 
-        frame._skin:SetNonBlocking(true)
-
-        if((not bypass) and settings.texupdate) then
+        if((not bypass) and frame.Panel:GetAttribute("panelTexUpdate")) then
             frame._texture = lower(templateName)
             frame.TextureNeedsUpdate = true
             if(templateName == 'UnitLarge' or templateName == 'UnitSmall') then
@@ -993,56 +549,6 @@ local function CreatePanelTemplate(frame, templateName, underlay, noupdate, padd
                 frame.NoColorUpdate = true
             end
         end
-
-        initLevel = 2;
-    end
-
-    if(settings.extended) then
-        if(not underlay) then
-            initLevel = 0
-        end
-
-        local name = settings.extended
-
-        if(not frame._extended) then
-            frame._extended = {}
-
-            frame._extended[1] = frame.Panel:CreateTexture(nil, "BACKGROUND", nil, initLevel)
-            frame._extended[1]:SetPoint("TOPLEFT", frame.Panel, "TOPLEFT", 0, 0)
-            frame._extended[1]:SetPoint("TOPRIGHT", frame.Panel, "TOP", 0, 0)
-            frame._extended[1]:SetPoint("BOTTOMLEFT", frame.Panel, "LEFT", 0, 0)
-
-            frame._extended[2] = frame.Panel:CreateTexture(nil, "BACKGROUND", nil, initLevel)
-            frame._extended[2]:SetPoint("TOPRIGHT", frame.Panel, "TOPRIGHT", 0, 0)
-            frame._extended[2]:SetPoint("TOPLEFT", frame.Panel, "TOP", 0, 0)
-            frame._extended[2]:SetPoint("BOTTOMRIGHT", frame.Panel, "RIGHT", 0, 0)
-
-            frame._extended[3] = frame.Panel:CreateTexture(nil, "BACKGROUND", nil, initLevel)
-            frame._extended[3]:SetPoint("BOTTOMRIGHT", frame.Panel, "BOTTOMRIGHT", 0, 0)
-            frame._extended[3]:SetPoint("BOTTOMLEFT", frame.Panel, "BOTTOM", 0, 0)
-            frame._extended[3]:SetPoint("TOPRIGHT", frame.Panel, "RIGHT", 0, 0)
-
-            frame._extended[4] = frame.Panel:CreateTexture(nil, "BACKGROUND", nil, initLevel)
-            frame._extended[4]:SetPoint("BOTTOMLEFT", frame.Panel, "BOTTOMLEFT", 0, 0)
-            frame._extended[4]:SetPoint("BOTTOMRIGHT", frame.Panel, "BOTTOM", 0, 0)
-            frame._extended[4]:SetPoint("TOPLEFT", frame.Panel, "LEFT", 0, 0)
-        end  
-
-        frame._extended[1]:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Template\Extended\]] .. name .. [[_TOPLEFT]])
-        frame._extended[1]:SetVertexColor(0.05, 0.05, 0.05, 0.5)
-        frame._extended[1]:SetNonBlocking(true)
-
-        frame._extended[2]:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Template\Extended\]] .. name .. [[_TOPRIGHT]])
-        frame._extended[2]:SetVertexColor(0.05, 0.05, 0.05, 0.5)
-        frame._extended[2]:SetNonBlocking(true)
-
-        frame._extended[3]:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Template\Extended\]] .. name .. [[_BOTTOMRIGHT]])
-        frame._extended[3]:SetVertexColor(0.1, 0.1, 0.1, 0.5)
-        frame._extended[3]:SetNonBlocking(true)
-
-        frame._extended[4]:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Template\Extended\]] .. name .. [[_BOTTOMLEFT]])
-        frame._extended[4]:SetVertexColor(0.1, 0.1, 0.1, 0.5)
-        frame._extended[4]:SetNonBlocking(true)
     end
 end 
 
@@ -1232,20 +738,20 @@ end
 local function SetPanelColor(self, ...)
     local arg1,arg2,arg3,arg4,arg5,arg6,arg7 = select(1, ...)
     if(not self.Panel or not arg1) then return; end 
-    if(self._skin and self._gradient) then
+    if(self.Panel.Skin and self._gradient) then
         if(type(arg1) == "string") then
             if(arg1 == "VERTICAL" or arg1 == "HORIZONTAL") then
-                self._skin:SetGradient(...)
+                self.Panel.Skin:SetGradient(...)
             elseif(SV.Media.gradient[arg1]) then
                 if self.__border then
                     local d,r,g,b,r2,g2,b2 = unpack(SV.Media.gradient[arg1])
-                    --self._skin:SetGradient(d,r,g,b,r2,g2,b2)
+                    --self.Panel.Skin:SetGradient(d,r,g,b,r2,g2,b2)
                     self.__border[1]:SetTexture(r2,g2,b2)
                     self.__border[2]:SetTexture(r2,g2,b2)
                     self.__border[3]:SetTexture(r2,g2,b2)
                     self.__border[4]:SetTexture(r2,g2,b2)
                 else
-                    self._skin:SetGradient(unpack(SV.Media.gradient[arg1]))
+                    self.Panel.Skin:SetGradient(unpack(SV.Media.gradient[arg1]))
                     if(SV.Media.color[arg1]) then
                         local t = SV.Media.color[arg1]
                         local r,g,b,a = t[1], t[2], t[3], t[4] or 1;
@@ -1360,12 +866,14 @@ local function SetButtonTemplate(self, invisible, overridePadding, xOffset, yOff
     end 
 end 
 
-local function SetSlotTemplate(self, underlay, padding, x, y, noChecked)
+local function SetSlotTemplate(self, underlay, padding, x, y, shadowAlpha)
     if(not self) then return end
-
     padding = padding or 1
     CreatePanelTemplate(self, "Slot", underlay, true, padding, x, y)
     CreateButtonPanel(self, true)
+    if(shadowAlpha) then
+        self.Panel.Shadow:SetAttribute("shadowAlpha", shadowAlpha)
+    end
 end 
 
 local function SetCheckboxTemplate(self, underlay, x, y)
@@ -1381,7 +889,7 @@ local function SetCheckboxTemplate(self, underlay, x, y)
 
     NewHook(self, "SetChecked", function(self,checked)
         local r,g,b = 0,0,0
-        if(checked == 1) then
+        if(checked == 1 or checked == true) then
             r,g,b = self:GetCheckedTexture():GetVertexColor()
         end
         self:SetBackdropBorderColor(r,g,b) 
@@ -1546,14 +1054,14 @@ local function FrameTemplateUpdates()
             if(frame.TextureNeedsUpdate and frame._texture) then
                 local tex = SV.Media.bg[frame._texture]
                 if(tex) then
-                    frame._skin:SetTexture(tex)
+                    frame.Panel.Skin:SetTexture(tex)
                 end 
                 if(not frame.NoColorUpdate) then
                     if(frame._gradient and SV.Media.gradient[frame._gradient]) then
                         local g = SV.Media.gradient[frame._gradient]
-                        frame._skin:SetGradient(g[1], g[2], g[3], g[4], g[5], g[6], g[7])
+                        frame.Panel.Skin:SetGradient(g[1], g[2], g[3], g[4], g[5], g[6], g[7])
                     elseif(p) then
-                        frame._skin:SetVertexColor(p[1], p[2], p[3], p[4] or 1)
+                        frame.Panel.Skin:SetVertexColor(p[1], p[2], p[3], p[4] or 1)
                     end
                 end
             end

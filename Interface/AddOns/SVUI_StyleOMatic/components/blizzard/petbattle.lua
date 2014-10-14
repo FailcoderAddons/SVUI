@@ -222,8 +222,8 @@ local function PetBattleStyle()
 
 			frame.IconBackdrop = CreateFrame("Frame", nil, frame)
 			frame.IconBackdrop:SetFrameLevel(0)
-			frame.IconBackdrop:WrapOuter(frame.Icon, 3, 3)
-			frame.IconBackdrop:SetSlotTemplate(true, 3, 0, 0, true);
+			frame.IconBackdrop:SetAllPoints(frame.Icon)
+			frame.IconBackdrop:SetSlotTemplate(true, 1, 0, 0, true);
 
 			frame.IconBackdrop.Panel:SetFixedPanelTemplate("Blackout")
 
@@ -302,15 +302,15 @@ local function PetBattleStyle()
 
 			frame.IconBackdrop = CreateFrame("Frame", nil, frame)
 			frame.IconBackdrop:SetFrameLevel(0)
-			frame.IconBackdrop:WrapOuter(frame, 2, 2)
-			frame.IconBackdrop:SetSlotTemplate(true, 2, 0, 0, true);
+			frame.IconBackdrop:SetAllPoints(frame)
+			frame.IconBackdrop:SetSlotTemplate(true, 1, 0, 0, true);
 
 			frame.IconBackdrop.Panel:SetFixedPanelTemplate("Blackout")
 
 			frame:ClearAllPoints()
 			frame.healthBarWidth = 40;
 			frame.ActualHealthBar:ClearAllPoints()
-			frame.ActualHealthBar:SetPoint("TOPLEFT", frame.IconBackdrop, 'BOTTOMLEFT', 2, -3)
+			frame.ActualHealthBar:SetPoint("TOPLEFT", frame.IconBackdrop, 'BOTTOMLEFT', 0, -6)
 			frame.ActualHealthBar:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Bars\DEFAULT]])
 			frame.HealthBarBackdrop = CreateFrame("Frame", nil, frame)
 			frame.HealthBarBackdrop:SetFrameLevel(frame:GetFrameLevel()-1)

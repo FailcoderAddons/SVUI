@@ -36,10 +36,8 @@ local L = SV.L;
 LOCALS
 ##########################################################
 ]]--
-local DisplayEventHandler = CreateFrame("Frame");
-local DisplayFrames = {};
 local SecureFadeManager = CreateFrame("Frame");
-local SecureFadeFrames = {};
+local DisplayFrames, SecureFadeFrames = {}, {};
 --[[ 
 ########################################################## 
 FRAME VISIBILITY MANAGEMENT
@@ -52,27 +50,20 @@ function SV:AddToDisplayAudit(frame)
 end 
 
 function SV:FlushDisplayAudit()
-    if InCombatLockdown() then return end 
-    for frame,_ in pairs(DisplayFrames)do 
-        frame:SetParent(SV.Cloaked) 
-    end 
-    DisplayEventHandler:RegisterEvent("PLAYER_REGEN_DISABLED")
+    if(InCombatLockdown()) then return end 
+    for frame, _ in pairs(DisplayFrames)do 
+        frame:SetParent(self.Cloaked) 
+    end
+    self.NeedsFrameAudit = true 
 end 
 
 function SV:PushDisplayAudit()
-    if InCombatLockdown() then return end
-    local default = self.UIParent
-    for frame,parent in pairs(DisplayFrames)do 
-        frame:SetParent(parent or default) 
-    end 
-    DisplayEventHandler:UnregisterEvent("PLAYER_REGEN_DISABLED")
-end 
-
-local DisplayAudit_OnEvent = function(self, event, arg, ...)
-    SV:PushDisplayAudit()
+    if(InCombatLockdown()) then return end
+    for frame, parent in pairs(DisplayFrames)do 
+        frame:SetParent(parent or self.UIParent) 
+    end
+    self.NeedsFrameAudit = false
 end
-
-DisplayEventHandler:SetScript("OnEvent", DisplayAudit_OnEvent)
 
 local function SafeFrameRemoval(table, item)
     local index = 1;

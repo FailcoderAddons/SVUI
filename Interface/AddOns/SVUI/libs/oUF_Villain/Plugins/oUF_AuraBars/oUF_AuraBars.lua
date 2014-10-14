@@ -126,7 +126,7 @@ local function SetBackground(frame)
             bottom = 0, 
         }, 
     })
-    frame:SetBackdropColor(0,0,0,0.25)
+    frame:SetBackdropColor(0,0,0,0.5)
     frame:SetBackdropBorderColor(0,0,0)
 end
 

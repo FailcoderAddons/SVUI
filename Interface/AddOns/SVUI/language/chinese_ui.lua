@@ -1,5 +1,8 @@
 local L = _G.LibSuperVillain:Lang("zhCN");
 if not L then return end
+--[[LOGIN MESSAGE]]--
+L["LOGIN_MSG"] = "歡迎使用 |cffFFFF1ASupervillain UI|r! 让您的 %s 和你 %s."
+L["LOGIN_MSG2"] = "|cffAA78FF%s|r 版, 請輸入/sv 進入設定介面."
 --[[REACTION TEXTS]]--
 L[" is drinking."] = true;
 L["Leeeeeroy!"] = true;
@@ -110,7 +113,6 @@ L["THE_BUTTON_BELOW"] = "THE\nBUTTON\nBELOW";
 L["Meanwhile..."]=true;
 L["..at "]=true;
 L["INCOMPATIBLE_ADDON"]="插件 %s 不相容于 SVUI 的 %s 模组。请停用不相容的插件，或停用模组。"
-L["LOGIN_MSG"]="欢迎使用 %sSVUI|r %s%s|r 版，请输入 /sv 进入设定介面。如需技术支援，请至 http://www.wowinterface.com"
 L["Binding"]="绑定"
 L["Key"]="键"
 L["KEY_ALT"]="A"

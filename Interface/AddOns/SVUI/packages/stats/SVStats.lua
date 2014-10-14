@@ -213,7 +213,7 @@ function MOD:NewAnchor(parent, maxCount, tipAnchor, isTop, customTemplate, isVer
 		strata = "LOW"
 	else
 		template = isTop and "FramedTop" or "FramedBottom"
-		strata = "HIGH"
+		strata = "MEDIUM"
 	end
 
 	MOD.Anchors[parent:GetName()] = parent;

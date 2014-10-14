@@ -136,6 +136,8 @@ local function EncounterJournalStyle()
 
   EncounterJournalInstanceSelectScrollFrameScrollChild:SetFixedPanelTemplate("Default")
   EncounterJournalInstanceSelectScrollFrameScrollChild:SetPanelColor("dark")
+  EncounterJournalInstanceSelectScrollDownButton:SetButtonTemplate()
+  EncounterJournalInstanceSelectScrollDownButton:SetNormalTexture([[Interface\AddOns\SVUI\assets\artwork\Icons\MOVE-DOWN]])
 
   EncounterJournalEncounterFrameInstanceFrame:SetFixedPanelTemplate("Inset")
 

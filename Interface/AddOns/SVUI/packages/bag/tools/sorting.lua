@@ -520,15 +520,15 @@ do
 			end	
 			for bagType, sortedBags in pairs(sortingCache[1]) do
 				if bagType ~= 'Normal' then
-					MOD.Stack(sortedBags, sortedBags, IsPartial)
-					MOD.Stack(sortingCache[1]['Normal'], sortedBags)
+					MOD.Stack(sortedBags, IsPartial)
 					SortFiller(sortingCache[1]['Normal'], sortedBags, SV.db.SVBag.sortInverted)
+					MOD.Stack(sortingCache[1]['Normal'], IsPartial)
 					Sorter(sortedBags, nil, SV.db.SVBag.sortInverted)
 					twipe(sortedBags)
 				end
 			end
 			if sortingCache[1]['Normal'] then
-				MOD.Stack(sortingCache[1]['Normal'], sortingCache[1]['Normal'], IsPartial)
+				MOD.Stack(sortingCache[1]['Normal'], IsPartial)
 				Sorter(sortingCache[1]['Normal'], nil, SV.db.SVBag.sortInverted)
 				twipe(sortingCache[1]['Normal'])
 			end
@@ -588,7 +588,7 @@ do
 		for _, bag, slot in IterateBagsForSorting(bags, true, "withdraw") do
 			local sourceSlot = (bag*100) + slot
 			local itemID = sortingCache[2][sourceSlot]
-			if itemID and targetItems[itemID] and (canMove == true or canMove(itemID, bag, slot)) then
+			if itemID and targetItems[itemID] and (canMove == true or (type(canMove) == "function" and canMove(itemID, bag, slot))) then
 				for i = #targetSlots, 1, -1 do
 					local targetedSlot = targetSlots[i]
 					if sortingCache[2][sourceSlot] and sortingCache[2][targetedSlot] == itemID and targetedSlot ~= sourceSlot and not (sortingCache[4][targetedSlot] == sortingCache[5][targetedSlot]) and not sourceUsed[targetedSlot] then
@@ -802,49 +802,53 @@ do
 	end
 end
 
-function MOD:RunSortingProcess(func, groupsDefaults)
+function MOD:RunSortingProcess(func, groupsDefaults, altFunc)
 	local bagGroups = {}
 	return function(groups)
-		if SortUpdateTimer:IsShown() then
-			SortUpdateTimer:StopStacking(L['Already Running.. Bailing Out!'])
-			return;
-		end
-		twipe(bagGroups)
-		if not groups or #groups == 0 then
-			groups = groupsDefaults
-		end
-		for bags in (groups or ""):gmatch("[^%s]+") do
-			if bags == "guild" then
-				bags = GetSortingGroup(bags)
-				if bags then
-					tinsert(bagGroups, {bags[GetCurrentGuildBankTab()]})
-				end
-			else
-				bags = GetSortingGroup(bags)
-				if bags then
-					tinsert(bagGroups, bags)
-				end
+		if(altFunc and IsShiftKeyDown()) then
+			altFunc()
+		else
+			if SortUpdateTimer:IsShown() then
+				SortUpdateTimer:StopStacking(L['Already Running.. Bailing Out!'])
+				return;
 			end
-		end
-		for _, bag, slot in IterateBagsForSorting(scanningCache.all) do
-			local bagSlot = (bag*100) + slot
-			local itemID, isBattlePet = ConvertLinkToID(GetSortingItemLink(bag, slot))
-			if itemID then
-				if isBattlePet then
-					sortingCache[3][bagSlot] = itemID
-					sortingCache[5][bagSlot] = 1
+			twipe(bagGroups)
+			if not groups or #groups == 0 then
+				groups = groupsDefaults
+			end
+			for bags in (groups or ""):gmatch("[^%s]+") do
+				if bags == "guild" then
+					bags = GetSortingGroup(bags)
+					if bags then
+						tinsert(bagGroups, {bags[GetCurrentGuildBankTab()]})
+					end
 				else
-					sortingCache[5][bagSlot] = select(8, GetItemInfo(itemID))
+					bags = GetSortingGroup(bags)
+					if bags then
+						tinsert(bagGroups, bags)
+					end
 				end
-				sortingCache[2][bagSlot] = itemID
-				sortingCache[4][bagSlot] = select(2, GetSortingInfo(bag, slot))
 			end
+			for _, bag, slot in IterateBagsForSorting(scanningCache.all) do
+				local bagSlot = (bag*100) + slot
+				local itemID, isBattlePet = ConvertLinkToID(GetSortingItemLink(bag, slot))
+				if itemID then
+					if isBattlePet then
+						sortingCache[3][bagSlot] = itemID
+						sortingCache[5][bagSlot] = 1
+					else
+						sortingCache[5][bagSlot] = select(8, GetItemInfo(itemID))
+					end
+					sortingCache[2][bagSlot] = itemID
+					sortingCache[4][bagSlot] = select(2, GetSortingInfo(bag, slot))
+				end
+			end
+			if func(unpack(bagGroups)) == false then
+				return
+			end
+			twipe(bagGroups)
+			SortUpdateTimer:StartStacking()
 		end
-		if func(unpack(bagGroups)) == false then
-			return
-		end
-		twipe(bagGroups)
-		SortUpdateTimer:StartStacking()
 		collectgarbage("collect")
 	end
 end

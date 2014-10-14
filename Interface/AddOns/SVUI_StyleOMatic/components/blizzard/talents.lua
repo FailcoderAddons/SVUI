@@ -176,7 +176,9 @@ local function TalentFrameStyle()
 		PlayerSpecTab1:Point(d, x, f, -1, h)
 	end)
 
-	for i = 1, MAX_NUM_TALENT_TIERS do
+	local maxTiers = (SV.GameVersion >= 60000) and MAX_TALENT_TIERS or MAX_NUM_TALENT_TIERS
+
+	for i = 1, maxTiers do
 		local gName = ("PlayerTalentFrameTalentsTalentRow%d"):format(i)
 		local rowFrame = _G[gName]
 		if(rowFrame) then
@@ -198,7 +200,7 @@ local function TalentFrameStyle()
 	end
 
 	hooksecurefunc("TalentFrame_Update", function()
-		for i = 1, MAX_NUM_TALENT_TIERS do
+		for i = 1, maxTiers do
 			local gName = ("PlayerTalentFrameTalentsTalentRow%d"):format(i)
 
 			for z = 1, NUM_TALENT_COLUMNS do

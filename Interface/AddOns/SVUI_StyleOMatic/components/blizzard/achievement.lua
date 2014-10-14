@@ -209,15 +209,21 @@ local function AchievementStyle()
 	AchievementFrameComparisonSummaryFriendStatusBar.text:SetPoint("CENTER")
 	AchievementFrameComparisonHeader:Point("BOTTOMRIGHT", AchievementFrameComparison, "TOPRIGHT", 45, -20)
 
-	for f = 1, 10 do 
-		local d = _G["AchievementFrameSummaryCategoriesCategory"..f]
-		local i = _G["AchievementFrameSummaryCategoriesCategory"..f.."Button"]
-		local j = _G["AchievementFrameSummaryCategoriesCategory"..f.."ButtonHighlight"]
-		BarStyleHelper(d)
-		i:RemoveTextures()
-		j:RemoveTextures()
-		_G[j:GetName().."Middle"]:SetTexture(1, 1, 1, 0.3)
-		_G[j:GetName().."Middle"]:SetAllPoints(d)
+	for i = 1, 12 do
+		local categoryName = ("AchievementFrameSummaryCategoriesCategory%d"):format(i)
+		if(_G[categoryName]) then
+			if _G[categoryName.."Button"] then
+				_G[categoryName.."Button"]:RemoveTextures()
+			end
+			local hlName = categoryName.."ButtonHighlight"
+			local highlight = _G[hlName]
+			if(highlight) then
+				highlight:RemoveTextures()
+				_G[hlName.."Middle"]:SetTexture(1, 1, 1, 0.3)
+				_G[hlName.."Middle"]:SetAllPoints(categoryName)
+			end
+			BarStyleHelper(_G[categoryName])
+		end
 	end
 
 	AchievementFrame:HookScript("OnShow", function(self)
@@ -292,13 +298,11 @@ local function AchievementStyle()
 			end
 			
 			if(track) then
-				track:RemoveTextures()
-				track:SetCheckboxTemplate(true)
 				track:ClearAllPoints()
-				track:Point("BOTTOMLEFT", -1, -3)
+				track:Point("BOTTOMLEFT", 1, 1)
+				track:RemoveTextures()
+				track:SetCheckboxTemplate(true, -3, -3)
 				track.ListParent = button
-
-				hooksecurefunc(track, "SetPoint", _hook_TrackingPoint)
 			end
 		end
 	end

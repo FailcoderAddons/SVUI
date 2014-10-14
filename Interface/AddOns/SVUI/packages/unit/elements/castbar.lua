@@ -512,24 +512,31 @@ function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss)
 	local cbName = frame:GetName().."Castbar"
 	local castbarHolder = CreateFrame("Frame", cbName, castbar)
 
-	local iconHolder = CreateFrame("Frame", nil, castbar)
+	local grip = CreateFrame("Frame", nil, castbar)
+	grip:SetFrameStrata("HIGH")
+
+	local iconHolder = CreateFrame("Frame", nil, grip)
 	iconHolder:SetFixedPanelTemplate("Inset", false)
-	iconHolder:SetFrameStrata("HIGH")
+	grip.Icon = iconHolder
+
 	local buttonIcon = iconHolder:CreateTexture(nil, "BORDER")
 	buttonIcon:FillInner()
 	buttonIcon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-	buttonIcon.bg = iconHolder;
 	castbar.Icon = buttonIcon;
+
 	local shieldIcon = iconHolder:CreateTexture(nil, "ARTWORK")
-	shieldIcon:Point("TOPLEFT",buttonIcon,"TOPLEFT",-7,7)
-	shieldIcon:Point("BOTTOMRIGHT",buttonIcon,"BOTTOMRIGHT",7,-8)
+	shieldIcon:Point("TOPLEFT", buttonIcon, "TOPLEFT", -7, 7)
+	shieldIcon:Point("BOTTOMRIGHT", buttonIcon, "BOTTOMRIGHT", 7, -8)
 	shieldIcon:SetTexture("Interface\\Addons\\SVUI\\assets\\artwork\\Unitframe\\Castbar\\SHIELD")
 	castbar.Shield = shieldIcon;
 
-	castbar.Time = iconHolder:CreateFontString(nil, "OVERLAY")
+	castbar.Time = grip:CreateFontString(nil, "OVERLAY")
 	castbar.Time:SetDrawLayer("OVERLAY", 7)
-	castbar.Text = iconHolder:CreateFontString(nil, "OVERLAY")
+
+	castbar.Text = grip:CreateFontString(nil, "OVERLAY")
 	castbar.Text:SetDrawLayer("OVERLAY", 7)
+
+	castbar.Grip = grip
 
 	
 	local bgFrame = CreateFrame("Frame", nil, castbar)
@@ -591,7 +598,7 @@ function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss)
 			SV.Animate:Sprite(hadouken[2],false,false,true)
 
 			castbar:Point("BOTTOMLEFT", castbarHolder, "BOTTOMLEFT", 1, 1)
-			iconHolder:Point("LEFT", castbar, "RIGHT", 4, 0)
+			grip:Point("LEFT", castbar, "RIGHT", 4, 0)
 
 			castbar.Time:Point("RIGHT", castbar, "LEFT", -4, 0)
 			castbar.Time:SetJustifyH("CENTER")
@@ -627,13 +634,13 @@ function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss)
 			SV.Animate:Sprite(hadouken[2],false,false,true)
 			
 			castbar:Point("BOTTOMRIGHT", castbarHolder, "BOTTOMRIGHT", -1, 1)
-			iconHolder:Point("RIGHT", castbar, "LEFT", -4, 0)
+			grip:Point("RIGHT", castbar, "LEFT", -4, 0)
 
 			castbar.Time:Point("LEFT", castbar, "RIGHT", 4, 0)
 			castbar.Time:SetJustifyH("CENTER")
 		end
 
-		-- castbar.Time:Point("CENTER", iconHolder, "CENTER", 0, 0)
+		-- castbar.Time:Point("CENTER", grip, "CENTER", 0, 0)
 		-- castbar.Time:SetJustifyH("CENTER")
 
 		castbar.Text:SetPoint("CENTER", castbar, "CENTER", 0, 0)
@@ -664,9 +671,9 @@ function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss)
 
 		if reversed then 
 			castbar:SetReverseFill(true)
-			iconHolder:Point("LEFT", castbar, "RIGHT", 6, 0)
+			grip:Point("LEFT", castbar, "RIGHT", 6, 0)
 		else
-			iconHolder:Point("RIGHT", castbar, "LEFT", -6, 0)
+			grip:Point("RIGHT", castbar, "LEFT", -6, 0)
 		end
 	end 
 

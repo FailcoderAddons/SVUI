@@ -1,5 +1,8 @@
 local L = _G.LibSuperVillain:Lang("ptBR");
 if not L then return; end
+--[[LOGIN MESSAGE]]--
+L["LOGIN_MSG"] = "Bem vindo à |cffFFFF1ASupervillain UI|r! Manter o seu %s e seu %s."
+L["LOGIN_MSG2"] = "Versão |cffAA78FF%s|r, escreva /sv para acessar o menu de configuração em jogo."
 --[[REACTION TEXTS]]--
 L[" is drinking."] = true;
 L["Leeeeeroy!"] = true;
@@ -111,7 +114,6 @@ L["Meanwhile..."]=true;
 L["..at "]=true;
 L["A taint has occured that is preventing you from using the queue system. Please reload your user interface and try again."]="Um erro aconteceu que está previnindo você de usar o sistema de fila. Por favor recarregue sua interface e tente novamente."
 L["INCOMPATIBLE_ADDON"]="The addon %s is not compatible with SVUI's %s package. Please select either the addon or the SVUI package to disable."
-L["LOGIN_MSG"]="Bem vindo à versão %s%s|r da %sSVUI|r, escreva /sv para acessar o menu de configuração em jogo. Se precisar de suporte técnico visite-nos no site http://www.wowinterface.com"
 L["Binding"]="Ligações"
 L["Key"]="Tecla"
 L["KEY_ALT"]="A"

@@ -126,7 +126,7 @@ SV.SystemAlert["DELETE_GRAYS"] = {
 	button1 = YES, 
 	button2 = NO, 
 	OnAccept = function()SV.SVBag:VendorGrays(true) end, 
-	OnShow = function(a)MoneyFrame_Update(a.moneyFrame, SV.SystemAlert["DELETE_GRAYS"].Money)end, 
+	OnShow = function(self)MoneyFrame_Update(self.moneyFrame, SV.SystemAlert["DELETE_GRAYS"].Money)end, 
 	timeout = 0, 
 	whileDead = 1, 
 	hideOnEscape = false, 
@@ -136,8 +136,25 @@ SV.SystemAlert["BUY_BANK_SLOT"] = {
 	text = CONFIRM_BUY_BANK_SLOT, 
 	button1 = YES, 
 	button2 = NO, 
-	OnAccept = function(a)PurchaseSlot()end, 
-	OnShow = function(a)MoneyFrame_Update(a.moneyFrame, GetBankSlotCost())end, 
+	OnAccept = function(self)PurchaseSlot()end, 
+	OnShow = function(self)MoneyFrame_Update(self.moneyFrame, GetBankSlotCost())end, 
+	hasMoneyFrame = 1, 
+	timeout = 0, 
+	hideOnEscape = 1
+};
+SV.SystemAlert["CONFIRM_BUY_REAGENTBANK_TAB"] = {
+	text = L["Purchase Reagents Bank?"], 
+	button1 = YES, 
+	button2 = NO, 
+	OnAccept = function(self)BuyReagentBank()end, 
+	OnShow = function(self)
+		MoneyFrame_Update(self.moneyFrame, GetReagentBankCost());
+		if(_G["SVUI_ReagentContainerFrame"]) then
+			_G["SVUI_ReagentContainerFrame"].swapButton:SetNormalTexture([[Interface\AddOns\SVUI\assets\artwork\Icons\BAGS-REAGENTS]])
+			_G["SVUI_ReagentContainerFrame"]:UpdateLayout()
+			_G["SVUI_ReagentContainerFrame"]:Show()
+		end
+	end, 
 	hasMoneyFrame = 1, 
 	timeout = 0, 
 	hideOnEscape = 1
