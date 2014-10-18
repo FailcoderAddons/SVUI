@@ -20,29 +20,29 @@ local select  = _G.select;
 --[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
-WORLDSTATE STYLER
+WORLDSTATE PLUGINR
 ##########################################################
 ]]--
 local function WorldStateStyle()
-	if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.bgscore ~= true then return end 
+	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.bgscore ~= true then return end 
 	WorldStateScoreScrollFrame:RemoveTextures()
 	WorldStateScoreFrame:RemoveTextures()
 	WorldStateScoreFrame:SetPanelTemplate("Halftone")
-	STYLE:ApplyCloseButtonStyle(WorldStateScoreFrameCloseButton)
-	STYLE:ApplyScrollFrameStyle(WorldStateScoreScrollFrameScrollBar)
+	PLUGIN:ApplyCloseButtonStyle(WorldStateScoreFrameCloseButton)
+	PLUGIN:ApplyScrollFrameStyle(WorldStateScoreScrollFrameScrollBar)
 	WorldStateScoreFrameInset:SetAlpha(0)
 	WorldStateScoreFrameLeaveButton:SetButtonTemplate()
 	for b = 1, 3 do 
-		STYLE:ApplyTabStyle(_G["WorldStateScoreFrameTab"..b])
+		PLUGIN:ApplyTabStyle(_G["WorldStateScoreFrameTab"..b])
 	end 
 end 
 --[[ 
 ########################################################## 
-STYLE LOADING
+PLUGIN LOADING
 ##########################################################
 ]]--
-STYLE:SaveCustomStyle(WorldStateStyle)
+PLUGIN:SaveCustomStyle(WorldStateStyle)

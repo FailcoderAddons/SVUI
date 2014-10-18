@@ -446,7 +446,7 @@ LOCAL FUNCTIONS
 ##########################################################
 ]]--
 local function ServiceMessage(msg) 
-    local msgFrom = SV.db[Schema].prefix == true and "Minion Answering Service" or "";
+    local msgFrom = PLUGIN.db.prefix == true and "Minion Answering Service" or "";
     print("|cffffcc1a" .. msgFrom .. ":|r", msg) 
 end
 
@@ -694,7 +694,7 @@ do
 		if(not outbound) then
 			outbound = PhraseSearch(sInput, mapkey, data)
 		end
-		if(SV.db[Schema].prefix == true) then 
+		if(PLUGIN.db.prefix == true) then 
 			return ("%s's Answering Service: %s"):format(PlayersName, outbound) 
 		else
 			return outbound
@@ -737,7 +737,7 @@ function PLUGIN:AddCaller(caller)
 			btn.Text:SetText(caller);
 			PhoneLines[caller].Line = x
 			call_answered = true
-			if SV.db[Schema].autoAnswer == true then
+			if self.db.autoAnswer == true then
 				PhoneLines[caller].InUse = true;
 				btn:SetPanelColor("green");
 				self.Docklet:SetPanelColor("green");
@@ -969,7 +969,7 @@ function PLUGIN:EnableAnsweringService()
 	self.Window:Hide()
 
 	local strMsg
-	if SV.db[Schema].autoAnswer == true then
+	if self.db.autoAnswer == true then
 		strMsg = "The Henchmen Operators Are Screening Your Calls.."
 	else
 		strMsg = "The Henchmen Operators Are Standing By.."

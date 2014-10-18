@@ -68,15 +68,18 @@ local Anim_OnStop = function(self)
 	local parent = self.parent
 	if self.fadeOnFinished then
 		parent:SetAlpha(0)
-	else
-		parent:SetAlpha(1)
 	end
 	if self.hideOnFinished and parent:IsShown() then
 		parent:Hide()
 	end
-	if self.savedFrameLevel then
+	if self.savedFrameLevel or self.startscale then
 		parent:SetScale(1)
-		parent:SetFrameLevel(self.savedFrameLevel)
+		if self.startscale then
+			self.startscale = 1
+		end
+		if self.savedFrameLevel then
+			parent:SetFrameLevel(self.savedFrameLevel)
+		end
 	end
 end 
 
@@ -141,6 +144,34 @@ local PulseOut_OnUpdate = function(self)
 	parent:SetScale(1 + (1.05 * (1 - step)))
 end 
 
+local Kapow_OnPlay = function(self)
+	local parent = self.parent
+	if(not parent.startscale) then
+		parent.startscale = parent:GetScale()
+	end
+	parent:SetAlpha(1)
+	parent:SetScale(parent.startscale or 1)
+end
+
+local Kapow_OnFinished = function(self)
+	self.parent:SetAlpha(0)
+end 
+
+local Kapow_OnUpdate = function(self)
+	local parent = self.parent
+	local step = self:GetProgress()
+	local scale = 1
+	if(parent.startscale) then
+		scale = scale * parent.startscale
+	end
+	parent:SetScale(scale + (1.05 * step))
+end
+
+local Kapow_OnUpdate2 = function(self)
+	local parent = self.parent
+	_G.UIFrameFadeOut(parent, 0.3, 1, 0)
+end
+
 local Slide_OnUpdate = function(self)
 	local parent = self.parent
 	local step = self:GetProgress()
@@ -178,7 +209,7 @@ function Animate:SetTemplate(frame, animType, hideOnFinished, speed, special, sc
 	frame.anim = frame:CreateAnimationGroup(animType)
 	frame.anim.parent = frame;
 	frame.anim.hideOnFinished = hideOnFinished
-	if animType ~= 'Flash' then
+	if animType ~= 'Flash' and animType ~= 'Kapow' then
 		frame.anim:SetScript("OnPlay", Anim_OnPlay)
 		frame.anim:SetScript("OnFinished", Anim_OnFinished)
 		frame.anim:SetScript("OnStop", Anim_OnStop)
@@ -200,12 +231,12 @@ function Animate:SetTemplate(frame, animType, hideOnFinished, speed, special, sc
 		frame.anim.fadeOnFinished = true
 		if not speed then speed = 0.33 end 
 
-		frame.anim[1] = SetNewAnimation(frame.anim, "ALPHA", "FadeIn")
+		frame.anim[1] = SetNewAnimation(frame.anim, "Alpha", "FadeIn")
 		frame.anim[1]:SetChange(1)
 		frame.anim[1]:SetOrder(2)
 		frame.anim[1]:SetDuration(speed)
 			
-		frame.anim[2] = SetNewAnimation(frame.anim, "ALPHA","FadeOut")
+		frame.anim[2] = SetNewAnimation(frame.anim, "Alpha", "FadeOut")
 		frame.anim[2]:SetChange(-1)
 		frame.anim[2]:SetOrder(1)
 		frame.anim[2]:SetDuration(speed)
@@ -316,6 +347,21 @@ function Animate:SetTemplate(frame, animType, hideOnFinished, speed, special, sc
 		frame.anim[2]:SetDuration(0.6)
 		frame.anim[2]:SetOrder(2)
 		frame.anim[2]:SetScript("OnUpdate", PulseOut_OnUpdate)
+	elseif animType == 'Kapow' then
+		frame.anim:SetScript("OnPlay", Kapow_OnPlay)
+
+		frame.anim.startscale = frame:GetScale()
+
+		frame.anim[1] = SetNewAnimation(frame.anim, "Rotation")
+		frame.anim[1]:SetDuration(0.2)
+		frame.anim[1]:SetOrder(1)
+		frame.anim[1]:SetDegrees(360)
+		frame.anim[1]:SetScript("OnUpdate", Kapow_OnUpdate)
+
+		frame.anim[2] = SetNewAnimation(frame.anim)
+		frame.anim[2]:SetDuration(0.3)
+		frame.anim[2]:SetOrder(2)
+		frame.anim[2]:SetScript("OnUpdate", Kapow_OnUpdate2)
 	end 
 end
 
@@ -330,6 +376,11 @@ end
 function Animate:Pulse(frame, hideOnFinished)
 	if not frame then return end 
 	self:SetTemplate(frame, 'Pulse', hideOnFinished) 
+end
+
+function Animate:Kapow(frame, hideOnFinished)
+	if not frame then return end 
+	self:SetTemplate(frame, 'Kapow', hideOnFinished) 
 end
 
 --[[ ANIMATED SPRITES ]]--

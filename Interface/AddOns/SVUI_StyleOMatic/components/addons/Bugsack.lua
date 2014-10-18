@@ -31,8 +31,8 @@ GET ADDON DATA
 ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
 BUGSACK
@@ -44,15 +44,15 @@ local function StyleBugSack(event, addon)
 		if BugSackFrame.Panel then return end
 		BugSackFrame:RemoveTextures()
 		BugSackFrame:SetBasicPanel()
-		STYLE:ApplyTabStyle(BugSackTabAll)
+		PLUGIN:ApplyTabStyle(BugSackTabAll)
 		BugSackTabAll:SetPoint("TOPLEFT", BugSackFrame, "BOTTOMLEFT", 0, 1)
-		STYLE:ApplyTabStyle(BugSackTabSession)
-		STYLE:ApplyTabStyle(BugSackTabLast)
+		PLUGIN:ApplyTabStyle(BugSackTabSession)
+		PLUGIN:ApplyTabStyle(BugSackTabLast)
 		BugSackNextButton:SetButtonTemplate()
 		BugSackSendButton:SetButtonTemplate()
 		BugSackPrevButton:SetButtonTemplate()
-		STYLE:ApplyScrollBarStyle(BugSackScrollScrollBar)
+		PLUGIN:ApplyScrollBarStyle(BugSackScrollScrollBar)
 	end)
 end
 
-STYLE:SaveAddonStyle("Bugsack", StyleBugSack)
+PLUGIN:SaveAddonStyle("Bugsack", StyleBugSack)

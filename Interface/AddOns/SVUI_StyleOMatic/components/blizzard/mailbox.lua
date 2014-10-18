@@ -20,8 +20,8 @@ local select  = _G.select;
 --[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
 HELPERS
@@ -44,13 +44,13 @@ local function MailFrame_OnUpdate()
 end 
 --[[ 
 ########################################################## 
-MAILBOX STYLER
+MAILBOX PLUGINR
 ##########################################################
 ]]--
 local function MailBoxStyle()
-	if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.mail ~= true then return end 
+	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.mail ~= true then return end 
 
-	STYLE:ApplyWindowStyle(MailFrame)
+	PLUGIN:ApplyWindowStyle(MailFrame)
 	
 	for b = 1, INBOXITEMS_TO_DISPLAY do 
 		local i = _G["MailItem"..b]
@@ -65,16 +65,16 @@ local function MailBoxStyle()
 		e:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 		e:FillInner()
 	end 
-	STYLE:ApplyCloseButtonStyle(MailFrameCloseButton)
-	STYLE:ApplyPaginationStyle(InboxPrevPageButton)
-	STYLE:ApplyPaginationStyle(InboxNextPageButton)
+	PLUGIN:ApplyCloseButtonStyle(MailFrameCloseButton)
+	PLUGIN:ApplyPaginationStyle(InboxPrevPageButton)
+	PLUGIN:ApplyPaginationStyle(InboxNextPageButton)
 	MailFrameTab1:RemoveTextures()
 	MailFrameTab2:RemoveTextures()
-	STYLE:ApplyTabStyle(MailFrameTab1)
-	STYLE:ApplyTabStyle(MailFrameTab2)
+	PLUGIN:ApplyTabStyle(MailFrameTab1)
+	PLUGIN:ApplyTabStyle(MailFrameTab2)
 	SendMailScrollFrame:RemoveTextures(true)
 	SendMailScrollFrame:SetFixedPanelTemplate("Inset")
-	STYLE:ApplyScrollFrameStyle(SendMailScrollFrameScrollBar)
+	PLUGIN:ApplyScrollFrameStyle(SendMailScrollFrameScrollBar)
 	SendMailNameEditBox:SetEditboxTemplate()
 	SendMailSubjectEditBox:SetEditboxTemplate()
 	SendMailMoneyGold:SetEditboxTemplate()
@@ -103,7 +103,7 @@ local function MailBoxStyle()
 	OpenMailFrame:RemoveTextures(true)
 	OpenMailFrame:SetFixedPanelTemplate("Transparent", true)
 	OpenMailFrameInset:Die()
-	STYLE:ApplyCloseButtonStyle(OpenMailFrameCloseButton)
+	PLUGIN:ApplyCloseButtonStyle(OpenMailFrameCloseButton)
 	OpenMailReportSpamButton:SetButtonTemplate()
 	OpenMailReplyButton:SetButtonTemplate()
 	OpenMailDeleteButton:SetButtonTemplate()
@@ -112,7 +112,7 @@ local function MailBoxStyle()
 	MailFrameInset:Die()
 	OpenMailScrollFrame:RemoveTextures(true)
 	OpenMailScrollFrame:SetFixedPanelTemplate("Default")
-	STYLE:ApplyScrollFrameStyle(OpenMailScrollFrameScrollBar)
+	PLUGIN:ApplyScrollFrameStyle(OpenMailScrollFrameScrollBar)
 	SendMailBodyEditBox:SetTextColor(1, 1, 1)
 	OpenMailBodyText:SetTextColor(1, 1, 1)
 	InvoiceTextFontNormal:SetTextColor(1, 1, 1)
@@ -143,7 +143,7 @@ local function MailBoxStyle()
 end 
 --[[ 
 ########################################################## 
-STYLE LOADING
+PLUGIN LOADING
 ##########################################################
 ]]--
-STYLE:SaveCustomStyle(MailBoxStyle)
+PLUGIN:SaveCustomStyle(MailBoxStyle)

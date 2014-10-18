@@ -35,19 +35,19 @@ EVENTS
 ##########################################################
 ]]--
 function PLUGIN:CHAT_MSG_WHISPER(event, ...)
-	if(SV.db.SVChat.enable and SV.db[Schema].saveChats) then
+	if(SV.db.SVChat.enable and self.db.saveChats) then
 		self:SAVE_CHAT_HISTORY(event, ...)
 	end
-	if(SV.db[Schema].service) then
+	if(self.db.service) then
 		self:AUTO_MSG_WHISPER(event, ...)
 	end
 end
 
 function PLUGIN:CHAT_MSG_BN_WHISPER(event, ...)
-	if(SV.db.SVChat.enable and SV.db[Schema].saveChats) then
+	if(SV.db.SVChat.enable and self.db.saveChats) then
 		self:SAVE_CHAT_HISTORY(event, ...)
 	end
-	if(SV.db[Schema].service and self.ServiceEnabled) then
+	if(self.db.service and self.ServiceEnabled) then
 		self:AUTO_MSG_BN_WHISPER(event, ...)
 	end
 end
@@ -57,14 +57,11 @@ LOAD AND CONSTRUCT
 ##########################################################
 ]]--
 function PLUGIN:Load()
-	if not ChatOMatic_Cache then ChatOMatic_Cache = {} end
-	if(not SV.db[Schema].enable) then return end
-
-	if(SV.db.SVChat.enable and SV.db[Schema].saveChats) then
+	if(SV.db.SVChat.enable and self.db.saveChats) then
 		self:EnableChatHistory()
 	end
 
-	if(SV.db[Schema].service) then
+	if(self.db.service) then
 		self:EnableAnsweringService()
 	end
 	

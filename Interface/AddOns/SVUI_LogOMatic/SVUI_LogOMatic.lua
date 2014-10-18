@@ -182,7 +182,6 @@ local function ResetAllLogs()
 		if LogOMatic_Data[realmKey]["bags"] and LogOMatic_Data[realmKey]["bags"][nameKey] then LogOMatic_Data[realmKey]["bags"][nameKey] = {} end 
 		if LogOMatic_Data[realmKey]["gold"] and LogOMatic_Data[realmKey]["gold"][nameKey] then LogOMatic_Data[realmKey]["gold"][nameKey] = 0 end
 	end 
-	if LogOMatic_Cache then LogOMatic_Cache = {} end 
 end
 --[[ 
 ########################################################## 
@@ -192,13 +191,11 @@ BUILD FUNCTION
 function PLUGIN:Load()
 	if SVLOG_Data then SVLOG_Data = nil end
 	if SVLOG_Cache then SVLOG_Cache = nil end
-	
-	if IsAddOnLoaded("Altoholic") or not SV.db[Schema].enable then return end
+	if LogOMatic_Cache then LogOMatic_Cache = nil end
 	
 	local toonClass = select(2,UnitClass("player"));
 	local r,g,b = RAID_CLASS_COLORS[toonClass].r, RAID_CLASS_COLORS[toonClass].g, RAID_CLASS_COLORS[toonClass].b
 	local hexString = ("|cff%02x%02x%02x"):format(r * 255, g * 255, b * 255)
-	if not LogOMatic_Cache then LogOMatic_Cache = {} end
 	LogOMatic_Data = LogOMatic_Data or {}
 	LogOMatic_Data[realmKey] = LogOMatic_Data[realmKey] or {}
 	LogOMatic_Data[realmKey]["bags"] = LogOMatic_Data[realmKey]["bags"] or {};

@@ -20,40 +20,50 @@ local select  = _G.select;
 --[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
-PETITIONFRAME STYLER
+PETITIONFRAME PLUGINR
 ##########################################################
 ]]--
 local function PetitionFrameStyle()
-	if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.petition ~= true then
+	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.petition ~= true then
 		return 
-	end 
-	PetitionFrame:RemoveTextures(true)
-	PetitionFrame:SetFixedPanelTemplate("Transparent", true)
+	end
+
+	PLUGIN:ApplyWindowStyle(PetitionFrame, nil, true)
 	PetitionFrameInset:Die()
+
 	PetitionFrameSignButton:SetButtonTemplate()
 	PetitionFrameRequestButton:SetButtonTemplate()
 	PetitionFrameRenameButton:SetButtonTemplate()
 	PetitionFrameCancelButton:SetButtonTemplate()
-	STYLE:ApplyCloseButtonStyle(PetitionFrameCloseButton)
+
+	PLUGIN:ApplyCloseButtonStyle(PetitionFrameCloseButton)
+
 	PetitionFrameCharterTitle:SetTextColor(1, 1, 0)
 	PetitionFrameCharterName:SetTextColor(1, 1, 1)
 	PetitionFrameMasterTitle:SetTextColor(1, 1, 0)
 	PetitionFrameMasterName:SetTextColor(1, 1, 1)
 	PetitionFrameMemberTitle:SetTextColor(1, 1, 0)
-	for g = 1, 9 do
-		_G["PetitionFrameMemberName"..g]:SetTextColor(1, 1, 1)
+
+	for i=1, 9 do
+		local frameName = ("PetitionFrameMemberName%d"):format(i)
+		local frame = _G[frameName];
+		if(frame) then
+			frame:SetTextColor(1, 1, 1)
+		end
 	end 
+
 	PetitionFrameInstructions:SetTextColor(1, 1, 1)
+	
 	PetitionFrameRenameButton:Point("LEFT", PetitionFrameRequestButton, "RIGHT", 3, 0)
 	PetitionFrameRenameButton:Point("RIGHT", PetitionFrameCancelButton, "LEFT", -3, 0)
 end 
 --[[ 
 ########################################################## 
-STYLE LOADING
+PLUGIN LOADING
 ##########################################################
 ]]--
-STYLE:SaveCustomStyle(PetitionFrameStyle)
+PLUGIN:SaveCustomStyle(PetitionFrameStyle)

@@ -31,8 +31,8 @@ GET ADDON DATA
 ]]--
 local SV = _G["SVUI"];
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
 AUCTIONLITE
@@ -69,11 +69,11 @@ local function StyleAuctionLite(event, ...)
   BuyScanButton:SetButtonTemplate()
   SellCreateAuctionButton:SetButtonTemplate()
 
-  STYLE:ApplyPaginationStyle(BuyAdvancedButton)
-  STYLE:ApplyPaginationStyle(SellRememberButton)
+  PLUGIN:ApplyPaginationStyle(BuyAdvancedButton)
+  PLUGIN:ApplyPaginationStyle(SellRememberButton)
 
-  STYLE:ApplyTabStyle(AuctionFrameTab4)
-  STYLE:ApplyTabStyle(AuctionFrameTab5)
+  PLUGIN:ApplyTabStyle(AuctionFrameTab4)
+  PLUGIN:ApplyTabStyle(AuctionFrameTab5)
 
   if(_G["AuctionFrameBuy"]) then
     BGHelper(_G["AuctionFrameBuy"])
@@ -82,7 +82,7 @@ local function StyleAuctionLite(event, ...)
     BGHelper(_G["AuctionFrameSell"])
   end
 
-  STYLE:SafeEventRemoval("AuctionLite", event)
+  PLUGIN:SafeEventRemoval("AuctionLite", event)
 end
 
-STYLE:SaveAddonStyle("AuctionLite", StyleAuctionLite, nil, nil, "AUCTION_HOUSE_SHOW")
+PLUGIN:SaveAddonStyle("AuctionLite", StyleAuctionLite, nil, nil, "AUCTION_HOUSE_SHOW")

@@ -56,7 +56,7 @@ local GetContainerItemInfo = GetContainerItemInfo
 local GetContainerItemID = GetContainerItemID
 local ModeLogsFrame; 
 
-local COUNT_TEX = [[Interface\AddOns\SVUI\assets\artwork\icons\COUNT-]]
+local COUNT_TEX = [[Interface\AddOns\SVUI\assets\artwork\icons\NUMBER-]]
 
 local refArtifacts = {};
 for i = 1, 12 do
@@ -224,9 +224,9 @@ EVENT HANDLER
 do
 	local SURVEYCDFONT = SV.Media.font.numbers
 	local SURVEYCOLOR = {
-		{0.1, 1, 0.1, 0.2},
-		{1, 0.5, 0.1, 0.4},
-		{1, 0.1, 0, 0.6}
+		{0.1, 1, 0.1},
+		{1, 0.5, 0.1},
+		{1, 0.1, 0}
 	}
 	local SURVEYSCALE = {3, 2, 1}
 	local last = 0
@@ -237,12 +237,13 @@ do
 	local ArchSiteFound;
 	local ArchCanSurvey, ArchWillSurvey = false, false;
 
-	SurveyCooldown:SetPoint("TOP", UIParent, "CENTER", 0, 0)
+	SurveyCooldown:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
 	SurveyCooldown:SetSize(50, 50)
 	SurveyCooldown.text = SurveyCooldown:CreateTexture(nil, "OVERLAY")
 	SurveyCooldown.text:SetAllPoints(SurveyCooldown)
 	SurveyCooldown.text:SetVertexColor(0,1,0.12,0.5)
 	SurveyCooldown:SetScale(1)
+	SV.Animate:Kapow(SurveyCooldown, true)
 
 	local Arch_OnEvent = function(self, event, ...)
 		if(InCombatLockdown() or not archSpell) then return end
@@ -305,8 +306,11 @@ do
 				self.text:SetTexture(img)
 				self.text:SetVertexColor(unpack(SURVEYCOLOR[time]))
 				self:SetScale(SURVEYSCALE[time])
+				self.anim:Play()
 			end
 			last = 0
+		else
+			self:SetScript("OnUpdate", nil)
 		end
 	end 
 

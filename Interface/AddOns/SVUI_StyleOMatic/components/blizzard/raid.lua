@@ -22,8 +22,8 @@ local pairs   = _G.pairs;
 --[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
 HELPERS
@@ -49,12 +49,12 @@ local RaidInfoFrameList = {
 };
 --[[ 
 ########################################################## 
-RAID STYLERS
+RAID PLUGINRS
 ##########################################################
 ]]--
 local function RaidUIStyle()
 	if InCombatLockdown() then return end 
-	if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.raid ~= true then return end 
+	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.raid ~= true then return end 
 	for _,group in pairs(RaidGroupList)do 
 		if _G[group] then
 			_G[group]:RemoveTextures()
@@ -71,7 +71,7 @@ local function RaidUIStyle()
 end 
 
 local function RaidInfoStyle()
-	if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.nonraid ~= true then
+	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.nonraid ~= true then
 		return 
 	end
 
@@ -94,16 +94,16 @@ local function RaidInfoStyle()
 	RaidInfoFrame.Panel:Point("TOPLEFT", RaidInfoFrame, "TOPLEFT")
 	RaidInfoFrame.Panel:Point("BOTTOMRIGHT", RaidInfoFrame, "BOTTOMRIGHT")
 
-	STYLE:ApplyCloseButtonStyle(RaidInfoCloseButton, RaidInfoFrame)
-	STYLE:ApplyScrollFrameStyle(RaidInfoScrollFrameScrollBar)
+	PLUGIN:ApplyCloseButtonStyle(RaidInfoCloseButton, RaidInfoFrame)
+	PLUGIN:ApplyScrollFrameStyle(RaidInfoScrollFrameScrollBar)
 	
 	if RaidFrameRaidBrowserButton then RaidFrameRaidBrowserButton:SetButtonTemplate() end
 	RaidFrameAllAssistCheckButton:SetCheckboxTemplate(true)
 end 
 --[[ 
 ########################################################## 
-STYLE LOADING
+PLUGIN LOADING
 ##########################################################
 ]]--
-STYLE:SaveBlizzardStyle("Blizzard_RaidUI", RaidUIStyle)
-STYLE:SaveCustomStyle(RaidInfoStyle)
+PLUGIN:SaveBlizzardStyle("Blizzard_RaidUI", RaidUIStyle)
+PLUGIN:SaveCustomStyle(RaidInfoStyle)

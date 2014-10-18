@@ -51,6 +51,7 @@ local GoGoGadget = function(self, key)
 end
 
 local function LoadSVEgo()
+	if(not SV.db.general.ego) then return end
 	local GameMenuFrame = _G.GameMenuFrame
 
 	local EgoFrame = CreateFrame("Frame", "SVUI_EgoFrame", UIParent);

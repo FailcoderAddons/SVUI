@@ -366,6 +366,7 @@ local UpdateTargetFrame = function(self)
     if not self:IsElementEnabled("ActionPanel")then 
         self:EnableElement("ActionPanel")
     end
+
     if not self:IsElementEnabled("Friendship")then 
         self:EnableElement("Friendship")
     end
@@ -440,7 +441,6 @@ CONSTRUCTORS["target"] = function(self, unit)
     self.Afflicted = MOD:CreateAfflicted(self)
     tinsert(self.__elements, MOD.SmartAuraDisplay)
     self:RegisterEvent("PLAYER_TARGET_CHANGED", MOD.SmartAuraDisplay)
-
     self.RaidIcon = MOD:CreateRaidIcon(self)
     local isSmall = SV.db.SVUnit[key].combobar.smallIcons
     if(SV.class == "ROGUE") then
@@ -1122,17 +1122,18 @@ local Raid10Visibility = function(self, event)
     if (not db or (db and not db.enable) or (SV.db.SVUnit and not SV.db.SVUnit.smartRaidFilter) or self.isForced) then return end 
 
     local instance, instanceType = IsInInstance()
-    local _, _, _, _, maxPlayers, _, _ = GetInstanceInfo()
+    local _, _, _, raidType, _, _, isDynamic, _, maxPlayers = GetInstanceInfo()
     if(event == "PLAYER_REGEN_ENABLED") then 
         self:UnregisterEvent("PLAYER_REGEN_ENABLED")
     end 
     if not InCombatLockdown() then 
-        if(instance and (instanceType == "raid") and (maxPlayers == 10)) then 
+        if(instance and (instanceType == "raid")) then 
             UnregisterStateDriver(self, "visibility")
-            self:Show()
-        elseif(instance and (instanceType == "raid")) then 
-            UnregisterStateDriver(self, "visibility")
-            self:Hide()
+            if(maxPlayers == 10) then
+                self:Show()
+            else
+                self:Hide()
+            end
         elseif db.visibility then 
             RegisterStateDriver(self, "visibility", db.visibility)
         end 
@@ -1147,17 +1148,18 @@ local Raid25Visibility = function(self, event)
     if (not db or (db and not db.enable) or (SV.db.SVUnit and not SV.db.SVUnit.smartRaidFilter) or self.isForced) then return end 
 
     local instance, instanceType = IsInInstance()
-    local _, _, _, _, maxPlayers, _, _ = GetInstanceInfo()
+    local _, _, _, raidType, _, _, isDynamic, _, maxPlayers = GetInstanceInfo()
     if event == "PLAYER_REGEN_ENABLED"then 
         self:UnregisterEvent("PLAYER_REGEN_ENABLED")
     end 
     if not InCombatLockdown()then 
-        if(instance and (instanceType == "raid") and (maxPlayers == 25)) then 
+        if(instance and (instanceType == "raid")) then 
             UnregisterStateDriver(self, "visibility")
-            self:Show()
-        elseif(instance and (instanceType == "raid")) then 
-            UnregisterStateDriver(self, "visibility")
-            self:Hide()
+            if(maxPlayers > 10 and maxPlayers < 40) then
+                self:Show()
+            else
+                self:Hide()
+            end
         elseif db.visibility then 
             RegisterStateDriver(self, "visibility", db.visibility)
         end 
@@ -1172,17 +1174,18 @@ local Raid40Visibility = function(self, event)
     if (not db or (db and not db.enable) or (SV.db.SVUnit and not SV.db.SVUnit.smartRaidFilter) or self.isForced) then return end 
 
     local instance, instanceType = IsInInstance()
-    local _, _, _, _, maxPlayers, _, _ = GetInstanceInfo()
+    local _, _, _, raidType, _, _, isDynamic, _, maxPlayers = GetInstanceInfo()
     if event == "PLAYER_REGEN_ENABLED"then 
         self:UnregisterEvent("PLAYER_REGEN_ENABLED")
     end 
     if not InCombatLockdown()then 
-        if(instance and (instanceType == "raid") and (maxPlayers == 40)) then 
+        if(instance and (instanceType == "raid")) then 
             UnregisterStateDriver(self, "visibility")
-            self:Show()
-        elseif(instance and (instanceType == "raid")) then 
-            UnregisterStateDriver(self, "visibility")
-            self:Hide()
+            if(maxPlayers == 40) then
+                self:Show()
+            else
+                self:Hide()
+            end
         elseif db.visibility then 
             RegisterStateDriver(self, "visibility", db.visibility)
         end 

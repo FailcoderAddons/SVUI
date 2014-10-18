@@ -20,8 +20,8 @@ local select  = _G.select;
 --[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
 HELPERS
@@ -92,19 +92,18 @@ local function PetJournal_UpdatePets()
 end 
 --[[ 
 ########################################################## 
-FRAME STYLER
+FRAME PLUGINR
 ##########################################################
 ]]--
 local function PetJournalStyle()
-	STYLE.Debugging = true
-	if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.mounts ~= true then return end 
+	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.mounts ~= true then return end 
 
-	STYLE:ApplyWindowStyle(PetJournalParent)
+	PLUGIN:ApplyWindowStyle(PetJournalParent)
 
 	PetJournalParentPortrait:Hide()
-	STYLE:ApplyTabStyle(PetJournalParentTab1)
-	STYLE:ApplyTabStyle(PetJournalParentTab2)
-	STYLE:ApplyCloseButtonStyle(PetJournalParentCloseButton)
+	PLUGIN:ApplyTabStyle(PetJournalParentTab1)
+	PLUGIN:ApplyTabStyle(PetJournalParentTab2)
+	PLUGIN:ApplyCloseButtonStyle(PetJournalParentCloseButton)
 
 	MountJournal:RemoveTextures()
 	MountJournal.LeftInset:RemoveTextures()
@@ -117,24 +116,22 @@ local function PetJournalStyle()
 	MountJournalMountButton:SetButtonTemplate()
 	MountJournalSearchBox:SetEditboxTemplate()
 
-	STYLE:ApplyScrollFrameStyle(MountJournalListScrollFrameScrollBar)
-	MountJournal.MountDisplay:SetFixedPanelTemplate("ModelComic")
+	PLUGIN:ApplyScrollFrameStyle(MountJournalListScrollFrameScrollBar)
+	MountJournal.MountDisplay:SetFixedPanelTemplate("Model")
 
 	local buttons = MountJournal.ListScrollFrame.buttons
 	for i = 1, #buttons do
 		local button = buttons[i]
 		if(button) then
-			STYLE:ApplyItemButtonStyle(button, nil, true, true)
+			PLUGIN:ApplyItemButtonStyle(button, nil, true, true)
 			local bar = _G["SVUI_MountSelectBar"..i]
 			if(bar) then bar:SetParent(button.Panel) end
-			if(SV.GameVersion >= 60000) then
-				if(button.favorite) then
-					local fg = CreateFrame("Frame", nil, button)
-					fg:SetAllPoints(favorite)
-					fg:SetFrameLevel(button:GetFrameLevel() + 30)
-					button.favorite:SetParent(fg)
-					button.favorite:SetTexture([[Interface\Addons\SVUI\assets\artwork\Icons\GENERIC-STAR]])
-				end
+			if(button.favorite) then
+				local fg = CreateFrame("Frame", nil, button)
+				fg:SetAllPoints(favorite)
+				fg:SetFrameLevel(button:GetFrameLevel() + 30)
+				button.favorite:SetParent(fg)
+				button.favorite:SetTexture([[Interface\Addons\SVUI\assets\artwork\Icons\GENERIC-STAR]])
 			end
 		end
 	end
@@ -160,12 +157,12 @@ local function PetJournalStyle()
 	PetJournalFilterButton:RemoveTextures(true)
 	PetJournalFilterButton:SetButtonTemplate()
 	PetJournalListScrollFrame:RemoveTextures()
-	STYLE:ApplyScrollFrameStyle(PetJournalListScrollFrameScrollBar)
+	PLUGIN:ApplyScrollFrameStyle(PetJournalListScrollFrameScrollBar)
 
 	for i = 1, #PetJournal.listScroll.buttons do 
 		local button = _G["PetJournalListScrollFrameButton" .. i]
 		local favorite = _G["PetJournalListScrollFrameButton" .. i .. "Favorite"]
-		STYLE:ApplyItemButtonStyle(button, false, true)
+		PLUGIN:ApplyItemButtonStyle(button, false, true)
 		if(favorite) then
 			local fg = CreateFrame("Frame", nil, button)
 			fg:SetAllPoints(favorite)
@@ -185,7 +182,7 @@ local function PetJournalStyle()
 	PetJournalListScrollFrame:HookScript("OnVerticalScroll", PetJournal_UpdatePets)
 	PetJournalListScrollFrame:HookScript("OnMouseWheel", PetJournal_UpdatePets)
 	PetJournalAchievementStatus:DisableDrawLayer('BACKGROUND')
-	STYLE:ApplyItemButtonStyle(PetJournalHealPetButton, true)
+	PLUGIN:ApplyItemButtonStyle(PetJournalHealPetButton, true)
 	PetJournalHealPetButton.texture:SetTexture([[Interface\Icons\spell_magic_polymorphrabbit]])
 	PetJournalLoadoutBorder:RemoveTextures()
 
@@ -197,7 +194,7 @@ local function PetJournalStyle()
 		pjPet.hover = true;
 		pjPet.pushed = true;
 		pjPet.checked = true;
-		STYLE:ApplyItemButtonStyle(pjPet, nil, nil, true)
+		PLUGIN:ApplyItemButtonStyle(pjPet, nil, nil, true)
 		pjPet.setButton:RemoveTextures()
 		_G['PetJournalLoadoutPet'..b..'HealthFrame'].healthBar:RemoveTextures()
 		_G['PetJournalLoadoutPet'..b..'HealthFrame'].healthBar:SetPanelTemplate('Default')
@@ -208,7 +205,7 @@ local function PetJournalStyle()
 		_G['PetJournalLoadoutPet'..b..'XPBar']:SetFrameLevel(_G['PetJournalLoadoutPet'..b..'XPBar']:GetFrameLevel()+2)
 		for v = 1, 3 do 
 			local s = _G['PetJournalLoadoutPet'..b..'Spell'..v]
-			STYLE:ApplyItemButtonStyle(s)
+			PLUGIN:ApplyItemButtonStyle(s)
 			s.FlyoutArrow:SetTexture([[Interface\Buttons\ActionBarFlyoutButton]])
 			_G['PetJournalLoadoutPet'..b..'Spell'..v..'Icon']:FillInner(s)
 			s.Panel:SetFrameLevel(s:GetFrameLevel() + 1)
@@ -220,17 +217,17 @@ local function PetJournalStyle()
 
 	for b = 1, 2 do 
 		local Q = _G['PetJournalSpellSelectSpell'..b]
-		STYLE:ApplyItemButtonStyle(Q)
+		PLUGIN:ApplyItemButtonStyle(Q)
 		_G['PetJournalSpellSelectSpell'..b..'Icon']:FillInner(Q)
 		_G['PetJournalSpellSelectSpell'..b..'Icon']:SetDrawLayer('BORDER')
 	end 
 
 	PetJournalPetCard:RemoveTextures()
-	STYLE:ApplyItemButtonStyle(PetJournalPetCard, nil, nil, true)
+	PLUGIN:ApplyItemButtonStyle(PetJournalPetCard, nil, nil, true)
 	PetJournalPetCardInset:RemoveTextures()
 	PetJournalPetCardPetInfo.levelBG:SetAlpha(0)
 	PetJournalPetCardPetInfoIcon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-	STYLE:ApplyItemButtonStyle(PetJournalPetCardPetInfo, nil, true, true)
+	PLUGIN:ApplyItemButtonStyle(PetJournalPetCardPetInfo, nil, true, true)
 
 	local fg = CreateFrame("Frame", nil, PetJournalPetCardPetInfo)
 	fg:SetSize(40,40)
@@ -275,36 +272,34 @@ local function PetJournalStyle()
 	PetJournalPetCardXPBar:SetPanelTemplate('Default')
 	PetJournalPetCardXPBar:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]])
 
-	if(SV.GameVersion >= 60000) then
-		STYLE:ApplyTabStyle(PetJournalParentTab3)
-		ToyBox:RemoveTextures()
-		ToyBoxProgressBar:SetPanelTemplate("Bar", true)
-		ToyBoxSearchBox:SetEditboxTemplate()
-		ToyBoxFilterButton:RemoveTextures()
-		ToyBoxFilterButton:SetButtonTemplate()
-		ToyBoxIconsFrame:RemoveTextures()
-		ToyBoxIconsFrame:SetFixedPanelTemplate('ModelComic')
+	PLUGIN:ApplyTabStyle(PetJournalParentTab3)
+	ToyBox:RemoveTextures()
+	ToyBoxProgressBar:SetPanelTemplate("Bar", true)
+	ToyBoxSearchBox:SetEditboxTemplate()
+	ToyBoxFilterButton:RemoveTextures()
+	ToyBoxFilterButton:SetButtonTemplate()
+	ToyBoxIconsFrame:RemoveTextures()
+	ToyBoxIconsFrame:SetFixedPanelTemplate('Model')
 
-		MountJournalFilterButton:RemoveTextures()
-		MountJournalFilterButton:SetButtonTemplate()
+	MountJournalFilterButton:RemoveTextures()
+	MountJournalFilterButton:SetButtonTemplate()
 
-		MountJournal.SummonRandomFavoriteButton:RemoveTextures()
-		MountJournal.SummonRandomFavoriteButton:SetSlotTemplate(true, 2, 0, 0, true)
-		MountJournal.SummonRandomFavoriteButton.texture:SetTexture([[Interface\ICONS\ACHIEVEMENT_GUILDPERK_MOUNTUP]])
-		MountJournal.SummonRandomFavoriteButton.texture:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+	MountJournal.SummonRandomFavoriteButton:RemoveTextures()
+	MountJournal.SummonRandomFavoriteButton:SetSlotTemplate(true, 2, 0, 0, true)
+	MountJournal.SummonRandomFavoriteButton.texture:SetTexture([[Interface\ICONS\ACHIEVEMENT_GUILDPERK_MOUNTUP]])
+	MountJournal.SummonRandomFavoriteButton.texture:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 
-		for i = 1, 18 do
-			local gName = ("ToySpellButton%d"):format(i)
-			local button = _G[gName]
-			if(button) then
-				button:SetButtonTemplate()
-			end
+	for i = 1, 18 do
+		local gName = ("ToySpellButton%d"):format(i)
+		local button = _G[gName]
+		if(button) then
+			button:SetButtonTemplate()
 		end
 	end
 end 
 --[[ 
 ########################################################## 
-STYLE LOADING
+PLUGIN LOADING
 ##########################################################
 ]]--
-STYLE:SaveBlizzardStyle("Blizzard_PetJournal", PetJournalStyle)
+PLUGIN:SaveBlizzardStyle("Blizzard_PetJournal", PetJournalStyle)

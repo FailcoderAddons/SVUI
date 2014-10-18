@@ -58,15 +58,9 @@ local L = SV.L
 LOCAL VARS
 ##########################################################
 ]]--
-local SuperDockWindowRight, QuestFrame;
+local SuperDockWindowRight, QuestFrame, ObjectiveTrackerFrame;
 local ICON_FILE = [[Interface\AddOns\SVUI\assets\artwork\Icons\DOCK-QUESTS]]
 local OBJECTIVE_TRACKER_LINE_WIDTH = _G.OBJECTIVE_TRACKER_LINE_WIDTH;
---[[ 
-########################################################## 
-PRE VARS/FUNCTIONS
-##########################################################
-]]--
- 
 --[[ 
 ########################################################## 
 CORE FUNCTIONS
@@ -92,8 +86,8 @@ end
 
 local function CreateQuestFrame()
 	SuperDockWindowRight = _G.SuperDockWindowRight
-	local ObjectiveTrackerFrame = _G.ObjectiveTrackerFrame
-
+	ObjectiveTrackerFrame = _G.ObjectiveTrackerFrame
+	if(not ObjectiveTrackerFrame) then return end
 	if(not SV.db.general.questWatch) then
 		ObjectiveTrackerFrame:RemoveTextures(true)
 
@@ -111,16 +105,28 @@ local function CreateQuestFrame()
 		ObjectiveTrackerFrame.SetAllPoints = SV.fubar;
 
 		ObjectiveTrackerFrame.BlocksFrame:RemoveTextures(true)
-		ObjectiveTrackerFrame.BlocksFrame.QuestHeader:RemoveTextures(true)
-		ObjectiveTrackerFrame.BlocksFrame.AchievementHeader:RemoveTextures(true)
-		ObjectiveTrackerFrame.BlocksFrame.ScenarioHeader:RemoveTextures(true)
 		ObjectiveTrackerFrame.HeaderMenu:RemoveTextures(true)
 		ObjectiveTrackerFrame.BlockDropDown:RemoveTextures(true)
+
+		if(SV.db.general.questHeaders) then
+			ObjectiveTrackerFrame.BlocksFrame.QuestHeader:RemoveTextures(true)
+			ObjectiveTrackerFrame.BlocksFrame.QuestHeader:SetFixedPanelTemplate("Headline", true)
+	  		ObjectiveTrackerFrame.BlocksFrame.QuestHeader:SetBackdropColor(0, 0, 0, 0.5)
+
+			ObjectiveTrackerFrame.BlocksFrame.AchievementHeader:RemoveTextures(true)
+			ObjectiveTrackerFrame.BlocksFrame.AchievementHeader:SetFixedPanelTemplate("Headline", true)
+	  		ObjectiveTrackerFrame.BlocksFrame.AchievementHeader:SetBackdropColor(0, 0, 0, 0.5)
+
+			ObjectiveTrackerFrame.BlocksFrame.ScenarioHeader:RemoveTextures(true)
+			ObjectiveTrackerFrame.BlocksFrame.ScenarioHeader:SetFixedPanelTemplate("Headline", true)
+	  		ObjectiveTrackerFrame.BlocksFrame.ScenarioHeader:SetBackdropColor(0, 0, 0, 0.5)
+	  	end
 
 		SV.Mentalo:Add(QuestFrame, "Quest Watch");
 	else
 		local bgTex = [[Interface\BUTTONS\WHITE8X8]]
 		local bdTex = SV.Media.bar.glow
+		local WIDTH, HEIGHT = SuperDockWindowRight:GetSize()
 
 		QuestFrame = CreateFrame("Frame", "SVUI_QuestFrame", SuperDockWindowRight);
 		QuestFrame:SetFrameStrata("BACKGROUND");
@@ -162,14 +168,9 @@ local function CreateQuestFrame()
 		ObjectiveTrackerFrame:SetClampedToScreen(false)
 		ObjectiveTrackerFrame:SetParent(listFrame)
 		ObjectiveTrackerFrame:SetHeight(500)
+		ObjectiveTrackerFrame:SetWidth(WIDTH)
 		ObjectiveTrackerFrame:SetPoint("TOPRIGHT", listFrame, "TOPRIGHT", -31, 0)
 		ObjectiveTrackerFrame:SetFrameLevel(listFrame:GetFrameLevel()  +  1)
-		if listFrame then 
-			OBJECTIVE_TRACKER_LINE_WIDTH = (listFrame:GetWidth() - 100);
-		else 
-			OBJECTIVE_TRACKER_LINE_WIDTH = (ObjectiveTrackerFrame:GetWidth() - 100);
-		end 
-		ObjectiveTrackerFrame:SetWidth(OBJECTIVE_TRACKER_LINE_WIDTH)
 
 		listFrame:SetScrollChild(ObjectiveTrackerFrame)
 		scrollFrame:SetScript("OnValueChanged", function(self, argValue)
@@ -178,13 +179,36 @@ local function CreateQuestFrame()
 		scrollFrame:ClearAllPoints()
 		scrollFrame:SetPoint("TOPRIGHT", QuestFrame, "TOPRIGHT", -3, 0)
 
+		ObjectiveTrackerFrame.ClearAllPoints = SV.fubar;
+		ObjectiveTrackerFrame.SetAllPoints = SV.fubar;
+		ObjectiveTrackerFrame.SetPoint = SV.fubar;
+		ObjectiveTrackerFrame.SetWidth = SV.fubar;
+
+		ObjectiveTrackerFrame.HeaderMenu.MinimizeButton:Hide()
+
 		ObjectiveTrackerFrame.BlocksFrame:RemoveTextures(true)
 		ObjectiveTrackerFrame.BlocksFrame:SetPoint("TOPLEFT", ObjectiveTrackerFrame, "TOPLEFT", 87, 0)
 		ObjectiveTrackerFrame.BlocksFrame:SetPoint("BOTTOMLEFT", ObjectiveTrackerFrame, "BOTTOMLEFT", 87, 0)
-		ObjectiveTrackerFrame.BlocksFrame:SetWidth(OBJECTIVE_TRACKER_LINE_WIDTH - 100)
-		ObjectiveTrackerFrame.ClearAllPoints = SV.fubar;
-		ObjectiveTrackerFrame.SetPoint = SV.fubar;
-		ObjectiveTrackerFrame.SetAllPoints = SV.fubar;
+		ObjectiveTrackerFrame.BlocksFrame:SetWidth(WIDTH)
+		ObjectiveTrackerFrame.BlocksFrame.SetWidth = SV.fubar;
+
+		ObjectiveTrackerFrame.BlocksFrame.QuestHeader:SetWidth((WIDTH - 60))
+		ObjectiveTrackerFrame.BlocksFrame.AchievementHeader:SetWidth((WIDTH - 60))
+		ObjectiveTrackerFrame.BlocksFrame.ScenarioHeader:SetWidth((WIDTH - 60))
+
+		if(SV.db.general.questHeaders) then
+			ObjectiveTrackerFrame.BlocksFrame.QuestHeader:RemoveTextures(true)
+			ObjectiveTrackerFrame.BlocksFrame.QuestHeader:SetFixedPanelTemplate("Headline", true)
+	  		ObjectiveTrackerFrame.BlocksFrame.QuestHeader:SetBackdropColor(0, 0, 0, 0.5)
+
+			ObjectiveTrackerFrame.BlocksFrame.AchievementHeader:RemoveTextures(true)
+			ObjectiveTrackerFrame.BlocksFrame.AchievementHeader:SetFixedPanelTemplate("Headline", true)
+	  		ObjectiveTrackerFrame.BlocksFrame.AchievementHeader:SetBackdropColor(0, 0, 0, 0.5)
+
+			ObjectiveTrackerFrame.BlocksFrame.ScenarioHeader:RemoveTextures(true)
+			ObjectiveTrackerFrame.BlocksFrame.ScenarioHeader:SetFixedPanelTemplate("Headline", true)
+	  		ObjectiveTrackerFrame.BlocksFrame.ScenarioHeader:SetBackdropColor(0, 0, 0, 0.5)
+	  	end
 
 		local eventHandler = CreateFrame("Frame")
 		eventHandler:RegisterEvent("QUEST_AUTOCOMPLETE")

@@ -31,8 +31,8 @@ GET ADDON DATA
 ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
 ALTOHOLIC
@@ -51,18 +51,18 @@ local function StyleAltoholic(event, addon)
 	assert(AltoholicFrame, "AddOn Not Loaded")
 
 	if event == "PLAYER_ENTERING_WORLD" then
-		STYLE:ApplyTooltipStyle(AltoTooltip)
+		PLUGIN:ApplyTooltipStyle(AltoTooltip)
 
 		AltoholicFramePortrait:Die()
 
-		STYLE:ApplyFrameStyle(AltoholicFrame, "Action", false, true)
-		STYLE:ApplyFrameStyle(AltoMsgBox)
-		STYLE:ApplyButtonStyle(AltoMsgBoxYesButton)
-		STYLE:ApplyButtonStyle(AltoMsgBoxNoButton)
-		STYLE:ApplyCloseButtonStyle(AltoholicFrameCloseButton)
-		STYLE:ApplyEditBoxStyle(AltoholicFrame_SearchEditBox, 175, 15)
-		STYLE:ApplyButtonStyle(AltoholicFrame_ResetButton)
-		STYLE:ApplyButtonStyle(AltoholicFrame_SearchButton)
+		PLUGIN:ApplyFrameStyle(AltoholicFrame, "Action", false, true)
+		PLUGIN:ApplyFrameStyle(AltoMsgBox)
+		PLUGIN:ApplyButtonStyle(AltoMsgBoxYesButton)
+		PLUGIN:ApplyButtonStyle(AltoMsgBoxNoButton)
+		PLUGIN:ApplyCloseButtonStyle(AltoholicFrameCloseButton)
+		PLUGIN:ApplyEditBoxStyle(AltoholicFrame_SearchEditBox, 175, 15)
+		PLUGIN:ApplyButtonStyle(AltoholicFrame_ResetButton)
+		PLUGIN:ApplyButtonStyle(AltoholicFrame_SearchButton)
 
 		AltoholicFrameTab1:Point("TOPLEFT", AltoholicFrame, "BOTTOMLEFT", -5, 2)
 		AltoholicFrame_ResetButton:Point("TOPLEFT", AltoholicFrame, "TOPLEFT", 25, -77)
@@ -72,15 +72,15 @@ local function StyleAltoholic(event, addon)
 	end
 
 	if addon == "Altoholic_Summary" then
-		STYLE:ApplyFrameStyle(AltoholicFrameSummary)
-		STYLE:ApplyFrameStyle(AltoholicFrameBagUsage)
-		STYLE:ApplyFrameStyle(AltoholicFrameSkills)
-		STYLE:ApplyFrameStyle(AltoholicFrameActivity)
-		STYLE:ApplyScrollBarStyle(AltoholicFrameSummaryScrollFrameScrollBar)
-		STYLE:ApplyScrollBarStyle(AltoholicFrameBagUsageScrollFrameScrollBar)
-		STYLE:ApplyScrollBarStyle(AltoholicFrameSkillsScrollFrameScrollBar)
-		STYLE:ApplyScrollBarStyle(AltoholicFrameActivityScrollFrameScrollBar)
-		STYLE:ApplyDropdownStyle(AltoholicTabSummary_SelectLocation, 200)
+		PLUGIN:ApplyFrameStyle(AltoholicFrameSummary)
+		PLUGIN:ApplyFrameStyle(AltoholicFrameBagUsage)
+		PLUGIN:ApplyFrameStyle(AltoholicFrameSkills)
+		PLUGIN:ApplyFrameStyle(AltoholicFrameActivity)
+		PLUGIN:ApplyScrollBarStyle(AltoholicFrameSummaryScrollFrameScrollBar)
+		PLUGIN:ApplyScrollBarStyle(AltoholicFrameBagUsageScrollFrameScrollBar)
+		PLUGIN:ApplyScrollBarStyle(AltoholicFrameSkillsScrollFrameScrollBar)
+		PLUGIN:ApplyScrollBarStyle(AltoholicFrameActivityScrollFrameScrollBar)
+		PLUGIN:ApplyDropdownStyle(AltoholicTabSummary_SelectLocation, 200)
 
 		if(AltoholicFrameSummaryScrollFrame) then		
 			AltoholicFrameSummaryScrollFrame:RemoveTextures(true)
@@ -98,47 +98,47 @@ local function StyleAltoholic(event, addon)
 			AltoholicFrameActivityScrollFrame:RemoveTextures(true)
 		end
 
-		STYLE:ApplyButtonStyle(AltoholicTabSummary_RequestSharing)
-		STYLE:ApplyTextureStyle(AltoholicTabSummary_RequestSharingIconTexture)
-		STYLE:ApplyButtonStyle(AltoholicTabSummary_Options)
-		STYLE:ApplyTextureStyle(AltoholicTabSummary_OptionsIconTexture)
-		STYLE:ApplyButtonStyle(AltoholicTabSummary_OptionsDataStore)
-		STYLE:ApplyTextureStyle(AltoholicTabSummary_OptionsDataStoreIconTexture)
+		PLUGIN:ApplyButtonStyle(AltoholicTabSummary_RequestSharing)
+		PLUGIN:ApplyTextureStyle(AltoholicTabSummary_RequestSharingIconTexture)
+		PLUGIN:ApplyButtonStyle(AltoholicTabSummary_Options)
+		PLUGIN:ApplyTextureStyle(AltoholicTabSummary_OptionsIconTexture)
+		PLUGIN:ApplyButtonStyle(AltoholicTabSummary_OptionsDataStore)
+		PLUGIN:ApplyTextureStyle(AltoholicTabSummary_OptionsDataStoreIconTexture)
 
 		for i = 1, 5 do
-			STYLE:ApplyButtonStyle(_G["AltoholicTabSummaryMenuItem"..i], true)
+			PLUGIN:ApplyButtonStyle(_G["AltoholicTabSummaryMenuItem"..i], true)
 		end
 		for i = 1, 8 do
-			STYLE:ApplyButtonStyle(_G["AltoholicTabSummary_Sort"..i], true)
+			PLUGIN:ApplyButtonStyle(_G["AltoholicTabSummary_Sort"..i], true)
 		end
 		for i = 1, 7 do
-			STYLE:ApplyTabStyle(_G["AltoholicFrameTab"..i], true)
+			PLUGIN:ApplyTabStyle(_G["AltoholicFrameTab"..i], true)
 		end
 	end
 	
 	if IsAddOnLoaded("Altoholic_Characters") or addon == "Altoholic_Characters" then
-		STYLE:ApplyFrameStyle(AltoholicFrameContainers)
-		STYLE:ApplyFrameStyle(AltoholicFrameRecipes)
-		STYLE:ApplyFrameStyle(AltoholicFrameQuests)
-		STYLE:ApplyFrameStyle(AltoholicFrameGlyphs)
-		STYLE:ApplyFrameStyle(AltoholicFrameMail)
-		STYLE:ApplyFrameStyle(AltoholicFrameSpellbook)
-		STYLE:ApplyFrameStyle(AltoholicFramePets)
-		STYLE:ApplyFrameStyle(AltoholicFrameAuctions)
-		STYLE:ApplyScrollBarStyle(AltoholicFrameContainersScrollFrameScrollBar)
-		STYLE:ApplyScrollBarStyle(AltoholicFrameQuestsScrollFrameScrollBar)
-		STYLE:ApplyScrollBarStyle(AltoholicFrameRecipesScrollFrameScrollBar)
-		STYLE:ApplyDropdownStyle(AltoholicFrameTalents_SelectMember)
-		STYLE:ApplyDropdownStyle(AltoholicTabCharacters_SelectRealm)
-		STYLE:ApplyPaginationStyle(AltoholicFrameSpellbookPrevPage)
-		STYLE:ApplyPaginationStyle(AltoholicFrameSpellbookNextPage)
-		STYLE:ApplyPaginationStyle(AltoholicFramePetsNormalPrevPage)
-		STYLE:ApplyPaginationStyle(AltoholicFramePetsNormalNextPage)
-		STYLE:ApplyRotateStyle(AltoholicFramePetsNormal_ModelFrameRotateLeftButton)
-		STYLE:ApplyRotateStyle(AltoholicFramePetsNormal_ModelFrameRotateRightButton)
-		STYLE:ApplyButtonStyle(AltoholicTabCharacters_Sort1)
-		STYLE:ApplyButtonStyle(AltoholicTabCharacters_Sort2)
-		STYLE:ApplyButtonStyle(AltoholicTabCharacters_Sort3)
+		PLUGIN:ApplyFrameStyle(AltoholicFrameContainers)
+		PLUGIN:ApplyFrameStyle(AltoholicFrameRecipes)
+		PLUGIN:ApplyFrameStyle(AltoholicFrameQuests)
+		PLUGIN:ApplyFrameStyle(AltoholicFrameGlyphs)
+		PLUGIN:ApplyFrameStyle(AltoholicFrameMail)
+		PLUGIN:ApplyFrameStyle(AltoholicFrameSpellbook)
+		PLUGIN:ApplyFrameStyle(AltoholicFramePets)
+		PLUGIN:ApplyFrameStyle(AltoholicFrameAuctions)
+		PLUGIN:ApplyScrollBarStyle(AltoholicFrameContainersScrollFrameScrollBar)
+		PLUGIN:ApplyScrollBarStyle(AltoholicFrameQuestsScrollFrameScrollBar)
+		PLUGIN:ApplyScrollBarStyle(AltoholicFrameRecipesScrollFrameScrollBar)
+		PLUGIN:ApplyDropdownStyle(AltoholicFrameTalents_SelectMember)
+		PLUGIN:ApplyDropdownStyle(AltoholicTabCharacters_SelectRealm)
+		PLUGIN:ApplyPaginationStyle(AltoholicFrameSpellbookPrevPage)
+		PLUGIN:ApplyPaginationStyle(AltoholicFrameSpellbookNextPage)
+		PLUGIN:ApplyPaginationStyle(AltoholicFramePetsNormalPrevPage)
+		PLUGIN:ApplyPaginationStyle(AltoholicFramePetsNormalNextPage)
+		PLUGIN:ApplyRotateStyle(AltoholicFramePetsNormal_ModelFrameRotateLeftButton)
+		PLUGIN:ApplyRotateStyle(AltoholicFramePetsNormal_ModelFrameRotateRightButton)
+		PLUGIN:ApplyButtonStyle(AltoholicTabCharacters_Sort1)
+		PLUGIN:ApplyButtonStyle(AltoholicTabCharacters_Sort2)
+		PLUGIN:ApplyButtonStyle(AltoholicTabCharacters_Sort3)
 		AltoholicFrameContainersScrollFrame:RemoveTextures(true)
 		AltoholicFrameQuestsScrollFrame:RemoveTextures(true)
 		AltoholicFrameRecipesScrollFrame:RemoveTextures(true)
@@ -156,64 +156,64 @@ local function StyleAltoholic(event, addon)
 		}
 
 		for _, object in pairs(Buttons) do
-			STYLE:ApplyTextureStyle(_G[object..'IconTexture'])
-			STYLE:ApplyTextureStyle(_G[object])
+			PLUGIN:ApplyTextureStyle(_G[object..'IconTexture'])
+			PLUGIN:ApplyTextureStyle(_G[object])
 		end
 
 		for i = 1, 7 do
 			for j = 1, 14 do
-				STYLE:ApplyItemButtonStyle(_G["AltoholicFrameContainersEntry"..i.."Item"..j])
+				PLUGIN:ApplyItemButtonStyle(_G["AltoholicFrameContainersEntry"..i.."Item"..j])
 				_G["AltoholicFrameContainersEntry"..i.."Item"..j]:HookScript('OnShow', ColorAltoBorder)
 			end
 		end
 	end
 
 	if IsAddOnLoaded("Altoholic_Achievements") or addon == "Altoholic_Achievements" then
-		STYLE:ApplyUnderlayStyle(AltoholicFrameAchievements)
+		PLUGIN:ApplyFixedFrameStyle(AltoholicFrameAchievements)
 		AltoholicFrameAchievementsScrollFrame:RemoveTextures(true)
 		AltoholicAchievementsMenuScrollFrame:RemoveTextures(true)
-		STYLE:ApplyScrollBarStyle(AltoholicFrameAchievementsScrollFrameScrollBar)
-		STYLE:ApplyScrollBarStyle(AltoholicAchievementsMenuScrollFrameScrollBar)
-		STYLE:ApplyDropdownStyle(AltoholicTabAchievements_SelectRealm)
+		PLUGIN:ApplyScrollBarStyle(AltoholicFrameAchievementsScrollFrameScrollBar)
+		PLUGIN:ApplyScrollBarStyle(AltoholicAchievementsMenuScrollFrameScrollBar)
+		PLUGIN:ApplyDropdownStyle(AltoholicTabAchievements_SelectRealm)
 		AltoholicTabAchievements_SelectRealm:Point("TOPLEFT", AltoholicFrame, "TOPLEFT", 205, -57)
 
 		for i = 1, 15 do
-			STYLE:ApplyButtonStyle(_G["AltoholicTabAchievementsMenuItem"..i], true)
+			PLUGIN:ApplyButtonStyle(_G["AltoholicTabAchievementsMenuItem"..i], true)
 		end
 
 		for i = 1, 8 do
 			for j = 1, 10 do
-				STYLE:ApplyUnderlayStyle(_G["AltoholicFrameAchievementsEntry"..i.."Item"..j])
+				PLUGIN:ApplyFixedFrameStyle(_G["AltoholicFrameAchievementsEntry"..i.."Item"..j])
 				local Backdrop = _G["AltoholicFrameAchievementsEntry"..i.."Item"..j].backdrop or _G["AltoholicFrameAchievementsEntry"..i.."Item"..j].Backdrop
-				STYLE:ApplyTextureStyle(_G["AltoholicFrameAchievementsEntry"..i.."Item"..j..'_Background'])
+				PLUGIN:ApplyTextureStyle(_G["AltoholicFrameAchievementsEntry"..i.."Item"..j..'_Background'])
 				_G["AltoholicFrameAchievementsEntry"..i.."Item"..j..'_Background']:SetInside(Backdrop)
 			end
 		end
 	end
 
 	if IsAddOnLoaded("Altoholic_Agenda") or addon == "Altoholic_Agenda" then
-		STYLE:ApplyFrameStyle(AltoholicFrameCalendarScrollFrame)
-		STYLE:ApplyFrameStyle(AltoholicTabAgendaMenuItem1)
-		STYLE:ApplyScrollBarStyle(AltoholicFrameCalendarScrollFrameScrollBar)
-		STYLE:ApplyPaginationStyle(AltoholicFrameCalendar_NextMonth)
-		STYLE:ApplyPaginationStyle(AltoholicFrameCalendar_PrevMonth)
-		STYLE:ApplyButtonStyle(AltoholicTabAgendaMenuItem1, true)
+		PLUGIN:ApplyFrameStyle(AltoholicFrameCalendarScrollFrame)
+		PLUGIN:ApplyFrameStyle(AltoholicTabAgendaMenuItem1)
+		PLUGIN:ApplyScrollBarStyle(AltoholicFrameCalendarScrollFrameScrollBar)
+		PLUGIN:ApplyPaginationStyle(AltoholicFrameCalendar_NextMonth)
+		PLUGIN:ApplyPaginationStyle(AltoholicFrameCalendar_PrevMonth)
+		PLUGIN:ApplyButtonStyle(AltoholicTabAgendaMenuItem1, true)
 
 		for i = 1, 14 do
-			STYLE:ApplyFrameStyle(_G["AltoholicFrameCalendarEntry"..i])
+			PLUGIN:ApplyFrameStyle(_G["AltoholicFrameCalendarEntry"..i])
 		end
 	end
 
 	if IsAddOnLoaded("Altoholic_Grids") or addon == "Altoholic_Grids" then
 		AltoholicFrameGridsScrollFrame:RemoveTextures(true)
-		STYLE:ApplyUnderlayStyle(AltoholicFrameGrids)
-		STYLE:ApplyScrollBarStyle(AltoholicFrameGridsScrollFrameScrollBar)
-		STYLE:ApplyDropdownStyle(AltoholicTabGrids_SelectRealm)
-		STYLE:ApplyDropdownStyle(AltoholicTabGrids_SelectView)
+		PLUGIN:ApplyFixedFrameStyle(AltoholicFrameGrids)
+		PLUGIN:ApplyScrollBarStyle(AltoholicFrameGridsScrollFrameScrollBar)
+		PLUGIN:ApplyDropdownStyle(AltoholicTabGrids_SelectRealm)
+		PLUGIN:ApplyDropdownStyle(AltoholicTabGrids_SelectView)
 
 		for i = 1, 8 do
 			for j = 1, 10 do
-				STYLE:ApplyUnderlayStyle(_G["AltoholicFrameGridsEntry"..i.."Item"..j], nil, nil, nil, true)
+				PLUGIN:ApplyFixedFrameStyle(_G["AltoholicFrameGridsEntry"..i.."Item"..j], nil, nil, nil, true)
 				_G["AltoholicFrameGridsEntry"..i.."Item"..j]:HookScript('OnShow', ColorAltoBorder)
 			end
 		end
@@ -231,53 +231,53 @@ local function StyleAltoholic(event, addon)
 	end
 
 	if IsAddOnLoaded("Altoholic_Guild") or addon == "Altoholic_Guild" then
-		STYLE:ApplyFrameStyle(AltoholicFrameGuildMembers)
-		STYLE:ApplyFrameStyle(AltoholicFrameGuildBank)
-		STYLE:ApplyScrollBarStyle(AltoholicFrameGuildMembersScrollFrameScrollBar)
+		PLUGIN:ApplyFrameStyle(AltoholicFrameGuildMembers)
+		PLUGIN:ApplyFrameStyle(AltoholicFrameGuildBank)
+		PLUGIN:ApplyScrollBarStyle(AltoholicFrameGuildMembersScrollFrameScrollBar)
 		AltoholicFrameGuildMembersScrollFrame:RemoveTextures(true)
 
 		for i = 1, 2 do
-			STYLE:ApplyButtonStyle(_G["AltoholicTabGuildMenuItem"..i])
+			PLUGIN:ApplyButtonStyle(_G["AltoholicTabGuildMenuItem"..i])
 		end
 
 		for i = 1, 7 do
 			for j = 1, 14 do
-				STYLE:ApplyItemButtonStyle(_G["AltoholicFrameGuildBankEntry"..i.."Item"..j])
+				PLUGIN:ApplyItemButtonStyle(_G["AltoholicFrameGuildBankEntry"..i.."Item"..j])
 			end
 		end
 
 		for i = 1, 19 do
-			STYLE:ApplyItemButtonStyle(_G["AltoholicFrameGuildMembersItem"..i])
+			PLUGIN:ApplyItemButtonStyle(_G["AltoholicFrameGuildMembersItem"..i])
 		end
 
 		for i = 1, 5 do
-			STYLE:ApplyButtonStyle(_G["AltoholicTabGuild_Sort"..i])
+			PLUGIN:ApplyButtonStyle(_G["AltoholicTabGuild_Sort"..i])
 		end
 	end
 
 	if IsAddOnLoaded("Altoholic_Search") or addon == "Altoholic_Search" then
-		STYLE:ApplyUnderlayStyle(AltoholicFrameSearch, true)
+		PLUGIN:ApplyFixedFrameStyle(AltoholicFrameSearch, true)
 		AltoholicFrameSearchScrollFrame:RemoveTextures(true)
 		AltoholicSearchMenuScrollFrame:RemoveTextures(true)
-		STYLE:ApplyScrollBarStyle(AltoholicFrameSearchScrollFrameScrollBar)
-		STYLE:ApplyScrollBarStyle(AltoholicSearchMenuScrollFrameScrollBar)
-		STYLE:ApplyDropdownStyle(AltoholicTabSearch_SelectRarity)
-		STYLE:ApplyDropdownStyle(AltoholicTabSearch_SelectSlot)
-		STYLE:ApplyDropdownStyle(AltoholicTabSearch_SelectLocation)
+		PLUGIN:ApplyScrollBarStyle(AltoholicFrameSearchScrollFrameScrollBar)
+		PLUGIN:ApplyScrollBarStyle(AltoholicSearchMenuScrollFrameScrollBar)
+		PLUGIN:ApplyDropdownStyle(AltoholicTabSearch_SelectRarity)
+		PLUGIN:ApplyDropdownStyle(AltoholicTabSearch_SelectSlot)
+		PLUGIN:ApplyDropdownStyle(AltoholicTabSearch_SelectLocation)
 		AltoholicTabSearch_SelectRarity:Size(125, 32)
 		AltoholicTabSearch_SelectSlot:Size(125, 32)
 		AltoholicTabSearch_SelectLocation:Size(175, 32)
-		STYLE:ApplyEditBoxStyle(_G["AltoholicTabSearch_MinLevel"])
-		STYLE:ApplyEditBoxStyle(_G["AltoholicTabSearch_MaxLevel"])
+		PLUGIN:ApplyEditBoxStyle(_G["AltoholicTabSearch_MinLevel"])
+		PLUGIN:ApplyEditBoxStyle(_G["AltoholicTabSearch_MaxLevel"])
 
 		for i = 1, 15 do
-			STYLE:ApplyButtonStyle(_G["AltoholicTabSearchMenuItem"..i])
+			PLUGIN:ApplyButtonStyle(_G["AltoholicTabSearchMenuItem"..i])
 		end
 
 		for i = 1, 8 do
-			STYLE:ApplyButtonStyle(_G["AltoholicTabSearch_Sort"..i])
+			PLUGIN:ApplyButtonStyle(_G["AltoholicTabSearch_Sort"..i])
 		end
 	end
 end
 
-STYLE:SaveAddonStyle("Altoholic", StyleAltoholic, nil, true)
+PLUGIN:SaveAddonStyle("Altoholic", StyleAltoholic, nil, true)

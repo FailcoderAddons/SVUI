@@ -73,10 +73,9 @@ function PLUGIN:SAVE_CHAT_HISTORY(event, ...)
 	  	local timestamp = MessageTimeStamp()
 		local lineNum, lineID = 0
 
-		self.ChatHistory[timestamp] = temp_cache
+		self.cache.chat[timestamp] = temp_cache
 
-		local history = self.ChatHistory
-		for id, data in pairs(history) do
+		for id, data in pairs(self.cache.chat) do
 			lineNum = lineNum + 1
 			if((not lineID) or lineID > id) then
 				lineID = id
@@ -84,36 +83,14 @@ function PLUGIN:SAVE_CHAT_HISTORY(event, ...)
 		end
 
 		if(lineNum > 128) then
-			self.ChatHistory[lineID] = nil
-		end	  
-	end
-	temp_cache = nil
-end 
-
-function PLUGIN:PLAYER_ENTERING_WORLD()
-	local history = self.ChatHistory
-	local temp_cache, data_cache = {}
-	for id, _ in pairs(history) do
-		tinsert(temp_cache, tonumber(id))
-	end
-	tsort(temp_cache, function(a, b)
-		return a < b
-	end)
-	for i = 1, #temp_cache do
-		data_cache = history[tostring(temp_cache[i])]
-		if type(data_cache) == "table" and data_cache[20] ~= nil then
-			ChatFrame_MessageEventHandler(DEFAULT_CHAT_FRAME, data_cache[20], unpack(data_cache))
+			self.cache.chat[lineID] = nil
 		end
 	end
 	temp_cache = nil
-	data_cache = nil
-	self:UnregisterEvent("PLAYER_ENTERING_WORLD")
-end 
+end  
 
 function PLUGIN:EnableChatHistory()
-	if not ChatOMatic_Cache["chat"] then ChatOMatic_Cache["chat"] = {} end
-
-	self.ChatHistory = ChatOMatic_Cache["chat"]
+	if not self.cache["chat"] then self.cache["chat"] = {} end
 
 	self:RegisterEvent("CHAT_MSG_CHANNEL", "SAVE_CHAT_HISTORY")
 	self:RegisterEvent("CHAT_MSG_EMOTE", "SAVE_CHAT_HISTORY")
@@ -132,7 +109,32 @@ function PLUGIN:EnableChatHistory()
 	self:RegisterEvent("CHAT_MSG_INSTANCE_CHAT_LEADER", "SAVE_CHAT_HISTORY")
 	self:RegisterEvent("CHAT_MSG_BN_CONVERSATION", "SAVE_CHAT_HISTORY")
 	self:RegisterEvent("CHAT_MSG_BN_WHISPER_INFORM", "SAVE_CHAT_HISTORY")
-	self:RegisterEvent("PLAYER_ENTERING_WORLD")
+	
+	local temp_cache, data_cache = {}
+	for id, _ in pairs(self.cache.chat) do
+		tinsert(temp_cache, tonumber(id))
+	end
+	tsort(temp_cache, function(a, b)
+		return a < b
+	end)
+	for i = 1, #temp_cache do
+		local lineID = tostring(temp_cache[i])
+		data_cache = self.cache.chat[lineID]
+		if(data_cache) then
+			local GUID = data_cache[12]
+			if((type(data_cache) == "table") and data_cache[20] ~= nil and (GUID and type(GUID) == "string")) then
+				if(not GUID:find("Player-")) then
+					self.cache.chat[lineID] = nil
+				else
+					ChatFrame_MessageEventHandler(DEFAULT_CHAT_FRAME, data_cache[20], unpack(data_cache))
+				end
+			end
+		end
+	end
+	
+	temp_cache = nil
+	data_cache = nil
+	wipe(self.cache.chat)
 end
 
 function PLUGIN:DisableChatHistory()
@@ -153,5 +155,4 @@ function PLUGIN:DisableChatHistory()
 	self:UnregisterEvent("CHAT_MSG_INSTANCE_CHAT_LEADER")
 	self:UnregisterEvent("CHAT_MSG_BN_CONVERSATION")
 	self:UnregisterEvent("CHAT_MSG_BN_WHISPER_INFORM")
-	self:UnregisterEvent("PLAYER_ENTERING_WORLD")
 end

@@ -22,13 +22,15 @@ local pairs   = _G.pairs;
 --[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
 HELPERS
 ##########################################################
 ]]--
+local SlotListener = CreateFrame("Frame")
+
 local CharacterSlotNames = {
 	"HeadSlot",
 	"NeckSlot",
@@ -97,19 +99,37 @@ local function SetItemFrame(frame, point)
 end
 
 local function StyleCharacterSlots()
-	for _,slotName in pairs(CharacterSlotNames)do 
-		local charSlot = _G["Character"..slotName]
-		local slotID,_,_ = GetInventorySlotInfo(slotName)
-		local itemID = GetInventoryItemID("player",slotID)
-		if itemID then 
-			local _,_,info = GetItemInfo(itemID)
-			if info and info > 1 then
-				 charSlot:SetBackdropBorderColor(GetItemQualityColor(info))
-			else
-				 charSlot:SetBackdropBorderColor(0,0,0,1)
-			end 
-		else
-			 charSlot:SetBackdropBorderColor(0,0,0,1)
+	for _,slotName in pairs(CharacterSlotNames) do
+		local globalName = ("Character%s"):format(slotName)
+		local charSlot = _G[globalName]
+		if(charSlot) then
+			if(not charSlot.Panel) then
+				charSlot:RemoveTextures()
+				charSlot.ignoreTexture:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-LeaveItem-Transparent]])
+				charSlot:SetSlotTemplate(true, 2, 0, 0)
+
+				local iconTex = _G[globalName.."IconTexture"]
+				if(iconTex) then
+					iconTex:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+					iconTex:SetParent(charSlot.Panel)
+					iconTex:SetAllPoints(charSlot.Panel)
+				end
+			end
+
+			local slotID = GetInventorySlotInfo(slotName)
+			if(slotID) then
+				local itemID = GetInventoryItemID("player", slotID)
+				if(itemID) then 
+					local info = select(3, GetItemInfo(itemID))
+					if info and info > 1 then
+						 charSlot:SetBackdropBorderColor(GetItemQualityColor(info))
+					else
+						 charSlot:SetBackdropBorderColor(0,0,0,1)
+					end 
+				else
+					 charSlot:SetBackdropBorderColor(0,0,0,1)
+				end
+			end
 		end 
 	end 
 end 
@@ -180,50 +200,88 @@ local function Reputation_OnShow()
 			_G["ReputationBar"..i.."ReputationBarRightTexture"]:SetTexture(0,0,0,0)
 		end 
 	end 
-end 
+end
+
+local function PaperDollTitlesPane_OnShow()
+	for _,gName in pairs(PaperDollTitlesPane.buttons) do
+		local btn = _G[gName]
+		if(btn) then
+			btn.BgTop:SetTexture(0,0,0,0)
+			btn.BgBottom:SetTexture(0,0,0,0)
+			btn.BgMiddle:SetTexture(0,0,0,0)
+			btn.Check:SetTexture(0,0,0,0)
+			btn.text:FillInner(btn)
+			btn.text:SetFont(SV.Media.font.roboto,10,"NONE","LEFT")
+		end
+	end 
+end
+
+local function PaperDollEquipmentManagerPane_OnShow()
+		for _,gName in pairs(PaperDollEquipmentManagerPane.buttons) do
+			local btn = _G[gName]
+			if(btn) then
+				btn.BgTop:SetTexture(0,0,0,0)
+				btn.BgBottom:SetTexture(0,0,0,0)
+				btn.BgMiddle:SetTexture(0,0,0,0)
+				btn.icon:Size(36, 36)
+				btn.Check:SetTexture(0,0,0,0)
+				btn.icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+				btn.icon:SetPoint("LEFT", btn, "LEFT", 4, 0)
+				if not btn.icon.bordertop then
+					 SetItemFrame(btn, btn.icon)
+				end 
+			end
+		end
+
+		GearManagerDialogPopup:RemoveTextures()
+		GearManagerDialogPopup:SetPanelTemplate("Inset", true)
+		GearManagerDialogPopup:Point("LEFT", PaperDollFrame, "RIGHT", 4, 0)
+		GearManagerDialogPopupScrollFrame:RemoveTextures()
+		GearManagerDialogPopupEditBox:RemoveTextures()
+		GearManagerDialogPopupEditBox:SetBasicPanel()
+		GearManagerDialogPopupOkay:SetButtonTemplate()
+		GearManagerDialogPopupCancel:SetButtonTemplate()
+
+		for i = 1, NUM_GEARSET_ICONS_SHOWN do 
+			local btn = _G["GearManagerDialogPopupButton"..i]
+			if(btn and (not btn.Panel)) then
+				btn:RemoveTextures()
+				btn:SetFrameLevel(btn:GetFrameLevel() + 2)
+				btn:SetButtonTemplate()
+				if(btn.icon) then
+					btn.icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+					btn.icon:SetTexture(0,0,0,0)
+					btn.icon:FillInner()
+				end 
+			end 
+		end 
+	end
 --[[ 
 ########################################################## 
-CHARACTERFRAME STYLER
+CHARACTERFRAME PLUGINR
 ##########################################################
 ]]--
 local function CharacterFrameStyle()
-	if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.character ~= true then
+	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.character ~= true then
 		 return 
 	end
 
-	STYLE:ApplyWindowStyle(CharacterFrame, true)
+	PLUGIN:ApplyWindowStyle(CharacterFrame, true)
 
-	STYLE:ApplyCloseButtonStyle(CharacterFrameCloseButton)
-	STYLE:ApplyScrollFrameStyle(CharacterStatsPaneScrollBar)
-	STYLE:ApplyScrollFrameStyle(ReputationListScrollFrameScrollBar)
-	STYLE:ApplyScrollFrameStyle(TokenFrameContainerScrollBar)
-	STYLE:ApplyScrollFrameStyle(GearManagerDialogPopupScrollFrameScrollBar)
+	PLUGIN:ApplyCloseButtonStyle(CharacterFrameCloseButton)
+	PLUGIN:ApplyScrollFrameStyle(CharacterStatsPaneScrollBar)
+	PLUGIN:ApplyScrollFrameStyle(ReputationListScrollFrameScrollBar)
+	PLUGIN:ApplyScrollFrameStyle(TokenFrameContainerScrollBar)
+	PLUGIN:ApplyScrollFrameStyle(GearManagerDialogPopupScrollFrameScrollBar)
 	
-	for _,slotName in pairs(CharacterSlotNames) do
-		local charSlot = _G["Character"..slotName]
-		local iconTex = _G["Character"..slotName.."IconTexture"]
-		local cd = _G["Character"..slotName.."Cooldown"]
-		charSlot:RemoveTextures()
-		charSlot:SetSlotTemplate(true)
-		charSlot.Panel:SetFrameLevel(charSlot.Panel:GetFrameLevel() + 1)
-		charSlot.ignoreTexture:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-LeaveItem-Transparent]])
-		iconTex:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-		iconTex:FillInner(charSlot, 0, 0)
-		if cd then
-			 SV.Timers:AddCooldown(cd)
-		end 
-	end 
-
-	local eqSlotListener = CreateFrame("Frame")
-	eqSlotListener:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
-	eqSlotListener:SetScript("OnEvent", StyleCharacterSlots)
-
-	CharacterFrame:HookScript("OnShow", StyleCharacterSlots)
-
 	StyleCharacterSlots()
 
+	SlotListener:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
+	SlotListener:SetScript("OnEvent", StyleCharacterSlots)
+	CharacterFrame:HookScript("OnShow", StyleCharacterSlots)
+
 	CharacterFrameExpandButton:Size(CharacterFrameExpandButton:GetWidth() - 7, CharacterFrameExpandButton:GetHeight() - 7)
-	STYLE:ApplyPaginationStyle(CharacterFrameExpandButton)
+	PLUGIN:ApplyPaginationStyle(CharacterFrameExpandButton)
 
 	hooksecurefunc('CharacterFrame_Collapse', function()
 		CharacterFrameExpandButton:SetNormalTexture(nil)
@@ -245,8 +303,8 @@ local function CharacterFrameStyle()
 		 SquareButton_SetIcon(CharacterFrameExpandButton, 'LEFT')
 	end 
 
-	STYLE:ApplyCloseButtonStyle(ReputationDetailCloseButton)
-	STYLE:ApplyCloseButtonStyle(TokenFramePopupCloseButton)
+	PLUGIN:ApplyCloseButtonStyle(ReputationDetailCloseButton)
+	PLUGIN:ApplyCloseButtonStyle(TokenFramePopupCloseButton)
 	ReputationDetailAtWarCheckBox:SetCheckboxTemplate(true)
 	ReputationDetailMainScreenCheckBox:SetCheckboxTemplate(true)
 	ReputationDetailInactiveCheckBox:SetCheckboxTemplate(true)
@@ -257,31 +315,27 @@ local function CharacterFrameStyle()
 	EquipmentFlyoutFrame:HookScript("OnShow", EquipmentFlyout_OnShow)
 	hooksecurefunc("EquipmentFlyout_Show", EquipmentFlyout_OnShow)
 	CharacterFramePortrait:Die()
-	STYLE:ApplyScrollFrameStyle(_G["PaperDollTitlesPaneScrollBar"], 5)
-	STYLE:ApplyScrollFrameStyle(_G["PaperDollEquipmentManagerPaneScrollBar"], 5)
-	for _,btn in pairs(CharFrameList)do
-		 _G[btn]:RemoveTextures(true)
+	PLUGIN:ApplyScrollFrameStyle(_G["PaperDollTitlesPaneScrollBar"], 5)
+	PLUGIN:ApplyScrollFrameStyle(_G["PaperDollEquipmentManagerPaneScrollBar"], 5)
+
+	for _,gName in pairs(CharFrameList) do
+		local frame = _G[gName]
+		if(frame) then
+			frame:RemoveTextures(true)
+		end
 	end 
+
 	CharacterModelFrameBackgroundTopLeft:SetTexture(0,0,0,0)
 	CharacterModelFrameBackgroundTopRight:SetTexture(0,0,0,0)
 	CharacterModelFrameBackgroundBotLeft:SetTexture(0,0,0,0)
 	CharacterModelFrameBackgroundBotRight:SetTexture(0,0,0,0)
 
-	CharacterModelFrame:SetFixedPanelTemplate("ModelComic")
+	CharacterModelFrame:SetFixedPanelTemplate("Model")
 	CharacterFrameExpandButton:SetFrameLevel(CharacterModelFrame:GetFrameLevel() + 5)
 
 	PaperDollTitlesPane:SetBasicPanel()
 
-	PaperDollTitlesPane:HookScript("OnShow", function(f)
-		for _,btn in pairs(PaperDollTitlesPane.buttons)do
-			btn.BgTop:SetTexture(0,0,0,0)
-			btn.BgBottom:SetTexture(0,0,0,0)
-			btn.BgMiddle:SetTexture(0,0,0,0)
-			btn.Check:SetTexture(0,0,0,0)
-			btn.text:FillInner(btn)
-			btn.text:SetFont(SV.Media.font.roboto,10,"NONE","LEFT")
-		end 
-	end)
+	PaperDollTitlesPane:HookScript("OnShow", PaperDollTitlesPane_OnShow)
 
 	PaperDollEquipmentManagerPane:SetBasicPanel()
 	PaperDollEquipmentManagerPaneEquipSet:SetButtonTemplate()
@@ -291,50 +345,11 @@ local function CharacterFrameStyle()
 	PaperDollEquipmentManagerPaneEquipSet:Point("TOPLEFT", PaperDollEquipmentManagerPane, "TOPLEFT", 8, 0)
 	PaperDollEquipmentManagerPaneSaveSet:Point("LEFT", PaperDollEquipmentManagerPaneEquipSet, "RIGHT", 4, 0)
 	PaperDollEquipmentManagerPaneEquipSet.ButtonBackground:SetTexture(0,0,0,0)
-	PaperDollEquipmentManagerPane:HookScript("OnShow", function(f)
-		for _,btn in pairs(PaperDollEquipmentManagerPane.buttons)do
-			btn.BgTop:SetTexture(0,0,0,0)
-			btn.BgBottom:SetTexture(0,0,0,0)
-			btn.BgMiddle:SetTexture(0,0,0,0)
-			btn.icon:Size(36, 36)
-			btn.Check:SetTexture(0,0,0,0)
-			btn.icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-			btn.icon:SetPoint("LEFT", btn, "LEFT", 4, 0)
-			if not btn.icon.bordertop then
-				 SetItemFrame(btn, btn.icon)
-			end 
-		end 
-		GearManagerDialogPopup:RemoveTextures()
-		GearManagerDialogPopup:SetPanelTemplate("Inset", true)
-		GearManagerDialogPopup:Point("LEFT", PaperDollFrame, "RIGHT", 4, 0)
-		GearManagerDialogPopupScrollFrame:RemoveTextures()
-		GearManagerDialogPopupEditBox:RemoveTextures()
 
-		GearManagerDialogPopupEditBox:SetBasicPanel()
-
-		GearManagerDialogPopupOkay:SetButtonTemplate()
-		GearManagerDialogPopupCancel:SetButtonTemplate()
-
-		for i = 1, NUM_GEARSET_ICONS_SHOWN do 
-			local e = _G["GearManagerDialogPopupButton"..i]
-			local texture = e.icon;
-			if e then
-				e:RemoveTextures()
-				e:SetButtonTemplate()
-				texture:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-				_G["GearManagerDialogPopupButton"..i.."Icon"]:SetTexture(0,0,0,0)
-				texture:FillInner()
-				e:SetFrameLevel(e:GetFrameLevel() + 2)
-				if not e.Panel then
-					e:SetPanelTemplate("Default")
-					e.Panel:SetAllPoints()
-				end 
-			end 
-		end 
-	end)
+	PaperDollEquipmentManagerPane:HookScript("OnShow", PaperDollEquipmentManagerPane_OnShow)
 
 	for i = 1, 4 do
-		 STYLE:ApplyTabStyle(_G["CharacterFrameTab"..i])
+		 PLUGIN:ApplyTabStyle(_G["CharacterFrameTab"..i])
 	end
 
 	hooksecurefunc("PaperDollFrame_UpdateSidebarTabs", PaperDoll_UpdateTabs)
@@ -374,6 +389,7 @@ local function CharacterFrameStyle()
 		TokenFramePopup:SetPanelTemplate("Inset", true)
 		TokenFramePopup:Point("TOPLEFT", TokenFrame, "TOPRIGHT", 4, -28)
 	end)
+
 	PetModelFrame:SetPanelTemplate("Comic",false,1,-7,-7)
 	PetPaperDollPetInfo:GetRegions():SetTexCoord(.12, .63, .15, .55)
 	PetPaperDollPetInfo:SetFrameLevel(PetPaperDollPetInfo:GetFrameLevel() + 10)
@@ -383,7 +399,7 @@ local function CharacterFrameStyle()
 end 
 --[[ 
 ########################################################## 
-STYLE LOADING
+PLUGIN LOADING
 ##########################################################
 ]]--
-STYLE:SaveCustomStyle(CharacterFrameStyle)
+PLUGIN:SaveCustomStyle(CharacterFrameStyle)

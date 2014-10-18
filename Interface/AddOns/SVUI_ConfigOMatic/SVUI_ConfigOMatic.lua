@@ -35,12 +35,8 @@ local Ace3Config = LibStub("AceConfig-3.0");
 local Ace3ConfigDialog = LibStub("AceConfigDialog-3.0");
 Ace3Config:RegisterOptionsTable(SV.NameID, SV.Options);
 Ace3ConfigDialog:SetDefaultSize(SV.NameID, 890, 651);
-
 local AceGUI = LibStub("AceGUI-3.0", true);
-local posOpts = {TOPLEFT='TOPLEFT',LEFT='LEFT',BOTTOMLEFT='BOTTOMLEFT',RIGHT='RIGHT',TOPRIGHT='TOPRIGHT',BOTTOMRIGHT='BOTTOMRIGHT',CENTER='CENTER',TOP='TOP',BOTTOM='BOTTOM'};
-local GEAR = SV.SVGear;
-local BAG = SV.SVBag;
-local OVR = SV.SVOverride;
+
 local sortingFunction = function(arg1, arg2) return arg1 < arg2 end 
 
 local function CommonFontSizeUpdate()
@@ -123,7 +119,7 @@ SET PACKAGE OPTIONS
 SV.Options.args.SVUI_Header = {
 	order = 1, 
 	type = "header", 
-	name = "You are using |cffff9900Super Villain UI|r - "..L["Version"]..format(": |cff99ff33%s|r", SV.Version), 
+	name = ("You are using |cffff9900Super Villain UI|r - %s: |cff99ff33%s|r"):format(L["Version"], SV.Version), 
 	width = "full"
 }
 
@@ -293,7 +289,7 @@ SV.Options.args.common = {
 									max = 328,
 									step = 1,
 									get = function()return SV.db.SVOverride.lootRollWidth end,
-									set = function(a,b) OVR:ChangeDBVar(b,a[#a]); end,
+									set = function(a,b) SV.SVOverride:ChangeDBVar(b,a[#a]); end,
 								},
 								lootRollHeight = {
 									order = 4,
@@ -304,7 +300,7 @@ SV.Options.args.common = {
 									max = 58,
 									step = 1,
 									get = function()return SV.db.SVOverride.lootRollHeight end,
-									set = function(a,b) OVR:ChangeDBVar(b,a[#a]); end,
+									set = function(a,b) SV.SVOverride:ChangeDBVar(b,a[#a]); end,
 								},
 							}
 						},
@@ -384,6 +380,13 @@ SV.Options.args.common = {
 									desc = L["Some announcements are accompanied by player emotes."],
 									get = function(j)return SV.db.general.reactionEmote end,
 									set = function(j,value)SV.db.general.reactionEmote = value;SV:ToggleReactions()end
+								},
+								ego = {
+									order = 1,
+									type = 'toggle',
+									name = L["Awesome Game Menu"],
+									get = function(j)return SV.db.general.ego end,
+									set = function(j,value) SV.db.general.ego = value; SV:StaticPopup_Show("RL_CLIENT") end
 								},
 							}
 						},
@@ -662,68 +665,75 @@ SV.Options.args.common = {
 					order = 3,
 					type = 'group',
 					name = SV.SVGear.TitleID,
-					get = function(a)return SV.db.SVGear[a[#a]]end,
-					set = function(a,b)SV.db.SVGear[a[#a]]=b;GEAR:ReLoad()end,
+					get = function(key) return SV.db.SVGear[key[#key]]end,
+					set = function(key, value) SV.db.SVGear[key[#key]] = value; SV.SVGear:ReLoad()end,
 					args={
 						intro={
 							order = 1,
 							type = 'description',
 							name = function() 
 								if(GetNumEquipmentSets()==0) then 
-									return L["EQUIPMENT_DESC"] .. "\n" .. "|cffFF0000Must create an equipment set to use some of these features|r" 
+									return ("%s\n|cffFF0000Must create an equipment set to use some of these features|r"):format(L["EQUIPMENT_DESC"])
 								else 
 									return L["EQUIPMENT_DESC"] 
 								end 
 							end
 						},
-						specialization={
+						specialization = {
 							order = 2,
 							type = "group",
 							name = L["Specialization"],
 							guiInline = true,
-							disabled = function()return GetNumEquipmentSets()==0 end,
-							args={
-								enable={
-									type="toggle",
-									order=1,
-									name=L["Enable"],
-									desc=L['Enable/Disable the specialization switch.'],
-									get=function(e)return SV.db.SVGear.specialization.enable end,
-									set=function(e,value) SV.db.SVGear.specialization.enable = value end
+							disabled = function() return GetNumEquipmentSets() == 0 end,
+							args = {
+								enable = {
+									type = "toggle",
+									order = 1,
+									name = L["Enable"],
+									desc = L["Enable/Disable the specialization switch."],
+									get = function(key)
+										return SV.db.SVGear.specialization.enable 
+									end,
+									set = function(key, value) 
+										SV.db.SVGear.specialization.enable = value 
+									end
 								},
-								primary={
-									type="select",
-									order=2,
-									name=L["Primary Talent"],
-									desc=L["Choose the equipment set to use for your primary specialization."],
-									disabled=function()return not SV.db.SVGear.specialization.enable end,
-									values=function()
-										local h={["none"]=L["No Change"]}
-										for i=1,GetNumEquipmentSets()do 
-											local name=GetEquipmentSetInfo(i)
-											if name then h[name]=name end 
+								primary = {
+									type = "select",
+									order = 2,
+									name = L["Primary Talent"],
+									desc = L["Choose the equipment set to use for your primary specialization."],
+									disabled = function()
+										return not SV.db.SVGear.specialization.enable 
+									end,
+									values = function()
+										local h = {["none"] = L["No Change"]}
+										for i = 1, GetNumEquipmentSets()do 	
+											local name = GetEquipmentSetInfo(i)
+											if name then
+												h[name] = name 
+											end 
 										end 
-										tsort(h,sortingFunction)
+										tsort(h, sortingFunction)
 										return h 
 									end
 								},
-								secondary={
-									type="select",
-									order=3,
-									name=L["Secondary Talent"],
-									desc=L["Choose the equipment set to use for your secondary specialization."],
-									disabled=function()return not SV.db.SVGear.specialization.enable end,
-									values=function()
-										local h={["none"]=L["No Change"]}
-										for i=1,GetNumEquipmentSets()do 
-											local name,l,l,l,l,l,l,l,l=GetEquipmentSetInfo(i)
-											if name then h[name]=name end 
+								secondary = {
+									type = "select",
+									order = 3,
+									name = L["Secondary Talent"],
+									desc = L["Choose the equipment set to use for your secondary specialization."],
+									disabled = function() return not SV.db.SVGear.specialization.enable end,
+									values = function()	
+										local h = {["none"] = L["No Change"]}
+										for i = 1, GetNumEquipmentSets()do 
+											local name = GetEquipmentSetInfo(i)
+											if name then h[name] = name end 
 										end 
-										tsort(h,sortingFunction)
+										tsort(h, sortingFunction)
 										return h 
 									end
 								}
-
 							}
 						},
 						battleground = {
@@ -753,7 +763,7 @@ SV.Options.args.common = {
 											local name = GetEquipmentSetInfo(i)
 											if name then h[name] = name end 
 										end 
-										tsort(h,sortingFunction)
+										tsort(h, sortingFunction)
 										return h 
 									end
 								}
@@ -770,7 +780,7 @@ SV.Options.args.common = {
 							guiInline = true,
 							order = 5,
 							get = function(e)return SV.db.SVGear.durability[e[#e]]end,
-							set = function(e,value)SV.db.SVGear.durability[e[#e]] = value;GEAR:ReLoad()end,
+							set = function(e,value)SV.db.SVGear.durability[e[#e]] = value; SV.SVGear:ReLoad()end,
 							args = {
 								enable = {
 									type = "toggle",
@@ -798,7 +808,7 @@ SV.Options.args.common = {
 							guiInline = true,
 							order = 7,
 							get = function(e)return SV.db.SVGear.itemlevel[e[#e]]end,
-							set = function(e,value)SV.db.SVGear.itemlevel[e[#e]] = value;GEAR:ReLoad()end,
+							set = function(e,value)SV.db.SVGear.itemlevel[e[#e]] = value; SV.SVGear:ReLoad()end,
 							args = {
 								enable = {
 									type = "toggle",
@@ -824,7 +834,7 @@ SV.Options.args.common = {
 									desc = L["Show the associated equipment sets for the items in your bags (or bank)."],
 									set = function(e,value)
 										SV.db.SVGear.misc[e[#e]] = value;
-										BAG:ToggleEquipmentOverlay()
+										SV.SVBag:ToggleEquipmentOverlay()
 									end
 								}
 							}
@@ -836,41 +846,6 @@ SV.Options.args.common = {
 	}
 };
 
-local q, r, community, dnt = "", "", "", "";
-local s = "\n";
-local p = "\n"..format("|cff4f4f4f%s|r", "---------------------------------------------");
-local t = {"Munglunch", "Elv", "Tukz", "Azilroka", "Sortokk", "Kkthnx", "AlleyKat", "Quokka", "Haleth", "P3lim", "Haste", "Totalpackage", "Kryso", "Thepilli"};
-local u = {"Sinnisterr - (My wife, the MOST ruthless Warlock you will ever meet)", "Doonga - (The man who keeps me busy)", "Daigan - (My current 2nd in command)", "Penguinsane - (Tester extraordinaire)", "FaolanKing - (King of the bug report portal)"};
-local v = {"Movster", "Cazart506", "FaolanKing", "Doonga", "Other Silent Partners.. (Let me know if I have forgotten you)"};
-local w = {"Wowinterface Community", "Judicate", "Cazart506", "Movster", "MuffinMonster", "Joelsoul", "Trendkill09", "Luamar", "Zharooz", "Lyn3x5", "Madh4tt3r", "Xarioth", "Melonmaniac", "Hojowameeat", "Xandeca", "Bkan", "AtomicKiller", "Meljen", "Moondoggy", "Stormblade", "Schreibstift", "Anj", "Risien", "Cromax", "Nitro_Turtle", "Shinzou", "Autolykus", "Taotao"};
-local credit_header = format("|cffff9900%s|r", "SUPERVILLAIN CREDITS:")..p;
-local credit_sub = format("|cffff9900%s|r", "CREATED BY:").."  Munglunch"..p;
-local credit_sub2 = format("|cffff9900%s|r", "CODE GRANTS BY:").."  Elv, Tukz, Azilroka, Sortokk"..p;
-local special_thanks = format("|cffff9900%s|r", "SPECIAL THANKS TO:  ")..format("|cfff81422%s|r |cff2288cc(@WowInterface.com)|r", "Cairenn").."  ..the most patient and accomodating person I know!\n\n"..format("|cffff9900%s|r", "A VERY SPECIAL THANKS TO:  ")..format("|cffffff00%s|r", "Movster").."  ..who inspired me to bring this project back to life!"..p;
-local coding = format("|cff3399ff%s|r", L['CODE MONKEYS  (aka CONTRIBUTORS):'])..p;
-local testing = format("|cffaa33ff%s|r", L['PERFECTIONISTS  (aka CORE TESTING TEAM):'])..p;
-local testing2 = format("|cffaa33ff%s|r", L['MINIONS  (aka COMMUNITY TESTERS):'])..p;
-local doners = format("|cff99ff33%s|r", L['KINGPINS  (aka INVESTORS):'])..p;
-local music = format("|cff00ccff%s|r", 'Theme Song By: Fingathing [taken from the song: SuperHero Music]');
-
-for _, x in pairs(t) do
-	q = q..s..x 
-end
-
-for _, x in pairs(u) do
-	r = r..s..x 
-end 
-
-for _, x in pairs(v) do
-	dnt = dnt..s..x 
-end 
-
-for _, x in pairs(w) do
-	community = community..s..x 
-end 
-
-local creditsString = credit_header..'\n'..credit_sub..'\n'..credit_sub2..'\n'..special_thanks..'\n\n'..coding..q..'\n\n'..testing..r..'\n\n'..testing2..community..'\n\n'..doners..dnt..'\n\n'..music..'\n\n';
-
 SV.Options.args.credits = {
 	type = "group", 
 	name = L["Credits"], 
@@ -879,7 +854,7 @@ SV.Options.args.credits = {
 		new = {
 			order = 1, 
 			type = "description", 
-			name = creditsString
+			name = SV.Credits
 		}
 	}
 }

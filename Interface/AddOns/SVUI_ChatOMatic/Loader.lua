@@ -25,9 +25,9 @@ local assert        = _G.assert;
 
 local AddonName, AddonObject = ...
 
-assert(_G.LibSuperVillain, AddonName .. " requires LibSuperVillain")
+assert(LibSuperVillain, AddonName .. " requires LibSuperVillain")
 
-local PLUGIN = _G.LibSuperVillain:NewPlugin(AddonName, AddonObject)
+local PLUGIN = LibSuperVillain("Registry"):NewPlugin(AddonName, AddonObject, "ChatOMatic_Profile", nil, "ChatOMatic_Cache")
 
 local Schema = PLUGIN.Schema;
 local SV = _G["SVUI"];
@@ -37,13 +37,14 @@ local L = SV.L
 CONFIG DATA
 ##########################################################
 ]]--
-SV.configs[Schema] = {
-  	["enable"] = true,
+PLUGIN.configs = {
     ["saveChats"] = true,
     ["service"] = true,
   	["autoAnswer"] = false, 
   	["prefix"] = true
 }
+
+PLUGIN.db = PLUGIN.configs;
 --[[ 
 ########################################################## 
 CONFIG OPTIONS
@@ -53,30 +54,30 @@ SV.Options.args.plugins.args.pluginOptions.args[Schema].args["saveChats"] = {
     order = 2, 
     name = "Save Chat History", 
     type = "toggle", 
-    get = function(key) return SV.db[Schema][key[#key]] end,
-    set = function(key,value) SV.db[Schema][key[#key]] = value end
+    get = function(key) return PLUGIN.db[key[#key]] end,
+    set = function(key,value) PLUGIN.db[key[#key]] = value end
 }
 
 SV.Options.args.plugins.args.pluginOptions.args[Schema].args["service"] = {
     order = 3, 
     name = "Answering Service", 
     type = "toggle", 
-    get = function(key) return SV.db[Schema][key[#key]] end,
-    set = function(key,value) SV.db[Schema][key[#key]] = value end
+    get = function(key) return PLUGIN.db[key[#key]] end,
+    set = function(key,value) PLUGIN.db[key[#key]] = value end
 }
 
 SV.Options.args.plugins.args.pluginOptions.args[Schema].args["autoAnswer"] = {
     order = 4, 
     name = "Auto Answer", 
     type = "toggle", 
-    get = function(key) return SV.db[Schema][key[#key]] end,
-    set = function(key,value) SV.db[Schema][key[#key]] = value end
+    get = function(key) return PLUGIN.db[key[#key]] end,
+    set = function(key,value) PLUGIN.db[key[#key]] = value end
 }
 
 SV.Options.args.plugins.args.pluginOptions.args[Schema].args["prefix"] = {
     order = 5, 
     name = "Prefix Messages", 
     type = "toggle", 
-    get = function(key) return SV.db[Schema][key[#key]] end,
-    set = function(key,value) SV.db[Schema][key[#key]] = value end
+    get = function(key) return PLUGIN.db[key[#key]] end,
+    set = function(key,value) PLUGIN.db[key[#key]] = value end
 }

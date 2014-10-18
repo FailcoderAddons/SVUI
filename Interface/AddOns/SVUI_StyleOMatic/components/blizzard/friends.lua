@@ -22,8 +22,8 @@ local pairs   = _G.pairs;
 --[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
 HELPERS
@@ -120,24 +120,24 @@ local function ChannelList_OnUpdate()
 end 
 --[[ 
 ########################################################## 
-FRIENDSFRAME STYLER
+FRIENDSFRAME PLUGINR
 ##########################################################
 ]]--FriendsFrameBattlenetFrameScrollFrame
 local function FriendsFrameStyle()
-	if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.friends ~= true then
+	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.friends ~= true then
 		 return 
 	end
 
-	STYLE:ApplyWindowStyle(FriendsFrame)
+	PLUGIN:ApplyWindowStyle(FriendsFrame)
 
-	STYLE:ApplyScrollFrameStyle(FriendsFrameFriendsScrollFrameScrollBar, 5)
-	STYLE:ApplyScrollFrameStyle(WhoListScrollFrameScrollBar, 5)
-	STYLE:ApplyScrollFrameStyle(ChannelRosterScrollFrameScrollBar, 5)
-	STYLE:ApplyScrollFrameStyle(FriendsFriendsScrollFrameScrollBar)
+	PLUGIN:ApplyScrollFrameStyle(FriendsFrameFriendsScrollFrameScrollBar, 5)
+	PLUGIN:ApplyScrollFrameStyle(WhoListScrollFrameScrollBar, 5)
+	PLUGIN:ApplyScrollFrameStyle(ChannelRosterScrollFrameScrollBar, 5)
+	PLUGIN:ApplyScrollFrameStyle(FriendsFriendsScrollFrameScrollBar)
 	FriendsFrameInset:RemoveTextures()
 	WhoFrameListInset:RemoveTextures()
 	WhoFrameEditBoxInset:RemoveTextures()
-	STYLE:ApplyEditBoxStyle(WhoFrameEditBoxInset)
+	PLUGIN:ApplyEditBoxStyle(WhoFrameEditBoxInset)
 	ChannelFrameRightInset:RemoveTextures()
 	ChannelFrameLeftInset:RemoveTextures()
 	ChannelFrameRightInset:SetFixedPanelTemplate("Inset", true)
@@ -171,7 +171,7 @@ local function FriendsFrameStyle()
 	end 
 	
 	FriendsFrameStatusDropDown:SetPoint('TOPLEFT', FriendsTabHeader, 'TOPLEFT', 0, -27)
-	STYLE:ApplyDropdownStyle(FriendsFrameStatusDropDown, 70)
+	PLUGIN:ApplyDropdownStyle(FriendsFrameStatusDropDown, 70)
 	FriendsFrameBattlenetFrame:RemoveTextures()
 	FriendsFrameBattlenetFrame:SetHeight(22)
 	FriendsFrameBattlenetFrame:SetPoint('TOPLEFT', FriendsFrameStatusDropDown, 'TOPRIGHT', 0, -1)
@@ -196,7 +196,7 @@ local function FriendsFrameStyle()
 	AddFriendFrame:SetFixedPanelTemplate("Transparent", true)
 	ScrollOfResurrectionSelectionFrame:SetFixedPanelTemplate('Transparent')
 	ScrollOfResurrectionSelectionFrameList:SetFixedPanelTemplate('Default')
-	STYLE:ApplyScrollFrameStyle(ScrollOfResurrectionSelectionFrameListScrollFrameScrollBar, 4)
+	PLUGIN:ApplyScrollFrameStyle(ScrollOfResurrectionSelectionFrameListScrollFrameScrollBar, 4)
 	ScrollOfResurrectionSelectionFrameTargetEditBox:SetEditboxTemplate()
 	FriendsFrameBroadcastInput:SetPanelTemplate("Default")
 	ChannelFrameDaughterFrameChannelName:SetPanelTemplate("Default")
@@ -219,12 +219,12 @@ local function FriendsFrameStyle()
 	end)
 
 	ChannelFrameDaughterFrame:SetBasicPanel()
-	STYLE:ApplyCloseButtonStyle(ChannelFrameDaughterFrameDetailCloseButton, ChannelFrameDaughterFrame)
-	STYLE:ApplyCloseButtonStyle(FriendsFrameCloseButton, FriendsFrame.Panel)
-	STYLE:ApplyDropdownStyle(WhoFrameDropDown, 150)
+	PLUGIN:ApplyCloseButtonStyle(ChannelFrameDaughterFrameDetailCloseButton, ChannelFrameDaughterFrame)
+	PLUGIN:ApplyCloseButtonStyle(FriendsFrameCloseButton, FriendsFrame.Panel)
+	PLUGIN:ApplyDropdownStyle(WhoFrameDropDown, 150)
 
 	for i = 1, 4 do
-		 STYLE:ApplyTabStyle(_G["FriendsFrameTab"..i])
+		 PLUGIN:ApplyTabStyle(_G["FriendsFrameTab"..i])
 	end 
 
 	for i = 1, 3 do
@@ -243,7 +243,7 @@ local function FriendsFrameStyle()
 
 	FriendsFriendsList:SetEditboxTemplate()
 	FriendsFriendsNoteFrame:SetEditboxTemplate()
-	STYLE:ApplyDropdownStyle(FriendsFriendsFrameDropDown, 150)
+	PLUGIN:ApplyDropdownStyle(FriendsFriendsFrameDropDown, 150)
 	BNConversationInviteDialog:RemoveTextures()
 	BNConversationInviteDialog:SetPanelTemplate('Transparent')
 	BNConversationInviteDialogList:RemoveTextures()
@@ -266,9 +266,9 @@ local function FriendsFrameStyle()
 	FriendsTabHeaderRecruitAFriendButtonIcon:FillInner()
 	
 	FriendsFrameIgnoreScrollFrame:SetFixedPanelTemplate("Inset")
-	STYLE:ApplyScrollFrameStyle(FriendsFrameIgnoreScrollFrameScrollBar, 4)
+	PLUGIN:ApplyScrollFrameStyle(FriendsFrameIgnoreScrollFrameScrollBar, 4)
 	FriendsFramePendingScrollFrame:SetFixedPanelTemplate("Inset")
-	STYLE:ApplyScrollFrameStyle(FriendsFramePendingScrollFrameScrollBar, 4)
+	PLUGIN:ApplyScrollFrameStyle(FriendsFramePendingScrollFrameScrollBar, 4)
 	IgnoreListFrame:RemoveTextures()
 	PendingListFrame:RemoveTextures()
 	ScrollOfResurrectionFrame:RemoveTextures()
@@ -284,7 +284,7 @@ local function FriendsFrameStyle()
 end 
 --[[ 
 ########################################################## 
-STYLE LOADING
+PLUGIN LOADING
 ##########################################################
 ]]--
-STYLE:SaveCustomStyle(FriendsFrameStyle)
+PLUGIN:SaveCustomStyle(FriendsFrameStyle)

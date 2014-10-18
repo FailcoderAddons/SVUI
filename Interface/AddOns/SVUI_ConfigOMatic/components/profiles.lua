@@ -30,7 +30,7 @@ GET ADDON DATA
 ##########################################################
 ]]--
 local SV = _G["SVUI"];
-local SVLib = _G.LibSuperVillain;
+local SVLib = LibSuperVillain("Registry");
 local L = SV.L;
 
 local playerRealm = GetRealmName()

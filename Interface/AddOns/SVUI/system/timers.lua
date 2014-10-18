@@ -257,7 +257,7 @@ local Cooldown_OnLoad = function(self, start, duration, elapsed)
 		if elapsed and elapsed > 0 then 
 			self.timer:SetAlpha(0)
 		else 
-			self.timer:SetAlpha(1)
+			self.timer:SetAlpha(0.8)
 		end 
 	end 
 end 
@@ -266,6 +266,7 @@ function Timers:AddCooldown(origin)
 	if(origin.HookedCooldown or not SV.db.general.cooldown) then return end
 	hooksecurefunc(origin, "SetCooldown", Cooldown_OnLoad)
 	origin.HookedCooldown = true
+	origin:SetHideCountdownNumbers(true)
 end
 
 SV.Timers = Timers;

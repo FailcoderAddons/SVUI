@@ -117,6 +117,7 @@ local scanningCache = {
 	["all"] = {},
 	["bags"] = {},
 	["bank"] = {BANK_CONTAINER},
+	["reagent"] = {REAGENTBANK_CONTAINER},
 	["guild"] = {51,52,53,54,55,56,57,58},
 }
 
@@ -130,6 +131,9 @@ for _,i in ipairs(scanningCache.bags) do
   tinsert(scanningCache.all, i)
 end
 for _,i in ipairs(scanningCache.bank) do
+  tinsert(scanningCache.all, i)
+end
+for _,i in ipairs(scanningCache.reagent) do
   tinsert(scanningCache.all, i)
 end
 for _,i in ipairs(scanningCache.guild) do
@@ -214,7 +218,7 @@ local function DefaultSort(b, a)
 		if aType and bType and aType ~= bType then
 			return aType > bType
 		end
-		if aName and bName and aName ~= bName then
+		if aName and bName and (type(aName) == type(bName)) and aName ~= bName then
 			return aName < bName
 		end
 	end		
@@ -400,7 +404,7 @@ do
 	end
 
 	local function IsSpecialtyBag(bagID)
-		if bagID == BANK_CONTAINER or bagID == 0 or (bagID > 50 and bagID <= 58) then return false end
+		if bagID == BANK_CONTAINER or bagID == REAGENTBANK_CONTAINER or bagID == 0 or (bagID > 50 and bagID <= 58) then return false end
 		local inventorySlot = ContainerIDToInventoryID(bagID)
 		if not inventorySlot then return false end
 		local bag = GetInventoryItemLink("player", inventorySlot)

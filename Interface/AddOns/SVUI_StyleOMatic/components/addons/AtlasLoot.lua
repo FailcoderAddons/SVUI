@@ -28,8 +28,8 @@ GET ADDON DATA
 ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
 ATLASLOOT
@@ -100,7 +100,7 @@ local function Nine_IsThere(self, elapsed)
 		self.timeLapse = 0
 	end
 	for i = 1, 9 do local f = _G["AtlasLootCompareFrameSortButton_"..i]f:SetWidth(44.44)end 
-	for _, object in pairs(nineisthere) do STYLE:ApplyFrameStyle(_G[object]) end 
+	for _, object in pairs(nineisthere) do PLUGIN:ApplyFrameStyle(_G[object]) end 
 	AtlasLootCompareFrameSortButton_7:Point("LEFT", AtlasLootCompareFrameSortButton_6, "RIGHT", 1, 0)
 	AtlasLootCompareFrameSortButton_8:Point("LEFT", AtlasLootCompareFrameSortButton_7, "RIGHT", 1, 0)
 	AtlasLootCompareFrameSortButton_9:Point("LEFT", AtlasLootCompareFrameSortButton_8, "RIGHT", 1, 0)
@@ -137,18 +137,18 @@ local function StyleAtlasLoot(event, addon)
 	assert(AtlasLootPanel, "AddOn Not Loaded")
 
 	for _, object in pairs(StripAllTextures) do _G[object]:RemoveTextures()end 
-	for _, object in pairs(SetTemplateDefault) do STYLE:ApplyFrameStyle(_G[object], "Default")end 
+	for _, object in pairs(SetTemplateDefault) do PLUGIN:ApplyFrameStyle(_G[object], "Default")end 
 	for _, button in pairs(buttons) do _G[button]:SetButtonTemplate()end 
 
 	-- Manipulate the main frames
-	STYLE:ApplyFrameStyle(_G["AtlasLootDefaultFrame"], "Action");
-	STYLE:ApplyUnderlayStyle(_G["AtlasLootItemsFrame"], "Inset");
-	STYLE:ApplyFrameStyle(_G["AtlasLootPanel"], "Default");
+	PLUGIN:ApplyFrameStyle(_G["AtlasLootDefaultFrame"], "Action");
+	PLUGIN:ApplyFixedFrameStyle(_G["AtlasLootItemsFrame"], "Inset");
+	PLUGIN:ApplyFrameStyle(_G["AtlasLootPanel"], "Default");
 	hooksecurefunc(_G["AtlasLootPanel"], "SetPoint", _hook_ALPanel);
 
 	_G["AtlasLootPanel"]:SetPoint("TOP",_G["AtlasLootDefaultFrame"],"BOTTOM",0,-1);
 	-- Back to the rest
-	STYLE:ApplyFrameStyle(_G["AtlasLootCompareFrame"], "Transparent");
+	PLUGIN:ApplyFrameStyle(_G["AtlasLootCompareFrame"], "Transparent");
 	if AtlasLoot_PanelButton_1 then AtlasLoot_PanelButton_1:SetButtonTemplate() end
 	if AtlasLoot_PanelButton_2 then AtlasLoot_PanelButton_2:SetButtonTemplate() end
 	if AtlasLoot_PanelButton_3 then AtlasLoot_PanelButton_3:SetButtonTemplate() end
@@ -164,31 +164,31 @@ local function StyleAtlasLoot(event, addon)
 
 	for i = 1, 15 do local f = _G["AtlasLootCompareFrameMainFilterButton"..i]f:RemoveTextures() end 
 
-	STYLE:ApplyCloseButtonStyle(AtlasLootDefaultFrame_CloseButton)
-	STYLE:ApplyCloseButtonStyle(AtlasLootCompareFrame_CloseButton)
-	STYLE:ApplyCloseButtonStyle(AtlasLootCompareFrame_CloseButton_Wishlist)
-	STYLE:ApplyPaginationStyle(AtlasLootQuickLooksButton)
-	STYLE:ApplyPaginationStyle(AtlasLootItemsFrame_NEXT)
+	PLUGIN:ApplyCloseButtonStyle(AtlasLootDefaultFrame_CloseButton)
+	PLUGIN:ApplyCloseButtonStyle(AtlasLootCompareFrame_CloseButton)
+	PLUGIN:ApplyCloseButtonStyle(AtlasLootCompareFrame_CloseButton_Wishlist)
+	PLUGIN:ApplyPaginationStyle(AtlasLootQuickLooksButton)
+	PLUGIN:ApplyPaginationStyle(AtlasLootItemsFrame_NEXT)
 	AtlasLootItemsFrame_NEXT:SetWidth(25)
 	AtlasLootItemsFrame_NEXT:SetHeight(25)
-	STYLE:ApplyPaginationStyle(AtlasLootItemsFrame_PREV)
+	PLUGIN:ApplyPaginationStyle(AtlasLootItemsFrame_PREV)
 	AtlasLootItemsFrame_PREV:SetWidth(25)
 	AtlasLootItemsFrame_PREV:SetHeight(25)
-	STYLE:ApplyPaginationStyle(AtlasLootPanelSearch_SelectModuel)	
-	STYLE:ApplyPaginationStyle(AtlasLootCompareFrameSearch_SelectModuel)
+	PLUGIN:ApplyPaginationStyle(AtlasLootPanelSearch_SelectModuel)	
+	PLUGIN:ApplyPaginationStyle(AtlasLootCompareFrameSearch_SelectModuel)
 
 	if(AtlasLootDefaultFrame_PackageSelect) then
-		STYLE:ApplyDropdownStyle(AtlasLootDefaultFrame_PackageSelect)
+		PLUGIN:ApplyDropdownStyle(AtlasLootDefaultFrame_PackageSelect)
 		AtlasLootDefaultFrame_PackageSelect:SetWidth(240)
 		AtlasLootDefaultFrame_PackageSelect:SetPoint("TOPLEFT", AtlasLootDefaultFrame, "TOPLEFT", 50, -50)
 	end
 
-	STYLE:ApplyDropdownStyle(AtlasLootDefaultFrame_ModuleSelect,240)
-	STYLE:ApplyDropdownStyle(AtlasLootDefaultFrame_InstanceSelect,240)
+	PLUGIN:ApplyDropdownStyle(AtlasLootDefaultFrame_ModuleSelect,240)
+	PLUGIN:ApplyDropdownStyle(AtlasLootDefaultFrame_InstanceSelect,240)
 	
-	STYLE:ApplyDropdownStyle(AtlasLootCompareFrameSearch_StatsListDropDown)
+	PLUGIN:ApplyDropdownStyle(AtlasLootCompareFrameSearch_StatsListDropDown)
 	AtlasLootCompareFrameSearch_StatsListDropDown:SetWidth(240)
-	STYLE:ApplyDropdownStyle(AtlasLootCompareFrame_WishlistDropDown)
+	PLUGIN:ApplyDropdownStyle(AtlasLootCompareFrame_WishlistDropDown)
 	AtlasLootCompareFrame_WishlistDropDown:SetWidth(240)
 	AtlasLootPanelSearch_Box:SetEditboxTemplate()
 	AtlasLootCompareFrameSearch_Box:SetEditboxTemplate()
@@ -210,8 +210,8 @@ local function StyleAtlasLoot(event, addon)
 
 	AtlasLootPanel.Titel:SetTextColor(23/255, 132/255, 209/255)
 	AtlasLootPanel.Titel:SetPoint("BOTTOM", AtlasLootPanel.TitelBg, "BOTTOM", 0, 40)
-	STYLE:ApplyScrollFrameStyle(AtlasLootCompareFrame_ScrollFrameItemFrameScrollBar)
-	STYLE:ApplyScrollFrameStyle(AtlasLootCompareFrame_WishlistScrollFrameScrollBar)
+	PLUGIN:ApplyScrollFrameStyle(AtlasLootCompareFrame_ScrollFrameItemFrameScrollBar)
+	PLUGIN:ApplyScrollFrameStyle(AtlasLootCompareFrame_WishlistScrollFrameScrollBar)
 	AtlasLootDefaultFrame:HookScript("OnShow", AL_OnShow)
 	AtlasLootCompareFrame:HookScript("OnShow", Compare_OnShow)
 	AtlasLootPanel.timeLapse = 0;
@@ -219,7 +219,7 @@ local function StyleAtlasLoot(event, addon)
 	--AtlasLootPanel:HookScript("OnUpdate", _hook_OnUpdate)
 
 	if(AtlasLootTooltip:GetName() ~= "GameTooltip") then 
-		STYLE:ApplyTooltipStyle(AtlasLootTooltip)
+		PLUGIN:ApplyTooltipStyle(AtlasLootTooltip)
 	end
 end
-STYLE:SaveAddonStyle("AtlasLoot", StyleAtlasLoot, nil, true)
+PLUGIN:SaveAddonStyle("AtlasLoot", StyleAtlasLoot, nil, true)

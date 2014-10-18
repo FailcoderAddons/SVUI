@@ -25,9 +25,9 @@ local assert        = _G.assert;
 
 local AddonName, AddonObject = ...
 
-assert(_G.LibSuperVillain, AddonName .. " requires LibSuperVillain")
+assert(LibSuperVillain, AddonName .. " requires LibSuperVillain")
 
-local PLUGIN = _G.LibSuperVillain:NewPlugin(AddonName, AddonObject)
+local PLUGIN = LibSuperVillain("Registry"):NewPlugin(AddonName, AddonObject, "TrackOMatic_Profile", "TrackOMatic_Global")
 
 local Schema = PLUGIN.Schema;
 local SV = _G["SVUI"];
@@ -37,13 +37,14 @@ local L = SV.L
 CONFIG DATA
 ##########################################################
 ]]--
-SV.configs[Schema] = {
-    ["enable"] = true,
+PLUGIN.configs = {
     ["size"] = 75, 
     ["fontSize"] = 12,
     ["groups"] = true,
     ["proximity"] = false, 
 }
+
+PLUGIN.db = table.copy(PLUGIN.configs);
 --[[ 
 ########################################################## 
 CONFIG OPTIONS
@@ -54,7 +55,7 @@ SV.Options.args.plugins.args.pluginOptions.args[Schema].args["groups"] = {
     name = L["GPS"],
     desc = L["Use group frame GPS elements"],
     type = "toggle",
-    get = function(key) return SV.db[Schema][key[#key]] end,
+    get = function(key) return PLUGIN.db[key[#key]] end,
     set = function(key,value) PLUGIN:ChangeDBVar(value, key[#key]); PLUGIN:UpdateLogWindow() end
 }
 
@@ -63,7 +64,7 @@ SV.Options.args.plugins.args.pluginOptions.args[Schema].args["proximity"] = {
     name = L["GPS Proximity"],
     desc = L["Only point to closest low health unit"],
     type = "toggle",
-    get = function(key) return SV.db[Schema][key[#key]] end,
+    get = function(key) return PLUGIN.db[key[#key]] end,
     set = function(key,value) PLUGIN:ChangeDBVar(value, key[#key]); PLUGIN:UpdateLogWindow() end
 }
 
@@ -75,6 +76,6 @@ SV.Options.args.plugins.args.pluginOptions.args[Schema].args["fontSize"] = {
     min = 6,
     max = 22,
     step = 1,
-    get = function(key) return SV.db[Schema][key[#key]] end,
+    get = function(key) return PLUGIN.db[key[#key]] end,
     set = function(key,value) PLUGIN:ChangeDBVar(value, key[#key]); PLUGIN:UpdateLogWindow() end
 }

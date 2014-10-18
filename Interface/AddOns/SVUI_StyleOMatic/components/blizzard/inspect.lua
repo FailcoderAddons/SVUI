@@ -22,8 +22,8 @@ local pairs   = _G.pairs;
 --[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
 HELPERS
@@ -51,19 +51,19 @@ local InspectSlotList = {
 };
 --[[ 
 ########################################################## 
-INSPECT UI STYLER
+INSPECT UI PLUGINR
 ##########################################################
 ]]--
 local function InspectStyle()
-	if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.inspect ~= true then
+	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.inspect ~= true then
 		return 
 	end 
 	InspectFrame:RemoveTextures(true)
 	InspectFrameInset:RemoveTextures(true)
 	InspectFrame:SetPanelTemplate('Action')
-	STYLE:ApplyCloseButtonStyle(InspectFrameCloseButton)
+	PLUGIN:ApplyCloseButtonStyle(InspectFrameCloseButton)
 	for d = 1, 4 do
-		STYLE:ApplyTabStyle(_G["InspectFrameTab"..d])
+		PLUGIN:ApplyTabStyle(_G["InspectFrameTab"..d])
 	end 
 	InspectModelFrameBorderTopLeft:Die()
 	InspectModelFrameBorderTopRight:Die()
@@ -101,7 +101,7 @@ local function InspectStyle()
 end 
 --[[ 
 ########################################################## 
-STYLE LOADING
+PLUGIN LOADING
 ##########################################################
 ]]--
-STYLE:SaveBlizzardStyle("Blizzard_InspectUI",InspectStyle)
+PLUGIN:SaveBlizzardStyle("Blizzard_InspectUI",InspectStyle)

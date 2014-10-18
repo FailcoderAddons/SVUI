@@ -23,8 +23,8 @@ local ceil = math.ceil;  -- Basic
 --[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
 HELPERS
@@ -35,7 +35,7 @@ local MissingLootFrame_OnShow = function(self)
   for i = 1, numMissing do 
     local slot = _G["MissingLootFrameItem"..i]
     local icon = slot.icon;
-    STYLE:ApplyItemButtonStyle(slot, true)
+    PLUGIN:ApplyItemButtonStyle(slot, true)
     local texture, name, count, quality = GetMissingLootItemInfo(i);
     local r,g,b,hex = GetItemQualityColor(quality)
     if(not r) then
@@ -87,7 +87,7 @@ local _hook_MasterLootFrame_OnShow = function()
     if child and not child.isStyled and not child:GetName() then
       if child:GetObjectType() == "Button" then 
         if child:GetPushedTexture() then
-          STYLE:ApplyCloseButtonStyle(child)
+          PLUGIN:ApplyCloseButtonStyle(child)
         else
           child:SetFixedPanelTemplate()
           child:SetButtonTemplate()
@@ -99,11 +99,11 @@ local _hook_MasterLootFrame_OnShow = function()
 end
 --[[ 
 ########################################################## 
-LOOTHISTORY STYLER
+LOOTHISTORY PLUGINR
 ##########################################################
 ]]--
 local function LootHistoryStyle()
-  if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.loot ~= true then return end 
+  if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.loot ~= true then return end 
 
   local MasterLooterFrame = _G.MasterLooterFrame;
   local MissingLootFrame = _G.MissingLootFrame;
@@ -116,13 +116,13 @@ local function LootHistoryStyle()
   MissingLootFrame:RemoveTextures()
   MissingLootFrame:SetPanelTemplate("Pattern")
 
-  STYLE:ApplyCloseButtonStyle(MissingLootFramePassButton)
+  PLUGIN:ApplyCloseButtonStyle(MissingLootFramePassButton)
   hooksecurefunc("MissingLootFrame_Show", MissingLootFrame_OnShow)
   LootHistoryFrame:RemoveTextures()
-  STYLE:ApplyCloseButtonStyle(LootHistoryFrame.CloseButton)
+  PLUGIN:ApplyCloseButtonStyle(LootHistoryFrame.CloseButton)
   LootHistoryFrame:RemoveTextures()
   LootHistoryFrame:SetFixedPanelTemplate('Transparent')
-  STYLE:ApplyCloseButtonStyle(LootHistoryFrame.ResizeButton)
+  PLUGIN:ApplyCloseButtonStyle(LootHistoryFrame.ResizeButton)
   LootHistoryFrame.ResizeButton:SetFixedPanelTemplate()
   LootHistoryFrame.ResizeButton:Width(LootHistoryFrame:GetWidth())
   LootHistoryFrame.ResizeButton:Height(19)
@@ -137,7 +137,7 @@ local function LootHistoryStyle()
   txt:SetText("RESIZE")
 
   LootHistoryFrameScrollFrame:RemoveTextures()
-  STYLE:ApplyScrollFrameStyle(LootHistoryFrameScrollFrameScrollBar)
+  PLUGIN:ApplyScrollFrameStyle(LootHistoryFrameScrollFrameScrollBar)
   hooksecurefunc("LootHistoryFrame_FullUpdate", LootHistoryFrame_OnUpdate)
 
   MasterLooterFrame:RemoveTextures()
@@ -147,14 +147,14 @@ local function LootHistoryStyle()
   hooksecurefunc("MasterLooterFrame_Show", _hook_MasterLootFrame_OnShow)
 
   BonusRollFrame:RemoveTextures()
-  STYLE:ApplyAlertStyle(BonusRollFrame)
+  PLUGIN:ApplyAlertStyle(BonusRollFrame)
   BonusRollFrame.PromptFrame.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
   BonusRollFrame.PromptFrame.Timer.Bar:SetTexture(SV.Media.bar.default)
   BonusRollFrame.PromptFrame.Timer.Bar:SetVertexColor(0.1, 1, 0.1)
 end 
 --[[ 
 ########################################################## 
-STYLE LOADING
+PLUGIN LOADING
 ##########################################################
 ]]--
-STYLE:SaveCustomStyle(LootHistoryStyle)
+PLUGIN:SaveCustomStyle(LootHistoryStyle)

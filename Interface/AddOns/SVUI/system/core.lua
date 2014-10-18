@@ -80,7 +80,7 @@ _G.SLASH_RELOADUI2 = "/reloadui"
 
 --[[ GET THE REGISTRY LIB ]]--
 
-local SVLib = _G.LibSuperVillain;
+local SVLib = LibSuperVillain("Registry");
 
 --[[ 
 #####################################################################################
@@ -214,7 +214,7 @@ end
 
 -- We have to send the names of our three SavedVariables files since the WoW API
 -- has no method for parsing them in LUA.
-local SVUI = SVLib:NewCore("SVUI_Global", "SVUI_Profile", "SVUI_Cache")
+local SVUI = SVLib:NewCore("SVUI_Global", "SVUI_Errors", "SVUI_Profile", "SVUI_Cache")
 
 SVUI.ConfigID           = "SVUI_ConfigOMatic";
 SVUI.class              = playerClass
@@ -226,6 +226,12 @@ SVUI.ActualHeight       = actualHeight
 SVUI.ActualWidth        = actualWidth
 SVUI.yScreenArea        = (actualHeight * 0.33)
 SVUI.xScreenArea        = (actualWidth * 0.33)
+
+--[[ EMBEDDED LIBS ]]--
+
+SVUI.L          = LibSuperVillain("Linguist"):Lang();
+SVUI.Animate    = LibSuperVillain("Animate");
+SVUI.Timers     = LibSuperVillain("Timers");
 
 --[[ UTILITY FRAMES ]]--
 
@@ -529,6 +535,7 @@ function SVUI:Load()
     self:LoadSystemAlerts();
 
     self:RegisterEvent('PLAYER_REGEN_DISABLED');
+    self.Timers:Initialize()
 end 
 
 function SVUI:Initialize()

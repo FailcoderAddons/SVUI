@@ -20,15 +20,15 @@ local select  = _G.select;
 --[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
-BLACKMARKET STYLER
+BLACKMARKET PLUGINR
 ##########################################################
 ]]--
 local function BlackMarketStyle()
-	if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.bmah ~= true then 
+	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.bmah ~= true then 
 		return 
 	end 
 
@@ -44,8 +44,8 @@ local function BlackMarketStyle()
 	BlackMarketFrame:SetPanelTemplate("Halftone")
 	BlackMarketFrame.Inset:RemoveTextures()
 	BlackMarketFrame.Inset:SetFixedPanelTemplate("Inset")
-	STYLE:ApplyCloseButtonStyle(BlackMarketFrame.CloseButton)
-	STYLE:ApplyScrollFrameStyle(BlackMarketScrollFrameScrollBar, 4)
+	PLUGIN:ApplyCloseButtonStyle(BlackMarketFrame.CloseButton)
+	PLUGIN:ApplyScrollFrameStyle(BlackMarketScrollFrameScrollBar, 4)
 
 	ChangeTab(BlackMarketFrame.ColumnName)
 	ChangeTab(BlackMarketFrame.ColumnLevel)
@@ -70,7 +70,7 @@ local function BlackMarketStyle()
 			if not u.styled then 
 				u:RemoveTextures()
 				u:SetButtonTemplate()
-				STYLE:ApplyItemButtonStyle(u.Item)
+				PLUGIN:ApplyItemButtonStyle(u.Item)
 				u.styled = true 
 			end 
 			if v <= t then 
@@ -82,7 +82,7 @@ local function BlackMarketStyle()
 		end 
 	end)
 	BlackMarketFrame.HotDeal:RemoveTextures()
-	STYLE:ApplyItemButtonStyle(BlackMarketFrame.HotDeal.Item)
+	PLUGIN:ApplyItemButtonStyle(BlackMarketFrame.HotDeal.Item)
 	for b = 1, BlackMarketFrame:GetNumRegions()do 
 		local y = select(b, BlackMarketFrame:GetRegions())
 		if y and y:GetObjectType() == "FontString" and y:GetText() == BLACK_MARKET_TITLE then 
@@ -92,7 +92,7 @@ local function BlackMarketStyle()
 end 
 --[[ 
 ########################################################## 
-STYLE LOADING
+PLUGIN LOADING
 ##########################################################
 ]]--
-STYLE:SaveBlizzardStyle("Blizzard_BlackMarketUI",BlackMarketStyle)
+PLUGIN:SaveBlizzardStyle("Blizzard_BlackMarketUI",BlackMarketStyle)

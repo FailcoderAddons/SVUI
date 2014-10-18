@@ -78,6 +78,7 @@ local PREV_TOOL, DEFAULT_DOCKLET;
 local AddOnButton = CreateFrame("Button", "SVUI_AddonDocklet", UIParent);
 local SuperDockletMain = CreateFrame('Frame', 'SuperDockletMain', UIParent);
 local SuperDockletExtra = CreateFrame('Frame', 'SuperDockletExtra', UIParent);
+local DockletMenu = CreateFrame("Frame", "SVUI_DockletMenu", UIParent);
 SuperDockletMain.FrameName = "None";
 SuperDockletExtra.FrameName = "None";
 local ICONFILE = [[Interface\AddOns\SVUI\assets\artwork\Icons\DOCK-BAG-MICRO]];
@@ -106,6 +107,25 @@ local defaultStatBarWidth = min(bw, 800)
 PRE VARS/FUNCTIONS
 ##########################################################
 ]]--
+local DD_OnClick = function(self)
+	-- DO STUFF
+	self:GetParent():Hide()
+end
+
+local DD_OnEnter = function(self)
+	self.hoverTex:Show()
+end
+
+local DD_OnLeave = function(self)
+	self.hoverTex:Hide()
+end
+
+local function SetFilterMenu(self)    
+	DockletMenu:ClearAllPoints()
+	DockletMenu:SetPoint("TOPLEFT", self, "BOTTOMLEFT", 0, -8)
+	ToggleFrame(DockletMenu)
+end
+
 local function CycleDocklets()
 	for i=1, #DOCKLET_CACHE do
 		local f = DOCKLET_CACHE[i]
@@ -228,23 +248,27 @@ local DockletButton_OnLeave = function(self, ...)
 	GameTooltip:Hide()
 end
 
-local DockletButton_OnClick = function(self)
+local DockletButton_OnClick = function(self, button)
 	if InCombatLockdown() then return end
-	local linkedFrame = self.FrameName
-	if linkedFrame and _G[linkedFrame] then
-		SuperDockWindowRight.FrameName = linkedFrame
-		if not _G[linkedFrame]:IsShown() then
-			CycleDocklets()
-		end
-		if not SuperDockWindowRight:IsShown()then
-			SuperDockWindowRight:Show()
-		end
-		_G[linkedFrame]:Show()
-		self:Activate()
+	if button == "RightButton" then
+		SetFilterMenu(self);
 	else
-		self:Deactivate()
-		GetDefaultWindow()
-	end 
+		local linkedFrame = self.FrameName
+		if linkedFrame and _G[linkedFrame] then
+			SuperDockWindowRight.FrameName = linkedFrame
+			if not _G[linkedFrame]:IsShown() then
+				CycleDocklets()
+			end
+			if not SuperDockWindowRight:IsShown()then
+				SuperDockWindowRight:Show()
+			end
+			_G[linkedFrame]:Show()
+			self:Activate()
+		else
+			self:Deactivate()
+			GetDefaultWindow()
+		end
+	end
 end
 
 local DockletFrame_OnShow = function(self)
@@ -568,7 +592,7 @@ function MOD:CreateDockPanels()
 	local toolbarTop = CreateFrame("Frame", "SuperDockToolBarTop", SV.UIParent)
 	toolbarTop:Point("TOPLEFT", SV.UIParent, "TOPLEFT", 2, -4)
 	toolbarTop:Size(1, buttonsize - 12)
-	toolbarTop.openWidth = (leftWidth - 1) / 3;
+	toolbarTop.openWidth = buttonsize + 12;
 
 	--TOP STAT HOLDERS
 	local topWidth = (leftWidth + rightWidth) * 0.8
@@ -602,6 +626,54 @@ function MOD:CreateDockPanels()
 	bottomrightdata:Size((statBarWidth * 0.5) - 1, buttonsize - 8)
 	bottomrightdata:Point("RIGHT", bottomanchor, "RIGHT", 0, 0)
 	STATS:NewAnchor(bottomrightdata, 3, "ANCHOR_CURSOR")
+
+	--RIGHT CLICK MENU
+	DockletMenu:SetParent(SV.UIParent)
+	DockletMenu:SetPanelTemplate("Default")
+	DockletMenu.buttons = {}
+	DockletMenu:SetFrameStrata("DIALOG")
+	DockletMenu:SetClampedToScreen(true)
+
+	for i = 1, 4 do 
+		DockletMenu.buttons[i] = CreateFrame("Button", nil, DockletMenu)
+
+		DockletMenu.buttons[i].hoverTex = DockletMenu.buttons[i]:CreateTexture(nil, 'OVERLAY')
+		DockletMenu.buttons[i].hoverTex:SetAllPoints()
+		DockletMenu.buttons[i].hoverTex:SetTexture([[Interface\QuestFrame\UI-QuestTitleHighlight]])
+		DockletMenu.buttons[i].hoverTex:SetBlendMode("ADD")
+		DockletMenu.buttons[i].hoverTex:Hide()
+
+		DockletMenu.buttons[i].activeTex = DockletMenu.buttons[i]:CreateTexture(nil, 'OVERLAY')
+		DockletMenu.buttons[i].activeTex:SetAllPoints()
+		DockletMenu.buttons[i].activeTex:SetTexture([[Interface\QuestFrame\UI-QuestTitleHighlight]])
+		DockletMenu.buttons[i].activeTex:SetVertexColor(0,0.7,0)
+		DockletMenu.buttons[i].activeTex:SetBlendMode("ADD")
+		DockletMenu.buttons[i].activeTex:Hide()
+
+		DockletMenu.buttons[i].text = DockletMenu.buttons[i]:CreateFontString(nil, 'BORDER')
+		DockletMenu.buttons[i].text:SetAllPoints()
+		DockletMenu.buttons[i].text:SetFont(SV.Media.font.roboto,12,"OUTLINE")
+		DockletMenu.buttons[i].text:SetJustifyH("LEFT")
+		DockletMenu.buttons[i].text:SetText(("Option %d"):format(i))
+
+		DockletMenu.buttons[i]:SetHeight(16)
+		DockletMenu.buttons[i]:SetWidth(115)
+
+		DockletMenu.buttons[i]:SetScript("OnEnter", DD_OnEnter)
+		DockletMenu.buttons[i]:SetScript("OnLeave", DD_OnLeave)
+		DockletMenu.buttons[i]:SetScript("OnClick", DD_OnClick)
+
+		if i == 1 then
+			DockletMenu.buttons[i]:SetPoint("TOPLEFT", DockletMenu, "TOPLEFT", 10, -10)
+		else
+			DockletMenu.buttons[i]:SetPoint("TOPLEFT", DockletMenu.buttons[i - 1], "BOTTOMLEFT", 0, 0)
+		end
+
+		DockletMenu.buttons[i]:Show()
+	end
+	DockletMenu:SetSize(135, 94)
+	DockletMenu:Hide()
+	SV:AddToDisplayAudit(DockletMenu)
 end
 
 do

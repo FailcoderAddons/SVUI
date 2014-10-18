@@ -1075,11 +1075,7 @@ function MOD:Load()
 	self:RegisterEvent("CONFIRM_LOOT_ROLL", AutoConfirmLoot)
 	self:RegisterEvent("LOOT_BIND_CONFIRM", AutoConfirmLoot)
 
-	if(SV.GameVersion < 60000) then
-		self:RegisterEvent("LOOT_OPENED", OpenedLootHandler)
-	else
-		self:RegisterEvent("LOOT_READY", OpenedLootHandler)
-	end
+	self:RegisterEvent("LOOT_READY", OpenedLootHandler)
 	
 	self:RegisterEvent("LOOT_SLOT_CLEARED", LootSimpleEventsHandler);
 	self:RegisterEvent("LOOT_CLOSED", LootSimpleEventsHandler);

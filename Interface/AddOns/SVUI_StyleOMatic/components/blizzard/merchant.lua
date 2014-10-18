@@ -20,15 +20,15 @@ local select  = _G.select;
 --[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
-FRAME STYLER
+FRAME PLUGINR
 ##########################################################
 ]]--
 local function MerchantStyle()
-	if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.merchant ~= true then return end 
+	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.merchant ~= true then return end 
 	MerchantFrame:RemoveTextures(true)
 	MerchantFrame:SetPanelTemplate("Halftone", false, nil, 2, 4)
 	local level = MerchantFrame:GetFrameLevel()
@@ -49,9 +49,9 @@ local function MerchantStyle()
 	MerchantMoneyInset:RemoveTextures()
 	MerchantFrameInset:SetPanelTemplate("Inset")
 	MerchantFrameInset.Panel:SetFrameLevel(MerchantFrameInset.Panel:GetFrameLevel() + 1)
-	STYLE:ApplyDropdownStyle(MerchantFrameLootFilter)
+	PLUGIN:ApplyDropdownStyle(MerchantFrameLootFilter)
 	for b = 1, 2 do
-		STYLE:ApplyTabStyle(_G["MerchantFrameTab"..b])
+		PLUGIN:ApplyTabStyle(_G["MerchantFrameTab"..b])
 	end 
 	for b = 1, 12 do 
 		local d = _G["MerchantItem"..b.."ItemButton"]
@@ -84,13 +84,13 @@ local function MerchantStyle()
 	MerchantRepairAllIcon:SetTexCoord(0.34, 0.1, 0.34, 0.535, 0.535, 0.1, 0.535, 0.535)
 	MerchantRepairAllIcon:FillInner()
 	MerchantFrame:Width(360)
-	STYLE:ApplyCloseButtonStyle(MerchantFrameCloseButton, MerchantFrame.Panel)
-	STYLE:ApplyPaginationStyle(MerchantNextPageButton)
-	STYLE:ApplyPaginationStyle(MerchantPrevPageButton)
+	PLUGIN:ApplyCloseButtonStyle(MerchantFrameCloseButton, MerchantFrame.Panel)
+	PLUGIN:ApplyPaginationStyle(MerchantNextPageButton)
+	PLUGIN:ApplyPaginationStyle(MerchantPrevPageButton)
 end 
 --[[ 
 ########################################################## 
-STYLE LOADING
+PLUGIN LOADING
 ##########################################################
 ]]--
-STYLE:SaveCustomStyle(MerchantStyle)
+PLUGIN:SaveCustomStyle(MerchantStyle)

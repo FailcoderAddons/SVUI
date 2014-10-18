@@ -31,8 +31,8 @@ GET ADDON DATA
 ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
 CLIQUE
@@ -84,7 +84,7 @@ local CliqueConfigPage1_OnShow = function(self)
 			else
 				_G["CliqueRow"..i.."Bind"]:SetPoint("RIGHT", _G["CliqueRow"..i], -9,0)
 			end
-			_G["CliqueRow"..i]:GetHighlightTexture():SetDesaturated(1)
+			_G["CliqueRow"..i]:GetHighlightTexture():SetDesaturated(true)
 		end
 	end
 	CliqueRow1:ClearAllPoints()
@@ -97,7 +97,7 @@ local function StyleClique()
 	for _, gName in pairs(CliqueFrames) do
 		local frame = _G[gName]
 		if(frame) then
-			STYLE:ApplyFrameStyle(frame, "Transparent")
+			PLUGIN:ApplyFrameStyle(frame, "Transparent")
 			if(gName == "CliqueConfig") then
 				frame.Panel:SetPoint("TOPLEFT",0,0)
 				frame.Panel:SetPoint("BOTTOMRIGHT",0,-5)
@@ -125,7 +125,7 @@ local function StyleClique()
 		end
 	end
 
-	STYLE:ApplyCloseButtonStyle(CliqueDialog.CloseButton)
+	PLUGIN:ApplyCloseButtonStyle(CliqueDialog.CloseButton)
 
 	CliqueConfigPage1:SetScript("OnShow", CliqueConfigPage1_OnShow)
 
@@ -149,4 +149,4 @@ local function StyleClique()
 	CliqueSpellTab:GetNormalTexture():FillInner()
 end
 
-STYLE:SaveAddonStyle("Clique", StyleClique)
+PLUGIN:SaveAddonStyle("Clique", StyleClique)

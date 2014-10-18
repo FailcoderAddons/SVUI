@@ -20,11 +20,11 @@ local select  = _G.select;
 --[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
-PVP STYLER
+PVP PLUGINR
 ##########################################################
 ]]--
 local _hook_PVPReadyDialogDisplay = function(self, _, _, _, queueType, _, queueRole)
@@ -41,7 +41,7 @@ local _hook_PVPReadyDialogDisplay = function(self, _, _, _, queueType, _, queueR
 end
 
 local function PVPFrameStyle()
-	if (SV.db[Schema] and (SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.pvp ~= true)) then
+	if (PLUGIN.db and (PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.pvp ~= true)) then
 		return 
 	end
 
@@ -51,15 +51,15 @@ local function PVPFrameStyle()
 	local WarGamesFrame = _G.WarGamesFrame;
 	local PVPReadyDialog = _G.PVPReadyDialog;
 
-	STYLE:ApplyWindowStyle(PVPUIFrame, true)
+	PLUGIN:ApplyWindowStyle(PVPUIFrame, true)
 	
-	STYLE:ApplyCloseButtonStyle(PVPUIFrameCloseButton)
+	PLUGIN:ApplyCloseButtonStyle(PVPUIFrameCloseButton)
 
 	for g = 1, 2 do
-		STYLE:ApplyTabStyle(_G["PVPUIFrameTab"..g])
+		PLUGIN:ApplyTabStyle(_G["PVPUIFrameTab"..g])
 	end
 
-	for i = 1, 3 do 
+	for i = 1, 4 do 
 		local btn = _G["PVPQueueFrameCategoryButton"..i]
 		if(btn) then
 			btn.Background:Die()
@@ -72,10 +72,10 @@ local function PVPFrameStyle()
 		end
 	end
 
-	STYLE:ApplyDropdownStyle(HonorFrameTypeDropDown)
+	PLUGIN:ApplyDropdownStyle(HonorFrameTypeDropDown)
 	HonorFrame.Inset:RemoveTextures()
 	HonorFrame.Inset:SetFixedPanelTemplate("Inset")
-	STYLE:ApplyScrollFrameStyle(HonorFrameSpecificFrameScrollBar)
+	PLUGIN:ApplyScrollFrameStyle(HonorFrameSpecificFrameScrollBar)
 	HonorFrameSoloQueueButton:RemoveTextures()
 	HonorFrameGroupQueueButton:RemoveTextures()
 	HonorFrameSoloQueueButton:SetButtonTemplate()
@@ -87,24 +87,6 @@ local function PVPFrameStyle()
 	HonorFrame.BonusFrame.RandomBGButton:SetButtonTemplate()
 	HonorFrame.BonusFrame.RandomBGButton.SelectedTexture:FillInner()
 	HonorFrame.BonusFrame.RandomBGButton.SelectedTexture:SetTexture(1, 1, 0, 0.1)
-
-	if(SV.GameVersion < 60000) then
-		PVPUIFrame.Shadows:RemoveTextures()
-		HonorFrame.BonusFrame.CallToArmsButton:RemoveTextures()
-		HonorFrame.BonusFrame.CallToArmsButton:SetFixedPanelTemplate("Button")
-		HonorFrame.BonusFrame.CallToArmsButton:SetButtonTemplate()
-		HonorFrame.BonusFrame.CallToArmsButton.SelectedTexture:FillInner()
-		HonorFrame.BonusFrame.CallToArmsButton.SelectedTexture:SetTexture(1, 1, 0, 0.1)
-		for g = 1, 2 do 
-			local I = HonorFrame.BonusFrame["WorldPVP"..g.."Button"]
-			I:RemoveTextures()
-			I:SetFixedPanelTemplate("Button", true)
-			I:SetButtonTemplate()
-			I.SelectedTexture:FillInner()
-			I.SelectedTexture:SetTexture(1, 1, 0, 0.1)
-		end
-		PVPUIFrame.LeftInset:RemoveTextures()
-	end
 		
 	HonorFrame.BonusFrame.DiceButton:DisableDrawLayer("ARTWORK")
 	HonorFrame.BonusFrame.DiceButton:SetHighlightTexture("")
@@ -150,15 +132,15 @@ local function PVPFrameStyle()
 	WarGamesFrameInfoScrollFrameScrollBar:RemoveTextures()
 	WarGameStartButton:RemoveTextures()
 	WarGameStartButton:SetButtonTemplate()
-	STYLE:ApplyScrollFrameStyle(WarGamesFrameScrollFrameScrollBar)
-	STYLE:ApplyScrollFrameStyle(WarGamesFrameInfoScrollFrameScrollBar)
+	PLUGIN:ApplyScrollFrameStyle(WarGamesFrameScrollFrameScrollBar)
+	PLUGIN:ApplyScrollFrameStyle(WarGamesFrameInfoScrollFrameScrollBar)
 	WarGamesFrame.HorizontalBar:RemoveTextures()
 	
 	PVPReadyDialog:RemoveTextures()
 	PVPReadyDialog:SetPanelTemplate("Pattern")
 	PVPReadyDialogEnterBattleButton:SetButtonTemplate()
 	PVPReadyDialogLeaveQueueButton:SetButtonTemplate()
-	STYLE:ApplyCloseButtonStyle(PVPReadyDialogCloseButton)
+	PLUGIN:ApplyCloseButtonStyle(PVPReadyDialogCloseButton)
 	PVPReadyDialogRoleIcon.texture:SetTexture("Interface\\LFGFrame\\UI-LFG-ICONS-ROLEBACKGROUNDS")
 	PVPReadyDialogRoleIcon.texture:SetAlpha(0.5)
 	
@@ -169,9 +151,9 @@ local function PVPFrameStyle()
 end 
 --[[ 
 ########################################################## 
-STYLE LOADING
+PLUGIN LOADING
 ##########################################################
 ]]--
-STYLE:SaveBlizzardStyle('Blizzard_PVPUI', PVPFrameStyle, true)
+PLUGIN:SaveBlizzardStyle('Blizzard_PVPUI', PVPFrameStyle, true)
 
 -- /script StaticPopupSpecial_Show(PVPReadyDialog)

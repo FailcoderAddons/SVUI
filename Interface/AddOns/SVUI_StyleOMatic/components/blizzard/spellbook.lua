@@ -22,8 +22,8 @@ local pairs   = _G.pairs;
 
 local SV = _G["SVUI"];
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
 FRAME LISTS
@@ -226,14 +226,14 @@ local function ButtonUpdateHelper(self, strip)
 end 
 --[[ 
 ########################################################## 
-SPELLBOOK STYLER
+SPELLBOOK PLUGINR
 ##########################################################
 ]]--
 local function SpellBookStyle()
-	if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.spellbook ~= true then return end
+	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.spellbook ~= true then return end
 
-	STYLE:ApplyWindowStyle(SpellBookFrame)
-	STYLE:ApplyCloseButtonStyle(SpellBookFrameCloseButton)
+	PLUGIN:ApplyWindowStyle(SpellBookFrame)
+	PLUGIN:ApplyCloseButtonStyle(SpellBookFrameCloseButton)
 
 	for _, gName in pairs(bookFrames) do
 		local frame = _G[gName]
@@ -256,8 +256,8 @@ local function SpellBookStyle()
 		end
 	end
 
-	STYLE:ApplyPaginationStyle(SpellBookPrevPageButton)
-	STYLE:ApplyPaginationStyle(SpellBookNextPageButton)
+	PLUGIN:ApplyPaginationStyle(SpellBookPrevPageButton)
+	PLUGIN:ApplyPaginationStyle(SpellBookNextPageButton)
 
 	ButtonUpdateHelper(nil, true)
 
@@ -322,7 +322,7 @@ local function SpellBookStyle()
 	for i = 1, 5 do
 		local frame = _G[("SpellBookFrameTabButton%d"):format(i)]
 		if(frame) then
-			STYLE:ApplyTabStyle(frame)
+			PLUGIN:ApplyTabStyle(frame)
 		end
 	end
 
@@ -331,7 +331,7 @@ local function SpellBookStyle()
 end 
 --[[ 
 ########################################################## 
-STYLE LOADING
+PLUGIN LOADING
 ##########################################################
 ]]--
-STYLE:SaveCustomStyle(SpellBookStyle)
+PLUGIN:SaveCustomStyle(SpellBookStyle)

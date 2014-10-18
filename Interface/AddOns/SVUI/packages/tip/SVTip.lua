@@ -654,7 +654,8 @@ local _hook_OnTipShow = function(self)
 		edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
 		tile = true, 
 		tileSize = 128,
-		edgeSize = 1
+		edgeSize = 1,
+		insets = {left = 1, right = 1, top = 1, bottom = 1}
 	})
 	self:SetBackdropColor(0, 0, 0, 0)
 	self:SetBackdropBorderColor(0, 0, 0, 0)
@@ -677,7 +678,8 @@ local _hook_OnTipShow = function(self)
 		edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
 		tile = true, 
 		tileSize = 128,
-		edgeSize = 1
+		edgeSize = 1,
+		insets = {left = 1, right = 1, top = 1, bottom = 1}
 	})
 	mask:SetBackdropColor(0, 0, 0, 1)
 	mask:SetBackdropBorderColor(0, 0, 0, 1)
@@ -688,7 +690,7 @@ local _hook_OnTipHide = function(self)
 end
 
 local function ApplyTooltipSkins()
-	local barHeight = SV.db.SVTip.healthBar.height
+	local barHeight = GameTooltipStatusBar:GetHeight()
 
 	for i, tooltip in pairs(tooltips) do
 		if(not tooltip) then return end
@@ -772,7 +774,8 @@ local function ApplyTooltipSkins()
 				edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
 				tile = true,
 				tileSize = 128,
-				edgeSize = 1
+				edgeSize = 1,
+				insets = {left = 1, right = 1, top = 1, bottom = 1}
 			})
 			mask:SetBackdropColor(0, 0, 0, 1)
 			mask:SetBackdropBorderColor(0, 0, 0)
@@ -830,7 +833,8 @@ local function ApplyTooltipSkins()
 				edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
 				tileSize = 128,
 				tile = true, 
-				edgeSize = 1
+				edgeSize = 1,
+				insets = {left = 1, right = 1, top = 1, bottom = 1}
 			})
 			tooltip:SetBackdropColor(0, 0, 0, 0)
 			tooltip:SetBackdropBorderColor(0, 0, 0, 0)
@@ -867,17 +871,18 @@ function MOD:Load()
 	SV.Mentalo:Add(anchor, L["Tooltip"])
 
 	local barHeight = SV.db.SVTip.healthBar.height
+	GameTooltipStatusBar:SetHeight(barHeight)
+	GameTooltipStatusBar:SetStatusBarTexture(SV.Media.bar.default)
 
 	ApplyTooltipSkins()
-
-	GameTooltipStatusBar:Height(barHeight)
-	GameTooltipStatusBar:SetStatusBarTexture(SV.Media.bar.default)
+	
 	GameTooltipStatusBar:ClearAllPoints()
 	GameTooltipStatusBar:SetPoint("BOTTOMLEFT", GameTooltip.SuperBorder, "BOTTOMLEFT", 3, 3)
 	GameTooltipStatusBar:SetPoint("BOTTOMRIGHT", GameTooltip.SuperBorder, "BOTTOMRIGHT", -3, 3)
 	GameTooltipStatusBar.text = GameTooltipStatusBar:CreateFontString(nil, "OVERLAY")
 	GameTooltipStatusBar.text:Point("CENTER", GameTooltipStatusBar, "CENTER", 0, 0)
 	GameTooltipStatusBar.text:SetFontTemplate(LSM:Fetch("font", SV.db.SVTip.healthBar.font), SV.db.SVTip.healthBar.fontSize, "OUTLINE")
+
 
 	if not GameTooltipStatusBar.border then 
 		local border = CreateFrame("Frame", nil, GameTooltipStatusBar)

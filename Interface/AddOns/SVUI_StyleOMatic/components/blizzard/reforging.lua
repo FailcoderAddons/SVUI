@@ -20,17 +20,17 @@ local select  = _G.select;
 --[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
-REFORGING STYLER
+REFORGING PLUGINR
 ##########################################################
 ]]--
 local function ReforgingStyle()
-	if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.reforge ~= true then return end 
+	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.reforge ~= true then return end 
 	
-	STYLE:ApplyWindowStyle(ReforgingFrame, true)
+	PLUGIN:ApplyWindowStyle(ReforgingFrame, true)
 
 	ReforgingFrame.ButtonFrame:RemoveTextures()
 	ReforgingFrameReforgeButton:ClearAllPoints()
@@ -54,11 +54,11 @@ local function ReforgingStyle()
 			 ReforgingFrame.ItemButton.IconTexture:SetTexture(0,0,0,0)
 		end 
 	end)
-	STYLE:ApplyCloseButtonStyle(ReforgingFrameCloseButton)
+	PLUGIN:ApplyCloseButtonStyle(ReforgingFrameCloseButton)
 end 
 --[[ 
 ########################################################## 
-STYLE LOADING
+PLUGIN LOADING
 ##########################################################
 ]]--
-STYLE:SaveBlizzardStyle("Blizzard_ReforgingUI",ReforgingStyle)
+PLUGIN:SaveBlizzardStyle("Blizzard_ReforgingUI",ReforgingStyle)

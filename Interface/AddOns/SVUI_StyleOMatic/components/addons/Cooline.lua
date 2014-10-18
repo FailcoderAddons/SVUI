@@ -31,8 +31,8 @@ GET ADDON DATA
 ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
 COOLINE
@@ -44,15 +44,15 @@ local function StyleCoolLine()
 	CoolLineDB.bgcolor = { r = 0, g = 0, b = 0, a = 0, }
 	CoolLineDB.border = "None"
 	CoolLine.updatelook()
-	STYLE:ApplyFrameStyle(CoolLine,"Transparent")
+	PLUGIN:ApplyFrameStyle(CoolLine,"Transparent")
 	CoolLine.Panel:SetAllPoints(CoolLine)
 	SV:AddToDisplayAudit(CoolLine)
 
-	if STYLE:IsAddonReady("DockletCoolLine") then
+	if PLUGIN:IsAddonReady("DockletCoolLine") then
 		if not CoolLineDB.vertical then
 			CoolLine:SetPoint('BOTTOMRIGHT', SVUI_ActionBar1, 'TOPRIGHT', 0, 4)
 			CoolLine:SetPoint("BOTTOMLEFT", SVUI_ActionBar1, "TOPLEFT", 0, 4)
 		end
 	end
 end
-STYLE:SaveAddonStyle("CoolLine", StyleCoolLine)
+PLUGIN:SaveAddonStyle("CoolLine", StyleCoolLine)

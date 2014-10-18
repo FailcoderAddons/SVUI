@@ -20,28 +20,28 @@ local select  = _G.select;
 --[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
-TAXIFRAME STYLER
+TAXIFRAME PLUGINR
 ##########################################################
 ]]--
 local function TaxiStyle()
-	if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.taxi ~= true then
+	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.taxi ~= true then
 		 return 
 	end
 
-	STYLE:ApplyWindowStyle(TaxiFrame)
+	PLUGIN:ApplyWindowStyle(TaxiFrame)
 	
 	TaxiRouteMap:SetPanelTemplate("Blackout")
 	--TaxiRouteMap.Panel:WrapOuter(TaxiRouteMap, 4, 4)
 	
-	STYLE:ApplyCloseButtonStyle(TaxiFrame.CloseButton)
+	PLUGIN:ApplyCloseButtonStyle(TaxiFrame.CloseButton)
 end 
 --[[ 
 ########################################################## 
-STYLE LOADING
+PLUGIN LOADING
 ##########################################################
 ]]--
-STYLE:SaveCustomStyle(TaxiStyle)
+PLUGIN:SaveCustomStyle(TaxiStyle)

@@ -124,7 +124,7 @@ end
 local PostCreateAuraIcon = function(self, aura)
 	aura.cd.noOCC = true;
 	aura.cd.noCooldownCount = true;
-	aura.cd:SetReverse()
+	aura.cd:SetReverse(true)
 	aura.overlay:SetTexture(0,0,0,0)
 	aura.stealable:SetTexture(0,0,0,0)
 	
@@ -236,7 +236,7 @@ local PostUpdateAuraIcon = function(self, unit, button, index, offset)
 	local name, _, _, _, dtype, duration, expiration, _, isStealable = UnitAura(unit, index, button.filter)
 	local isFriend = UnitIsFriend('player', unit) == 1 and true or false
 	if button.isDebuff then
-		if(not isFriend and button.owner ~= "player" and button.owner ~= "vehicle") then
+		if(not isFriend and button.owner and button.owner ~= "player" and button.owner ~= "vehicle") then
 			button:SetBackdropBorderColor(0.9, 0.1, 0.1)
 			button.icon:SetDesaturated((unit and not unit:find('arena%d')) and true or false)
 		else

@@ -22,8 +22,8 @@ local pairs   = _G.pairs;
 --[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
 HELPERS
@@ -40,15 +40,20 @@ local LFDFrameList = {
   "RaidFinderQueueFrameRoleButtonTank",
   "LFGInvitePopupRoleButtonTank",
   "LFGInvitePopupRoleButtonHealer",
-  "LFGInvitePopupRoleButtonDPS"  
+  "LFGInvitePopupRoleButtonDPS",
+
 };
 
 local Incentive_OnShow = function(button)
-  ActionButton_ShowOverlayGlow(button:GetParent().checkButton)
+  local parent = button:GetParent()
+  local check = parent.checkButton or parent.CheckButton
+  ActionButton_ShowOverlayGlow(check)
 end 
 
 local Incentive_OnHide = function(button)
-  ActionButton_HideOverlayGlow(button:GetParent().checkButton)
+  local parent = button:GetParent()
+  local check = parent.checkButton or parent.CheckButton
+  ActionButton_HideOverlayGlow(check)
 end 
 
 local LFDQueueRandom_OnUpdate = function()
@@ -107,17 +112,20 @@ local ScenarioQueueRandom_OnUpdate = function()
         t.restyled = true 
       end 
     end 
-  end 
+  end
+  LFDQueueFrameRandomScrollFrameChildFrameMoneyReward:RemoveTextures()
+  RaidFinderQueueFrameScrollFrameChildFrameMoneyReward:RemoveTextures()
+  ScenarioQueueFrameRandomScrollFrameChildFrameMoneyReward:RemoveTextures()
 end 
 --[[ 
 ########################################################## 
-LFD STYLER
+LFD PLUGINR
 ##########################################################
 ]]--
 local function LFDFrameStyle()
-  if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.lfg ~= true then return end
+  if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.lfg ~= true then return end
   
-  STYLE:ApplyWindowStyle(PVEFrame, true)
+  PLUGIN:ApplyWindowStyle(PVEFrame, true)
   
   PVEFrameLeftInset:RemoveTextures()
   RaidFinderQueueFrame:RemoveTextures(true)
@@ -135,7 +143,7 @@ local function LFDFrameStyle()
   LFDQueueFrameRandomScrollFrameChildFrameBonusRepFrame.ChooseButton:SetButtonTemplate()
   ScenarioQueueFrameRandomScrollFrameChildFrameBonusRepFrame.ChooseButton:SetButtonTemplate()
 
-  STYLE:ApplyScrollFrameStyle(ScenarioQueueFrameRandomScrollFrameScrollBar)
+  PLUGIN:ApplyScrollFrameStyle(ScenarioQueueFrameRandomScrollFrameScrollBar)
 
   GroupFinderFrameGroupButton1.icon:SetTexture("Interface\\Icons\\INV_Helmet_08")
   GroupFinderFrameGroupButton2.icon:SetTexture("Interface\\Icons\\inv_helmet_06")
@@ -145,7 +153,7 @@ local function LFDFrameStyle()
   LFGDungeonReadyDialogBackground:Die()
   LFGDungeonReadyDialogEnterDungeonButton:SetButtonTemplate()
   LFGDungeonReadyDialogLeaveQueueButton:SetButtonTemplate()
-  STYLE:ApplyCloseButtonStyle(LFGDungeonReadyDialogCloseButton)
+  PLUGIN:ApplyCloseButtonStyle(LFGDungeonReadyDialogCloseButton)
 
   LFGDungeonReadyDialog:RemoveTextures()
   LFGDungeonReadyDialog:SetPanelTemplate("Pattern", true, 2, 4, 4)
@@ -181,14 +189,15 @@ local function LFDFrameStyle()
   LFDQueueFrameRoleButtonHealer.shortageBorder:Die()
   LFGDungeonReadyDialog.filigree:SetAlpha(0)
   LFGDungeonReadyDialog.bottomArt:SetAlpha(0)
-  STYLE:ApplyCloseButtonStyle(LFGDungeonReadyStatusCloseButton)
+  PLUGIN:ApplyCloseButtonStyle(LFGDungeonReadyStatusCloseButton)
 
   for _,name in pairs(LFDFrameList) do
     local frame = _G[name];
     if frame then
-      frame.checkButton:RemoveTextures()
-      frame.checkButton:SetCheckboxTemplate(true, -4, -4)
-      frame.checkButton:SetFrameLevel(frame.checkButton:GetFrameLevel() + 50)
+      local check = frame.checkButton or frame.CheckButton
+      check:RemoveTextures()
+      check:SetCheckboxTemplate(true, -4, -4)
+      check:SetFrameLevel(check:GetFrameLevel() + 50)
       frame:DisableDrawLayer("BACKGROUND")
       frame:DisableDrawLayer("OVERLAY")
     end
@@ -206,18 +215,24 @@ local function LFDFrameStyle()
   RaidFinderQueueFrameRoleButtonLeader.leadIcon:SetAlpha(0.4)
 
   hooksecurefunc('LFG_DisableRoleButton', function(self)
-    if self.checkButton:GetChecked() then
-       self.checkButton:SetAlpha(1)
-    else
-       self.checkButton:SetAlpha(0)
-    end 
+    local check = self.checkButton or self.CheckButton
+    if(check) then
+      if check:GetChecked() then
+         check:SetAlpha(1)
+      else
+         check:SetAlpha(0)
+      end
+    end
     if self.background then
        self.background:Show()
     end 
   end)
 
   hooksecurefunc('LFG_EnableRoleButton', function(self)
-    self.checkButton:SetAlpha(1)
+    local check = self.checkButton or self.CheckButton
+    if(check) then
+      check:SetAlpha(1)
+    end
   end)
 
   hooksecurefunc("LFG_PermanentlyDisableRoleButton", function(self)
@@ -248,11 +263,11 @@ local function LFDFrameStyle()
   end
 
   for u = 1, 2 do
-     STYLE:ApplyTabStyle(_G['PVEFrameTab'..u])
+     PLUGIN:ApplyTabStyle(_G['PVEFrameTab'..u])
   end
 
   PVEFrameTab1:SetPoint('BOTTOMLEFT', PVEFrame, 'BOTTOMLEFT', 19, -31)
-  STYLE:ApplyCloseButtonStyle(PVEFrameCloseButton)
+  PLUGIN:ApplyCloseButtonStyle(PVEFrameCloseButton)
   LFDParentFrame:RemoveTextures()
   LFDQueueFrameFindGroupButton:RemoveTextures()
   LFDParentFrameInset:RemoveTextures()
@@ -270,7 +285,7 @@ local function LFDFrameStyle()
     end 
   end)
   
-  STYLE:ApplyDropdownStyle(LFDQueueFrameTypeDropDown)
+  PLUGIN:ApplyDropdownStyle(LFDQueueFrameTypeDropDown)
 
   RaidFinderFrame:RemoveTextures()
   RaidFinderFrameBottomInset:RemoveTextures()
@@ -280,7 +295,7 @@ local function LFDFrameStyle()
   RaidFinderFrameBottomInsetBg:Hide()
   RaidFinderFrameBtnCornerRight:Hide()
   RaidFinderFrameButtonBottomBorder:Hide()
-  STYLE:ApplyDropdownStyle(RaidFinderQueueFrameSelectionDropDown)
+  PLUGIN:ApplyDropdownStyle(RaidFinderQueueFrameSelectionDropDown)
   RaidFinderFrameFindRaidButton:RemoveTextures()
   RaidFinderFrameFindRaidButton:SetButtonTemplate()
   RaidFinderQueueFrame:RemoveTextures()
@@ -310,6 +325,9 @@ local function LFDFrameStyle()
     end 
   end
 
+  RaidFinderQueueFrameScrollFrameChildFrameMoneyReward:RemoveTextures()
+
+
   ScenarioFinderFrameInset:DisableDrawLayer("BORDER")
   ScenarioFinderFrame.TopTileStreaks:Hide()
   ScenarioFinderFrameBtnCornerRight:Hide()
@@ -319,7 +337,7 @@ local function LFDFrameStyle()
   hooksecurefunc("ScenarioQueueFrameRandom_UpdateFrame", ScenarioQueueRandom_OnUpdate)
   ScenarioQueueFrameFindGroupButton:RemoveTextures()
   ScenarioQueueFrameFindGroupButton:SetButtonTemplate()
-  STYLE:ApplyDropdownStyle(ScenarioQueueFrameTypeDropDown)
+  PLUGIN:ApplyDropdownStyle(ScenarioQueueFrameTypeDropDown)
   LFRBrowseFrameRoleInset:DisableDrawLayer("BORDER")
   RaidBrowserFrameBg:Hide()
   LFRQueueFrameSpecificListScrollFrameScrollBackgroundTopLeft:Hide()
@@ -333,15 +351,15 @@ local function LFDFrameStyle()
   end
 
   RaidBrowserFrame:SetPanelTemplate('Pattern')
-  STYLE:ApplyCloseButtonStyle(RaidBrowserFrameCloseButton)
+  PLUGIN:ApplyCloseButtonStyle(RaidBrowserFrameCloseButton)
   LFRQueueFrameFindGroupButton:SetButtonTemplate()
   LFRQueueFrameAcceptCommentButton:SetButtonTemplate()
-  STYLE:ApplyScrollFrameStyle(LFRQueueFrameCommentScrollFrameScrollBar)
-  STYLE:ApplyScrollFrameStyle(LFDQueueFrameSpecificListScrollFrameScrollBar)
+  PLUGIN:ApplyScrollFrameStyle(LFRQueueFrameCommentScrollFrameScrollBar)
+  PLUGIN:ApplyScrollFrameStyle(LFDQueueFrameSpecificListScrollFrameScrollBar)
 
   RaidBrowserFrame:HookScript('OnShow', function()
     if not LFRQueueFrameSpecificListScrollFrameScrollBar.styled then
-      STYLE:ApplyScrollFrameStyle(LFRQueueFrameSpecificListScrollFrameScrollBar)
+      PLUGIN:ApplyScrollFrameStyle(LFRQueueFrameSpecificListScrollFrameScrollBar)
       LFRBrowseFrame:RemoveTextures()
       for u = 1, 2 do 
         local C = _G['LFRParentFrameSideTab'..u]
@@ -367,7 +385,7 @@ local function LFDFrameStyle()
         local C = _G['LFRBrowseFrameColumnHeader'..u]
         C:DisableDrawLayer('BACKGROUND')
       end 
-      STYLE:ApplyDropdownStyle(LFRBrowseFrameRaidDropDown)
+      PLUGIN:ApplyDropdownStyle(LFRBrowseFrameRaidDropDown)
       LFRBrowseFrameRefreshButton:SetButtonTemplate()
       LFRBrowseFrameInviteButton:SetButtonTemplate()
       LFRBrowseFrameSendMessageButton:SetButtonTemplate()
@@ -387,8 +405,8 @@ local function LFDFrameStyle()
   _G[ScenarioQueueFrame.PartyBackfill:GetName().."BackfillButton"]:SetButtonTemplate()
   _G[ScenarioQueueFrame.PartyBackfill:GetName().."NoBackfillButton"]:SetButtonTemplate()
   
-  STYLE:ApplyScrollFrameStyle(LFDQueueFrameRandomScrollFrameScrollBar)
-  STYLE:ApplyScrollFrameStyle(ScenarioQueueFrameSpecificScrollFrameScrollBar)
+  PLUGIN:ApplyScrollFrameStyle(LFDQueueFrameRandomScrollFrameScrollBar)
+  PLUGIN:ApplyScrollFrameStyle(ScenarioQueueFrameSpecificScrollFrameScrollBar)
   LFDQueueFrameRandomScrollFrame:SetBasicPanel()
   ScenarioQueueFrameRandomScrollFrame:SetBasicPanel()
   RaidFinderQueueFrameScrollFrame:SetBasicPanel()
@@ -413,7 +431,7 @@ local function LFDFrameStyle()
 end
 --[[ 
 ########################################################## 
-STYLE LOADING
+PLUGIN LOADING
 ##########################################################
 ]]--
-STYLE:SaveCustomStyle(LFDFrameStyle)
+PLUGIN:SaveCustomStyle(LFDFrameStyle)

@@ -141,7 +141,7 @@ SV.Options.args.SVDock.args["leftDockGroup"] = {
 
 local acceptableDocklets = {
 	["alDamageMeter"] = L["alDamageMeter"],
-	["Skada"] = L["Skada"],
+	--["Skada"] = L["Skada"],
 	["Recount"] = L["Recount"],
 	["TinyDPS"] = L["TinyDPS"],
 	["Omen"] = L["Omen"]
@@ -152,12 +152,13 @@ local function GetLiveDockletsA()
 	local t = {["None"] = L["None"]};
 	for n,l in pairs(acceptableDocklets) do
 		if IsAddOnLoaded(n) or IsAddOnLoaded(l) then
-			if n == "Skada" and _G.Skada then
-				for index,window in pairs(_G.Skada:GetWindows()) do
-				    local key = window.db.name
-				    t["Skada"..key] = (key=="Skada") and "Skada - Main" or "Skada - "..key;
-				end 
-			elseif (test ~= n and test ~= l) then
+			-- if n == "Skada" and _G.Skada then
+			-- 	for index,window in pairs(_G.Skada:GetWindows()) do
+			-- 	    local key = window.db.name
+			-- 	    t["Skada"..key] = (key=="Skada") and "Skada - Main" or "Skada - "..key;
+			-- 	end 
+			-- end
+			if (test ~= n and test ~= l) then
 				t[n] = l;
 			end
 		end
@@ -170,12 +171,13 @@ local function GetLiveDockletsB()
 	local t = {["None"] = L["None"]};
 	for n,l in pairs(acceptableDocklets) do
 		if IsAddOnLoaded(n) or IsAddOnLoaded(l) then
-			if n == "Skada" and _G.Skada then
-				for index,window in pairs(_G.Skada:GetWindows()) do
-				    local key = window.db.name
-				    t["Skada"..key] = (key=="Skada") and "Skada - Main" or "Skada - "..key;
-				end 
-			elseif (test ~= n and test ~= l) then
+			-- if n == "Skada" and _G.Skada then
+			-- 	for index,window in pairs(_G.Skada:GetWindows()) do
+			-- 	    local key = window.db.name
+			-- 	    t["Skada"..key] = (key=="Skada") and "Skada - Main" or "Skada - "..key;
+			-- 	end 
+			-- end
+			if (test ~= n and test ~= l) then
 				t[n] = l;
 			end
 		end
@@ -245,6 +247,21 @@ SV.Options.args.SVDock.args["rightDockGroup"] = {
 					name = L["Enable"],
 					get = function()return SV.db.general.questWatch end,
 				 	set = function(j, value) SV.db.general.questWatch = value; SV:StaticPopup_Show("RL_CLIENT") end
+				}
+			}
+		},
+		questHeaders = {
+			order = 4, 
+			type = "group", 
+			name = L['Quest Header Styled'], 
+			args = {
+				enable = {
+					order = 1,
+					type = "toggle",
+					name = L["Enable"],
+					get = function()return SV.db.general.questHeaders end,
+				 	set = function(j, value) SV.db.general.questHeaders = value; SV:StaticPopup_Show("RL_CLIENT") end,
+				 	disabled = function()return (not SV.db.general.questWatch) end, 
 				}
 			}
 		},

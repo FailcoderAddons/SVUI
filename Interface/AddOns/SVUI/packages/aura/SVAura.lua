@@ -98,9 +98,10 @@ local AURA_ICONS = {
 	[[Interface\Addons\SVUI\assets\artwork\Icons\AURA-POWER]],
 	[[Interface\Addons\SVUI\assets\artwork\Icons\AURA-HASTE]],
 	[[Interface\Addons\SVUI\assets\artwork\Icons\AURA-SPELL]],
-	[[Interface\Addons\SVUI\assets\artwork\Icons\AURA-HASTE]],
 	[[Interface\Addons\SVUI\assets\artwork\Icons\AURA-CRIT]],
-	[[Interface\Addons\SVUI\assets\artwork\Icons\AURA-MASTERY]]
+	[[Interface\Addons\SVUI\assets\artwork\Icons\AURA-MASTERY]],
+	[[Interface\Addons\SVUI\assets\artwork\Icons\AURA-MULTISTRIKE]],
+	[[Interface\Addons\SVUI\assets\artwork\Icons\AURA-VERSATILITY]]
 };
 -- local RefHyperBuffs = {
 -- 	[1]={1126,115921,20217},
@@ -113,8 +114,6 @@ local AURA_ICONS = {
 -- 	[8]={19740,116956},
 -- };
 local SVUI_ConsolidatedBuffs = CreateFrame('Frame', 'SVUI_ConsolidatedBuffs', UIParent)
-local CB_WIDTH = 36;
-local CB_HEIGHT = 228;
 
 local function CreateHyperBuff(index)
 	local buff = CreateFrame("Button", nil, SVUI_ConsolidatedBuffs)
@@ -358,19 +357,19 @@ do
 				local timeLeft = expiration - GetTime()
 				buff.expiration = timeLeft;
 				buff.duration = duration;
+				buff.spellName = name;
 				buff.nextUpdate = 0;
-				buff.bar:SetMinMaxValues(0, duration)
-				buff.bar:SetValue(timeLeft)
-				buff:SetAlpha(0.1)
-				if(duration == 0 and expiration == 0) then 
-					buff:SetScript("OnUpdate", nil)
-					buff.spellName = nil;
-					buff.empty:SetAlpha(0)
-				else
+				buff:SetAlpha(1)
+				buff.empty:SetAlpha(1)
+				if(duration > 0 and timeLeft > 0) then
 					buff:SetAlpha(1)
 					buff:SetScript("OnUpdate", ConsolidatedBuff_OnUpdate)
-					buff.spellName = name
-					buff.empty:SetAlpha(1)
+					buff.bar:SetMinMaxValues(0, duration)
+					buff.bar:SetValue(timeLeft)
+				else
+					buff:SetScript("OnUpdate", nil)
+					buff.bar:SetMinMaxValues(0, 1)
+					buff.bar:SetValue(1)
 				end 
 			else
 				buff.spellName = nil;
@@ -384,8 +383,10 @@ do
 
 	function MOD:ToggleConsolidatedBuffs()
 		if SV.db.SVAura.hyperBuffs.enable then
-			CB_HEIGHT = Minimap:GetHeight()
-			CB_WIDTH = (CB_HEIGHT / 5) + 4
+			local maxShown = #AURA_ICONS - 1
+			local CB_HEIGHT = SVUI_MinimapFrame:GetHeight()
+			local CB_WIDTH = (CB_HEIGHT / maxShown) + 4
+			print("ToggleConsolidatedBuffs "..CB_WIDTH)
 			SVUI_AurasAnchor:SetSize(CB_WIDTH, CB_HEIGHT)
 			SVUI_ConsolidatedBuffs:Show()
 			BuffFrame:RegisterUnitEvent("UNIT_AURA", "player")
@@ -426,24 +427,20 @@ do
 
 	function MOD:Update_ConsolidatedBuffsSettings(event)
 		SVUI_ConsolidatedBuffs:SetAllPoints(SVUI_AurasAnchor)
-		local swapIndex1, swapIndex2, hideIndex1, hideIndex2
+		local hideIndex1
 		if SV.db.SVAura.hyperBuffs.filter then 
 			if SV.ClassRole == 'C' then 
-				swapIndex1 = 4
-				hideIndex1 = 3
-				swapIndex2 = 5
-				hideIndex2 = 4
+				hideIndex = 3
 			else
-				swapIndex1 = 6
-				hideIndex1 = 5
-				swapIndex2 = 7
-				hideIndex2 = 6
+				hideIndex = 5
 			end 
 		end
 		local lastGoodFrame
-		local buffSize = (Minimap:GetHeight() / 8) + 4
+		local maxShown = #AURA_ICONS - 1
+		local CB_HEIGHT = SVUI_MinimapFrame:GetHeight() - 50
+		local buffSize = (CB_HEIGHT / maxShown) + 4
 
-		for i=1,NUM_LE_RAID_BUFF_TYPES do 
+		for i=1, NUM_LE_RAID_BUFF_TYPES do 
 			local buff = SVUI_ConsolidatedBuffs[i]
 			local lastIndex = (i - 1)
 			if(buff) then
@@ -456,7 +453,7 @@ do
 					buff:Point("TOP", lastGoodFrame, "BOTTOM", 0, -4)
 				end 
 
-				if((hideIndex1 and i == hideIndex1) or (hideIndex2 and i == hideIndex2)) then 
+				if(hideIndex and i == hideIndex) then 
 					buff:Hide()
 				else 
 					buff:Show()
@@ -558,8 +555,10 @@ local function CreateAuraHeader(filter)
 end 
 
 function MOD:ReLoad()
-	CB_HEIGHT = Minimap:GetHeight()
-	CB_WIDTH = (CB_HEIGHT / 5) + 4
+	local maxShown = #AURA_ICONS - 1
+	local CB_HEIGHT = SVUI_MinimapFrame:GetHeight() - 50
+	local CB_WIDTH = (CB_HEIGHT / maxShown) + 4
+	print("Reload "..CB_WIDTH)
 	SVUI_AurasAnchor:SetSize(CB_WIDTH, CB_HEIGHT)
 	AURA_FADE_TIME = SV.db.SVAura.fadeBy
 	MOD:UpdateAuraHeader(SVUI_PlayerBuffs, "buffs");
@@ -567,8 +566,10 @@ function MOD:ReLoad()
 end 
 
 function MOD:Load()
-	CB_HEIGHT = Minimap:GetHeight()
-	CB_WIDTH = (CB_HEIGHT / 5) + 4
+	local maxShown = #AURA_ICONS - 1
+	local CB_HEIGHT = SVUI_MinimapFrame:GetHeight() - 50
+	local CB_WIDTH = (CB_HEIGHT / maxShown) + 4
+	print("Load "..CB_WIDTH)
 	if not SV.db.SVAura.enable then return end 
 	if SV.db.SVAura.disableBlizzard then 
 		BuffFrame:Die()

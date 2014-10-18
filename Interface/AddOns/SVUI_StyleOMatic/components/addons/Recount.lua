@@ -31,8 +31,8 @@ GET ADDON DATA
 ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
 RECOUNT
@@ -55,11 +55,11 @@ local function StyleRecount()
   assert(Recount, "AddOn Not Loaded")
   
   function Recount:ShowReset()
-    STYLE:LoadAlert(L['Reset Recount?'], function(self) Recount:ResetData() self:GetParent():Hide() end)
+    PLUGIN:LoadAlert(L['Reset Recount?'], function(self) Recount:ResetData() self:GetParent():Hide() end)
   end
 
   local function StyleFrame(frame)
-    STYLE:ApplyFrameStyle(frame,"Transparent")
+    PLUGIN:ApplyFrameStyle(frame,"Transparent")
     frame.Panel:SetAllPoints()
     frame.Panel:SetPoint('TOPLEFT', frame, 'TOPLEFT', 0, -6)
     frame.CloseButton:SetPoint('TOPRIGHT', frame, 'TOPRIGHT', -1, -9)
@@ -104,10 +104,10 @@ local function StyleRecount()
     end
   end
 
-  STYLE:ApplyScrollFrameStyle(Recount_MainWindow_ScrollBarScrollBar)
+  PLUGIN:ApplyScrollFrameStyle(Recount_MainWindow_ScrollBarScrollBar)
 
   Recount_MainWindow:HookScript('OnShow', function(self) if InCombatLockdown() then return end if SV.CurrentlyDocked["Recount_MainWindow"] then SuperDockWindowRight:Show() end end)
-  Recount.MainWindow.FileButton:HookScript('OnClick', function(self) if LibDropdownFrame0 then STYLE:ApplyFrameStyle(LibDropdownFrame0) end end)
+  Recount.MainWindow.FileButton:HookScript('OnClick', function(self) if LibDropdownFrame0 then PLUGIN:ApplyFrameStyle(LibDropdownFrame0) end end)
 
   hooksecurefunc(Recount, 'ShowScrollbarElements', function(self, name) Recount_MainWindow_ScrollBarScrollBar:Show() end)
   hooksecurefunc(Recount, 'HideScrollbarElements', function(self, name) Recount_MainWindow_ScrollBarScrollBar:Hide() end)
@@ -116,15 +116,15 @@ local function StyleRecount()
   hooksecurefunc(Recount, 'ShowReport', function(self)
     if Recount_ReportWindow.isStyled then return end
     Recount_ReportWindow.isStyled = true
-    STYLE:ApplyFrameStyle(Recount_ReportWindow.Whisper)
+    PLUGIN:ApplyFrameStyle(Recount_ReportWindow.Whisper)
     Recount_ReportWindow.ReportButton:SetButtonTemplate()
-    STYLE:ApplyScrollBarStyle(Recount_ReportWindow_Slider)
+    PLUGIN:ApplyScrollBarStyle(Recount_ReportWindow_Slider)
     Recount_ReportWindow_Slider:GetThumbTexture():Size(6,6)
   end)
 end
-STYLE:SaveAddonStyle("Recount", StyleRecount)
+PLUGIN:SaveAddonStyle("Recount", StyleRecount)
 
-function STYLE:Docklet_Recount(parent)
+function PLUGIN:Docklet_Recount(parent)
   if not Recount then return end 
   local n=Recount.MainWindow.Panel;
   if n and not n.Panel then 

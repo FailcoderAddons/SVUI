@@ -25,18 +25,18 @@ local assert        = _G.assert;
 
 local AddonName, AddonObject = ...
 
-assert(_G.LibSuperVillain, AddonName .. " requires LibSuperVillain")
+assert(LibSuperVillain, AddonName .. " requires LibSuperVillain")
 
-local PLUGIN = _G.LibSuperVillain:NewPlugin(AddonName, AddonObject)
-
-local Schema = PLUGIN.Schema;
-local SV = _G["SVUI"];
-local L = SV.L
+local PLUGIN = LibSuperVillain("Registry"):NewPlugin(AddonName, AddonObject, "LogOMatic_Profile")
 --[[ 
 ########################################################## 
 CONFIG DATA
 ##########################################################
 ]]--
-SV.configs[Schema] = {
-	["enable"] = true,
+PLUGIN.configs = {
+	["incompatible"] = {
+		["Altoholic"] = true,
+	},
 }
+
+PLUGIN.db = table.copy(PLUGIN.configs);

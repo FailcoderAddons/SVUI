@@ -31,8 +31,8 @@ GET ADDON DATA
 ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
 TINYDPS
@@ -41,7 +41,7 @@ TINYDPS
 local function StyleTinyDPS()
 	assert(tdpsFrame, "AddOn Not Loaded")
 
-	STYLE:ApplyFrameStyle(tdpsFrame)
+	PLUGIN:ApplyFrameStyle(tdpsFrame)
 	
 	tdpsFrame:HookScript("OnShow", function()
 		if InCombatLockdown() then return end 
@@ -58,9 +58,9 @@ local function StyleTinyDPS()
 	tdpsRefresh()
 end
 
-STYLE:SaveAddonStyle("TinyDPS", StyleTinyDPS)
+PLUGIN:SaveAddonStyle("TinyDPS", StyleTinyDPS)
 
-function STYLE:Docklet_TinyDPS(parent)
+function PLUGIN:Docklet_TinyDPS(parent)
 	if not tdpsFrame then return end 
 	tdpsFrame:SetFixedPanelTemplate("Transparent", true)
 	tdpsFrame:SetFrameStrata("LOW")

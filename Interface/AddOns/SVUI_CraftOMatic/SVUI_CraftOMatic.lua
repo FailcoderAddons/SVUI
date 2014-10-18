@@ -306,7 +306,7 @@ function PLUGIN:ChangeModeGear()
 end
 
 function PLUGIN:UpdateLogWindow()
- 	self.LogWindow:SetFont(SV.Media.font.system, SV.db[Schema].fontSize, "OUTLINE")
+ 	self.LogWindow:SetFont(SV.Media.font.system, self.db.fontSize, "OUTLINE")
 end
 
 function PLUGIN:SKILL_LINES_CHANGED()
@@ -387,8 +387,6 @@ BUILD FUNCTION
 ##########################################################
 ]]--
 function PLUGIN:Load()
-	if(not SV.db[Schema].enable) then return end
-
 	lastClickTime = nil;
 	self.WornItems = {};
 	self.InModeGear = false;
@@ -526,7 +524,7 @@ function PLUGIN:Load()
 	log:SetFrameStrata("MEDIUM")
 	log:SetPoint("TOPLEFT",title,"BOTTOMLEFT",0,0)
 	log:SetPoint("BOTTOMRIGHT",ModeLogsFrame,"BOTTOMRIGHT",0,0)
-	log:SetFontTemplate(nil, SV.db[Schema].fontSize, "OUTLINE")
+	log:SetFontTemplate(nil, self.db.fontSize, "OUTLINE")
 	log:SetJustifyH("CENTER")
 	log:SetJustifyV("MIDDLE")
 	log:SetShadowColor(0, 0, 0, 0)

@@ -23,8 +23,8 @@ local type    = _G.type;
 --[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
 HELPERS
@@ -39,20 +39,88 @@ local VoidStorageList = {
   "VoidStoragePurchaseFrame",
   "VoidItemSearchBox"
 };
+
+local function Tab_OnEnter(this)
+  this.backdrop:SetBackdropColor(0.1, 0.8, 0.8)
+  this.backdrop:SetBackdropBorderColor(0.1, 0.8, 0.8)
+end
+
+local function Tab_OnLeave(this)
+  this.backdrop:SetBackdropColor(0,0,0,1)
+  this.backdrop:SetBackdropBorderColor(0,0,0,1)
+end
+
+local function ChangeTabHelper(this)
+  this:RemoveTextures()
+  local nTex = this:GetNormalTexture()
+  if(nTex) then
+    nTex:SetTexture([[Interface\ICONS\INV_Enchant_VoidSphere]])
+    nTex:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+    nTex:FillInner()
+  end
+
+  this.pushed = true;
+
+  this.backdrop = CreateFrame("Frame", nil, this)
+  
+  this.backdrop:WrapOuter(this,1,1)
+  this.backdrop:SetFrameLevel(0)
+
+  this.backdrop:SetBackdrop({
+      bgFile = [[Interface\BUTTONS\WHITE8X8]], 
+      tile = false, 
+      tileSize = 0,
+      edgeFile = [[Interface\AddOns\SVUI\assets\artwork\Template\GLOW]],
+      edgeSize = 3,
+      insets = {
+          left = 0,
+          right = 0,
+          top = 0,
+          bottom = 0
+      }
+  });
+
+  this.backdrop:SetBackdropColor(0,0,0,1)
+  this.backdrop:SetBackdropBorderColor(0,0,0,1)
+  this:SetScript("OnEnter", Tab_OnEnter)
+  this:SetScript("OnLeave", Tab_OnLeave)
+
+  local a,b,c,d,e = this:GetPoint()
+  this:Point(a,b,c,1,e)
+end
+
+local function VoidSlotStyler(name, index)
+  local gName = ("%sButton%d"):format(name, index)
+  local button = _G[gName]
+  local icon = _G[gName .. "IconTexture"]
+  local bg = _G[gName .. "Bg"]
+  if(button) then
+    if(bg) then bg:Hide() end
+    button:SetSlotTemplate(true, 2, 0, 0)
+    if(icon) then
+      icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+      icon:FillInner()
+    end
+  end
+end
 --[[ 
 ########################################################## 
-VOIDSTORAGE STYLER
+VOIDSTORAGE PLUGINR
 ##########################################################
 ]]--
 local function VoidStorageStyle()
-  if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.voidstorage ~= true then
+  PLUGIN.Debugging = true
+  if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.voidstorage ~= true then
      return 
   end
 
-  STYLE:ApplyWindowStyle(VoidStorageFrame, true)
+  PLUGIN:ApplyWindowStyle(VoidStorageFrame, true)
 
-  for _,frame in pairs(VoidStorageList)do 
-    _G[frame]:RemoveTextures()
+  for _,gName in pairs(VoidStorageList) do
+    local frame = _G[gName]
+    if(frame) then 
+      frame:RemoveTextures()
+    end
   end
 
   VoidStoragePurchaseFrame:SetFrameStrata('DIALOG')
@@ -65,38 +133,28 @@ local function VoidStorageStyle()
   VoidStoragePurchaseButton:SetButtonTemplate()
   VoidStorageHelpBoxButton:SetButtonTemplate()
   VoidStorageTransferButton:SetButtonTemplate()
-  STYLE:ApplyCloseButtonStyle(VoidStorageBorderFrame.CloseButton)
+
+  PLUGIN:ApplyCloseButtonStyle(VoidStorageBorderFrame.CloseButton)
+
   VoidItemSearchBox:SetPanelTemplate("Inset")
   VoidItemSearchBox.Panel:Point("TOPLEFT", 10, -1)
   VoidItemSearchBox.Panel:Point("BOTTOMRIGHT", 4, 1)
 
-  for e = 1, 9 do 
-    local f = _G["VoidStorageDepositButton"..e]
-    local g = _G["VoidStorageWithdrawButton"..e]
-    local h = _G["VoidStorageDepositButton"..e.."IconTexture"]
-    local i = _G["VoidStorageWithdrawButton"..e.."IconTexture"]
-    _G["VoidStorageDepositButton"..e.."Bg"]:Hide()
-    _G["VoidStorageWithdrawButton"..e.."Bg"]:Hide()
-    f:SetSlotTemplate(true)
-    g:SetSlotTemplate(true)
-    h:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-    h:FillInner()
-    i:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-    i:FillInner()
+  for i=1, 9 do
+    VoidSlotStyler("VoidStorageDeposit", i)
+    VoidSlotStyler("VoidStorageWithdraw", i)
   end 
 
-  for e = 1, 80 do 
-    local j = _G["VoidStorageStorageButton"..e]
-    local k = _G["VoidStorageStorageButton"..e.."IconTexture"]
-    _G["VoidStorageStorageButton"..e.."Bg"]:Hide()
-    j:SetSlotTemplate(true)
-    k:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-    k:FillInner()
-  end 
+  for i = 1, 80 do
+    VoidSlotStyler("VoidStorageStorage", i)
+  end
+
+  ChangeTabHelper(VoidStorageFrame.Page1)
+  ChangeTabHelper(VoidStorageFrame.Page2)
 end 
 --[[ 
 ########################################################## 
-STYLE LOADING
+PLUGIN LOADING
 ##########################################################
 ]]--
-STYLE:SaveBlizzardStyle("Blizzard_VoidStorageUI", VoidStorageStyle)
+PLUGIN:SaveBlizzardStyle("Blizzard_VoidStorageUI", VoidStorageStyle)

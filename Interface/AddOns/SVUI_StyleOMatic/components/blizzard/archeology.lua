@@ -20,11 +20,11 @@ local select  = _G.select;
 --[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
-ARCHEOLOGYFRAME STYLER
+ARCHEOLOGYFRAME PLUGINR
 ##########################################################
 ]]--
 --240 24
@@ -34,7 +34,7 @@ progressBarHolder:SetPoint("BOTTOM", CastingBarFrame, "TOP", 0, 10)
 SV.Mentalo:Add(progressBarHolder, "Archeology Progress Bar")
 
 local function ArchaeologyStyle()
-	if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.archaeology ~= true then return end 
+	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.archaeology ~= true then return end 
 
 	ArchaeologyFrame:RemoveTextures()
 	ArchaeologyFrameInset:RemoveTextures()
@@ -47,9 +47,9 @@ local function ArchaeologyStyle()
 	ArchaeologyFrameArtifactPageSolveFrameSolveButton:SetButtonTemplate()
 	ArchaeologyFrameArtifactPageBackButton:SetButtonTemplate()
 	ArchaeologyFrameRaceFilter:SetFrameLevel(ArchaeologyFrameRaceFilter:GetFrameLevel()+2)
-	STYLE:ApplyDropdownStyle(ArchaeologyFrameRaceFilter, 125)
-	STYLE:ApplyPaginationStyle(ArchaeologyFrameCompletedPageNextPageButton)
-	STYLE:ApplyPaginationStyle(ArchaeologyFrameCompletedPagePrevPageButton)
+	PLUGIN:ApplyDropdownStyle(ArchaeologyFrameRaceFilter, 125)
+	PLUGIN:ApplyPaginationStyle(ArchaeologyFrameCompletedPageNextPageButton)
+	PLUGIN:ApplyPaginationStyle(ArchaeologyFrameCompletedPagePrevPageButton)
 	ArchaeologyFrameRankBar:RemoveTextures()
 	ArchaeologyFrameRankBar:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]])
 	ArchaeologyFrameRankBar:SetFrameLevel(ArchaeologyFrameRankBar:GetFrameLevel()+2)
@@ -81,13 +81,13 @@ local function ArchaeologyStyle()
 	ArchaeologyFrameArtifactPageIcon.backdrop:SetFrameLevel(ArchaeologyFrameArtifactPage:GetFrameLevel())
 	ArchaeologyFrameArtifactPageIcon:SetParent(ArchaeologyFrameArtifactPageIcon.backdrop)
 	ArchaeologyFrameArtifactPageIcon:SetDrawLayer("OVERLAY")
-	STYLE:ApplyCloseButtonStyle(ArchaeologyFrameCloseButton)
+	PLUGIN:ApplyCloseButtonStyle(ArchaeologyFrameCloseButton)
 	ArcheologyDigsiteProgressBar:SetAllPoints(progressBarHolder)
 	progressBarHolder:SetParent(ArcheologyDigsiteProgressBar)
 end 
 --[[ 
 ########################################################## 
-STYLE LOADING
+PLUGIN LOADING
 ##########################################################
 ]]--
-STYLE:SaveBlizzardStyle("Blizzard_ArchaeologyUI", ArchaeologyStyle)
+PLUGIN:SaveBlizzardStyle("Blizzard_ArchaeologyUI", ArchaeologyStyle)

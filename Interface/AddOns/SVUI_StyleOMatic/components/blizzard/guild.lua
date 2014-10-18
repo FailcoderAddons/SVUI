@@ -26,8 +26,8 @@ local ceil, modf = math.ceil, math.modf;
 --[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
 HELPERS
@@ -251,24 +251,24 @@ local _hook_BankTabPermissions = function(self)
 end
 --[[ 
 ########################################################## 
-GUILDFRAME STYLERS
+GUILDFRAME PLUGINRS
 ##########################################################
 ]]--
 local function GuildBankStyle()
-	if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.gbank ~= true then
+	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.gbank ~= true then
 		return 
 	end
 
-	STYLE:ApplyWindowStyle(GuildBankFrame)
+	PLUGIN:ApplyWindowStyle(GuildBankFrame)
 
 	GuildBankEmblemFrame:RemoveTextures(true)
 	GuildBankMoneyFrameBackground:Die()
-	STYLE:ApplyScrollFrameStyle(GuildBankPopupScrollFrameScrollBar)
+	PLUGIN:ApplyScrollFrameStyle(GuildBankPopupScrollFrameScrollBar)
 
 	for i = 1, GuildBankFrame:GetNumChildren() do 
 		local child = select(i, GuildBankFrame:GetChildren())
 		if(child and child.GetPushedTexture and child:GetPushedTexture() and not child:GetName()) then
-			STYLE:ApplyCloseButtonStyle(child)
+			PLUGIN:ApplyCloseButtonStyle(child)
 		end 
 	end
 
@@ -333,7 +333,7 @@ local function GuildBankStyle()
 		local baseName = ("GuildBankFrameTab%d"):format(i)
 		local frame = _G[baseName]
 		if(frame) then
-			STYLE:ApplyTabStyle(_G[baseName])
+			PLUGIN:ApplyTabStyle(_G[baseName])
 		end
 	end 
 
@@ -370,19 +370,19 @@ local function GuildBankStyle()
 		end
 	end 
 
-	STYLE:ApplyScrollFrameStyle(GuildBankTransactionsScrollFrameScrollBar)
-	STYLE:ApplyScrollFrameStyle(GuildBankInfoScrollFrameScrollBar)
+	PLUGIN:ApplyScrollFrameStyle(GuildBankTransactionsScrollFrameScrollBar)
+	PLUGIN:ApplyScrollFrameStyle(GuildBankInfoScrollFrameScrollBar)
 end 
 
 local function GuildFrameStyle()
-	if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.guild ~= true then
+	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.guild ~= true then
 		return 
 	end
 	
-	STYLE:ApplyWindowStyle(GuildFrame)
+	PLUGIN:ApplyWindowStyle(GuildFrame)
 
-	STYLE:ApplyCloseButtonStyle(GuildMemberDetailCloseButton)
-	STYLE:ApplyCloseButtonStyle(GuildFrameCloseButton)
+	PLUGIN:ApplyCloseButtonStyle(GuildMemberDetailCloseButton)
+	PLUGIN:ApplyCloseButtonStyle(GuildFrameCloseButton)
 	GuildRewardsFrameVisitText:ClearAllPoints()
 	GuildRewardsFrameVisitText:SetPoint("TOP", GuildRewardsFrame, "TOP", 0, 30)
 
@@ -409,13 +409,13 @@ local function GuildFrameStyle()
 	for i = 1, 5 do
 		local tab = _G["GuildFrameTab"..i]
 		if(tab) then
-			STYLE:ApplyTabStyle(tab)
+			PLUGIN:ApplyTabStyle(tab)
 			if i == 1 then
 				tab:Point("TOPLEFT", GuildFrame, "BOTTOMLEFT", -10, 3)
 			end
 		end
 	end
-
+	
 	GuildNewsBossModel:SetBasicPanel()
 	GuildNewsBossModelTextFrame:SetPanelTemplate("Default")
 	GuildNewsBossModelTextFrame.Panel:Point("TOPLEFT", GuildNewsBossModel.Panel, "BOTTOMLEFT", 0, -1)
@@ -430,36 +430,9 @@ local function GuildFrameStyle()
 	GuildFactionBar:SetPanelTemplate("Inset")
 	GuildFactionBar.Panel:Point("TOPLEFT", GuildFactionBar.progress, "TOPLEFT", -1, 1)
 	GuildFactionBar.Panel:Point("BOTTOMRIGHT", GuildFactionBar, "BOTTOMRIGHT", 1, 1)
-
-	if(SV.GameVersion < 60000) then
-		GuildLevelFrame:Die()
-		
-		GuildXPFrame:ClearAllPoints()
-		GuildXPFrame:Point("TOP", GuildFrame, "TOP", 0, -40)
-
-		GuildXPBar:RemoveTextures()
-		GuildXPBar.progress:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]])
-		GuildXPBar:SetPanelTemplate("Inset")
-		GuildXPBar.Panel:Point("TOPLEFT", GuildXPBar, "TOPLEFT", -1, -3)
-		GuildXPBar.Panel:Point("BOTTOMRIGHT", GuildXPBar, "BOTTOMRIGHT", 0, 1)
-	end
-
-	GuildLatestPerkButton:RemoveTextures()
-	GuildLatestPerkButtonIconTexture:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-	GuildLatestPerkButtonIconTexture:ClearAllPoints()
-	GuildLatestPerkButtonIconTexture:Point("TOPLEFT", 2, -2)
-	GuildLatestPerkButton:SetPanelTemplate("Inset")
-	GuildLatestPerkButton.Panel:WrapOuter(GuildLatestPerkButtonIconTexture)
-
-	GuildNextPerkButton:RemoveTextures()
-	GuildNextPerkButtonIconTexture:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-	GuildNextPerkButtonIconTexture:ClearAllPoints()
-	GuildNextPerkButtonIconTexture:Point("TOPLEFT", 2, -2)
-	GuildNextPerkButton:SetPanelTemplate("Inset")
-	GuildNextPerkButton.Panel:WrapOuter(GuildNextPerkButtonIconTexture)
 	
 	GuildRosterContainer:SetBasicPanel(-2, 2, -1, -2)
-	STYLE:ApplyScrollFrameStyle(GuildRosterContainerScrollBar, 4, -4)
+	PLUGIN:ApplyScrollFrameStyle(GuildRosterContainerScrollBar, 4, -4)
 	GuildRosterShowOfflineButton:SetCheckboxTemplate(true)
 
 	for i = 1, 4 do
@@ -469,7 +442,7 @@ local function GuildFrameStyle()
 		end
 	end 
 
-	STYLE:ApplyDropdownStyle(GuildRosterViewDropdown, 200)
+	PLUGIN:ApplyDropdownStyle(GuildRosterViewDropdown, 200)
 
 	for i = 1, 14 do
 		local btn = _G["GuildRosterContainerButton"..i.."HeaderButton"]
@@ -484,7 +457,7 @@ local function GuildFrameStyle()
 	GuildMemberOfficerNoteBackground:SetBasicPanel()
 
 	GuildMemberRankDropdown:SetFrameLevel(GuildMemberRankDropdown:GetFrameLevel()+5)
-	STYLE:ApplyDropdownStyle(GuildMemberRankDropdown, 182)
+	PLUGIN:ApplyDropdownStyle(GuildMemberRankDropdown, 182)
 	GuildMemberRankDropdown.Panel:SetBackdropColor(0,0,0,1)
 	GuildNewsFrame:RemoveTextures()
 	GuildNewsContainer:SetBasicPanel(-2, 2, 0, -2)
@@ -500,7 +473,7 @@ local function GuildFrameStyle()
 
 	GuildNewsFiltersFrame:RemoveTextures()
 	GuildNewsFiltersFrame:SetFixedPanelTemplate("Transparent", true)
-	STYLE:ApplyCloseButtonStyle(GuildNewsFiltersFrameCloseButton)
+	PLUGIN:ApplyCloseButtonStyle(GuildNewsFiltersFrameCloseButton)
 
 	for i = 1, 7 do
 		local btn = _G["GuildNewsFilterButton"..i]
@@ -510,8 +483,8 @@ local function GuildFrameStyle()
 	end 
 
 	GuildNewsFiltersFrame:Point("TOPLEFT", GuildFrame, "TOPRIGHT", 4, -20)
-	STYLE:ApplyScrollFrameStyle(GuildNewsContainerScrollBar, 4, 4)
-	STYLE:ApplyScrollFrameStyle(GuildInfoDetailsFrameScrollBar, 4, 4)
+	PLUGIN:ApplyScrollFrameStyle(GuildNewsContainerScrollBar, 4, 4)
+	PLUGIN:ApplyScrollFrameStyle(GuildInfoDetailsFrameScrollBar, 4, 4)
 
 	for i = 1, 3 do
 		local tab = _G["GuildInfoFrameTab"..i]
@@ -537,7 +510,7 @@ local function GuildFrameStyle()
 
 	GuildRecruitmentCommentInputFrame:SetFixedPanelTemplate("Default")
 	GuildTextEditFrame:SetFixedPanelTemplate("Transparent", true)
-	STYLE:ApplyScrollFrameStyle(GuildTextEditScrollFrameScrollBar, 4, 4)
+	PLUGIN:ApplyScrollFrameStyle(GuildTextEditScrollFrameScrollBar, 4, 4)
 	GuildTextEditContainer:SetFixedPanelTemplate("Default")
 
 	local editChildren = GuildTextEditFrame:GetNumChildren()
@@ -546,14 +519,14 @@ local function GuildFrameStyle()
 		local child = select(i, GuildTextEditFrame:GetChildren())
 		if(child:GetName() == "GuildTextEditFrameCloseButton") then
 			if(child:GetWidth() < 33) then
-				STYLE:ApplyCloseButtonStyle(child)
+				PLUGIN:ApplyCloseButtonStyle(child)
 			else
 				child:SetButtonTemplate()
 			end
 		end 
 	end
 
-	STYLE:ApplyScrollFrameStyle(GuildLogScrollFrameScrollBar, 4, 4)
+	PLUGIN:ApplyScrollFrameStyle(GuildLogScrollFrameScrollBar, 4, 4)
 	GuildLogFrame:SetBasicPanel()
 
 	local logChildren = GuildLogFrame:GetNumChildren()
@@ -562,7 +535,7 @@ local function GuildFrameStyle()
 		local child = select(i, GuildLogFrame:GetChildren())
 		if child:GetName() == "GuildLogFrameCloseButton" then 
 			if(child:GetWidth() < 33) then
-				STYLE:ApplyCloseButtonStyle(child)
+				PLUGIN:ApplyCloseButtonStyle(child)
 			else
 				child:SetButtonTemplate()
 			end
@@ -570,36 +543,37 @@ local function GuildFrameStyle()
 	end 
 
 	GuildRewardsFrame:SetBasicPanel(2, 0, -22, 18)
-	STYLE:ApplyScrollFrameStyle(GuildRewardsContainerScrollBar, 4, -4)
+	PLUGIN:ApplyScrollFrameStyle(GuildRewardsContainerScrollBar, 4, -4)
 
-	GuildNewPerksFrame:SetBasicPanel(-1, 0, 1, 0)
-	GuildPerksContainer:SetBasicPanel(-3, 0, 26, -3)
+	--GuildNewPerksFrame:SetBasicPanel(-1, 0, 1, 0)
+	--GuildPerksContainer:SetBasicPanel(-3, 0, 26, -3)
 
-	STYLE:ApplyScrollFrameStyle(GuildPerksContainerScrollBar, 4, 2)
+	PLUGIN:ApplyScrollFrameStyle(GuildPerksContainerScrollBar, 4, 2)
 
 	for i = 1, 8 do 
 		local button = _G["GuildPerksContainerButton"..i]
 		if button then
 			button:RemoveTextures()
-			if button.icon then
-				STYLE:ApplyItemButtonStyle(button, nil, true)
-				button.icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-				button.icon:ClearAllPoints()
-				button.icon:Point("TOPLEFT", button, "TOPLEFT", 2, -2)
-				button.icon:SetParent(button.Panel)
+			PLUGIN:ApplyItemButtonStyle(button, nil, true)
+			local icon = button.icon or button.Icon
+			if icon then
+				icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+				icon:ClearAllPoints()
+				icon:Point("TOPLEFT", button, "TOPLEFT", 2, -2)
+				icon:SetParent(button.Panel)
 			end
 		end
 	end 
-
+	
 	for i = 1, 8 do 
 		local button = _G["GuildRewardsContainerButton"..i]
 		if button then
 			button:RemoveTextures()
+			button:SetFixedPanelTemplate("Button")
 			if button.icon then
 				button.icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 				button.icon:ClearAllPoints()
 				button.icon:Point("TOPLEFT", button, "TOPLEFT", 2, -2)
-				button:SetFixedPanelTemplate("Button")
 				button.Panel:WrapOuter(button.icon)
 				button.icon:SetParent(button.Panel)
 			end
@@ -621,22 +595,22 @@ local function GuildFrameStyle()
 end 
 
 local function GuildControlStyle()
-	if SV.db[Schema].blizzard.enable~=true or SV.db[Schema].blizzard.guildcontrol~=true then return end
+	if PLUGIN.db.blizzard.enable~=true or PLUGIN.db.blizzard.guildcontrol~=true then return end
 
 	GuildControlUI:RemoveTextures()
 	GuildControlUIHbar:RemoveTextures()
 	GuildControlUIRankBankFrameInset:RemoveTextures()
 	GuildControlUIRankBankFrameInsetScrollFrame:RemoveTextures()
 
-	STYLE:ApplyWindowStyle(GuildControlUI)
+	PLUGIN:ApplyWindowStyle(GuildControlUI)
 
-	STYLE:ApplyScrollFrameStyle(GuildControlUIRankBankFrameInsetScrollFrameScrollBar)
+	PLUGIN:ApplyScrollFrameStyle(GuildControlUIRankBankFrameInsetScrollFrameScrollBar)
 
 	hooksecurefunc("GuildControlUI_RankOrder_Update", _hook_RankOrder_OnUpdate)
 	GuildControlUIRankOrderFrameNewButton:HookScript("OnClick", _hook_UIRankOrder)
 
-	STYLE:ApplyDropdownStyle(GuildControlUINavigationDropDown)
-	STYLE:ApplyDropdownStyle(GuildControlUIRankSettingsFrameRankDropDown,180)
+	PLUGIN:ApplyDropdownStyle(GuildControlUINavigationDropDown)
+	PLUGIN:ApplyDropdownStyle(GuildControlUIRankSettingsFrameRankDropDown,180)
 	GuildControlUINavigationDropDownButton:Width(20)
 	GuildControlUIRankSettingsFrameRankDropDownButton:Width(20)
 
@@ -654,18 +628,18 @@ local function GuildControlStyle()
 
 	hooksecurefunc("GuildControlUI_BankTabPermissions_Update", _hook_BankTabPermissions)
 
-	STYLE:ApplyDropdownStyle(GuildControlUIRankBankFrameRankDropDown, 180)
+	PLUGIN:ApplyDropdownStyle(GuildControlUIRankBankFrameRankDropDown, 180)
 
 	GuildControlUIRankBankFrameRankDropDownButton:Width(20)
 end 
 
 
 local function GuildRegistrarStyle()
-	if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.guildregistrar ~= true then
+	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.guildregistrar ~= true then
 		return 
 	end
 
-	STYLE:ApplyWindowStyle(GuildRegistrarFrame, true, true)
+	PLUGIN:ApplyWindowStyle(GuildRegistrarFrame, true, true)
 
 	GuildRegistrarFrameInset:Die()
 	GuildRegistrarFrameEditBox:RemoveTextures()
@@ -674,14 +648,14 @@ local function GuildRegistrarStyle()
 	GuildRegistrarFrameGoodbyeButton:SetButtonTemplate()
 	GuildRegistrarFrameCancelButton:SetButtonTemplate()
 	GuildRegistrarFramePurchaseButton:SetButtonTemplate()
-	STYLE:ApplyCloseButtonStyle(GuildRegistrarFrameCloseButton)
+	PLUGIN:ApplyCloseButtonStyle(GuildRegistrarFrameCloseButton)
 	GuildRegistrarFrameEditBox:SetEditboxTemplate()
 
-	for b = 1, GuildRegistrarFrameEditBox:GetNumRegions()do 
-		local a2 = select(b, GuildRegistrarFrameEditBox:GetRegions())
-		if a2 and a2:GetObjectType() == "Texture"then
-			if a2:GetTexture() == "Interface\\ChatFrame\\UI-ChatInputBorder-Left" or a2:GetTexture() == "Interface\\ChatFrame\\UI-ChatInputBorder-Right" then 
-				a2:Die()
+	for i = 1, GuildRegistrarFrameEditBox:GetNumRegions() do 
+		local region = select(i, GuildRegistrarFrameEditBox:GetRegions())
+		if region and region:GetObjectType() == "Texture"then
+			if region:GetTexture() == "Interface\\ChatFrame\\UI-ChatInputBorder-Left" or region:GetTexture() == "Interface\\ChatFrame\\UI-ChatInputBorder-Right" then 
+				region:Die()
 			end 
 		end 
 	end
@@ -700,9 +674,9 @@ local function GuildRegistrarStyle()
 end 
 
 local function LFGuildFrameStyle()
-	if(SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.lfguild ~= true) then return end
+	if(PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.lfguild ~= true) then return end
 
-	STYLE:ApplyWindowStyle(LookingForGuildFrame, true)
+	PLUGIN:ApplyWindowStyle(LookingForGuildFrame, true)
 
 	for i = 1, #LFGFrameList do
 		local check = _G[LFGFrameList[i]]
@@ -716,11 +690,11 @@ local function LFGuildFrameStyle()
 	LookingForGuildBrowseButton_LeftSeparator:Die()
 	LookingForGuildRequestButton_RightSeparator:Die()
 
-	STYLE:ApplyScrollFrameStyle(LookingForGuildBrowseFrameContainerScrollBar)
+	PLUGIN:ApplyScrollFrameStyle(LookingForGuildBrowseFrameContainerScrollBar)
 	LookingForGuildBrowseButton:SetButtonTemplate()
 	LookingForGuildRequestButton:SetButtonTemplate()
 
-	STYLE:ApplyCloseButtonStyle(LookingForGuildFrameCloseButton)
+	PLUGIN:ApplyCloseButtonStyle(LookingForGuildFrameCloseButton)
 	LookingForGuildCommentInputFrame:SetPanelTemplate("Default")
 	LookingForGuildCommentInputFrame:RemoveTextures(false)
 
@@ -733,7 +707,7 @@ local function LFGuildFrameStyle()
 
 	for u = 1, 3 do
 		local tab = _G["LookingForGuildFrameTab"..u]
-		STYLE:ApplyTabStyle(tab)
+		PLUGIN:ApplyTabStyle(tab)
 		tab:SetFrameStrata("HIGH")
 		tab:SetFrameLevel(99)
 	end
@@ -747,11 +721,11 @@ local function LFGuildFrameStyle()
 end 
 --[[ 
 ########################################################## 
-STYLE LOADING
+PLUGIN LOADING
 ##########################################################
 ]]--
-STYLE:SaveBlizzardStyle("Blizzard_GuildBankUI",GuildBankStyle)
-STYLE:SaveBlizzardStyle("Blizzard_GuildUI",GuildFrameStyle)
-STYLE:SaveBlizzardStyle("Blizzard_GuildControlUI",GuildControlStyle)
-STYLE:SaveCustomStyle(GuildRegistrarStyle)
-STYLE:SaveBlizzardStyle("Blizzard_LookingForGuildUI",LFGuildFrameStyle)
+PLUGIN:SaveBlizzardStyle("Blizzard_GuildBankUI",GuildBankStyle)
+PLUGIN:SaveBlizzardStyle("Blizzard_GuildUI",GuildFrameStyle)
+PLUGIN:SaveBlizzardStyle("Blizzard_GuildControlUI",GuildControlStyle)
+PLUGIN:SaveCustomStyle(GuildRegistrarStyle)
+PLUGIN:SaveBlizzardStyle("Blizzard_LookingForGuildUI",LFGuildFrameStyle)

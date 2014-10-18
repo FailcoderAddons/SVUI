@@ -20,8 +20,8 @@ local select  = _G.select;
 --[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 local ceil = math.ceil
 --[[ 
 ########################################################## 
@@ -256,8 +256,11 @@ local SystemFrameList16 ={
 	"CombatPanelLossOfControlInterruptDropDown",
 	"CombatPanelLossOfControlDisarmDropDown",
 	"CombatPanelLossOfControlRootDropDown",
+	"CombatTextPanelTargetModeDropDown",
 	"DisplayPanelAggroWarningDisplay",
 	"DisplayPanelWorldPVPObjectiveDisplay",
+	"DisplayPanelOutlineDropDown",
+	"ObjectivesPanelQuestSorting",
 	"SocialPanelChatStyle",
 	"SocialPanelWhisperMode",
 	"SocialPanelTimestamps",
@@ -270,6 +273,7 @@ local SystemFrameList16 ={
 	"CameraPanelStyleDropDown",
 	"MousePanelClickMoveStyleDropDown",
 	"LanguagesPanelLocaleDropDown",
+	"LanguagesPanelAudioLocaleDropDown",
 	"StatusTextPanelDisplayDropDown"
 };
 local SystemFrameList17 = {
@@ -298,12 +302,13 @@ local SystemFrameList17 = {
 	"NetworkOptionsPanelAdvancedCombatLogging"
 };
 local SystemFrameList18 = {
-	"Graphics_DisplayModeDropDown",
-	"Graphics_ResolutionDropDown",
-	"Graphics_RefreshDropDown",
-	"Graphics_PrimaryMonitorDropDown",
-	"Graphics_MultiSampleDropDown",
-	"Graphics_VerticalSyncDropDown",
+	"Display_AntiAliasingDropDown",
+	"Display_DisplayModeDropDown",
+	"Display_ResolutionDropDown",
+	"Display_RefreshDropDown",
+	"Display_PrimaryMonitorDropDown",
+	"Display_MultiSampleDropDown",
+	"Display_VerticalSyncDropDown",
 	"Graphics_TextureResolutionDropDown",
 	"Graphics_FilteringDropDown",
 	"Graphics_ProjectedTexturesDropDown",
@@ -315,6 +320,7 @@ local SystemFrameList18 = {
 	"Graphics_SunshaftsDropDown",
 	"Graphics_ParticleDensityDropDown",
 	"Graphics_SSAODropDown",
+	"Graphics_RefractionDropDown",
 	"Advanced_BufferingDropDown",
 	"Advanced_LagDropDown",
 	"Advanced_HardwareCursorDropDown",
@@ -380,6 +386,7 @@ local SystemFrameList21 = {
 	"InterfaceOptionsCameraPanelFollowSpeedSlider",
 	"InterfaceOptionsMousePanelMouseSensitivitySlider",
 	"InterfaceOptionsMousePanelMouseLookSpeedSlider",
+	"AddonListScrollFrameScrollBar",
 	"OpacityFrameSlider",
 };
 --[[ 
@@ -395,11 +402,11 @@ local _hook_GhostFrameBackdropColor = function(self, r, g, b, a)
 end
 --[[ 
 ########################################################## 
-SYSTEM WIDGET STYLERS
+SYSTEM WIDGET PLUGINRS
 ##########################################################
 ]]--
 local function SystemPanelQue()
-	if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.misc ~= true then return end
+	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.misc ~= true then return end
 
 	local GhostFrame = _G.GhostFrame;
 	local ReadyCheckFrame = _G.ReadyCheckFrame;
@@ -415,7 +422,7 @@ local function SystemPanelQue()
 		local this = _G[SystemPopList[i]]
 		if(this) then
 			this:RemoveTextures()
-			STYLE:ApplyAlertStyle(this)
+			PLUGIN:ApplyAlertStyle(this)
 			this:SetBackdropColor(0.8, 0.2, 0.2)
 		end
 	end
@@ -429,7 +436,7 @@ local function SystemPanelQue()
 	for i = 1, #SystemFrameList1 do
 		local this = _G[SystemFrameList1[i]]
 		if(this) then
-			STYLE:ApplyWindowStyle(this)
+			PLUGIN:ApplyWindowStyle(this)
 		end
 	end
 	
@@ -584,25 +591,6 @@ local function SystemPanelQue()
 		end
 	end)
 
-	if(SV.GameVersion < 60000) then
-		GuildInviteFrame:RemoveTextures()
-		GuildInviteFrame:SetFixedPanelTemplate('Transparent')
-		GuildInviteFrameLevel:RemoveTextures()
-		GuildInviteFrameLevel:ClearAllPoints()
-		GuildInviteFrameLevel:SetPoint('TOP', GuildInviteFrame, 'CENTER', -15, -25)
-		GuildInviteFrameJoinButton:SetButtonTemplate()
-		GuildInviteFrameDeclineButton:SetButtonTemplate()
-		GuildInviteFrame:Height(225)
-		GuildInviteFrame:HookScript("OnEvent", function()
-			GuildInviteFrame:Height(225)
-		end)
-
-		GuildInviteFrameWarningText:Die()
-		BattleTagInviteFrame:RemoveTextures()
-		BattleTagInviteFrame:SetFixedPanelTemplate('Transparent')
-	end
-	--BattleTagInviteFrameScrollFrame:SetEditboxTemplate()
-
 	for i=1, BattleTagInviteFrame:GetNumChildren() do
 		local child = select(i, BattleTagInviteFrame:GetChildren())
 		if child:GetObjectType() == 'Button' then
@@ -622,7 +610,7 @@ local function SystemPanelQue()
 		local this = _G[SystemFrameList14[i]]
 		if(this) then
 			this:RemoveTextures()
-			STYLE:ApplyTabStyle(this)
+			PLUGIN:ApplyTabStyle(this)
 		end
 	end
 
@@ -643,7 +631,7 @@ local function SystemPanelQue()
 	for i = 1, #SystemFrameList16 do
 		local this = _G["InterfaceOptions"..SystemFrameList16[i]]
 		if(this) then
-			STYLE:ApplyDropdownStyle(this)
+			PLUGIN:ApplyDropdownStyle(this)
 		end
 	end
 	InterfaceOptionsHelpPanelResetTutorials:SetButtonTemplate()
@@ -656,7 +644,7 @@ local function SystemPanelQue()
 	for i = 1, #SystemFrameList18 do
 		local this = _G[SystemFrameList18[i]]
 		if(this) then
-			STYLE:ApplyDropdownStyle(this, 165)
+			PLUGIN:ApplyDropdownStyle(this, 165)
 		end
 	end
 	for i = 1, #SystemFrameList19 do
@@ -681,7 +669,7 @@ local function SystemPanelQue()
 	for i = 1, #SystemFrameList21 do
 		local this = _G[SystemFrameList21[i]]
 		if(this) then
-			STYLE:ApplyScrollBarStyle(this)
+			PLUGIN:ApplyScrollBarStyle(this)
 		end
 	end
 	Graphics_RightQuality:SetBackdrop(nil)
@@ -697,10 +685,10 @@ local function SystemPanelQue()
 	MacOptionsFrameMovieRecording:RemoveTextures()
 	MacOptionsITunesRemote:RemoveTextures()
 	MacOptionsFrameMisc:RemoveTextures()
-	STYLE:ApplyDropdownStyle(MacOptionsFrameResolutionDropDown)
-	STYLE:ApplyDropdownStyle(MacOptionsFrameFramerateDropDown)
-	STYLE:ApplyDropdownStyle(MacOptionsFrameCodecDropDown)
-	STYLE:ApplyScrollBarStyle(MacOptionsFrameQualitySlider)
+	PLUGIN:ApplyDropdownStyle(MacOptionsFrameResolutionDropDown)
+	PLUGIN:ApplyDropdownStyle(MacOptionsFrameFramerateDropDown)
+	PLUGIN:ApplyDropdownStyle(MacOptionsFrameCodecDropDown)
+	PLUGIN:ApplyScrollBarStyle(MacOptionsFrameQualitySlider)
 	for i = 1, 11 do
 		local this = _G["MacOptionsFrameCheckButton"..i]
 		if(this) then
@@ -726,7 +714,7 @@ local function SystemPanelQue()
 	ReportPlayerNameDialog:SetFixedPanelTemplate("Transparent", true)
 	ReportPlayerNameDialogReportButton:SetButtonTemplate()
 	ReportPlayerNameDialogCancelButton:SetButtonTemplate()	
-	STYLE:ApplyCloseButtonStyle(SideDressUpModelCloseButton)
+	PLUGIN:ApplyCloseButtonStyle(SideDressUpModelCloseButton)
 	SideDressUpFrame:RemoveTextures()
 	SideDressUpFrame.BGTopLeft:Hide()
 	SideDressUpFrame.BGBottomLeft:Hide()
@@ -734,7 +722,7 @@ local function SystemPanelQue()
 end
 --[[ 
 ########################################################## 
-STYLE LOADING
+PLUGIN LOADING
 ##########################################################
 ]]--
-STYLE:SaveCustomStyle(SystemPanelQue)
+PLUGIN:SaveCustomStyle(SystemPanelQue)

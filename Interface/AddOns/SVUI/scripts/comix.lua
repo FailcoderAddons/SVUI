@@ -84,39 +84,51 @@ CORE FUNCTIONS
 function Comix:ReadyState(state)
 	if(state == nil) then return animReady end
 	animReady = state
-end 
+end
 
-function Comix:LaunchPopup(comicType)
+function Comix:LaunchPremiumPopup()
 	local rng = random(1, 16);
 	local coords = COMIX_DATA[1][rng];
-	if(comicType == "PREMIUM") then
-		ComixPremiumPanel.tex:SetTexCoord(coords[1],coords[2],coords[3],coords[4])
-		ComixPremiumPanelBG.tex:SetTexCoord(coords[1],coords[2],coords[3],coords[4])
-		local offsets = COMIX_DATA[2][rng]
-		ComixPremiumPanel.anim[1]:SetOffset(offsets[1],offsets[2])
-		ComixPremiumPanel.anim[2]:SetOffset(offsets[3],offsets[4])
-		ComixPremiumPanel.anim[3]:SetOffset(0,0)
-		ComixPremiumPanelBG.anim[1]:SetOffset(offsets[5],offsets[6])
-		ComixPremiumPanelBG.anim[2]:SetOffset(offsets[7],offsets[8])
-		ComixPremiumPanelBG.anim[3]:SetOffset(0,0)
-		ComixPremiumPanel.anim:Play()
-		ComixPremiumPanelBG.anim:Play()
-	else
-		local frame = ComixBasicPanel
-		if(comicType == "DELUXE") then
-			frame = ComixDeluxePanel
-		end
-		local step1_x = random(-280, 280);
-		if(step1_x > -30 and step1_x < 30) then step1_x = 150 end 
-		local step2_x = step1_x * 0.5;
-		local step1_y = random(50, 100);
-		local step2_y = step1_y * 0.75;
-		frame.tex:SetTexCoord(coords[1],coords[2],coords[3],coords[4])
-		frame.anim[1]:SetOffset(step1_x, step1_y)
-		frame.anim[2]:SetOffset(step2_x, step2_y)
-		frame.anim[3]:SetOffset(0,0)
-		frame.anim:Play()
-	end 
+	local offsets = COMIX_DATA[2][rng]
+
+	self.Premium.tex:SetTexCoord(coords[1],coords[2],coords[3],coords[4])
+	self.Premium.bg.tex:SetTexCoord(coords[1],coords[2],coords[3],coords[4])
+	self.Premium.anim[1]:SetOffset(offsets[1],offsets[2])
+	self.Premium.anim[2]:SetOffset(offsets[3],offsets[4])
+	self.Premium.anim[3]:SetOffset(0,0)
+	self.Premium.bg.anim[1]:SetOffset(offsets[5],offsets[6])
+	self.Premium.bg.anim[2]:SetOffset(offsets[7],offsets[8])
+	self.Premium.bg.anim[3]:SetOffset(0,0)
+	self.Premium.anim:Play()
+	self.Premium.bg.anim:Play() 
+end
+
+function Comix:LaunchDeluxePopup()
+	local rng = random(1, 16);
+	local coords = COMIX_DATA[1][rng];
+	local step1_x = random(-100, 100);
+	if(step1_x > -30 and step1_x < 30) then step1_x = step1_x * 3 end 
+	local step1_y = random(-100, 100);
+	if(step1_y > -30 and step1_y < 30) then step1_y = step1_y * 3 end 
+	local step2_x = step1_x * 0.5;
+	local step2_y = step1_y * 0.75;
+	self.Deluxe.tex:SetTexCoord(coords[1],coords[2],coords[3],coords[4])
+	self.Deluxe.anim[1]:SetOffset(step1_x, step1_y)
+	self.Deluxe.anim[2]:SetOffset(step2_x, step2_y)
+	self.Deluxe.anim[3]:SetOffset(0,0)
+	self.Deluxe.anim:Play() 
+end
+
+function Comix:LaunchPopup()
+	local rng = random(1, 16);
+	local coords = COMIX_DATA[1][rng];
+	local step1_x = random(-100, 100);
+	if(step1_x > -30 and step1_x < 30) then step1_x = step1_x * 3 end 
+	local step1_y = random(-100, 100);
+	if(step1_y > -30 and step1_y < 30) then step1_y = step1_y * 3 end 
+	self.Basic.tex:SetTexCoord(coords[1],coords[2],coords[3],coords[4])
+	self.Basic:Point("CENTER", SV.UIParent, "CENTER", step1_x, step1_y)
+	self.Basic.anim:Play()
 end 
 
 local Comix_OnEvent = function(self, event, ...)
@@ -127,12 +139,10 @@ local Comix_OnEvent = function(self, event, ...)
 	if subEvent == "PARTY_KILL" and guid == playerGUID and ready then 
 		self:ReadyState(false)
 		local rng = random(1,15)
-		if((rng < 3) and SV.db.general.bigComix) then
-			self:LaunchPopup("PREMIUM")
-		elseif rng < 8 then
-			self:LaunchPopup("DELUXE")
+		if rng < 8 then
+			self:LaunchDeluxePopup()
 		else
-			self:LaunchPopup("BASIC")
+			self:LaunchPopup()
 		end
 	end  
 end
@@ -156,7 +166,7 @@ function SV:ToastyKombat()
 end 
 
 local Comix_OnUpdate = function() Comix:ReadyState(true) end
-local Toasty_OnUpdate = function(self) Comix:ReadyState(true);self.parent:SetAlpha(0) end
+local Toasty_OnUpdate = function(self) Comix:ReadyState(true); self.parent:SetAlpha(0) end
 
 local function LoadSVComix()
 	local basic = CreateFrame("Frame", "ComixBasicPanel", SV.UIParent)
@@ -167,9 +177,11 @@ local function LoadSVComix()
 	basic.tex:FillInner(basic)
 	basic.tex:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Doodads\COMICS-TYPE1]])
 	basic.tex:SetTexCoord(0,0.25,0,0.25)
-	SV.Animate:RandomSlide(basic, true)
+	SV.Animate:Kapow(basic, true)
 	basic:SetAlpha(0)
-	basic.anim[3]:SetScript("OnFinished", Comix_OnUpdate)
+	basic.anim[2]:SetScript("OnFinished", Comix_OnUpdate)
+
+	Comix.Basic = basic
 
 	local deluxe = CreateFrame("Frame", "ComixDeluxePanel", SV.UIParent)
 	deluxe:SetSize(100, 100)
@@ -183,6 +195,8 @@ local function LoadSVComix()
 	deluxe:SetAlpha(0)
 	deluxe.anim[3]:SetScript("OnFinished", Comix_OnUpdate)
 
+	Comix.Deluxe = deluxe
+
 	local premium = CreateFrame("Frame", "ComixPremiumPanel", SV.UIParent)
 	premium:SetSize(100, 100)
 	premium:SetFrameStrata("DIALOG")
@@ -195,17 +209,22 @@ local function LoadSVComix()
 	premium:SetAlpha(0)
 	premium.anim[3]:SetScript("OnFinished", Comix_OnUpdate)
 
-	local premiumbg = CreateFrame("Frame", "ComixPremiumPanelBG", SV.UIParent)
-	premiumbg:SetSize(128, 128)
-	premiumbg:SetFrameStrata("BACKGROUND")
-	premiumbg:Point("CENTER", SV.UIParent, "CENTER", 0, -50)
-	premiumbg.tex = premiumbg:CreateTexture(nil, "ARTWORK")
-	premiumbg.tex:FillInner(premiumbg)
-	premiumbg.tex:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Doodads\COMICS-TYPE3-BG]])
-	premiumbg.tex:SetTexCoord(0,0.25,0,0.25)
-	SV.Animate:RandomSlide(premiumbg, false)
-	premiumbg:SetAlpha(0)
-	premiumbg.anim[3]:SetScript("OnFinished", Comix_OnUpdate)
+	local bg = CreateFrame("Frame", "ComixPremiumPanelBG", SV.UIParent)
+	bg:SetSize(128, 128)
+	bg:SetFrameStrata("BACKGROUND")
+	bg:Point("CENTER", SV.UIParent, "CENTER", 0, -50)
+	bg.tex = bg:CreateTexture(nil, "ARTWORK")
+	bg.tex:FillInner(bg)
+	bg.tex:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Doodads\COMICS-TYPE3-BG]])
+	bg.tex:SetTexCoord(0,0.25,0,0.25)
+	SV.Animate:RandomSlide(bg, false)
+	bg:SetAlpha(0)
+	bg.anim[3]:SetScript("OnFinished", Comix_OnUpdate)
+
+	premium.bg = bg
+
+	Comix.Premium = premium
+
 	--MOD
 	local toasty = CreateFrame("Frame", "ComixToastyPanelBG", UIParent)
 	toasty:SetSize(256, 256)

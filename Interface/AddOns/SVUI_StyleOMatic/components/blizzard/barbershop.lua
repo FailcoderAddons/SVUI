@@ -20,15 +20,15 @@ local select  = _G.select;
 --[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
-BARBERSHOP STYLER
+BARBERSHOP PLUGINR
 ##########################################################
 ]]--
 local function BarberShopStyle()
-	if SV.db[Schema].blizzard.enable~=true or SV.db[Schema].blizzard.barber~=true then return end
+	if PLUGIN.db.blizzard.enable~=true or PLUGIN.db.blizzard.barber~=true then return end
 
 	local buttons = {"BarberShopFrameOkayButton", "BarberShopFrameCancelButton", "BarberShopFrameResetButton"}
 
@@ -47,8 +47,8 @@ local function BarberShopStyle()
 	for i = 1, 5 do 
 		local selector = _G["BarberShopFrameSelector"..i] 
 		if selector then
-			STYLE:ApplyPaginationStyle(_G["BarberShopFrameSelector"..i.."Prev"])
-			STYLE:ApplyPaginationStyle(_G["BarberShopFrameSelector"..i.."Next"])
+			PLUGIN:ApplyPaginationStyle(_G["BarberShopFrameSelector"..i.."Prev"])
+			PLUGIN:ApplyPaginationStyle(_G["BarberShopFrameSelector"..i.."Next"])
 			selector:ClearAllPoints()
 
 			if lastframe then 
@@ -82,7 +82,7 @@ local function BarberShopStyle()
 end 
 --[[ 
 ########################################################## 
-STYLE LOADING
+PLUGIN LOADING
 ##########################################################
 ]]--
-STYLE:SaveBlizzardStyle("Blizzard_BarbershopUI",BarberShopStyle)
+PLUGIN:SaveBlizzardStyle("Blizzard_BarbershopUI",BarberShopStyle)

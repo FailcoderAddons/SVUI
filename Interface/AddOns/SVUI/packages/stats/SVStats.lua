@@ -232,7 +232,11 @@ function MOD:NewAnchor(parent, maxCount, tipAnchor, isTop, customTemplate, isVer
 			if(SV.db.SVStats.showBackground) then
 				parent.holders[position].barframe:Point("TOPLEFT", parent.holders[position], "TOPLEFT", 24, -2)
 				parent.holders[position].barframe:Point("BOTTOMRIGHT", parent.holders[position], "BOTTOMRIGHT", -2, 2)
-				parent.holders[position]:SetFramedButtonTemplate(template)
+				if(customTemplate) then
+					parent.holders[position]:SetFixedPanelTemplate(template)
+				else
+					parent.holders[position]:SetFramedButtonTemplate(template)
+				end
 			else
 				parent.holders[position].barframe:Point("TOPLEFT", parent.holders[position], "TOPLEFT", 24, 2)
 				parent.holders[position].barframe:Point("BOTTOMRIGHT", parent.holders[position], "BOTTOMRIGHT", 2, -2)
@@ -673,7 +677,7 @@ function MOD:Load()
 	local hexClass = classColor.colorStr
 	BGStatString = "|cff" .. hexHighlight .. "%s: |c" .. hexClass .. "%s|r";
 
-	self.Accountant = _G.LibSuperVillain:NewGlobal("Accountant")
+	self.Accountant = LibSuperVillain("Registry"):NewGlobal("Accountant")
 
 	self.Accountant = self.Accountant or {};
 	self.Accountant[playerRealm] = self.Accountant[playerRealm] or {};

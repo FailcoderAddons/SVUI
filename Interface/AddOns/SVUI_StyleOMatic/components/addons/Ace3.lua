@@ -20,14 +20,14 @@ local select  = _G.select;
 --[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
 HELPERS
 ##########################################################
 ]]--
-local externaltest = false;
+local RegisterAsWidget, RegisterAsContainer;
 
 local ProxyLSMType = {
 	["LSM30_Font"] = true, 
@@ -54,7 +54,7 @@ local function Widget_OnLeave(b)
 end
 
 local function Widget_ScrollStyle(frame, arg)
-	return STYLE:ApplyScrollFrameStyle(frame) 
+	return PLUGIN:ApplyScrollFrameStyle(frame) 
 end 
 
 local function Widget_ButtonStyle(frame, strip, bypass)
@@ -72,52 +72,48 @@ local function Widget_ButtonStyle(frame, strip, bypass)
 end 
 
 local function Widget_PaginationStyle(...)
-	STYLE:ApplyPaginationStyle(...)
+	PLUGIN:ApplyPaginationStyle(...)
 end
 
 local NOOP = SV.fubar
 
 local WidgetButton_OnClick = function(self)
 	local obj = self.obj;
-	if(obj and obj.pullout and obj.pullout.frame and (not obj.pullout.frame.Panel)) then
-		obj.pullout.frame:SetFixedPanelTemplate("Default")
+	if(obj and obj.pullout and obj.pullout.frame) then
+		PLUGIN:ApplyFrameStyle(obj.pullout.frame, "Default", true)
 	end
 end
 
 local WidgetDropButton_OnClick = function(self)
 	local obj = self.obj;
 	local widgetFrame = obj.dropdown
-	if(widgetFrame and not widgetFrame.Panel) then
-		widgetFrame:SetBasicPanel()
-		widgetFrame.Panel:SetPoint("TOPLEFT", widgetFrame, "TOPLEFT", 20, -2)
-		widgetFrame.Panel:SetPoint("BOTTOMRIGHT", widgetFrame, "BOTTOMRIGHT", -20, 2)
+	if(widgetFrame) then
+		PLUGIN:ApplyAdjustedFrameStyle(widgetFrame, "Transparent", 20, -2, -20, 2)
 	end
 end
 --[[ 
 ########################################################## 
-AceGUI STYLE
+AceGUI PLUGIN
 ##########################################################
 ]]--
 local function StyleAceGUI(event, addon)
-	assert((LibStub("AceGUI-3.0")), "Addon Not Loaded")
+	local AceGUI = LibStub("AceGUI-3.0", true)
 
-	local AceGUI = LibStub("AceGUI-3.0")
+	assert(AceGUI and (AceGUI.RegisterAsContainer ~= RegisterAsContainer or AceGUI.RegisterAsWidget ~= RegisterAsWidget), "Addon Not Loaded")
 
 	local regWidget = AceGUI.RegisterAsWidget;
 	local regContainer = AceGUI.RegisterAsContainer;
 
-	AceGUI.RegisterAsWidget = function(self, widget)
+	RegisterAsWidget = function(self, widget)
 
 		local widgetType = widget.type;
 		-- print("RegisterAsWidget: " .. widgetType);
 		if(widgetType == "MultiLineEditBox") then 
 			local widgetFrame = widget.frame;
-			widgetFrame:SetFixedPanelTemplate("Default")
-			if not widget.scrollBG.Panel then 
-				widget.scrollBG:SetBasicPanel()
-			end 
+			PLUGIN:ApplyFixedFrameStyle(widgetFrame, "Default", true)
+			PLUGIN:ApplyFrameStyle(widget.scrollBG, "Transparent", true) 
 			Widget_ButtonStyle(widget.button)
-			STYLE:ApplyScrollFrameStyle(widget.scrollBar) 
+			PLUGIN:ApplyScrollFrameStyle(widget.scrollBar) 
 			widget.scrollBar:SetPoint("RIGHT", widgetFrame, "RIGHT", -4)
 			widget.scrollBG:SetPoint("TOPRIGHT", widget.scrollBar, "TOPLEFT", -2, 19)
 			widget.scrollBG:SetPoint("BOTTOMLEFT", widget.button, "TOPLEFT")
@@ -129,7 +125,7 @@ local function StyleAceGUI(event, addon)
 			if not widget.styledCheckBG then 
 				widget.styledCheckBG = CreateFrame("Frame", nil, widget.frame)
 				widget.styledCheckBG:FillInner(widget.check)
-				widget.styledCheckBG:SetFixedPanelTemplate("Inset")
+				PLUGIN:ApplyFixedFrameStyle(widget.styledCheckBG, "Inset")
 			end 
 			widget.check:SetParent(widget.styledCheckBG)
 
@@ -143,11 +139,7 @@ local function StyleAceGUI(event, addon)
 			widgetButton:SetFrameLevel(widgetButton:GetFrameLevel() + 1)
 			Widget_PaginationStyle(widgetButton, true)
 
-			if(not widgetDropdown.Panel) then 
-				widgetDropdown:SetBasicPanel()
-				widgetDropdown.Panel:Point("TOPLEFT", widgetDropdown, "TOPLEFT", 20, -2)
-				widgetDropdown.Panel:Point("BOTTOMRIGHT", widgetDropdown, "BOTTOMRIGHT", -20, 2)
-			end 
+			PLUGIN:ApplyAdjustedFrameStyle(widgetDropdown, "Transparent", 20, -2, -20, 2)
 
 			widgetButton:SetParent(widgetDropdown.Panel)
 			widget.text:SetParent(widgetDropdown.Panel)
@@ -155,8 +147,7 @@ local function StyleAceGUI(event, addon)
 
 		elseif(widgetType == "EditBox") then 
 			local widgetEditbox = widget.editbox;
-			widgetEditbox:Height(15)
-			widgetEditbox:SetEditboxTemplate(2, -2, false)
+			PLUGIN:ApplyEditBoxStyle(widgetEditbox, nil, 15, 2, -2)
 
 		elseif(widgetType == "Button") then 
 			local widgetFrame = widget.frame;
@@ -167,8 +158,7 @@ local function StyleAceGUI(event, addon)
 			local widgetSlider = widget.slider;
 			local widgetEditbox = widget.editbox;
 
-			widgetSlider:RemoveTextures()
-			widgetSlider:SetFixedPanelTemplate("Bar")
+			PLUGIN:ApplyFixedFrameStyle(widgetSlider, "Bar")
 
 			widgetSlider:Height(20)
 			widgetSlider:SetThumbTexture("Interface\\Buttons\\UI-ScrollBar-Knob")
@@ -191,22 +181,22 @@ local function StyleAceGUI(event, addon)
 			dropButton:ClearAllPoints()
 			dropButton:Point("RIGHT", widgetFrame, "RIGHT", -10, -6)
 			if(not widgetFrame.Panel) then 
-				widgetFrame:SetBasicPanel()
 				if(widgetType == "LSM30_Font") then 
-					widgetFrame.Panel:Point("TOPLEFT", 20, -17)
+					PLUGIN:ApplyAdjustedFrameStyle(widgetFrame, "Transparent", 20, -17, 2, -2)
 				elseif(widgetType == "LSM30_Sound") then 
-					widgetFrame.Panel:Point("TOPLEFT", 20, -17)
+					PLUGIN:ApplyAdjustedFrameStyle(widgetFrame, "Transparent", 20, -17, 2, -2)
 					widget.soundbutton:SetParent(widgetFrame.Panel)
 					widget.soundbutton:ClearAllPoints()
 					widget.soundbutton:Point("LEFT", widgetFrame.Panel, "LEFT", 2, 0)
 				elseif(widgetType == "LSM30_Statusbar") then 
-					widgetFrame.Panel:Point("TOPLEFT", 20, -17)
+					PLUGIN:ApplyAdjustedFrameStyle(widgetFrame, "Transparent", 20, -17, 2, -2)
 					widget.bar:SetParent(widgetFrame.Panel)
 					widget.bar:FillInner()
 				elseif(widgetType == "LSM30_Border" or widgetType == "LSM30_Background") then 
-					widgetFrame.Panel:Point("TOPLEFT", 42, -16)
+					PLUGIN:ApplyAdjustedFrameStyle(widgetFrame, "Transparent", 42, -16, 2, -2)
 				end 
 				widgetFrame.Panel:Point("BOTTOMRIGHT", dropButton, "BOTTOMRIGHT", 2, -2)
+				PLUGIN:ApplyAdjustedFrameStyle(widgetFrame, "Transparent", 20, -2, 2, -2)
 			end 
 			dropButton:SetParent(widgetFrame.Panel)
 			widgetFrame.text:SetParent(widgetFrame.Panel)
@@ -215,14 +205,15 @@ local function StyleAceGUI(event, addon)
 		return regWidget(self, widget)
 	end
 
-	AceGUI.RegisterAsContainer = function(self, widget)
+	AceGUI.RegisterAsWidget = RegisterAsWidget
+
+	RegisterAsContainer = function(self, widget)
 		local widgetType = widget.type;
 		-- print("RegisterAsContainer: " .. widgetType);
 		local widgetParent = widget.content:GetParent()
 		if widgetType == "ScrollFrame" then 
-			STYLE:ApplyScrollFrameStyle(widget.scrollBar) 
+			PLUGIN:ApplyScrollFrameStyle(widget.scrollBar) 
 		elseif widgetType == "Frame" then
-			widgetParent:RemoveTextures()
 			for i = 1, widgetParent:GetNumChildren()do 
 				local childFrame = select(i, widgetParent:GetChildren())
 				if childFrame:GetObjectType() == "Button" and childFrame:GetText() then 
@@ -231,11 +222,11 @@ local function StyleAceGUI(event, addon)
 					childFrame:RemoveTextures()
 				end 
 			end
-			widgetParent:SetPanelTemplate("Halftone") 
+			PLUGIN:ApplyWindowStyle(widgetParent)
 		elseif(ProxyType[widgetType]) then
 
 			if widget.treeframe then 
-				widget.treeframe:SetFixedPanelTemplate("Transparent")
+				PLUGIN:ApplyFrameStyle(widget.treeframe, "Transparent", true)
 				widgetParent:SetPoint("TOPLEFT", widget.treeframe, "TOPRIGHT", 1, 0)
 				local oldFunc = widget.CreateButton;
 				widget.CreateButton = function(self)
@@ -251,7 +242,7 @@ local function StyleAceGUI(event, addon)
 					return newButton 
 				end
 			else
-				widgetParent:SetFixedPanelTemplate("Default")
+				PLUGIN:ApplyFrameStyle(widgetParent, "Default", true)
 			end
 
 			if(widgetType == "TabGroup") then 
@@ -264,15 +255,17 @@ local function StyleAceGUI(event, addon)
 			end
 
 			if widget.scrollbar then 
-				STYLE:ApplyScrollFrameStyle(widget.scrollBar) 
+				PLUGIN:ApplyScrollFrameStyle(widget.scrollBar) 
 			end 
 		end
 		return regContainer(self, widget)
 	end 
+
+	AceGUI.RegisterAsContainer = RegisterAsContainer
 end
 --[[ 
 ########################################################## 
-STYLE LOADING
+PLUGIN LOADING
 ##########################################################
 ]]--
-STYLE:SaveAddonStyle("AceGUI", StyleAceGUI, nil, true)
+PLUGIN:SaveAddonStyle("SVUI_ConfigOMatic", StyleAceGUI, nil, true)

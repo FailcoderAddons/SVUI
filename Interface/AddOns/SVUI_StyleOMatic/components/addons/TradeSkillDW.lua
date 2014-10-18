@@ -31,8 +31,8 @@ GET ADDON DATA
 ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
 TSDW
@@ -48,17 +48,17 @@ local function StyleTradeSkillDW()
 	TradeSkillExpandButtonFrame:RemoveTextures(true)
 	TradeSkillDetailScrollChildFrame:RemoveTextures(true)
 	TradeSkillListScrollFrame:RemoveTextures(true)
-	STYLE:ApplyFrameStyle(TradeSkillGuildFrame,"Transparent")
-	STYLE:ApplyFrameStyle(TradeSkillGuildFrameContainer,"Transparent")
+	PLUGIN:ApplyFrameStyle(TradeSkillGuildFrame,"Transparent")
+	PLUGIN:ApplyFrameStyle(TradeSkillGuildFrameContainer,"Transparent")
 	TradeSkillGuildFrame:Point("BOTTOMLEFT", TradeSkillFrame, "BOTTOMRIGHT", 3, 19)
-	STYLE:ApplyCloseButtonStyle(TradeSkillGuildFrameCloseButton)
+	PLUGIN:ApplyCloseButtonStyle(TradeSkillGuildFrameCloseButton)
 
 	TradeSkillFrame:HookScript("OnShow", function() 
-		STYLE:ApplyFrameStyle(TradeSkillFrame) 
+		PLUGIN:ApplyFrameStyle(TradeSkillFrame) 
 		TradeSkillListScrollFrame:RemoveTextures() 
 		if not TradeSkillDWExpandButton then return end 
 		if not TradeSkillDWExpandButton.styled then 
-			STYLE:ApplyPaginationStyle(TradeSkillDWExpandButton) 
+			PLUGIN:ApplyPaginationStyle(TradeSkillDWExpandButton) 
 			TradeSkillDWExpandButton.styled = true 
 		end
 	end)
@@ -74,14 +74,14 @@ local function StyleTradeSkillDW()
 	TradeSkillLinkButton:GetNormalTexture():SetTexCoord(0.25, 0.7, 0.37, 0.75)
 	TradeSkillLinkButton:GetPushedTexture():SetTexCoord(0.25, 0.7, 0.45, 0.8)
 	TradeSkillLinkButton:GetHighlightTexture():Die()
-	STYLE:ApplyFrameStyle(TradeSkillLinkButton,"Transparent")
+	PLUGIN:ApplyFrameStyle(TradeSkillLinkButton,"Transparent")
 	TradeSkillLinkButton:Size(17, 14)
 	TradeSkillLinkButton:Point("LEFT", TradeSkillLinkFrame, "LEFT", 5, -1)
 	TradeSkillFrameSearchBox:SetEditboxTemplate()
 	TradeSkillInputBox:SetEditboxTemplate()
 	TradeSkillIncrementButton:Point("RIGHT", TradeSkillCreateButton, "LEFT", -13, 0)
-	STYLE:ApplyCloseButtonStyle(TradeSkillFrameCloseButton)
-	STYLE:ApplyScrollFrameStyle(TradeSkillDetailScrollFrameScrollBar)
+	PLUGIN:ApplyCloseButtonStyle(TradeSkillFrameCloseButton)
+	PLUGIN:ApplyScrollFrameStyle(TradeSkillDetailScrollFrameScrollBar)
 	local once = false
 	hooksecurefunc("TradeSkillFrame_SetSelection", function(id)
 		TradeSkillSkillIcon:SetButtonTemplate()
@@ -102,7 +102,7 @@ local function StyleTradeSkillDW()
 			if not icon.backdrop then
 				icon.backdrop = CreateFrame("Frame", nil, button)
 				icon.backdrop:SetFrameLevel(button:GetFrameLevel() - 1)
-				STYLE:ApplyFrameStyle(icon.backdrop,"Transparent")
+				PLUGIN:ApplyFrameStyle(icon.backdrop,"Transparent")
 				icon.backdrop:Point("TOPLEFT", icon, "TOPLEFT", -2, 2)
 				icon.backdrop:Point("BOTTOMRIGHT", icon, "BOTTOMRIGHT", 2, -2)
 			end
@@ -119,9 +119,9 @@ local function StyleTradeSkillDW()
 		end
 	end)
 
-	TradeSkillDW_QueueFrame:HookScript("OnShow", function() STYLE:ApplyFrameStyle(TradeSkillDW_QueueFrame,"Transparent") end)
+	TradeSkillDW_QueueFrame:HookScript("OnShow", function() PLUGIN:ApplyFrameStyle(TradeSkillDW_QueueFrame,"Transparent") end)
 
-	STYLE:ApplyCloseButtonStyle(TradeSkillDW_QueueFrameCloseButton)
+	PLUGIN:ApplyCloseButtonStyle(TradeSkillDW_QueueFrameCloseButton)
 
 	TradeSkillDW_QueueFrameInset:RemoveTextures()
 	TradeSkillDW_QueueFrameClear:SetButtonTemplate()
@@ -138,7 +138,7 @@ local function StyleTradeSkillDW()
 	TradeSkillDW_QueueFrameDetailScrollFrameChildFrameReagent6:RemoveTextures()
 	TradeSkillDW_QueueFrameDetailScrollFrameChildFrameReagent7:RemoveTextures()
 	TradeSkillDW_QueueFrameDetailScrollFrameChildFrameReagent8:RemoveTextures()
-	STYLE:ApplyScrollFrameStyle(TradeSkillDW_QueueFrameDetailScrollFrameScrollBar)
+	PLUGIN:ApplyScrollFrameStyle(TradeSkillDW_QueueFrameDetailScrollFrameScrollBar)
 	TradeSkillListScrollFrame:RemoveTextures()
 end
-STYLE:SaveAddonStyle("TradeSkillDW", StyleTradeSkillDW)
+PLUGIN:SaveAddonStyle("TradeSkillDW", StyleTradeSkillDW)

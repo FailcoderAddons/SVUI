@@ -33,7 +33,7 @@ local tconcat       = table.concat;
 local tinsert       = _G.tinsert;
 local tremove       = _G.tremove;
 
-local SVLib = _G.LibSuperVillain
+local SVLib = LibSuperVillain("Registry")
 --[[ 
 ########################################################## 
 Simple click2cast spell SpellBinder(sBinder by Fernir)

@@ -31,8 +31,8 @@ GET ADDON DATA
 ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
 SEXYCOOLDOWN
@@ -55,9 +55,9 @@ end
 
 local function StyleSexyCooldownBar(bar)
 	SCDStripStyleSettings(bar)
-	STYLE:ApplyFrameStyle(bar)
+	PLUGIN:ApplyFrameStyle(bar)
 	SV:AddToDisplayAudit(bar)
-	if STYLE:IsAddonReady("DockletSexyCooldown") then
+	if PLUGIN:IsAddonReady("DockletSexyCooldown") then
 		bar:ClearAllPoints()
 		bar:Point('BOTTOMRIGHT', SVUI_ActionBar1, 'TOPRIGHT', 0, 2)
 		bar:Point("BOTTOMLEFT", SVUI_ActionBar1, "TOPLEFT", 0, 2)
@@ -67,8 +67,8 @@ end
 
 local function StyleSexyCooldownIcon(bar, icon)
 	if not icon.styled then
-		STYLE:ApplyFrameStyle(icon, false, true)
-		STYLE:ApplyFrameStyle(icon.overlay,"Transparent",true)
+		PLUGIN:ApplyFrameStyle(icon, false, true)
+		PLUGIN:ApplyFrameStyle(icon.overlay,"Transparent",true)
 		icon.styled = true
 	end
 	icon.overlay.tex:SetTexCoord(0.1,0.9,0.1,0.9)
@@ -102,4 +102,4 @@ local function StyleSexyCooldown()
 		end
 	end)
 end
-STYLE:SaveAddonStyle("SexyCooldown", StyleSexyCooldown)
+PLUGIN:SaveAddonStyle("SexyCooldown", StyleSexyCooldown)

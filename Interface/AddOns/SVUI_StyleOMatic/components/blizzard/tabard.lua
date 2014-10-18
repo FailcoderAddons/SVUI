@@ -23,8 +23,8 @@ local type 		= _G.type;
 --[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
 HELPERS
@@ -50,11 +50,11 @@ local function cleanT(a,b)
 end
 --[[ 
 ########################################################## 
-TABARDFRAME STYLER
+TABARDFRAME PLUGINR
 ##########################################################
 ]]--
 local function TabardFrameStyle()
-	if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.tabard ~= true then
+	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.tabard ~= true then
 		 return 
 	end 
 	cleanT(TabardFrame, true)
@@ -62,7 +62,7 @@ local function TabardFrameStyle()
 	TabardModel:SetFixedPanelTemplate("Transparent")
 	TabardFrameCancelButton:SetButtonTemplate()
 	TabardFrameAcceptButton:SetButtonTemplate()
-	STYLE:ApplyCloseButtonStyle(TabardFrameCloseButton)
+	PLUGIN:ApplyCloseButtonStyle(TabardFrameCloseButton)
 	TabardFrameCostFrame:RemoveTextures()
 	TabardFrameCustomizationFrame:RemoveTextures()
 	TabardFrameInset:Die()
@@ -70,8 +70,8 @@ local function TabardFrameStyle()
 	TabardFrameMoneyBg:RemoveTextures()
 	for b = 1, 5 do 
 		local c = "TabardFrameCustomization"..b;_G[c]:RemoveTextures()
-		STYLE:ApplyPaginationStyle(_G[c.."LeftButton"])
-		STYLE:ApplyPaginationStyle(_G[c.."RightButton"])
+		PLUGIN:ApplyPaginationStyle(_G[c.."LeftButton"])
+		PLUGIN:ApplyPaginationStyle(_G[c.."RightButton"])
 		if b > 1 then
 			 _G[c]:ClearAllPoints()
 			_G[c]:Point("TOP", _G["TabardFrameCustomization"..b-1], "BOTTOM", 0, -6)
@@ -95,7 +95,7 @@ local function TabardFrameStyle()
 end 
 --[[ 
 ########################################################## 
-STYLE LOADING
+PLUGIN LOADING
 ##########################################################
 ]]--
-STYLE:SaveCustomStyle(TabardFrameStyle)
+PLUGIN:SaveCustomStyle(TabardFrameStyle)

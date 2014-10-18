@@ -111,9 +111,6 @@ local Update = function(self, event, unit)
 				tracker.Text:SetText(current)
 				tracker.Text:SetTextColor(unpack(TextColors[current]))
 				FivePointsAlarm(tracker, current)
-			elseif(bar.LAST_COMBO_POINTS > 0) then
-				tracker.Text:SetText(bar.LAST_COMBO_POINTS)
-				tracker.Text:SetTextColor(0.5,0.5,1)
 			else
 				tracker.Text:SetText("0")
 				tracker.Text:SetTextColor(0.3,0.3,0.3)
@@ -147,9 +144,6 @@ local Update = function(self, event, unit)
 					tracker.Text:SetText(current)
 					tracker.Text:SetTextColor(unpack(TextColors[current]))
 					FivePointsAlarm(tracker, current)
-				elseif(bar.LAST_COMBO_POINTS > 0) then
-					tracker.Text:SetText(bar.LAST_COMBO_POINTS)
-					tracker.Text:SetTextColor(0.5,0.5,1)
 				else
 					tracker.Text:SetText("0")
 					tracker.Text:SetTextColor(0.3,0.3,0.3)
@@ -169,15 +163,15 @@ local Path = function(self, ...)
 	return (self.HyperCombo.Override or Update) (self, ...)
 end
 
-local Tracker = function(self, ...)
-	local bar = self.HyperCombo
-	if(UnitHasVehicleUI'player') then
-		bar.LAST_COMBO_POINTS = GetComboPoints('vehicle', 'target')
-	else
-		bar.LAST_COMBO_POINTS = GetComboPoints('player', 'target')
-	end
-	return Path(self, ...)
-end
+-- local Tracker = function(self, ...)
+-- 	local bar = self.HyperCombo
+-- 	if(UnitHasVehicleUI'player') then
+-- 		bar.LAST_COMBO_POINTS = GetComboPoints('vehicle', 'target')
+-- 	else
+-- 		bar.LAST_COMBO_POINTS = GetComboPoints('player', 'target')
+-- 	end
+-- 	return Path(self, ...)
+-- end
 
 local ForceUpdate = function(element)
 	return Path(element.__owner, 'ForceUpdate', element.__owner.unit)
@@ -191,7 +185,7 @@ local Enable = function(self)
 		bar.EXISTING_COMBO_POINTS = 0
 		bar.LAST_COMBO_POINTS = 0
 
-		self:RegisterEvent('UNIT_COMBO_POINTS', Tracker, true)
+		self:RegisterEvent('UNIT_COMBO_POINTS', Path, true)
 		self:RegisterEvent('PLAYER_TARGET_CHANGED', Path, true)
 		self:RegisterEvent('UNIT_AURA', Path, true)
 		
@@ -218,7 +212,7 @@ local Disable = function(self)
 				cpoints[index]:Hide()
 			end
 		end
-		self:UnregisterEvent('UNIT_COMBO_POINTS', Tracker)
+		self:UnregisterEvent('UNIT_COMBO_POINTS', Path)
 		self:UnregisterEvent('PLAYER_TARGET_CHANGED', Path)
 		self:UnregisterEvent('UNIT_AURA', Path)
 	end

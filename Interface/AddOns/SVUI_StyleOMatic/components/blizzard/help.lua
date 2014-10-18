@@ -21,8 +21,8 @@ local tinsert = _G.tinsert;
 --[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
 HELPERS
@@ -66,11 +66,11 @@ local function NavBarHelper(button)
 end 
 --[[ 
 ########################################################## 
-HELPFRAME STYLER
+HELPFRAME PLUGINR
 ##########################################################
 ]]--
 local function HelpFrameStyle()
-	if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.help ~= true then
+	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.help ~= true then
 		return 
 	end 
 	tinsert(HelpFrameButtonList, "HelpFrameButton16")
@@ -92,7 +92,7 @@ local function HelpFrameStyle()
 			e:RemoveTextures()
 		end 
 	end 
-	STYLE:ApplyScrollFrameStyle(HelpFrameReportBugScrollFrameScrollBar)
+	PLUGIN:ApplyScrollFrameStyle(HelpFrameReportBugScrollFrameScrollBar)
 	HelpFrameSubmitSuggestionScrollFrame:RemoveTextures()
 	HelpFrameSubmitSuggestionScrollFrame:SetPanelTemplate("Default")
 	HelpFrameSubmitSuggestionScrollFrame.Panel:Point("TOPLEFT", -4, 4)
@@ -103,7 +103,7 @@ local function HelpFrameStyle()
 			e:RemoveTextures()
 		end 
 	end 
-	STYLE:ApplyScrollFrameStyle(HelpFrameSubmitSuggestionScrollFrameScrollBar)
+	PLUGIN:ApplyScrollFrameStyle(HelpFrameSubmitSuggestionScrollFrameScrollBar)
 	HelpFrameTicketScrollFrame:RemoveTextures()
 	HelpFrameTicketScrollFrame:SetPanelTemplate("Default")
 	HelpFrameTicketScrollFrame.Panel:Point("TOPLEFT", -4, 4)
@@ -114,7 +114,7 @@ local function HelpFrameStyle()
 			e:RemoveTextures()
 		end 
 	end 
-	STYLE:ApplyScrollFrameStyle(HelpFrameKnowledgebaseScrollFrame2ScrollBar)
+	PLUGIN:ApplyScrollFrameStyle(HelpFrameKnowledgebaseScrollFrame2ScrollBar)
 	for d = 1, #HelpFrameButtonList do
 		_G[HelpFrameButtonList[d]]:RemoveTextures(true)
 		_G[HelpFrameButtonList[d]]:SetButtonTemplate()
@@ -143,10 +143,10 @@ local function HelpFrameStyle()
 	HelpFrame:RemoveTextures(true)
 	HelpFrame:SetPanelTemplate("Halftone")
 	HelpFrameKnowledgebaseSearchBox:SetEditboxTemplate()
-	STYLE:ApplyScrollFrameStyle(HelpFrameKnowledgebaseScrollFrameScrollBar, 5)
-	STYLE:ApplyScrollFrameStyle(HelpFrameTicketScrollFrameScrollBar, 4)
-	STYLE:ApplyCloseButtonStyle(HelpFrameCloseButton, HelpFrame.Panel)
-	STYLE:ApplyCloseButtonStyle(HelpFrameKnowledgebaseErrorFrameCloseButton, HelpFrameKnowledgebaseErrorFrame.Panel)
+	PLUGIN:ApplyScrollFrameStyle(HelpFrameKnowledgebaseScrollFrameScrollBar, 5)
+	PLUGIN:ApplyScrollFrameStyle(HelpFrameTicketScrollFrameScrollBar, 4)
+	PLUGIN:ApplyCloseButtonStyle(HelpFrameCloseButton, HelpFrame.Panel)
+	PLUGIN:ApplyCloseButtonStyle(HelpFrameKnowledgebaseErrorFrameCloseButton, HelpFrameKnowledgebaseErrorFrame.Panel)
 	HelpFrameCharacterStuckHearthstone:SetButtonTemplate()
 	HelpFrameCharacterStuckHearthstone:SetFixedPanelTemplate("Default")
 	HelpFrameCharacterStuckHearthstone.IconTexture:FillInner()
@@ -175,7 +175,7 @@ local function HelpFrameStyle()
 end 
 --[[ 
 ########################################################## 
-STYLE LOADING
+PLUGIN LOADING
 ##########################################################
 ]]--
-STYLE:SaveCustomStyle(HelpFrameStyle)
+PLUGIN:SaveCustomStyle(HelpFrameStyle)

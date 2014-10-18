@@ -20,8 +20,8 @@ local select  = _G.select;
 --[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
 HELPERS
@@ -47,49 +47,11 @@ end
 local function WorldMap_FullView()
   local WorldMapFrame = _G.WorldMapFrame;
   WorldMapFrame.Panel:ClearAllPoints()
-
-  if(SV.GameVersion >= 60000) then
-    WorldMapFrame.Panel:Point("TOPLEFT", WorldMapDetailFrame, "TOPLEFT", -12, 74)
-    WorldMapFrame.Panel:Point("BOTTOMRIGHT", WorldMapDetailFrame, "BOTTOMRIGHT", 12, -24)
-  else
-    WorldMapFrame.Panel:Point("TOPLEFT", WorldMapDetailFrame, "TOPLEFT", -12, 74)
-    WorldMapFrame.Panel:Point("BOTTOMRIGHT", WorldMapShowDropDown, "BOTTOMRIGHT", 4, -4)
-  end
-  WorldMapFrame.Panel.Panel:SetAllPoints(SV.UIParent)
+  local w, h = WorldMapDetailFrame:GetSize()
+  WorldMapFrame.Panel:Size(w + 24, h + 98)
+  WorldMapFrame.Panel:Point("TOP", WorldMapFrame, "TOP", 0, 0)
+  WorldMapFrame.Panel.Panel:WrapOuter(WorldMapFrame.Panel)
 end 
-
-local function WorldMap_QuestView()
-  WorldMap_FullView()
-  if not WorldMapQuestDetailScrollFrame.Panel then
-    WorldMapQuestDetailScrollFrame:SetFixedPanelTemplate("Inset")
-    WorldMapQuestDetailScrollFrame.Panel:Point("TOPLEFT", -22, 2)
-    WorldMapQuestDetailScrollFrame.Panel:Point("BOTTOMRIGHT", WorldMapShowDropDown, 4, -4)
-    WorldMapQuestDetailScrollFrame.spellTex = WorldMapQuestDetailScrollFrame:CreateTexture(nil, 'ARTWORK')
-    WorldMapQuestDetailScrollFrame.spellTex:SetTexture([[Interface\QuestFrame\QuestBG]])
-    WorldMapQuestDetailScrollFrame.spellTex:SetPoint("TOPLEFT", WorldMapQuestDetailScrollFrame.Panel, 'TOPLEFT', 2, -2)
-    WorldMapQuestDetailScrollFrame.spellTex:Size(586, 310)
-    WorldMapQuestDetailScrollFrame.spellTex:SetTexCoord(0, 1, 0.02, 1)
-  end 
-  if not WorldMapQuestRewardScrollFrame.Panel then
-    WorldMapQuestRewardScrollFrame:SetPanelTemplate("Inset")
-    WorldMapQuestRewardScrollFrame.Panel:Point("BOTTOMRIGHT", 22, -4)
-    WorldMapQuestRewardScrollFrame.spellTex = WorldMapQuestRewardScrollFrame:CreateTexture(nil, 'ARTWORK')
-    WorldMapQuestRewardScrollFrame.spellTex:SetTexture([[Interface\QuestFrame\QuestBG]])
-    WorldMapQuestRewardScrollFrame.spellTex:SetPoint("TOPLEFT", WorldMapQuestRewardScrollFrame.Panel, 'TOPLEFT', 2, -2)
-    WorldMapQuestRewardScrollFrame.spellTex:Size(585, 310)
-    WorldMapQuestRewardScrollFrame.spellTex:SetTexCoord(0, 1, 0.02, 1)
-  end 
-  if not WorldMapQuestScrollFrame.Panel then
-    WorldMapQuestScrollFrame:SetPanelTemplate("Inset")
-    WorldMapQuestScrollFrame.Panel:Point("TOPLEFT", 0, 2)
-    WorldMapQuestScrollFrame.Panel:Point("BOTTOMRIGHT", 25, -3)
-    WorldMapQuestScrollFrame.spellTex = WorldMapQuestScrollFrame:CreateTexture(nil, 'ARTWORK')
-    WorldMapQuestScrollFrame.spellTex:SetTexture([[Interface\QuestFrame\QuestBG]])
-    WorldMapQuestScrollFrame.spellTex:SetPoint("TOPLEFT", WorldMapQuestScrollFrame.Panel, 'TOPLEFT', 2, -2)
-    WorldMapQuestScrollFrame.spellTex:Size(520, 1033)
-    WorldMapQuestScrollFrame.spellTex:SetTexCoord(0, 1, 0.02, 1)
-  end 
-end
 
 local function StripQuestMapFrame()
   local WorldMapFrame = _G.WorldMapFrame;
@@ -127,6 +89,11 @@ local function StripQuestMapFrame()
   QuestMapFrame.DetailsFrame.RewardsFrame:SetPanelColor("dark")
 
   QuestScrollFrame:RemoveTextures(true)
+  QuestScrollFrame:SetFixedPanelTemplate("Paper")
+  QuestScrollFrame:SetPanelColor("special")
+
+  QuestScrollFrame.ViewAll:RemoveTextures(true)
+  QuestScrollFrame.ViewAll:SetButtonTemplate()
 
   local w,h = WorldMapFrame.UIElementsFrame:GetSize()
   local underlay = CreateFrame("Frame", nil, WorldMapFrame)
@@ -142,33 +109,22 @@ local function StripQuestMapFrame()
   QuestMapFrame.DetailsFrame:SetWidth(detailWidth)
 
   WorldMapFrameNavBar:ClearAllPoints()
-  WorldMapFrameNavBar:Point("TOPLEFT", WorldMapFrame.Panel, "TOPLEFT", 12, -22)
-  WorldMapFrameNavBar:SetPanelTemplate("Blackout")
+  WorldMapFrameNavBar:Point("TOPLEFT", WorldMapFrame.Panel, "TOPLEFT", 12, -26)
+  WorldMapFrameTutorialButton:ClearAllPoints()
+  WorldMapFrameTutorialButton:Point("LEFT", WorldMapFrameNavBar.Panel, "RIGHT", -50, 0)
 end
 
 local function WorldMap_OnShow()
   local WorldMapFrame = _G.WorldMapFrame;
   
-  if(SV.GameVersion >= 60000) then
-    --StripQuestMapFrame()
-    if WORLDMAP_SETTINGS.size == WORLDMAP_FULLMAP_SIZE then
-      WorldMap_FullView()
-    elseif WORLDMAP_SETTINGS.size == WORLDMAP_WINDOWED_SIZE then 
-      WorldMap_SmallView()
-    end 
-  else
-    WorldMapFrame:RemoveTextures()
-    if WORLDMAP_SETTINGS.size == WORLDMAP_FULLMAP_SIZE then
-      WorldMap_FullView()
-    elseif WORLDMAP_SETTINGS.size == WORLDMAP_WINDOWED_SIZE then 
-      WorldMap_SmallView()
-    elseif WORLDMAP_SETTINGS.size == WORLDMAP_QUESTLIST_SIZE then
-      WorldMap_QuestView()
-    end 
+  if WORLDMAP_SETTINGS.size == WORLDMAP_FULLMAP_SIZE then
+    WorldMap_FullView()
+  elseif WORLDMAP_SETTINGS.size == WORLDMAP_WINDOWED_SIZE then 
+    WorldMap_SmallView()
   end
-
+  -- WorldMap_SmallView()
   if not SV.db.SVMap.tinyWorldMap then
-    BlackoutWorld:SetTexture(0, 0, 0, 1)
+    BlackoutWorld:SetTexture(0,0,0,1)
   else
     BlackoutWorld:SetTexture(0,0,0,0)
   end
@@ -187,19 +143,19 @@ local function WorldMap_OnShow()
 end 
 --[[ 
 ########################################################## 
-WORLDMAP STYLER
+WORLDMAP PLUGINR
 ##########################################################
 ]]--
 local function WorldMapStyle()
-  if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.worldmap ~= true then return end
+  if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.worldmap ~= true then return end
 
   WorldMapFrame:SetFrameLevel(4)
-  STYLE:ApplyWindowStyle(WorldMapFrame, true, true)
+  PLUGIN:ApplyWindowStyle(WorldMapFrame, true, true)
   WorldMapFrame.Panel:SetPanelTemplate("Blackout")
 
-  STYLE:ApplyScrollFrameStyle(WorldMapQuestScrollFrameScrollBar)
-  STYLE:ApplyScrollFrameStyle(WorldMapQuestDetailScrollFrameScrollBar, 4)
-  STYLE:ApplyScrollFrameStyle(WorldMapQuestRewardScrollFrameScrollBar, 4)
+  PLUGIN:ApplyScrollFrameStyle(WorldMapQuestScrollFrameScrollBar)
+  PLUGIN:ApplyScrollFrameStyle(WorldMapQuestDetailScrollFrameScrollBar, 4)
+  PLUGIN:ApplyScrollFrameStyle(WorldMapQuestRewardScrollFrameScrollBar, 4)
 
   WorldMapDetailFrame:SetFrameLevel(6)
   WorldMapDetailFrame:SetPanelTemplate("Blackout")
@@ -210,35 +166,34 @@ local function WorldMapStyle()
   WorldMapFrameSizeUpButton:SetFrameLevel(999)
   WorldMapFrameCloseButton:SetFrameLevel(999)
 
-  STYLE:ApplyCloseButtonStyle(WorldMapFrameCloseButton)
-  STYLE:ApplyArrowButtonStyle(WorldMapFrameSizeDownButton, "down")
-  STYLE:ApplyArrowButtonStyle(WorldMapFrameSizeUpButton, "up")
+  PLUGIN:ApplyCloseButtonStyle(WorldMapFrameCloseButton)
+  PLUGIN:ApplyArrowButtonStyle(WorldMapFrameSizeDownButton, "down")
+  PLUGIN:ApplyArrowButtonStyle(WorldMapFrameSizeUpButton, "up")
 
-  STYLE:ApplyDropdownStyle(WorldMapLevelDropDown)
-  STYLE:ApplyDropdownStyle(WorldMapZoneMinimapDropDown)
-  STYLE:ApplyDropdownStyle(WorldMapContinentDropDown)
-  STYLE:ApplyDropdownStyle(WorldMapZoneDropDown)
-  STYLE:ApplyDropdownStyle(WorldMapShowDropDown)
+  PLUGIN:ApplyDropdownStyle(WorldMapLevelDropDown)
+  PLUGIN:ApplyDropdownStyle(WorldMapZoneMinimapDropDown)
+  PLUGIN:ApplyDropdownStyle(WorldMapContinentDropDown)
+  PLUGIN:ApplyDropdownStyle(WorldMapZoneDropDown)
+  PLUGIN:ApplyDropdownStyle(WorldMapShowDropDown)
 
-  if(SV.GameVersion < 60000) then
-    WorldMapZoomOutButton:SetButtonTemplate()
-    WorldMapTrackQuest:SetCheckboxTemplate(true)
-    hooksecurefunc("WorldMapFrame_SetFullMapView", WorldMap_FullView)
-    hooksecurefunc("WorldMapFrame_SetQuestMapView", WorldMap_QuestView)
-  else
-    StripQuestMapFrame()
-  end
+  StripQuestMapFrame()
 
   WorldMapFrame:HookScript("OnShow", WorldMap_OnShow)
   hooksecurefunc("WorldMap_ToggleSizeUp", WorldMap_OnShow)
   BlackoutWorld:SetParent(WorldMapFrame.Panel.Panel)
+
+  WorldMapFrameNavBar:ClearAllPoints()
+  WorldMapFrameNavBar:Point("TOPLEFT", WorldMapFrame.Panel, "TOPLEFT", 12, -26)
+  WorldMapFrameNavBar:SetPanelTemplate("Blackout")
+  WorldMapFrameTutorialButton:ClearAllPoints()
+  WorldMapFrameTutorialButton:Point("LEFT", WorldMapFrameNavBar.Panel, "RIGHT", -50, 0)
 end 
 --[[ 
 ########################################################## 
-STYLE LOADING
+PLUGIN LOADING
 ##########################################################
 ]]--
-STYLE:SaveCustomStyle(WorldMapStyle)
+PLUGIN:SaveCustomStyle(WorldMapStyle)
 
 --[[
 function ArchaeologyDigSiteFrame_OnUpdate()

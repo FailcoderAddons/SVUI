@@ -20,24 +20,24 @@ local select  = _G.select;
 --[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
-TAXIFRAME STYLER
+TAXIFRAME PLUGINR
 ##########################################################
 ]]--
 local function StoreStyle()
-	-- if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.store ~= true then
+	-- if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.store ~= true then
 	-- 	 return 
 	-- end
 
-	--STYLE:ApplyWindowStyle(StoreFrame)
-	STYLE:ApplyTooltipStyle(_G.StoreTooltip)
+	--PLUGIN:ApplyWindowStyle(StoreFrame)
+	PLUGIN:ApplyTooltipStyle(_G.StoreTooltip)
 end 
 --[[ 
 ########################################################## 
-STYLE LOADING
+PLUGIN LOADING
 ##########################################################
 ]]--
-STYLE:SaveBlizzardStyle("Blizzard_StoreUI", StoreStyle)
+PLUGIN:SaveBlizzardStyle("Blizzard_StoreUI", StoreStyle)

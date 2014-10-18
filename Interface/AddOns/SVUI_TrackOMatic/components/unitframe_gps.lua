@@ -181,7 +181,7 @@ end
 
 local RefreshGPS = function(self, frame, template)
     if(frame.GPS) then
-        local config = SV.db[Schema]
+        local config = PLUGIN.db
         if(config.groups) then
             frame.GPS.OnlyProximity = config.proximity
             local actualSz = min(frame.GPS.DefaultSize, (frame:GetHeight() - 2))

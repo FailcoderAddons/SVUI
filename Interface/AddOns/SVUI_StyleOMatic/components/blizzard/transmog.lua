@@ -23,8 +23,8 @@ local type 		= _G.type;
 --[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
 HELPERS
@@ -54,13 +54,13 @@ local TransmogSlotList = {
 };
 --[[ 
 ########################################################## 
-TRANSMOG STYLER
+TRANSMOG PLUGINR
 ##########################################################
 ]]--
 local function TransmogStyle()
-	if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.transmogrify ~= true then return end
+	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.transmogrify ~= true then return end
 
-	STYLE:ApplyWindowStyle(TransmogrifyFrame, true)
+	PLUGIN:ApplyWindowStyle(TransmogrifyFrame, true)
 
 	for p, texture in pairs(TransmogFrameList)do
 		 _G[texture]:Die()
@@ -68,12 +68,12 @@ local function TransmogStyle()
 
 	select(2, TransmogrifyModelFrame:GetRegions()):Die()
 
-	TransmogrifyModelFrame:SetFixedPanelTemplate("ModelComic")
+	TransmogrifyModelFrame:SetFixedPanelTemplate("Model")
 	TransmogrifyFrameButtonFrame:GetRegions():Die()
 	TransmogrifyApplyButton:RemoveTextures()
 	TransmogrifyApplyButton:SetButtonTemplate()
 	TransmogrifyApplyButton:Point("BOTTOMRIGHT", TransmogrifyFrame, "BOTTOMRIGHT", -4, 4)
-	STYLE:ApplyCloseButtonStyle(TransmogrifyArtFrameCloseButton)
+	PLUGIN:ApplyCloseButtonStyle(TransmogrifyArtFrameCloseButton)
 	TransmogrifyArtFrame:RemoveTextures()
 
 	for p, a9 in pairs(TransmogSlotList)do 
@@ -96,12 +96,12 @@ local function TransmogStyle()
 	TransmogrifyConfirmationPopup:SetPanelTemplate("Pattern")
 	TransmogrifyConfirmationPopup.Button1:SetButtonTemplate()
 	TransmogrifyConfirmationPopup.Button2:SetButtonTemplate()
-	STYLE:ApplyItemButtonStyle(TransmogrifyConfirmationPopupItemFrame1, true)
-	STYLE:ApplyItemButtonStyle(TransmogrifyConfirmationPopupItemFrame2, true)
+	PLUGIN:ApplyItemButtonStyle(TransmogrifyConfirmationPopupItemFrame1, true)
+	PLUGIN:ApplyItemButtonStyle(TransmogrifyConfirmationPopupItemFrame2, true)
 end 
 --[[ 
 ########################################################## 
-STYLE LOADING
+PLUGIN LOADING
 ##########################################################
 ]]--
-STYLE:SaveBlizzardStyle("Blizzard_ItemAlterationUI", TransmogStyle)
+PLUGIN:SaveBlizzardStyle("Blizzard_ItemAlterationUI", TransmogStyle)

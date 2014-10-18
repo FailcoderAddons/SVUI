@@ -31,8 +31,8 @@ GET ADDON DATA
 ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
 POSTAL
@@ -61,7 +61,7 @@ local function StylePostal()
 		PostalSelectOpenButton:Point("RIGHT", InboxFrame, "TOP", -41, -48)
 	end
 	if Postal_OpenAllMenuButton and not Postal_OpenAllMenuButton.handled then
-		STYLE:ApplyPaginationStyle(Postal_OpenAllMenuButton, true)
+		PLUGIN:ApplyPaginationStyle(Postal_OpenAllMenuButton, true)
 		Postal_OpenAllMenuButton:SetPoint('LEFT', PostalOpenAllButton, 'RIGHT', 5, 0)
 		Postal_OpenAllMenuButton.handled = true
 	end
@@ -76,14 +76,14 @@ local function StylePostal()
 		PostalSelectReturnButton:Point("LEFT", InboxFrame, "TOP", -5, -48)
 	end
 	if Postal_PackageMenuButton and not Postal_PackageMenuButton.handled then
-		STYLE:ApplyPaginationStyle(Postal_PackageMenuButton, true)
+		PLUGIN:ApplyPaginationStyle(Postal_PackageMenuButton, true)
 		Postal_PackageMenuButton.handled = true
 		Postal_PackageMenuButton:SetPoint('TOPRIGHT', MailFrame, -53, -6)
 	end
 	if Postal_BlackBookButton and not Postal_BlackBookButton.handled then
-		STYLE:ApplyPaginationStyle(Postal_BlackBookButton, true)
+		PLUGIN:ApplyPaginationStyle(Postal_BlackBookButton, true)
 		Postal_BlackBookButton.handled = true
 		Postal_BlackBookButton:SetPoint('LEFT', SendMailNameEditBox, 'RIGHT', 5, 2)
 	end
 end
-STYLE:SaveAddonStyle("Postal", StylePostal, nil, nil, 'MAIL_SHOW')
+PLUGIN:SaveAddonStyle("Postal", StylePostal, nil, nil, 'MAIL_SHOW')

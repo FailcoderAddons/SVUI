@@ -1,4 +1,4 @@
-local L = _G.LibSuperVillain:Lang("itIT");
+local L = LibSuperVillain("Linguist"):Lang("itIT");
 if not L then return; end
 --[[LOGIN MESSAGE]]--
 L["LOGIN_MSG"] = "Benvenuti a |cffFFFF1ASupervillain UI|r! Mantenete il vostro %s e il vostro %s."

@@ -20,8 +20,8 @@ local select  = _G.select;
 --[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
 HELPERS
@@ -35,11 +35,11 @@ local MacroButtonList2 = {
 }
 --[[ 
 ########################################################## 
-MACRO UI STYLER
+MACRO UI PLUGINR
 ##########################################################
 ]]--
 local function MacroUIStyle()
-	if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.macro ~= true then return end
+	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.macro ~= true then return end
 
 	local MacroFrame = _G.MacroFrame;
 	local MacroFrameCloseButton = _G.MacroFrameCloseButton;
@@ -52,10 +52,10 @@ local function MacroUIStyle()
 	local MacroFrameSelectedMacroButton = _G.MacroFrameSelectedMacroButton;
 	local MacroFrameSelectedMacroButtonIcon = _G.MacroFrameSelectedMacroButtonIcon;
 
-	STYLE:ApplyCloseButtonStyle(MacroFrameCloseButton)
-	STYLE:ApplyScrollFrameStyle(MacroButtonScrollFrameScrollBar)
-	STYLE:ApplyScrollFrameStyle(MacroFrameScrollFrameScrollBar)
-	STYLE:ApplyScrollFrameStyle(MacroPopupScrollFrameScrollBar)
+	PLUGIN:ApplyCloseButtonStyle(MacroFrameCloseButton)
+	PLUGIN:ApplyScrollFrameStyle(MacroButtonScrollFrameScrollBar)
+	PLUGIN:ApplyScrollFrameStyle(MacroFrameScrollFrameScrollBar)
+	PLUGIN:ApplyScrollFrameStyle(MacroPopupScrollFrameScrollBar)
 
 	MacroFrame:Width(360)
 
@@ -113,7 +113,7 @@ local function MacroUIStyle()
 	MacroEditButton:ClearAllPoints()
 	MacroEditButton:Point("BOTTOMLEFT", MacroFrameSelectedMacroButton, "BOTTOMRIGHT", 10, 0)
 
-	STYLE:ApplyScrollFrameStyle(MacroButtonScrollFrame)
+	PLUGIN:ApplyScrollFrameStyle(MacroButtonScrollFrame)
 
 	MacroPopupFrame:HookScript("OnShow", function(c)
 		c:ClearAllPoints()
@@ -162,7 +162,7 @@ end
 
 --[[ 
 ########################################################## 
-STYLE LOADING
+PLUGIN LOADING
 ##########################################################
 ]]--
-STYLE:SaveBlizzardStyle("Blizzard_MacroUI", MacroUIStyle)
+PLUGIN:SaveBlizzardStyle("Blizzard_MacroUI", MacroUIStyle)

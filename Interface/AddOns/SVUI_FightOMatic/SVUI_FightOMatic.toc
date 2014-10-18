@@ -3,8 +3,7 @@
 ## Version: 5.0
 ## Title: |cffFF9900SVUI |r|cffFFEF00Fight-O-Matic|r
 ## Notes: Supervillain UI [|cff9911FFPvP Tools|r].
-## SavedVariables: FightOMatic_Data
-## SavedVariablesPerCharacter: FightOMatic_Cache
+## SavedVariablesPerCharacter: FightOMatic_Profile, FightOMatic_Cache
 ## RequiredDeps: SVUI
 ## LoadOnDemand: 1
 ## X-Email: munglunch@gmail.com

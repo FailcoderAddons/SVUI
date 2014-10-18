@@ -332,7 +332,7 @@ end
 local function SaveEnemyScan(guid, timestamp)
 	local enemy = EnemyCache[guid]
 	if(not enemy) then enemy = AddEnemyScan(guid, timestamp) end
-	FightOMatic_Cache[guid] = {
+	PLUGIN.cache[guid] = {
         ["name"] = enemy.name,
         ["realm"] = enemy.realm,
         ["class"] = enemy.class,
@@ -347,8 +347,8 @@ local function SaveEnemyScan(guid, timestamp)
 end
 
 local function KilledEnemyHandler(guid)
-	local enemy = FightOMatic_Cache[guid]
-	if(enemy) then
+	local enemy = PLUGIN.cache[guid]
+	if(enemy and enemy.name) then
 		HeadsUpAlarm(("Killed Mortal Enemy: %s"):format(enemy.name), CombatText_StandardScroll, 0.2, 1, 0.1, "sticky");
 	end
 	enemy = EnemyCache[guid]
@@ -364,7 +364,7 @@ local function ClearCacheScans()
 end
 
 local function ClearSavedScans()
-	FightOMatic_Cache = {}
+	PLUGIN.cache = {}
 end
 
 local function EnemyAlarm(name, class, colors, kos)
@@ -387,12 +387,14 @@ local function StealthAlarm(spell, name)
 	local msg = ("%s Detected!"):format(spell);
     HeadsUpAlarm(msg, CombatText_StandardScroll, 1, 0.5, 0);
     print(("%s has %sed nearby!"):format(name, spell))
-    --Stealth_Emote(name)
+    if(self.db.annoyingEmotes) then
+    	Stealth_Emote(name)
+    end
 end
 
 function PLUGIN:UpdateSummary()
 	self.Summary:Clear();
-	local stored = FightOMatic_Cache;
+	local stored = self.cache;
 	local amount = 0
 	for _,data in pairs(stored) do
 		if type(data) == "table" and data.name and data.class then
@@ -409,7 +411,7 @@ function PLUGIN:ResetLogs()
 	self.LOG.Output:Clear();
 	self.Title:AddMessage(("Scanning %s"):format(ACTIVE_ZONE), 1, 1, 0);
 	self.Switch:Show()
-	local stored = FightOMatic_Cache;
+	local stored = self.cache;
 	local amount = 0
 	for _,data in pairs(stored) do
 		if type(data) == "table" and data.name and data.class then
@@ -426,7 +428,7 @@ function PLUGIN:PopulateKOS()
 	self.LOG.Output:Clear();
 	self.Title:AddMessage(("Scanning %s"):format(ACTIVE_ZONE), 1, 1, 0);
 	self.Switch:Show()
-	local stored = FightOMatic_Cache;
+	local stored = self.cache;
 	local amount = 0
 	for _,data in pairs(stored) do
 		if type(data) == "table" and data.name and data.class and data.race then
@@ -446,7 +448,7 @@ function PLUGIN:PopulateScans()
 	self.LOG.Output:Clear();
 	self.Title:AddMessage(("Scanning %s"):format(ACTIVE_ZONE), 1, 1, 0);
 	self.Switch:Show()
-	local stored = FightOMatic_Cache;
+	local stored = self.cache;
 	local amount = 0
 	for _,data in pairs(stored) do
 		if type(data) == "table" and data.name and data.class then
@@ -574,7 +576,7 @@ function PLUGIN:UpdateZoneStatus()
 end
 
 local function ParseIncomingLog(timestamp, event, eGuid, eName, pGuid)
-	local cached = FightOMatic_Cache[eGuid]
+	local cached = PLUGIN.cache[eGuid]
 	local kos, needsUpdate = false, false
 
 	if(cached) then
@@ -667,9 +669,11 @@ function PLUGIN:EventDistributor(event, ...)
 						local timestamp = time()
 						AddEnemyScan(guid, timestamp)
 					end
-					if(FightOMatic_Cache[guid]) then
+					if(self.cache[guid]) then
 						HeadsUpAlarm("Kill On Sight!", CombatText_StandardScroll, 1, 0, 0, "crit")
-						--KOS_Emote()
+						if(self.db.annoyingEmotes) then
+							KOS_Emote()
+						end
 					end
 				end
 			elseif(event == "PLAYER_DEAD") then 
@@ -990,18 +994,10 @@ BUILD FUNCTION
 ##########################################################
 ]]--
 function PLUGIN:Load()
-	if SVAOW_Data then SVAOW_Data = nil end
-	if SVAOW_Cache then SVAOW_Cache = nil end
-	
-	if(not SV.db[Schema].enable) then return end
-
 	local ALERT_HEIGHT = 60;
 	local DOCK_WIDTH = SuperDockWindowRight:GetWidth();
 	local DOCK_HEIGHT = SuperDockWindowRight:GetHeight();
 	local BUTTON_SIZE = (DOCK_HEIGHT * 0.25) - 4;
-	
-	if(not FightOMatic_Data) then FightOMatic_Data = {} end
-	if(not FightOMatic_Cache) then FightOMatic_Cache = {} end
 
 	self.HitBy = false;
 	self.Scanning = false;
@@ -1160,6 +1156,8 @@ function PLUGIN:Load()
 	self:RegisterEvent("PLAYER_ENTERING_WORLD", "UpdateCommunicator")
 	self:RegisterEvent("UPDATE_BATTLEFIELD_SCORE", "UpdateCommunicator")
 
-	--SVUI_Player.Health.LowAlertFunc = LowHealth_PlayerEmote
-	--SVUI_Target.Health.LowAlertFunc = LowHealth_TargetEmote
+	if(self.db.annoyingEmotes) then
+		SVUI_Player.Health.LowAlertFunc = LowHealth_PlayerEmote
+		SVUI_Target.Health.LowAlertFunc = LowHealth_TargetEmote
+	end
 end

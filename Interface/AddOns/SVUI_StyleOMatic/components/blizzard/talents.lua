@@ -23,8 +23,8 @@ local type 		= _G.type;
 --[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
 HELPERS
@@ -111,13 +111,13 @@ local function StyleGlyphHolder(holder, offset)
 end 
 --[[ 
 ########################################################## 
-TALENTFRAME STYLER
+TALENTFRAME PLUGINR
 ##########################################################
 ]]--
 local function TalentFrameStyle()
-	if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.talent ~= true then return end
+	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.talent ~= true then return end
 
-	STYLE:ApplyWindowStyle(PlayerTalentFrame)
+	PLUGIN:ApplyWindowStyle(PlayerTalentFrame)
 
 	PlayerTalentFrameInset:RemoveTextures()
 	PlayerTalentFrameTalents:RemoveTextures()
@@ -127,7 +127,7 @@ local function TalentFrameStyle()
 	PlayerTalentFrameSpecializationTutorialButton:Die()
 	PlayerTalentFrameTalentsTutorialButton:Die()
 	PlayerTalentFramePetSpecializationTutorialButton:Die()
-	STYLE:ApplyCloseButtonStyle(PlayerTalentFrameCloseButton)
+	PLUGIN:ApplyCloseButtonStyle(PlayerTalentFrameCloseButton)
 	PlayerTalentFrameActivateButton:SetButtonTemplate()
 
 	for _,name in pairs(SpecButtonList)do
@@ -148,7 +148,7 @@ local function TalentFrameStyle()
 	PlayerTalentFrameTalentsClearInfoFrame:Point('TOPLEFT', PlayerTalentFrameTalents, 'BOTTOMLEFT', 8, -8)
 
 	for i = 1, 4 do
-		STYLE:ApplyTabStyle(_G["PlayerTalentFrameTab"..i])
+		PLUGIN:ApplyTabStyle(_G["PlayerTalentFrameTab"..i])
 		if i == 1 then 
 			local d, e, k, g = _G["PlayerTalentFrameTab"..i]:GetPoint()
 			_G["PlayerTalentFrameTab"..i]:Point(d, e, k, g, -4)
@@ -176,7 +176,7 @@ local function TalentFrameStyle()
 		PlayerSpecTab1:Point(d, x, f, -1, h)
 	end)
 
-	local maxTiers = (SV.GameVersion >= 60000) and MAX_TALENT_TIERS or MAX_NUM_TALENT_TIERS
+	local maxTiers = MAX_TALENT_TIERS
 
 	for i = 1, maxTiers do
 		local gName = ("PlayerTalentFrameTalentsTalentRow%d"):format(i)
@@ -193,7 +193,7 @@ local function TalentFrameStyle()
 			for z = 1, NUM_TALENT_COLUMNS do 
 				local talentItem = _G[("%sTalent%d"):format(gName, z)]
 				if(talentItem) then
-					STYLE:ApplyItemButtonStyle(talentItem, false, true)
+					PLUGIN:ApplyItemButtonStyle(talentItem, false, true)
 				end
 			end
 		end
@@ -347,10 +347,10 @@ local function TalentFrameStyle()
 end 
 --[[ 
 ########################################################## 
-STYLE LOADING
+PLUGIN LOADING
 ##########################################################
 ]]--
-STYLE:SaveBlizzardStyle("Blizzard_TalentUI", TalentFrameStyle)
+PLUGIN:SaveBlizzardStyle("Blizzard_TalentUI", TalentFrameStyle)
 
 local function GlyphStyle()
 	GlyphFrame:RemoveTextures()
@@ -364,15 +364,15 @@ local function GlyphStyle()
 	GlyphFrameClearInfoFrame:Height(GlyphFrameClearInfoFrame:GetHeight()-2)
 	GlyphFrameClearInfoFrame.icon:Size(GlyphFrameClearInfoFrame:GetSize())
 	GlyphFrameClearInfoFrame:Point("TOPLEFT", GlyphFrame, "BOTTOMLEFT", 6, -10)
-	STYLE:ApplyDropdownStyle(GlyphFrameFilterDropDown, 212)
+	PLUGIN:ApplyDropdownStyle(GlyphFrameFilterDropDown, 212)
 	GlyphFrameSearchBox:SetEditboxTemplate()
-	STYLE:ApplyScrollFrameStyle(GlyphFrameScrollFrameScrollBar, 5)
+	PLUGIN:ApplyScrollFrameStyle(GlyphFrameScrollFrameScrollBar, 5)
 
 	for b = 1, 10 do 
 		local e = _G["GlyphFrameScrollFrameButton"..b]
 		local icon = _G["GlyphFrameScrollFrameButton"..b.."Icon"]
 		e:RemoveTextures()
-		STYLE:ApplyItemButtonStyle(e)
+		PLUGIN:ApplyItemButtonStyle(e)
 		icon:SetTexCoord(0.1, 0.9, 0.1, 0.9 )
 	end 
 
@@ -393,4 +393,4 @@ local function GlyphStyle()
 	GlyphFrameScrollFrame:SetPanelTemplate("Inset", false, 3, 2, 2)
 end 
 
-STYLE:SaveBlizzardStyle("Blizzard_GlyphUI", GlyphStyle)
+PLUGIN:SaveBlizzardStyle("Blizzard_GlyphUI", GlyphStyle)

@@ -27,8 +27,8 @@ local ceil = math.ceil;  -- Basic
 --[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
 FRAME LISTS
@@ -357,11 +357,11 @@ local ChatConfigBackgroundFrame_OnShow = function(self)
 end
 --[[ 
 ########################################################## 
-CHAT STYLER
+CHAT PLUGINR
 ##########################################################
 ]]--
 local function ChatStyle()
-	if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.chat ~= true then
+	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.chat ~= true then
 		 return 
 	end
 
@@ -389,7 +389,7 @@ local function ChatStyle()
 		local name = ChatFrameList2[i]
 		local this = _G[name]
 		if(this) then
-			this:SetButtonTemplate()
+			this:RemoveTextures()
 		end
 	end	
 
@@ -444,7 +444,7 @@ local function ChatStyle()
 	for i = 1, #COMBAT_CONFIG_TABS do
 		local this = _G["CombatConfigTab"..i]
 		if(this) then
-			STYLE:ApplyTabStyle(this)
+			PLUGIN:ApplyTabStyle(this)
 			this:SetHeight(this:GetHeight()-2)
 			this:SetWidth(ceil(this:GetWidth()+1.6))
 			_G["CombatConfigTab"..i.."Text"]:SetPoint("BOTTOM", 0, 10)
@@ -475,8 +475,8 @@ local function ChatStyle()
 		end
 	end
 
-	STYLE:ApplyPaginationStyle(ChatConfigMoveFilterUpButton,true)
-	STYLE:ApplyPaginationStyle(ChatConfigMoveFilterDownButton,true)
+	PLUGIN:ApplyPaginationStyle(ChatConfigMoveFilterUpButton,true)
+	PLUGIN:ApplyPaginationStyle(ChatConfigMoveFilterDownButton,true)
 
 	ChatConfigMoveFilterUpButton:ClearAllPoints()
 	ChatConfigMoveFilterDownButton:ClearAllPoints()
@@ -496,7 +496,7 @@ local function ChatStyle()
 end 
 --[[ 
 ########################################################## 
-STYLE LOADING
+PLUGIN LOADING
 ##########################################################
 ]]--
-STYLE:SaveCustomStyle(ChatStyle)
+PLUGIN:SaveCustomStyle(ChatStyle)

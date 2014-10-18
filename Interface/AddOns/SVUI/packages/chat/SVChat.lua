@@ -727,9 +727,9 @@ do
 				chat.Panel:Hide() 
 				if id == 1 then
 					chat:ClearAllPoints()
-					chat:Width(CHAT_WIDTH - 12)
+					chat:Width(CHAT_WIDTH)
 					chat:Height(CHAT_HEIGHT)
-					chat:Point("BOTTOMRIGHT",SuperDockWindowLeft,"BOTTOMRIGHT",-6,10)
+					chat:Point("BOTTOMRIGHT",SuperDockWindowLeft,"BOTTOMRIGHT",-4,10)
 					FCF_SavePositionAndDimensions(chat)
 				end 
 				chat:SetParent(SuperDockWindowLeft)

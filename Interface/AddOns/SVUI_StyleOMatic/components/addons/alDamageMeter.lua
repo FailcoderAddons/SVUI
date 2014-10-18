@@ -31,8 +31,8 @@ GET ADDON DATA
 ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
 ALDAMAGEMETER
@@ -42,7 +42,7 @@ local function StyleALDamageMeter()
   assert(_G['alDamagerMeterFrame'], "AddOn Not Loaded")
   
   alDamageMeterFrame.bg:Die()
-  STYLE:ApplyFrameStyle(alDamageMeterFrame)
+  PLUGIN:ApplyFrameStyle(alDamageMeterFrame)
   alDamageMeterFrame:HookScript('OnShow', function()
     if InCombatLockdown() then return end 
     if SV.CurrentlyDocked["alDamagerMeterFrame"] then
@@ -50,9 +50,9 @@ local function StyleALDamageMeter()
     end
   end)
 end
-STYLE:SaveAddonStyle("alDamageMeter", StyleALDamageMeter)
+PLUGIN:SaveAddonStyle("alDamageMeter", StyleALDamageMeter)
 
-function STYLE:Docklet_alDamageMeter(parent)
+function PLUGIN:Docklet_alDamageMeter(parent)
   if not _G['alDamagerMeterFrame'] then return end 
   local parentFrame=_G['alDamagerMeterFrame']:GetParent();
   dmconf.barheight=floor(parentFrame:GetHeight()/dmconf.maxbars-dmconf.spacing)

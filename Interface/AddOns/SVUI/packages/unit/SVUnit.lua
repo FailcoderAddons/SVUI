@@ -1050,6 +1050,23 @@ function MOD:RefreshUnitLayout(frame, template)
 		if db.icons then
 			local ico = db.icons;
 
+			--[[ CLASS ICON ]]--
+			
+			if(ico.classIcon and frame.ActionPanel.class) then
+				local classIcon = frame.ActionPanel.class;
+				if ico.classIcon.enable then
+					classIcon:Show()
+					local size = ico.classIcon.size;
+					classIcon:ClearAllPoints()
+
+					classIcon:SetAlpha(1)
+					classIcon:Size(size)
+					SV:ReversePoint(classIcon, ico.classIcon.attachTo, healthPanel, ico.classIcon.xOffset, ico.classIcon.yOffset)
+				else 
+					classIcon:Hide()
+				end
+			end
+
 			--[[ RAIDICON ]]--
 
 			if(ico.raidicon and frame.RaidIcon) then
@@ -1381,27 +1398,16 @@ function MOD:FrameForge()
 end
 
 function MOD:KillBlizzardRaidFrames()
-	if InCombatLockdown() then return end
-	CompactRaidFrameManager:Die()
-	CompactRaidFrameContainer:Die()
-	CompactUnitFrameProfiles:Die()
+	if(InCombatLockdown()) then return end
+	if(not _G.CompactRaidFrameManager) then return end
+	_G.CompactRaidFrameManager:Die()
+	_G.CompactRaidFrameContainer:Die()
+	_G.CompactUnitFrameProfiles:Die()
 	local crfmTest = CompactRaidFrameManager_GetSetting("IsShown")
 	if crfmTest and crfmTest ~= "0" then 
-		CompactRaidFrameManager_SetSetting("IsShown","0")
+		CompactRaidFrameManager_SetSetting("IsShown", "0")
 	end
 end
-
--- function MOD:GROUP_ROSTER_UPDATE()
--- 	self:KillBlizzardRaidFrames()
--- 	if(IsInGroup()) then
--- 		if(not self:IsEventRegistered("ZONE_CHANGED_NEW_AREA")) then
--- 			self:ZONE_CHANGED_NEW_AREA()
--- 			self:RegisterEvent("ZONE_CHANGED_NEW_AREA")
--- 		end
--- 	else
--- 		self:UnregisterEvent("ZONE_CHANGED_NEW_AREA")
--- 	end;
--- end
 
 function MOD:PLAYER_REGEN_DISABLED()
 	for _,frame in pairs(self.Headers) do 

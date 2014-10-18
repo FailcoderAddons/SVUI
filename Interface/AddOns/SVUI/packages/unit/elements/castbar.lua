@@ -70,7 +70,7 @@ local ticks = {}
 local function SpellName(id)
 	local name, _, _, _, _, _, _, _, _ = GetSpellInfo(id) 	
 	if not name then
-		SV:Debugger('|cffFF9900SVUI:|r Spell not found: (#ID) '..id)
+		--SV:Debugger('|cffFF9900SVUI:|r Spell not found: (#ID) '..id)
 		name = "Voodoo Doll";
 	end
 	return name
@@ -104,8 +104,8 @@ local CustomTickData = {
 	},
 	["ChannelTicksSize"] = {
 	  --Warlock
-	  [SpellName(1120)] = 2, --"Drain Soul"
-	  [SpellName(689)] = 1, -- "Drain Life"
+	  	[SpellName(1120)] = 2, --"Drain Soul"
+	  	[SpellName(689)] = 1, -- "Drain Life"
 		[SpellName(108371)] = 1, -- "Harvest Life"
 		[SpellName(103103)] = 1, -- "Malefic Grasp"
 	},

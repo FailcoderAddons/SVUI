@@ -17,11 +17,14 @@ local UnitClassification 	= _G.UnitClassification;
 local parent, ns = ...
 local oUF = ns.oUF
 
+local textureCopy;
+
 local Update = function(self, event, unit)
 	if(self.unit ~= unit) or not unit then return end
 	local action = self.ActionPanel
 	local border = action.border
 	local special = action.special
+	local class = action.class
 	local showSpecial = false
 	local r,g,b = 0,0,0;
 	local category = UnitClassification(unit)
@@ -48,6 +51,17 @@ local Update = function(self, event, unit)
 			special:Show()
 		else
 			special:Hide()
+		end
+	end
+
+	if(class and class:IsShown()) then
+		local className, classFileName = UnitClass(unit)
+		local coords = CLASS_ICON_TCOORDS[classFileName]
+		if(coords) then
+			class:Show()
+			class.texture:SetTexCoord(unpack(coords))
+		else
+			class:Hide()
 		end
 	end
 

@@ -37,8 +37,8 @@ GET ADDON DATA
 ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 local LSM = LibStub("LibSharedMedia-3.0")
 local NewHook = hooksecurefunc;
 
@@ -63,21 +63,29 @@ local _hook_WindowLevel = function(self, level)
 	self.Panel:SetFrameLevel(adjustment)
 end
 
-function STYLE:ApplyFrameStyle(this, template, noStripping, fullStripping)
+function PLUGIN:ApplyFrameStyle(this, template, noStripping, fullStripping)
 	if(not this or (this and this.Panel)) then return end  
 	if not noStripping then this:RemoveTextures(fullStripping) end
 	template = template or "Transparent"
 	this:SetPanelTemplate(template)
 end 
 
-function STYLE:ApplyUnderlayStyle(this, template, noStripping, fullStripping)
+function PLUGIN:ApplyAdjustedFrameStyle(this, template, xTopleft, yTopleft, xBottomright, yBottomright)
+	if(not this or (this and this.Panel)) then return end
+	template = template or "Transparent"
+	this:SetPanelTemplate(template)
+	this.Panel:SetPoint("TOPLEFT", this, "TOPLEFT", xTopleft, yTopleft)
+	this.Panel:SetPoint("BOTTOMRIGHT", this, "BOTTOMRIGHT", xBottomright, yBottomright)
+end 
+
+function PLUGIN:ApplyFixedFrameStyle(this, template, noStripping, fullStripping)
 	if(not this or (this and this.Panel)) then return end  
 	if not noStripping then this:RemoveTextures(fullStripping) end
 	template = template or "Transparent"
     this:SetFixedPanelTemplate(template)
 end
 
-function STYLE:ApplyWindowStyle(this, action, fullStrip)
+function PLUGIN:ApplyWindowStyle(this, action, fullStrip)
 	if(not this or (this and this.Panel)) then return end
 	local template = action and "Action" or "Halftone"
 	local baselevel = this:GetFrameLevel()
@@ -89,7 +97,7 @@ function STYLE:ApplyWindowStyle(this, action, fullStrip)
 	this:SetPanelTemplate(template)
 end
 
-function STYLE:ApplyWindowHolder(this, fullStrip)
+function PLUGIN:ApplyWindowHolder(this, fullStrip)
 	if(not this or (this and this.Panel)) then return end
 	local baselevel = this:GetFrameLevel()
 	if(baselevel < 1) then 
@@ -119,7 +127,7 @@ local Button_OnLeave = function(self)
     self:SetBackdropColor(unpack(SV.Media.color.default))
 end
 
-function STYLE:ApplyButtonStyle(this)
+function PLUGIN:ApplyButtonStyle(this)
 	if not this then return end 
     this:SetButtonTemplate()
 end
@@ -132,7 +140,7 @@ local ArrowButton_OnLeave = function(self)
     self:SetBackdropBorderColor(0,0,0,1)
 end
 
-function STYLE:ApplyArrowButtonStyle(this, direction, anchor)
+function PLUGIN:ApplyArrowButtonStyle(this, direction, anchor)
 	if not this then return end
 	this:RemoveTextures()
 	this:SetButtonTemplate(nil, 1, -7, -7, nil, "green")
@@ -157,7 +165,7 @@ local CloseButton_OnLeave = function(self)
     self:SetBackdropBorderColor(0,0,0,1)
 end
 
-function STYLE:ApplyCloseButtonStyle(this, anchor)
+function PLUGIN:ApplyCloseButtonStyle(this, anchor)
 	if not this then return end
 	this:RemoveTextures()
 	this:SetButtonTemplate(nil, 1, -7, -7, nil, "red")
@@ -175,7 +183,7 @@ end
 
 --[[ ITEM BUTTON ]]--
 
-function STYLE:ApplyItemButtonStyle(frame, adjust, shrink, noScript)
+function PLUGIN:ApplyItemButtonStyle(frame, adjust, shrink, noScript)
 	if(not frame or (frame and frame.StyleHooked)) then return end 
 
 	local link = frame:GetName()
@@ -257,7 +265,7 @@ end
  \______/  \______/ |__/  |__/ \______/ |________/|________/
 ##########################################################
 --]]
-function STYLE:ApplyScrollFrameStyle(this, scale, yOffset)
+function PLUGIN:ApplyScrollFrameStyle(this, scale, yOffset)
 	if(not this or (this and this.StyleHooked)) then return end
 
 	scale = scale or 5
@@ -287,7 +295,7 @@ function STYLE:ApplyScrollFrameStyle(this, scale, yOffset)
 		upButton:RemoveTextures()
 		if(not upButton.icon) then
 			local upW, upH = upButton:GetSize()
-			STYLE:ApplyPaginationStyle(upButton)
+			PLUGIN:ApplyPaginationStyle(upButton)
 			SquareButton_SetIcon(upButton, "UP")
 			upButton:Size(upW + scale, upH + scale)
 			if(yOffset) then
@@ -301,7 +309,7 @@ function STYLE:ApplyScrollFrameStyle(this, scale, yOffset)
 		downButton:RemoveTextures()
 		if(not downButton.icon) then
 			local dnW, dnH = downButton:GetSize() 
-			STYLE:ApplyPaginationStyle(downButton)
+			PLUGIN:ApplyPaginationStyle(downButton)
 			SquareButton_SetIcon(downButton, "DOWN")
 			downButton:Size(dnW + scale, dnH + scale)
 			if(yOffset) then
@@ -327,7 +335,7 @@ function STYLE:ApplyScrollFrameStyle(this, scale, yOffset)
 	this.StyleHooked = true
 end 
 
-function STYLE:ApplyScrollBarStyle(this)
+function PLUGIN:ApplyScrollBarStyle(this)
 	if(not this or (this and not this.GetOrientation)) then return end
 
 	if(this:GetOrientation() == "VERTICAL") then 
@@ -375,7 +383,7 @@ local Tab_OnLeave = function(self)
 	self.backdrop:SetBackdropBorderColor(0,0,0,1)
 end 
 
-function STYLE:ApplyTabStyle(this, addBackground)
+function PLUGIN:ApplyTabStyle(this, addBackground)
 	if(not this or (this and this.StyleHooked)) then return end 
 
 	local tab = this:GetName();
@@ -451,7 +459,7 @@ end
 |__/      |__/  |__/ \______/ |________/
 ##########################################################
 --]]
-function STYLE:ApplyPaginationStyle(button, isVertical)
+function PLUGIN:ApplyPaginationStyle(button, isVertical)
 	if(not button or (button and not button:GetName()) or (button and button.StyleHooked)) then return end
 
 	local bName = button:GetName()
@@ -533,7 +541,7 @@ local _hook_DropDownButton_SetPoint = function(self, _, _, _, _, _, breaker)
 	end
 end
 
-function STYLE:ApplyDropdownStyle(this, width)
+function PLUGIN:ApplyDropdownStyle(this, width)
 	if(not this or (this and this.StyleHooked)) then return end 
 
 	local ddName = this:GetName();
@@ -556,7 +564,7 @@ function STYLE:ApplyDropdownStyle(this, width)
 
 		NewHook(ddButton, "SetPoint", _hook_DropDownButton_SetPoint)
 
-		STYLE:ApplyPaginationStyle(ddButton, true)
+		PLUGIN:ApplyPaginationStyle(ddButton, true)
 
 		local currentLevel = this:GetFrameLevel()
 		if(currentLevel == 0) then
@@ -596,7 +604,7 @@ local Tooltip_OnShow = function(self)
 	self:SetBackdropBorderColor(0,0,0)
 end
 
-function STYLE:ApplyTooltipStyle(frame)
+function PLUGIN:ApplyTooltipStyle(frame)
 	if(not frame or (frame and frame.StyleHooked)) then return end
 	frame:HookScript('OnShow', Tooltip_OnShow)
 	frame.StyleHooked = true
@@ -613,7 +621,7 @@ end
 |__/  |__/|________/|________/|__/  |__/   |__/   
 ##########################################################
 --]]
-function STYLE:ApplyAlertStyle(frame)
+function PLUGIN:ApplyAlertStyle(frame)
 	if(not frame or (frame and frame.StyleHooked)) then return end 
 
     local alertpanel = CreateFrame("Frame", nil, frame)
@@ -667,15 +675,15 @@ end
 |__/     |__/|______/ \______/  \______/ 
 ##########################################################
 --]]
-function STYLE:ApplyEditBoxStyle(this, width, height)
+function PLUGIN:ApplyEditBoxStyle(this, width, height, x, y)
 	if not this then return end
 	this:RemoveTextures(true)
-    this:SetEditboxTemplate()
+    this:SetEditboxTemplate(x, y)
     if width then this:Width(width) end
 	if height then this:Height(height) end
 end
 
-function STYLE:ApplyTextureStyle(this)
+function PLUGIN:ApplyTextureStyle(this)
 	if not this then return end
 	this:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 	local parent = this:GetParent()
@@ -684,6 +692,6 @@ function STYLE:ApplyTextureStyle(this)
 	end
 end
 
-function STYLE:ApplyRotateStyle(this)
+function PLUGIN:ApplyRotateStyle(this)
 	-- Do stuff
 end

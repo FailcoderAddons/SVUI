@@ -20,25 +20,25 @@ local select  = _G.select;
 --[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
-TIMEMANAGER STYLER
+TIMEMANAGER PLUGINR
 ##########################################################
 ]]--
 local function TimeManagerStyle()
-	if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.timemanager ~= true then
+	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.timemanager ~= true then
 		 return 
 	end 
 	
-	STYLE:ApplyWindowStyle(TimeManagerFrame, true)
+	PLUGIN:ApplyWindowStyle(TimeManagerFrame, true)
 
-	STYLE:ApplyCloseButtonStyle(TimeManagerFrameCloseButton)
+	PLUGIN:ApplyCloseButtonStyle(TimeManagerFrameCloseButton)
 	TimeManagerFrameInset:Die()
-	STYLE:ApplyDropdownStyle(TimeManagerAlarmHourDropDown, 80)
-	STYLE:ApplyDropdownStyle(TimeManagerAlarmMinuteDropDown, 80)
-	STYLE:ApplyDropdownStyle(TimeManagerAlarmAMPMDropDown, 80)
+	PLUGIN:ApplyDropdownStyle(TimeManagerAlarmHourDropDown, 80)
+	PLUGIN:ApplyDropdownStyle(TimeManagerAlarmMinuteDropDown, 80)
+	PLUGIN:ApplyDropdownStyle(TimeManagerAlarmAMPMDropDown, 80)
 	TimeManagerAlarmMessageEditBox:SetEditboxTemplate()
 	TimeManagerAlarmEnabledButton:SetCheckboxTemplate(true)
 	TimeManagerMilitaryTimeCheck:SetCheckboxTemplate(true)
@@ -60,15 +60,15 @@ local function TimeManagerStyle()
 
 	StopwatchTabFrame:RemoveTextures()
 	
-	STYLE:ApplyCloseButtonStyle(StopwatchCloseButton)
-	STYLE:ApplyPaginationStyle(StopwatchPlayPauseButton)
-	STYLE:ApplyPaginationStyle(StopwatchResetButton)
+	PLUGIN:ApplyCloseButtonStyle(StopwatchCloseButton)
+	PLUGIN:ApplyPaginationStyle(StopwatchPlayPauseButton)
+	PLUGIN:ApplyPaginationStyle(StopwatchResetButton)
 	StopwatchPlayPauseButton:Point("RIGHT", StopwatchResetButton, "LEFT", -4, 0)
 	StopwatchResetButton:Point("BOTTOMRIGHT", StopwatchFrame, "BOTTOMRIGHT", -4, 6)
 end 
 --[[ 
 ########################################################## 
-STYLE LOADING
+PLUGIN LOADING
 ##########################################################
 ]]--
-STYLE:SaveBlizzardStyle("Blizzard_TimeManager",TimeManagerStyle)
+PLUGIN:SaveBlizzardStyle("Blizzard_TimeManager",TimeManagerStyle)

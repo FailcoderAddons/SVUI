@@ -20,15 +20,15 @@ local select  = _G.select;
 --[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
-BATTLEFIELD STYLER
+BATTLEFIELD PLUGINR
 ##########################################################
 ]]--
 local function BattlefieldStyle()
-	if SV.db[Schema].blizzard.enable~=true or SV.db[Schema].blizzard.bgmap~=true then return end 
+	if PLUGIN.db.blizzard.enable~=true or PLUGIN.db.blizzard.bgmap~=true then return end 
 	BattlefieldMinimap:SetClampedToScreen(true)
 	BattlefieldMinimapCorner:Die()
 	BattlefieldMinimapBackground:Die()
@@ -41,7 +41,7 @@ local function BattlefieldStyle()
 	BattlefieldMinimap:SetFrameStrata("LOW")
 	BattlefieldMinimapCloseButton:ClearAllPoints()
 	BattlefieldMinimapCloseButton:SetPoint("TOPRIGHT", -4, 0)
-	STYLE:ApplyCloseButtonStyle(BattlefieldMinimapCloseButton)
+	PLUGIN:ApplyCloseButtonStyle(BattlefieldMinimapCloseButton)
 	BattlefieldMinimapCloseButton:SetFrameStrata("MEDIUM")
 	BattlefieldMinimap:EnableMouse(true)
 	BattlefieldMinimap:SetMovable(true)
@@ -93,7 +93,7 @@ local function BattlefieldStyle()
 end 
 --[[ 
 ########################################################## 
-STYLE LOADING
+PLUGIN LOADING
 ##########################################################
 ]]--
-STYLE:SaveBlizzardStyle("Blizzard_BattlefieldMinimap",BattlefieldStyle)
+PLUGIN:SaveBlizzardStyle("Blizzard_BattlefieldMinimap",BattlefieldStyle)

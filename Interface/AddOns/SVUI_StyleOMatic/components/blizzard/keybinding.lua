@@ -22,11 +22,11 @@ local pairs   = _G.pairs;
 --[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
-KEYBINDING STYLER
+KEYBINDING PLUGINR
 ##########################################################
 ]]--
 local BindButtons = {
@@ -37,7 +37,7 @@ local BindButtons = {
 }
 
 local function BindingStyle()
-	if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.binding ~= true then return end 
+	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.binding ~= true then return end 
 
 	for _, gName in pairs(BindButtons)do 
 		local btn = _G[gName]
@@ -61,13 +61,13 @@ local function BindingStyle()
 		end
 	end
 
-	STYLE:ApplyScrollFrameStyle(KeyBindingFrameScrollFrameScrollBar)
+	PLUGIN:ApplyScrollFrameStyle(KeyBindingFrameScrollFrameScrollBar)
 	KeyBindingFrame:RemoveTextures()
 	KeyBindingFrame:SetPanelTemplate("Halftone")
 end
 --[[ 
 ########################################################## 
-STYLE LOADING
+PLUGIN LOADING
 ##########################################################
 ]]--
-STYLE:SaveBlizzardStyle("Blizzard_BindingUI", BindingStyle)
+PLUGIN:SaveBlizzardStyle("Blizzard_BindingUI", BindingStyle)

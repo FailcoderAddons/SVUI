@@ -334,7 +334,7 @@ CORE METHODS
 function PLUGIN.Fishing:Enable()
 	PLUGIN:UpdateFishingMode()
 	if(not PLUGIN.Docklet:IsShown()) then PLUGIN.Docklet.ToolbarButton:Click() end
-	UpdateFishingGear(SV.db[Schema].fishing.autoequip);
+	UpdateFishingGear(PLUGIN.db.fishing.autoequip);
 	PlaySoundFile("Sound\\Spells\\Tradeskills\\FishCast.wav")
 	PLUGIN.ModeAlert:SetBackdropColor(0.25, 0.52, 0.1)
 	if(not IsSpellKnown(131474)) then

@@ -96,6 +96,7 @@ function PLUGIN:PLAYER_TARGET_CHANGED()
         SVUI_TrackingDoodad:Show()
     else
         SVUI_TrackingDoodad.Trackable = false
+        SVUI_TrackingDoodad:Hide()
     end
 end
 
@@ -122,16 +123,6 @@ local Rotate_Arrow = function(self, angle)
     self.Arrow:SetTexCoord(ULx, ULy, LLx, LLy, URx, URy, LRx, LRy);
 end
 
-local TargetFrame_OnChange = function()
-    if not SVUI_TrackingDoodad then return end
-    if((UnitInParty("target") or UnitInRaid("target")) and not UnitIsUnit("target", "player")) then
-        SVUI_TrackingDoodad.Trackable = true
-        SVUI_TrackingDoodad:Show()
-    else
-        SVUI_TrackingDoodad.Trackable = false
-    end
-end
-
 local Tracker_OnUpdate = function(self, elapsed)
     if self.elapsed and self.elapsed > (self.throttle or 0.02) then
         if(self.Trackable) then
@@ -153,10 +144,14 @@ local Tracker_OnUpdate = function(self, elapsed)
                     self.Arrow:SetVertexColor(1,0.8,0.1,0.6)
                     self.Radar:SetVertexColor(0.8,0.8,0.1,0.5)
                     self.BG:SetVertexColor(0.4,0.8,0.1,0.5)
-                elseif(range > 5) then
+                elseif(range > 0) then
                     self.Arrow:SetVertexColor(0.1,1,0.8,0.9)
                     self.Radar:SetVertexColor(0.1,0.8,0.8,0.75)
                     self.BG:SetVertexColor(0.1,0.8,0.1,0.75)
+                else
+                    self.Arrow:SetVertexColor(0.1,0.1,0.1,0.1)
+                    self.Radar:SetVertexColor(0.1,0.1,0.1,0.1)
+                    self.BG:SetVertexColor(0.1,0.1,0.1,0.1)
                 end
                 self.Arrow:SetAlpha(1)
                 self.Range:SetText(range)
@@ -175,11 +170,9 @@ CORE
 ##########################################################
 ]]--
 function PLUGIN:ReLoad()
-    if(not SV.db[Schema].enable) then return end
-
-    local frameSize = SV.db[Schema].size or 70
+    local frameSize = self.db.size or 70
     local arrowSize = frameSize * 0.5
-    local fontSize = SV.db[Schema].fontSize or 14
+    local fontSize = self.db.fontSize or 14
     local frame = _G["SVUI_TrackingDoodad"]
 
     frame:SetSize(frameSize, frameSize)
@@ -188,13 +181,10 @@ function PLUGIN:ReLoad()
 end
 
 function PLUGIN:Load()
-    if(not SV.db[Schema].enable) then return end
-    
     local _TRACKER = SVUI_TrackingDoodad
     local _TARGET = SVUI_Target
 
     if(_TRACKER) then
-
         _TRACKER.Border:SetGradient(unpack(SV.Media.gradient.special))
         _TRACKER.Arrow:SetVertexColor(0.1, 0.8, 0.8)
         _TRACKER.Range:SetFont(SV.Media.font.roboto, 14, "OUTLINE")
@@ -212,7 +202,6 @@ function PLUGIN:Load()
         if(_TARGET) then
             _TRACKER:SetParent(_TARGET)
             _TRACKER:SetPoint("LEFT", _TARGET, "RIGHT", 2, 0)
-            _TARGET:HookScript("OnShow", TargetFrame_OnChange)
         end
 
         self:RegisterEvent("PLAYER_TARGET_CHANGED")

@@ -1009,6 +1009,30 @@ function ns:SetIconConfigGroup(updateFunction, unitName, count)
 		args = {}
 	};
 
+	if(iconGroup["classIcon"]) then
+		k.args.classIcon = {
+			order = grouporder, 
+			type = "group",
+			guiInline = true,
+			name = L["Class Icons"],
+			get = function(key)
+				return SV.db.SVUnit[unitName]["icons"]["classIcon"][key[#key]]
+			end,
+			set = function(key, value)
+				MOD:ChangeDBVar(value, key[#key], unitName, "icons", "classIcon")
+				updateFunction(MOD, unitName, count)
+			end,
+			args = {
+				enable = {type = "toggle", order = 1, name = L["Enable"]}, 
+				attachTo = {type = "select", order = 2, name = L["Position"], values = SV.PointIndexes}, 
+				size = {type = "range", name = L["Size"], width = "full", order = 3, min = 8, max = 60, step = 1}, 
+				xOffset = {order = 4, type = "range", name = L["xOffset"], width = "full", min = -300, max = 300, step = 1}, 
+				yOffset = {order = 5, type = "range", name = L["yOffset"], width = "full", min = -300, max = 300, step = 1}
+			}
+		}
+		grouporder = grouporder + 1
+	end
+
 	if(iconGroup["raidicon"]) then
 		k.args.raidicon = {
 			order = grouporder, 

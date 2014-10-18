@@ -28,8 +28,8 @@ GET ADDON DATA
 ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
 ACP
@@ -69,12 +69,12 @@ end
 local function StyleACP()
 	assert(ACP_AddonList, "AddOn Not Loaded")
 
-	STYLE:ApplyFrameStyle(ACP_AddonList)
-	STYLE:ApplyFrameStyle(ACP_AddonList_ScrollFrame)
+	PLUGIN:ApplyFrameStyle(ACP_AddonList)
+	PLUGIN:ApplyFrameStyle(ACP_AddonList_ScrollFrame)
 	local h={"ACP_AddonListSetButton","ACP_AddonListDisableAll","ACP_AddonListEnableAll","ACP_AddonList_ReloadUI","ACP_AddonListBottomClose"}
 	for i,j in pairs(h)do _G[j]:SetButtonTemplate()end 
 	for c=1,20 do _G["ACP_AddonListEntry"..c.."LoadNow"]:SetButtonTemplate()end 
-	STYLE:ApplyCloseButtonStyle(ACP_AddonListCloseButton)
+	PLUGIN:ApplyCloseButtonStyle(ACP_AddonListCloseButton)
 	for c=1,20,1 do 
 		local k=_G["ACP_AddonList"]
 		k.timeLapse = 0
@@ -82,8 +82,8 @@ local function StyleACP()
 	end 
 	for c=1,20 do _G["ACP_AddonListEntry"..c.."Enabled"]:SetCheckboxTemplate(true)end 
 	ACP_AddonList_NoRecurse:SetCheckboxTemplate(true)
-	STYLE:ApplyScrollFrameStyle(ACP_AddonList_ScrollFrameScrollBar)
-	STYLE:ApplyDropdownStyle(ACP_AddonListSortDropDown)
+	PLUGIN:ApplyScrollFrameStyle(ACP_AddonList_ScrollFrameScrollBar)
+	PLUGIN:ApplyDropdownStyle(ACP_AddonListSortDropDown)
 	ACP_AddonListSortDropDown:Width(130)
 	ACP_AddonList_ScrollFrame:SetWidth(590)
 	ACP_AddonList_ScrollFrame:SetHeight(412)
@@ -102,4 +102,4 @@ local function StyleACP()
 	ACP_AddonListBottomClose:SetHeight(25)ACP_AddonList:SetParent(UIParent)
 end
 
-STYLE:SaveAddonStyle("ACP", StyleACP)
+PLUGIN:SaveAddonStyle("ACP", StyleACP)

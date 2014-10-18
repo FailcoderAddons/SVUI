@@ -24,19 +24,22 @@ local pairs   = _G.pairs;
 --[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
+
+local MAX_NUM_ITEMS = _G.MAX_NUM_ITEMS
 --[[ 
 ########################################################## 
 HELPERS
 ##########################################################
 ]]--
 local QuestFrameList = {
-	"QuestLogFrameAbandonButton",
-	"QuestLogFramePushQuestButton",
-	"QuestLogFrameTrackButton",
-	"QuestLogFrameCancelButton",
-	"QuestLogFrameCompleteButton"
+	"QuestLogPopupDetailFrame",
+	"QuestLogPopupDetailFrameAbandonButton",
+	"QuestLogPopupDetailFrameShareButton",
+	"QuestLogPopupDetailFrameTrackButton",
+	"QuestLogPopupDetailFrameCancelButton",
+	"QuestLogPopupDetailFrameCompleteButton"
 };
 
 local function QuestScrollHelper(b, c, d, e)
@@ -50,26 +53,6 @@ local function QuestScrollHelper(b, c, d, e)
 	end 
 	b.spellTex:Size(c or 506, d or 615)
 	b.spellTex:SetTexCoord(0, 1, 0.02, 1)
-end 
-
-local function QueuedWatchFrameItems()
-	local WATCHFRAME_NUM_ITEMS = _G.WATCHFRAME_NUM_ITEMS
-	if(not WATCHFRAME_NUM_ITEMS) then return end;
-	for i=1, WATCHFRAME_NUM_ITEMS do
-		local button = _G["WatchFrameItem"..i]
-		local point, relativeTo, relativePoint, xOffset, yOffset = button:GetPoint(1)
-		button:SetFrameStrata("LOW")
-		button:SetPoint("TOPRIGHT", relativeTo, "TOPLEFT", -30, -2);
-		if not button.styled then
-			button:SetSlotTemplate()
-			button:SetBackdropColor(0,0,0,0)
-			_G["WatchFrameItem"..i.."NormalTexture"]:SetAlpha(0)
-			_G["WatchFrameItem"..i.."IconTexture"]:FillInner()
-			_G["WatchFrameItem"..i.."IconTexture"]:SetTexCoord(0.1,0.9,0.1,0.9)
-			SV.Timers:AddCooldown(_G["WatchFrameItem"..i.."Cooldown"])
-			button.styled = true
-		end
-	end	
 end
 
 local QuestRewardScrollFrame_OnShow = function(self)
@@ -83,22 +66,39 @@ local QuestRewardScrollFrame_OnShow = function(self)
 	end
 end
 
-local Hook_QuestInfo_Display = function(self, ...)
-	local MAX_NUM_ITEMS = _G.MAX_NUM_ITEMS
+local function StyleQuestRewards()
 	if(not MAX_NUM_ITEMS) then return end;
+
 	for i = 1, MAX_NUM_ITEMS do
-		local name = ("QuestInfoItem%d"):format(i)
+		local name = ("QuestInfoRewardsFrameQuestInfoItem%d"):format(i)
 		local item = _G[name]
-		if(item and item:IsShown()) then
-			local initialAnchor, anchorParent, relativeAnchor, xPosition, yPosition = item:GetPoint()
-			if(i == 1) then
-				item:Point(initialAnchor, anchorParent, relativeAnchor, 0, yPosition)
-			elseif(relativeAnchor == "BOTTOMLEFT") then 
-				item:Point(initialAnchor, anchorParent, relativeAnchor, 0, -4)
-			else
-				item:Point(initialAnchor, anchorParent, relativeAnchor, 4, 0)
+		if(item) then
+			if(item:IsShown()) then
+				local initialAnchor, anchorParent, relativeAnchor, xPosition, yPosition = item:GetPoint()
+				if(initialAnchor) then
+					if(i == 1) then
+						item:SetPoint(initialAnchor, anchorParent, relativeAnchor, 0, yPosition)
+					elseif(relativeAnchor == "BOTTOMLEFT") then 
+						item:SetPoint(initialAnchor, anchorParent, relativeAnchor, 0, -4)
+					else
+						item:SetPoint(initialAnchor, anchorParent, relativeAnchor, 4, 0)
+					end
+				end
 			end
-		end 
+			if(not item.Panel) then
+				item:Width(item:GetWidth() - 4)
+				item:SetFrameLevel(item:GetFrameLevel() + 1)
+				PLUGIN:ApplyItemButtonStyle(item, false, true)
+				local tex = _G[name.."IconTexture"]
+				if(tex) then
+					tex:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+					tex:SetDrawLayer("OVERLAY",1)
+					tex:SetPoint("TOPLEFT", 2, -2)
+					tex:Size(tex:GetWidth() - 2, tex:GetHeight() - 2)
+					tex:SetParent(item.Panel)
+				end
+			end
+		end
 	end 
 end
 
@@ -127,95 +127,65 @@ local _hook_DetailScrollShow = function(self)
 	self.spellTex:Height(self:GetHeight() + 217)
 end
 
-local _hook_QuestLogFrameShow = function(self)
-	local QuestLogScrollFrame = _G.QuestLogScrollFrame;
-	if not QuestLogScrollFrame.spellTex then
-		QuestLogScrollFrame:SetFixedPanelTemplate("Default")
-		QuestLogScrollFrame.spellTex = QuestLogScrollFrame:CreateTexture(nil, 'ARTWORK')
-		QuestLogScrollFrame.spellTex:SetTexture([[Interface\QuestFrame\QuestBookBG]])
-		QuestLogScrollFrame.spellTex:SetPoint("TOPLEFT", 2, -2)
-		QuestLogScrollFrame.spellTex:Size(514, 616)
-		QuestLogScrollFrame.spellTex:SetTexCoord(0, 1, 0.02, 1)
-		QuestLogScrollFrame.spellTex2 = QuestLogScrollFrame:CreateTexture(nil, 'BORDER')
-		QuestLogScrollFrame.spellTex2:SetTexture([[Interface\FrameGeneral\UI-Background-Rock]])
-		QuestLogScrollFrame.spellTex2:FillInner()
+local _hook_QuestLogPopupDetailFrameShow = function(self)
+	local QuestLogPopupDetailFrameScrollFrame = _G.QuestLogPopupDetailFrameScrollFrame;
+	if not QuestLogPopupDetailFrameScrollFrame.spellTex then
+		QuestLogPopupDetailFrameScrollFrame:SetFixedPanelTemplate("Default")
+		QuestLogPopupDetailFrameScrollFrame.spellTex = QuestLogPopupDetailFrameScrollFrame:CreateTexture(nil, 'ARTWORK')
+		QuestLogPopupDetailFrameScrollFrame.spellTex:SetTexture([[Interface\QuestFrame\QuestBookBG]])
+		QuestLogPopupDetailFrameScrollFrame.spellTex:SetPoint("TOPLEFT", 2, -2)
+		QuestLogPopupDetailFrameScrollFrame.spellTex:Size(514, 616)
+		QuestLogPopupDetailFrameScrollFrame.spellTex:SetTexCoord(0, 1, 0.02, 1)
+		QuestLogPopupDetailFrameScrollFrame.spellTex2 = QuestLogPopupDetailFrameScrollFrame:CreateTexture(nil, 'BORDER')
+		QuestLogPopupDetailFrameScrollFrame.spellTex2:SetTexture([[Interface\FrameGeneral\UI-Background-Rock]])
+		QuestLogPopupDetailFrameScrollFrame.spellTex2:FillInner()
 	end
 end
 --[[ 
 ########################################################## 
-QUEST STYLERS
+QUEST PLUGINRS
 ##########################################################
 ]]--
 local function QuestGreetingStyle()
-	if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.greeting ~= true then
+	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.greeting ~= true then
 		return 
 	end
 	_G.QuestFrameGreetingPanel:HookScript("OnShow", _hook_GreetingPanelShow)
 end 
 
 local function QuestFrameStyle()
-	if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.quest ~= true then return end
+	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.quest ~= true then return end
 
-	STYLE:ApplyWindowStyle(QuestFrame, true, true)
+	PLUGIN:ApplyWindowStyle(QuestLogPopupDetailFrame, true, true)
+	PLUGIN:ApplyWindowStyle(QuestFrame, true, true)
 
-	--[[ THIS SECTION NOT WORKING IN WOD ]]--
-	if(SV.GameVersion < 60000) then
-		QuestLogScrollFrame:RemoveTextures()
-		QuestLogCount:RemoveTextures()
-		EmptyQuestLogFrame:RemoveTextures()
-		QuestProgressScrollFrame:RemoveTextures()
-		QuestLogFrameShowMapButton:RemoveTextures()
-		QuestLogFrameCompleteButton:RemoveTextures()
+	QuestLogPopupDetailFrameScrollFrame:RemoveTextures()
+	QuestProgressScrollFrame:RemoveTextures()
+	local width = QuestLogPopupDetailFrameScrollFrame:GetWidth()
+	QuestLogPopupDetailFrame.ShowMapButton:SetWidth(width)
+	QuestLogPopupDetailFrame.ShowMapButton:SetButtonTemplate()
 
-		STYLE:ApplyWindowStyle(QuestLogFrame)
-		QuestLogCount:SetFixedPanelTemplate("Default")
+	PLUGIN:ApplyWindowStyle(QuestLogPopupDetailFrame)
 
-		QuestLogDetailFrameInset:Die()
-		QuestLogFrameInset:Die()
+	QuestLogPopupDetailFrameInset:Die()
 
-		QuestLogFrameShowMapButton:SetButtonTemplate()
-		QuestLogFrameShowMapButton.text:ClearAllPoints()
-		QuestLogFrameShowMapButton.text:SetPoint("CENTER")
-
-		for _,i in pairs(QuestFrameList)do 
+	for _,i in pairs(QuestFrameList)do
+		if(_G[i]) then
 			_G[i]:SetButtonTemplate()
 			_G[i]:SetFrameLevel(_G[i]:GetFrameLevel() + 2)
 		end
-
-		QuestLogFramePushQuestButton:Point("LEFT", QuestLogFrameAbandonButton, "RIGHT", 2, 0)
-		QuestLogFramePushQuestButton:Point("RIGHT", QuestLogFrameTrackButton, "LEFT", -2, 0)
-		QuestLogDetailScrollFrame:HookScript('OnShow', _hook_DetailScrollShow)
-		QuestLogFrame:HookScript("OnShow", _hook_QuestLogFrameShow)
 	end
-	--[[ ############################### ]]--
+	QuestLogPopupDetailFrameScrollFrame:HookScript('OnShow', _hook_DetailScrollShow)
+	QuestLogPopupDetailFrame:HookScript("OnShow", _hook_QuestLogPopupDetailFrameShow)
 
-	STYLE:ApplyCloseButtonStyle(QuestLogFrameCloseButton)
-	STYLE:ApplyScrollFrameStyle(QuestLogDetailScrollFrameScrollBar)
-	STYLE:ApplyScrollFrameStyle(QuestLogScrollFrameScrollBar, 5)
-	STYLE:ApplyScrollFrameStyle(QuestProgressScrollFrameScrollBar)
-	STYLE:ApplyScrollFrameStyle(QuestRewardScrollFrameScrollBar)
+	PLUGIN:ApplyCloseButtonStyle(QuestLogPopupDetailFrameCloseButton)
+	PLUGIN:ApplyScrollFrameStyle(QuestLogPopupDetailFrameScrollFrameScrollBar, 5)
+	PLUGIN:ApplyScrollFrameStyle(QuestRewardScrollFrameScrollBar)
 
 	QuestGreetingScrollFrame:RemoveTextures()
-	STYLE:ApplyScrollFrameStyle(QuestGreetingScrollFrameScrollBar)
+	PLUGIN:ApplyScrollFrameStyle(QuestGreetingScrollFrameScrollBar)
 
-	for i = 1, MAX_NUM_ITEMS do
-		local item = _G["QuestInfoItem"..i]
-		if(item) then
-			local cLvl = item:GetFrameLevel() + 1
-			item:RemoveTextures()
-			item:Width(item:GetWidth() - 4)
-			item:SetFrameLevel(cLvl)
-
-			local tex = _G["QuestInfoItem"..i.."IconTexture"]
-			if(tex) then
-				tex:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-				tex:SetDrawLayer("OVERLAY",1)
-				tex:SetPoint("TOPLEFT", 2, -2)
-				tex:Size(tex:GetWidth() - 2, tex:GetHeight() - 2)
-			end
-			STYLE:ApplyItemButtonStyle(item)
-		end
-	end 
+	StyleQuestRewards()
 
 	QuestInfoSkillPointFrame:RemoveTextures()
 	QuestInfoSkillPointFrame:Width(QuestInfoSkillPointFrame:GetWidth() - 4)
@@ -226,7 +196,7 @@ local function QuestFrameStyle()
 	QuestInfoSkillPointFrame:SetBackdropColor(1, 1, 0, 0.5)
 	QuestInfoSkillPointFrameIconTexture:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 	QuestInfoSkillPointFrameIconTexture:SetDrawLayer("OVERLAY")
-	QuestInfoSkillPointFrameIconTexture:Point("TOPLEFT", 2, -2)
+	QuestInfoSkillPointFrameIconTexture:SetPoint("TOPLEFT", 2, -2)
 	QuestInfoSkillPointFrameIconTexture:Size(QuestInfoSkillPointFrameIconTexture:GetWidth()-2, QuestInfoSkillPointFrameIconTexture:GetHeight()-2)
 	QuestInfoSkillPointFrameCount:SetDrawLayer("OVERLAY")
 	QuestInfoItemHighlight:RemoveTextures()
@@ -236,7 +206,7 @@ local function QuestFrameStyle()
 	QuestInfoItemHighlight:Size(142, 40)
 
 	hooksecurefunc("QuestInfoItem_OnClick", Hook_QuestInfoItem_OnClick)
-	hooksecurefunc("QuestInfo_Display", Hook_QuestInfo_Display)
+	hooksecurefunc("QuestInfo_Display", StyleQuestRewards)
 
 	QuestRewardScrollFrame:HookScript("OnShow", QuestRewardScrollFrame_OnShow)
 
@@ -260,7 +230,7 @@ local function QuestFrameStyle()
 	QuestFrameGoodbyeButton:SetButtonTemplate()
 	QuestFrameCompleteQuestButton:SetButtonTemplate()
 
-	STYLE:ApplyCloseButtonStyle(QuestFrameCloseButton, QuestFrame.Panel)
+	PLUGIN:ApplyCloseButtonStyle(QuestFrameCloseButton, QuestFrame.Panel)
 
 	for j = 1, 6 do 
 		local i = _G["QuestProgressItem"..j]
@@ -270,7 +240,7 @@ local function QuestFrameStyle()
 		i:Width(_G["QuestProgressItem"..j]:GetWidth() - 4)
 		texture:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 		texture:SetDrawLayer("OVERLAY")
-		texture:Point("TOPLEFT", 2, -2)
+		texture:SetPoint("TOPLEFT", 2, -2)
 		texture:Size(texture:GetWidth() - 2, texture:GetHeight() - 2)
 		_G["QuestProgressItem"..j.."Count"]:SetDrawLayer("OVERLAY")
 	end
@@ -280,15 +250,15 @@ local function QuestFrameStyle()
 
 	QuestNPCModelTextFrame:RemoveTextures()
 	QuestNPCModelTextFrame:SetPanelTemplate("Default")
-	QuestNPCModelTextFrame.Panel:Point("TOPLEFT", QuestNPCModel.Panel, "BOTTOMLEFT", 0, -2)
+	QuestNPCModelTextFrame.Panel:SetPoint("TOPLEFT", QuestNPCModel.Panel, "BOTTOMLEFT", 0, -2)
 
 	hooksecurefunc("QuestFrame_ShowQuestPortrait", Hook_QuestNPCModel)
 
 end 
 --[[ 
 ########################################################## 
-STYLE LOADING
+PLUGIN LOADING
 ##########################################################
 ]]--
-STYLE:SaveCustomStyle(QuestFrameStyle)
-STYLE:SaveCustomStyle(QuestGreetingStyle)
+PLUGIN:SaveCustomStyle(QuestFrameStyle)
+PLUGIN:SaveCustomStyle(QuestGreetingStyle)

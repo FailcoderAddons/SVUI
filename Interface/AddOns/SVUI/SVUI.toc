@@ -3,7 +3,7 @@
 ## Version: 5.0
 ## Title: |cffFF9900SVUI|r
 ## Notes: Supervillain UI [|cff9911FFCore Framework|r].
-## SavedVariables: SVUI_Global
+## SavedVariables: SVUI_Global, SVUI_Errors
 ## SavedVariablesPerCharacter: SVUI_Profile, SVUI_Cache
 ## OptionalDeps: Blizzard_DebugTools, Blizzard_PetJournal, SharedMedia
 ## X-SVUI-Header: SuperVillain UI

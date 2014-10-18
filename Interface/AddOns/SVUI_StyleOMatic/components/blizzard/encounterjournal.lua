@@ -22,11 +22,11 @@ local pairs   = _G.pairs;
 --[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
-ENCOUNTERJOURNAL STYLER
+ENCOUNTERJOURNAL PLUGINR
 ##########################################################
 ]]--
 local PVP_LOST = [[Interface\WorldMap\Skull_64Red]]
@@ -107,7 +107,7 @@ local function Outline(frame, noHighlight)
 end
 
 local function EncounterJournalStyle()
-	if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.encounterjournal ~= true then
+	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.encounterjournal ~= true then
 		 return 
 	end 
 
@@ -125,7 +125,7 @@ local function EncounterJournalStyle()
   EncounterJournalEncounterFrameInfoBossesScrollFrame:RemoveTextures(true)
   EncounterJournalInstanceSelectDungeonTab:RemoveTextures(true)
   EncounterJournalInstanceSelectRaidTab:RemoveTextures(true)
-  ChangeTabHelper(EncounterJournalEncounterFrameInfoBossTab)
+  ChangeTabHelper(EncounterJournalEncounterFrameInfoOverviewTab)
   ChangeTabHelper(EncounterJournalEncounterFrameInfoLootTab, 0, -10)
 
   EncounterJournalSearchResults:RemoveTextures(true)
@@ -158,7 +158,7 @@ local function EncounterJournalStyle()
   EncounterJournalInstanceSelectDungeonTab:SetButtonTemplate()
   EncounterJournalInstanceSelectRaidTab:SetButtonTemplate()
 
-  STYLE:ApplyScrollBarStyle(EncounterJournalEncounterFrameInfoLootScrollBar)
+  PLUGIN:ApplyScrollBarStyle(EncounterJournalEncounterFrameInfoLootScrollBar)
 
   local bgParent = EncounterJournal.encounter.instance
   local loreParent = EncounterJournal.encounter.instance.loreScroll
@@ -232,7 +232,7 @@ local function EncounterJournalStyle()
 end 
 --[[ 
 ########################################################## 
-STYLE LOADING
+PLUGIN LOADING
 ##########################################################
 ]]--
-STYLE:SaveBlizzardStyle('Blizzard_EncounterJournal', EncounterJournalStyle)
+PLUGIN:SaveBlizzardStyle('Blizzard_EncounterJournal', EncounterJournalStyle)

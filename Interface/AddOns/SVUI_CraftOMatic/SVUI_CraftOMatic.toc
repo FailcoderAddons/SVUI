@@ -3,7 +3,7 @@
 ## Version: 5.0
 ## Title: |cffFF9900SVUI |r|cffFFEF00Craft-O-Matic|r
 ## Notes: Supervillain UI [|cff9911FFProfession Tools|r].
-## Interface: 60000
+## SavedVariablesPerCharacter: CraftOMatic_Profile, CraftOMatic_Cache
 ## RequiredDeps: SVUI
 ## LoadOnDemand: 1
 ## X-Email: munglunch@gmail.com

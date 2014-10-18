@@ -20,21 +20,21 @@ local select  = _G.select;
 --[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
-ITEMUPGRADE UI STYLER
+ITEMUPGRADE UI PLUGINR
 ##########################################################
 ]]--
 local function ItemUpgradeStyle()
-	if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.itemUpgrade ~= true then
+	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.itemUpgrade ~= true then
 		 return 
 	end 
 	
-	STYLE:ApplyWindowStyle(ItemUpgradeFrame, true)
+	PLUGIN:ApplyWindowStyle(ItemUpgradeFrame, true)
 
-	STYLE:ApplyCloseButtonStyle(ItemUpgradeFrameCloseButton)
+	PLUGIN:ApplyCloseButtonStyle(ItemUpgradeFrameCloseButton)
 	ItemUpgradeFrameUpgradeButton:RemoveTextures()
 	ItemUpgradeFrameUpgradeButton:SetButtonTemplate()
 	ItemUpgradeFrame.ItemButton:RemoveTextures()
@@ -54,7 +54,7 @@ local function ItemUpgradeStyle()
 end 
 --[[ 
 ########################################################## 
-STYLE LOADING
+PLUGIN LOADING
 ##########################################################
 ]]--
-STYLE:SaveBlizzardStyle("Blizzard_ItemUpgradeUI",ItemUpgradeStyle)
+PLUGIN:SaveBlizzardStyle("Blizzard_ItemUpgradeUI",ItemUpgradeStyle)

@@ -31,8 +31,8 @@ GET ADDON DATA
 ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
 TOMTOM
@@ -40,6 +40,6 @@ TOMTOM
 ]]--
 local function StyleTomTom()
   assert(TomTomBlock, "AddOn Not Loaded")
-  STYLE:ApplyFrameStyle(TomTomBlock)
+  PLUGIN:ApplyFrameStyle(TomTomBlock)
 end
-STYLE:SaveAddonStyle("TomTom", StyleTomTom)
+PLUGIN:SaveAddonStyle("TomTom", StyleTomTom)

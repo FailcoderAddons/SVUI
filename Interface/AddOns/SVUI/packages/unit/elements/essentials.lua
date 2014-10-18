@@ -78,6 +78,7 @@ local ELITE_TOP = [[Interface\Addons\SVUI\assets\artwork\Unitframe\Border\ELITE-
 local ELITE_BOTTOM = [[Interface\Addons\SVUI\assets\artwork\Unitframe\Border\ELITE-BOTTOM]]
 local ELITE_RIGHT = [[Interface\Addons\SVUI\assets\artwork\Unitframe\Border\ELITE-RIGHT]]
 local STUNNED_ANIM = [[Interface\Addons\SVUI\assets\artwork\Unitframe\UNIT-STUNNED]]
+local borderTex = [[Interface\Addons\SVUI\assets\artwork\Template\ROUND]]
 local token = {[0] = "MANA", [1] = "RAGE", [2] = "FOCUS", [3] = "ENERGY", [6] = "RUNIC_POWER"}
 
 local Anim_OnUpdate = function(self)
@@ -344,7 +345,7 @@ local function CreateNameText(frame, unitName)
     	name:SetJustifyV("MIDDLE")
 	end
 	return name;
-end 
+end
 
 function MOD:SetActionPanel(frame, unit, noHealthText, noPowerText, noMiscText)
 	if(unit and (unit == "target" or unit == "player")) then
@@ -397,6 +398,39 @@ function MOD:SetActionPanel(frame, unit, noHealthText, noPowerText, noMiscText)
 			frame.ActionPanel.special[3]:SetBlendMode("BLEND")
 			frame.ActionPanel.special:SetAlpha(0.7)
 			frame.ActionPanel.special:Hide()
+
+			frame.ActionPanel.class = CreateFrame("Frame", nil, frame.InfoPanel)
+			frame.ActionPanel.class:Size(18)
+			frame.ActionPanel.class:Point("TOPLEFT", frame.ActionPanel, "TOPLEFT", 2, -2)
+			frame.ActionPanel.class:SetPanelTemplate("Default", true, 2, 0, 0)
+
+			frame.ActionPanel.class.texture = frame.ActionPanel.class.Panel:CreateTexture(nil, "BORDER")
+			frame.ActionPanel.class.texture:SetAllPoints(frame.ActionPanel.class.Panel)
+			frame.ActionPanel.class.texture:SetTexture([[Interface\Glues\CharacterCreate\UI-CharacterCreate-Classes]])
+
+			local border1 = frame.ActionPanel.class:CreateTexture(nil, "OVERLAY")
+			border1:SetTexture(0, 0, 0)
+			border1:SetPoint("TOPLEFT")
+			border1:SetPoint("TOPRIGHT")
+			border1:SetHeight(2)
+
+			local border2 = frame.ActionPanel.class:CreateTexture(nil, "OVERLAY")
+			border2:SetTexture(0, 0, 0)
+			border2:SetPoint("BOTTOMLEFT")
+			border2:SetPoint("BOTTOMRIGHT")
+			border2:SetHeight(2)
+
+			local border3 = frame.ActionPanel.class:CreateTexture(nil, "OVERLAY")
+			border3:SetTexture(0, 0, 0)
+			border3:SetPoint("TOPRIGHT")
+			border3:SetPoint("BOTTOMRIGHT")
+			border3:SetWidth(2)
+
+			local border4 = frame.ActionPanel.class:CreateTexture(nil, "OVERLAY")
+			border4:SetTexture(0, 0, 0)
+			border4:SetPoint("TOPLEFT")
+			border4:SetPoint("BOTTOMLEFT")
+			border4:SetWidth(2)
 		else
 			frame.LossOfControl = CreateFrame("Frame", nil, frame.InfoPanel)
 			frame.LossOfControl:SetAllPoints(frame)

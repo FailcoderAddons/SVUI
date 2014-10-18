@@ -150,6 +150,10 @@ local function petIsInRange(unit)
 end
 
 local function enemyIsInRange(unit)
+	if CheckInteractDistance(unit, 2) then
+		return true
+	end
+	
 	for _, name in ipairs(enemySpells) do
 		if IsSpellInRange(name, unit) == 1 then
 			return true

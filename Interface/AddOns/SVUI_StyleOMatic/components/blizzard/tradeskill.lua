@@ -20,15 +20,15 @@ local select  = _G.select;
 --[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
-TRADESKILL STYLER
+TRADESKILL PLUGINR
 ##########################################################
 ]]--
 local function TradeSkillStyle()
-	if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.tradeskill ~= true then
+	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.tradeskill ~= true then
 		 return 
 	end
 
@@ -44,13 +44,13 @@ local function TradeSkillStyle()
 	TradeSkillCreateAllButton:RemoveTextures(true)
 	TradeSkillViewGuildCraftersButton:RemoveTextures(true)
 
-	STYLE:ApplyWindowStyle(TradeSkillFrame, true, true)
-	STYLE:ApplyWindowStyle(TradeSkillGuildFrame)
+	PLUGIN:ApplyWindowStyle(TradeSkillFrame, true, true)
+	PLUGIN:ApplyWindowStyle(TradeSkillGuildFrame)
 
 	TradeSkillGuildFrame:Point("BOTTOMLEFT", TradeSkillFrame, "BOTTOMRIGHT", 3, 19)
 	TradeSkillGuildFrameContainer:RemoveTextures()
 	TradeSkillGuildFrameContainer:SetPanelTemplate("Inset")
-	STYLE:ApplyCloseButtonStyle(TradeSkillGuildFrameCloseButton)
+	PLUGIN:ApplyCloseButtonStyle(TradeSkillGuildFrameCloseButton)
 
 	TradeSkillRankFrame:SetPanelTemplate("Bar", true)
 	TradeSkillRankFrame:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Bars\DEFAULT]])
@@ -63,8 +63,8 @@ local function TradeSkillStyle()
 	TradeSkillCreateAllButton:SetButtonTemplate()
 	TradeSkillViewGuildCraftersButton:SetButtonTemplate()
 
-	STYLE:ApplyScrollFrameStyle(TradeSkillListScrollFrameScrollBar)
-	STYLE:ApplyScrollFrameStyle(TradeSkillDetailScrollFrameScrollBar)
+	PLUGIN:ApplyScrollFrameStyle(TradeSkillListScrollFrameScrollBar)
+	PLUGIN:ApplyScrollFrameStyle(TradeSkillDetailScrollFrameScrollBar)
 
 	TradeSkillLinkButton:Size(17, 14)
 	TradeSkillLinkButton:Point("LEFT", TradeSkillLinkFrame, "LEFT", 5, -1)
@@ -74,11 +74,11 @@ local function TradeSkillStyle()
 	TradeSkillFrameSearchBox:SetEditboxTemplate()
 	TradeSkillInputBox:SetEditboxTemplate()
 
-	STYLE:ApplyPaginationStyle(TradeSkillDecrementButton)
-	STYLE:ApplyPaginationStyle(TradeSkillIncrementButton)
+	PLUGIN:ApplyPaginationStyle(TradeSkillDecrementButton)
+	PLUGIN:ApplyPaginationStyle(TradeSkillIncrementButton)
 
 	TradeSkillIncrementButton:Point("RIGHT", TradeSkillCreateButton, "LEFT", -13, 0)
-	STYLE:ApplyCloseButtonStyle(TradeSkillFrameCloseButton)
+	PLUGIN:ApplyCloseButtonStyle(TradeSkillFrameCloseButton)
 
 	TradeSkillSkillIcon:SetFixedPanelTemplate("Slot") 
 
@@ -121,7 +121,7 @@ local function TradeSkillStyle()
 end 
 --[[ 
 ########################################################## 
-STYLE LOADING
+PLUGIN LOADING
 ##########################################################
 ]]--
-STYLE:SaveBlizzardStyle("Blizzard_TradeSkillUI",TradeSkillStyle)
+PLUGIN:SaveBlizzardStyle("Blizzard_TradeSkillUI",TradeSkillStyle)

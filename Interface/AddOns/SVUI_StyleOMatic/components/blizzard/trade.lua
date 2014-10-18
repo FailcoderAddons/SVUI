@@ -23,24 +23,24 @@ local type 		= _G.type;
 --[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
-TRADEFRAME STYLER
+TRADEFRAME PLUGINR
 ##########################################################
 ]]--
 local function TradeFrameStyle()
-	if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.trade ~= true then
+	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.trade ~= true then
 		 return 
 	end 
 	
-	STYLE:ApplyWindowStyle(TradeFrame, true)
+	PLUGIN:ApplyWindowStyle(TradeFrame, true)
 
 	TradeFrameInset:Die()
 	TradeFrameTradeButton:SetButtonTemplate()
 	TradeFrameCancelButton:SetButtonTemplate()
-	STYLE:ApplyCloseButtonStyle(TradeFrameCloseButton, TradeFrame.Panel)
+	PLUGIN:ApplyCloseButtonStyle(TradeFrameCloseButton, TradeFrame.Panel)
 	TradePlayerInputMoneyFrameGold:SetEditboxTemplate()
 	TradePlayerInputMoneyFrameSilver:SetEditboxTemplate()
 	TradePlayerInputMoneyFrameCopper:SetEditboxTemplate()
@@ -114,7 +114,7 @@ local function TradeFrameStyle()
 end 
 --[[ 
 ########################################################## 
-STYLE LOADING
+PLUGIN LOADING
 ##########################################################
 ]]--
-STYLE:SaveCustomStyle(TradeFrameStyle)
+PLUGIN:SaveCustomStyle(TradeFrameStyle)

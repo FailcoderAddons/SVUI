@@ -25,9 +25,9 @@ local assert        = _G.assert;
 
 local AddonName, AddonObject = ...
 
-assert(_G.LibSuperVillain, AddonName .. " requires LibSuperVillain")
+assert(LibSuperVillain, AddonName .. " requires LibSuperVillain")
 
-local PLUGIN = _G.LibSuperVillain:NewPlugin(AddonName, AddonObject)
+local PLUGIN = LibSuperVillain("Registry"):NewPlugin(AddonName, AddonObject, "FightOMatic_Profile", nil, "FightOMatic_Cache")
 
 local Schema = PLUGIN.Schema;
 local SV = _G["SVUI"];
@@ -37,19 +37,21 @@ local L = SV.L
 CONFIG DATA
 ##########################################################
 ]]--
-SV.configs[Schema] = {
-	["enable"] = true,  
+PLUGIN.configs = {
+	["annoyingEmotes"] = false,  
 }
+
+PLUGIN.db = table.copy(PLUGIN.configs);
 --[[ 
 ########################################################## 
 CONFIG OPTIONS
 ##########################################################
 ]]--
--- SV.Options.args.plugins.args.pluginOptions.args[Schema].args[""] = {
---     order = 2, 
--- 	name = L[""], 
--- 	desc = L[""],
---     type = "toggle",
---     get = function(key) return SV.db[Schema][key[#key]] end,
---     set = function(key,value) PLUGIN:ChangeDBVar(value, key[#key]) end
--- }
+SV.Options.args.plugins.args.pluginOptions.args[Schema].args["annoyingEmotes"] = {
+    order = 2,
+    name = L["Annoying Emotes"],
+    desc = L["Aggravate your opponents (and team-mates) with incessant emotes"],
+    type = "toggle",
+    get = function(key) return PLUGIN.db.annoyingEmotes end,
+    set = function(key,value) PLUGIN:ChangeDBVar(value, key[#key]); PLUGIN:UpdateLogWindow() end
+}

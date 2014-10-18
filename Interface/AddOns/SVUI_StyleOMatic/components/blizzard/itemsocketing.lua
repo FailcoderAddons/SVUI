@@ -20,21 +20,21 @@ local select  = _G.select;
 --[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
-ITEMSOCKETING STYLER
+ITEMSOCKETING PLUGINR
 ##########################################################
 ]]--
 local function ItemSocketStyle()
-	if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.socket ~= true then return end 
+	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.socket ~= true then return end 
 	ItemSocketingFrame:RemoveTextures()
 	ItemSocketingFrame:SetPanelTemplate("Action")
 	ItemSocketingFrameInset:Die()
 	ItemSocketingScrollFrame:RemoveTextures()
 	ItemSocketingScrollFrame:SetPanelTemplate("Inset", true)
-	STYLE:ApplyScrollFrameStyle(ItemSocketingScrollFrameScrollBar, 2)
+	PLUGIN:ApplyScrollFrameStyle(ItemSocketingScrollFrameScrollBar, 2)
 	for j = 1, MAX_NUM_SOCKETS do 
 		local i = _G[("ItemSocketingSocket%d"):format(j)];
 		local C = _G[("ItemSocketingSocket%dBracketFrame"):format(j)];
@@ -62,11 +62,11 @@ local function ItemSocketStyle()
 	ItemSocketingSocketButton:ClearAllPoints()
 	ItemSocketingSocketButton:Point("BOTTOMRIGHT", ItemSocketingFrame, "BOTTOMRIGHT", -5, 5)
 	ItemSocketingSocketButton:SetButtonTemplate()
-	STYLE:ApplyCloseButtonStyle(ItemSocketingFrameCloseButton)
+	PLUGIN:ApplyCloseButtonStyle(ItemSocketingFrameCloseButton)
 end 
 --[[ 
 ########################################################## 
-STYLE LOADING
+PLUGIN LOADING
 ##########################################################
 ]]--
-STYLE:SaveBlizzardStyle("Blizzard_ItemSocketingUI",ItemSocketStyle)
+PLUGIN:SaveBlizzardStyle("Blizzard_ItemSocketingUI",ItemSocketStyle)

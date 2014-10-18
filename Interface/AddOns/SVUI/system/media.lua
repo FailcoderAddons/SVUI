@@ -39,7 +39,7 @@ GET ADDON DATA
 ##########################################################
 ]]--
 local SV = select(2, ...)
-local SVLib = _G.LibSuperVillain
+local SVLib = LibSuperVillain("Registry")
 local L = SV.L
 local LSM = LibStub("LibSharedMedia-3.0")
 --[[ 

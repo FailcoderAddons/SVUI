@@ -794,7 +794,7 @@ function OnUpdate(_, elapsed)
 			if rangeTimer <= 0 then
 				local inRange = button:IsInRange()
 				local oldRange = button.outOfRange
-				button.outOfRange = (inRange == 0)
+				button.outOfRange = (inRange == false)
 				if oldRange ~= button.outOfRange then
 					if button.config.outOfRangeColoring == "button" then
 						UpdateUsable(button)
@@ -807,7 +807,7 @@ function OnUpdate(_, elapsed)
 								hotkey:Hide()
 							end
 						end
-						if inRange == 0 then
+						if button.outOfRange then
 							hotkey:SetVertexColor(unpack(button.config.colors.range))
 						else
 							hotkey:SetVertexColor(0.6, 0.6, 0.6)
@@ -1028,9 +1028,9 @@ end
 
 function UpdateButtonState(self)
 	if self:IsCurrentlyActive() or self:IsAutoRepeat() then
-		self:SetChecked(1)
+		self:SetChecked(true)
 	else
-		self:SetChecked(0)
+		self:SetChecked(false)
 	end
 	lib.callbacks:Fire("OnButtonState", self)
 end

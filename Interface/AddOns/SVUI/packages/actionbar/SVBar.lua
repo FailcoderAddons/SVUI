@@ -263,11 +263,9 @@ local function SaveActionButton(parent)
 	local cooldown = _G[button.."Cooldown"]
 	cooldown.SizeOverride = SV.db.SVBar.cooldownSize
 	MOD:FixKeybindText(parent)
-	if not MOD.ButtonCache[parent] then 
-		SV.Timers:AddCooldown(cooldown)
-		MOD.ButtonCache[parent] = true 
-	end
+	MOD.ButtonCache[parent] = true 
 	parent:SetSlotTemplate(true, 2, 0, 0, 0.75)
+	parent:SetCheckedTexture("")
 end 
 
 local function SetFlyoutButton(button)
@@ -878,6 +876,8 @@ function MOD:RefreshActionBars()
 	self:RefreshBar("Pet")
 	self:RefreshBar("Stance")
 	self:UpdateBarBindings(true, true)
+
+	collectgarbage("collect");
 end 
 
 local Vehicle_Updater = function()
@@ -1074,7 +1074,7 @@ do
 						button:SetBackdropBorderColor(0.4, 0.8, 0)
 					end
 					icon:SetVertexColor(1, 1, 1)
-					button:SetChecked(1) 
+					button:SetChecked(true) 
 				else 
 					if maxForms > 1 and currentForm > 0 then 
 						button:SetBackdropBorderColor(0, 0, 0)
@@ -1088,7 +1088,7 @@ do
 						end
 					end
 
-					button:SetChecked(0) 
+					button:SetChecked(false) 
 				end 
 				if isCastable then 
 					icon:SetDesaturated(false)
@@ -1208,7 +1208,7 @@ do
 			local shine = _G[name.."Shine"]
 			local checked = button:GetCheckedTexture()
 			local actionName, subtext, actionIcon, isToken, isActive, autoCastAllowed, autoCastEnabled = GetPetActionInfo(i)
-			button:SetChecked(0)
+			button:SetChecked(false)
 			button:SetBackdropBorderColor(0, 0, 0)
 			checked:SetAlpha(0)
 			if(not isToken) then 
@@ -1231,11 +1231,11 @@ do
 				auto:Hide()
 			end 
 			if (isActive and actionName  ~= "PET_ACTION_FOLLOW") then
-				button:SetChecked(1)
+				button:SetChecked(true)
 				checked:SetAlpha(1)
 				button:SetBackdropBorderColor(0.4, 0.8, 0)
 			else
-				button:SetChecked(0)
+				button:SetChecked(false)
 				checked:SetAlpha(0)
 				button:SetBackdropBorderColor(0, 0, 0)
 			end 
@@ -1258,7 +1258,7 @@ do
 			if(not PetHasActionBar() and actionIcon and actionName  ~= "PET_ACTION_FOLLOW") then 
 				PetActionButton_StopFlash(button)
 				SetDesaturation(icon, 1)
-				button:SetChecked(0)
+				button:SetChecked(false)
 			end 
 		end
 	end 
@@ -1425,6 +1425,12 @@ local CreateExtraBar = function(self)
 	if HasExtraActionBar()then 
 		ExtraActionBarFrame:Show()
 	end
+
+	DraenorZoneAbilityFrame:SetParent(specialBar)
+	DraenorZoneAbilityFrame:ClearAllPoints()
+	DraenorZoneAbilityFrame:SetPoint('CENTER', specialBar, 'CENTER')
+	DraenorZoneAbilityFrame.ignoreFramePositionManager = true
+
 	SV.Mentalo:Add(specialBar, L["Boss Button"], nil, nil, nil, "ALL, ACTIONBAR")
 end
 --[[ 

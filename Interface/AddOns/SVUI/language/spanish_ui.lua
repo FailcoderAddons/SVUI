@@ -1,6 +1,7 @@
-local L = _G.LibSuperVillain:Lang("esES");
+local Localization = LibSuperVillain("Linguist")
+local L = Localization:Lang("esES");
 if not L then
-	L = _G.LibSuperVillain:Lang("esMX")
+	L = Localization:Lang("esMX")
 end
 if not L then return; end
 --[[LOGIN MESSAGE]]--

@@ -259,6 +259,7 @@ local function Die(self)
 end
 
 local function RemoveTextures(self, option)
+    if(self.Panel) then return end
     local region, layer, texture
     for i = 1, self:GetNumRegions()do 
         region = select(i, self:GetRegions())
@@ -345,10 +346,11 @@ SV:NewCallback(FontTemplateUpdates)
 XML TEMPLATE LOOKUP TABLE
 ##########################################################
 ]]--
-local _templates = {
+local XML_LOOKUP = {
     ["Default"] = "SVUI_PanelTemplate_Default",
     ["Transparent"] = "SVUI_PanelTemplate_Transparent",
-    ["Component"] = "SVUI_PanelTemplate_Component",  
+    ["Component"] = "SVUI_PanelTemplate_Component",
+    ["Headline"] = "SVUI_PanelTemplate_Headline",
     ["Button"] = "SVUI_PanelTemplate_Button",
     ["FramedTop"] = "SVUI_PanelTemplate_FramedTop",
     ["FramedBottom"] = "SVUI_PanelTemplate_FramedBottom",
@@ -356,7 +358,7 @@ local _templates = {
     ["Slot"] = "SVUI_PanelTemplate_Slot",
     ["Inset"] = "SVUI_PanelTemplate_Inset",
     ["Comic"] = "SVUI_PanelTemplate_Comic",
-    ["ModelComic"] = "SVUI_PanelTemplate_ModelComic",
+    ["Model"] = "SVUI_PanelTemplate_Model",
     ["Paper"] = "SVUI_PanelTemplate_Paper",
     ["Container"] = "SVUI_PanelTemplate_Container",
     ["Pattern"] = "SVUI_PanelTemplate_Pattern",
@@ -401,7 +403,8 @@ local HookVertexColor = function(self,...)
 end 
 
 local HookCustomBackdrop = function(self)
-    local newBgFile = SV.Media.bg[self._bdtex]
+    local bgid = self.Panel:GetAttribute("panelID")
+    local newBgFile = SV.Media.bg[bgid]
     local bd = {
         bgFile = newBgFile, 
         edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
@@ -424,50 +427,181 @@ local HookFrameLevel = function(self, level)
     if(adjustment < 0) then adjustment = 0 end
     self.Panel:SetFrameLevel(adjustment)
 end
+
+local Cooldown_ForceUpdate = function(self)
+    self.nextUpdate = 0;
+    self:Show()
+end 
+
+local Cooldown_StopTimer = function(self)
+    self.enable = nil;
+    self:Hide()
+end 
+
+local Cooldown_OnUpdate = function(self, elapsed)
+    if self.nextUpdate > 0 then 
+        self.nextUpdate = self.nextUpdate - elapsed;
+        return 
+    end 
+    local expires = (self.duration - (GetTime() - self.start));
+    if expires > 0.05 then 
+        if (self.fontScale * self:GetEffectiveScale() / UIParent:GetScale()) < 0.5 then 
+            self.text:SetText('')
+            self.nextUpdate = 500 
+        else 
+            local timeLeft = 0;
+            local calc = 0;
+            if expires < 4 then
+                self.nextUpdate = 0.051
+                self.text:SetFormattedText("|cffff0000%.1f|r", expires)
+            elseif expires < 60 then 
+                self.nextUpdate = 0.51
+                self.text:SetFormattedText("|cffffff00%d|r", floor(expires)) 
+            elseif expires < 3600 then
+                timeLeft = ceil(expires / 60);
+                calc = floor((expires / 60) + .5);
+                self.nextUpdate = calc > 1 and ((expires - calc) * 29.5) or (expires - 59.5);
+                self.text:SetFormattedText("|cffffffff%dm|r", timeLeft)
+            elseif expires < 86400 then
+                timeLeft = ceil(expires / 3600);
+                calc = floor((expires / 3600) + .5);
+                self.nextUpdate = calc > 1 and ((expires - calc) * 1799.5) or (expires - 3570);
+                self.text:SetFormattedText("|cff66ffff%dh|r", timeLeft)
+            else
+                timeLeft = ceil(expires / 86400);
+                calc = floor((expires / 86400) + .5);
+                self.nextUpdate = calc > 1 and ((expires - calc) * 43199.5) or (expires - 86400);
+                self.text:SetFormattedText("|cff6666ff%dd|r", timeLeft)
+            end
+        end
+    else 
+        Cooldown_StopTimer(self)
+    end 
+end
+
+local Cooldown_OnSizeChanged = function(self, width, height)
+    local frame = self.timer
+    local override = self.SizeOverride
+    local newSize = floor(width + .5) / 36;
+    override = override or frame:GetParent():GetParent().SizeOverride;
+    if override then
+        newSize = override / 20 
+    end 
+    if newSize == frame.fontScale then 
+        return 
+    end 
+    frame.fontScale = newSize;
+    if newSize < 0.5 and not override then 
+        frame:Hide()
+    else 
+        frame:Show()
+        frame.text:SetFont([[Interface\AddOns\SVUI\assets\fonts\Numbers.ttf]], newSize * 15, 'OUTLINE')
+        if frame.enable then 
+            Cooldown_ForceUpdate(frame)
+        end 
+    end
+end
+
+local function CreateCooldownTimer(frame)
+    local timer = CreateFrame('Frame', nil, frame)
+    timer:Hide()
+    timer:SetAllPoints()
+    timer:SetScript('OnUpdate', Cooldown_OnUpdate)
+
+    local timeText = timer:CreateFontString(nil,'OVERLAY')
+    timeText:SetPoint('CENTER',1,1)
+    timeText:SetJustifyH("CENTER")
+    timer.text = timeText;
+
+    frame.timer = timer;
+    local width, height = frame:GetSize()
+    Cooldown_OnSizeChanged(frame, width, height)
+    frame:SetScript('OnSizeChanged', Cooldown_OnSizeChanged)
+    
+    return frame.timer 
+end 
+
+local _hook_Cooldown_SetCooldown = function(self, start, duration, elapsed)
+    if start > 0 and duration > 2.5 then 
+        local timer = self.timer or CreateCooldownTimer(self)
+        timer.start = start;
+        timer.duration = duration;
+        timer.enable = true;
+        timer.nextUpdate = 0;
+        
+        if timer.fontScale >= 0.5 then 
+            timer:Show()
+        end 
+    else 
+        local timer = self.timer;
+        if timer then 
+            Cooldown_StopTimer(timer)
+        end 
+    end 
+    if self.timer then 
+        if elapsed and elapsed > 0 then 
+            self.timer:SetAlpha(0)
+        else 
+            self.timer:SetAlpha(0.8)
+        end 
+    end 
+end
+--[[ 
+########################################################## 
+COOLDOWN HELPER
+##########################################################
+]]--
+local function CreateCooldown(frame)
+    if(SV.db.general and not SV.db.general.cooldown) then return end
+    local button = frame:GetName()
+    if(button) then
+        local cooldown = _G[button.."Cooldown"]
+        if(not cooldown or (not frame.Panel)) then return end
+        if(cooldown.HookedCooldown) then return end
+        cooldown:ClearAllPoints()
+        cooldown:FillInner(frame.Panel)
+        cooldown:SetSwipeColor(0, 0, 0, 1)
+        cooldown.HookedCooldown = true
+        cooldown:SetHideCountdownNumbers(true)
+
+        hooksecurefunc(cooldown, "SetCooldown", _hook_Cooldown_SetCooldown)
+    end
+end
 --[[ 
 ########################################################## 
 TEMPLATE HELPERS
 ##########################################################
 ]]--
 local function CreatePanelTemplate(frame, templateName, underlay, noupdate, padding, xOffset, yOffset, defaultColor)
-    if(not templateName or not _templates[templateName]) then templateName = frame._template or 'Default' end
-
-    local xmlTemplate = _templates[templateName]
+    local xmlTemplate = XML_LOOKUP[templateName] or "SVUI_PanelTemplate_Default"
     local borderColor = {0,0,0,1}
-    local needsHooks = false;
 
-    if(not frame.Panel) then
-        needsHooks = true
+    frame.Panel = NewFrame('Frame', nil, frame, xmlTemplate)
 
-        local panel = NewFrame('Frame', nil, frame, xmlTemplate)
-
-        local level = frame:GetFrameLevel()
-        if(level == 0 and not InCombatLockdown()) then
-            frame:SetFrameLevel(1)
-            level = 1
-        end
-
-        local adjustment = level - 1;
-        if(adjustment < 0) then adjustment = 0 end
-
-        panel:SetFrameLevel(adjustment)
-
-        NewHook(frame, "SetFrameLevel", HookFrameLevel)
-
-        frame.Panel = panel
+    local level = frame:GetFrameLevel()
+    if(level == 0 and not InCombatLockdown()) then
+        frame:SetFrameLevel(1)
+        level = 1
     end
 
-    local colorName = defaultColor or frame.Panel:GetAttribute("panelColor") or "default"
-    local gradientName = frame.Panel:GetAttribute("panelGradient")
-    local bypass = noupdate or frame.Panel:GetAttribute("panelSkipUpdate")
+    local adjustment = level - 1;
 
-    frame._template = templateName;
-    frame._color = colorName;
-    frame._gradient = gradientName;
-    frame._texture = false;
-    frame._noupdate = bypass;
+    if(adjustment < 0) then adjustment = 0 end
 
-    local forcedOffset = frame.Panel:GetAttribute("panelOffset")
+    frame.Panel:SetFrameLevel(adjustment)
+
+    NewHook(frame, "SetFrameLevel", HookFrameLevel)
+
+    if(defaultColor) then
+        frame.Panel:SetAttribute("panelColor", defaultColor)
+    end
+    if(noupdate) then
+        frame.Panel:SetAttribute("panelSkipUpdate", noupdate)
+    end
+
+    local colorName     = frame.Panel:GetAttribute("panelColor")
+    local gradientName  = frame.Panel:GetAttribute("panelGradient")
+    local forcedOffset  = frame.Panel:GetAttribute("panelOffset")
 
     xOffset = forcedOffset or xOffset or 1
     yOffset = forcedOffset or yOffset or 1
@@ -513,7 +647,7 @@ local function CreatePanelTemplate(frame, templateName, underlay, noupdate, padd
             frame.Panel:SetBackdrop(nil)
         end
 
-        if(needsHooks and templateName ~= 'Transparent') then
+        if(templateName ~= 'Transparent') then
             NewHook(frame.Panel, "SetBackdropBorderColor", HookPanelBorderColor)
             NewHook(frame, "SetBackdropBorderColor", HookBackdropBorderColor)
             if(underlay) then
@@ -522,7 +656,6 @@ local function CreatePanelTemplate(frame, templateName, underlay, noupdate, padd
             end
             frame.BackdropNeedsUpdate = true
             if(templateName == 'Pattern' or templateName == 'Comic') then
-                frame._bdtex = lower(templateName)
                 frame.UpdateBackdrop = HookCustomBackdrop
             end
         end
@@ -541,8 +674,7 @@ local function CreatePanelTemplate(frame, templateName, underlay, noupdate, padd
             frame.Panel.Skin:SetVertexColor(bgColor[1], bgColor[2], bgColor[3], bgColor[4] or 1)
         end
 
-        if((not bypass) and frame.Panel:GetAttribute("panelTexUpdate")) then
-            frame._texture = lower(templateName)
+        if((not frame.Panel:GetAttribute("panelSkipUpdate")) and frame.Panel:GetAttribute("panelTexUpdate")) then
             frame.TextureNeedsUpdate = true
             if(templateName == 'UnitLarge' or templateName == 'UnitSmall') then
                 frame.UpdateColor = HookVertexColor
@@ -550,11 +682,6 @@ local function CreatePanelTemplate(frame, templateName, underlay, noupdate, padd
             end
         end
     end
-end 
-
-local function HasCooldown(n)
-    local cd = n and n.."Cooldown"
-    return cd and _G[cd]
 end
 
 local function CreateButtonPanel(frame, noChecked, brightChecked)
@@ -622,11 +749,7 @@ local function CreateButtonPanel(frame, noChecked, brightChecked)
         frame:SetCheckedTexture(frame.checked)
     end
 
-    local cd = HasCooldown(frame:GetName())
-    if cd then 
-        cd:ClearAllPoints()
-        cd:SetAllPoints()
-    end
+    CreateCooldown(frame)
 end 
 --[[ 
 ########################################################## 
@@ -708,6 +831,7 @@ local function SetBasicPanel(self, topX, topY, bottomX, bottomY, hasShadow)
 end
 
 local function SetPanelTemplate(self, templateName, noupdate, overridePadding, xOffset, yOffset, defaultColor)
+    if(not self or (self and self.Panel)) then return end
     local padding = false
     if(overridePadding and type(overridePadding) == "number") then
         padding = overridePadding
@@ -715,13 +839,14 @@ local function SetPanelTemplate(self, templateName, noupdate, overridePadding, x
 
     CreatePanelTemplate(self, templateName, true, noupdate, padding, xOffset, yOffset, defaultColor)
 
-    if(not self._noupdate and not self.__registered) then
+    if(not self.Panel:GetAttribute("panelSkipUpdate") and not self.__registered) then
         TemplateUpdateFrames[self] = true
         self.__registered = true
     end
 end 
 
 local function SetFixedPanelTemplate(self, templateName, noupdate, overridePadding, xOffset, yOffset, defaultColor)
+    if(not self or (self and self.Panel)) then return end
     local padding = false
     if(overridePadding and type(overridePadding) == "number") then
         padding = overridePadding
@@ -729,7 +854,7 @@ local function SetFixedPanelTemplate(self, templateName, noupdate, overridePaddi
 
     CreatePanelTemplate(self, templateName, false, noupdate, padding, xOffset, yOffset, defaultColor)
 
-    if(not self._noupdate and not self.__registered) then
+    if(not self.Panel:GetAttribute("panelSkipUpdate") and not self.__registered) then
         TemplateUpdateFrames[self] = true
         self.__registered = true
     end
@@ -738,7 +863,7 @@ end
 local function SetPanelColor(self, ...)
     local arg1,arg2,arg3,arg4,arg5,arg6,arg7 = select(1, ...)
     if(not self.Panel or not arg1) then return; end 
-    if(self.Panel.Skin and self._gradient) then
+    if(self.Panel.Skin and self.Panel:GetAttribute("panelGradient")) then
         if(type(arg1) == "string") then
             if(arg1 == "VERTICAL" or arg1 == "HORIZONTAL") then
                 self.Panel.Skin:SetGradient(...)
@@ -781,7 +906,7 @@ APPENDED BUTTON TEMPLATING METHODS
 ##########################################################
 ]]--
 local function SetButtonTemplate(self, invisible, overridePadding, xOffset, yOffset, keepNormal, defaultColor)
-    if(not self) then return end
+    if(not self or (self and self.Panel)) then return end
 
     local padding = 1
     if(overridePadding and type(overridePadding) == "number") then
@@ -800,6 +925,12 @@ local function SetButtonTemplate(self, invisible, overridePadding, xOffset, yOff
         CreatePanelTemplate(self, "Transparent", underlay, true, padding, x, y, defaultColor)
         self:SetBackdropColor(0,0,0,0)
         self:SetBackdropBorderColor(0,0,0,0)
+        if(self.Panel.BorderLeft) then 
+            self.Panel.BorderLeft:SetVertexColor(0,0,0,0)
+            self.Panel.BorderRight:SetVertexColor(0,0,0,0)
+            self.Panel.BorderTop:SetVertexColor(0,0,0,0)
+            self.Panel.BorderBottom:SetVertexColor(0,0,0,0)
+        end
     else
         CreatePanelTemplate(self, "Button", underlay, true, padding, x, y, defaultColor)
     end
@@ -859,15 +990,11 @@ local function SetButtonTemplate(self, invisible, overridePadding, xOffset, yOff
         self:SetCheckedTexture(self.checked)
     end 
 
-    local cd = HasCooldown(self:GetName())
-    if cd then 
-        cd:ClearAllPoints()
-        cd:SetAllPoints()
-    end 
+    CreateCooldown(self) 
 end 
 
 local function SetSlotTemplate(self, underlay, padding, x, y, shadowAlpha)
-    if(not self) then return end
+    if(not self or (self and self.Panel)) then return end
     padding = padding or 1
     CreatePanelTemplate(self, "Slot", underlay, true, padding, x, y)
     CreateButtonPanel(self, true)
@@ -877,7 +1004,7 @@ local function SetSlotTemplate(self, underlay, padding, x, y, shadowAlpha)
 end 
 
 local function SetCheckboxTemplate(self, underlay, x, y)
-    if(not self or (self and self.__hooked)) then return end
+    if(not self or (self and self.Panel)) then return end
 
     if(underlay) then
         x = x or -7
@@ -894,7 +1021,6 @@ local function SetCheckboxTemplate(self, underlay, x, y)
         end
         self:SetBackdropBorderColor(r,g,b) 
     end)
-    self.__hooked = true
 end 
 
 local function SetEditboxTemplate(self, x, y, fixed)
@@ -936,7 +1062,7 @@ local function SetFramedButtonTemplate(self, template, borderSize)
 
     borderSize = borderSize or 2
 
-    template = template or self._template or "FramedBottom"
+    template = template or "FramedBottom"
 
     CreatePanelTemplate(self, template, false, false, 0, -borderSize, -borderSize)
 
@@ -1041,27 +1167,30 @@ TEMPLATE UPDATE CALLBACK
 local function FrameTemplateUpdates()
     for frame in pairs(TemplateUpdateFrames) do
         if(frame) then
-            local p = SV.Media.color[frame._color];
+            local panelID = frame.Panel:GetAttribute("panelID")
+            local colorID = frame.Panel:GetAttribute("panelColor")
+            local panelColor = SV.Media.color[colorID];
             if(frame.BackdropNeedsUpdate) then
                 if(frame.UpdateBackdrop) then
                     frame:UpdateBackdrop()
                 end
-                if(p) then
-                    frame:SetBackdropColor(p[1], p[2], p[3], p[4] or 1)
+                if(panelColor) then
+                    frame:SetBackdropColor(panelColor[1], panelColor[2], panelColor[3], panelColor[4] or 1)
                 end
                 frame:SetBackdropBorderColor(0,0,0,1)
             end
-            if(frame.TextureNeedsUpdate and frame._texture) then
-                local tex = SV.Media.bg[frame._texture]
+            if(frame.TextureNeedsUpdate and frame.Panel.Skin) then
+                local tex = SV.Media.bg[panelID]
                 if(tex) then
                     frame.Panel.Skin:SetTexture(tex)
                 end 
                 if(not frame.NoColorUpdate) then
-                    if(frame._gradient and SV.Media.gradient[frame._gradient]) then
-                        local g = SV.Media.gradient[frame._gradient]
+                    local gradient = frame.Panel:GetAttribute("panelGradient")
+                    if(gradient and SV.Media.gradient[gradient]) then
+                        local g = SV.Media.gradient[gradient]
                         frame.Panel.Skin:SetGradient(g[1], g[2], g[3], g[4], g[5], g[6], g[7])
-                    elseif(p) then
-                        frame.Panel.Skin:SetVertexColor(p[1], p[2], p[3], p[4] or 1)
+                    elseif(panelColor) then
+                        frame.Panel.Skin:SetVertexColor(panelColor[1], panelColor[2], panelColor[3], panelColor[4] or 1)
                     end
                 end
             end

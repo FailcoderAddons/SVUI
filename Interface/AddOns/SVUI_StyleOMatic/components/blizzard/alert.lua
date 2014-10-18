@@ -20,8 +20,8 @@ local select  = _G.select;
 --[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
 HELPERS
@@ -34,11 +34,11 @@ local AlphaHelper = function(self, value, flag)
 end 
 --[[ 
 ########################################################## 
-ALERTFRAME STYLER
+ALERTFRAME PLUGINR
 ##########################################################
 ]]--
 local function AlertStyle()
-	if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.alertframes ~= true then return end 
+	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.alertframes ~= true then return end 
 
 	for i = 1, 4 do
 		local alert = _G["SVUI_SystemAlert"..i];
@@ -47,7 +47,7 @@ local function AlertStyle()
 				alert.buttons[b]:SetButtonTemplate()
 			end 
 			alert:RemoveTextures()
-			STYLE:ApplyAlertStyle(alert)
+			PLUGIN:ApplyAlertStyle(alert)
 			alert.input:SetEditboxTemplate()
 			alert.input.Panel:Point("TOPLEFT", -2, -4)
 			alert.input.Panel:Point("BOTTOMRIGHT", 2, 4)
@@ -342,7 +342,7 @@ local function AlertStyle()
 end 
 --[[ 
 ########################################################## 
-STYLE LOADING
+PLUGIN LOADING
 ##########################################################
 ]]--
-STYLE:SaveCustomStyle(AlertStyle)
+PLUGIN:SaveCustomStyle(AlertStyle)

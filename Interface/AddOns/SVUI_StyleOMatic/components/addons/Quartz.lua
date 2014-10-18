@@ -31,8 +31,8 @@ GET ADDON DATA
 ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
 QUARTZ
@@ -50,10 +50,10 @@ local function StyleQuartz()
 	local function StyleQuartzBar(self)
 		if not self.isStyled then
 			self.IconBorder = CreateFrame("Frame", nil, self)
-			STYLE:ApplyFrameStyle(self.IconBorder,"Transparent")
+			PLUGIN:ApplyFrameStyle(self.IconBorder,"Transparent")
 			self.IconBorder:SetFrameLevel(0)
 			self.IconBorder:WrapOuter(self.Icon)
-			STYLE:ApplyFrameStyle(self.Bar,"Transparent",true)
+			PLUGIN:ApplyFrameStyle(self.Bar,"Transparent",true)
 			self.isStyled = true
 		end
  		if self.config.hideicon then
@@ -70,9 +70,9 @@ local function StyleQuartz()
 	if GCD then
 		hooksecurefunc(GCD, 'CheckGCD', function()
 			if not Quartz3GCDBar.backdrop then
-				STYLE:ApplyFrameStyle(Quartz3GCDBar,"Transparent",true)
+				PLUGIN:ApplyFrameStyle(Quartz3GCDBar,"Transparent",true)
 			end
 		end)
 	end
 end
-STYLE:SaveAddonStyle("Quartz", StyleQuartz)
+PLUGIN:SaveAddonStyle("Quartz", StyleQuartz)

@@ -27,8 +27,8 @@ local pairs         = _G.pairs;
 --[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
 HELPERS
@@ -143,11 +143,11 @@ local function BarStyleHelper(bar)
 end 
 --[[ 
 ########################################################## 
-ACHIEVEMENTFRAME STYLER
+ACHIEVEMENTFRAME PLUGINR
 ##########################################################
 ]]--
 local function AchievementStyle()
-	if SV.db[Schema].blizzard.enable  ~= true or SV.db[Schema].blizzard.achievement  ~= true then 
+	if PLUGIN.db.blizzard.enable  ~= true or PLUGIN.db.blizzard.achievement  ~= true then 
 		return 
 	end
 
@@ -171,7 +171,7 @@ local function AchievementStyle()
 		end
 	end 
 
-	STYLE:ApplyWindowStyle(AchievementFrame)
+	PLUGIN:ApplyWindowStyle(AchievementFrame)
 
 	AchievementFrameSummaryAchievements:RemoveTextures(true)
 	AchievementFrameSummaryAchievements:SetBasicPanel()
@@ -183,20 +183,20 @@ local function AchievementStyle()
 	AchievementFrameAchievementsContainer:SetPanelTemplate("Default")
 	AchievementFrameAchievementsContainer.Panel:Point("TOPLEFT", 0, 2)
 	AchievementFrameAchievementsContainer.Panel:Point("BOTTOMRIGHT", -3, -3)
-	STYLE:ApplyCloseButtonStyle(AchievementFrameCloseButton, AchievementFrame.Panel)
-	STYLE:ApplyDropdownStyle(AchievementFrameFilterDropDown)
+	PLUGIN:ApplyCloseButtonStyle(AchievementFrameCloseButton, AchievementFrame.Panel)
+	PLUGIN:ApplyDropdownStyle(AchievementFrameFilterDropDown)
 	AchievementFrameFilterDropDown:Point("TOPRIGHT", AchievementFrame, "TOPRIGHT", -44, 5)
 
-	STYLE:ApplyScrollFrameStyle(AchievementFrameCategoriesContainerScrollBar, 5)
-	STYLE:ApplyScrollFrameStyle(AchievementFrameAchievementsContainerScrollBar, 5)
-	STYLE:ApplyScrollFrameStyle(AchievementFrameStatsContainerScrollBar, 5)
-	STYLE:ApplyScrollFrameStyle(AchievementFrameComparisonContainerScrollBar, 5)
-	STYLE:ApplyScrollFrameStyle(AchievementFrameComparisonStatsContainerScrollBar, 5)
+	PLUGIN:ApplyScrollFrameStyle(AchievementFrameCategoriesContainerScrollBar, 5)
+	PLUGIN:ApplyScrollFrameStyle(AchievementFrameAchievementsContainerScrollBar, 5)
+	PLUGIN:ApplyScrollFrameStyle(AchievementFrameStatsContainerScrollBar, 5)
+	PLUGIN:ApplyScrollFrameStyle(AchievementFrameComparisonContainerScrollBar, 5)
+	PLUGIN:ApplyScrollFrameStyle(AchievementFrameComparisonStatsContainerScrollBar, 5)
 
 	for i = 1, 3 do
 		local tab = _G["AchievementFrameTab"..i]
 		if(tab) then
-			STYLE:ApplyTabStyle(tab)
+			PLUGIN:ApplyTabStyle(tab)
 			tab:SetFrameLevel(tab:GetFrameLevel() + 2)
 		end
 	end 
@@ -229,7 +229,7 @@ local function AchievementStyle()
 	AchievementFrame:HookScript("OnShow", function(self)
 		if(self.containerStyled) then return end 
 		for i = 1, 20 do
-			STYLE:ApplyItemButtonStyle(_G["AchievementFrameCategoriesContainerButton"..i])
+			PLUGIN:ApplyItemButtonStyle(_G["AchievementFrameCategoriesContainerButton"..i])
 		end 
 		self.containerStyled = true 
 	end)
@@ -464,7 +464,7 @@ local function AchievementStyle()
 end 
 --[[ 
 ########################################################## 
-STYLE LOADING
+PLUGIN LOADING
 ##########################################################
 ]]--
-STYLE:SaveBlizzardStyle("Blizzard_AchievementUI", AchievementStyle)
+PLUGIN:SaveBlizzardStyle("Blizzard_AchievementUI", AchievementStyle)

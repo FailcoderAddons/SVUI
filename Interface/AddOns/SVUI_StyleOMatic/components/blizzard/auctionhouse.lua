@@ -21,8 +21,8 @@ local pairs   = _G.pairs;
 --[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
 HELPERS
@@ -82,28 +82,28 @@ local AuctionTextFields = {
 }
 --[[ 
 ########################################################## 
-AUCTIONFRAME STYLER
+AUCTIONFRAME PLUGINR
 ##########################################################
 ]]--
 local function AuctionStyle()
-	--STYLE.Debugging = true
-	if(SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.auctionhouse ~= true) then return end 
+	--PLUGIN.Debugging = true
+	if(PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.auctionhouse ~= true) then return end 
 
-	STYLE:ApplyWindowStyle(AuctionFrame, false, true)
+	PLUGIN:ApplyWindowStyle(AuctionFrame, false, true)
 	
 	BrowseFilterScrollFrame:RemoveTextures()
 	BrowseScrollFrame:RemoveTextures()
 	AuctionsScrollFrame:RemoveTextures()
 	BidScrollFrame:RemoveTextures()
 
-	STYLE:ApplyCloseButtonStyle(AuctionFrameCloseButton)
-	STYLE:ApplyScrollFrameStyle(AuctionsScrollFrameScrollBar)
+	PLUGIN:ApplyCloseButtonStyle(AuctionFrameCloseButton)
+	PLUGIN:ApplyScrollFrameStyle(AuctionsScrollFrameScrollBar)
 
-	STYLE:ApplyDropdownStyle(BrowseDropDown)
-	STYLE:ApplyDropdownStyle(PriceDropDown)
-	STYLE:ApplyDropdownStyle(DurationDropDown)
-	STYLE:ApplyScrollFrameStyle(BrowseFilterScrollFrameScrollBar)
-	STYLE:ApplyScrollFrameStyle(BrowseScrollFrameScrollBar)
+	PLUGIN:ApplyDropdownStyle(BrowseDropDown)
+	PLUGIN:ApplyDropdownStyle(PriceDropDown)
+	PLUGIN:ApplyDropdownStyle(DurationDropDown)
+	PLUGIN:ApplyScrollFrameStyle(BrowseFilterScrollFrameScrollBar)
+	PLUGIN:ApplyScrollFrameStyle(BrowseScrollFrameScrollBar)
 	IsUsableCheckButton:SetCheckboxTemplate(true)
 	ShowOnPlayerCheckButton:SetCheckboxTemplate(true)
 	
@@ -115,10 +115,10 @@ local function AuctionStyle()
 	SideDressUpFrame.SetPoint = SV.fubar
 	SideDressUpModel:RemoveTextures(true)
 	SideDressUpModel:SetAllPoints(SideDressUpFrame)
-	SideDressUpModel:SetFixedPanelTemplate("ModelComic")
+	SideDressUpModel:SetFixedPanelTemplate("Model")
 	SideDressUpModelResetButton:SetButtonTemplate()
 	SideDressUpModelResetButton:SetPoint("BOTTOM", SideDressUpModel, "BOTTOM", 0, 20)
-	STYLE:ApplyCloseButtonStyle(SideDressUpModelCloseButton)
+	PLUGIN:ApplyCloseButtonStyle(SideDressUpModelCloseButton)
 
 	AuctionProgressFrame:RemoveTextures()
 	AuctionProgressFrame:SetFixedPanelTemplate("Transparent", true)
@@ -143,8 +143,8 @@ local function AuctionStyle()
 	AuctionProgressBar:SetStatusBarTexture(SV.Media.bar.default)
 	AuctionProgressBar:SetStatusBarColor(1, 1, 0)
 
-	STYLE:ApplyPaginationStyle(BrowseNextPageButton)
-	STYLE:ApplyPaginationStyle(BrowsePrevPageButton)
+	PLUGIN:ApplyPaginationStyle(BrowseNextPageButton)
+	PLUGIN:ApplyPaginationStyle(BrowsePrevPageButton)
 
 	for _,gName in pairs(AuctionBidButtons) do
 		if(_G[gName]) then
@@ -177,9 +177,9 @@ local function AuctionStyle()
 		_G[frame.."Right"]:Die()
 	end 
 
-	STYLE:ApplyTabStyle(_G["AuctionFrameTab1"])
-	STYLE:ApplyTabStyle(_G["AuctionFrameTab2"])
-	STYLE:ApplyTabStyle(_G["AuctionFrameTab3"])
+	PLUGIN:ApplyTabStyle(_G["AuctionFrameTab1"])
+	PLUGIN:ApplyTabStyle(_G["AuctionFrameTab2"])
+	PLUGIN:ApplyTabStyle(_G["AuctionFrameTab3"])
 
 	AuctionFrameBrowse.bg1 = CreateFrame("Frame", nil, AuctionFrameBrowse)
 	AuctionFrameBrowse.bg1:Point("TOPLEFT", 20, -103)
@@ -189,8 +189,8 @@ local function AuctionStyle()
 	BrowseNoResultsText:SetParent(AuctionFrameBrowse.bg1)
 	BrowseSearchCountText:SetParent(AuctionFrameBrowse.bg1)
 
-	BrowseResetButton:Point("TOPLEFT", AuctionFrameBrowse, "TOPLEFT", 81, -74)
 	BrowseSearchButton:Point("TOPRIGHT", AuctionFrameBrowse, "TOPRIGHT", 25, -34)
+	BrowseResetButton:Point("TOPRIGHT", BrowseSearchButton, "TOPLEFT", -4, 0)
 
 	AuctionFrameBrowse.bg1:SetFrameLevel(AuctionFrameBrowse.bg1:GetFrameLevel()-1)
 	BrowseFilterScrollFrame:Height(300)
@@ -331,7 +331,7 @@ local function AuctionStyle()
 end 
 --[[ 
 ########################################################## 
-STYLE LOADING
+PLUGIN LOADING
 ##########################################################
 ]]--
-STYLE:SaveBlizzardStyle("Blizzard_AuctionUI", AuctionStyle)
+PLUGIN:SaveBlizzardStyle("Blizzard_AuctionUI", AuctionStyle)

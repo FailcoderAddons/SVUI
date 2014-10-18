@@ -42,7 +42,7 @@ GET ADDON DATA
 ##########################################################
 ]]--
 local SV = select(2, ...)
-local SVLib = _G.LibSuperVillain;
+local SVLib = LibSuperVillain("Registry");
 local L = SV.L;
 --[[ 
 ########################################################## 
@@ -150,9 +150,11 @@ SV.SystemAlert["CONFIRM_BUY_REAGENTBANK_TAB"] = {
 	OnShow = function(self)
 		MoneyFrame_Update(self.moneyFrame, GetReagentBankCost());
 		if(_G["SVUI_ReagentContainerFrame"]) then
-			_G["SVUI_ReagentContainerFrame"].swapButton:SetNormalTexture([[Interface\AddOns\SVUI\assets\artwork\Icons\BAGS-REAGENTS]])
 			_G["SVUI_ReagentContainerFrame"]:UpdateLayout()
 			_G["SVUI_ReagentContainerFrame"]:Show()
+			if(_G["SVUI_ReagentContainerFrame"].swapButton) then
+				_G["SVUI_ReagentContainerFrame"].swapButton:SetNormalTexture([[Interface\AddOns\SVUI\assets\artwork\Icons\BAGS-REAGENTS]])
+			end
 		end
 	end, 
 	hasMoneyFrame = 1, 
@@ -257,9 +259,9 @@ SV.SystemAlert["CONFIRM_LOSE_BINDING_CHANGES"] = {
 	end, 
 	OnCancel = function(a)
 		if SVUI_KeyBindPopupCheckButton:GetChecked()then 
-			SVUI_KeyBindPopupCheckButton:SetChecked()
+			SVUI_KeyBindPopupCheckButton:SetChecked(false)
 		else 
-			SVUI_KeyBindPopupCheckButton:SetChecked(1)
+			SVUI_KeyBindPopupCheckButton:SetChecked(true)
 		end 
 	end, 
 	timeout = 0, 
@@ -826,7 +828,7 @@ end
 function SV:StaticPopup_Hide(which, data)
 	for index = 1, MAX_STATIC_POPUPS, 1 do
 		local dialog = _G["SVUI_SystemAlert"..index];
-		if ( (dialog.which == which) and (not data or (data == dialog.data)) ) then
+		if (dialog and (dialog.which == which) and (not data or (data == dialog.data)) ) then
 			dialog:Hide();
 		end
 	end

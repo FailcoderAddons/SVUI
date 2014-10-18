@@ -98,28 +98,29 @@ function PLUGIN:LoadAlert(MainText, Function)
 end
 
 function PLUGIN:Style(style, fn, ...)
-	local pass, error = pcall(fn, ...)
-	if(self.Debugging and error) then
-		SV:Debugger(errorMessage:format(VERSION, style, error))
+	local pass, catch = pcall(fn, ...)
+	if(catch and self.Debugging) then
+		SV:Debugger(errorMessage:format(VERSION, style, catch))
 		return
 	end
 	if(pass and (not style:find("Blizzard")) and not self.StyledAddons[style]) then
 		self.StyledAddons[style] = true
 		local verb = charming[math.random(1,#charming)]
 		self:AddonMessage(styleMessage:format(style, verb))
+		self.AddOnQueue[style] = nil
 	end
 	self.Debugging = false
 end
 
 function PLUGIN:IsAddonReady(addon, ...)
-	if not SV.db[Schema].addons then return end
+	if not self.db.addons then return end
 	for i = 1, select('#', ...) do
 		local a = select(i, ...)
 		if not a then break end
 		if not IsAddOnLoaded(a) then return false end
 	end
 
-	return SV.db[Schema].addons[addon]
+	return self.db.addons[addon]
 end
 
 function PLUGIN:SaveAddonStyle(addon, fn, force, passive, ...)
@@ -133,8 +134,8 @@ function PLUGIN:SaveAddonStyle(addon, fn, force, passive, ...)
 			self:DefineEventFunction(event, addon)
 		end  
 	end
-	if(SV.db[Schema].addons and SV.db[Schema].addons[addon] == nil) then
-		SV.db[Schema].addons[addon] = true
+	if(self.db.addons and self.db.addons[addon] == nil) then
+		self.db.addons[addon] = true
 	end
 
 	if force then
@@ -191,22 +192,14 @@ function PLUGIN:SafeEventRemoval(addon, event)
 	if not defined then 
 		self:UnregisterEvent(event) 
 	end 
-end 
-
-function PLUGIN:RefreshAddonStyles()
-	for addon,fn in pairs(self.AddOnQueue) do
-		if(self:IsAddonReady(addon)) then
-			self:Style(addon, fn)
-		end
-	end
 end
 
 function PLUGIN:PLAYER_ENTERING_WORLD(event, ...)
 	for addonName,fn in pairs(self.OnLoadAddons) do
-		if(SV.db[Schema].blizzard[addonName] == nil) then
-			SV.db[Schema].blizzard[addonName] = true
+		if(self.db.blizzard[addonName] == nil) then
+			self.db.blizzard[addonName] = true
 		end
-		if(IsAddOnLoaded(addonName) and (SV.db[Schema].blizzard[addonName] or SV.db[Schema].addons[addonName])) then 
+		if(IsAddOnLoaded(addonName) and (self.db.blizzard[addonName] or self.db.addons[addonName])) then 
 			self:Style(addonName, fn, event, ...)
 			self.OnLoadAddons[addonName] = nil
 		end 
@@ -236,8 +229,8 @@ function PLUGIN:PLAYER_ENTERING_WORLD(event, ...)
 				end
 			}
 		end
-		if(SV.db[Schema].addons[addonName] == nil) then
-			SV.db[Schema].addons[addonName] = true
+		if(self.db.addons[addonName] == nil) then
+			self.db.addons[addonName] = true
 		end
 		if(listener[addonName] and self:IsAddonReady(addonName)) then
 			self:Style(addonName, fn, event, ...)
@@ -362,8 +355,6 @@ BUILD FUNCTION
 ##########################################################
 ]]--
 function PLUGIN:Load()
-	if(not SV.db[Schema].enable) then return end
-
 	local alert = CreateFrame('Frame', nil, UIParent);
 	alert:SetFixedPanelTemplate('Transparent');
 	alert:SetSize(250, 70);

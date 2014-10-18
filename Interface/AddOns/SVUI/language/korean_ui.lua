@@ -1,4 +1,4 @@
-local L = _G.LibSuperVillain:Lang("koKR");
+local L = LibSuperVillain("Linguist"):Lang("koKR");
 if not L then return; end
 --[[LOGIN MESSAGE]]--
 L["LOGIN_MSG"] = "|cffFFFF1AUI를 악당|r에 오신 것을 환영합니다! 귀하의 유지 %s 당신을 %s."

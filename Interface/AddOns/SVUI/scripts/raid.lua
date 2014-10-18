@@ -48,10 +48,19 @@ end
 
 local function ButtonEnter(self)
 	self:SetPanelColor("highlight")
+
+	if(self.TText) then
+		GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT", 0, 4)
+		GameTooltip:ClearLines()
+		GameTooltip:AddLine(self.TText, 1, 1, 1)
+		GameTooltip:Show()
+	end
 end
 
 local function ButtonLeave(self)
 	self:SetPanelColor("inverse")
+
+	GameTooltip:Hide()
 end
 
 local function CreateUtilButton(name, parent, template, width, height, point, relativeto, point2, xOfs, yOfs, text, texture)
@@ -78,7 +87,7 @@ local function CreateUtilButton(name, parent, template, width, height, point, re
 end
 
 local function ToggleRaidUtil(event)
-	if(not RaidUtility_ShowButton) then return end
+	if(not SVUI_RaidTools) then return end
 	if InCombatLockdown() then
 		RaidUtilFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 		return
@@ -88,15 +97,15 @@ local function ToggleRaidUtil(event)
 		local width = SuperDockToolBarTop.openWidth
 		SuperDockToolBarTop:SetWidth(width)
 		if RaidUtilityPanel.toggled == true then
-			RaidUtility_ShowButton:Hide()
+			SVUI_RaidTools:Hide()
 			RaidUtilityPanel:Show()		
 		else
-			RaidUtility_ShowButton:Show()
+			SVUI_RaidTools:Show()
 			RaidUtilityPanel:Hide()
 		end
 	else
 		SuperDockToolBarTop:SetWidth(1)
-		RaidUtility_ShowButton:Hide()
+		SVUI_RaidTools:Hide()
 		RaidUtilityPanel:Hide()
 	end
 	
@@ -110,6 +119,7 @@ RaidUtilFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 RaidUtilFrame:SetScript("OnEvent", ToggleRaidUtil)
 
 local function LoadRaidUtility()
+	local buttonsize = SV.db.SVDock.buttonSize or 22;
 	--Create main frame
 	local RaidUtilityPanel = CreateFrame("Frame", "RaidUtilityPanel", SV.UIParent, "SecureHandlerClickTemplate")
 	RaidUtilityPanel:SetPanelTemplate('Transparent')
@@ -122,9 +132,21 @@ local function LoadRaidUtility()
 	SV:AddToDisplayAudit(RaidUtilityPanel)
 	
 	--Show Button
-	CreateUtilButton("RaidUtility_ShowButton", SV.UIParent, "UIMenuButtonStretchTemplate, SecureHandlerClickTemplate", SuperDockToolBarTop.openWidth, SuperDockToolBarTop:GetHeight(), "CENTER", SuperDockToolBarTop, "CENTER", 0, 0, RAID_CONTROL, nil)
-	RaidUtility_ShowButton:SetFrameRef("RaidUtilityPanel", RaidUtilityPanel)
-	RaidUtility_ShowButton:SetAttribute("_onclick", [=[
+	local SVUI_RaidTools = CreateFrame("Button", "SVUI_RaidTools", SV.UIParent, "UIMenuButtonStretchTemplate, SecureHandlerClickTemplate")
+	SVUI_RaidTools:Size(buttonsize, buttonsize)
+	SVUI_RaidTools:Point("CENTER", SuperDockToolBarTop, "CENTER", 0, 0)
+	SVUI_RaidTools.icon = SVUI_RaidTools:CreateTexture(nil,"OVERLAY",nil)
+	SVUI_RaidTools.icon:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Icons\DOCK-RAIDTOOL]])
+	SVUI_RaidTools.icon:Point("TOPLEFT", SVUI_RaidTools, "TOPLEFT", 1, -1)
+	SVUI_RaidTools.icon:Point("BOTTOMRIGHT", SVUI_RaidTools, "BOTTOMRIGHT", -1, 1)
+
+	SVUI_RaidTools.TText = RAID_CONTROL .. " [Click to Open]"
+
+	SVUI_RaidTools:HookScript("OnEnter", ButtonEnter)
+	SVUI_RaidTools:HookScript("OnLeave", ButtonLeave)
+
+	SVUI_RaidTools:SetFrameRef("RaidUtilityPanel", RaidUtilityPanel)
+	SVUI_RaidTools:SetAttribute("_onclick", [=[
 		local raidUtil = self:GetFrameRef("RaidUtilityPanel")
 		local closeButton = raidUtil:GetFrameRef("RaidUtility_CloseButton")
 		self:Hide(); 
@@ -151,18 +173,20 @@ local function LoadRaidUtility()
 		raidUtil:SetPoint(raidUtilPoint, self, raidUtilRelative, 2, -2)
 		closeButton:SetPoint(closeButtonRelative, raidUtil, closeButtonPoint, 0, yOffset)
 	]=])
-	RaidUtility_ShowButton:SetScript("OnMouseUp", function(self) RaidUtilityPanel.toggled = true end)
-	RaidUtility_ShowButton:SetMovable(true)
-	RaidUtility_ShowButton:SetClampedToScreen(true)
-	RaidUtility_ShowButton:SetClampRectInsets(0, 0, -1, 1)
-	RaidUtility_ShowButton:RegisterForDrag("RightButton")
-	RaidUtility_ShowButton:SetFrameStrata("HIGH")
-	RaidUtility_ShowButton:SetScript("OnDragStart", function(self) 
+
+	SVUI_RaidTools:SetScript("OnMouseUp", function(self) RaidUtilityPanel.toggled = true end)
+	SVUI_RaidTools:SetMovable(true)
+	SVUI_RaidTools:SetClampedToScreen(true)
+	SVUI_RaidTools:SetClampRectInsets(0, 0, -1, 1)
+	SVUI_RaidTools:RegisterForDrag("RightButton")
+	SVUI_RaidTools:SetFrameStrata("HIGH")
+	SVUI_RaidTools:SetScript("OnDragStart", function(self) 
 		self:StartMoving()
 	end)
-	SV:AddToDisplayAudit(RaidUtility_ShowButton)
+
+	SV:AddToDisplayAudit(SVUI_RaidTools)
 	
-	RaidUtility_ShowButton:SetScript("OnDragStop", function(self) 
+	SVUI_RaidTools:SetScript("OnDragStop", function(self) 
 		self:StopMovingOrSizing()
 		local point = self:GetPoint()
 		local xOffset = self:GetCenter()
@@ -178,8 +202,8 @@ local function LoadRaidUtility()
 
 	--Close Button
 	CreateUtilButton("RaidUtility_CloseButton", RaidUtilityPanel, "UIMenuButtonStretchTemplate, SecureHandlerClickTemplate", 30, 18, "TOP", RaidUtilityPanel, "BOTTOM", 0, -1, "X", nil)
-	RaidUtility_CloseButton:SetFrameRef("RaidUtility_ShowButton", RaidUtility_ShowButton)
-	RaidUtility_CloseButton:SetAttribute("_onclick", [=[self:GetParent():Hide(); self:GetFrameRef("RaidUtility_ShowButton"):Show();]=])
+	RaidUtility_CloseButton:SetFrameRef("SVUI_RaidTools", SVUI_RaidTools)
+	RaidUtility_CloseButton:SetAttribute("_onclick", [=[self:GetParent():Hide(); self:GetFrameRef("SVUI_RaidTools"):Show();]=])
 	RaidUtility_CloseButton:SetScript("OnMouseUp", function(self) RaidUtilityPanel.toggled = false end)
 	RaidUtilityPanel:SetFrameRef("RaidUtility_CloseButton", RaidUtility_CloseButton)
 	
@@ -216,26 +240,29 @@ local function LoadRaidUtility()
 	end)
 
 	--Reposition/Resize and Reuse the World Marker Button
-	CompactRaidFrameManagerDisplayFrameLeaderOptionsRaidWorldMarkerButton:ClearAllPoints()
-	CompactRaidFrameManagerDisplayFrameLeaderOptionsRaidWorldMarkerButton:SetPoint("TOP", RaidControlButton, "BOTTOM", 0, -5)
-	CompactRaidFrameManagerDisplayFrameLeaderOptionsRaidWorldMarkerButton:SetParent("RaidUtilityPanel")
-	CompactRaidFrameManagerDisplayFrameLeaderOptionsRaidWorldMarkerButton:Height(18)
-	CompactRaidFrameManagerDisplayFrameLeaderOptionsRaidWorldMarkerButton:SetWidth(buttonWidth)
-	local markersText = CompactRaidFrameManagerDisplayFrameLeaderOptionsRaidWorldMarkerButton:CreateFontString(nil,"OVERLAY")
-	markersText:SetFont(SV.Media.font.roboto, 14, "NONE")
-	markersText:SetAllPoints(CompactRaidFrameManagerDisplayFrameLeaderOptionsRaidWorldMarkerButton)
-	markersText:SetJustifyH("CENTER")
-	markersText:SetText("World Markers")
-	CompactRaidFrameManagerDisplayFrameLeaderOptionsRaidWorldMarkerButton:SetFontString(markersText)
+	if(CompactRaidFrameManagerDisplayFrameLeaderOptionsRaidWorldMarkerButton) then
+		CompactRaidFrameManagerDisplayFrameLeaderOptionsRaidWorldMarkerButton:ClearAllPoints()
+		CompactRaidFrameManagerDisplayFrameLeaderOptionsRaidWorldMarkerButton:SetPoint("TOP", RaidControlButton, "BOTTOM", 0, -5)
+		CompactRaidFrameManagerDisplayFrameLeaderOptionsRaidWorldMarkerButton:SetParent("RaidUtilityPanel")
+		CompactRaidFrameManagerDisplayFrameLeaderOptionsRaidWorldMarkerButton:Height(18)
+		CompactRaidFrameManagerDisplayFrameLeaderOptionsRaidWorldMarkerButton:SetWidth(buttonWidth)
+		local markersText = CompactRaidFrameManagerDisplayFrameLeaderOptionsRaidWorldMarkerButton:CreateFontString(nil,"OVERLAY")
+		markersText:SetFont(SV.Media.font.roboto, 14, "NONE")
+		markersText:SetAllPoints(CompactRaidFrameManagerDisplayFrameLeaderOptionsRaidWorldMarkerButton)
+		markersText:SetJustifyH("CENTER")
+		markersText:SetText("World Markers")
+		CompactRaidFrameManagerDisplayFrameLeaderOptionsRaidWorldMarkerButton:SetFontString(markersText)
+	end
 
 	--Put other stuff back
-	CompactRaidFrameManagerDisplayFrameLeaderOptionsInitiateReadyCheck:ClearAllPoints()
-	CompactRaidFrameManagerDisplayFrameLeaderOptionsInitiateReadyCheck:SetPoint("BOTTOMLEFT", CompactRaidFrameManagerDisplayFrameLockedModeToggle, "TOPLEFT", 0, 1)
-	CompactRaidFrameManagerDisplayFrameLeaderOptionsInitiateReadyCheck:SetPoint("BOTTOMRIGHT", CompactRaidFrameManagerDisplayFrameHiddenModeToggle, "TOPRIGHT", 0, 1)
-	CompactRaidFrameManagerDisplayFrameLeaderOptionsInitiateRolePoll:ClearAllPoints()
-	CompactRaidFrameManagerDisplayFrameLeaderOptionsInitiateRolePoll:SetPoint("BOTTOMLEFT", CompactRaidFrameManagerDisplayFrameLeaderOptionsInitiateReadyCheck, "TOPLEFT", 0, 1)
-	CompactRaidFrameManagerDisplayFrameLeaderOptionsInitiateRolePoll:SetPoint("BOTTOMRIGHT", CompactRaidFrameManagerDisplayFrameLeaderOptionsInitiateReadyCheck, "TOPRIGHT", 0, 1)
-
+	if(CompactRaidFrameManagerDisplayFrameLeaderOptionsInitiateReadyCheck) then
+		CompactRaidFrameManagerDisplayFrameLeaderOptionsInitiateReadyCheck:ClearAllPoints()
+		CompactRaidFrameManagerDisplayFrameLeaderOptionsInitiateReadyCheck:SetPoint("BOTTOMLEFT", CompactRaidFrameManagerDisplayFrameLockedModeToggle, "TOPLEFT", 0, 1)
+		CompactRaidFrameManagerDisplayFrameLeaderOptionsInitiateReadyCheck:SetPoint("BOTTOMRIGHT", CompactRaidFrameManagerDisplayFrameHiddenModeToggle, "TOPRIGHT", 0, 1)
+		CompactRaidFrameManagerDisplayFrameLeaderOptionsInitiateRolePoll:ClearAllPoints()
+		CompactRaidFrameManagerDisplayFrameLeaderOptionsInitiateRolePoll:SetPoint("BOTTOMLEFT", CompactRaidFrameManagerDisplayFrameLeaderOptionsInitiateReadyCheck, "TOPLEFT", 0, 1)
+		CompactRaidFrameManagerDisplayFrameLeaderOptionsInitiateRolePoll:SetPoint("BOTTOMRIGHT", CompactRaidFrameManagerDisplayFrameLeaderOptionsInitiateReadyCheck, "TOPRIGHT", 0, 1)
+	end
 	do
 		--[[NEEDS TESTING]]--
 		local buttons = {
@@ -244,7 +271,7 @@ local function LoadRaidUtility()
 			"RoleCheckButton",
 			"ReadyCheckButton",
 			"RaidControlButton",
-			"RaidUtility_ShowButton",
+			"SVUI_RaidTools",
 			"RaidUtility_CloseButton"
 		}
 
@@ -257,6 +284,8 @@ local function LoadRaidUtility()
 				button:HookScript("OnLeave", ButtonLeave)
 			end
 		end
+
+		SVUI_RaidTools.icon:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Icons\DOCK-RAIDTOOL]])
 	end
 end
 SV:NewScript(LoadRaidUtility);

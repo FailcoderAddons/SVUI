@@ -29,8 +29,8 @@ local format = string.format;
 GET ADDON DATA
 ##########################################################
 ]]--
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
 OMEN
@@ -49,7 +49,7 @@ local function StyleOmen()
 
   hooksecurefunc(Omen, 'UpdateBackdrop', function(self)
     if not SVUI.CurrentlyDocked["OmenAnchor"] then
-      STYLE:ApplyFrameStyle(self.BarList, 'Transparent')
+      PLUGIN:ApplyFrameStyle(self.BarList, 'Transparent')
       self.Title:RemoveTextures()
       self.Title:SetPanelTemplate("Default")
       self.Title:SetPanelColor("class")
@@ -61,9 +61,9 @@ local function StyleOmen()
   Omen:ReAnchorBars()
   Omen:ResizeBars()
 end
-STYLE:SaveAddonStyle("Omen", StyleOmen, nil, true)
+PLUGIN:SaveAddonStyle("Omen", StyleOmen, nil, true)
 
-function STYLE:Docklet_Omen(parent)
+function PLUGIN:Docklet_Omen(parent)
   if not Omen then return end 
   local db=Omen.db;
   db.profile.Scale=1;

@@ -22,8 +22,8 @@ local pairs         = _G.pairs;
 --[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
 HELPERS
@@ -37,20 +37,20 @@ local CalendarButtons = {
 };
 --[[ 
 ########################################################## 
-CALENDAR STYLER
+CALENDAR PLUGINR
 ##########################################################
 ]]--
 local function CalendarStyle()
-	if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.calendar ~= true then
+	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.calendar ~= true then
 		 return 
 	end
 
-	STYLE:ApplyWindowStyle(CalendarFrame)
+	PLUGIN:ApplyWindowStyle(CalendarFrame)
 
-	STYLE:ApplyCloseButtonStyle(CalendarCloseButton)
+	PLUGIN:ApplyCloseButtonStyle(CalendarCloseButton)
 	CalendarCloseButton:SetPoint("TOPRIGHT", CalendarFrame, "TOPRIGHT", -4, -4)
-	STYLE:ApplyPaginationStyle(CalendarPrevMonthButton)
-	STYLE:ApplyPaginationStyle(CalendarNextMonthButton)
+	PLUGIN:ApplyPaginationStyle(CalendarPrevMonthButton)
+	PLUGIN:ApplyPaginationStyle(CalendarNextMonthButton)
 
 	do 
 		local cfframe = _G["CalendarFilterFrame"];
@@ -64,7 +64,7 @@ local function CalendarStyle()
 			if(cfbutton) then
 				cfbutton:ClearAllPoints()
 				cfbutton:SetPoint("RIGHT", cfframe, "RIGHT", -10, 3)
-				STYLE:ApplyPaginationStyle(cfbutton, true)
+				PLUGIN:ApplyPaginationStyle(cfbutton, true)
 				cfframe.Panel:SetPoint("TOPLEFT", 20, 2)
 				cfframe.Panel:SetPoint("BOTTOMRIGHT", cfbutton, "BOTTOMRIGHT", 2, -2)
 
@@ -108,15 +108,15 @@ local function CalendarStyle()
 	CalendarCreateEventInviteList:SetFixedPanelTemplate("Default")
 	CalendarCreateEventInviteEdit:SetEditboxTemplate()
 	CalendarCreateEventTitleEdit:SetEditboxTemplate()
-	STYLE:ApplyDropdownStyle(CalendarCreateEventTypeDropDown, 120)
+	PLUGIN:ApplyDropdownStyle(CalendarCreateEventTypeDropDown, 120)
 	CalendarCreateEventDescriptionContainer:RemoveTextures()
 	CalendarCreateEventDescriptionContainer:SetFixedPanelTemplate("Default")
-	STYLE:ApplyCloseButtonStyle(CalendarCreateEventCloseButton)
+	PLUGIN:ApplyCloseButtonStyle(CalendarCreateEventCloseButton)
 	CalendarCreateEventLockEventCheck:SetCheckboxTemplate(true)
-	STYLE:ApplyDropdownStyle(CalendarCreateEventHourDropDown, 68)
-	STYLE:ApplyDropdownStyle(CalendarCreateEventMinuteDropDown, 68)
-	STYLE:ApplyDropdownStyle(CalendarCreateEventAMPMDropDown, 68)
-	STYLE:ApplyDropdownStyle(CalendarCreateEventRepeatOptionDropDown, 120)
+	PLUGIN:ApplyDropdownStyle(CalendarCreateEventHourDropDown, 68)
+	PLUGIN:ApplyDropdownStyle(CalendarCreateEventMinuteDropDown, 68)
+	PLUGIN:ApplyDropdownStyle(CalendarCreateEventAMPMDropDown, 68)
+	PLUGIN:ApplyDropdownStyle(CalendarCreateEventRepeatOptionDropDown, 120)
 	CalendarCreateEventIcon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 	hooksecurefunc(CalendarCreateEventIcon, "SetTexCoord", function(f, v, w, x, y)
 		local z, A, B, C = 0.1, 0.9, 0.1, 0.9 
@@ -141,7 +141,7 @@ local function CalendarStyle()
 	CalendarTexturePickerFrame:RemoveTextures()
 	CalendarTexturePickerTitleFrame:RemoveTextures()
 	CalendarTexturePickerFrame:SetFixedPanelTemplate("Transparent", true)
-	STYLE:ApplyScrollFrameStyle(CalendarTexturePickerScrollBar)
+	PLUGIN:ApplyScrollFrameStyle(CalendarTexturePickerScrollBar)
 	CalendarTexturePickerAcceptButton:SetButtonTemplate()
 	CalendarTexturePickerCancelButton:SetButtonTemplate()
 	CalendarCreateEventInviteButton:SetButtonTemplate()
@@ -149,21 +149,21 @@ local function CalendarStyle()
 	CalendarMassInviteFrame:RemoveTextures()
 	CalendarMassInviteFrame:SetFixedPanelTemplate("Transparent", true)
 	CalendarMassInviteTitleFrame:RemoveTextures()
-	STYLE:ApplyCloseButtonStyle(CalendarMassInviteCloseButton)
+	PLUGIN:ApplyCloseButtonStyle(CalendarMassInviteCloseButton)
 	CalendarMassInviteGuildAcceptButton:SetButtonTemplate()
-	STYLE:ApplyDropdownStyle(CalendarMassInviteGuildRankMenu, 130)
+	PLUGIN:ApplyDropdownStyle(CalendarMassInviteGuildRankMenu, 130)
 	CalendarMassInviteGuildMinLevelEdit:SetEditboxTemplate()
 	CalendarMassInviteGuildMaxLevelEdit:SetEditboxTemplate()
 	CalendarViewRaidFrame:RemoveTextures()
 	CalendarViewRaidFrame:SetFixedPanelTemplate("Transparent", true)
 	CalendarViewRaidFrame:SetPoint("TOPLEFT", CalendarFrame, "TOPRIGHT", 3, -24)
 	CalendarViewRaidTitleFrame:RemoveTextures()
-	STYLE:ApplyCloseButtonStyle(CalendarViewRaidCloseButton)
+	PLUGIN:ApplyCloseButtonStyle(CalendarViewRaidCloseButton)
 	CalendarViewHolidayFrame:RemoveTextures(true)
 	CalendarViewHolidayFrame:SetFixedPanelTemplate("Transparent", true)
 	CalendarViewHolidayFrame:SetPoint("TOPLEFT", CalendarFrame, "TOPRIGHT", 3, -24)
 	CalendarViewHolidayTitleFrame:RemoveTextures()
-	STYLE:ApplyCloseButtonStyle(CalendarViewHolidayCloseButton)
+	PLUGIN:ApplyCloseButtonStyle(CalendarViewHolidayCloseButton)
 	CalendarViewEventFrame:RemoveTextures()
 	CalendarViewEventFrame:SetFixedPanelTemplate("Transparent", true)
 	CalendarViewEventFrame:SetPoint("TOPLEFT", CalendarFrame, "TOPRIGHT", 3, -24)
@@ -173,23 +173,23 @@ local function CalendarStyle()
 	CalendarViewEventInviteList:RemoveTextures()
 	CalendarViewEventInviteList:SetFixedPanelTemplate("Transparent", true)
 	CalendarViewEventInviteListSection:RemoveTextures()
-	STYLE:ApplyCloseButtonStyle(CalendarViewEventCloseButton)
-	STYLE:ApplyScrollFrameStyle(CalendarViewEventInviteListScrollFrameScrollBar)
+	PLUGIN:ApplyCloseButtonStyle(CalendarViewEventCloseButton)
+	PLUGIN:ApplyScrollFrameStyle(CalendarViewEventInviteListScrollFrameScrollBar)
 	for _,btn in pairs(CalendarButtons)do
 		 _G[btn]:SetButtonTemplate()
 	end 
 	CalendarEventPickerFrame:RemoveTextures()
 	CalendarEventPickerTitleFrame:RemoveTextures()
 	CalendarEventPickerFrame:SetFixedPanelTemplate("Transparent", true)
-	STYLE:ApplyScrollFrameStyle(CalendarEventPickerScrollBar)
+	PLUGIN:ApplyScrollFrameStyle(CalendarEventPickerScrollBar)
 	CalendarEventPickerCloseButton:SetButtonTemplate()
-	STYLE:ApplyScrollFrameStyle(CalendarCreateEventDescriptionScrollFrameScrollBar)
-	STYLE:ApplyScrollFrameStyle(CalendarCreateEventInviteListScrollFrameScrollBar)
-	STYLE:ApplyScrollFrameStyle(CalendarViewEventDescriptionScrollFrameScrollBar)
+	PLUGIN:ApplyScrollFrameStyle(CalendarCreateEventDescriptionScrollFrameScrollBar)
+	PLUGIN:ApplyScrollFrameStyle(CalendarCreateEventInviteListScrollFrameScrollBar)
+	PLUGIN:ApplyScrollFrameStyle(CalendarViewEventDescriptionScrollFrameScrollBar)
 end 
 --[[ 
 ########################################################## 
-STYLE LOADING
+PLUGIN LOADING
 ##########################################################
 ]]--
-STYLE:SaveBlizzardStyle("Blizzard_Calendar",CalendarStyle)
+PLUGIN:SaveBlizzardStyle("Blizzard_Calendar",CalendarStyle)

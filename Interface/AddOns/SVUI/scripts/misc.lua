@@ -358,7 +358,7 @@ local function RaidMarkShowIcons()
 	if not UnitExists("target") or UnitIsDead("target") then return end 
 	local x,y = GetCursorPosition()
 	local scale = SV.UIParent:GetEffectiveScale()
-	RaidMarkFrame:SetPoint("CENTER",SV.UIParent,"BOTTOMLEFT", (x / scale), (y / scale))
+	RaidMarkFrame:SetPoint("CENTER", SV.UIParent, "BOTTOMLEFT", (x / scale), (y / scale))
 	RaidMarkFrame:Show()
 end
 
@@ -374,7 +374,7 @@ _G.RaidMark_HotkeyPressed = function(button)
 end
 
 RaidMarkFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
-RaidMarkFrame:SetScript("OnEvent",function(self, event)
+RaidMarkFrame:SetScript("OnEvent", function(self, event)
 	if ButtonIsDown then 
 		RaidMarkShowIcons()
 	end 
@@ -481,7 +481,6 @@ local function CreateTotemBar()
 		local id = priorities[i]
 		local totem = CreateFrame("Button", "TotemBarTotem"..id, TotemBar)
 		totem:SetID(id)
-		totem:SetButtonTemplate()
 		totem:Hide()
 		
 		totem.Icon = totem:CreateTexture(nil, "ARTWORK")
@@ -489,11 +488,11 @@ local function CreateTotemBar()
 		totem.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 		totem.CD = CreateFrame("Cooldown", "TotemBarTotem"..id.."Cooldown", totem, "CooldownFrameTemplate")
 		totem.CD:SetReverse(true)
-		totem.CD:FillInner()
-		SV.Timers:AddCooldown(totem.CD)
 
 		totem.Anchor = CreateFrame("Frame", nil, totem)
 		totem.Anchor:SetAllPoints()
+
+		totem:SetButtonTemplate()
 
 		totem:EnableMouse(true)
 		totem:SetScript('OnEnter', Totem_OnEnter)

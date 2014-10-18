@@ -23,8 +23,8 @@ local type 		= _G.type;
 --[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
 HELPERS
@@ -46,14 +46,14 @@ local ClassTrainerTextureList = {
 };
 --[[ 
 ########################################################## 
-TRAINER STYLER
+TRAINER PLUGINR
 ##########################################################
 ]]--
 local function TrainerStyle()
-	if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.trainer ~= true then return end
+	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.trainer ~= true then return end
 
 	ClassTrainerFrame:SetHeight(ClassTrainerFrame:GetHeight() + 42)
-	STYLE:ApplyWindowStyle(ClassTrainerFrame)
+	PLUGIN:ApplyWindowStyle(ClassTrainerFrame)
 
 	for i=1, 8 do
 		_G["ClassTrainerScrollFrameButton"..i]:RemoveTextures()
@@ -66,7 +66,7 @@ local function TrainerStyle()
 		_G["ClassTrainerScrollFrameButton"..i].selectedTex:FillInner()
 	end
 
-	STYLE:ApplyScrollFrameStyle(ClassTrainerScrollFrameScrollBar, 5)
+	PLUGIN:ApplyScrollFrameStyle(ClassTrainerScrollFrameScrollBar, 5)
 
 	for _,frame in pairs(ClassTrainerFrameList)do
 		_G[frame]:RemoveTextures()
@@ -78,9 +78,9 @@ local function TrainerStyle()
 
 	_G["ClassTrainerTrainButton"]:RemoveTextures()
 	_G["ClassTrainerTrainButton"]:SetButtonTemplate()
-	STYLE:ApplyDropdownStyle(ClassTrainerFrameFilterDropDown, 155)
+	PLUGIN:ApplyDropdownStyle(ClassTrainerFrameFilterDropDown, 155)
 	ClassTrainerScrollFrame:SetFixedPanelTemplate("Inset")
-	STYLE:ApplyCloseButtonStyle(ClassTrainerFrameCloseButton, ClassTrainerFrame)
+	PLUGIN:ApplyCloseButtonStyle(ClassTrainerFrameCloseButton, ClassTrainerFrame)
 	ClassTrainerFrameSkillStepButton.icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 	ClassTrainerFrameSkillStepButton:SetFixedPanelTemplate("Button", true)
 	--ClassTrainerFrameSkillStepButton.Panel:WrapOuter(ClassTrainerFrameSkillStepButton.icon)
@@ -95,7 +95,7 @@ local function TrainerStyle()
 end 
 --[[ 
 ########################################################## 
-STYLE LOADING
+PLUGIN LOADING
 ##########################################################
 ]]--
-STYLE:SaveBlizzardStyle("Blizzard_TrainerUI",TrainerStyle)
+PLUGIN:SaveBlizzardStyle("Blizzard_TrainerUI",TrainerStyle)

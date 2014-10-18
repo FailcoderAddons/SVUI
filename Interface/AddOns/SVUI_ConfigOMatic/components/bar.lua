@@ -30,7 +30,7 @@ GET ADDON DATA
 ##########################################################
 ]]--
 local SV = _G["SVUI"];
-local SVLib = _G.LibSuperVillain;
+local SVLib = LibSuperVillain("Registry");
 local L = SV.L;
 local MOD = SV.SVBar;
 --[[ 
@@ -682,12 +682,12 @@ SV.Options.args.SVBar = {
 							name = L["Out of Range"], 
 							desc = L["Color of the actionbutton when out of range."], 
 							hasAlpha = true, 
-							get = function(key)
-								local color = SV.db.SVBar[key[#key]]
-								return color[1], color[2], color[3], color[4] 
-							end, 
+							get = function(key) return unpack(SV.db.SVBar[key[#key]]) end, 
 							set = function(key, rValue, gValue, bValue, aValue)
-								SV.db.SVBar[key[#key]] = {rValue, gValue, bValue, aValue}
+								SV.db.SVBar[key[#key]][1] = rValue
+								SV.db.SVBar[key[#key]][2] = gValue
+								SV.db.SVBar[key[#key]][3] = bValue
+								SV.db.SVBar[key[#key]][4] = aValue
 								MOD:RefreshActionBars()
 							end, 
 						}, 
@@ -697,12 +697,12 @@ SV.Options.args.SVBar = {
 							name = L["Out of Power"], 
 							desc = L["Color of the actionbutton when out of power (Mana, Rage, Focus, Holy Power)."], 
 							hasAlpha = true, 
-							get = function(key)
-								local color = SV.db.SVBar[key[#key]]
-								return color[1], color[2], color[3], color[4]
-							end, 
+							get = function(key) return unpack(SV.db.SVBar[key[#key]]) end, 
 							set = function(key, rValue, gValue, bValue, aValue)
-								SV.db.SVBar[key[#key]] = {rValue, gValue, bValue, aValue}
+								SV.db.SVBar[key[#key]][1] = rValue
+								SV.db.SVBar[key[#key]][2] = gValue
+								SV.db.SVBar[key[#key]][3] = bValue
+								SV.db.SVBar[key[#key]][4] = aValue
 								MOD:RefreshActionBars()
 							end, 
 						}, 

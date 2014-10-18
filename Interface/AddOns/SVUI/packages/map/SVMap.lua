@@ -76,7 +76,8 @@ local MM_OFFSET_TOP = (MM_SIZE * 0.07)
 local MM_OFFSET_BOTTOM = (MM_SIZE * 0.11)
 local MM_WIDTH = MM_SIZE + (MM_BRDR * 2)
 local MM_HEIGHT = (MM_SIZE - (MM_OFFSET_TOP + MM_OFFSET_BOTTOM) + (MM_BRDR * 2))
---local 
+local SVUI_MinimapFrame = CreateFrame("Frame", "SVUI_MinimapFrame", UIParent)
+SVUI_MinimapFrame:Size(MM_WIDTH, MM_HEIGHT)
 --[[
  /$$$$$$$  /$$   /$$ /$$$$$$$$/$$$$$$$$/$$$$$$  /$$   /$$  /$$$$$$ 
 | $$__  $$| $$  | $$|__  $$__/__  $$__/$$__  $$| $$$ | $$ /$$__  $$
@@ -364,52 +365,24 @@ local function SetLargeWorldMap()
 	WorldMapFrameSizeDownButton:Show()
 end 
 
-local function SetQuestWorldMap()
-	if InCombatLockdown() then return end
-
-	if SV.db.SVMap.tinyWorldMap == true then
-		WorldMapFrame:SetParent(SV.UIParent)
-		WorldMapFrame:EnableMouse(false)
-		WorldMapFrame:EnableKeyboard(false)
-		if WorldMapFrame:GetAttribute('UIPanelLayout-area') ~= 'center'then
-			SetUIPanelAttribute(WorldMapFrame, "area", "center")
-		end 
-		if WorldMapFrame:GetAttribute('UIPanelLayout-allowOtherPanels') ~= true then
-			SetUIPanelAttribute(WorldMapFrame, "allowOtherPanels", true)
-		end 
-	end
-
-	WorldMapFrameSizeUpButton:Hide()
-	WorldMapFrameSizeDownButton:Show()
-end 
-
 local function SetSmallWorldMap()
 	if InCombatLockdown() then return end 
-	WorldMapLevelDropDown:ClearAllPoints()
-	WorldMapLevelDropDown:Point("TOPLEFT", WorldMapDetailFrame, "TOPLEFT", -10, -4)
 	WorldMapFrameSizeUpButton:Show()
 	WorldMapFrameSizeDownButton:Hide()
 end
 
 local function AdjustMapSize()
-	if InCombatLockdown() then return end 
+	if InCombatLockdown() then return end
+
+	if WORLDMAP_SETTINGS.size == WORLDMAP_FULLMAP_SIZE then 
+		SetLargeWorldMap()
+	elseif WORLDMAP_SETTINGS.size == WORLDMAP_WINDOWED_SIZE then 
+		SetSmallWorldMap()
+	end
+	
 	if SV.db.SVMap.tinyWorldMap == true then
-		if WORLDMAP_SETTINGS.size == WORLDMAP_FULLMAP_SIZE then 
-			SetLargeWorldMap()
-		elseif WORLDMAP_SETTINGS.size == WORLDMAP_WINDOWED_SIZE then 
-			SetSmallWorldMap()
-		elseif WORLDMAP_SETTINGS.size == WORLDMAP_QUESTLIST_SIZE then 
-			SetQuestWorldMap()
-		end
 		BlackoutWorld:SetTexture(0,0,0,0)
 	else
-		if WORLDMAP_SETTINGS.size == WORLDMAP_FULLMAP_SIZE then
-			WorldMapFrame_SetFullMapView()
-		elseif WORLDMAP_SETTINGS.size == WORLDMAP_WINDOWED_SIZE then 
-			WorldMap_ToggleSizeDown()
-		elseif WORLDMAP_SETTINGS.size == WORLDMAP_QUESTLIST_SIZE then 
-			WorldMapFrame_SetQuestMapView()
-		end
 		BlackoutWorld:SetTexture(0, 0, 0, 1)
 	end 
 	
@@ -426,10 +399,6 @@ local function UpdateWorldMapConfig()
 	if(not MOD.WorldMapHooked) then
 		NewHook("WorldMap_ToggleSizeUp", AdjustMapSize)
 		NewHook("WorldMap_ToggleSizeDown", SetSmallWorldMap)
-		if(SV.GameVersion < 60000) then
-			NewHook("WorldMapFrame_SetFullMapView", SetLargeWorldMap)
-			NewHook("WorldMapFrame_SetQuestMapView", SetQuestWorldMap)
-		end
 		MOD.WorldMapHooked = true
 	end
 	
@@ -683,10 +652,8 @@ function MOD:ADDON_LOADED(event, addon)
 end
 
 function MOD:PLAYER_REGEN_ENABLED()
-	if(WorldMapFrame:IsShown()) then
-		WorldMapFrameSizeDownButton:Enable()
-		WorldMapFrameSizeUpButton:Enable()
-	end
+	WorldMapFrameSizeDownButton:Enable()
+	WorldMapFrameSizeUpButton:Enable()
 	if(self.CombatLocked) then
 		self:RefreshMiniMap()
 		self.CombatLocked = nil
@@ -738,7 +705,7 @@ function MOD:Load()
 	Minimap:SetBlipTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Minimap\\MINIMAP_ICONS")
 	Minimap:SetClampedToScreen(false)
 
-	local mapHolder = CreateFrame("Frame", "SVUI_MinimapFrame", UIParent)
+	local mapHolder = SVUI_MinimapFrame
 	mapHolder:SetFrameStrata("BACKGROUND")
 	mapHolder.backdrop = mapHolder:CreateTexture(nil, "BACKGROUND", nil, -2)
 	mapHolder:Point("TOPRIGHT", SV.UIParent, "TOPRIGHT", -10, -10)
@@ -874,14 +841,6 @@ function MOD:Load()
 	PetJournalParent:SetAttribute("UIPanelLayout-defined", true);
 	SV.Mentalo:Add(mapHolder, L["Minimap"]) 
 
-	if(SV.GameVersion < 60000) then
-		WorldMapShowDropDown:Point('BOTTOMRIGHT',WorldMapPositioningGuide,'BOTTOMRIGHT',-2,-4)
-		WorldMapZoomOutButton:Point("LEFT",WorldMapZoneDropDown,"RIGHT",0,4)
-		WorldMapLevelUpButton:Point("TOPLEFT",WorldMapLevelDropDown,"TOPRIGHT",-2,8)
-		WorldMapLevelDownButton:Point("BOTTOMLEFT",WorldMapLevelDropDown,"BOTTOMRIGHT",-2,2)
-		WorldMapZoneDropDownButton:HookScript('OnClick', _hook_WorldMapZoneDropDownButton_OnClick)
-	end
-
 	if(SV.db.SVMap.tinyWorldMap) then
 		setfenv(WorldMapFrame_OnShow, setmetatable({ UpdateMicroButtons = SV.fubar }, { __index = _G }))
 		WorldMapFrame:SetParent(SV.UIParent)
@@ -901,7 +860,7 @@ function MOD:Load()
 	CoordsHolder.mouseCoords:SetTextColor(1,1,0)
 	CoordsHolder.playerCoords:SetFontObject(NumberFontNormal)
 	CoordsHolder.mouseCoords:SetFontObject(NumberFontNormal)
-	CoordsHolder.playerCoords:SetPoint("BOTTOMLEFT",WorldMapDetailFrame,"BOTTOMLEFT",5,5)
+	CoordsHolder.playerCoords:SetPoint("BOTTOMLEFT",WorldMapFrame,"BOTTOMLEFT",5,5)
 	CoordsHolder.playerCoords:SetText(PLAYER..":   0, 0")
 	CoordsHolder.mouseCoords:SetPoint("BOTTOMLEFT",CoordsHolder.playerCoords,"TOPLEFT",0,5)
 	CoordsHolder.mouseCoords:SetText(MOUSE_LABEL..":   0, 0")

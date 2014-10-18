@@ -30,8 +30,8 @@ local twipe = table.wipe;
 GET ADDON DATA
 ##########################################################
 ]]--
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 local activePanels = {};
 local SkadaHolder, SkadaHolder2
 --[[ 
@@ -79,7 +79,7 @@ local function skada_panel_loader(holder, window)
   window.bargroup:SetParent(holder)
 end
 
-function STYLE:Docklet_Skada()
+function PLUGIN:Docklet_Skada()
   if not Skada then return end 
   CheckForHolders()
   for index,window in pairs(Skada:GetWindows()) do
@@ -96,7 +96,7 @@ function STYLE:Docklet_Skada()
 end
 
 local function Skada_ShowPopup(self)
-  STYLE:LoadAlert('Do you want to reset Skada?', function(self) Skada:Reset() self:GetParent():Hide() end)
+  PLUGIN:LoadAlert('Do you want to reset Skada?', function(self) Skada:Reset() self:GetParent():Hide() end)
 end
 
 local function StyleSkada()
@@ -140,15 +140,15 @@ local function StyleSkada()
 
   hooksecurefunc(Skada, 'CreateWindow', function()
     if SVUI.CurrentlyDocked["SkadaHolder"] or SVUI.CurrentlyDocked["SkadaHolder2"] then
-      STYLE:Docklet_Skada()
+      PLUGIN:Docklet_Skada()
     end
   end)
 
   hooksecurefunc(Skada, 'DeleteWindow', function()
     if SVUI.CurrentlyDocked["SkadaHolder"] or SVUI.CurrentlyDocked["SkadaHolder2"] then
-      STYLE:Docklet_Skada()
+      PLUGIN:Docklet_Skada()
     end
   end)
 end
 
-STYLE:SaveAddonStyle("Skada", StyleSkada, nil, true)
+PLUGIN:SaveAddonStyle("Skada", StyleSkada, nil, true)

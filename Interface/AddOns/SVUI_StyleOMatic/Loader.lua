@@ -25,9 +25,9 @@ local assert        = _G.assert;
 
 local AddonName, AddonObject = ...
 
-assert(_G.LibSuperVillain, AddonName .. " requires LibSuperVillain")
+assert(LibSuperVillain, AddonName .. " requires LibSuperVillain")
 
-local PLUGIN = _G.LibSuperVillain:NewPlugin(AddonName, AddonObject)
+local PLUGIN = LibSuperVillain("Registry"):NewPlugin(AddonName, AddonObject, "StyleOMatic_Profile", "StyleOMatic_Global")
 
 local Schema = PLUGIN.Schema;
 local SV = _G["SVUI"];
@@ -37,8 +37,7 @@ local L = SV.L
 CONFIG DATA
 ##########################################################
 ]]--
-SV.configs[Schema] = {
-	["enable"] = true,
+PLUGIN.configs = {
 	["blizzard"] = {
 		["enable"] = true, 
 		["bags"] = true, 
@@ -122,6 +121,8 @@ SV.configs[Schema] = {
 		["TradeSkillDW"] = true, 
 	}
 };
+
+PLUGIN.db = table.copy(PLUGIN.configs);
 --[[ 
 ########################################################## 
 CONFIG OPTIONS
@@ -131,23 +132,23 @@ SV.Options.args.plugins.args.pluginOptions.args[Schema].args["blizzardEnable"] =
     order = 2, 
 	name = "Standard UI Styling", 
     type = "toggle",
-    get = function(key) return SV.db[Schema].blizzard.enable end,
-    set = function(key,value) SV.db[Schema].blizzard.enable = value; SV:StaticPopup_Show("RL_CLIENT") end
+    get = function(key) return PLUGIN.db.blizzard.enable end,
+    set = function(key,value) PLUGIN.db.blizzard.enable = value; SV:StaticPopup_Show("RL_CLIENT") end
 }
 SV.Options.args.plugins.args.pluginOptions.args[Schema].args["addonEnable"] = {
     order = 3,
 	name = "Addon Styling",
     type = "toggle",
-    get = function(key) return SV.db[Schema].addons.enable end,
-    set = function(key,value) SV.db[Schema].addons.enable = value; SV:StaticPopup_Show("RL_CLIENT") end
+    get = function(key) return PLUGIN.db.addons.enable end,
+    set = function(key,value) PLUGIN.db.addons.enable = value; SV:StaticPopup_Show("RL_CLIENT") end
 }
 SV.Options.args.plugins.args.pluginOptions.args[Schema].args["addons"] = {
 	order = 4, 
 	type = "group", 
 	name = "Addon Styling", 
-	get = function(key) return SV.db[Schema].addons[key[#key]] end, 
-	set = function(key,value) SV.db[Schema].addons[key[#key]] = value; SV:StaticPopup_Show("RL_CLIENT")end,
-	disabled = function() return not SV.db[Schema].addons.enable end,
+	get = function(key) return PLUGIN.db.addons[key[#key]] end, 
+	set = function(key,value) PLUGIN.db.addons[key[#key]] = value; SV:StaticPopup_Show("RL_CLIENT")end,
+	disabled = function() return not PLUGIN.db.addons.enable end,
 	guiInline = true, 
 	args = {
 		ace3 = {
@@ -161,9 +162,9 @@ SV.Options.args.plugins.args.pluginOptions.args[Schema].args["blizzard"] = {
 	order = 300, 
 	type = "group", 
 	name = "Individual Mods", 
-	get = function(key) return SV.db[Schema].blizzard[key[#key]] end, 
-	set = function(key,value) SV.db[Schema].blizzard[key[#key]] = value; SV:StaticPopup_Show("RL_CLIENT") end, 
-	disabled = function() return not SV.db[Schema].blizzard.enable end, 
+	get = function(key) return PLUGIN.db.blizzard[key[#key]] end, 
+	set = function(key,value) PLUGIN.db.blizzard[key[#key]] = value; SV:StaticPopup_Show("RL_CLIENT") end, 
+	disabled = function() return not PLUGIN.db.blizzard.enable end, 
 	guiInline = true, 
 	args = {
 		bmah = {

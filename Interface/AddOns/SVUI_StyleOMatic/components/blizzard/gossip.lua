@@ -22,20 +22,23 @@ local pairs   = _G.pairs;
 --[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
-GOSSIP STYLER
+GOSSIP PLUGINR
 ##########################################################
 ]]--
 local function GossipStyle()
-	if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.gossip ~= true then return end 
+	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.gossip ~= true then return end 
+
+	PLUGIN:ApplyWindowStyle(GossipFrame, true, true)
+
 	ItemTextFrame:RemoveTextures(true)
 	ItemTextScrollFrame:RemoveTextures()
-	STYLE:ApplyCloseButtonStyle(GossipFrameCloseButton)
-	STYLE:ApplyPaginationStyle(ItemTextPrevPageButton)
-	STYLE:ApplyPaginationStyle(ItemTextNextPageButton)
+	PLUGIN:ApplyCloseButtonStyle(GossipFrameCloseButton)
+	PLUGIN:ApplyPaginationStyle(ItemTextPrevPageButton)
+	PLUGIN:ApplyPaginationStyle(ItemTextNextPageButton)
 	ItemTextPageText:SetTextColor(1, 1, 1)
 	hooksecurefunc(ItemTextPageText, "SetTextColor", function(q, k, l, m)
 		if k ~= 1 or l ~= 1 or m ~= 1 then 
@@ -44,10 +47,10 @@ local function GossipStyle()
 	end)
 	ItemTextFrame:SetPanelTemplate("Pattern")
 	ItemTextFrameInset:Die()
-	STYLE:ApplyScrollFrameStyle(ItemTextScrollFrameScrollBar)
-	STYLE:ApplyCloseButtonStyle(ItemTextFrameCloseButton)
-	local r = {"GossipFrameGreetingPanel", "GossipFrame", "GossipFrameInset", "GossipGreetingScrollFrame"}
-	STYLE:ApplyScrollFrameStyle(GossipGreetingScrollFrameScrollBar, 5)
+	PLUGIN:ApplyScrollFrameStyle(ItemTextScrollFrameScrollBar)
+	PLUGIN:ApplyCloseButtonStyle(ItemTextFrameCloseButton)
+	local r = {"GossipFrameGreetingPanel", "GossipFrameInset", "GossipGreetingScrollFrame"}
+	PLUGIN:ApplyScrollFrameStyle(GossipGreetingScrollFrameScrollBar, 5)
 	for s, t in pairs(r)do 
 		_G[t]:RemoveTextures()
 	end 
@@ -61,14 +64,14 @@ local function GossipStyle()
 	_G["GossipFramePortrait"]:Die()
 	_G["GossipFrameGreetingGoodbyeButton"]:RemoveTextures()
 	_G["GossipFrameGreetingGoodbyeButton"]:SetButtonTemplate()
-	STYLE:ApplyCloseButtonStyle(GossipFrameCloseButton, GossipFrame.Panel)
+	PLUGIN:ApplyCloseButtonStyle(GossipFrameCloseButton, GossipFrame.Panel)
 	NPCFriendshipStatusBar:RemoveTextures()
 	NPCFriendshipStatusBar:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]])
 	NPCFriendshipStatusBar:SetPanelTemplate("Default")
 end 
 --[[ 
 ########################################################## 
-STYLE LOADING
+PLUGIN LOADING
 ##########################################################
 ]]--
-STYLE:SaveCustomStyle(GossipStyle)
+PLUGIN:SaveCustomStyle(GossipStyle)

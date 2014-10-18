@@ -31,8 +31,8 @@ GET ADDON DATA
 ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
 VEM
@@ -234,17 +234,17 @@ local function StyleVEM(event, addon)
 
 	if addon == 'VEM-GUI' then
 		VEM_GUI_OptionsFrame:HookScript('OnShow', function()
-			STYLE:ApplyFrameStyle(VEM_GUI_OptionsFrame)
-			STYLE:ApplyFrameStyle(VEM_GUI_OptionsFrameBossMods)
-			STYLE:ApplyFrameStyle(VEM_GUI_OptionsFrameVEMOptions)
-			STYLE:ApplyFrameStyle(VEM_GUI_OptionsFramePanelContainer, 'Transparent', true)
+			PLUGIN:ApplyFrameStyle(VEM_GUI_OptionsFrame)
+			PLUGIN:ApplyFrameStyle(VEM_GUI_OptionsFrameBossMods)
+			PLUGIN:ApplyFrameStyle(VEM_GUI_OptionsFrameVEMOptions)
+			PLUGIN:ApplyFrameStyle(VEM_GUI_OptionsFramePanelContainer, 'Transparent', true)
 		end)
-		STYLE:ApplyTabStyle(VEM_GUI_OptionsFrameTab1)
-		STYLE:ApplyTabStyle(VEM_GUI_OptionsFrameTab2)
+		PLUGIN:ApplyTabStyle(VEM_GUI_OptionsFrameTab1)
+		PLUGIN:ApplyTabStyle(VEM_GUI_OptionsFrameTab2)
 		VEM_GUI_OptionsFrameOkay:SetButtonTemplate()
 		VEM_GUI_OptionsFrameWebsiteButton:SetButtonTemplate()
-		STYLE:ApplyScrollFrameStyle(VEM_GUI_OptionsFramePanelContainerFOVScrollBar)
-		STYLE:SafeEventRemoval("VEM", event)
+		PLUGIN:ApplyScrollFrameStyle(VEM_GUI_OptionsFramePanelContainerFOVScrollBar)
+		PLUGIN:SafeEventRemoval("VEM", event)
 	end
 end
-STYLE:SaveAddonStyle("VEM", StyleVEM, nil, true)
+PLUGIN:SaveAddonStyle("VEM", StyleVEM, nil, true)

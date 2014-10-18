@@ -20,11 +20,11 @@ local select  = _G.select;
 --[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
-LOSSOFCONTROL STYLER
+LOSSOFCONTROL PLUGINR
 ##########################################################
 ]]--
 local _hook_LossOfControl = function(self, ...)
@@ -48,7 +48,7 @@ local _hook_LossOfControl = function(self, ...)
 end
 
 local function LossOfControlStyle()
-  if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.losscontrol ~= true then return end 
+  if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.losscontrol ~= true then return end 
   local IconBackdrop = CreateFrame("Frame", nil, LossOfControlFrame)
   IconBackdrop:WrapOuter(LossOfControlFrame.Icon)
   IconBackdrop:SetFrameLevel(LossOfControlFrame:GetFrameLevel()-1)
@@ -62,7 +62,7 @@ local function LossOfControlStyle()
 end 
 --[[ 
 ########################################################## 
-STYLE LOADING
+PLUGIN LOADING
 ##########################################################
 ]]--
-STYLE:SaveCustomStyle(LossOfControlStyle)
+PLUGIN:SaveCustomStyle(LossOfControlStyle)

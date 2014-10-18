@@ -31,8 +31,8 @@ GET ADDON DATA
 ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
 OUTFITTER
@@ -43,7 +43,7 @@ local function StyleOutfitter()
 	
 	CharacterFrame:HookScript("OnShow", function(self) PaperDollSidebarTabs:SetPoint("BOTTOMRIGHT", CharacterFrameInsetRight, "TOPRIGHT", -14, 0) end)
 	OutfitterFrame:HookScript("OnShow", function(self) 
-		STYLE:ApplyFrameStyle(OutfitterFrame)
+		PLUGIN:ApplyFrameStyle(OutfitterFrame)
 		OutfitterFrameTab1:Size(60, 25)
 		OutfitterFrameTab2:Size(60, 25)
 		OutfitterFrameTab3:Size(60, 25)
@@ -67,8 +67,8 @@ local function StyleOutfitter()
 	OutfitterFrameTab1:SetButtonTemplate()
 	OutfitterFrameTab2:SetButtonTemplate()
 	OutfitterFrameTab3:SetButtonTemplate()
-	STYLE:ApplyScrollFrameStyle(OutfitterMainFrameScrollFrameScrollBar)
-	STYLE:ApplyCloseButtonStyle(OutfitterCloseButton)
+	PLUGIN:ApplyScrollFrameStyle(OutfitterMainFrameScrollFrameScrollBar)
+	PLUGIN:ApplyCloseButtonStyle(OutfitterCloseButton)
 	OutfitterNewButton:SetButtonTemplate()
 	OutfitterEnableNone:SetButtonTemplate()
 	OutfitterEnableAll:SetButtonTemplate()
@@ -109,11 +109,11 @@ local function StyleOutfitter()
 	OutfitterShowOutfitBar:Point("TOPLEFT", OutfitterAutoSwitch, "BOTTOMLEFT", 0, -5)
 	OutfitterEditScriptDialogDoneButton:SetButtonTemplate()
 	OutfitterEditScriptDialogCancelButton:SetButtonTemplate()
-	STYLE:ApplyScrollFrameStyle(OutfitterEditScriptDialogSourceScriptScrollBar)
-	STYLE:ApplyFrameStyle(OutfitterEditScriptDialogSourceScript,"Transparent")
-	STYLE:ApplyFrameStyle(OutfitterEditScriptDialog)
-	STYLE:ApplyCloseButtonStyle(OutfitterEditScriptDialog.CloseButton)
-	STYLE:ApplyTabStyle(OutfitterEditScriptDialogTab1)
-	STYLE:ApplyTabStyle(OutfitterEditScriptDialogTab2)
+	PLUGIN:ApplyScrollFrameStyle(OutfitterEditScriptDialogSourceScriptScrollBar)
+	PLUGIN:ApplyFrameStyle(OutfitterEditScriptDialogSourceScript,"Transparent")
+	PLUGIN:ApplyFrameStyle(OutfitterEditScriptDialog)
+	PLUGIN:ApplyCloseButtonStyle(OutfitterEditScriptDialog.CloseButton)
+	PLUGIN:ApplyTabStyle(OutfitterEditScriptDialogTab1)
+	PLUGIN:ApplyTabStyle(OutfitterEditScriptDialogTab2)
 end
-STYLE:SaveAddonStyle("Outfitter", StyleOutfitter)
+PLUGIN:SaveAddonStyle("Outfitter", StyleOutfitter)

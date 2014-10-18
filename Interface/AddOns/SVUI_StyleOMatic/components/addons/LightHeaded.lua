@@ -31,8 +31,8 @@ GET ADDON DATA
 ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
 LIGHTHEADED
@@ -60,25 +60,25 @@ local function StyleLightHeaded()
 	local lhsub 	= _G["LightHeadedFrameSub"]
 	local lhopts 	= _G["LightHeaded_Panel"]
 
-	STYLE:ApplyFrameStyle(LightHeadedFrame)
-	STYLE:ApplyFrameStyle(LightHeadedFrameSub)
-	STYLE:ApplyFrameStyle(LightHeadedSearchBox)
-	STYLE:ApplyTooltipStyle(LightHeadedTooltip)
+	PLUGIN:ApplyFrameStyle(LightHeadedFrame)
+	PLUGIN:ApplyFrameStyle(LightHeadedFrameSub)
+	PLUGIN:ApplyFrameStyle(LightHeadedSearchBox)
+	PLUGIN:ApplyTooltipStyle(LightHeadedTooltip)
 	LightHeadedScrollFrame:RemoveTextures()
 			
 	lhframe.close:Hide()
-	STYLE:ApplyCloseButtonStyle(lhframe.close)
+	PLUGIN:ApplyCloseButtonStyle(lhframe.close)
 	lhframe.handle:Hide()
 	
-	STYLE:ApplyPaginationStyle(lhsub.prev)
-	STYLE:ApplyPaginationStyle(lhsub.next)
+	PLUGIN:ApplyPaginationStyle(lhsub.prev)
+	PLUGIN:ApplyPaginationStyle(lhsub.next)
 	lhsub.prev:SetWidth(16)
 	lhsub.prev:SetHeight(16)
 	lhsub.next:SetWidth(16)
 	lhsub.next:SetHeight(16)
 	lhsub.prev:SetPoint("RIGHT", lhsub.page, "LEFT", -25, 0)
 	lhsub.next:SetPoint("LEFT", lhsub.page, "RIGHT", 25, 0)
-	STYLE:ApplyScrollFrameStyle(LightHeadedScrollFrameScrollBar, 5)
+	PLUGIN:ApplyScrollFrameStyle(LightHeadedScrollFrameScrollBar, 5)
 	lhsub.title:SetTextColor(23/255, 132/255, 209/255)	
 	
 	lhframe.timeLapse = 0;
@@ -101,4 +101,4 @@ local function StyleLightHeaded()
 		LightHeaded_Panel_Button2:Disable()
 	end
 end
-STYLE:SaveAddonStyle("Lightheaded", StyleLightHeaded)
+PLUGIN:SaveAddonStyle("Lightheaded", StyleLightHeaded)

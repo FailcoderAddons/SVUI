@@ -23,8 +23,8 @@ local hooksecurefunc = _G.hooksecurefunc;
 --[[ ADDON ]]--
 local SV = _G.SVUI;
 local L = SV.L;
-local STYLE = select(2, ...);
-local Schema = STYLE.Schema;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
 HELPERS
@@ -198,11 +198,11 @@ local _hook_UpdateActionBarLayout = function(self)
 end
 --[[ 
 ########################################################## 
-PETBATTLE STYLER
+PETBATTLE PLUGINR
 ##########################################################
 ]]--
 local function PetBattleStyle()
-	if SV.db[Schema].blizzard.enable ~= true or SV.db[Schema].blizzard.petbattleui ~= true then
+	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.petbattleui ~= true then
 		return 
 	end
 
@@ -211,7 +211,7 @@ local function PetBattleStyle()
 	local ActiveFramesList = { PetBattleFrame.ActiveAlly, PetBattleFrame.ActiveEnemy }
 	local StandardFramesList = { PetBattleFrame.Ally2, PetBattleFrame.Ally3, PetBattleFrame.Enemy2, PetBattleFrame.Enemy3 }
 
-	STYLE:ApplyCloseButtonStyle(FloatingBattlePetTooltip.CloseButton)
+	PLUGIN:ApplyCloseButtonStyle(FloatingBattlePetTooltip.CloseButton)
 	PetBattleFrame:RemoveTextures()
 	
 	for i, frame in pairs(ActiveFramesList) do 
@@ -411,7 +411,7 @@ local function PetBattleStyle()
 end 
 --[[ 
 ########################################################## 
-STYLE LOADING
+PLUGIN LOADING
 ##########################################################
 ]]--
-STYLE:SaveCustomStyle(PetBattleStyle)
+PLUGIN:SaveCustomStyle(PetBattleStyle)
