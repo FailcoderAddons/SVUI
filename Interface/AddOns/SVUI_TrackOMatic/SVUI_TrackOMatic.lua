@@ -126,35 +126,50 @@ end
 local Tracker_OnUpdate = function(self, elapsed)
     if self.elapsed and self.elapsed > (self.throttle or 0.02) then
         if(self.Trackable) then
-            local distance, angle = self.Track("target", true)
+            local distance, angle = Triangulate("target", true)
             if not angle then
                 self.throttle = 4
                 self.Arrow:SetAlpha(0)
                 self.Radar:SetVertexColor(0.8,0.1,0.1,0.15)
+                -- self.Border:SetVertexColor(1,0,0,0.15)
                 self.BG:SetVertexColor(1,0,0,0.15)
             else
                 self.throttle = 0.02
-                local range = floor(tonumber(distance))
+                local range = floor(distance * 1000)
                 self:Spin(angle)
-                if(range > 100) then
-                    self.Arrow:SetVertexColor(1,0.1,0.1,0.4)
-                    self.Radar:SetVertexColor(0.8,0.1,0.1,0.25)
-                    self.BG:SetVertexColor(0.8,0.4,0.1,0.25)
-                elseif(range > 40) then
-                    self.Arrow:SetVertexColor(1,0.8,0.1,0.6)
-                    self.Radar:SetVertexColor(0.8,0.8,0.1,0.5)
-                    self.BG:SetVertexColor(0.4,0.8,0.1,0.5)
-                elseif(range > 0) then
-                    self.Arrow:SetVertexColor(0.1,1,0.8,0.9)
-                    self.Radar:SetVertexColor(0.1,0.8,0.8,0.75)
-                    self.BG:SetVertexColor(0.1,0.8,0.1,0.75)
+                if(range > 0) then
+                    self.Arrow:SetAlpha(1)
+                    self.Radar:SetAlpha(1)
+                    self.Border:Show()
+                    self.BG:SetAlpha(1)
+                    if(range > 100) then
+                        self.Arrow:SetVertexColor(1,0.1,0.1,0.4)
+                        self.Radar:SetVertexColor(0.8,0.1,0.1,0.25)
+                        -- self.Border:SetVertexColor(0.5,0.2,0.1,0.25)
+                        self.BG:SetVertexColor(0.8,0.4,0.1,0.6)
+                    elseif(range > 40) then
+                        self.Arrow:SetVertexColor(1,0.8,0.1,0.6)
+                        self.Radar:SetVertexColor(0.8,0.8,0.1,0.5)
+                        -- self.Border:SetVertexColor(0.5,0.5,0.1,0.8)
+                        self.BG:SetVertexColor(0.4,0.8,0.1,0.5)
+                    else
+                        self.Arrow:SetVertexColor(0.1,1,0.8,0.9)
+                        self.Radar:SetVertexColor(0.1,0.8,0.8,0.75)
+                        -- self.Border:SetVertexColor(0.1,0.5,0.1,1)
+                        self.BG:SetVertexColor(0.1,0.8,0.1,0.75)
+                    end
+                    self.Range:SetText(range)
                 else
-                    self.Arrow:SetVertexColor(0.1,0.1,0.1,0.1)
-                    self.Radar:SetVertexColor(0.1,0.1,0.1,0.1)
-                    self.BG:SetVertexColor(0.1,0.1,0.1,0.1)
+                    self.Arrow:SetVertexColor(0.1,0.1,0.1,0)
+                    self.Radar:SetVertexColor(0.1,0.1,0.1,0)
+                    -- self.Border:SetVertexColor(0.1,0.1,0.1,0)
+                    self.BG:SetVertexColor(0.1,0.1,0.1,0)
+                    self.Arrow:SetAlpha(0)
+                    self.Radar:SetAlpha(0)
+                    self.Border:Hide()
+                    self.BG:SetAlpha(0)
+                    self.Range:SetText("")
                 end
-                self.Arrow:SetAlpha(1)
-                self.Range:SetText(range)
             end            
         else
             self:Hide()
@@ -190,7 +205,6 @@ function PLUGIN:Load()
         _TRACKER.Range:SetFont(SV.Media.font.roboto, 14, "OUTLINE")
         _TRACKER.Range:SetTextColor(1, 1, 1, 0.75)
         _TRACKER.Spin = Rotate_Arrow
-        _TRACKER.Track = _G.Triangulate
 
         _TRACKER:RegisterForDrag("LeftButton");
         _TRACKER:SetScript("OnUpdate", Tracker_OnUpdate)

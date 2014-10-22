@@ -32,7 +32,7 @@ local string     = _G.string;
 local math      = _G.math;
 --[[ MATH METHODS ]]--
 local floor, abs, min, max = math.floor, math.abs, math.min, math.max;
-local parsefloat = math.parsefloat;
+local parsefloat, ceil = math.parsefloat, math.ceil;
 --[[ STRING METHODS ]]--
 local lower = string.lower;
 --[[ TABLE METHODS ]]--
@@ -55,121 +55,38 @@ local FontUpdateFrames = {};
 local NewFrame = CreateFrame;
 local NewHook = hooksecurefunc;
 local STANDARD_TEXT_FONT = _G.STANDARD_TEXT_FONT;
-local SCREEN_MOD = 1;
-
-local function GetUsableScreen()
-    local rez = GetCVar("gxResolution")
-    local height = rez:match("%d+x(%d+)")
-    local width = rez:match("(%d+)x%d+")
-    local gxHeight = tonumber(height)
-    local gxWidth = tonumber(width)
-    local gxMod = (768 / gxHeight)
-    return gxWidth, gxHeight, gxMod
-end
 --[[ 
 ########################################################## 
 UI SCALING
 ##########################################################
 ]]--
-function SV:UI_SCALE_CHANGED(event)
-    local scale, evalwidth
-    local gxWidth, gxHeight, gxMod = GetUsableScreen()
-
-    if(IsMacClient() and self.DisplaySettings and self.DisplaySettings.screenheight and self.DisplaySettings.screenwidth) then
-        if(gxHeight ~= self.DisplaySettings.screenheight or gxWidth ~= self.DisplaySettings.screenwidth) then 
-            gxHeight = self.DisplaySettings.screenheight;
-            gxWidth = self.DisplaySettings.screenwidth 
-        end 
-    end 
-    
-    if self.db.general.autoScale then
-        scale = max(0.64, min(1.15, gxMod))
-    else
-        scale = max(0.64, min(1.15, GetCVar("uiScale") or UIParent:GetScale() or gxMod))
-    end
-
-    SCREEN_MOD = gxMod / scale;
-
-    self.ghettoMonitor = nil
-
-    if gxWidth < 1600 then
-        self.ghettoMonitor = true;
-    elseif gxWidth >= 3840 then
-        local width = gxWidth;
-        local height = gxHeight;
-        if(self.db.general.multiMonitor) then
-            if width >= 9840 then width = 3280; end
-            if width >= 7680 and width < 9840 then width = 2560; end
-            if width >= 5760 and width < 7680 then width = 1920; end
-            if width >= 5040 and width < 5760 then width = 1680; end
-            if width >= 4800 and width < 5760 and height == 900 then width = 1600; end
-            if width >= 4320 and width < 4800 then width = 1440; end
-            if width >= 4080 and width < 4320 then width = 1360; end
-            if width >= 3840 and width < 4080 then width = 1224; end
-            if width < 1600 then
-                self.ghettoMonitor = true;
-            end
-        else
-            if width >= 9840 then width = 9840; end
-            if width >= 7680 and width < 9840 then width = 7680; end
-            if width >= 5760 and width < 7680 then width = 5760; end
-            if width >= 5040 and width < 5760 then width = 5040; end
-            if width >= 4800 and width < 5040 then width = 4800; end
-            if width >= 4320 and width < 4800 then width = 4320; end
-            if width >= 4080 and width < 4320 then width = 4080; end
-            if width >= 3840 and width < 4080 then width = 3840; end
-        end
-        
-        evalwidth = width;
-    end
-
-    if(parsefloat(UIParent:GetScale(),5) ~= parsefloat(scale,5) and (event == 'PLAYER_LOGIN')) then 
-        SetCVar("useUiScale",1)
-        SetCVar("uiScale",scale)
+function SV:InitializeUIScale()
+    local activeScale = self.Screen:GetAttribute("ACTIVE_SCALE")
+    local testScale1 = parsefloat(UIParent:GetScale(), 5)
+    local testScale2 = parsefloat(activeScale, 5)
+    if(testScale1 ~= testScale2) then 
+        SetCVar("useUiScale", 1)
+        SetCVar("uiScale", activeScale)
         WorldMapFrame.hasTaint = true;
     end
+end
 
-    if(event == 'PLAYER_LOGIN' or event == 'UI_SCALE_CHANGED') then
-        if IsMacClient() then 
-            self.DisplaySettings.screenheight = floor(GetScreenHeight() * 100 + .5) / 100
-            self.DisplaySettings.screenwidth = floor(GetScreenWidth() * 100 + .5) / 100
-        end
-
-        if evalwidth then
-            local width = evalwidth
-            local height = gxHeight;
-            if not self.db.general.autoScale or height > 1200 then
-                height = UIParent:GetHeight();
-                local ratio = gxHeight / height;
-                width = evalwidth / ratio;
-            end
-            self.UIParent:SetSize(width, height);
-        else
-            self.UIParent:SetSize(UIParent:GetSize());
-        end
-
-        self.UIParent:ClearAllPoints()
-        self.UIParent:SetPoint("CENTER")
-
-        local change = abs((parsefloat(UIParent:GetScale(),5) * 100) - (parsefloat(scale,5) * 100))
-        if(event == 'UI_SCALE_CHANGED' and change > 1 and self.db.general.autoScale) then
+function SV:UI_SCALE_CHANGED(event)
+    local activeScale = self.Screen:GetAttribute("ACTIVE_SCALE")
+    local testScale1 = parsefloat(UIParent:GetScale(), 5)
+    local testScale2 = parsefloat(activeScale, 5)
+    local change = abs((testScale1 * 100) - (testScale2 * 100))
+    if(change > 1) then
+        if(self.Screen:GetAttribute("AUTO_SCALE")) then
             self:StaticPopup_Show('FAILED_UISCALE')
-        elseif(event == 'UI_SCALE_CHANGED' and change > 1) then
+        else
             self:StaticPopup_Show('RL_CLIENT')
-        end 
-
-        self.UIParent:UnregisterEvent('PLAYER_LOGIN')
-
-        self.EffectiveScale = self.UIParent:GetEffectiveScale()
-        self.ActualHeight = self.UIParent:GetHeight()
-        self.ActualWidth = self.UIParent:GetWidth()
-    end 
+        end
+    end
 end
 
 local function scaled(value)
-    if(not SCREEN_MOD) then
-        SV:UI_SCALE_CHANGED()
-    end
+    local SCREEN_MOD = SV.Screen:GetAttribute("MODIFIED_SCALE");
     return SCREEN_MOD * floor(value / SCREEN_MOD + .5);
 end
 
@@ -551,20 +468,18 @@ end
 COOLDOWN HELPER
 ##########################################################
 ]]--
-local function CreateCooldown(frame)
-    if(SV.db.general and not SV.db.general.cooldown) then return end
-    local button = frame:GetName()
-    if(button) then
-        local cooldown = _G[button.."Cooldown"]
-        if(not cooldown or (not frame.Panel)) then return end
-        if(cooldown.HookedCooldown) then return end
+local function CreateCooldown(button)
+    local cooldown = button:GetName() and _G[button:GetName().."Cooldown"]
+    if(cooldown) then
         cooldown:ClearAllPoints()
-        cooldown:FillInner(frame.Panel)
+        cooldown:FillInner()
         cooldown:SetSwipeColor(0, 0, 0, 1)
-        cooldown.HookedCooldown = true
-        cooldown:SetHideCountdownNumbers(true)
+        --cooldown:SetHideCountdownNumbers(true)
 
-        hooksecurefunc(cooldown, "SetCooldown", _hook_Cooldown_SetCooldown)
+        if(not cooldown.HookedCooldown) then
+            hooksecurefunc(cooldown, "SetCooldown", _hook_Cooldown_SetCooldown)
+            cooldown.HookedCooldown = true
+        end
     end
 end
 --[[ 

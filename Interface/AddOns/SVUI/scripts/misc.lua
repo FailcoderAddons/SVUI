@@ -357,8 +357,8 @@ end
 local function RaidMarkShowIcons()
 	if not UnitExists("target") or UnitIsDead("target") then return end 
 	local x,y = GetCursorPosition()
-	local scale = SV.UIParent:GetEffectiveScale()
-	RaidMarkFrame:SetPoint("CENTER", SV.UIParent, "BOTTOMLEFT", (x / scale), (y / scale))
+	local scale = SV.Screen:GetEffectiveScale()
+	RaidMarkFrame:SetPoint("CENTER", SV.Screen, "BOTTOMLEFT", (x / scale), (y / scale))
 	RaidMarkFrame:Show()
 end
 
@@ -475,8 +475,8 @@ end
 local function CreateTotemBar()
 	if(not SV.db.totems.enable) then return; end
 	local xOffset = SV.db.SVDock.dockLeftWidth + 12
-	TotemBar = CreateFrame("Frame", "SVUI_TotemBar", SV.UIParent)
-	TotemBar:SetPoint("BOTTOMLEFT", SV.UIParent, "BOTTOMLEFT", xOffset, 40)
+	TotemBar = CreateFrame("Frame", "SVUI_TotemBar", SV.Screen)
+	TotemBar:SetPoint("BOTTOMLEFT", SV.Screen, "BOTTOMLEFT", xOffset, 40)
 	for i = 1, MAX_TOTEMS do
 		local id = priorities[i]
 		local totem = CreateFrame("Button", "TotemBarTotem"..id, TotemBar)
@@ -625,7 +625,7 @@ end
 local function LoadThreatBar()
 	if(SV.db.general.threatbar == true) then
 		local anchor = _G.SVUI_Target
-		local ThreatBar = CreateFrame('StatusBar', 'SVUI_ThreatBar', SV.UIParent);
+		local ThreatBar = CreateFrame('StatusBar', 'SVUI_ThreatBar', SV.Screen);
 		ThreatBar:SetStatusBarTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Doodads\\THREAT-BAR")
 		ThreatBar:SetSize(50,100)
 		ThreatBar:SetFrameStrata('MEDIUM')

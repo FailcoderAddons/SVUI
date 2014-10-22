@@ -598,16 +598,16 @@ function MOD:UpdateAuras(plate)
 		end
 	end
 	UpdateAuraIconGrid(plate)
-	-- if(self.UseCombo) then
-	-- 	local numPoints = GetComboPoints(UnitHasVehicleUI("player") and "vehicle" or "player", "target")
-	-- 	for i = 1, MAX_COMBO_POINTS do
-	-- 		if(i <= numPoints) then
-	-- 			frame.combo[i]:Show()
-	-- 		else
-	-- 			frame.combo[i]:Hide()
-	-- 		end
-	-- 	end
-	-- end
+	if(self.UseCombo) then
+		local numPoints = GetComboPoints(UnitHasVehicleUI("player") and "vehicle" or "player", "target")
+		for i = 1, MAX_COMBO_POINTS do
+			if(i <= numPoints) then
+				frame.combo[i]:Show()
+			else
+				frame.combo[i]:Hide()
+			end
+		end
+	end
 end
 
 function MOD:UpdateAurasByUnitID(unitid)
@@ -681,9 +681,9 @@ do
 					TARGET_CHECKS = -1
 				end
 				MOD:UpdateAurasByUnitID('target')
-				-- if MOD.UseCombo then
-				-- 	UpdateComboPoints()
-				-- end
+				if MOD.UseCombo then
+					UpdateComboPoints()
+				end
 				PLATE_ARGS.allowed = nil
 			end
 		elseif PLATE_REF.highlight:IsShown() and UnitExists("mouseover") and (UnitName("mouseover") == plateName) then
@@ -691,9 +691,9 @@ do
 				SVUI_PLATE:SetFrameLevel(1)
 				SVUI_PLATE.highlight:Show()			
 				MOD:UpdateAurasByUnitID('mouseover')
-				-- if MOD.UseCombo then
-				-- 	UpdateComboPoints()
-				-- end
+				if MOD.UseCombo then
+					UpdateComboPoints()
+				end
 				PLATE_ARGS.allowed = nil
 			end
 			BLIZZ_PLATE.guid = UnitGUID("mouseover")
@@ -1088,11 +1088,11 @@ do
 				RegisterAuraClock(PLATE_AURAICONS[index], 0)
 			end		
 		end
-		-- if MOD.UseCombo then
-		-- 	for i=1, MAX_COMBO_POINTS do
-		-- 		SVUI_PLATE.combo[i]:Hide()
-		-- 	end
-		-- end
+		if MOD.UseCombo then
+			for i=1, MAX_COMBO_POINTS do
+				SVUI_PLATE.combo[i]:Hide()
+			end
+		end
 
 		SVUI_PLATE:SetPoint("BOTTOMLEFT", plate, "BOTTOMLEFT")
 	end
@@ -1126,11 +1126,11 @@ do
 			end
 		end
 
-		-- if(MOD.UseCombo and not SVUI_PLATE.combo:IsShown()) then
-		-- 	SVUI_PLATE.combo:Show()	
-		-- elseif(SVUI_PLATE.combo:IsShown()) then
-		-- 	SVUI_PLATE.combo:Hide()	
-		-- end
+		if(MOD.UseCombo and not SVUI_PLATE.combo:IsShown()) then
+			SVUI_PLATE.combo:Show()	
+		elseif(SVUI_PLATE.combo:IsShown()) then
+			SVUI_PLATE.combo:Hide()	
+		end
 
 		ShowThisPlate(plate)
 		HealthBarSizeChanged(SVUI_PLATE.health, SVUI_PLATE.health:GetSize())
@@ -1286,20 +1286,20 @@ do
 		frame.combo:SetSize(68, 1)
 		frame.combo:Hide()
 
-		-- if MOD.UseCombo then
-		-- 	for i = 1, MAX_COMBO_POINTS do
-		-- 		frame.combo[i] = frame.combo:CreateTexture(nil, 'OVERLAY')
-		-- 		frame.combo[i]:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\COMBO-POINT-SMALL")
-		-- 		frame.combo[i]:SetSize(12, 12)
-		-- 		frame.combo[i]:SetVertexColor(unpack(NPComboColor[i]))
-		-- 		if(i == 1) then
-		-- 			frame.combo[i]:SetPoint("TOPLEFT", frame.combo, "TOPLEFT")
-		-- 		else
-		-- 			frame.combo[i]:SetPoint("LEFT", frame.combo[i-1], "RIGHT", 2, 0)
-		-- 		end
-		-- 		frame.combo[i]:Hide()
-		-- 	end
-		-- end
+		if MOD.UseCombo then
+			for i = 1, MAX_COMBO_POINTS do
+				frame.combo[i] = frame.combo:CreateTexture(nil, 'OVERLAY')
+				frame.combo[i]:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\COMBO-POINT-SMALL")
+				frame.combo[i]:SetSize(12, 12)
+				frame.combo[i]:SetVertexColor(unpack(NPComboColor[i]))
+				if(i == 1) then
+					frame.combo[i]:SetPoint("TOPLEFT", frame.combo, "TOPLEFT")
+				else
+					frame.combo[i]:SetPoint("LEFT", frame.combo[i-1], "RIGHT", 2, 0)
+				end
+				frame.combo[i]:Hide()
+			end
+		end
 
 		frame.auras = CreateFrame("Frame", nil, frame)
 		frame.auras:SetHeight(32); frame.auras:Show()
@@ -1422,9 +1422,9 @@ end
 function MOD:UNIT_AURA(event, unit)
   if(unit == "target" or unit == "focus") then
     self:UpdateAurasByUnitID(unit)
- 	-- if(self.UseCombo) then
-	--   	UpdateComboPoints()
-	-- end
+ 	if(self.UseCombo) then
+	  	UpdateComboPoints()
+	end
   end
 end
 
@@ -1533,13 +1533,13 @@ function MOD:UpdateLocals()
 	AuraFilterName = db.auras.additionalFilter
 	AuraFilter = SV.db.filter[AuraFilterName]
 
-	-- if (db.comboPoints and (SV.class == 'ROGUE' or SV.class == 'DRUID')) then
-	-- 	self.UseCombo = true
-	-- 	self:RegisterEvent("UNIT_COMBO_POINTS")
-	-- else
-	-- 	self.UseCombo = false
-	-- 	self:UnregisterEvent("UNIT_COMBO_POINTS")
-	-- end
+	if (db.comboPoints and (SV.class == 'ROGUE' or SV.class == 'DRUID')) then
+		self.UseCombo = true
+		self:RegisterEvent("UNIT_COMBO_POINTS")
+	else
+		self.UseCombo = false
+		self:UnregisterEvent("UNIT_COMBO_POINTS")
+	end
 end
 
 function MOD:CombatToggle(noToggle)

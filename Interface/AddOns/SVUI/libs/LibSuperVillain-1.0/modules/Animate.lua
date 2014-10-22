@@ -137,8 +137,12 @@ local Kapow_OnPlay = function(self)
     parent:SetScale(parent.startscale or 1)
 end
 
-local Kapow_OnFinished = function(self)
+local Kapow_OnStop = function(self)
     self.parent:SetAlpha(0)
+end
+
+local Kapow_OnFinished = function(self)
+    self:Stop()
 end 
 
 local Kapow_OnUpdate = function(self)

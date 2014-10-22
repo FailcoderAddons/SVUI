@@ -295,7 +295,7 @@ local function Update(self, event, unit)
 	-- Show and configure bars for buffs/debuffs.
 	local bars = auraBars.bars
 	if lastAuraIndex == 0 then
-		self.AuraBars:SetHeight(1)
+		auraBars:SetHeight(1)
 	end
 	
 	for index = 1 , lastAuraIndex do
@@ -309,12 +309,12 @@ local function Update(self, event, unit)
 		end
 
 		if index == lastAuraIndex then
-			if self.AuraBars.down then
-				self.AuraBars:SetHeight(self.AuraBars:GetTop() - frame:GetBottom())
-			elseif frame:GetTop() and self.AuraBars:GetBottom() then
-				self.AuraBars:SetHeight(frame:GetTop() - self.AuraBars:GetBottom())
+			if(auraBars.down and (auraBars:GetTop() and frame:GetBottom())) then
+				auraBars:SetHeight(auraBars:GetTop() - frame:GetBottom())
+			elseif(frame:GetTop() and auraBars:GetBottom()) then
+				auraBars:SetHeight(frame:GetTop() - auraBars:GetBottom())
 			else
-				self.AuraBars:Height(20)
+				auraBars:Height(20)
 			end
 		end
 		

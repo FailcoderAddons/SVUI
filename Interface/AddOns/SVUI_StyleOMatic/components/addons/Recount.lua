@@ -106,7 +106,7 @@ local function StyleRecount()
 
   PLUGIN:ApplyScrollFrameStyle(Recount_MainWindow_ScrollBarScrollBar)
 
-  Recount_MainWindow:HookScript('OnShow', function(self) if InCombatLockdown() then return end if SV.CurrentlyDocked["Recount_MainWindow"] then SuperDockWindowRight:Show() end end)
+  Recount_MainWindow:HookScript('OnShow', function(self) if InCombatLockdown() then return end if SV.CurrentlyDocked["Recount_MainWindow"] then RightSuperDockFrameHolder:Show() end end)
   Recount.MainWindow.FileButton:HookScript('OnClick', function(self) if LibDropdownFrame0 then PLUGIN:ApplyFrameStyle(LibDropdownFrame0) end end)
 
   hooksecurefunc(Recount, 'ShowScrollbarElements', function(self, name) Recount_MainWindow_ScrollBarScrollBar:Show() end)

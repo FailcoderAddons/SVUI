@@ -41,6 +41,6 @@
     </Frame>
 
     <Script file='Loader.lua'/>
-    <Script file='SVUI_TrackOMatic.lua'/>
     <Include file='components\_load.xml'/>
+    <Script file='SVUI_TrackOMatic.lua'/>
 </Ui>

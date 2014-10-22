@@ -28,8 +28,6 @@ local L = SV.L;
 --[[ CODING CREDITS ]]--
 
 local contributors = {
-	"Elv", 
-	"Tukz", 
 	"Azilroka", 
 	"Sortokk", 
 	"Kkthnx", 
@@ -64,6 +62,9 @@ local donations = {
 	"Moondoggy",
 	"Necroo",
 	"Chief Pullin",
+	"lkj61",
+	"BloodEagle",
+	"Egbert",
 	"Other Silent Partners.. (Let me know if I have forgotten you)"
 };
 
@@ -128,7 +129,7 @@ end
 
 --[[ BUILD STRING ]]--
 
-local creditHeader = "|cffff9900SUPERVILLAIN CREDITS:|r\n|cff4f4f4f---------------------------------------------|r\n|cffff9900CREATED BY:|r  Munglunch\n|cff4f4f4f---------------------------------------------|r\n|cffff9900CODE GRANTS BY:|r  Elv, Tukz, Azilroka, Sortokk\n|cff4f4f4f---------------------------------------------|r\n";
+local creditHeader = "|cffff9900SUPERVILLAIN CREDITS:|r\n|cff4f4f4f---------------------------------------------|r\n|cffff9900CREATED BY:|r  Munglunch\n|cff4f4f4f---------------------------------------------|r\n|cffff9900CODE GRANTS BY:|r  Azilroka, Sortokk, Kkthnx\n|cff4f4f4f---------------------------------------------|r\n";
 
 local creditThanks1 = "|cffff9900SPECIAL THANKS TO:  |r|cfff81422Cairenn|r |cff2288cc(@WowInterface.com)|r  ..the most patient and accomodating person I know!\n\n";
 

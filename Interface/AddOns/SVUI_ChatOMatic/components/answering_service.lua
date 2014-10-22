@@ -903,11 +903,11 @@ function PLUGIN:EnableAnsweringService()
 	self:RegisterEvent("CHAT_MSG_IGNORED")
 	self:RegisterUpdate("PhoneTimeUpdate", 4)
 
-	local buttonsize = SuperDockToolBarLeft.currentSize
+	local buttonsize = LeftSuperDockToolBar.currentSize
 
 	local docklet = CreateFrame("Button", nil, UIParent)
-	docklet:SetParent(SuperDockToolBarLeft)
-	docklet:Point("LEFT", SuperDockToolBarLeft, "LEFT", 3, 0)
+	docklet:SetParent(LeftSuperDockToolBar)
+	docklet:Point("LEFT", LeftSuperDockToolBar, "LEFT", 3, 0)
 	docklet:Size(buttonsize, buttonsize)
 	docklet:SetFramedButtonTemplate()
 	docklet.icon = docklet:CreateTexture(nil, "OVERLAY")
@@ -917,9 +917,9 @@ function PLUGIN:EnableAnsweringService()
 	docklet.TText = L["Show / Hide Phone Lines"]
 	docklet:RegisterForClicks("AnyUp")
 
-	SV.SVDock:ActivateDockletButton(docklet, AnsweringOnClick)
+	--SV.SVDock:ActivateDockletButton(docklet, AnsweringOnClick)
 
-	SuperDockToolBarLeft:SetWidth(buttonsize + 4)
+	LeftSuperDockToolBar:SetWidth(buttonsize + 4)
 
 	self.Docklet = docklet
 

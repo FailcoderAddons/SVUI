@@ -69,21 +69,6 @@ SV.Options.args.SVDock.args["common"] = {
 			get = function(j)return SV.db.SVDock.topPanel end,
 			set = function(key,value)MOD:ChangeDBVar(value,key[#key]);MOD:TopPanelVisibility()end
 		},
-		dockStatWidth = {
-			order = 3, 
-			type = "range", 
-			name = L["Bottom Stats Width"], 
-			desc = L["PANEL_DESC"],  
-			min = 150, 
-			max = 1200, 
-			step = 1,
-			width = "full",
-			get = function()return SV.db.SVDock.dockStatWidth end, 
-			set = function(key,value)
-				MOD:ChangeDBVar(value,key[#key]);
-				MOD:UpdateSuperDock(true)
-			end,
-		},
 	}
 };
 
@@ -141,7 +126,7 @@ SV.Options.args.SVDock.args["leftDockGroup"] = {
 
 local acceptableDocklets = {
 	["alDamageMeter"] = L["alDamageMeter"],
-	--["Skada"] = L["Skada"],
+	["Skada"] = L["Skada"],
 	["Recount"] = L["Recount"],
 	["TinyDPS"] = L["TinyDPS"],
 	["Omen"] = L["Omen"]
@@ -152,14 +137,15 @@ local function GetLiveDockletsA()
 	local t = {["None"] = L["None"]};
 	for n,l in pairs(acceptableDocklets) do
 		if IsAddOnLoaded(n) or IsAddOnLoaded(l) then
-			-- if n == "Skada" and _G.Skada then
-			-- 	for index,window in pairs(_G.Skada:GetWindows()) do
-			-- 	    local key = window.db.name
-			-- 	    t["Skada"..key] = (key=="Skada") and "Skada - Main" or "Skada - "..key;
-			-- 	end 
-			-- end
 			if (test ~= n and test ~= l) then
-				t[n] = l;
+				if n == "Skada" and _G.Skada then
+					for index,window in pairs(_G.Skada:GetWindows()) do
+					    local key = window.db.name
+					    t["SkadaBarWindow"..key] = (key == "Skada") and "Skada - Main" or "Skada - "..key;
+					end
+				else
+					t[n] = l;
+				end
 			end
 		end
 	end
@@ -171,14 +157,15 @@ local function GetLiveDockletsB()
 	local t = {["None"] = L["None"]};
 	for n,l in pairs(acceptableDocklets) do
 		if IsAddOnLoaded(n) or IsAddOnLoaded(l) then
-			-- if n == "Skada" and _G.Skada then
-			-- 	for index,window in pairs(_G.Skada:GetWindows()) do
-			-- 	    local key = window.db.name
-			-- 	    t["Skada"..key] = (key=="Skada") and "Skada - Main" or "Skada - "..key;
-			-- 	end 
-			-- end
 			if (test ~= n and test ~= l) then
-				t[n] = l;
+				if n == "Skada" and _G.Skada then
+					for index,window in pairs(_G.Skada:GetWindows()) do
+					    local key = window.db.name
+					    t["SkadaBarWindow"..key] = (key == "Skada") and "Skada - Main" or "Skada - "..key;
+					end
+				else
+					t[n] = l;
+				end
 			end
 		end
 	end

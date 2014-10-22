@@ -57,7 +57,7 @@ local function LoadSVEgo()
 	local EgoFrame = CreateFrame("Frame", "SVUI_EgoFrame", UIParent);
 	EgoFrame:SetParent(GameMenuFrame)
 	EgoFrame:SetFrameLevel(0)
-	EgoFrame:SetAllPoints(SV.UIParent)
+	EgoFrame:SetAllPoints(SV.Screen)
 
 	EgoFrame.BG1 = EgoFrame:CreateTexture(nil, "BACKGROUND", nil, -7)
     EgoFrame.BG1:SetPoint("TOPLEFT", EgoFrame, "TOPLEFT", 0, 0)

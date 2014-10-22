@@ -42,7 +42,7 @@ local function freestyle(bar)
 	local bg = bar:Get("bigwigs:elvui:barbg")
 	if bg then
 		bg:ClearAllPoints()
-		bg:SetParent(SVUI.UIParent)
+		bg:SetParent(SVUI.Screen)
 		bg:Hide()
 		FreeBG[#FreeBG + 1] = bg
 	end
@@ -50,7 +50,7 @@ local function freestyle(bar)
 	local ibg = bar:Get("bigwigs:elvui:iconbg")
 	if ibg then
 		ibg:ClearAllPoints()
-		ibg:SetParent(SVUI.UIParent)
+		ibg:SetParent(SVUI.Screen)
 		ibg:Hide()
 		FreeBG[#FreeBG + 1] = ibg
 	end

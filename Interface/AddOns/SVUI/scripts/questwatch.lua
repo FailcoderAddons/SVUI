@@ -58,7 +58,7 @@ local L = SV.L
 LOCAL VARS
 ##########################################################
 ]]--
-local SuperDockWindowRight, QuestFrame, ObjectiveTrackerFrame;
+local RightSuperDockFrameHolder, QuestFrame, ObjectiveTrackerFrame;
 local ICON_FILE = [[Interface\AddOns\SVUI\assets\artwork\Icons\DOCK-QUESTS]]
 local OBJECTIVE_TRACKER_LINE_WIDTH = _G.OBJECTIVE_TRACKER_LINE_WIDTH;
 --[[ 
@@ -67,14 +67,14 @@ CORE FUNCTIONS
 ##########################################################
 ]]--
 local QuestFrame_OnEvent = function(self, event)
-	if(event == "QUEST_AUTOCOMPLETE" and SuperDockWindowRight and QuestFrame) then
-		if SuperDockWindowRight.FrameName and _G[SuperDockWindowRight.FrameName] and _G[SuperDockWindowRight.FrameName]:IsShown() then return end 
+	if(event == "QUEST_AUTOCOMPLETE" and RightSuperDockFrameHolder and QuestFrame) then
+		if RightSuperDockFrameHolder.FrameName and _G[RightSuperDockFrameHolder.FrameName] and _G[RightSuperDockFrameHolder.FrameName]:IsShown() then return end 
 		if not QuestFrame:IsShown() then
-			SuperDockWindowRight.FrameName = "SVUI_QuestFrame"
-			if not SuperDockWindowRight:IsShown()then
-				SuperDockWindowRight:Show()
+			RightSuperDockFrameHolder.FrameName = "SVUI_QuestFrame"
+			if not RightSuperDockFrameHolder:IsShown()then
+				RightSuperDockFrameHolder:Show()
 			end
-			SV:CycleDocklets()
+			SV.SVDock:CycleDocklets()
 			QuestFrame:Show()
 			if(QuestFrame.ToolbarButton) then
 				QuestFrame.ToolbarButton.IsOpen = true;
@@ -85,7 +85,7 @@ local QuestFrame_OnEvent = function(self, event)
 end
 
 local function CreateQuestFrame()
-	SuperDockWindowRight = _G.SuperDockWindowRight
+	RightSuperDockFrameHolder = _G.RightSuperDockFrameHolder
 	ObjectiveTrackerFrame = _G.ObjectiveTrackerFrame
 	if(not ObjectiveTrackerFrame) then return end
 	if(not SV.db.general.questWatch) then
@@ -126,11 +126,11 @@ local function CreateQuestFrame()
 	else
 		local bgTex = [[Interface\BUTTONS\WHITE8X8]]
 		local bdTex = SV.Media.bar.glow
-		local WIDTH, HEIGHT = SuperDockWindowRight:GetSize()
+		local WIDTH, HEIGHT = RightSuperDockFrameHolder:GetSize()
 
-		QuestFrame = CreateFrame("Frame", "SVUI_QuestFrame", SuperDockWindowRight);
+		QuestFrame = CreateFrame("Frame", "SVUI_QuestFrame", RightSuperDockFrameHolder);
 		QuestFrame:SetFrameStrata("BACKGROUND");
-		SV:RegisterDocklet("SVUI_QuestFrame", "Quest Watch", ICON_FILE, false, true)
+		SV.SVDock:RegisterDocklet("SVUI_QuestFrame", "Quest Watch", ICON_FILE, false, true)
 
 		local listFrame = CreateFrame("ScrollFrame", nil, QuestFrame);
 		listFrame:SetPoint("TOPLEFT", QuestFrame, -62, 0);

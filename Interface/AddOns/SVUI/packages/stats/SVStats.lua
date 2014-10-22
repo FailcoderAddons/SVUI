@@ -63,8 +63,8 @@ MOD.DisabledList = {};
 MOD.StatListing = {[""] = "None"};
 MOD.tooltip = CreateFrame("GameTooltip", "StatisticTooltip", UIParent, "GameTooltipTemplate")
 MOD.BGPanels = {
-	["TopLeftDataPanel"] = {left = "Honor", middle = "Kills", right = "Assists"},
-	["TopRightDataPanel"] = {left = "Damage", middle = "Healing", right = "Deaths"}
+	["SVUI_StatsBar1"] = {left = "Honor", middle = "Kills", right = "Assists"},
+	["SVUI_StatsBar2"] = {left = "Damage", middle = "Healing", right = "Deaths"}
 };
 MOD.BGStats = {
 	["Name"] = {1, NAME}, 
@@ -663,16 +663,37 @@ function MOD:UnSet(parent)
 	self.DisabledList[parent.StatParent] = true
 	self:SetMenuLists()
 end
+
+function MOD:UpdateStatSize()
+	local rez = GetCVar("gxResolution");
+	local gxWidth = tonumber(rez:match("(%d+)x%d+"));
+	local bw = gxWidth * 0.5
+	local defaultStatBarWidth = min(bw, 800)
+	local buttonsize = LeftSuperDockToolBar.currentSize or 22
+    local statBarWidth = SV.db.SVStats.dockStatWidth or defaultStatBarWidth
+	_G["SVUI_BottomStatsDock"]:Size(statBarWidth - 2, buttonsize - 8)
+	_G["SVUI_StatsBar3"]:Size((statBarWidth * 0.5) - 1, buttonsize - 8)
+	_G["SVUI_StatsBar4"]:Size((statBarWidth * 0.5) - 1, buttonsize - 8)
+end
 --[[ 
 ########################################################## 
 BUILD FUNCTION / UPDATE
 ##########################################################
 ]]--
 function MOD:ReLoad()
+	self:UpdateStatSize()
 	self:Generate()
 end 
 
 function MOD:Load()
+	local rez = GetCVar("gxResolution");
+	local gxWidth = tonumber(rez:match("(%d+)x%d+"));
+	local bw = gxWidth * 0.5
+	local defaultStatBarWidth = min(bw, 800)
+	local buttonsize = LeftSuperDockToolBar.currentSize or 22
+    local spacing = LeftSuperDock.currentSpacing or 4
+    local statBarWidth = SV.db.SVStats.dockStatWidth or defaultStatBarWidth
+
 	hexHighlight = SV:HexColor("highlight") or "FFFFFF"
 	local hexClass = classColor.colorStr
 	BGStatString = "|cff" .. hexHighlight .. "%s: |c" .. hexClass .. "%s|r";
@@ -686,15 +707,53 @@ function MOD:Load()
 	self.Accountant[playerRealm]["tokens"] = self.Accountant[playerRealm]["tokens"] or {};
 	self.Accountant[playerRealm]["tokens"][playerName] = self.Accountant[playerRealm]["tokens"][playerName] or 738;
 
+	--TOP STAT HOLDERS
+
+	local topanchor = CreateFrame("Frame", "SVUI_TopStatsDock", SV.Screen)
+	topanchor:Size(statBarWidth - 2, buttonsize - 8)
+	topanchor:Point("LEFT", TopSuperDockToolBar, "RIGHT", spacing, 0)
+	SV:AddToDisplayAudit(topanchor)
+
+	local topleftdata = CreateFrame("Frame", "SVUI_StatsBar1", topanchor)
+	topleftdata:Size((statBarWidth * 0.5) - 1, buttonsize - 8)
+	topleftdata:Point("LEFT", topanchor, "LEFT", 0, 0)
+	self:NewAnchor(topleftdata, 3, "ANCHOR_CURSOR", true)
+	SV.Mentalo:Add(topleftdata, L["Stats Dock 1"])
+
+	local toprightdata = CreateFrame("Frame", "SVUI_StatsBar2", topanchor)
+	toprightdata:Size((statBarWidth * 0.5) - 1, buttonsize - 8)
+	toprightdata:Point("RIGHT", topanchor, "RIGHT", 0, 0)
+	self:NewAnchor(toprightdata, 3, "ANCHOR_CURSOR", true)
+	SV.Mentalo:Add(toprightdata, L["Stats Dock 2"])
+
+	--BOTTOM STAT HOLDERS
+
+	local bottomanchor = CreateFrame("Frame", "SVUI_BottomStatsDock", SV.Screen)
+	bottomanchor:Size(statBarWidth - 2, buttonsize - 8)
+	bottomanchor:Point("BOTTOM", SV.Screen, "BOTTOM", 0, 2)
+	--SV:AddToDisplayAudit(bottomanchor)
+
+	local bottomleftdata = CreateFrame("Frame", "SVUI_StatsBar3", bottomanchor)
+	bottomleftdata:Size((statBarWidth * 0.5) - 1, buttonsize - 8)
+	bottomleftdata:Point("LEFT", bottomanchor, "LEFT", 0, 0)
+	self:NewAnchor(bottomleftdata, 3, "ANCHOR_CURSOR")
+	SV.Mentalo:Add(bottomleftdata, L["Stats Dock 3"])
+
+	local bottomrightdata = CreateFrame("Frame", "SVUI_StatsBar4", bottomanchor)
+	bottomrightdata:Size((statBarWidth * 0.5) - 1, buttonsize - 8)
+	bottomrightdata:Point("RIGHT", bottomanchor, "RIGHT", 0, 0)
+	self:NewAnchor(bottomrightdata, 3, "ANCHOR_CURSOR")
+	SV.Mentalo:Add(bottomrightdata, L["Stats Dock 4"])
+
 	self:LoadServerGold()
 	self:CacheRepData()
 	self:CacheTokenData()
 
-	StatMenuFrame:SetParent(SV.UIParent);
+	StatMenuFrame:SetParent(SV.Screen);
 	StatMenuFrame:SetPanelTemplate("Transparent");
 	StatMenuFrame:Hide()
 	
-	self.tooltip:SetParent(SV.UIParent)
+	self.tooltip:SetParent(SV.Screen)
 	self.tooltip:SetFrameStrata("DIALOG")
 	self.tooltip:HookScript("OnShow", _hook_TooltipOnShow)
 

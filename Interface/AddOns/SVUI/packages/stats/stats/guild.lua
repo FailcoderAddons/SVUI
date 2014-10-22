@@ -75,7 +75,7 @@ local MobileFlagFormat = {
 	[2] = function()return "|TInterface\\ChatFrame\\UI-ChatIcon-ArmoryChat-BusyMobile:14:14:0:0:16:16:0:16:0:16|t" end
 };
 
-local GuildDatatTextRightClickMenu = CreateFrame("Frame", "GuildDatatTextRightClickMenu", SV.UIParent, "UIDropDownMenuTemplate")
+local GuildDatatTextRightClickMenu = CreateFrame("Frame", "GuildDatatTextRightClickMenu", SV.Screen, "UIDropDownMenuTemplate")
 
 local MenuMap = {
 	{text = OPTIONS_MENU,  isTitle = true,  notCheckable = true}, 

@@ -408,7 +408,7 @@ end
 
 function MOD:LoadKeyBinder()
   self:RefreshActionBars()
-  Binder:SetParent(SV.UIParent)
+  Binder:SetParent(SV.Screen)
   Binder:SetFrameStrata("DIALOG")
   Binder:SetFrameLevel(99)
   Binder:EnableMouse(true)

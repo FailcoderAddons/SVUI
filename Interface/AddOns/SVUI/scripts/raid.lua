@@ -94,8 +94,8 @@ local function ToggleRaidUtil(event)
 	end
 
 	if CheckRaidStatus() then
-		local width = SuperDockToolBarTop.openWidth
-		SuperDockToolBarTop:SetWidth(width)
+		local width = TopSuperDockToolBar.openWidth
+		TopSuperDockToolBar:SetWidth(width)
 		if RaidUtilityPanel.toggled == true then
 			SVUI_RaidTools:Hide()
 			RaidUtilityPanel:Show()		
@@ -104,7 +104,7 @@ local function ToggleRaidUtil(event)
 			RaidUtilityPanel:Hide()
 		end
 	else
-		SuperDockToolBarTop:SetWidth(1)
+		TopSuperDockToolBar:SetWidth(1)
 		SVUI_RaidTools:Hide()
 		RaidUtilityPanel:Hide()
 	end
@@ -121,20 +121,20 @@ RaidUtilFrame:SetScript("OnEvent", ToggleRaidUtil)
 local function LoadRaidUtility()
 	local buttonsize = SV.db.SVDock.buttonSize or 22;
 	--Create main frame
-	local RaidUtilityPanel = CreateFrame("Frame", "RaidUtilityPanel", SV.UIParent, "SecureHandlerClickTemplate")
+	local RaidUtilityPanel = CreateFrame("Frame", "RaidUtilityPanel", SV.Screen, "SecureHandlerClickTemplate")
 	RaidUtilityPanel:SetPanelTemplate('Transparent')
 	RaidUtilityPanel:Width(120)
 	RaidUtilityPanel:Height(PANEL_HEIGHT)
-	RaidUtilityPanel:SetPoint("TOPLEFT", SuperDockToolBarTop, "BOTTOMLEFT", 0, -2)
+	RaidUtilityPanel:SetPoint("TOPLEFT", TopSuperDockToolBar, "BOTTOMLEFT", 0, -2)
 	RaidUtilityPanel:SetFrameLevel(3)
 	RaidUtilityPanel.toggled = false
 	RaidUtilityPanel:SetFrameStrata("HIGH")
 	SV:AddToDisplayAudit(RaidUtilityPanel)
 	
 	--Show Button
-	local SVUI_RaidTools = CreateFrame("Button", "SVUI_RaidTools", SV.UIParent, "UIMenuButtonStretchTemplate, SecureHandlerClickTemplate")
+	local SVUI_RaidTools = CreateFrame("Button", "SVUI_RaidTools", SV.Screen, "UIMenuButtonStretchTemplate, SecureHandlerClickTemplate")
 	SVUI_RaidTools:Size(buttonsize, buttonsize)
-	SVUI_RaidTools:Point("CENTER", SuperDockToolBarTop, "CENTER", 0, 0)
+	SVUI_RaidTools:Point("CENTER", TopSuperDockToolBar, "CENTER", 0, 0)
 	SVUI_RaidTools.icon = SVUI_RaidTools:CreateTexture(nil,"OVERLAY",nil)
 	SVUI_RaidTools.icon:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Icons\DOCK-RAIDTOOL]])
 	SVUI_RaidTools.icon:Point("TOPLEFT", SVUI_RaidTools, "TOPLEFT", 1, -1)
@@ -190,13 +190,13 @@ local function LoadRaidUtility()
 		self:StopMovingOrSizing()
 		local point = self:GetPoint()
 		local xOffset = self:GetCenter()
-		local screenWidth = SV.UIParent:GetWidth() / 2
+		local screenWidth = SV.Screen:GetWidth() / 2
 		xOffset = xOffset - screenWidth
 		self:ClearAllPoints()
 		if find(point, "BOTTOM") then
-			self:SetPoint('BOTTOM', SV.UIParent, 'BOTTOM', xOffset, -1)
+			self:SetPoint('BOTTOM', SV.Screen, 'BOTTOM', xOffset, -1)
 		else
-			self:SetPoint('TOP', SV.UIParent, 'TOP', xOffset, 1)		
+			self:SetPoint('TOP', SV.Screen, 'TOP', xOffset, 1)		
 		end
 	end)
 

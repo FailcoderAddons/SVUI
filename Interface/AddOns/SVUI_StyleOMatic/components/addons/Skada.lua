@@ -34,6 +34,7 @@ local PLUGIN = select(2, ...);
 local Schema = PLUGIN.Schema;
 local activePanels = {};
 local SkadaHolder, SkadaHolder2
+local StupidSkada = function() return end
 --[[ 
 ########################################################## 
 SKADA
@@ -41,50 +42,48 @@ SKADA
 ]]--
 local function CheckForHolders()
   if(not SkadaHolder) then
-    SkadaHolder = CreateFrame("Frame", "SkadaHolder", SuperDockletMain)
+    SkadaHolder = CreateFrame("Frame", "SkadaHolder", SVUI_AddonDock1)
   end
   if(not SkadaHolder2) then
-    SkadaHolder2 = CreateFrame("Frame", "SkadaHolder2", SuperDockletExtra)
+    SkadaHolder2 = CreateFrame("Frame", "SkadaHolder2", SVUI_AddonDock2)
   end
-  SkadaHolder:SetSize(SuperDockletMain:GetSize())
-  SkadaHolder2:SetSize(SuperDockletExtra:GetSize())
+  SkadaHolder:SetSize(SVUI_AddonDock1:GetSize())
+  SkadaHolder2:SetSize(SVUI_AddonDock2:GetSize())
 end
 
 local function skada_panel_loader(holder, window)
-  if not window then return end 
+  if(not window) then return end 
 
   local bars = Skada.displays['bar']
 
-  if(not bars or (bars and not bars.ApplySettings)) then return end
-
+  if(not bars) then return end
+  bars.ApplySettings = StupidSkada
   local width,height = holder:GetSize()
 
   window.db.barspacing = 1;
   window.db.barwidth = width - 4;
   window.db.background.height = height - (window.db.enabletitle and window.db.title.height or 0) - 1;
-  window.db.spark=false;
+  window.db.spark = false;
   window.db.barslocked = true;
   window.bargroup:ClearAllPoints()
-  window.bargroup:SetPoint('BOTTOMLEFT', holder, 'BOTTOMLEFT', 0, 0)
-  window.bargroup:SetParent(UIParent)
+  window.bargroup:SetParent(holder)
+  window.bargroup:SetAllPoints(holder)
   window.bargroup:SetFrameStrata('LOW')
+  --bars:ApplySettings(window)
 
   local bgroup = window.bargroup.backdrop;
   if bgroup then 
     bgroup:Show()
-    bgroup:SetFixedPanelTemplate('Transparent',true) 
+    bgroup:SetFixedPanelTemplate('Transparent', true) 
   end 
-
-  bars:ApplySettings(window)
-  window.bargroup:SetParent(holder)
 end
 
 function PLUGIN:Docklet_Skada()
   if not Skada then return end 
   CheckForHolders()
   for index,window in pairs(Skada:GetWindows()) do
-    local wname = window.db.name or ""
-    local key = "Skada" .. wname
+    local wname = window.db.name or "Skada"
+    local key = "SkadaBarWindow" .. wname
     if(SVUI.db.SVDock.docklets.DockletMain == key)then 
       skada_panel_loader(SkadaHolder, window)
     elseif(SVUI.db.SVDock.docklets.enableExtra and SVUI.db.SVDock.docklets.DockletExtra == key) then

@@ -60,6 +60,7 @@ TRANSMOG PLUGINR
 local function TransmogStyle()
 	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.transmogrify ~= true then return end
 
+	TransmogrifyFrame:Size(500, 600)
 	PLUGIN:ApplyWindowStyle(TransmogrifyFrame, true)
 
 	for p, texture in pairs(TransmogFrameList)do
@@ -68,7 +69,11 @@ local function TransmogStyle()
 
 	select(2, TransmogrifyModelFrame:GetRegions()):Die()
 
+	TransmogrifyModelFrame:ClearAllPoints()
+	TransmogrifyModelFrame:Point("TOPLEFT", TransmogrifyFrame, "TOPLEFT", 12, -22)
+	TransmogrifyModelFrame:Point("BOTTOMRIGHT", TransmogrifyFrame, "BOTTOMRIGHT", -12, 36)
 	TransmogrifyModelFrame:SetFixedPanelTemplate("Model")
+
 	TransmogrifyFrameButtonFrame:GetRegions():Die()
 	TransmogrifyApplyButton:RemoveTextures()
 	TransmogrifyApplyButton:SetButtonTemplate()

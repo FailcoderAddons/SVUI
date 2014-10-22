@@ -837,12 +837,12 @@ function MOD:ModifyBags()
 		if self.BagFrame then
 			local anchor, x, y = SV.db.SVBag.bags.point, SV.db.SVBag.bags.xOffset, SV.db.SVBag.bags.yOffset
 			self.BagFrame:ClearAllPoints()
-			self.BagFrame:Point(anchor, SV.UIParent, anchor, x, y)
+			self.BagFrame:Point(anchor, SV.Screen, anchor, x, y)
 		end 
 		if self.BankFrame then
 			local anchor, x, y = SV.db.SVBag.bank.point, SV.db.SVBag.bank.xOffset, SV.db.SVBag.bank.yOffset
 			self.BankFrame:ClearAllPoints()
-			self.BankFrame:Point(anchor, SV.UIParent, anchor, x, y)
+			self.BankFrame:Point(anchor, SV.Screen, anchor, x, y)
 		end
 	end
 end 
@@ -872,7 +872,7 @@ do
 	local function LoadBagBar()
 		if MOD.BagBarLoaded then return end
 
-		local bar = CreateFrame("Frame", "SVUI_BagBar", SV.UIParent)
+		local bar = CreateFrame("Frame", "SVUI_BagBar", SV.Screen)
 		bar:SetPoint("TOPRIGHT", RightSuperDock, "TOPLEFT", -4, 0)
 		bar.buttons = {}
 		bar:EnableMouse(true)
@@ -1220,7 +1220,7 @@ do
 		local bagName = "SVUI_ContainerFrame"
 		local uisCount = #UISpecialFrames + 1;
 		local bagsCount = #self.BagFrames + 1;
-		local frame = CreateFrame("Button", "SVUI_ContainerFrame", SV.UIParent)
+		local frame = CreateFrame("Button", "SVUI_ContainerFrame", SV.Screen)
 
 		frame:SetPanelTemplate("Container")
 		frame:SetFrameStrata("HIGH")
@@ -1396,10 +1396,10 @@ do
 		end
 
 		frame:SetScript("OnHide", CloseAllBags)
-		UISpecialFrames[uisCount] = bagName;
-		--SV:AddToDisplayAudit(frame)
 
-		self.BagFrames[bagsCount] = frame
+		tinsert(UISpecialFrames, bagName)
+		tinsert(self.BagFrames, frame)
+
 		self.BagFrame = frame
 	end
 
@@ -1410,7 +1410,7 @@ do
 		local uisCount = #UISpecialFrames + 1;
 		local bagsCount = #self.BagFrames + 1;
 
-		local frame = CreateFrame("Button", bagName, isReagent and self.BankFrame or SV.UIParent)
+		local frame = CreateFrame("Button", bagName, isReagent and self.BankFrame or SV.Screen)
 		frame:SetPanelTemplate(isReagent and "Action" or "Container")
 		frame:SetFrameStrata("HIGH")
 
@@ -1503,9 +1503,8 @@ do
 			local Transfer_OnClick = MOD:RunSortingProcess(MOD.Transfer, "bank bags")
 			frame.transferButton:SetScript("OnClick", Transfer_OnClick)
 			
-			UISpecialFrames[uisCount] = bagName;
-			--SV:AddToDisplayAudit(frame)
-			self.BagFrames[bagsCount] = frame
+			tinsert(UISpecialFrames, bagName)
+			tinsert(self.BagFrames, frame)
 
 			frame.bagsButton = CreateFrame("Button", nil, frame)
 			frame.bagsButton:Point("RIGHT", frame.sortButton, "LEFT", -10, 0)
@@ -1769,7 +1768,7 @@ function MOD:Load()
 	self:ModifyBags()
 	self.BagFrame:UpdateLayout()
 
-	BagFilters:SetParent(SV.UIParent)
+	BagFilters:SetParent(SV.Screen)
 	BagFilters:SetPanelTemplate("Default")
 	BagFilters.buttons = {}
 	BagFilters:SetFrameStrata("DIALOG")

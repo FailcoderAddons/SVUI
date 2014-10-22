@@ -112,7 +112,7 @@ local function StyleCharacterSlots()
 				if(iconTex) then
 					iconTex:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 					iconTex:SetParent(charSlot.Panel)
-					iconTex:SetAllPoints(charSlot.Panel)
+					iconTex:FillInner(charSlot.Panel, 2, 2)
 				end
 			end
 

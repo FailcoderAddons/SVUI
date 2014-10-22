@@ -46,7 +46,7 @@ local function StyleALDamageMeter()
   alDamageMeterFrame:HookScript('OnShow', function()
     if InCombatLockdown() then return end 
     if SV.CurrentlyDocked["alDamagerMeterFrame"] then
-      SuperDockWindowRight:Show()
+      RightSuperDockFrameHolder:Show()
     end
   end)
 end

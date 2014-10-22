@@ -176,6 +176,7 @@ local SystemFrameList15 = {
 	"NamesPanelGuilds",
 	"NamesPanelGuildTitles",
 	"NamesPanelTitles",
+	"NamesPanelMinus",
 	"NamesPanelNonCombatCreature",
 	"NamesPanelEnemyPlayerNames",
 	"NamesPanelEnemyPets",
@@ -185,6 +186,7 @@ local SystemFrameList15 = {
 	"NamesPanelUnitNameplatesEnemies",
 	"NamesPanelUnitNameplatesEnemyGuardians",
 	"NamesPanelUnitNameplatesEnemyTotems",
+	"NamesPanelUnitNameplatesEnemyMinus",
 	"CombatTextPanelTargetDamage",
 	"CombatTextPanelPeriodicDamage",
 	"CombatTextPanelPetDamage",
@@ -206,6 +208,7 @@ local SystemFrameList15 = {
 	"CombatTextPanelPeriodicEnergyGains",
 	"CombatTextPanelHonorGains",
 	"CombatTextPanelAuras",
+	"CombatTextPanelPetBattle",
 	"BuffsPanelBuffDurations",
 	"BuffsPanelDispellableDebuffs",
 	"BuffsPanelCastableBuffs",
@@ -279,6 +282,7 @@ local SystemFrameList16 ={
 local SystemFrameList17 = {
 	"Advanced_MaxFPSCheckBox",
 	"Advanced_MaxFPSBKCheckBox",
+	"Advanced_DesktopGamma",
 	"Advanced_UseUIScale",
 	"AudioOptionsSoundPanelEnableSound",
 	"AudioOptionsSoundPanelSoundEffects",
@@ -296,6 +300,7 @@ local SystemFrameList17 = {
 	"AudioOptionsVoicePanelEnableVoice",
 	"AudioOptionsVoicePanelEnableMicrophone",
 	"AudioOptionsVoicePanelPushToTalkSound",
+	"AudioOptionsVoicePanelDialogVolume",
 	"AudioOptionsSoundPanelPetBattleMusic",
 	"NetworkOptionsPanelOptimizeSpeed",
 	"NetworkOptionsPanelUseIPv6",
@@ -484,7 +489,7 @@ local function SystemPanelQue()
 		hooksecurefunc(GhostFrame, "SetBackdropColor", _hook_GhostFrameBackdropColor)
 		hooksecurefunc(GhostFrame, "SetBackdropBorderColor", _hook_GhostFrameBackdropColor)
 		GhostFrame:ClearAllPoints()
-		GhostFrame:SetPoint("TOP", SV.UIParent, "TOP", 0, -150)
+		GhostFrame:SetPoint("TOP", SV.Screen, "TOP", 0, -150)
 		GhostFrameContentsFrame:SetButtonTemplate()
 		GhostFrameContentsFrameIcon:SetTexture(0,0,0,0)
 		local x = CreateFrame("Frame", nil, GhostFrame)

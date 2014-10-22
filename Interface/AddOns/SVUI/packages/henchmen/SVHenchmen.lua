@@ -450,7 +450,7 @@ local function CreateHenchmenSubOptions(buttonIndex,optionIndex)
 end 
 
 local function CreateHenchmenFrame()
-	HenchmenFrame:SetParent(SV.UIParent)
+	HenchmenFrame:SetParent(SV.Screen)
 	HenchmenFrame:SetPoint("CENTER",UIParent,"CENTER",0,0)
 	HenchmenFrame:SetWidth(500)
 	HenchmenFrame:SetHeight(500)
@@ -467,7 +467,7 @@ local function CreateHenchmenFrame()
 
 	HenchmenFrame:Hide()
 
-	local HenchmenCalloutFrame = CreateFrame("Frame","HenchmenCalloutFrame",SV.UIParent)
+	local HenchmenCalloutFrame = CreateFrame("Frame","HenchmenCalloutFrame",SV.Screen)
 	HenchmenCalloutFrame:SetPoint("BOTTOM",UIParent,"BOTTOM",100,150)
 	HenchmenCalloutFrame:SetWidth(256)
 	HenchmenCalloutFrame:SetHeight(128)
@@ -479,7 +479,7 @@ local function CreateHenchmenFrame()
 	HenchmenCalloutFramePic:SetAllPoints(HenchmenCalloutFrame)
 	HenchmenCalloutFrame:Hide()
 
-	local HenchmenFrameBG = CreateFrame("Frame","HenchmenFrameBG",SV.UIParent)
+	local HenchmenFrameBG = CreateFrame("Frame","HenchmenFrameBG",SV.Screen)
 	HenchmenFrameBG:SetAllPoints(WorldFrame)
 	HenchmenFrameBG:SetBackdrop({bgFile = [[Interface\BUTTONS\WHITE8X8]]})
 	HenchmenFrameBG:SetBackdropColor(0,0,0,0.9)
@@ -951,7 +951,7 @@ BUILD FUNCTION / UPDATE
 ##########################################################
 ]]--
 function MOD:Load()
-	local bubble = CreateFrame("Frame", "HenchmenSpeechBubble", SV.UIParent)
+	local bubble = CreateFrame("Frame", "HenchmenSpeechBubble", SV.Screen)
 	bubble:SetSize(256,128)
 	bubble:Point("BOTTOMRIGHT", RightSuperDockToggleButton, "TOPLEFT", 0, 0)
 	bubble:SetFrameStrata("DIALOG")

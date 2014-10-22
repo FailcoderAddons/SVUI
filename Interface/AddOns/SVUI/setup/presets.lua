@@ -71,7 +71,7 @@ local hasOldConfigs = function()
 end
 
 local isLowRez = function()
-	if SV.ghettoMonitor then 
+	if SV.LowRez then 
 		return L["This resolution requires that you change some settings to get everything to fit on your screen."].." "..L["Click the button below to resize your chat frames, unitframes, and reposition your actionbars."].." "..L["You may need to further alter these settings depending how low your resolution is."]
 	else 
 		return L["This resolution doesn't require that you change settings for the UI to fit on your screen."].." "..L["Click the button below to resize your chat frames, unitframes, and reposition your actionbars."].." "..L["This is completely optional."]
@@ -1201,7 +1201,7 @@ local function LoadPageData()
 		{
 			["SubTitle"] = RESOLUTION,
 
-			["Desc1"] = (L["Your current resolution is %s, this is considered a %s resolution."]):format(GetCVar("gxResolution"), (SV.ghettoMonitor and LOW or HIGH)),
+			["Desc1"] = (L["Your current resolution is %s, this is considered a %s resolution."]):format(GetCVar("gxResolution"), (SV.LowRez and LOW or HIGH)),
 			["Desc2"] = isLowRez,
 			["Desc3"] = L["CHOOSE_OR_DIE"],
 

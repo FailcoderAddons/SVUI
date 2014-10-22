@@ -27,24 +27,17 @@ local AddonName, AddonObject = ...
 
 assert(LibSuperVillain, AddonName .. " requires LibSuperVillain")
 
-local PLUGIN = LibSuperVillain("Registry"):NewPlugin(AddonName, AddonObject, "TrackOMatic_Profile", "TrackOMatic_Global")
-
-local Schema = PLUGIN.Schema;
-local SV = _G["SVUI"];
-local L = SV.L
---[[ 
-########################################################## 
-CONFIG DATA
-##########################################################
-]]--
-PLUGIN.configs = {
+AddonObject.configs = {
     ["size"] = 75, 
     ["fontSize"] = 12,
     ["groups"] = true,
     ["proximity"] = false, 
 }
 
-PLUGIN.db = table.copy(PLUGIN.configs);
+local PLUGIN = LibSuperVillain("Registry"):NewPlugin(AddonName, AddonObject, "TrackOMatic_Profile", "TrackOMatic_Global")
+local Schema = PLUGIN.Schema;
+local SV = _G["SVUI"];
+local L = SV.L
 --[[ 
 ########################################################## 
 CONFIG OPTIONS

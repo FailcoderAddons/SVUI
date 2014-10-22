@@ -132,7 +132,7 @@ local _hook_WeatherFrameUpdate = function(self)
 		self.Label:Hide()
 		self.Duration:SetPoint("CENTER", self, 0, 8)
 		self:ClearAllPoints()
-		self:SetPoint("TOP", SV.UIParent, 0, -15)
+		self:SetPoint("TOP", SV.Screen, 0, -15)
 	end 
 end
 
@@ -329,11 +329,11 @@ local function PetBattleStyle()
 	PetBattleActionBar:SetFrameStrata('BACKGROUND')
 	PetBattleActionBar:SetFixedPanelTemplate("Blackout")
 
-	local SuperDockBottomDataAnchor = _G.SuperDockBottomDataAnchor;
-	if(SuperDockBottomDataAnchor) then
-		PetBattleActionBar:SetPoint("BOTTOM", SuperDockBottomDataAnchor, "TOP", 0, 4)
+	local SVUI_BottomStatsDock = _G.SVUI_BottomStatsDock;
+	if(SVUI_BottomStatsDock) then
+		PetBattleActionBar:SetPoint("BOTTOM", SVUI_BottomStatsDock, "TOP", 0, 4)
 	else
-		PetBattleActionBar:SetPoint("BOTTOM", SV.UIParent, "BOTTOM", 0, 4)
+		PetBattleActionBar:SetPoint("BOTTOM", SV.Screen, "BOTTOM", 0, 4)
 	end
 
 	PetBattleFrame.TopVersusText:ClearAllPoints()
@@ -355,7 +355,7 @@ local function PetBattleStyle()
 
 	BottomFrame.TurnTimer:Size(BottomFrame.TurnTimer.SkipButton:GetWidth(), BottomFrame.TurnTimer.SkipButton:GetHeight())
 	BottomFrame.TurnTimer:ClearAllPoints()
-	BottomFrame.TurnTimer:SetPoint("TOP", SV.UIParent, "TOP", 0, -140)
+	BottomFrame.TurnTimer:SetPoint("TOP", SV.Screen, "TOP", 0, -140)
 	BottomFrame.TurnTimer.TimerText:SetPoint("CENTER")
 
 	BottomFrame.FlowFrame:RemoveTextures()
@@ -414,4 +414,4 @@ end
 PLUGIN LOADING
 ##########################################################
 ]]--
-PLUGIN:SaveCustomStyle(PetBattleStyle)
+PLUGIN:SaveBlizzardStyle('Blizzard_PetBattleUI', PetBattleStyle)

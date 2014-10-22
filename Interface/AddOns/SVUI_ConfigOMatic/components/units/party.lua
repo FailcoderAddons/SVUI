@@ -54,7 +54,7 @@ SV.Options.args.SVUnit.args.party = {
 			type = 'execute',
 			name = L['Display Frames'],
 			func = function()
-				MOD:UpdateGroupConfig(SVUI_Party, SVUI_Party.forceShow ~= true or nil)
+				MOD:ViewGroupFrames(SVUI_Party, SVUI_Party.forceShow ~= true or nil)
 			end,
 		},
 		resetSettings = {
@@ -74,6 +74,14 @@ SV.Options.args.SVUnit.args.party = {
 					type = 'group',
 					name = L['General'],
 					args = {
+						showPlayer = {
+							order = 1,
+							type = 'toggle',
+							name = L['Display Player'],
+							desc = L['When true, always show player in party frames'],
+							get = function(l)return SV.db.SVUnit.party.showPlayer end, 
+							set = function(l, m) MOD:ChangeDBVar(m, l[#l], "party"); MOD:SetGroupFrame("party", true) end, 
+						},
 						hideonnpc = {
 							type = 'toggle',
 							order = 2,
@@ -121,7 +129,7 @@ SV.Options.args.SVUnit.args.party = {
 							name = L['Size and Positions'],
 							type = 'group',
 							guiInline = true,
-							set = function(l, m)MOD:ChangeDBVar(m, l[#l], "party");MOD:SetGroupFrame('party', nil, nil, true)end,
+							set = function(l, m)MOD:ChangeDBVar(m, l[#l], "party");MOD:SetGroupFrame('party', true)end,
 							args = {
 								width = {
 									order = 1,
@@ -163,40 +171,8 @@ SV.Options.args.SVUnit.args.party = {
 										LEFT_UP = format(L['%s and then %s'], L['Left'], L['Up']),
 									},
 								},
-								groupCount = {
-									order = 5,
-									type = 'range',
-									name = L['Number of Groups'],
-									min = 1,
-									max = 8,
-									step = 1,
-									set = function(l, m)
-										MOD:ChangeDBVar(m, l[#l], "party");
-										MOD:SetGroupFrame('party')
-										if SVUI_Party.isForced then 
-											MOD:UpdateGroupConfig(SVUI_Party)
-											MOD:UpdateGroupConfig(SVUI_Party, true)
-										end 
-									end,
-								},
-								gRowCol = {
-									order = 6,
-									type = 'range',
-									name = L['Groups Per Row/Column'],
-									min = 1,
-									max = 8,
-									step = 1,
-									set = function(l, m)
-										MOD:ChangeDBVar(m, l[#l], "party");
-										MOD:SetGroupFrame('party')
-										if SVUI_Party.isForced then 
-											MOD:UpdateGroupConfig(SVUI_Party)
-											MOD:UpdateGroupConfig(SVUI_Party, true)
-										end 
-									end,
-								},
 								wrapXOffset = {
-									order = 7,
+									order = 5,
 									type = 'range',
 									name = L['Horizontal Spacing'],
 									min = 0,
@@ -204,7 +180,7 @@ SV.Options.args.SVUnit.args.party = {
 									step = 1,
 								},
 								wrapYOffset = {
-									order = 8,
+									order = 6,
 									type = 'range',
 									name = L['Vertical Spacing'],
 									min = 0,
@@ -213,35 +189,12 @@ SV.Options.args.SVUnit.args.party = {
 								},
 							},
 						},
-						visibilityGroup = {
-							order = 200,
-							name = L['Visibility'],
-							type = 'group',
-							guiInline = true,
-							set = function(l, m)MOD:ChangeDBVar(m, l[#l], "party");MOD:SetGroupFrame('party', nil, nil, true)end,
-							args = {
-								showPlayer = {
-									order = 1,
-									type = 'toggle',
-									name = L['Display Player'],
-									desc = L['When true, the header includes the player when not in a raid.'],
-								},
-								visibility = {
-									order = 2,
-									type = 'input',
-									name = L['Visibility'],
-									desc = L['The following macro must be true in order for the group to be shown, in addition to any filter that may already be set.'],
-									width = 'full',
-									desc = L['TEXT_FORMAT_DESC'],
-								},
-							},
-						},
 						sortingGroup = {
 							order = 300,
 							type = 'group',
 							guiInline = true,
 							name = L['Grouping & Sorting'],
-							set = function(l, m)MOD:ChangeDBVar(m, l[#l], "party");MOD:SetGroupFrame('party', nil, nil, true)end,
+							set = function(l, m)MOD:ChangeDBVar(m, l[#l], "party");MOD:SetGroupFrame('party', true)end,
 							args = {
 								sortMethod = {
 									order = 1,
@@ -274,23 +227,10 @@ SV.Options.args.SVUnit.args.party = {
 									width = 'full',
 									name = ' ',
 								},
-								customSorting = {
-									order = 4,
-									name = L['Custom Sorting'],
-									desc = L['Enabling this allows unique sorting.'],
-									type = 'toggle',
-								},
 								invertGroupingOrder = {
-									order = 5,
+									order = 4,
 									name = L['Invert Grouping Order'],
 									desc = L['Enabling this inverts the sorting order.'],
-									disabled = function()return not SV.db.SVUnit['party'].customSorting end,
-									type = 'toggle',
-								},
-								startFromCenter = {
-									order = 6,
-									name = L['Start Near Center'],
-									desc = L['The initial group will start near the center and grow out.'],
 									disabled = function()return not SV.db.SVUnit['party'].customSorting end,
 									type = 'toggle',
 								},

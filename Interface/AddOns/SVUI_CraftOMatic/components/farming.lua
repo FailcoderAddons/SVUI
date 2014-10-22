@@ -608,8 +608,8 @@ function PLUGIN:PrepareFarmingTools()
 		local BUTTONSIZE = self.db.farming.buttonsize or 35;
 
 		-- SEEDS
-		local farmSeedBarAnchor = CreateFrame("Frame", "FarmSeedBarAnchor", SV.UIParent)
-		farmSeedBarAnchor:Point("TOPRIGHT", SV.UIParent, "TOPRIGHT", -40, -300)
+		local farmSeedBarAnchor = CreateFrame("Frame", "FarmSeedBarAnchor", SV.Screen)
+		farmSeedBarAnchor:Point("TOPRIGHT", SV.Screen, "TOPRIGHT", -40, -300)
 		farmSeedBarAnchor:Size(horizontal and ((BUTTONSIZE + BUTTONSPACE) * 10) or ((BUTTONSIZE + BUTTONSPACE) * 8), horizontal and ((BUTTONSIZE + BUTTONSPACE) * 8) or ((BUTTONSIZE + BUTTONSPACE) * 10))
 		for i = 1, NUM_SEED_BARS do
 			local seedBar = CreateFrame("Frame", "FarmSeedBar"..i, farmSeedBarAnchor)
@@ -620,7 +620,7 @@ function PLUGIN:PrepareFarmingTools()
 		SV.Mentalo:Add(farmSeedBarAnchor, "Farming Seeds")
 
 		-- FARM TOOLS
-		local farmToolBarAnchor = CreateFrame("Frame", "FarmToolBarAnchor", SV.UIParent)
+		local farmToolBarAnchor = CreateFrame("Frame", "FarmToolBarAnchor", SV.Screen)
 		farmToolBarAnchor:Point("TOPRIGHT", farmSeedBarAnchor, horizontal and "BOTTOMRIGHT" or "TOPLEFT", horizontal and 0 or -(BUTTONSPACE * 2), horizontal and -(BUTTONSPACE * 2) or 0)
 		farmToolBarAnchor:Size(horizontal and ((BUTTONSIZE + BUTTONSPACE) * 4) or (BUTTONSIZE + BUTTONSPACE), horizontal and (BUTTONSIZE + BUTTONSPACE) or ((BUTTONSIZE + BUTTONSPACE) * 4))
 		local farmToolBar = CreateFrame("Frame", "FarmToolBar", farmToolBarAnchor)
@@ -630,7 +630,7 @@ function PLUGIN:PrepareFarmingTools()
 		SV.Mentalo:Add(farmToolBarAnchor, "Farming Tools")
 
 		-- PORTALS
-		local farmPortalBarAnchor = CreateFrame("Frame", "FarmPortalBarAnchor", SV.UIParent)
+		local farmPortalBarAnchor = CreateFrame("Frame", "FarmPortalBarAnchor", SV.Screen)
 		farmPortalBarAnchor:Point("TOPRIGHT", farmToolBarAnchor, horizontal and "BOTTOMRIGHT" or "TOPLEFT", horizontal and 0 or -(BUTTONSPACE * 2), horizontal and -(BUTTONSPACE * 2) or 0)
 		farmPortalBarAnchor:Size(horizontal and ((BUTTONSIZE + BUTTONSPACE) * 4) or (BUTTONSIZE + BUTTONSPACE), horizontal and (BUTTONSIZE + BUTTONSPACE) or ((BUTTONSIZE + BUTTONSPACE) * 4))
 		local farmPortalBar = CreateFrame("Frame", "FarmPortalBar", farmPortalBarAnchor)

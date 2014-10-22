@@ -27,16 +27,10 @@ local AddonName, AddonObject = ...
 
 assert(LibSuperVillain, AddonName .. " requires LibSuperVillain")
 
-local PLUGIN = LibSuperVillain("Registry"):NewPlugin(AddonName, AddonObject, "LogOMatic_Profile")
---[[ 
-########################################################## 
-CONFIG DATA
-##########################################################
-]]--
-PLUGIN.configs = {
-	["incompatible"] = {
-		["Altoholic"] = true,
-	},
+AddonObject.configs = {
+  ["incompatible"] = {
+    ["Altoholic"] = true,
+  },
 }
 
-PLUGIN.db = table.copy(PLUGIN.configs);
+local PLUGIN = LibSuperVillain("Registry"):NewPlugin(AddonName, AddonObject, "LogOMatic_Profile")

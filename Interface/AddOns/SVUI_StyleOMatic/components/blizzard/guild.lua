@@ -28,6 +28,7 @@ local SV = _G.SVUI;
 local L = SV.L;
 local PLUGIN = select(2, ...);
 local Schema = PLUGIN.Schema;
+local BAGS = SV.SVBag
 --[[ 
 ########################################################## 
 HELPERS
@@ -115,7 +116,107 @@ local function GCTabHelper(tab)
 	tab.bg3:SetDrawLayer("BACKGROUND",2)
 	tab.bg3:SetTexture(0,0,0,1)
 	tab.bg3:SetAllPoints(tab.Panel) 
+end
+
+local function Tab_OnEnter(this)
+	this.backdrop:SetBackdropColor(0.1, 0.8, 0.8)
+	this.backdrop:SetBackdropBorderColor(0.1, 0.8, 0.8)
+end
+
+local function Tab_OnLeave(this)
+	this.backdrop:SetBackdropColor(0,0,0,1)
+	this.backdrop:SetBackdropBorderColor(0,0,0,1)
+end
+
+local function ChangeTabHelper(this)
+	this:RemoveTextures()
+	local nTex = this:GetNormalTexture()
+	if(nTex) then
+		nTex:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+		nTex:FillInner()
+	end
+
+	this.pushed = true;
+
+	this.backdrop = CreateFrame("Frame", nil, this)
+	this.backdrop:WrapOuter(this,1,1)
+	this.backdrop:SetFrameLevel(0)
+	this.backdrop:SetBackdrop({
+		bgFile = [[Interface\BUTTONS\WHITE8X8]], 
+        tile = false, 
+        tileSize = 0,
+        edgeFile = [[Interface\AddOns\SVUI\assets\artwork\Template\GLOW]],
+        edgeSize = 3,
+        insets = {
+            left = 0,
+            right = 0,
+            top = 0,
+            bottom = 0
+        }
+    });
+    this.backdrop:SetBackdropColor(0,0,0,1)
+	this.backdrop:SetBackdropBorderColor(0,0,0,1)
+	this:SetScript("OnEnter", Tab_OnEnter)
+	this:SetScript("OnLeave", Tab_OnLeave)
+
+	local a,b,c,d,e = this:GetPoint()
+	this:Point(a,b,c,1,e)
 end 
+
+local function StyleSortingButton(button)
+	if button.styled then return end 
+
+	local outer = button:CreateTexture(nil, "OVERLAY")
+	outer:WrapOuter(button, 6, 6)
+	outer:SetTexture([[Interface\Addons\SVUI\assets\artwork\Template\ROUND]])
+	outer:SetGradient("VERTICAL", 0.4, 0.47, 0.5, 0.3, 0.33, 0.35)
+
+	if button.SetNormalTexture then 
+		iconTex = button:GetNormalTexture()
+		iconTex:SetGradient("VERTICAL", 0.5, 0.53, 0.55, 0.8, 0.8, 1)
+	end 
+	
+	local icon = button:CreateTexture(nil, "OVERLAY")
+	icon:WrapOuter(button, 6, 6)
+	SetPortraitToTexture(icon, iconTex)
+	hooksecurefunc(icon, "SetTexture", SetPortraitToTexture)
+
+	local hover = button:CreateTexture(nil, "HIGHLIGHT")
+	hover:WrapOuter(button, 6, 6)
+	hover:SetTexture([[Interface\Addons\SVUI\assets\artwork\Template\ROUND]])
+	hover:SetGradient(unpack(SV.Media.gradient.yellow))
+
+	if button.SetPushedTexture then 
+		local pushed = button:CreateTexture(nil, "BORDER")
+		pushed:WrapOuter(button, 6, 6)
+		pushed:SetTexture([[Interface\Addons\SVUI\assets\artwork\Template\ROUND]])
+		pushed:SetGradient(unpack(SV.Media.gradient.highlight))
+		button:SetPushedTexture(pushed)
+	end 
+
+	if button.SetCheckedTexture then 
+		local checked = button:CreateTexture(nil, "BORDER")
+		checked:WrapOuter(button, 6, 6)
+		checked:SetTexture([[Interface\Addons\SVUI\assets\artwork\Template\ROUND]])
+		checked:SetGradient(unpack(SV.Media.gradient.green))
+		button:SetCheckedTexture(checked)
+	end 
+
+	if button.SetDisabledTexture then 
+		local disabled = button:CreateTexture(nil, "BORDER")
+		disabled:WrapOuter(button, 6, 6)
+		disabled:SetTexture([[Interface\Addons\SVUI\assets\artwork\Template\ROUND]])
+		disabled:SetGradient(unpack(SV.Media.gradient.default))
+		button:SetDisabledTexture(disabled)
+	end 
+
+	local cd = button:GetName() and _G[button:GetName().."Cooldown"]
+	if cd then 
+		cd:ClearAllPoints()
+		cd:FillInner()
+	end 
+	button.styled = true
+end
 
 local _hook_RankOrder_OnUpdate = function()
 	for i = 1, GuildControlGetNumRanks()do 
@@ -276,6 +377,17 @@ local function GuildBankStyle()
 	GuildBankFrameWithdrawButton:SetButtonTemplate()
 	GuildBankInfoSaveButton:SetButtonTemplate()
 	GuildBankFramePurchaseButton:SetButtonTemplate()
+
+
+	local sortButton = CreateFrame("Button", nil, GuildBankFrame)
+	sortButton:Point("BOTTOMLEFT", GuildBankFrame, "BOTTOMRIGHT", 2, 0)
+	sortButton:Size(36, 36)
+	sortButton:SetFramedButtonTemplate()
+	sortButton:SetNormalTexture([[Interface\AddOns\SVUI\assets\artwork\Icons\BAGS-CLEANUP]])
+	--StyleSortingButton(sortButton)
+	local Sort_OnClick = BAGS:RunSortingProcess(BAGS.Sort, "guild")
+	sortButton:SetScript("OnClick", Sort_OnClick)
+
 	GuildBankFrameWithdrawButton:Point("RIGHT", GuildBankFrameDepositButton, "LEFT", -2, 0)
 	GuildBankInfoScrollFrame:Point('TOPLEFT', GuildBankInfo, 'TOPLEFT', -10, 12)
 	GuildBankInfoScrollFrame:RemoveTextures()
@@ -295,8 +407,8 @@ local function GuildBankStyle()
 					if texture then
 						texture:SetTexture(0,0,0,0)
 					end
-
-					button:SetSlotTemplate()
+					button:RemoveTextures()
+					button:SetSlotTemplate(true, 2, 0, 0)
 
 					local icon = _G[btnName.."IconTexture"]
 					if(icon) then
@@ -312,14 +424,12 @@ local function GuildBankStyle()
 		local baseName = ("GuildBankTab%d"):format(i)
 		local tab = _G[baseName]
 		if(tab) then
+			tab:RemoveTextures(true)
 			local btnName = ("%sButton"):format(baseName)
-			local button = _G[baseName]
+			local button = _G[btnName]
 			if(button) then
-				tab:RemoveTextures(true)
 				button:RemoveTextures()
 				button:SetButtonTemplate()
-				button:SetFixedPanelTemplate("Default")
-
 				local texture = _G[btnName.."IconTexture"]
 				if(texture) then
 					texture:FillInner()

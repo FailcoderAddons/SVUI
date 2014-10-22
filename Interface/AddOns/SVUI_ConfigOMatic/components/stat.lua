@@ -78,8 +78,22 @@ SV.Options.args.SVStats = {
 			type = "toggle", 
 			name = L["Shortened Gold Text"], 
 		},
-		fontGroup = {
+		dockStatWidth = {
 			order = 7, 
+			type = "range", 
+			name = L["Stats Width"], 
+			desc = L["PANEL_DESC"],  
+			min = 150, 
+			max = 1200, 
+			step = 1,
+			width = "full", 
+			set = function(key,value)
+				MOD:ChangeDBVar(value, key[#key]);
+				MOD:UpdateStatSize();
+			end,
+		},
+		fontGroup = {
+			order = 8, 
 			type = "group", 
 			guiInline = true, 
 			name = L["Fonts"], 

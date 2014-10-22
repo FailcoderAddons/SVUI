@@ -388,7 +388,7 @@ local function GetDistance(map1, floor1, x1, y1, map2, floor2, x2, y2)
     return dist, angle;
 end
 
-_G.Triangulate = function(unit, noMapLocation)
+function Triangulate(unit, noMapLocation)
     if(WorldMap and WorldMap:IsShown()) then return end
 
     local plot1, plot2, plot3, plot4, plot5, plot6, plot7, plot8;

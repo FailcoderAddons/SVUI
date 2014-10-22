@@ -73,7 +73,7 @@ LOCAL FUNCTIONS
 local LibAB = LibStub("LibActionButton-1.0");
 
 local function NewActionBar(barName)
-	local bar = CreateFrame("Frame", barName, SV.UIParent, "SecureHandlerStateTemplate")
+	local bar = CreateFrame("Frame", barName, SV.Screen, "SecureHandlerStateTemplate")
 	bar.buttons = {}
 	bar.conditions = ""
 	bar.config = {
@@ -967,13 +967,13 @@ CreateActionBars = function(self)
 		thisBar.page = barPageIndex[i]
 
 		if(i == 1) then
-			thisBar:Point("BOTTOM", SV.UIParent, "BOTTOM", 0, 28)
+			thisBar:Point("BOTTOM", SV.Screen, "BOTTOM", 0, 28)
 		elseif(i == 2) then
 			thisBar:Point("BOTTOM", _G["SVUI_ActionBar1"], "TOP", 0, -space)
 		elseif(i == 3) then
 			thisBar:Point("BOTTOMLEFT", _G["SVUI_ActionBar1"], "BOTTOMRIGHT", space, 0)
 		elseif(i == 4) then
-			thisBar:Point("RIGHT", SV.UIParent, "RIGHT", -space, 0)
+			thisBar:Point("RIGHT", SV.Screen, "RIGHT", -space, 0)
 		elseif(i == 5) then
 			thisBar:Point("BOTTOMRIGHT", _G["SVUI_ActionBar1"], "BOTTOMLEFT", -space, 0)
 		else
@@ -1316,11 +1316,11 @@ CreateMicroBar = function(self)
 	local buttonSize = SV.db.SVBar.Micro.buttonsize or 30;
 	local spacing =  SV.db.SVBar.Micro.buttonspacing or 1;
 	local barWidth = (buttonSize + spacing) * 13;
-	local microBar = NewFrame('Frame','SVUI_MicroBar',SV.UIParent)
+	local microBar = NewFrame('Frame','SVUI_MicroBar',SV.Screen)
 	microBar:Size(barWidth,buttonSize + 6)
 	microBar:SetFrameStrata("HIGH")
 	microBar:SetFrameLevel(0)
-	microBar:Point('TOP',SV.UIParent,'TOP',0,4)
+	microBar:Point('TOP',SV.Screen,'TOP',0,4)
 	SV:AddToDisplayAudit(microBar)
 
 	for i=1,13 do
@@ -1381,8 +1381,8 @@ CreateMicroBar = function(self)
 
 	RefreshMicrobar()
 
-	microBar.screenMarker = NewFrame('Frame',nil,SV.UIParent)
-	microBar.screenMarker:Point('TOP',SV.UIParent,'TOP',0,2)
+	microBar.screenMarker = NewFrame('Frame',nil,SV.Screen)
+	microBar.screenMarker:Point('TOP',SV.Screen,'TOP',0,2)
 	microBar.screenMarker:Size(20,20)
 	microBar.screenMarker:SetFrameStrata("BACKGROUND")
 	microBar.screenMarker:SetFrameLevel(4)
@@ -1395,8 +1395,8 @@ CreateMicroBar = function(self)
 end
 
 local CreateExtraBar = function(self)
-	local specialBar = CreateFrame("Frame", "SVUI_SpecialAbility", SV.UIParent)
-	specialBar:Point("TOP", SV.UIParent, "CENTER", 0, -50)
+	local specialBar = CreateFrame("Frame", "SVUI_SpecialAbility", SV.Screen)
+	specialBar:Point("TOP", SV.Screen, "CENTER", 0, -50)
 	specialBar:Size(ExtraActionBarFrame:GetSize())
 	ExtraActionBarFrame:SetParent(specialBar)
 	ExtraActionBarFrame:ClearAllPoints()

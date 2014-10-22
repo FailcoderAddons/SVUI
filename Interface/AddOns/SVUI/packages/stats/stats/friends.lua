@@ -94,7 +94,7 @@ SV.SystemAlert.SET_BN_BROADCAST={
 	preferredIndex = 3
 };
 
-local menuFrame = CreateFrame("Frame", "FriendDatatextRightClickMenu", SV.UIParent, "UIDropDownMenuTemplate")
+local menuFrame = CreateFrame("Frame", "FriendDatatextRightClickMenu", SV.Screen, "UIDropDownMenuTemplate")
 local menuList = {
 	{ text = OPTIONS_MENU, isTitle = true,notCheckable=true},
 	{ text = INVITE, hasArrow = true,notCheckable=true, },

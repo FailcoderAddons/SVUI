@@ -14,7 +14,7 @@
 
 SVUI_StyleOMatic SVUI License Copyright 2014 http://wowinterface.com
 
-(Adapted with permissions from AddOnSkins for ElvUI) Copyright 2014 Azilroka http://www.tukui.org
+(Adapted with permissions from AddOnSkins) Copyright 2014 Azilroka http://www.tukui.org
 
 The contents of this addon, excluding third-party resources, are
 copyrighted to their authors with all rights reserved.

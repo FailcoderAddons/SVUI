@@ -50,7 +50,7 @@ local MentaloUpdateHandler = CreateFrame("Frame", nil)
 
 local Sticky = {};
 Sticky.Frames = {};
-Sticky.Frames[1] = SV.UIParent;
+Sticky.Frames[1] = SV.Screen;
 Sticky.scripts = Sticky.scripts or {}
 Sticky.rangeX = 15
 Sticky.rangeY = 15
@@ -82,14 +82,14 @@ local function SnapStickyFrame(frameA, frameB, left, top, right, bottom)
 		end
 		if lA  <= (lB  +  Sticky.rangeX) and lA  >= (lB - Sticky.rangeX) then
 			newX = lB  +  wA
-			if frameB == UIParent or frameB == WorldFrame or frameB == SVUIParent then 
+			if frameB == UIParent or frameB == WorldFrame or frameB == SVUI_ScreenMask then 
 				newX = newX  +  4
 			end
 			snap = true
 		end
 		if rA  <= (rB  +  Sticky.rangeX) and rA  >= (rB - Sticky.rangeX) then
 			newX = rB - wA
-			if frameB == UIParent or frameB == WorldFrame or frameB == SVUIParent then 
+			if frameB == UIParent or frameB == WorldFrame or frameB == SVUI_ScreenMask then 
 				newX = newX - 4
 			end
 			snap = true
@@ -110,14 +110,14 @@ local function SnapStickyFrame(frameA, frameB, left, top, right, bottom)
 		end
 		if tA  <= (tB  +  Sticky.rangeY) and tA  >= (tB - Sticky.rangeY) then
 			newY = tB - hA
-			if frameB == UIParent or frameB == WorldFrame or frameB == SVUIParent then 
+			if frameB == UIParent or frameB == WorldFrame or frameB == SVUI_ScreenMask then 
 				newY = newY - 4
 			end
 			snap = true
 		end
 		if bA  <= (bB  +  Sticky.rangeY) and bA  >= (bB - Sticky.rangeY) then
 			newY = bB  +  hA
-			if frameB == UIParent or frameB == WorldFrame or frameB == SVUIParent then 
+			if frameB == UIParent or frameB == WorldFrame or frameB == SVUI_ScreenMask then 
 				newY = newY  +  4
 			end
 			snap = true
@@ -230,7 +230,7 @@ local function CurrentPosition(frame)
 	local anchor1, parent, anchor2, x, y = frame:GetPoint()
 	local parentName
 	if not parent then 
-		parentName = "SVUIParent" 
+		parentName = "SVUI_ScreenMask" 
 	elseif not parent:GetName() then 
 		parentName = "SVUI_Player" 
 	else
@@ -240,7 +240,7 @@ local function CurrentPosition(frame)
 end
 
 local function GrabUsableRegions(frame)
-	local parent = frame or SV.UIParent
+	local parent = frame or SV.Screen
 	local right = parent:GetRight()
 	local top = parent:GetTop()
 	local center = parent:GetCenter()
@@ -302,7 +302,7 @@ end
    |__/  |__/  |__/|________/      |__/  |__/|__/  |__/|__/  \__/|_______/ 
 --]]
 
-local TheHand = CreateFrame("Frame", "SVUI_HandOfMentalo", SV.UIParent)
+local TheHand = CreateFrame("Frame", "SVUI_HandOfMentalo", SV.Screen)
 TheHand:SetFrameStrata("DIALOG")
 TheHand:SetFrameLevel(99)
 TheHand:SetClampedToScreen(true)
@@ -327,8 +327,8 @@ local TheHand_OnUpdate = function(self, elapsed)
 	if self.elapsedTime > 0.1 then
 		self.elapsedTime = 0
 		local x, y = GetCursorPosition()
-		local scale = SV.UIParent:GetEffectiveScale()
-		self:SetPoint("CENTER", SV.UIParent, "BOTTOMLEFT", (x  /  scale)  +  50, (y  /  scale)  +  50)
+		local scale = SV.Screen:GetEffectiveScale()
+		self:SetPoint("CENTER", SV.Screen, "BOTTOMLEFT", (x  /  scale)  +  50, (y  /  scale)  +  50)
 	end 
 end
 
@@ -456,7 +456,7 @@ local Movable_OnDragStop = function(self)
 	end
 
 	self:ClearAllPoints()
-	self:Point(newAnchor, SV.UIParent, newAnchor, cX, cY)
+	self:Point(newAnchor, SV.Screen, newAnchor, cX, cY)
 
 	Mentalo:SaveMovable(self.name)
 
@@ -531,7 +531,7 @@ function Mentalo:New(frame, moveName, title, raised, snap, dragStopFunc)
 	if self.Frames[moveName].Created then return end 
 	if raised == nil then raised = true end 
 
-	local movable = CreateFrame("Button", moveName, SV.UIParent)
+	local movable = CreateFrame("Button", moveName, SV.Screen)
 	movable:SetFrameLevel(frame:GetFrameLevel() + 1)
 	movable:SetClampedToScreen(true)
 	movable:SetWidth(frame:GetWidth())
@@ -553,7 +553,7 @@ function Mentalo:New(frame, moveName, title, raised, snap, dragStopFunc)
 	local anchor1, anchorParent, anchor2, xPos, yPos = split("\031", CurrentPosition(frame))
 	if(SV.cache.Anchors and SV.cache.Anchors[moveName]) then 
 		if(type(SV.cache.Anchors[moveName]) == "table") then 
-			movable:SetPoint(SV.cache.Anchors[moveName]["p"], SV.UIParent, SV.cache.Anchors[moveName]["p2"], SV.cache.Anchors[moveName]["p3"], SV.cache.Anchors[moveName]["p4"])
+			movable:SetPoint(SV.cache.Anchors[moveName]["p"], SV.Screen, SV.cache.Anchors[moveName]["p2"], SV.cache.Anchors[moveName]["p3"], SV.cache.Anchors[moveName]["p4"])
 			SV.cache.Anchors[moveName] = CurrentPosition(movable)
 			movable:ClearAllPoints()
 		end 
@@ -649,14 +649,6 @@ function Mentalo:Add(frame, title, raised, snapOffset, dragStopFunc, movableGrou
 	end
 
 	self:New(frame, moveName, title, raised, snapOffset, dragStopFunc)
-
-	-- local ghost;
-	-- for entry,_ in pairs(self.Frames) do 
-	-- 	ghost = _G[entry]
-	-- 	if(ghost) then 
-	-- 		ghost:SetAlpha(0.5)
-	-- 	end 
-	-- end 
 end
 
 function Mentalo:Reset(request)
@@ -797,7 +789,7 @@ local XML_MentaloPrecisionInputX_EnterPressed = function(self)
 			local xOffset, yOffset, anchor = CalculateOffsets()
 			yOffset = tonumber(SVUI_MentaloPrecisionSetY.CurrentValue)
 			CurrentFrameTarget:ClearAllPoints()
-			CurrentFrameTarget:Point(anchor, SVUIParent, anchor, current, yOffset)
+			CurrentFrameTarget:Point(anchor, SVUI_ScreenMask, anchor, current, yOffset)
 			Mentalo:SaveMovable(CurrentFrameTarget.name)
 		end
 		self.CurrentValue = current
@@ -813,7 +805,7 @@ local XML_MentaloPrecisionInputY_EnterPressed = function(self)
 			local xOffset, yOffset, anchor = CalculateOffsets()
 			xOffset = tonumber(SVUI_MentaloPrecisionSetX.CurrentValue)
 			CurrentFrameTarget:ClearAllPoints()
-			CurrentFrameTarget:Point(anchor, SVUIParent, anchor, xOffset, current)
+			CurrentFrameTarget:Point(anchor, SVUI_ScreenMask, anchor, xOffset, current)
 			Mentalo:SaveMovable(CurrentFrameTarget.name)
 		end
 		self.CurrentValue = current

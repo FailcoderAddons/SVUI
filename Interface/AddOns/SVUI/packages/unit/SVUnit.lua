@@ -229,84 +229,19 @@ do
 	end
 end
 
-function MOD:GetActiveSize(db)
+function MOD:GetActiveSize(db, token)
 	local width, height, best = 0,0,0
-
 	if(SV.db.SVUnit.grid.enable and db.gridAllowed) then
 		width = SV.db.SVUnit.grid.size
 		height = width
 		best = width
-	else
+	elseif(db) then
 		width = db.width
 		height = db.height
 		best = min(width, height);
 	end
 
 	return width, height, best
-end
-
-function MOD:AllowElement(unitFrame)
-	if InCombatLockdown() then return; end
-	if not unitFrame.isForced then 
-		unitFrame.sourceElement = unitFrame.unit;
-		unitFrame.unit = "player"
-		unitFrame.isForced = true;
-		unitFrame.sourceEvent = unitFrame:GetScript("OnUpdate")
-	end
-
-	unitFrame:SetScript("OnUpdate", nil)
-	unitFrame.forceShowAuras = true;
-	UnregisterUnitWatch(unitFrame)
-	RegisterUnitWatch(unitFrame, true)
-
-	unitFrame:Show()
-	if unitFrame:IsVisible() and unitFrame.Update then 
-		unitFrame:Update()
-	end 
-end
-
-function MOD:RestrictElement(unitFrame)
-	if(InCombatLockdown() or (not unitFrame.isForced)) then return; end
-
-	unitFrame.forceShowAuras = nil
-	unitFrame.isForced = nil
-
-	UnregisterUnitWatch(unitFrame)
-	RegisterUnitWatch(unitFrame)
-
-	if unitFrame.sourceEvent then 
-		unitFrame:SetScript("OnUpdate", unitFrame.sourceEvent)
-		unitFrame.sourceEvent = nil 
-	end
-
-	unitFrame.unit = unitFrame.sourceElement or unitFrame.unit;
-
-	if unitFrame:IsVisible() and unitFrame.Update then 
-		unitFrame:Update()
-	end 
-end
-
-function MOD:AllowChildren(parentFrame, ...)
-	parentFrame.isForced = true;
-	
-	for i=1, select("#", ...) do
-		local childFrame = select(i, ...)
-		childFrame:RegisterForClicks(nil)
-		childFrame:SetID(i)
-		childFrame.TargetGlow:SetAlpha(0)
-		self:AllowElement(childFrame)
-	end  
-end
-
-function MOD:RestrictChildren(parentFrame, ...)
-	parentFrame.isForced = nil;
-
-	for i=1,select("#",...) do 
-		local childFrame = select(i,...)
-		childFrame:RegisterForClicks(SV.db.SVUnit.fastClickTarget and 'AnyDown' or 'AnyUp')
-		childFrame.TargetGlow:SetAlpha(1)
-		self:RestrictElement(childFrame)
-	end 
 end
 
 function MOD:ResetUnitOptions(unit)
@@ -380,8 +315,8 @@ function MOD:RefreshUnitFrames()
 
 	for _,group in pairs(self.Headers) do
 		group:Update()
-		if group.SetConfigEnvironment then 
-		  group:SetConfigEnvironment()
+		if(group.Configure) then 
+		  group:Configure()
 		end 
 	end
 	if SV.db.SVUnit.disableBlizzard then 
@@ -478,7 +413,7 @@ end
 
 function MOD:RefreshUnitLayout(frame, template)
 	local db = SV.db.SVUnit[template]
-
+	if(not db) then return end
 	local TOP_ANCHOR1, TOP_ANCHOR2, TOP_MODIFIER = "TOPRIGHT", "TOPLEFT", 1;
 	local BOTTOM_ANCHOR1, BOTTOM_ANCHOR2, BOTTOM_MODIFIER = "BOTTOMLEFT", "BOTTOMRIGHT", -1;
 	if(ReversedUnit[template]) then
@@ -1196,179 +1131,6 @@ function MOD:RefreshUnitLayout(frame, template)
 end
 --[[ 
 ########################################################## 
-LOCAL VARIABLES
-##########################################################
-]]--
-local definedEnvs,tags = {}, {};
-local CharacterSelect = {"Munglunch", "Elv", "Tukz", "Azilroka", "Sortokk", "AlleyKat", "Quokka", "Haleth", "P3lim", "Haste", "Totalpackage", "Kryso", "Thepilli", "Doonga", "Judicate", "Cazart506", "Movster", "MuffinMonster", "Joelsoul", "Trendkill09", "Luamar", "Zharooz", "Lyn3x5", "Madh4tt3r", "Xarioth", "Sinnisterr", "Melonmaniac", "Hojowameeat", "Xandeca", "Bkan", "Daigan", "AtomicKiller", "Meljen", "Moondoggy", "Stormblade", "Schreibstift", "Anj", "Risien", "", ""};
-local _PROXY;
-local _ENV = {
-	UnitPower = function(unit, g)
-		if unit:find('target') or unit:find('focus') then 
-			return UnitPower(unit, g)
-		end
-		return random(1, UnitPowerMax(unit, g)or 1)
-	end, 
-	UnitHealth = function(unit)
-		if unit:find('target') or unit:find('focus') then 
-			return UnitHealth(unit)
-		end
-		return random(1, UnitHealthMax(unit))
-	end, 
-	UnitName = function(unit)
-		if unit:find('target') or unit:find('focus') then 
-			return UnitName(unit)
-		end
-		local randomSelect = random(1, 40)
-		local name = CharacterSelect[randomSelect];
-		return name
-	end, 
-	UnitClass = function(unit)
-		if unit:find('target') or unit:find('focus') then 
-			return UnitClass(unit)
-		end
-		local token = CLASS_SORT_ORDER[random(1, #(CLASS_SORT_ORDER))]
-		return LOCALIZED_CLASS_NAMES_MALE[token], token 
-	end,
-	Hex = function(r, g, b)
-		if type(r) == "table" then
-			if r.r then r, g, b = r.r, r.g, r.b else r, g, b = unpack(r) end
-		end
-		return format("|cff%02x%02x%02x", r*255, g*255, b*255)
-	end,
-	ColorGradient = oUF_Villain.ColorGradient,
-};
---[[ 
-########################################################## 
-GROUP CONFIG VISIBILITY
-##########################################################
-]]--
-local function SetProxyEnv()
-	if(_PROXY ~= nil) then return end
-	_PROXY = setmetatable(_ENV, {__index = _G, __newindex = function(_,key,value) _G[key]=value end});
-	tags['name:color'] = oUF_Villain.Tags.Methods['name:color']
-	for i=1, 30 do
-		tags['name:'..i] = oUF_Villain.Tags.Methods['name:'..i]
-	end
-	tags['name:grid'] = oUF_Villain.Tags.Methods['name:grid']
-	tags['health:color'] = oUF_Villain.Tags.Methods['health:color']
-	tags['health:current'] = oUF_Villain.Tags.Methods['health:current']
-	tags['health:deficit'] = oUF_Villain.Tags.Methods['health:deficit']
-	tags['health:curpercent'] = oUF_Villain.Tags.Methods['health:curpercent']
-	tags['health:curmax'] = oUF_Villain.Tags.Methods['health:curmax']
-	tags['health:curmax-percent'] = oUF_Villain.Tags.Methods['health:curmax-percent']
-	tags['health:max'] = oUF_Villain.Tags.Methods['health:max']
-	tags['health:percent'] = oUF_Villain.Tags.Methods['health:percent']
-	tags['power:color'] = oUF_Villain.Tags.Methods['power:color']
-	tags['power:current'] = oUF_Villain.Tags.Methods['power:current']
-	tags['power:deficit'] = oUF_Villain.Tags.Methods['power:deficit']
-	tags['power:curpercent'] = oUF_Villain.Tags.Methods['power:curpercent']
-	tags['power:curmax'] = oUF_Villain.Tags.Methods['power:curmax']
-	tags['power:curmax-percent'] = oUF_Villain.Tags.Methods['power:curmax-percent']
-	tags['power:max'] = oUF_Villain.Tags.Methods['power:max']
-	tags['power:percent'] = oUF_Villain.Tags.Methods['power:percent']
-end
-
-local function ChangeGroupIndex(self)
-	if not self:GetParent().forceShow and not self.forceShow then return end
-	if not self:IsShown() then return end
-
-	local max = MAX_RAID_MEMBERS;
-	local key = self.___groupkey
-	local db = SV.db.SVUnit[key]
-
-	local newIndex = db.customSorting and -(min(db.groupCount * (db.gRowCol * 5), max) + 1 ) or -4;
-	if self:GetAttribute("startingIndex") ~= newIndex then 
-		self:SetAttribute("startingIndex", newIndex)
-		self.isForced = true;
-		MOD:AllowChildren(self, self:GetChildren())
-	end
-end
-
-function MOD:SwapElement(unit, numGroup)
-	if InCombatLockdown()then return end
-	for i=1, numGroup do
-		local unitName = unit..i
-		local frame = self.Units[unitName]
-		if(frame) then
-			if(not frame.isForced) then 
-				self:AllowElement(frame)
-			else
-				self:RestrictElement(frame)
-			end
-		end
-	end 
-end
-
-local attrOverride = {
-	["showRaid"] = true,
-	["showParty"] = true,
-	["showSolo"] = true
-}
-	
-function MOD:UpdateGroupConfig(headerFrame, setForced)
-	if InCombatLockdown() then return end
-
-	SetProxyEnv()
-	local key = headerFrame.___groupkey
-	local db = SV.db.SVUnit[key]
-	headerFrame.forceShow = setForced;
-	headerFrame.forceShowAuras = setForced;
-	headerFrame.isForced = setForced;
-
-	if setForced then 
-		for _, func in pairs(tags) do 
-			if type(func) == "function" then 
-				if not definedEnvs[func] then 
-					definedEnvs[func] = getfenv(func)
-					setfenv(func, _PROXY)
-				end 
-			end 
-		end
-		RegisterStateDriver(headerFrame, "visibility", "show")
-	else 
-		for func, fenv in pairs(definedEnvs)do 
-			setfenv(func, fenv)
-			definedEnvs[func] = nil 
-		end
-		RegisterStateDriver(headerFrame, "visibility", db.visibility)
-		local eventScript = headerFrame:GetScript("OnEvent")
-		if eventScript then
-			eventScript(headerFrame, "PLAYER_ENTERING_WORLD")
-		end
-	end
-
-	for i = 1, #headerFrame.groups do
-		local groupFrame = headerFrame.groups[i]
-
-		if groupFrame:IsShown()then 
-			groupFrame.forceShow = headerFrame.forceShow;
-			groupFrame.forceShowAuras = headerFrame.forceShowAuras;
-			groupFrame:HookScript("OnAttributeChanged", ChangeGroupIndex)
-			if setForced then 
-				for attr in pairs(attrOverride)do 
-					groupFrame:SetAttribute(attr, nil)
-				end
-
-				ChangeGroupIndex(groupFrame)
-				groupFrame:Update()
-			else 
-				for attr in pairs(attrOverride)do 
-					groupFrame:SetAttribute(attr, true)
-				end
-
-				self:RestrictChildren(groupFrame, groupFrame:GetChildren())
-				groupFrame:SetAttribute("startingIndex", 1)
-				groupFrame:Update()
-			end
-		end 
-	end
-
-	headerFrame:SetActiveState()
-	collectgarbage("collect")
-end
---[[ 
-########################################################## 
 EVENTS AND INITIALIZE
 ##########################################################
 ]]--
@@ -1381,18 +1143,18 @@ function MOD:FrameForge()
 		self:SetUnitFrame("targettarget")
 		self:SetUnitFrame("focus")
 		self:SetUnitFrame("focustarget")
-		self:SetEnemyFrames("boss", MAX_BOSS_FRAMES)
-		self:SetEnemyFrames("arena", 5)
+		self:SetEnemyFrame("boss", MAX_BOSS_FRAMES)
+		self:SetEnemyFrame("arena", 5)
 		LoadedUnitFrames = true;
 	end
 	if not LoadedGroupHeaders then
 		self:SetGroupFrame("raid10")
 		self:SetGroupFrame("raid25")
 		self:SetGroupFrame("raid40")
-		self:SetGroupFrame("raidpet", nil, "SVUI_UNITPET", nil, "SecureGroupPetHeaderTemplate")
-		self:SetGroupFrame("party", nil, "SVUI_UNITPET, SVUI_UNITTARGET")
-		self:SetGroupFrame("tank", "MAINTANK", "SVUI_UNITTARGET")
-		self:SetGroupFrame("assist", "MAINASSIST", "SVUI_UNITTARGET")
+		self:SetGroupFrame("raidpet")
+		self:SetGroupFrame("party")
+		self:SetGroupFrame("tank")
+		self:SetGroupFrame("assist")
 		LoadedGroupHeaders = true
 	end
 end
@@ -1412,13 +1174,13 @@ end
 function MOD:PLAYER_REGEN_DISABLED()
 	for _,frame in pairs(self.Headers) do 
 		if frame and frame.forceShow then 
-			self:UpdateGroupConfig(frame)
+			self:ViewGroupFrames(frame)
 		end 
 	end
 
 	for _,frame in pairs(self.Units) do
-		if frame and frame.forceShow then 
-			self:RestrictElement(frame)
+		if(frame and frame.forceShow and frame.Restrict) then 
+			frame:Restrict()
 		end 
 	end
 end
@@ -1513,7 +1275,7 @@ function MOD:Load()
 	if(not SV.db.SVUnit.enable) then return end
 	self:RefreshUnitColors()
 
-	local SVUI_UnitFrameParent = CreateFrame("Frame", "SVUI_UnitFrameParent", SV.UIParent, "SecureHandlerStateTemplate")
+	local SVUI_UnitFrameParent = CreateFrame("Frame", "SVUI_UnitFrameParent", SV.Screen, "SecureHandlerStateTemplate")
 	RegisterStateDriver(SVUI_UnitFrameParent, "visibility", "[petbattle] hide; show")
 
 	self:CanClassDispel()

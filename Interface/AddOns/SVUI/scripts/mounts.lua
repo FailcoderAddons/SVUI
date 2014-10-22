@@ -282,7 +282,7 @@ local function SetMountCheckButtons()
 	UpdateMountsCache()
 
 	local scrollFrame = MountJournal.ListScrollFrame;
-	-- local scrollBar = _G["MountJournalListScrollFrameScrollBar"]
+	local scrollBar = _G["MountJournalListScrollFrameScrollBar"]
     local buttons = scrollFrame.buttons;
 
 	for i = 1, #buttons do
@@ -354,9 +354,6 @@ local function SetMountCheckButtons()
 		UpdateMountCheckboxes(button, i)
 	end
 
-
-	-- scrollFrame:HookScript("OnMouseWheel", Update_MountCheckButtons)
-	-- scrollBar:HookScript("OnValueChanged", Update_MountCheckButtons)
 	UpdateCurrentMountSelection()
 
 	MountListener:RegisterEvent("MOUNT_JOURNAL_USABILITY_CHANGED")
@@ -366,6 +363,8 @@ local function SetMountCheckButtons()
 	MountListener:RegisterEvent("COMPANION_UPDATE")
 	MountListener:SetScript("OnEvent", ProxyUpdate_Mounts)
 
+	scrollFrame:HookScript("OnMouseWheel", Update_MountCheckButtons)
+	scrollBar:HookScript("OnValueChanged", Update_MountCheckButtons)
 	NewHook("MountJournal_UpdateMountList", Update_MountCheckButtons)
 end
 --[[ 
@@ -384,6 +383,16 @@ _G.SVUILetsRide = function()
 	if(CanExitVehicle()) then
 		VehicleExit()
 		return
+	end
+
+	SV.cache.Mounts = SV.cache.Mounts or {}
+	if not SV.cache.Mounts.types then 
+		SV.cache.Mounts.types = {
+			["GROUND"] = false, 
+			["FLYING"] = false, 
+			["SWIMMING"] = false, 
+			["SPECIAL"] = false
+		}
 	end
 
 	local checkList = SV.cache.Mounts.types

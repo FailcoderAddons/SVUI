@@ -386,7 +386,7 @@ do
 			local maxShown = #AURA_ICONS - 1
 			local CB_HEIGHT = SVUI_MinimapFrame:GetHeight()
 			local CB_WIDTH = (CB_HEIGHT / maxShown) + 4
-			print("ToggleConsolidatedBuffs "..CB_WIDTH)
+			--print("ToggleConsolidatedBuffs "..CB_WIDTH)
 			SVUI_AurasAnchor:SetSize(CB_WIDTH, CB_HEIGHT)
 			SVUI_ConsolidatedBuffs:Show()
 			BuffFrame:RegisterUnitEvent("UNIT_AURA", "player")
@@ -558,7 +558,7 @@ function MOD:ReLoad()
 	local maxShown = #AURA_ICONS - 1
 	local CB_HEIGHT = SVUI_MinimapFrame:GetHeight() - 50
 	local CB_WIDTH = (CB_HEIGHT / maxShown) + 4
-	print("Reload "..CB_WIDTH)
+	--print("Reload "..CB_WIDTH)
 	SVUI_AurasAnchor:SetSize(CB_WIDTH, CB_HEIGHT)
 	AURA_FADE_TIME = SV.db.SVAura.fadeBy
 	MOD:UpdateAuraHeader(SVUI_PlayerBuffs, "buffs");
@@ -569,24 +569,26 @@ function MOD:Load()
 	local maxShown = #AURA_ICONS - 1
 	local CB_HEIGHT = SVUI_MinimapFrame:GetHeight() - 50
 	local CB_WIDTH = (CB_HEIGHT / maxShown) + 4
-	print("Load "..CB_WIDTH)
-	if not SV.db.SVAura.enable then return end 
+
 	if SV.db.SVAura.disableBlizzard then 
 		BuffFrame:Die()
 		ConsolidatedBuffs:Die()
 		TemporaryEnchantFrame:Die()
 		InterfaceOptionsFrameCategoriesButton12:SetScale(0.0001)
-	end 
-	local auras = CreateFrame("Frame", "SVUI_AurasAnchor", SV.UIParent)
+	end
+
+	local auras = CreateFrame("Frame", "SVUI_AurasAnchor", SV.Screen)
 	auras:SetSize(CB_WIDTH, CB_HEIGHT)
 	auras:Point("TOPRIGHT", Minimap, "TOPLEFT", -8, 0)
+	
 	self.BuffFrame = CreateAuraHeader("HELPFUL")
 	self.BuffFrame:SetPoint("TOPRIGHT", auras, "TOPLEFT", -8, 0)
 	self.DebuffFrame = CreateAuraHeader("HARMFUL")
 	self.DebuffFrame:SetPoint( "BOTTOMRIGHT", auras, "BOTTOMLEFT", -8, 0)
 
-	SVUI_ConsolidatedBuffs:SetParent(SV.UIParent)
+	SVUI_ConsolidatedBuffs:SetParent(SV.Screen)
 	SVUI_ConsolidatedBuffs:SetAllPoints(auras)
+	SVUI_ConsolidatedBuffs:SetFrameStrata("BACKGROUND")
 
 	for i = 1, NUM_LE_RAID_BUFF_TYPES do 
 		SVUI_ConsolidatedBuffs[i] = CreateHyperBuff(i)

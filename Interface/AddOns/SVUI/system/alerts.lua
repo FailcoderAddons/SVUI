@@ -340,7 +340,7 @@ local SysPop_Move = function(self)
 		if ( lastFrame ) then	
 			self:SetPoint("TOP", lastFrame, "BOTTOM", 0, -4);
 		else
-			self:SetPoint("TOP", SV.UIParent, "TOP", 0, -100);
+			self:SetPoint("TOP", SV.Screen, "TOP", 0, -100);
 		end
 		tinsert(SV.ActiveAlerts, self);
 	end
@@ -916,7 +916,7 @@ function SV:LoadSystemAlerts()
 		SV.Animate:Orbit(configAlert.bg, 10, false, true)
 	end 
 	for i = 1, 4 do 
-		local alert = CreateFrame("Frame", "SVUI_SystemAlert"..i, SV.UIParent, "StaticPopupTemplate")
+		local alert = CreateFrame("Frame", "SVUI_SystemAlert"..i, SV.Screen, "StaticPopupTemplate")
 		alert:SetID(i)
 		alert:SetScript("OnShow", SysPop_Event_Show)
 		alert:SetScript("OnHide", SysPop_Event_Hide)

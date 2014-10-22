@@ -126,6 +126,7 @@ local function LFDFrameStyle()
   if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.lfg ~= true then return end
   
   PLUGIN:ApplyWindowStyle(PVEFrame, true)
+  PLUGIN:ApplyWindowStyle(LFGDungeonReadyDialog, true)
   
   PVEFrameLeftInset:RemoveTextures()
   RaidFinderQueueFrame:RemoveTextures(true)
@@ -155,8 +156,6 @@ local function LFDFrameStyle()
   LFGDungeonReadyDialogLeaveQueueButton:SetButtonTemplate()
   PLUGIN:ApplyCloseButtonStyle(LFGDungeonReadyDialogCloseButton)
 
-  LFGDungeonReadyDialog:RemoveTextures()
-  LFGDungeonReadyDialog:SetPanelTemplate("Pattern", true, 2, 4, 4)
   LFGDungeonReadyStatus:RemoveTextures()
   LFGDungeonReadyStatus:SetPanelTemplate("Pattern", true, 2, 4, 4)
   LFGDungeonReadyDialogRoleIconTexture:SetTexture("Interface\\LFGFrame\\UI-LFG-ICONS-ROLEBACKGROUNDS")

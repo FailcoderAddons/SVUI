@@ -60,7 +60,7 @@ end
 function SV:PushDisplayAudit()
     if(InCombatLockdown()) then return end
     for frame, parent in pairs(DisplayFrames)do 
-        frame:SetParent(parent or self.UIParent) 
+        frame:SetParent(parent or self.Screen) 
     end
     self.NeedsFrameAudit = false
 end

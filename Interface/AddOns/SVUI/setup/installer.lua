@@ -121,7 +121,7 @@ end
 local function ShowLayout(show40)
 	if(not _G["SVUI_Raid40"] or (show40 and _G["SVUI_Raid40"].forceShow == true)) then return end
 	if(not show40 and _G["SVUI_Raid40"].forceShow ~= true) then return end
-	SV.SVUnit:UpdateGroupConfig(_G["SVUI_Raid40"], show40)
+	SV.SVUnit:ViewGroupFrames(_G["SVUI_Raid40"], show40)
 end
 
 local function BarShuffle()
@@ -133,7 +133,7 @@ local function BarShuffle()
 	local sph = (400 - b2h);
 	local anchors = SV.cache.Anchors
 	if not anchors then anchors = {} end
-	anchors.SVUI_SpecialAbility_MOVE = "BOTTOMSVUIParentBOTTOM0"..sph;
+	anchors.SVUI_SpecialAbility_MOVE = "BOTTOMSVUI_ScreenMaskBOTTOM0"..sph;
 	anchors.SVUI_ActionBar2_MOVE = "BOTTOMSVUI_ActionBar1TOP0"..(-bS);
 	anchors.SVUI_ActionBar3_MOVE = "BOTTOMLEFTSVUI_ActionBar1BOTTOMRIGHT40";
 	anchors.SVUI_ActionBar5_MOVE = "BOTTOMRIGHTSVUI_ActionBar1BOTTOMLEFT-40";
@@ -149,73 +149,73 @@ end
 local function UFMoveBottomQuadrant(toggle)
 	local anchors = SV.cache.Anchors
 	if not toggle then
-		anchors.SVUI_Player_MOVE = "BOTTOMSVUIParentBOTTOM-278182"
-		anchors.SVUI_PlayerCastbar_MOVE = "BOTTOMSVUIParentBOTTOM-278122"
-		anchors.SVUI_Target_MOVE = "BOTTOMSVUIParentBOTTOM278182"
-		anchors.SVUI_TargetCastbar_MOVE = "BOTTOMSVUIParentBOTTOM278122"
-		anchors.SVUI_Pet_MOVE = "BOTTOMSVUIParentBOTTOM0181"
-		anchors.SVUI_TargetTarget_MOVE = "BOTTOMSVUIParentBOTTOM0214"
-		anchors.SVUI_Focus_MOVE = "BOTTOMSVUIParentBOTTOM310432"
-		anchors.SVUI_ThreatBar_MOVE = "BOTTOMRIGHTSVUIParentBOTTOMRIGHT-495182"
+		anchors.SVUI_Player_MOVE = "BOTTOMSVUI_ScreenMaskBOTTOM-278182"
+		anchors.SVUI_PlayerCastbar_MOVE = "BOTTOMSVUI_ScreenMaskBOTTOM-278122"
+		anchors.SVUI_Target_MOVE = "BOTTOMSVUI_ScreenMaskBOTTOM278182"
+		anchors.SVUI_TargetCastbar_MOVE = "BOTTOMSVUI_ScreenMaskBOTTOM278122"
+		anchors.SVUI_Pet_MOVE = "BOTTOMSVUI_ScreenMaskBOTTOM0181"
+		anchors.SVUI_TargetTarget_MOVE = "BOTTOMSVUI_ScreenMaskBOTTOM0214"
+		anchors.SVUI_Focus_MOVE = "BOTTOMSVUI_ScreenMaskBOTTOM310432"
+		anchors.SVUI_ThreatBar_MOVE = "BOTTOMRIGHTSVUI_ScreenMaskBOTTOMRIGHT-495182"
 	elseif toggle == "shift" then
-		anchors.SVUI_Player_MOVE = "BOTTOMSVUIParentBOTTOM-278210"
-		anchors.SVUI_PlayerCastbar_MOVE = "BOTTOMSVUIParentBOTTOM-278150"
-		anchors.SVUI_Target_MOVE = "BOTTOMSVUIParentBOTTOM278210"
-		anchors.SVUI_TargetCastbar_MOVE = "BOTTOMSVUIParentBOTTOM278150"
-		anchors.SVUI_Pet_MOVE = "BOTTOMSVUIParentBOTTOM0209"
-		anchors.SVUI_TargetTarget_MOVE = "BOTTOMSVUIParentBOTTOM0242"
-		anchors.SVUI_Focus_MOVE = "BOTTOMSVUIParentBOTTOM310432"
-		anchors.SVUI_ThreatBar_MOVE = "BOTTOMRIGHTSVUIParentBOTTOMRIGHT-495210"
+		anchors.SVUI_Player_MOVE = "BOTTOMSVUI_ScreenMaskBOTTOM-278210"
+		anchors.SVUI_PlayerCastbar_MOVE = "BOTTOMSVUI_ScreenMaskBOTTOM-278150"
+		anchors.SVUI_Target_MOVE = "BOTTOMSVUI_ScreenMaskBOTTOM278210"
+		anchors.SVUI_TargetCastbar_MOVE = "BOTTOMSVUI_ScreenMaskBOTTOM278150"
+		anchors.SVUI_Pet_MOVE = "BOTTOMSVUI_ScreenMaskBOTTOM0209"
+		anchors.SVUI_TargetTarget_MOVE = "BOTTOMSVUI_ScreenMaskBOTTOM0242"
+		anchors.SVUI_Focus_MOVE = "BOTTOMSVUI_ScreenMaskBOTTOM310432"
+		anchors.SVUI_ThreatBar_MOVE = "BOTTOMRIGHTSVUI_ScreenMaskBOTTOMRIGHT-495210"
 	else
 		local c = 136;
 		local d = 135;
 		local e = 80;
-		anchors.SVUI_Player_MOVE = "BOTTOMSVUIParentBOTTOM"..-c..""..d;
-		anchors.SVUI_PlayerCastbar_MOVE = "BOTTOMSVUIParentBOTTOM"..-c..""..(d-60);
-		anchors.SVUI_Target_MOVE = "BOTTOMSVUIParentBOTTOM"..c..""..d;
-		anchors.SVUI_TargetCastbar_MOVE = "BOTTOMSVUIParentBOTTOM"..c..""..(d-60);
-		anchors.SVUI_Pet_MOVE = "BOTTOMSVUIParentBOTTOM"..-c..""..e;
-		anchors.SVUI_TargetTarget_MOVE = "BOTTOMSVUIParentBOTTOM"..c..""..e;
-		anchors.SVUI_Focus_MOVE = "BOTTOMSVUIParentBOTTOM"..c..""..(d + 150);
-		anchors.SVUI_ThreatBar_MOVE = "BOTTOMRIGHTSVUIParentBOTTOMRIGHT-495"..d;
+		anchors.SVUI_Player_MOVE = "BOTTOMSVUI_ScreenMaskBOTTOM"..-c..""..d;
+		anchors.SVUI_PlayerCastbar_MOVE = "BOTTOMSVUI_ScreenMaskBOTTOM"..-c..""..(d-60);
+		anchors.SVUI_Target_MOVE = "BOTTOMSVUI_ScreenMaskBOTTOM"..c..""..d;
+		anchors.SVUI_TargetCastbar_MOVE = "BOTTOMSVUI_ScreenMaskBOTTOM"..c..""..(d-60);
+		anchors.SVUI_Pet_MOVE = "BOTTOMSVUI_ScreenMaskBOTTOM"..-c..""..e;
+		anchors.SVUI_TargetTarget_MOVE = "BOTTOMSVUI_ScreenMaskBOTTOM"..c..""..e;
+		anchors.SVUI_Focus_MOVE = "BOTTOMSVUI_ScreenMaskBOTTOM"..c..""..(d + 150);
+		anchors.SVUI_ThreatBar_MOVE = "BOTTOMRIGHTSVUI_ScreenMaskBOTTOMRIGHT-495"..d;
 	end
 end 
 
 local function UFMoveLeftQuadrant(toggle)
 	local anchors = SV.cache.Anchors
 	if not toggle then
-		anchors.SVUI_Assist_MOVE = "TOPLEFTSVUIParentTOPLEFT"..XOFF.."-250"
-		anchors.SVUI_Tank_MOVE = "TOPLEFTSVUIParentTOPLEFT"..XOFF.."-175"
-		anchors.SVUI_Raidpet_MOVE = "TOPLEFTSVUIParentTOPLEFT"..XOFF.."-325"
-		anchors.SVUI_Party_MOVE = "BOTTOMLEFTSVUIParentBOTTOMLEFT"..XOFF.."400"
-		anchors.SVUI_Raid10_MOVE = "BOTTOMLEFTSVUIParentBOTTOMLEFT"..XOFF.."400"
-		anchors.SVUI_Raid25_MOVE = "BOTTOMLEFTSVUIParentBOTTOMLEFT"..XOFF.."400"
-		anchors.SVUI_Raid40_MOVE = "BOTTOMLEFTSVUIParentBOTTOMLEFT"..XOFF.."400"
+		anchors.SVUI_Assist_MOVE = "TOPLEFTSVUI_ScreenMaskTOPLEFT"..XOFF.."-250"
+		anchors.SVUI_Tank_MOVE = "TOPLEFTSVUI_ScreenMaskTOPLEFT"..XOFF.."-175"
+		anchors.SVUI_Raidpet_MOVE = "TOPLEFTSVUI_ScreenMaskTOPLEFT"..XOFF.."-325"
+		anchors.SVUI_Party_MOVE = "BOTTOMLEFTSVUI_ScreenMaskBOTTOMLEFT"..XOFF.."400"
+		anchors.SVUI_Raid10_MOVE = "BOTTOMLEFTSVUI_ScreenMaskBOTTOMLEFT"..XOFF.."400"
+		anchors.SVUI_Raid25_MOVE = "BOTTOMLEFTSVUI_ScreenMaskBOTTOMLEFT"..XOFF.."400"
+		anchors.SVUI_Raid40_MOVE = "BOTTOMLEFTSVUI_ScreenMaskBOTTOMLEFT"..XOFF.."400"
 	else
-		anchors.SVUI_Assist_MOVE = "TOPLEFTSVUIParentTOPLEFT4-250"
-		anchors.SVUI_Tank_MOVE = "TOPLEFTSVUIParentTOPLEFT4-175"
-		anchors.SVUI_Raidpet_MOVE = "TOPLEFTSVUIParentTOPLEFT4-325"
-		anchors.SVUI_Party_MOVE = "BOTTOMLEFTSVUIParentBOTTOMLEFT4300"
-		anchors.SVUI_Raid40_MOVE = "BOTTOMLEFTSVUIParentBOTTOMLEFT4300"
-		anchors.SVUI_Raid10_MOVE = "BOTTOMLEFTSVUIParentBOTTOMLEFT4300"
-		anchors.SVUI_Raid25_MOVE = "BOTTOMLEFTSVUIParentBOTTOMLEFT4300"
+		anchors.SVUI_Assist_MOVE = "TOPLEFTSVUI_ScreenMaskTOPLEFT4-250"
+		anchors.SVUI_Tank_MOVE = "TOPLEFTSVUI_ScreenMaskTOPLEFT4-175"
+		anchors.SVUI_Raidpet_MOVE = "TOPLEFTSVUI_ScreenMaskTOPLEFT4-325"
+		anchors.SVUI_Party_MOVE = "BOTTOMLEFTSVUI_ScreenMaskBOTTOMLEFT4300"
+		anchors.SVUI_Raid40_MOVE = "BOTTOMLEFTSVUI_ScreenMaskBOTTOMLEFT4300"
+		anchors.SVUI_Raid10_MOVE = "BOTTOMLEFTSVUI_ScreenMaskBOTTOMLEFT4300"
+		anchors.SVUI_Raid25_MOVE = "BOTTOMLEFTSVUI_ScreenMaskBOTTOMLEFT4300"
 	end
 end 
 
 local function UFMoveTopQuadrant(toggle)
 	local anchors = SV.cache.Anchors
 	if not toggle then
-		anchors.GM_MOVE = "TOPLEFTSVUIParentTOPLEFT250-25"
-		anchors.SVUI_LootFrame_MOVE = "BOTTOMSVUIParentBOTTOM0350"
-		anchors.SVUI_AltPowerBar_MOVE = "TOPSVUIParentTOP0-40"
-		anchors.LoC_MOVE = "BOTTOMSVUIParentBOTTOM0350"
-		anchors.BNET_MOVE = "TOPRIGHTSVUIParentTOPRIGHT-4-250"
+		anchors.GM_MOVE = "TOPLEFTSVUI_ScreenMaskTOPLEFT250-25"
+		anchors.SVUI_LootFrame_MOVE = "BOTTOMSVUI_ScreenMaskBOTTOM0350"
+		anchors.SVUI_AltPowerBar_MOVE = "TOPSVUI_ScreenMaskTOP0-40"
+		anchors.LoC_MOVE = "BOTTOMSVUI_ScreenMaskBOTTOM0350"
+		anchors.BattleNetToasts_MOVE = "TOPRIGHTSVUI_ScreenMaskTOPRIGHT-4-250"
 	else
-		anchors.GM_MOVE = "TOPLEFTSVUIParentTOPLEFT344-25"
-		anchors.SVUI_LootFrame_MOVE = "BOTTOMSVUIParentBOTTOM0254"
-		anchors.SVUI_AltPowerBar_MOVE = "TOPSVUIParentTOP0-39"
-		anchors.LoC_MOVE = "BOTTOMSVUIParentBOTTOM0443"
-		anchors.BNET_MOVE = "TOPRIGHTSVUIParentTOPRIGHT-4-248"
+		anchors.GM_MOVE = "TOPLEFTSVUI_ScreenMaskTOPLEFT344-25"
+		anchors.SVUI_LootFrame_MOVE = "BOTTOMSVUI_ScreenMaskBOTTOM0254"
+		anchors.SVUI_AltPowerBar_MOVE = "TOPSVUI_ScreenMaskTOP0-39"
+		anchors.LoC_MOVE = "BOTTOMSVUI_ScreenMaskBOTTOM0443"
+		anchors.BattleNetToasts_MOVE = "TOPRIGHTSVUI_ScreenMaskTOPRIGHT-4-248"
 	end
 end 
 
@@ -223,13 +223,13 @@ local function UFMoveRightQuadrant(toggle)
 	local anchors = SV.cache.Anchors
 	local dH = SV.db.SVDock.dockRightHeight  +  60
 	if not toggle or toggle == "high" then
-		anchors.SVUI_BossHolder_MOVE = "RIGHTSVUIParentRIGHT-1050"
-		anchors.SVUI_ArenaHolder_MOVE = "RIGHTSVUIParentRIGHT-1050"
-		anchors.Tooltip_MOVE = "BOTTOMRIGHTSVUIParentBOTTOMRIGHT-284"..dH;
+		anchors.SVUI_BossHolder_MOVE = "RIGHTSVUI_ScreenMaskRIGHT-1050"
+		anchors.SVUI_ArenaHolder_MOVE = "RIGHTSVUI_ScreenMaskRIGHT-1050"
+		anchors.Tooltip_MOVE = "BOTTOMRIGHTSVUI_ScreenMaskBOTTOMRIGHT-284"..dH;
 	else
-		anchors.SVUI_BossHolder_MOVE = "RIGHTSVUIParentRIGHT-1050"
-		anchors.SVUI_ArenaHolder_MOVE = "RIGHTSVUIParentRIGHT-1050"
-		anchors.Tooltip_MOVE = "BOTTOMRIGHTSVUIParentBOTTOMRIGHT-284"..dH;
+		anchors.SVUI_BossHolder_MOVE = "RIGHTSVUI_ScreenMaskRIGHT-1050"
+		anchors.SVUI_ArenaHolder_MOVE = "RIGHTSVUI_ScreenMaskRIGHT-1050"
+		anchors.Tooltip_MOVE = "BOTTOMRIGHTSVUI_ScreenMaskBOTTOMRIGHT-284"..dH;
 	end
 end  
 --[[ 
@@ -279,7 +279,7 @@ function SV.Setup:UserScreen(rez, preserve)
 			UFMoveTopQuadrant(true)
 			UFMoveRightQuadrant(true)
 		end
-		SV.ghettoMonitor = true 
+		SV.LowRez = true 
 	else
 		SV:ResetData("SVDock")
 		SV:ResetData("SVAura")
@@ -289,7 +289,7 @@ function SV.Setup:UserScreen(rez, preserve)
 			UFMoveTopQuadrant()
 			UFMoveRightQuadrant()
 		end
-		SV.ghettoMonitor = nil 
+		SV.LowRez = nil 
 	end 
 
 	if(not preserve and not mungs) then

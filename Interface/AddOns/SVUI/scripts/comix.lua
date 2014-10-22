@@ -127,7 +127,7 @@ function Comix:LaunchPopup()
 	local step1_y = random(-100, 100);
 	if(step1_y > -30 and step1_y < 30) then step1_y = step1_y * 3 end 
 	self.Basic.tex:SetTexCoord(coords[1],coords[2],coords[3],coords[4])
-	self.Basic:Point("CENTER", SV.UIParent, "CENTER", step1_x, step1_y)
+	self.Basic:Point("CENTER", SV.Screen, "CENTER", step1_x, step1_y)
 	self.Basic.anim:Play()
 end 
 
@@ -169,10 +169,10 @@ local Comix_OnUpdate = function() Comix:ReadyState(true) end
 local Toasty_OnUpdate = function(self) Comix:ReadyState(true); self.parent:SetAlpha(0) end
 
 local function LoadSVComix()
-	local basic = CreateFrame("Frame", "ComixBasicPanel", SV.UIParent)
+	local basic = CreateFrame("Frame", "ComixBasicPanel", SV.Screen)
 	basic:SetSize(100, 100)
 	basic:SetFrameStrata("DIALOG")
-	basic:Point("CENTER", SV.UIParent, "CENTER", 0, -50)
+	basic:Point("CENTER", SV.Screen, "CENTER", 0, -50)
 	basic.tex = basic:CreateTexture(nil, "ARTWORK")
 	basic.tex:FillInner(basic)
 	basic.tex:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Doodads\COMICS-TYPE1]])
@@ -183,10 +183,10 @@ local function LoadSVComix()
 
 	Comix.Basic = basic
 
-	local deluxe = CreateFrame("Frame", "ComixDeluxePanel", SV.UIParent)
+	local deluxe = CreateFrame("Frame", "ComixDeluxePanel", SV.Screen)
 	deluxe:SetSize(100, 100)
 	deluxe:SetFrameStrata("DIALOG")
-	deluxe:Point("CENTER", SV.UIParent, "CENTER", 0, -50)
+	deluxe:Point("CENTER", SV.Screen, "CENTER", 0, -50)
 	deluxe.tex = deluxe:CreateTexture(nil, "ARTWORK")
 	deluxe.tex:FillInner(deluxe)
 	deluxe.tex:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Doodads\COMICS-TYPE2]])
@@ -197,10 +197,10 @@ local function LoadSVComix()
 
 	Comix.Deluxe = deluxe
 
-	local premium = CreateFrame("Frame", "ComixPremiumPanel", SV.UIParent)
+	local premium = CreateFrame("Frame", "ComixPremiumPanel", SV.Screen)
 	premium:SetSize(100, 100)
 	premium:SetFrameStrata("DIALOG")
-	premium:Point("CENTER", SV.UIParent, "CENTER", 0, -50)
+	premium:Point("CENTER", SV.Screen, "CENTER", 0, -50)
 	premium.tex = premium:CreateTexture(nil, "ARTWORK")
 	premium.tex:FillInner(premium)
 	premium.tex:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Doodads\COMICS-TYPE3]])
@@ -209,10 +209,10 @@ local function LoadSVComix()
 	premium:SetAlpha(0)
 	premium.anim[3]:SetScript("OnFinished", Comix_OnUpdate)
 
-	local bg = CreateFrame("Frame", "ComixPremiumPanelBG", SV.UIParent)
+	local bg = CreateFrame("Frame", "ComixPremiumPanelBG", SV.Screen)
 	bg:SetSize(128, 128)
 	bg:SetFrameStrata("BACKGROUND")
-	bg:Point("CENTER", SV.UIParent, "CENTER", 0, -50)
+	bg:Point("CENTER", SV.Screen, "CENTER", 0, -50)
 	bg.tex = bg:CreateTexture(nil, "ARTWORK")
 	bg.tex:FillInner(bg)
 	bg.tex:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Doodads\COMICS-TYPE3-BG]])

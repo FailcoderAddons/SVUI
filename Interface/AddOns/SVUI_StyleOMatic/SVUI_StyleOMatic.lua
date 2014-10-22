@@ -134,8 +134,8 @@ function PLUGIN:SaveAddonStyle(addon, fn, force, passive, ...)
 			self:DefineEventFunction(event, addon)
 		end  
 	end
-	if(self.db.addons and self.db.addons[addon] == nil) then
-		self.db.addons[addon] = true
+	if(self.configs.addons and self.configs.addons[addon] == nil) then
+		self.configs.addons[addon] = true
 	end
 
 	if force then
@@ -262,83 +262,83 @@ OPTIONS CREATION
 ##########################################################
 ]]--
 local RegisterAddonDocklets = function()
-	local MAIN = _G["SuperDockletMain"];
-	local EXTRA = _G["SuperDockletExtra"];
+	local MAIN = _G["SVUI_AddonDock1"];
+	local EXTRA = _G["SVUI_AddonDock2"];
 	local main = SV.db.SVDock.docklets.DockletMain;
   	local alternate = SV.db.SVDock.docklets.enableExtra and SV.db.SVDock.docklets.DockletExtra or "";
   	local tipLeft, tipRight = "", "";
   	if main == nil or main == "None" then return end 
   	
 	if find(main, "Skada") or find(alternate, "Skada") then
-		if SV:IsDockletReady("Skada") then
+		if SV.SVDock:IsDockletReady("Skada") then
 			PLUGIN:Docklet_Skada()
 			if find(alternate, "Skada") and EXTRA.FrameName  ~= "SkadaHolder2" then
 				tipRight = "and Skada";
-				SV:RegisterExtraDocklet("SkadaHolder2")
-				--PLUGIN.DockedParent["Skada"] = EXTRA
+				SV.SVDock:RegisterExtraDocklet("SkadaHolder2")
+				PLUGIN.DockedParent["Skada"] = EXTRA
 			end
 			if find(main, "Skada") and MAIN.FrameName  ~= "SkadaHolder" then
 				tipLeft = "Skada";
-				SV:RegisterMainDocklet("SkadaHolder")
-				--PLUGIN.DockedParent["Skada"] = MAIN
+				SV.SVDock:RegisterMainDocklet("SkadaHolder")
+				PLUGIN.DockedParent["Skada"] = MAIN
 			end
 		end 
 	end 
 	if main == "Omen" or alternate == "Omen" then
-		if SV:IsDockletReady("Omen") then
+		if SV.SVDock:IsDockletReady("Omen") then
 			if alternate == "Omen" and EXTRA.FrameName ~= "OmenAnchor" then
 				tipRight = "and Omen";
-				SV:RegisterExtraDocklet("OmenAnchor")
+				SV.SVDock:RegisterExtraDocklet("OmenAnchor")
 				PLUGIN:Docklet_Omen(EXTRA)
 				PLUGIN.DockedParent["Omen"] = EXTRA
 			elseif MAIN.FrameName ~= "OmenAnchor" then
 				tipLeft = "Omen";
-				SV:RegisterMainDocklet("OmenAnchor")
+				SV.SVDock:RegisterMainDocklet("OmenAnchor")
 				PLUGIN:Docklet_Omen(MAIN)
 				PLUGIN.DockedParent["Omen"] = MAIN
 			end
 		end 
 	end 
 	if main == "Recount" or alternate == "Recount" then
-		if SV:IsDockletReady("Recount") then
+		if SV.SVDock:IsDockletReady("Recount") then
 			if alternate == "Recount" and EXTRA.FrameName ~= "Recount_MainWindow" then
 				tipRight = "and Recount";
-				SV:RegisterExtraDocklet("Recount_MainWindow")
+				SV.SVDock:RegisterExtraDocklet("Recount_MainWindow")
 				PLUGIN:Docklet_Recount(EXTRA)
 				PLUGIN.DockedParent["Recount"] = EXTRA
 			elseif MAIN.FrameName ~= "Recount_MainWindow" then
 				tipLeft = "Recount";
-				SV:RegisterMainDocklet("Recount_MainWindow")
+				SV.SVDock:RegisterMainDocklet("Recount_MainWindow")
 				PLUGIN:Docklet_Recount(MAIN)
 				PLUGIN.DockedParent["Recount"] = MAIN
 			end
 		end 
 	end 
 	if main == "TinyDPS" or alternate == "TinyDPS" then
-		if SV:IsDockletReady("TinyDPS") then
+		if SV.SVDock:IsDockletReady("TinyDPS") then
 			if alternate == "TinyDPS" and EXTRA.FrameName ~= "tdpsFrame" then
 				tipRight = "and TinyDPS";
-				SV:RegisterExtraDocklet("tdpsFrame")
+				SV.SVDock:RegisterExtraDocklet("tdpsFrame")
 				PLUGIN:Docklet_TinyDPS(EXTRA)
 				PLUGIN.DockedParent["TinyDPS"] = EXTRA
 			elseif MAIN.FrameName ~= "tdpsFrame" then
 				tipLeft = "TinyDPS";
-				SV:RegisterMainDocklet("tdpsFrame")
+				SV.SVDock:RegisterMainDocklet("tdpsFrame")
 				PLUGIN:Docklet_TinyDPS(MAIN)
 				PLUGIN.DockedParent["TinyDPS"] = MAIN
 			end
 		end 
 	end 
 	if main == "alDamageMeter" or alternate == "alDamageMeter" then
-		if SV:IsDockletReady("alDamageMeter") then
+		if SV.SVDock:IsDockletReady("alDamageMeter") then
 			if alternate == "alDamageMeter" and EXTRA.FrameName ~= "alDamagerMeterFrame" then
 				tipRight = "and alDamageMeter";
-				SV:RegisterExtraDocklet("alDamagerMeterFrame")
+				SV.SVDock:RegisterExtraDocklet("alDamagerMeterFrame")
 				PLUGIN:Docklet_alDamageMeter(EXTRA)
 				PLUGIN.DockedParent["alDamageMeter"] = EXTRA
 			elseif MAIN.FrameName ~= "alDamagerMeterFrame" then
 				tipLeft = "alDamageMeter";
-				SV:RegisterMainDocklet("alDamagerMeterFrame")
+				SV.SVDock:RegisterMainDocklet("alDamagerMeterFrame")
 				PLUGIN:Docklet_alDamageMeter(MAIN)
 				PLUGIN.DockedParent["alDamageMeter"] = MAIN
 			end
@@ -383,8 +383,8 @@ function PLUGIN:Load()
 	alert:Hide();
 	self.Alert = alert;
 
-	NewHook(SV, "ReloadDocklets", RegisterAddonDocklets);
-	SV:ReloadDocklets();
+	NewHook(SV.SVDock, "ReloadDocklets", RegisterAddonDocklets);
+	SV.SVDock:ReloadDocklets();
 
 	self:RegisterEvent("PLAYER_ENTERING_WORLD");
 	self:RegisterEvent("ADDON_LOADED");

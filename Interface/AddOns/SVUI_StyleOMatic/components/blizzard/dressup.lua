@@ -32,11 +32,12 @@ local function DressUpStyle()
 		 return 
 	end
 
+	DressUpFrame:Size(400, 500)
 	PLUGIN:ApplyWindowStyle(DressUpFrame, true, true)
 
 	DressUpModel:ClearAllPoints()
-	DressUpModel:SetPoint("TOPLEFT", DressUpFrame, "TOPLEFT", 12, -76)
-	DressUpModel:SetPoint("BOTTOMRIGHT", DressUpFrame, "BOTTOMRIGHT", -12, 36)
+	DressUpModel:Point("TOPLEFT", DressUpFrame, "TOPLEFT", 12, -76)
+	DressUpModel:Point("BOTTOMRIGHT", DressUpFrame, "BOTTOMRIGHT", -12, 36)
 
 	DressUpModel:SetFixedPanelTemplate("Model")
 

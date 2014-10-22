@@ -290,10 +290,10 @@ function MOD:BreakStuffLoader()
 
 	if not allowed then return end
 
-	BreakStuffButton:SetParent(SuperDockMacroBar)
-	local size = SuperDockMacroBar.currentSize
+	BreakStuffButton:SetParent(RightSuperDockUtilityBar)
+	local size = RightSuperDockUtilityBar.currentSize
 	BreakStuffButton:Size(size, size)
-	BreakStuffButton:Point("RIGHT", SuperDockMacroBar, "LEFT", -6, 0)
+	BreakStuffButton:Point("RIGHT", RightSuperDockUtilityBar, "LEFT", -6, 0)
 	BreakStuffButton:Show();
 	BreakStuffButton:SetFramedButtonTemplate()
 	BreakStuffButton.icon=BreakStuffButton:CreateTexture(nil,"OVERLAY")

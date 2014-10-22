@@ -153,7 +153,7 @@ local Vehicle_OnSetPoint = function(self,_,parent)
 		if _G.VehicleSeatIndicator_MOVE then
 			VehicleSeatIndicator:Point("BOTTOM", VehicleSeatIndicator_MOVE, "BOTTOM", 0, 0)
 		else
-			VehicleSeatIndicator:Point("TOPLEFT", SV.UIParent, "TOPLEFT", 22, -45)
+			VehicleSeatIndicator:Point("TOPLEFT", SV.Screen, "TOPLEFT", 22, -45)
 			SV.Mentalo:Add(VehicleSeatIndicator, L["Vehicle Seat Frame"])
 		end 
 		VehicleSeatIndicator:SetScale(0.8)
@@ -300,7 +300,7 @@ afrm:SetHeight(20);
 
 local AlertFramePostMove_Hook = function(forced)
 	local b, c = SVUI_AlertFrame_MOVE:GetCenter()
-	local d = SV.UIParent:GetTop()
+	local d = SV.Screen:GetTop()
 	if(c > (d  /  2)) then
 		POSITION = "TOP"
 		ANCHOR_POINT = "BOTTOM"
@@ -357,7 +357,7 @@ MIRROR BARS
 ]]--
 local SetMirrorPosition = function(bar)
 	local yOffset = mirrorYOffset[bar.type]
-	return bar:Point("TOP", SV.UIParent, "TOP", 0, -yOffset)
+	return bar:Point("TOP", SV.Screen, "TOP", 0, -yOffset)
 end 
 
 local MirrorBar_OnUpdate = function(self, elapsed)
@@ -391,7 +391,7 @@ local function MirrorBarRegistry(barType)
 	if RegisteredMirrorBars[barType] then
 		return RegisteredMirrorBars[barType]
 	end 
-	local bar = CreateFrame('StatusBar', nil, SV.UIParent)
+	local bar = CreateFrame('StatusBar', nil, SV.Screen)
 	bar:SetPanelTemplate("Bar", false, 3, 3, 3)
 	bar:SetScript("OnUpdate", MirrorBar_OnUpdate)
 	local r, g, b = unpack(mirrorTypeColor[barType])
@@ -476,7 +476,7 @@ local Loot_OnHide = function(self)
 	CloseLoot()
 end
 
-local SVUI_LootFrameHolder = CreateFrame("Frame","SVUI_LootFrameHolder",SV.UIParent);
+local SVUI_LootFrameHolder = CreateFrame("Frame","SVUI_LootFrameHolder",SV.Screen);
 local SVUI_LootFrame = CreateFrame('Button', 'SVUI_LootFrame', SVUI_LootFrameHolder);
 SVUI_LootFrameHolder:Point("TOPLEFT",36,-195);
 SVUI_LootFrameHolder:Width(150);
@@ -708,7 +708,7 @@ end
 
 local function CreateRollFrame()
 	UpdateLootUpvalues()
-	local rollFrame = CreateFrame("Frame",nil,SV.UIParent)
+	local rollFrame = CreateFrame("Frame",nil,SV.Screen)
 	rollFrame:Size(LOOT_WIDTH,LOOT_HEIGHT)
 	rollFrame:SetFixedPanelTemplate('Default')
 	rollFrame:SetScript("OnEvent",LootRoll_OnEvent)
@@ -1031,7 +1031,7 @@ function MOD:Load()
 	NewHook(DurabilityFrame, "SetPoint", Dura_OnSetPoint)
 	
 	TicketStatusFrame:ClearAllPoints()
-	TicketStatusFrame:SetPoint("TOPLEFT", SV.UIParent, "TOPLEFT", 250, -5)
+	TicketStatusFrame:SetPoint("TOPLEFT", SV.Screen, "TOPLEFT", 250, -5)
 	SV.Mentalo:Add(TicketStatusFrame, L["GM Ticket Frame"], nil, nil, nil, nil, "GM")
 	HelpOpenTicketButton:SetParent(Minimap)
 	HelpOpenTicketButton:ClearAllPoints()
@@ -1046,8 +1046,8 @@ function MOD:Load()
 	self:RegisterEvent('PLAYER_REGEN_DISABLED', ErrorFrameHandler)
 	self:RegisterEvent('PLAYER_REGEN_ENABLED', ErrorFrameHandler)
 
-	SVUI_AlertFrame:SetParent(SV.UIParent)
-	SVUI_AlertFrame:SetPoint("TOP", SV.UIParent, "TOP", 0, -18);
+	SVUI_AlertFrame:SetParent(SV.Screen)
+	SVUI_AlertFrame:SetPoint("TOP", SV.Screen, "TOP", 0, -18);
 	SV.Mentalo:Add(SVUI_AlertFrame, L["Loot  /  Alert Frames"], nil, nil, AlertFramePostMove_Hook)
 	NewHook('AlertFrame_FixAnchors', AlertFramePostMove_Hook)
 	NewHook('AlertFrame_SetLootAnchors', _hook_AlertFrame_SetLootAnchors)
@@ -1096,7 +1096,7 @@ function MOD:Load()
 	self:RegisterEvent("MIRROR_TIMER_PAUSE", MirrorBarToggleHandler)
 	self:RegisterEvent("START_TIMER", MirrorBarToggleHandler)
 
-	local exit = CreateFrame("Button", "SVUI_BailOut", SV.UIParent)
+	local exit = CreateFrame("Button", "SVUI_BailOut", SV.Screen)
 	exit:Size(40, 40)
 	exit:Point("TOPLEFT", SVUI_MinimapFrame, "BOTTOMLEFT", 0, -30)
 	exit:SetNormalTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Icons\\EXIT")
@@ -1116,7 +1116,7 @@ function MOD:Load()
 	SV.Mentalo:Add(exit, L["Bail Out"])
 
 	local altPower = CreateFrame("Frame", "SVUI_AltPowerBar", UIParent)
-	altPower:SetPoint("TOP", SV.UIParent, "TOP", 0, -18)
+	altPower:SetPoint("TOP", SV.Screen, "TOP", 0, -18)
 	altPower:Size(128, 50)
 	PlayerPowerBarAlt:ClearAllPoints()
 	PlayerPowerBarAlt:SetPoint("CENTER", altPower, "CENTER")
@@ -1124,9 +1124,9 @@ function MOD:Load()
 	PlayerPowerBarAlt.ignoreFramePositionManager = true;
 	SV.Mentalo:Add(altPower, L["Alternative Power"])
 
-	local wsc = CreateFrame("Frame", "SVUI_WorldStateHolder", SV.UIParent)
+	local wsc = CreateFrame("Frame", "SVUI_WorldStateHolder", SV.Screen)
 	wsc:SetSize(200, 45)
-	wsc:SetPoint("TOP", SV.UIParent, "TOP", 0, -100)
+	wsc:SetPoint("TOP", SV.Screen, "TOP", 0, -100)
 	SV.Mentalo:Add(wsc, L["Capture Bars"])
 	NewHook("UIParent_ManageFramePositions", CaptureBarHandler)
 

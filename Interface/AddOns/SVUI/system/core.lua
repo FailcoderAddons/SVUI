@@ -222,8 +222,6 @@ SVUI.ClassRole          = ""
 SVUI.UnitRole           = "NONE"
 SVUI.ConfigurationMode  = false
 SVUI.EffectiveScale     = 1
-SVUI.ActualHeight       = actualHeight
-SVUI.ActualWidth        = actualWidth
 SVUI.yScreenArea        = (actualHeight * 0.33)
 SVUI.xScreenArea        = (actualWidth * 0.33)
 
@@ -235,10 +233,7 @@ SVUI.Timers     = LibSuperVillain("Timers");
 
 --[[ UTILITY FRAMES ]]--
 
-SVUI.UIParent = CreateFrame("Frame", "SVUIParent", UIParent);
-SVUI.UIParent:SetFrameLevel(UIParent:GetFrameLevel());
-SVUI.UIParent:SetPoint("CENTER", UIParent, "CENTER");
-SVUI.UIParent:SetSize(UIParent:GetSize());
+SVUI.Screen = _G["SVUI_ScreenMask"];
 
 SVUI.Cloaked = CreateFrame("Frame", nil, UIParent);
 SVUI.Cloaked:Hide();
@@ -396,7 +391,7 @@ function SVUI:TaintHandler(taint, sourceName, sourceFunc)
 end
 
 function SVUI:VersionCheck()
-    local minimumVersion = 4.06;
+    local minimumVersion = 5.0;
     local installedVersion = SVLib:GetSafeData("install_version");
     if(installedVersion) then
         if(type(installedVersion) == "string") then
@@ -413,10 +408,10 @@ end
 
 function SVUI:RefreshEverything(bypass)
     self:RefreshAllSystemMedia();
-    self.UIParent:Hide();
+    self.Screen:Hide();
     self.Mentalo:SetPositions();
     SVLib:RefreshAll();
-    self.UIParent:Show();
+    self.Screen:Show();
     if not bypass then
         self:VersionCheck()
     end
@@ -516,21 +511,11 @@ end
 function SVUI:Load()
     self.Timers:ClearAllTimers()
 
-    local rez = GetCVar("gxResolution");
-    local gxHeight = tonumber(match(rez,"%d+x(%d+)"));
-    local gxWidth = tonumber(match(rez,"(%d+)x%d+"));
-
     SVLib:Initialize()
 
-    self.DisplaySettings = SVLib:NewGlobal("Display")
-    if(not self.DisplaySettings.screenheight or (self.DisplaySettings.screenheight and type(self.DisplaySettings.screenheight) ~= "number")) then 
-        self.DisplaySettings.screenheight = gxHeight 
-    end
-    if(not self.DisplaySettings.screenwidth or (self.DisplaySettings.screenwidth and type(self.DisplaySettings.screenwidth) ~= "number")) then 
-        self.DisplaySettings.screenwidth = gxWidth 
-    end
+    self.Screen:SetAttribute("AUTO_SCALE", self.db.general.autoScale)
+    self.Screen:SetAttribute("MULTI_MONITOR", self.db.general.multiMonitor)
 
-    self:UI_SCALE_CHANGED();
     self:RefreshSystemFonts();
     self:LoadSystemAlerts();
 
@@ -541,7 +526,10 @@ end
 function SVUI:Initialize()
     SVLib:Launch();
 
-    self:UI_SCALE_CHANGED("PLAYER_LOGIN");
+    self.Screen:SetAttribute("AUTO_SCALE", self.db.general.autoScale)
+    self.Screen:SetAttribute("MULTI_MONITOR", self.db.general.multiMonitor)
+
+    self:InitializeUIScale();
     self:PlayerInfoUpdate();
     self.Mentalo:Initialize()
     self:VersionCheck()

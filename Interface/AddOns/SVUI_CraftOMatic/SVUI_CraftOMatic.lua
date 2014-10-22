@@ -160,7 +160,7 @@ local ModeCapture_EventHandler = function(self, event, ...)
 	if event == "PLAYER_REGEN_ENABLED" then
 		self:UnregisterEvent("PLAYER_REGEN_ENABLED")
 		PLUGIN:ChangeModeGear()
-		self:GetScript("PostClick")()
+		ModeCapture_PostClickHandler(self)
 	end
 	if event == "PLAYER_ENTERING_WORLD" then
 		if (IsSpellKnown(131474) or IsSpellKnown(80451) or IsSpellKnown(818)) then
@@ -343,7 +343,7 @@ local ModeAlert_OnHide = function()
 		SV:AddonMessage(ERR_NOT_IN_COMBAT);  
 		return; 
 	end
-	SuperDockAlertRight:Deactivate()
+	RightSuperDockAlert:Deactivate()
 end
 
 local ModeAlert_OnShow = function(self)
@@ -353,7 +353,7 @@ local ModeAlert_OnShow = function(self)
 		return; 
 	end
 	SV:SecureFadeIn(self, 0.3, 0, 1)
-	SuperDockAlertRight:Activate(self)
+	RightSuperDockAlert:Activate(self)
 end
 
 local ModeAlert_OnMouseDown = function(self)
@@ -392,16 +392,16 @@ function PLUGIN:Load()
 	self.InModeGear = false;
 
 	local ALERT_HEIGHT = 60;
-	local DOCK_WIDTH = SuperDockWindowRight:GetWidth();
-	local DOCK_HEIGHT = SuperDockWindowRight:GetHeight();
+	local DOCK_WIDTH = RightSuperDockFrameHolder:GetWidth();
+	local DOCK_HEIGHT = RightSuperDockFrameHolder:GetHeight();
 	local DOCKLET_WIDTH = DOCK_WIDTH - 4
 	local DOCKLET_HEIGHT = DOCK_HEIGHT - 4
 	local BUTTON_SIZE = (DOCK_HEIGHT * 0.25) - 4;
 
-	local modesDocklet = CreateFrame("Frame", "SVUI_ModesDockFrame", SuperDockWindowRight)
+	local modesDocklet = CreateFrame("Frame", "SVUI_ModesDockFrame", RightSuperDockFrameHolder)
 	modesDocklet:SetWidth(DOCKLET_WIDTH);
 	modesDocklet:SetHeight(DOCKLET_HEIGHT);
-	modesDocklet:SetPoint("CENTER",SuperDockWindowRight,"CENTER",0,0);
+	modesDocklet:SetPoint("CENTER",RightSuperDockFrameHolder,"CENTER",0,0);
 
 	local modesToolBar = CreateFrame("Frame", "SVUI_ModesDockToolBar", modesDocklet)
 	modesToolBar:SetWidth(BUTTON_SIZE + 4);
@@ -456,8 +456,8 @@ function PLUGIN:Load()
 	mode1Button:SetScript('OnLeave', ModeButton_OnLeave)
 	mode1Button:SetScript('OnMouseDown', ModeButton_OnMouseDown)
 
-	local ModeAlert = CreateFrame("Frame", nil, SuperDockAlertRight)
-	ModeAlert:SetAllPoints(SuperDockAlertRight)
+	local ModeAlert = CreateFrame("Frame", nil, RightSuperDockAlert)
+	ModeAlert:SetAllPoints(RightSuperDockAlert)
 	ModeAlert:SetBackdrop({
         bgFile = [[Interface\AddOns\SVUI\assets\artwork\Bars\HALFTONE]],
         edgeFile = [[Interface\BUTTONS\WHITE8X8]],
@@ -545,7 +545,7 @@ function PLUGIN:Load()
 	self.LogWindow = log
 	self.Docklet = modesDocklet
 
-	SV:RegisterDocklet("SVUI_ModesDockFrame", self.TitleID, ICON_FILE, false)
+	SV.SVDock:RegisterDocklet("SVUI_ModesDockFrame", self.TitleID, ICON_FILE, false)
 
 	self.Docklet:Hide()
 

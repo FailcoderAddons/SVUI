@@ -27,24 +27,17 @@ local AddonName, AddonObject = ...
 
 assert(LibSuperVillain, AddonName .. " requires LibSuperVillain")
 
-local PLUGIN = LibSuperVillain("Registry"):NewPlugin(AddonName, AddonObject, "ChatOMatic_Profile", nil, "ChatOMatic_Cache")
+AddonObject.configs = {
+    ["saveChats"] = false,
+    ["service"] = true,
+    ["autoAnswer"] = false, 
+    ["prefix"] = true
+}
 
+local PLUGIN = LibSuperVillain("Registry"):NewPlugin(AddonName, AddonObject, "ChatOMatic_Profile", nil, "ChatOMatic_Cache")
 local Schema = PLUGIN.Schema;
 local SV = _G["SVUI"];
 local L = SV.L
---[[ 
-########################################################## 
-CONFIG DATA
-##########################################################
-]]--
-PLUGIN.configs = {
-    ["saveChats"] = true,
-    ["service"] = true,
-  	["autoAnswer"] = false, 
-  	["prefix"] = true
-}
-
-PLUGIN.db = PLUGIN.configs;
 --[[ 
 ########################################################## 
 CONFIG OPTIONS

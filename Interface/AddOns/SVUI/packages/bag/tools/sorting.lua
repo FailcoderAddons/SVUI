@@ -12,7 +12,7 @@ _____/\\\\\\\\\\\____/\\\________/\\\__/\\\________/\\\__/\\\\\\\\\\\_       #
 ##############################################################################
 S U P E R - V I L L A I N - U I   By: Munglunch                              #
 ##############################################################################
-credit: Elv.                      original logic from ElvUI. Adapted to SVUI #
+credit: Kemayo.               original logic from BankStack. Adapted to SVUI #
 ##############################################################################
 ########################################################## 
 LOCALIZED LUA FUNCTIONS
@@ -60,6 +60,7 @@ local MOD = SV.SVBag;
 LOCAL VARS
 ##########################################################
 ]]--
+local WAIT_TIME = 0.05
 local bagGroups = {};
 local initialOrder = {};
 local bagSorted = {};
@@ -147,6 +148,30 @@ SORTING UPDATES HANDLER
 local SortUpdateTimer = CreateFrame("Frame")
 SortUpdateTimer.timeLapse = 0
 SortUpdateTimer:Hide()
+--[[
+########################################################## 
+HELPERS
+##########################################################
+]]--
+local function ValidateBag(bagid)
+	return (bagid == BANK_CONTAINER or ((bagid >= 0) and bagid <= (NUM_BAG_SLOTS + NUM_BANKBAGSLOTS)))
+end
+local function ValidateBank(bagid)
+	return (bagid == BANK_CONTAINER or bagid == REAGENTBANK_CONTAINER or (bagid > NUM_BAG_SLOTS and bagid <= NUM_BANKBAGSLOTS))
+end
+local function ValidateGuildBank(bagid)
+	return (bagid > 50 and bagid <= 58)
+end
+local function BagEncoder(bag, slot) return (bag * 100) + slot end
+local function BagDecoder(int) return math.floor(int / 100), int % 100 end
+local function MoveEncoder(source, target) return (source * 10000) + target end
+local function MoveDecoder(move)
+	local s = math.floor(move / 10000)
+	local t = move % 10000
+	s = (t > 9000) and (s + 1) or s
+	t = (t > 9000) and (t - 10000) or t
+	return s, t
+end
 --[[ 
 ########################################################## 
 LOCAL FUNCTIONS
@@ -287,7 +312,7 @@ local function GetSortingGroup(id)
 end
 
 local function GetSortingInfo(bag, slot)
-	if (bag > 50 and bag <= 58) then
+	if (ValidateGuildBank(bag)) then
 		return GetGuildBankItemInfo(bag - 50, slot)
 	else
 		return GetContainerItemInfo(bag, slot)
@@ -295,7 +320,7 @@ local function GetSortingInfo(bag, slot)
 end
 
 local function GetSortingItemLink(bag, slot)
-	if (bag > 50 and bag <= 58) then
+	if (ValidateGuildBank(bag)) then
 		return GetGuildBankItemLink(bag - 50, slot)
 	else
 		return GetContainerItemLink(bag, slot)
@@ -310,7 +335,7 @@ do
 	local bagRole;
 	
 	local function GetNumSortingSlots(bag, role)
-		if (bag > 50 and bag <= 58) then
+		if (ValidateGuildBank(bag)) then
 			if not role then role = "deposit" end
 			local name, icon, canView, canDeposit, numWithdrawals = GetGuildBankTabInfo(bag - 50)
 			if name and canView then
@@ -393,18 +418,18 @@ EXTERNAL SORTING CALLS
 ##########################################################
 ]]--
 do
-	local function SetSortingPath(source, destination)
-		UpdateLocation(source, destination)
-		tinsert(sortingCache[6], 1, ((source * 10000) + destination))
+	local function SetSortingPath(source, target)
+		UpdateLocation(source, target)
+		tinsert(sortingCache[6], 1, (MoveEncoder(source, target)))
 	end
 
 	local function IsPartial(bag, slot)
-		local bagSlot = (bag*100) + slot
+		local bagSlot = BagEncoder(bag, slot)
 		return ((sortingCache[5][bagSlot] or 0) - (sortingCache[4][bagSlot] or 0)) > 0
 	end
 
 	local function IsSpecialtyBag(bagID)
-		if bagID == BANK_CONTAINER or bagID == REAGENTBANK_CONTAINER or bagID == 0 or (bagID > 50 and bagID <= 58) then return false end
+		if(bagID == 0 or (ValidateBank(bagID)) or (ValidateGuildBank(bagID))) then return false end
 		local inventorySlot = ContainerIDToInventoryID(bagID)
 		if not inventorySlot then return false end
 		local bag = GetInventoryItemLink("player", inventorySlot)
@@ -415,8 +440,8 @@ do
 	end
 
 	local function CanItemGoInBag(bag, slot, targetBag)
-		if (targetBag > 50 and targetBag <= 58) then return true end
-		local item = sortingCache[2][((bag*100) + slot)]
+		if (ValidateGuildBank(targetBag)) then return true end
+		local item = sortingCache[2][(BagEncoder(bag, slot))]
 		local itemFamily = GetItemFamily(item)
 		if itemFamily and itemFamily > 0 then
 			local equipSlot = select(9, GetItemInfo(item))
@@ -456,7 +481,7 @@ do
 		ignoreItems = ignoreItems:gsub(',%s', ',')
 		SetBlockedCache(split(",", ignoreItems))
 		for i, bag, slot in IterateBagsForSorting(bags, nil, 'both') do
-			local bagSlot = (bag*100) + slot
+			local bagSlot = BagEncoder(bag, slot)
 			local link = GetSortingItemLink(bag, slot);
 			if link and blackList[GetItemInfo(link)] then
 				blackListedSlots[bagSlot] = true
@@ -472,7 +497,7 @@ do
 			passNeeded = false
 			local i = 1
 			for _, bag, slot in IterateBagsForSorting(bags, nil, 'both') do
-				local destination = (bag*100) + slot
+				local destination = BagEncoder(bag, slot)
 				local source = bagSorted[i]
 				if not blackListedSlots[destination] then
 					if(ShouldMove(source, destination)) then
@@ -497,15 +522,15 @@ do
 	local function SortFiller(sourceBags, targetBags, reverse, canMove)
 		if not canMove then canMove = true end
 		for _, bag, slot in IterateBagsForSorting(targetBags, reverse, "deposit") do
-			local bagSlot = (bag*100) + slot
+			local bagSlot = BagEncoder(bag, slot)
 			if not sortingCache[2][bagSlot] then
 				tinsert(emptySlots, bagSlot)
 			end
 		end
 		for _, bag, slot in IterateBagsForSorting(sourceBags, not reverse, "withdraw") do
 			if #emptySlots == 0 then break end
-			local bagSlot = (bag*100) + slot
-			local targetBag, targetSlot = floor(emptySlots[1]/100), emptySlots[1] % 100
+			local bagSlot = BagEncoder(bag, slot)
+			local targetBag, targetSlot = BagDecoder(emptySlots[1])
 			if sortingCache[2][bagSlot] and CanItemGoInBag(bag, slot, targetBag) and (canMove == true or canMove(sortingCache[2][bagSlot], bag, slot)) then
 				SetSortingPath(bagSlot, tremove(emptySlots, 1))
 			end
@@ -544,7 +569,7 @@ do
 	function MOD.Transfer(sourceBags, targetBags, canMove)
 		if not canMove then canMove = true end
 		for _, bag, slot in IterateBagsForSorting(targetBags, nil, "deposit") do
-			local bagSlot = (bag*100) + slot
+			local bagSlot = BagEncoder(bag, slot)
 			local itemID = sortingCache[2][bagSlot]
 			if itemID and (sortingCache[4][bagSlot] ~= sortingCache[5][bagSlot]) then
 				targetItems[itemID] = (targetItems[itemID] or 0) + 1
@@ -553,7 +578,7 @@ do
 		end
 
 		for _, bag, slot in IterateBagsForSorting(sourceBags, true, "withdraw") do
-			local sourceSlot = (bag*100) + slot
+			local sourceSlot = BagEncoder(bag, slot)
 			local itemID = sortingCache[2][sourceSlot]
 			if itemID and targetItems[itemID] and (canMove == true or canMove(itemID, bag, slot)) then
 				for i = #targetSlots, 1, -1 do
@@ -581,7 +606,7 @@ do
 	function MOD.Stack(bags, canMove)
 		if not canMove then canMove = true end
 		for _, bag, slot in IterateBagsForSorting(bags, nil, "deposit") do
-			local bagSlot = (bag*100) + slot
+			local bagSlot = BagEncoder(bag, slot)
 			local itemID = sortingCache[2][bagSlot]
 			if itemID and (sortingCache[4][bagSlot] ~= sortingCache[5][bagSlot]) then
 				targetItems[itemID] = (targetItems[itemID] or 0) + 1
@@ -590,7 +615,7 @@ do
 		end
 
 		for _, bag, slot in IterateBagsForSorting(bags, true, "withdraw") do
-			local sourceSlot = (bag*100) + slot
+			local sourceSlot = BagEncoder(bag, slot)
 			local itemID = sortingCache[2][sourceSlot]
 			if itemID and targetItems[itemID] and (canMove == true or (type(canMove) == "function" and canMove(itemID, bag, slot))) then
 				for i = #targetSlots, 1, -1 do
@@ -621,16 +646,8 @@ INTERNAL SORTING CALLS
 ##########################################################
 ]]--
 do
-	local function GetMovement(move)
-		local s = floor(move/10000)
-		local t = move%10000
-		s = (t>9000) and (s+1) or s
-		t = (t>9000) and (t-10000) or t
-		return s, t
-	end
-
 	local function GetSortingItemID(bag, slot)
-		if (bag > 50 and bag <= 58) then
+		if (ValidateGuildBank(bag)) then
 			local link = GetSortingItemLink(bag, slot)
 			return link and tonumber(string.match(link, "item:(%d+)"))
 		else
@@ -653,9 +670,9 @@ do
 		if GetCursorInfo() == "item" then
 			return false, 'cursorhasitem'
 		end
-		local source, target = GetMovement(move)
-		local sourceBag, sourceSlot = floor(source/100), source % 100
-		local targetBag, targetSlot = floor(target/100), target % 100
+		local source, target = MoveDecoder(move)
+		local sourceBag, sourceSlot = BagDecoder(source)
+		local targetBag, targetSlot = BagDecoder(target)
 		local _, sourceCount, sourceLocked = GetSortingInfo(sourceBag, sourceSlot)
 		local _, targetCount, targetLocked = GetSortingInfo(targetBag, targetSlot)
 		if sourceLocked or targetLocked then
@@ -664,6 +681,7 @@ do
 		local sourceLink = GetSortingItemLink(sourceBag, sourceSlot)
 		local sourceItemID = GetSortingItemID(sourceBag, sourceSlot)
 		local targetItemID = GetSortingItemID(targetBag, targetSlot)
+
 		if not sourceItemID then
 			if moveTracker[source] then
 				return false, 'move incomplete'
@@ -671,30 +689,35 @@ do
 				return self:StopStacking(L['Confused.. Try Again!'])
 			end
 		end
+
 		local stackSize = select(8, GetItemInfo(sourceItemID))	
+
+		local sourceGuild = ValidateGuildBank(sourceBag)
+		local targetGuild = ValidateGuildBank(targetBag)
+
 		if (sourceItemID == targetItemID) and (targetCount ~= stackSize) and ((targetCount + sourceCount) > stackSize) then
 			local amount = (stackSize - targetCount)
-			if (sourceBag > 50 and sourceBag <= 58) then
+			if (sourceGuild) then
 				SplitGuildBankItem(sourceBag - 50, sourceSlot, amount)
 			else
 				SplitContainerItem(sourceBag, sourceSlot, amount)
 			end
 		else
-			if (sourceBag > 50 and sourceBag <= 58) then
+			if (sourceGuild) then
 				PickupGuildBankItem(sourceBag - 50, sourceSlot)
 			else
 				PickupContainerItem(sourceBag, sourceSlot)
 			end
 		end
+
 		if GetCursorInfo() == "item" then
-			if (targetBag > 50 and targetBag <= 58) then
+			if (targetGuild) then
 				PickupGuildBankItem(targetBag - 50, targetSlot)
 			else
 				PickupContainerItem(targetBag, targetSlot)
 			end
 		end	
-		local sourceGuild = (sourceBag > 50 and sourceBag <= 58)
-		local targetGuild = (targetBag > 50 and targetBag <= 58)
+		
 		if sourceGuild then
 			QueryGuildBankTab(sourceBag - 50)
 		end
@@ -709,18 +732,18 @@ do
 		if(self.timeLapse > 0.05) then
 			self.timeLapse = 0
 			if InCombatLockdown() then
-				return self:StopStacking(L['Confused.. Try Again!'])
+				return self:StopStacking(L["Can't Clean Bags in Combat!"])
 			end
 			local cursorType, cursorItemID = GetCursorInfo()
 			if cursorType == "item" and cursorItemID then
 				if lastItemID ~= cursorItemID then
-					return self:StopStacking(L['Confused.. Try Again!'])
+					return self:StopStacking(L["Bag Cleaning Error, Try Again"])
 				end
 				if moveRetries < 100 then
-					local targetBag, targetSlot = floor(lastDestination/100), lastDestination % 100
+					local targetBag, targetSlot = BagDecoder(lastDestination)
 					local _, _, targetLocked = GetSortingInfo(targetBag, targetSlot)
 					if not targetLocked then
-						if (targetBag > 50 and targetBag <= 58) then
+						if(ValidateGuildBank(targetBag)) then
 							PickupGuildBankItem(targetBag - 50, targetSlot)
 						else
 							PickupContainerItem(targetBag, targetSlot)
@@ -735,8 +758,9 @@ do
 			if lockStop then
 				local i = 1;
 				for slot, itemID in pairs(moveTracker) do
-					local actualItemID = GetSortingItemID(floor(slot/100), slot % 100)
-					if actualItemID  ~= itemid then
+					local sourceBag, sourceSlot = BagDecoder(slot)
+					local actualItemID = GetSortingItemID(sourceBag, sourceSlot)
+					if actualItemID ~= itemID then
 						WAIT_TIME = 0.1
 						if (GetTime() - lockStop) > 1.25 then
 							if lastMove and moveRetries < 100 then
@@ -834,7 +858,7 @@ function MOD:RunSortingProcess(func, groupsDefaults, altFunc)
 				end
 			end
 			for _, bag, slot in IterateBagsForSorting(scanningCache.all) do
-				local bagSlot = (bag*100) + slot
+				local bagSlot = BagEncoder(bag, slot)
 				local itemID, isBattlePet = ConvertLinkToID(GetSortingItemLink(bag, slot))
 				if itemID then
 					if isBattlePet then

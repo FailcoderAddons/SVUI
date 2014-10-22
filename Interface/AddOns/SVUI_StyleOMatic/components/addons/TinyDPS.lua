@@ -46,7 +46,7 @@ local function StyleTinyDPS()
 	tdpsFrame:HookScript("OnShow", function()
 		if InCombatLockdown() then return end 
 		if SV.CurrentlyDocked["tdpsFrame"] then
-			SuperDockWindowRight:Show()
+			RightSuperDockFrameHolder:Show()
 		end
 	end)
 

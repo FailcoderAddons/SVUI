@@ -221,7 +221,7 @@ end
 function SV:AnchorToCursor(frame)
     local x, y = GetCursorPosition()
     local vHold = self.yScreenArea
-    local scale = self.EffectiveScale
+    local scale = self.Screen:GetEffectiveScale()
     local initialAnchor = "CENTER"
     local mod = 0
 
@@ -234,7 +234,7 @@ function SV:AnchorToCursor(frame)
     end
 
     frame:ClearAllPoints()
-    frame:SetPoint(initialAnchor, SV.UIParent, "BOTTOMLEFT", (x  /  scale), (y  /  scale) + mod)
+    frame:SetPoint(initialAnchor, SV.Screen, "BOTTOMLEFT", (x  /  scale), (y  /  scale) + mod)
 end
 --[[ 
 ########################################################## 

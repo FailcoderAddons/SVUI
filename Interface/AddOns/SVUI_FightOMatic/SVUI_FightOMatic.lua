@@ -364,7 +364,7 @@ local function ClearCacheScans()
 end
 
 local function ClearSavedScans()
-	PLUGIN.cache = {}
+	wipe(PLUGIN.cache)
 end
 
 local function EnemyAlarm(name, class, colors, kos)
@@ -668,9 +668,8 @@ function PLUGIN:EventDistributor(event, ...)
 					if(not EnemyCache[guid]) then
 						local timestamp = time()
 						AddEnemyScan(guid, timestamp)
-					end
-					if(self.cache[guid]) then
-						HeadsUpAlarm("Kill On Sight!", CombatText_StandardScroll, 1, 0, 0, "crit")
+					elseif(self.cache[guid] and self.cache[guid].name) then
+						--HeadsUpAlarm("Kill On Sight!", CombatText_StandardScroll, 1, 0, 0, "crit")
 						if(self.db.annoyingEmotes) then
 							KOS_Emote()
 						end
@@ -901,7 +900,7 @@ local FightOMaticAlert_OnHide = function()
 		SV:AddonMessage(ERR_NOT_IN_COMBAT);  
 		return; 
 	end
-	SuperDockAlertRight:Deactivate()
+	RightSuperDockAlert:Deactivate()
 end
 
 local FightOMaticAlert_OnShow = function(self)
@@ -911,7 +910,7 @@ local FightOMaticAlert_OnShow = function(self)
 		return; 
 	end
 	SV:SecureFadeIn(self, 0.3, 0, 1)
-	SuperDockAlertRight:Activate(self)
+	RightSuperDockAlert:Activate(self)
 end
 
 local FightOMaticAlert_OnMouseDown = function(self)
@@ -994,20 +993,22 @@ BUILD FUNCTION
 ##########################################################
 ]]--
 function PLUGIN:Load()
+	self.cache = self.cache or {}
+	
 	local ALERT_HEIGHT = 60;
-	local DOCK_WIDTH = SuperDockWindowRight:GetWidth();
-	local DOCK_HEIGHT = SuperDockWindowRight:GetHeight();
+	local DOCK_WIDTH = RightSuperDockFrameHolder:GetWidth();
+	local DOCK_HEIGHT = RightSuperDockFrameHolder:GetHeight();
 	local BUTTON_SIZE = (DOCK_HEIGHT * 0.25) - 4;
 
 	self.HitBy = false;
 	self.Scanning = false;
 	self.InPVP = false
 
-	local holder = CreateFrame("Frame", "SVUI_FightOMaticDock", SuperDockWindowRight)
+	local holder = CreateFrame("Frame", "SVUI_FightOMaticDock", RightSuperDockFrameHolder)
 	holder:SetFrameStrata("BACKGROUND")
 	holder:SetWidth(DOCK_WIDTH - 4);
 	holder:SetHeight(DOCK_HEIGHT - 4);
-	holder:SetPoint("CENTER",SuperDockWindowRight,"CENTER",0,0);
+	holder:SetPoint("CENTER",RightSuperDockFrameHolder,"CENTER",0,0);
 
 	local toolBar = CreateFrame("Frame", "SVUI_FightOMaticToolBar", holder)
 	toolBar:SetWidth(BUTTON_SIZE + 4);
@@ -1128,7 +1129,7 @@ function PLUGIN:Load()
 	MakeUtilityWindow()
 	MakeInfoWindow()
 
-	SV:RegisterDocklet("SVUI_FightOMaticDock", self.TitleID, ICON_FILE)
+	SV.SVDock:RegisterDocklet("SVUI_FightOMaticDock", self.TitleID, ICON_FILE)
 
 	holder:Hide()
 

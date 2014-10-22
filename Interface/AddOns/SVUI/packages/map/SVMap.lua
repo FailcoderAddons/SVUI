@@ -349,7 +349,7 @@ local function SetLargeWorldMap()
 	if InCombatLockdown() then return end
 
 	if SV.db.SVMap.tinyWorldMap == true then
-		WorldMapFrame:SetParent(SV.UIParent)
+		WorldMapFrame:SetParent(SV.Screen)
 		WorldMapFrame:EnableMouse(false)
 		WorldMapFrame:EnableKeyboard(false)
 		WorldMapFrame:SetScale(1)
@@ -386,10 +386,10 @@ local function AdjustMapSize()
 		BlackoutWorld:SetTexture(0, 0, 0, 1)
 	end 
 	
-	WorldMapFrame:SetFrameLevel(2)
-  	WorldMapDetailFrame:SetFrameLevel(4)
+	WorldMapFrame:SetFrameLevel(1)
+  	WorldMapDetailFrame:SetFrameLevel(2)
   	WorldMapFrame:SetFrameStrata('HIGH')
-  	WorldMapArchaeologyDigSites:SetFrameLevel(6)
+  	WorldMapArchaeologyDigSites:SetFrameLevel(3)
   	WorldMapArchaeologyDigSites:SetFrameStrata('DIALOG')
 end  
 
@@ -412,8 +412,8 @@ local function UpdateWorldMapConfig()
 		SVUI_MiniMapCoords:Hide()
 	else
 		SVUI_MiniMapCoords:Show()
-		MOD.CoordTimer = SV.Timers:ExecuteLoop(UpdateMapCoords, 0.2)
 		UpdateMapCoords()
+		MOD.CoordTimer = SV.Timers:ExecuteLoop(UpdateMapCoords, 0.2)
 	end
 	AdjustMapSize() 
 end
@@ -525,10 +525,10 @@ local _hook_WorldMapFrame_OnShow = function()
       Initialized = true
     end
 
-	WorldMapFrame:SetFrameLevel(2)
-  	WorldMapDetailFrame:SetFrameLevel(4)
+	WorldMapFrame:SetFrameLevel(1)
+  	WorldMapDetailFrame:SetFrameLevel(2)
   	WorldMapFrame:SetFrameStrata('HIGH')
-  	WorldMapArchaeologyDigSites:SetFrameLevel(6)
+  	WorldMapArchaeologyDigSites:SetFrameLevel(3)
   	WorldMapArchaeologyDigSites:SetFrameStrata('DIALOG')
 end 
 
@@ -708,7 +708,7 @@ function MOD:Load()
 	local mapHolder = SVUI_MinimapFrame
 	mapHolder:SetFrameStrata("BACKGROUND")
 	mapHolder.backdrop = mapHolder:CreateTexture(nil, "BACKGROUND", nil, -2)
-	mapHolder:Point("TOPRIGHT", SV.UIParent, "TOPRIGHT", -10, -10)
+	mapHolder:Point("TOPRIGHT", SV.Screen, "TOPRIGHT", -10, -10)
 	mapHolder:Size(MM_WIDTH, MM_HEIGHT)
 	mapHolder.backdrop:ClearAllPoints()
 	mapHolder.backdrop:WrapOuter(mapHolder, 2)
@@ -843,16 +843,16 @@ function MOD:Load()
 
 	if(SV.db.SVMap.tinyWorldMap) then
 		setfenv(WorldMapFrame_OnShow, setmetatable({ UpdateMicroButtons = SV.fubar }, { __index = _G }))
-		WorldMapFrame:SetParent(SV.UIParent)
-		WorldMapFrame:SetFrameLevel(4)
+		WorldMapFrame:SetParent(SV.Screen)
+		WorldMapFrame:SetFrameLevel(1)
 		WorldMapFrame:SetFrameStrata('HIGH')
-		WorldMapDetailFrame:SetFrameLevel(6)
+		WorldMapDetailFrame:SetFrameLevel(2)
 		WorldMapFrame:HookScript('OnShow', _hook_WorldMapFrame_OnShow)
 		WorldMapFrame:HookScript('OnHide', _hook_WorldMapFrame_OnHide)
 	end
 
 	local CoordsHolder = CreateFrame('Frame', 'SVUI_WorldMapCoords', WorldMapFrame)
-	CoordsHolder:SetFrameLevel(WorldMapDetailFrame:GetFrameLevel()+1)
+	CoordsHolder:SetFrameLevel(WorldMapDetailFrame:GetFrameLevel() + 1)
 	CoordsHolder:SetFrameStrata(WorldMapDetailFrame:GetFrameStrata())
 	CoordsHolder.playerCoords=CoordsHolder:CreateFontString(nil,'OVERLAY')
 	CoordsHolder.mouseCoords=CoordsHolder:CreateFontString(nil,'OVERLAY')

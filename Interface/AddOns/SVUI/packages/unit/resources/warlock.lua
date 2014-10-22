@@ -99,7 +99,7 @@ local Reposition = function(self)
 
 	bar.DemonBar:ClearAllPoints()
 	bar.DemonBar:Size(width, (size * 1.25))
-	bar.DemonBar:SetPoint("LEFT", bar, "LEFT", 4, dbOffset) 
+	bar.DemonBar:SetPoint("LEFT", bar, "LEFT", 0, dbOffset) 
 	for i = 1, max do 
 		bar[i]:ClearAllPoints()
 		bar[i]:SetHeight(size)
@@ -320,7 +320,7 @@ function MOD:CreateClassBar(playerFrame)
 	demonBar:SetStatusBarTexture(SV.Media.bar.lazer)
 
 	local bgFrame = CreateFrame("Frame", nil, demonBar)
-	bgFrame:FillInner(demonBar, -2, 10)
+	bgFrame:FillInner(demonBar, 0, 8)
 	bgFrame:SetFrameLevel(bgFrame:GetFrameLevel() - 1)
 
 	demonBar.bg = bgFrame:CreateTexture(nil, "BACKGROUND")

@@ -67,20 +67,28 @@ GET ADDON DATA
 ]]--
 local SV = select(2, ...)
 local L = SV.L
+
 local MOD = SV:NewPackage("SVDock", L["Docks"]);
+
+MOD.Docklets = {
+	DEFAULT = "",
+	FRAMES = {},
+	TOOLS = {},
+	SAFETY = {}
+}
 --[[ 
 ########################################################## 
 LOCAL VARS
 ##########################################################
 ]]--
-local DOCKLET_CACHE, TOOL_CACHE, SAFETY_CACHE = {}, {}, {};
-local PREV_TOOL, DEFAULT_DOCKLET;
 local AddOnButton = CreateFrame("Button", "SVUI_AddonDocklet", UIParent);
-local SuperDockletMain = CreateFrame('Frame', 'SuperDockletMain', UIParent);
-local SuperDockletExtra = CreateFrame('Frame', 'SuperDockletExtra', UIParent);
+local SVUI_AddonDock1 = CreateFrame('Frame', 'SVUI_AddonDock1', UIParent);
+local SVUI_AddonDock2 = CreateFrame('Frame', 'SVUI_AddonDock2', UIParent);
 local DockletMenu = CreateFrame("Frame", "SVUI_DockletMenu", UIParent);
-SuperDockletMain.FrameName = "None";
-SuperDockletExtra.FrameName = "None";
+
+SVUI_AddonDock1.FrameName = "None";
+SVUI_AddonDock2.FrameName = "None";
+
 local ICONFILE = [[Interface\AddOns\SVUI\assets\artwork\Icons\DOCK-BAG-MICRO]];
 local TOOL_DATA = {
 	[171] 	= {0,0.25,0,0.25}, 				-- PRO-ALCHEMY
@@ -97,11 +105,6 @@ local TOOL_DATA = {
     [197] 	= {0.25,0.5,0.75,1}, 			-- PRO-TAILORING
 }
 local HEARTH_SPELLS = {556,50977,18960,126892}
-
-local rez = GetCVar("gxResolution");
-local gxWidth = tonumber(rez:match("(%d+)x%d+"));
-local bw = gxWidth * 0.5
-local defaultStatBarWidth = min(bw, 800)
 --[[ 
 ########################################################## 
 PRE VARS/FUNCTIONS
@@ -127,8 +130,9 @@ local function SetFilterMenu(self)
 end
 
 local function CycleDocklets()
-	for i=1, #DOCKLET_CACHE do
-		local f = DOCKLET_CACHE[i]
+	local list = MOD.Docklets.FRAMES
+	for i=1, #list do
+		local f = list[i]
 		if(not InCombatLockdown() or (InCombatLockdown() and (f.IsProtected and not f:IsProtected()))) then
 			local b = _G[f.ToggleName]
 			b:Deactivate()
@@ -140,10 +144,10 @@ local function CycleDocklets()
 end
 
 local function GetDefaultWindow()
-	local window = DEFAULT_DOCKLET
+	local window = MOD.Docklets.DEFAULT
 	if window and _G[window] then
-		SuperDockWindowRight.FrameName = window
-		SuperDockWindowRight:Show()
+		RightSuperDockFrameHolder.FrameName = window
+		RightSuperDockFrameHolder:Show()
 	end
 end
 
@@ -158,18 +162,18 @@ local AlertDeactivate = function(self)
 	self:Height(1)
 end
 
-local leftalert = CreateFrame("Frame", "SuperDockAlertLeft", UIParent)
+local leftalert = CreateFrame("Frame", "LeftSuperDockAlert", UIParent)
 leftalert.Activate = AlertActivate
 leftalert.Deactivate = AlertDeactivate
 
-local rightalert = CreateFrame("Frame", "SuperDockAlertRight", UIParent)
+local rightalert = CreateFrame("Frame", "RightSuperDockAlert", UIParent)
 rightalert.Activate = AlertActivate
 rightalert.Deactivate = AlertDeactivate
 
 local rightDockSizeHook = function(self,width,height)
-	SuperDockWindowRight:Width(width)
-	SuperDockWindowRight:Height(height)
-	SuperDockWindowRight:SetPoint("BOTTOMLEFT", SuperDockAlertRight, "TOPLEFT", 0, 0)
+	RightSuperDockFrameHolder:Width(width)
+	RightSuperDockFrameHolder:Height(height)
+	RightSuperDockFrameHolder:SetPoint("BOTTOMLEFT", RightSuperDockAlert, "TOPLEFT", 0, 0)
 end
 
 local ToggleDocks = function(self)
@@ -186,23 +190,24 @@ local ToggleDocks = function(self)
 end
 
 local Docklet_OnShow = function(self)
-	if(_G[SuperDockWindowRight.FrameName]) then
-		if(InCombatLockdown() and (_G[SuperDockWindowRight.FrameName].IsProtected and _G[SuperDockWindowRight.FrameName]:IsProtected())) then return end 
-		_G[SuperDockWindowRight.FrameName]:Show()
+	if(_G[RightSuperDockFrameHolder.FrameName]) then
+		if(InCombatLockdown() and (_G[RightSuperDockFrameHolder.FrameName].IsProtected and _G[RightSuperDockFrameHolder.FrameName]:IsProtected())) then return end 
+		_G[RightSuperDockFrameHolder.FrameName]:Show()
 	end 
-	if _G[SuperDockWindowRight.SecondName] then
-		if(InCombatLockdown() and (_G[SuperDockWindowRight.SecondName].IsProtected and _G[SuperDockWindowRight.SecondName]:IsProtected())) then return end
-		_G[SuperDockWindowRight.SecondName]:Show()
+	if _G[RightSuperDockFrameHolder.SecondName] then
+		if(InCombatLockdown() and (_G[RightSuperDockFrameHolder.SecondName].IsProtected and _G[RightSuperDockFrameHolder.SecondName]:IsProtected())) then return end
+		_G[RightSuperDockFrameHolder.SecondName]:Show()
 	end 
 end 
 
-local DockletButton_SaveColors = function(self, pG, iG, locked)
-	if(locked and (locked ~= nil) and self._colorLocked) then return end
-	self._panelGradient = pG
-	self._iconGradient = iG
-	self._colorLocked = locked
-	self:SetPanelColor(pG)
-	self.icon:SetGradient(unpack(SV.Media.gradient[iG]))
+local DockletButton_SaveColors = function(self, bg, ig, locked)
+    if(locked and (locked ~= nil) and self:GetAttribute("colorLocked")) then return end
+    self:SetAttribute("bgGradient", bg)
+    self:SetAttribute("iconGradient", ig)
+    self:SetAttribute("colorLocked", locked)
+
+    self:SetPanelColor(bg)
+    self.Icon:SetGradient(unpack(SV.Media.gradient[ig]))
 end
 
 local DockButtonActivate = function(self)
@@ -224,7 +229,7 @@ local DockletButton_OnEnter = function(self, ...)
 	end
 
 	self:SetPanelColor("highlight")
-	self.icon:SetGradient(unpack(SV.Media.gradient.bizzaro))
+	self.Icon:SetGradient(unpack(SV.Media.gradient.bizzaro))
 
 	GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT", 0, 4)
 	GameTooltip:ClearLines()
@@ -242,8 +247,11 @@ local DockletButton_OnLeave = function(self, ...)
 		SV:SecureFadeOut(RightSuperDock, 0.2, RightSuperDock:GetAlpha(), 0, true)
 	end
 
-	self:SetPanelColor(self._panelGradient)
-	self.icon:SetGradient(unpack(SV.Media.gradient[self._iconGradient]))
+	local bg = self:GetAttribute("bgGradient")
+    local ig = self:GetAttribute("iconGradient")
+
+	self:SetPanelColor(bg)
+	self.Icon:SetGradient(unpack(SV.Media.gradient[ig]))
 
 	GameTooltip:Hide()
 end
@@ -255,12 +263,12 @@ local DockletButton_OnClick = function(self, button)
 	else
 		local linkedFrame = self.FrameName
 		if linkedFrame and _G[linkedFrame] then
-			SuperDockWindowRight.FrameName = linkedFrame
+			RightSuperDockFrameHolder.FrameName = linkedFrame
 			if not _G[linkedFrame]:IsShown() then
 				CycleDocklets()
 			end
-			if not SuperDockWindowRight:IsShown()then
-				SuperDockWindowRight:Show()
+			if not RightSuperDockFrameHolder:IsShown()then
+				RightSuperDockFrameHolder:Show()
 			end
 			_G[linkedFrame]:Show()
 			self:Activate()
@@ -279,53 +287,53 @@ local DockletFrame_OnShow = function(self)
 end 
 
 local AddonDockletToggle = function(self)
-	if SuperDockletMain.FrameName and _G[SuperDockletMain.FrameName] then
-		if not _G[SuperDockletMain.FrameName]:IsShown() then
+	if SVUI_AddonDock1.FrameName and _G[SVUI_AddonDock1.FrameName] then
+		if not _G[SVUI_AddonDock1.FrameName]:IsShown() then
 			CycleDocklets()
-			if not InCombatLockdown() and not SuperDockletMain:IsShown()then
-				SuperDockletMain:Show()
+			if not InCombatLockdown() and not SVUI_AddonDock1:IsShown()then
+				SVUI_AddonDock1:Show()
 			end
-			_G[SuperDockletMain.FrameName]:Show()
+			_G[SVUI_AddonDock1.FrameName]:Show()
 			self:Activate()
-		elseif not SuperDockletMain:IsShown()then
-			if not InCombatLockdown() then SuperDockletMain:Show() end
-			_G[SuperDockletMain.FrameName]:Show()
+		elseif not SVUI_AddonDock1:IsShown()then
+			if not InCombatLockdown() then SVUI_AddonDock1:Show() end
+			_G[SVUI_AddonDock1.FrameName]:Show()
 			self:Activate()
 		end 
 	else
-		SuperDockletMain.FrameName = "None"
+		SVUI_AddonDock1.FrameName = "None"
 		if InCombatLockdown()then return end 
-		if SuperDockletMain:IsShown()then 
-			SuperDockletMain:Hide()
+		if SVUI_AddonDock1:IsShown()then 
+			SVUI_AddonDock1:Hide()
 		else 
-			SuperDockletMain:Show()
+			SVUI_AddonDock1:Show()
 		end
 		self:Deactivate()
 	end 
-	if SV.db.SVDock.docklets.enableExtra and SuperDockletExtra.FrameName and _G[SuperDockletExtra.FrameName] then
-		if not _G[SuperDockletExtra.FrameName]:IsShown() then
-			if not InCombatLockdown() and not SuperDockletExtra:IsShown()then
-				SuperDockletExtra:Show()
-				SuperDockletMain:Show()
+	if SV.db.SVDock.docklets.enableExtra and SVUI_AddonDock2.FrameName and _G[SVUI_AddonDock2.FrameName] then
+		if not _G[SVUI_AddonDock2.FrameName]:IsShown() then
+			if not InCombatLockdown() and not SVUI_AddonDock2:IsShown()then
+				SVUI_AddonDock2:Show()
+				SVUI_AddonDock1:Show()
 			end
-			_G[SuperDockletExtra.FrameName]:Show()
+			_G[SVUI_AddonDock2.FrameName]:Show()
 			self:Activate()
-		elseif not SuperDockletExtra:IsShown() then
+		elseif not SVUI_AddonDock2:IsShown() then
 			if not InCombatLockdown() then 
-				SuperDockletExtra:Show()
-				SuperDockletMain:Show()
+				SVUI_AddonDock2:Show()
+				SVUI_AddonDock1:Show()
 			end
-			_G[SuperDockletExtra.FrameName]:Show()
+			_G[SVUI_AddonDock2.FrameName]:Show()
 			self:Activate()
 		else
 			if not InCombatLockdown() then 
-				SuperDockletExtra:Hide() 
-				SuperDockletMain:Hide()
+				SVUI_AddonDock2:Hide() 
+				SVUI_AddonDock1:Hide()
 			end
 			self:Deactivate()
 		end
 	else
-		SuperDockletExtra.FrameName = "None"
+		SVUI_AddonDock2.FrameName = "None"
 	end
 end
 
@@ -364,7 +372,7 @@ local function SetSuperDockStyle(dock)
 	return backdrop 
 end
 
-SV.CycleDocklets = CycleDocklets
+MOD.CycleDocklets = CycleDocklets
 --[[ 
 ########################################################## 
 CORE FUNCTIONS
@@ -378,17 +386,53 @@ end
 DOCKLET HELPERS
 ##########################################################
 ]]--
-function MOD:ActivateDockletButton(button, clickFunction, tipFunction)
-	button._panelGradient = "default"
-	button._iconGradient = "icon"
-	button.SaveColors = DockletButton_SaveColors
-	button:SaveColors("default", "icon")
+local function RemoveTool(button)
+	if not button or not button.listIndex then return end 
+	local name = button:GetName();
+	if not MOD.Docklets.SAFETY[name] then return end 
+	MOD.Docklets.SAFETY[name] = false;
+	local i = button.listIndex;
+	tremove(MOD.Docklets.TOOLS, i)
+	local width;
+	local height = RightSuperDockToolBar.currentSize;
+	local stored = MOD.Docklets.TOOLS
+	local PREV_TOOL = stored[#stored]
+	local xOffset = (#stored - 1) * (height + 6) + 6
+	PREV_TOOL:SetPoint("RIGHT", RightSuperDockToolBar, "RIGHT", (xOffset * -1), 0);
+	width = #stored * (height + 6)
+	RightSuperDockToolBar:Size(width, height)
+	button:Hide()
+end 
 
+local function AddTool(button)
+	local name = button:GetName();
+	if MOD.Docklets.SAFETY[name] then return end 
+	MOD.Docklets.SAFETY[name] = true;
+	local width;
+	local height = RightSuperDockToolBar.currentSize;
+	local xOffset = #MOD.Docklets.TOOLS * (height + 6) + 6
+	button:SetPoint("RIGHT", RightSuperDockToolBar, "RIGHT", (xOffset * -1), 0);
+	tinsert(MOD.Docklets.TOOLS, button)
+ 	button.listIndex = #MOD.Docklets.TOOLS;
+	width = #MOD.Docklets.TOOLS * (height + 6)
+	RightSuperDockToolBar:Size(width, height)
+	button:Show()
+end
+
+local function ActivateDockletButton(button, clickFunction, tipFunction, isdefault)
+	button.SaveColors = DockletButton_SaveColors
 	button.Activate = DockButtonActivate
 	button.Deactivate = DockButtonDeactivate
 
 	if(tipFunction and type(tipFunction) == "function") then
 		button.CustomTooltip = tipFunction
+	end
+
+	if(isdefault) then
+		MOD.Docklets.DEFAULT = button:GetAttribute("ownerFrame")
+		button:SaveColors("green", "green")
+	else
+		button:SaveColors("default", "icon")
 	end
 
 	button:SetScript("OnEnter", DockletButton_OnEnter)
@@ -399,27 +443,25 @@ function MOD:ActivateDockletButton(button, clickFunction, tipFunction)
 	end
 end
 
-function MOD:CreateBasicToolButton(name,texture,onclick,frameName,isdefault)
+local function CreateBasicToolButton(name, texture, onclick, frameName, isdefault)
 	local fName = frameName or name;
 	local dockIcon = texture or [[Interface\AddOns\SVUI\assets\artwork\Icons\DOCK-ADDON]];
 	local clickFunction = (type(onclick)=="function") and onclick or DockletButton_OnClick;
-	local size = SuperDockToolBarRight.currentSize;
-	local button = _G[fName .. "_ToolBarButton"] or CreateFrame("Button", ("%s_ToolBarButton"):format(fName), SuperDockToolBarRight)
-	SV.AddTool(button)
+	local size = RightSuperDockToolBar.currentSize;
+	local button = _G[fName .. "_ToolBarButton"] or CreateFrame("Button", ("%s_ToolBarButton"):format(fName), RightSuperDockToolBar, "SVUI_DockletButtonTemplate")
+
+	AddTool(button)
+
 	button:Size(size,size)
 	button:SetFramedButtonTemplate()
-	button.icon = button:CreateTexture(nil,"OVERLAY")
-	button.icon:FillInner(button,2,2)
-	button.icon:SetTexture(dockIcon)
-	button.TText = "Open " .. name;
-	button.FrameName = fName
-	MOD:ActivateDockletButton(button, clickFunction)
-	_G[fName].ToggleName = fName.."_ToolBarButton";
-	if(isdefault and isdefault == true) then
-		DEFAULT_DOCKLET = fName
-		button:SaveColors("green", "green")
-	end
+	button.Icon:SetTexture(dockIcon)
+	button:SetAttribute("tipText", "Open " .. name)
+    button:SetAttribute("ownerFrame", fName)
 
+	ActivateDockletButton(button, clickFunction, nil, isdefault)
+
+	_G[fName].ToggleName = fName.."_ToolBarButton";
+	
 	return button
 end
 --[[ 
@@ -427,65 +469,6 @@ end
 DOCKS
 ##########################################################
 ]]--
-function MOD:CreateSuperBorders()
-	local texture = [[Interface\AddOns\SVUI\assets\artwork\Template\BUTTON]];
-
-	local TopPanel = CreateFrame("Frame", "SVUITopPanel", SV.UIParent)
-	TopPanel:Point("TOPLEFT", SV.UIParent, "TOPLEFT", -1, 1)
-	TopPanel:Point("TOPRIGHT", SV.UIParent, "TOPRIGHT", 1, 1)
-	TopPanel:Height(14)
-	TopPanel:SetBackdrop({
-		bgFile = texture, 
-		edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
-		tile = false, 
-		tileSize = 0, 
-		edgeSize = 1, 
-		insets = {left = 0, right = 0, top = 0, bottom = 0}
-	})
-	TopPanel:SetBackdropColor(unpack(SV.Media.color.special))
-	TopPanel:SetBackdropBorderColor(0,0,0,1)
-	TopPanel:SetFrameLevel(0)
-	TopPanel:SetFrameStrata('BACKGROUND')
-	self.TopPanel = TopPanel;
-	self.TopPanel:SetScript("OnShow", function(this)
-		this:SetFrameLevel(0)
-		this:SetFrameStrata('BACKGROUND')
-	end)
-	self:TopPanelVisibility()
-
-	local BottomPanel = CreateFrame("Frame", "SVUIBottomPanel", SV.UIParent)
-	BottomPanel:Point("BOTTOMLEFT", SV.UIParent, "BOTTOMLEFT", -1, -1)
-	BottomPanel:Point("BOTTOMRIGHT", SV.UIParent, "BOTTOMRIGHT", 1, -1)
-	BottomPanel:Height(14)
-	BottomPanel:SetBackdrop({
-		bgFile = texture, 
-		edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
-		tile = false, 
-		tileSize = 0, 
-		edgeSize = 1, 
-		insets = {left = 0, right = 0, top = 0, bottom = 0}
-	})
-	BottomPanel:SetBackdropColor(unpack(SV.Media.color.special))
-	BottomPanel:SetBackdropBorderColor(0,0,0,1)
-	BottomPanel:SetFrameLevel(0)
-	BottomPanel:SetFrameStrata('BACKGROUND')
-	self.BottomPanel = BottomPanel;
-	self.BottomPanel:SetScript("OnShow", function(this)
-		this:SetFrameLevel(0)
-		this:SetFrameStrata('BACKGROUND')
-	end)
-	MOD:BottomPanelVisibility()
-end
-
-local function BorderColorUpdates()
-	SVUITopPanel:SetBackdropColor(unpack(SV.Media.color.special))
-	SVUITopPanel:SetBackdropBorderColor(0,0,0,1)
-	SVUIBottomPanel:SetBackdropColor(unpack(SV.Media.color.special))
-	SVUIBottomPanel:SetBackdropBorderColor(0,0,0,1)
-end
-
-SV:NewCallback(BorderColorUpdates)
-
 function MOD:CreateDockPanels()
 	local leftWidth = SV.db.SVDock.dockLeftWidth or 350;
 	local leftHeight = SV.db.SVDock.dockLeftHeight or 180;
@@ -493,142 +476,165 @@ function MOD:CreateDockPanels()
 	local rightHeight = SV.db.SVDock.dockRightHeight or 180;
 	local buttonsize = SV.db.SVDock.buttonSize or 22;
 	local spacing = SV.db.SVDock.buttonSpacing or 4;
-	local statBarWidth = SV.db.SVDock.dockStatWidth or defaultStatBarWidth
-	local STATS = SV.SVStats;
+	local texture = [[Interface\AddOns\SVUI\assets\artwork\Template\BUTTON]];
 
-	-- [[ CORNER BUTTON ]] --
+	-- [[ TOP AND BOTTOM BORDERS ]] --
 
-	local leftbutton = CreateFrame("Button", "LeftSuperDockToggleButton", SV.UIParent)
-	leftbutton:Point("BOTTOMLEFT", SV.UIParent, "BOTTOMLEFT", 1, 2)
-	leftbutton:Size(buttonsize, buttonsize)
-	leftbutton:SetFramedButtonTemplate()
-	leftbutton.icon = leftbutton:CreateTexture(nil, "OVERLAY", nil, 0)
-	leftbutton.icon:FillInner(leftbutton,2,2)
-	leftbutton.icon:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Icons\\SVUI-EMBLEM")
-	leftbutton.TText = L["Toggle Docks"]
-	leftbutton:RegisterForClicks("AnyUp")
-	self:ActivateDockletButton(leftbutton, ToggleDocks)
-	-- [[ TOOLBARS AND OTHER NONSENSE ]] --
+	local TopBorder = CreateFrame("Frame", "SVUITopBorder", SV.Screen)
+	TopBorder:Point("TOPLEFT", SV.Screen, "TOPLEFT", -1, 1)
+	TopBorder:Point("TOPRIGHT", SV.Screen, "TOPRIGHT", 1, 1)
+	TopBorder:Height(14)
+	TopBorder:SetBackdrop({
+		bgFile = texture, 
+		edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
+		tile = false, 
+		tileSize = 0, 
+		edgeSize = 1, 
+		insets = {left = 0, right = 0, top = 0, bottom = 0}
+	})
+	TopBorder:SetBackdropColor(unpack(SV.Media.color.special))
+	TopBorder:SetBackdropBorderColor(0,0,0,1)
+	TopBorder:SetFrameLevel(0)
+	TopBorder:SetFrameStrata('BACKGROUND')
+	self.TopBorder = TopBorder;
+	self.TopBorder:SetScript("OnShow", function(this)
+		this:SetFrameLevel(0)
+		this:SetFrameStrata('BACKGROUND')
+	end)
+	self:TopBorderVisibility()
 
-	local toolbarLeft = CreateFrame("Frame", "SuperDockToolBarLeft", SV.UIParent)
-	toolbarLeft:Point("LEFT", leftbutton, "RIGHT", spacing, 0)
-	toolbarLeft:Width(1)
-	toolbarLeft:Height(buttonsize)
-	toolbarLeft.currentSize = buttonsize;
+	local BottomBorder = CreateFrame("Frame", "SVUIBottomBorder", SV.Screen)
+	BottomBorder:Point("BOTTOMLEFT", SV.Screen, "BOTTOMLEFT", -1, -1)
+	BottomBorder:Point("BOTTOMRIGHT", SV.Screen, "BOTTOMRIGHT", 1, -1)
+	BottomBorder:Height(14)
+	BottomBorder:SetBackdrop({
+		bgFile = texture, 
+		edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
+		tile = false, 
+		tileSize = 0, 
+		edgeSize = 1, 
+		insets = {left = 0, right = 0, top = 0, bottom = 0}
+	})
+	BottomBorder:SetBackdropColor(unpack(SV.Media.color.special))
+	BottomBorder:SetBackdropBorderColor(0,0,0,1)
+	BottomBorder:SetFrameLevel(0)
+	BottomBorder:SetFrameStrata('BACKGROUND')
+	self.BottomBorder = BottomBorder;
+	self.BottomBorder:SetScript("OnShow", function(this)
+		this:SetFrameLevel(0)
+		this:SetFrameStrata('BACKGROUND')
+	end)
+	self:BottomBorderVisibility()
 
-	local leftstation = CreateFrame("Frame", "SuperDockChatTabBar", SV.UIParent)
-	leftstation:SetFrameStrata("BACKGROUND")
-	leftstation:Size(leftWidth - buttonsize, buttonsize)
-	leftstation:Point("LEFT", toolbarLeft, "RIGHT", spacing, 0)
-	leftstation:SetFrameLevel(leftstation:GetFrameLevel() + 2)
-	leftstation.currentSize = buttonsize;
+	-- [[ BOTTOM LEFT DOCK ]] --
 
-	local leftdock = CreateFrame("Frame", "LeftSuperDock", SV.UIParent)
-	leftdock:SetFrameStrata("BACKGROUND")
-	leftdock:Point("BOTTOMLEFT", SV.UIParent, "BOTTOMLEFT", 1, buttonsize + 10)
-	leftdock:Size(leftWidth, leftHeight)
-	SV.Mentalo:Add(leftdock, L["Left Dock"])
+    local leftdock = CreateFrame("Frame", "LeftSuperDock", SV.Screen)
+    leftdock:SetFrameStrata("BACKGROUND")
+    leftdock:Point("BOTTOMLEFT", SV.Screen, "BOTTOMLEFT", 1, buttonsize + 10)
+    leftdock:Size(leftWidth, leftHeight)
+    leftdock.currentSpacing = spacing
+    SV.Mentalo:Add(leftdock, L["Left Dock"])
 
-	leftalert:SetParent(leftdock)
-	leftalert:SetFrameStrata("BACKGROUND")
-	leftalert:Size(leftWidth, 1)
-	leftalert:Point("BOTTOMRIGHT", leftdock, "BOTTOMRIGHT",0, 0)
-	leftalert:SetFrameLevel(leftalert:GetFrameLevel() + 2)
-	leftalert.Activate = AlertActivate
-	leftalert.Deactivate = AlertDeactivate
+    	-- [[ CORNER BUTTON ]] --
 
-	local leftwindow = CreateFrame("Frame", "SuperDockWindowLeft", leftdock)
-	leftwindow:SetFrameStrata("BACKGROUND")
-	leftwindow:Point("BOTTOMRIGHT", leftalert, "TOPRIGHT", 0, 0)
-	leftwindow:Size(leftWidth, leftHeight)
-	leftdock.backdrop = SetSuperDockStyle(leftwindow)
+	    local leftbutton = CreateFrame("Button", "LeftSuperDockToggleButton", SV.Screen)
+	    leftbutton:Point("BOTTOMLEFT", SV.Screen, "BOTTOMLEFT", 1, 2)
+	    leftbutton:Size(buttonsize, buttonsize)
+	    leftbutton:SetFramedButtonTemplate()
+	    leftbutton.Icon = leftbutton:CreateTexture(nil, "OVERLAY", nil, 0)
+	    leftbutton.Icon:FillInner(leftbutton,2,2)
+	    leftbutton.Icon:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Icons\\SVUI-EMBLEM")
+	    leftbutton.TText = L["Toggle Docks"]
+	    leftbutton:RegisterForClicks("AnyUp")
+	    ActivateDockletButton(leftbutton, ToggleDocks)
 
-	-- [[ CORNER BUTTON ]] --
+    	-- [[ TOOLBARS AND OTHER NONSENSE ]] --
 
-	local rightbutton = CreateFrame("Button", "RightSuperDockToggleButton", SV.UIParent)
-	rightbutton:Point("BOTTOMRIGHT", SV.UIParent, "BOTTOMRIGHT", -1, 2)
-	rightbutton:Size(buttonsize, buttonsize)
-	rightbutton:SetFramedButtonTemplate()
-	rightbutton.icon = rightbutton:CreateTexture(nil, "OVERLAY")
-	rightbutton.icon:FillInner(rightbutton,2,2)
-	rightbutton.icon:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Icons\DOCK-HENCHMAN]])
-	rightbutton.TText = "Call Henchman!"
-	rightbutton:RegisterForClicks("AnyUp")
-	self:ActivateDockletButton(rightbutton, SV.ToggleHenchman)
-	-- [[ TOOLBARS AND OTHER NONSENSE ]] --
+	    local toolbarLeft = CreateFrame("Frame", "LeftSuperDockToolBar", SV.Screen)
+	    toolbarLeft:Point("LEFT", leftbutton, "RIGHT", spacing, 0)
+	    toolbarLeft:Width(1)
+	    toolbarLeft:Height(buttonsize)
+	    toolbarLeft.currentSize = buttonsize;
 
-	local toolbarRight = CreateFrame("Frame", "SuperDockToolBarRight", SV.UIParent)
-	toolbarRight:Point("RIGHT", rightbutton, "LEFT", -spacing, 0)
-	toolbarRight:Size(1, buttonsize)
-	toolbarRight.currentSize = buttonsize;
+		leftalert:SetParent(leftdock)
+		leftalert:SetFrameStrata("BACKGROUND")
+		leftalert:Size(leftWidth, 1)
+		leftalert:Point("BOTTOMRIGHT", leftdock, "BOTTOMRIGHT",0, 0)
+		leftalert:SetFrameLevel(leftalert:GetFrameLevel() + 2)
+		leftalert.Activate = AlertActivate
+		leftalert.Deactivate = AlertDeactivate
 
-	local macrobar = CreateFrame("Frame", "SuperDockMacroBar", SV.UIParent)
-	macrobar:Point("RIGHT", toolbarRight, "LEFT", -spacing, 0)
-	macrobar:Size(1, buttonsize)
-	macrobar.currentSize = buttonsize;
+		local leftwindow = CreateFrame("Frame", "LeftSuperDockFrameHolder", leftdock)
+		leftwindow:SetFrameStrata("BACKGROUND")
+		leftwindow:Point("BOTTOMRIGHT", leftalert, "TOPRIGHT", 0, 0)
+		leftwindow:Size(leftWidth, leftHeight)
+		leftdock.backdrop = SetSuperDockStyle(leftwindow)
 
-	local rightdock = CreateFrame("Frame", "RightSuperDock", SV.UIParent)
+	-- [[ BOTTOM RIGHT DOCK ]] --
+
+	local rightdock = CreateFrame("Frame", "RightSuperDock", SV.Screen)
 	rightdock:SetFrameStrata("BACKGROUND")
-	rightdock:Point("BOTTOMRIGHT", SV.UIParent, "BOTTOMRIGHT", -1, buttonsize + 10)
+	rightdock:Point("BOTTOMRIGHT", SV.Screen, "BOTTOMRIGHT", -1, buttonsize + 10)
 	rightdock:Size(rightWidth, rightHeight)
 	SV.Mentalo:Add(rightdock, L["Right Dock"])
 
-	rightalert:SetParent(rightdock)
-	rightalert:SetFrameStrata("BACKGROUND")
-	rightalert:Size(rightWidth, 1)
-	rightalert:Point("BOTTOMLEFT", rightdock, "BOTTOMLEFT", 0, 0)
-	rightalert:SetFrameLevel(rightalert:GetFrameLevel() + 2)
-	rightalert.Activate = AlertActivate
-	rightalert.Deactivate = AlertDeactivate
+		-- [[ CORNER BUTTON ]] --
 
-	local rightwindow = CreateFrame("Frame", "SuperDockWindowRight", rightdock)
-	rightwindow:SetFrameStrata("BACKGROUND")
-	rightwindow:Point("BOTTOMLEFT", rightalert, "TOPLEFT", 0, 0)
-	rightwindow:Size(rightWidth, rightHeight)
-	rightdock.backdrop = SetSuperDockStyle(rightwindow)
+		local rightbutton = CreateFrame("Button", "RightSuperDockToggleButton", SV.Screen)
+		rightbutton:Point("BOTTOMRIGHT", SV.Screen, "BOTTOMRIGHT", -1, 2)
+		rightbutton:Size(buttonsize, buttonsize)
+		rightbutton:SetFramedButtonTemplate()
+		rightbutton.Icon = rightbutton:CreateTexture(nil, "OVERLAY")
+		rightbutton.Icon:FillInner(rightbutton,2,2)
+		rightbutton.Icon:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Icons\DOCK-HENCHMAN]])
+		rightbutton.TText = "Call Henchman!"
+		rightbutton:RegisterForClicks("AnyUp")
+		ActivateDockletButton(rightbutton, SV.ToggleHenchman)
+
+		-- [[ TOOLBARS AND OTHER NONSENSE ]] --
+
+		local toolbarRight = CreateFrame("Frame", "RightSuperDockToolBar", SV.Screen)
+		toolbarRight:Point("RIGHT", rightbutton, "LEFT", -spacing, 0)
+		toolbarRight:Size(1, buttonsize)
+		toolbarRight.currentSize = buttonsize;
+
+		local macrobar = CreateFrame("Frame", "RightSuperDockUtilityBar", SV.Screen)
+		macrobar:Point("RIGHT", toolbarRight, "LEFT", -spacing, 0)
+		macrobar:Size(1, buttonsize)
+		macrobar.currentSize = buttonsize;
+
+		rightalert:SetParent(rightdock)
+		rightalert:SetFrameStrata("BACKGROUND")
+		rightalert:Size(rightWidth, 1)
+		rightalert:Point("BOTTOMLEFT", rightdock, "BOTTOMLEFT", 0, 0)
+		rightalert:SetFrameLevel(rightalert:GetFrameLevel() + 2)
+		rightalert.Activate = AlertActivate
+		rightalert.Deactivate = AlertDeactivate
+
+		local rightwindow = CreateFrame("Frame", "RightSuperDockFrameHolder", rightdock)
+		rightwindow:SetFrameStrata("BACKGROUND")
+		rightwindow:Point("BOTTOMLEFT", rightalert, "TOPLEFT", 0, 0)
+		rightwindow:Size(rightWidth, rightHeight)
+		rightdock.backdrop = SetSuperDockStyle(rightwindow)
 
 	if SV.cache.Docks.SuperDockFaded then LeftSuperDock:Hide() RightSuperDock:Hide() end
 
-	local toolbarTop = CreateFrame("Frame", "SuperDockToolBarTop", SV.UIParent)
-	toolbarTop:Point("TOPLEFT", SV.UIParent, "TOPLEFT", 2, -4)
-	toolbarTop:Size(1, buttonsize - 12)
+	-- [[ TOP LEFT DOCK ]] --
+
+	local topdock = CreateFrame("Frame", "TopSuperDock", SV.Screen)
+	topdock:SetFrameStrata("BACKGROUND")
+	topdock:Point("TOPLEFT", SV.Screen, "TOPLEFT", 1, -(buttonsize + 10))
+	topdock:Size(leftWidth, leftHeight)
+	SV.Mentalo:Add(topdock, L["Top Dock"])
+
+	local toolbarTop = CreateFrame("Frame", "TopSuperDockToolBar", SV.Screen)
+	toolbarTop:Point("TOPLEFT", SV.Screen, "TOPLEFT", 1, -2)
+	toolbarTop:Size(1, buttonsize)
 	toolbarTop.openWidth = buttonsize + 12;
 
-	--TOP STAT HOLDERS
-	local topWidth = (leftWidth + rightWidth) * 0.8
-	local topanchor = CreateFrame("Frame", "SuperDockTopDataAnchor", SV.UIParent)
-	topanchor:Size(topWidth - 2, buttonsize - 8)
-	topanchor:Point("LEFT", toolbarTop, "RIGHT", spacing, 0)
-	SV:AddToDisplayAudit(topanchor)
-
-	local topleftdata = CreateFrame("Frame", "TopLeftDataPanel", topanchor)
-	topleftdata:Size((topWidth * 0.5) - 1, buttonsize - 8)
-	topleftdata:Point("LEFT", topanchor, "LEFT", 0, 0)
-	STATS:NewAnchor(topleftdata, 3, "ANCHOR_CURSOR", true)
-
-	local toprightdata = CreateFrame("Frame", "TopRightDataPanel", topanchor)
-	toprightdata:Size((topWidth * 0.5) - 1, buttonsize - 8)
-	toprightdata:Point("RIGHT", topanchor, "RIGHT", 0, 0)
-	STATS:NewAnchor(toprightdata, 3, "ANCHOR_CURSOR", true)
-
-	--BOTTOM STAT HOLDERS
-	local bottomanchor = CreateFrame("Frame", "SuperDockBottomDataAnchor", SV.UIParent)
-	bottomanchor:Size(statBarWidth - 2, buttonsize - 8)
-	bottomanchor:Point("BOTTOM", SV.UIParent, "BOTTOM", 0, 2)
-	--SV:AddToDisplayAudit(bottomanchor)
-
-	local bottomleftdata = CreateFrame("Frame", "BottomLeftDataPanel", bottomanchor)
-	bottomleftdata:Size((statBarWidth * 0.5) - 1, buttonsize - 8)
-	bottomleftdata:Point("LEFT", bottomanchor, "LEFT", 0, 0)
-	STATS:NewAnchor(bottomleftdata, 3, "ANCHOR_CURSOR")
-
-	local bottomrightdata = CreateFrame("Frame", "BottomRightDataPanel", bottomanchor)
-	bottomrightdata:Size((statBarWidth * 0.5) - 1, buttonsize - 8)
-	bottomrightdata:Point("RIGHT", bottomanchor, "RIGHT", 0, 0)
-	STATS:NewAnchor(bottomrightdata, 3, "ANCHOR_CURSOR")
-
 	--RIGHT CLICK MENU
-	DockletMenu:SetParent(SV.UIParent)
+
+	DockletMenu:SetParent(SV.Screen)
 	DockletMenu:SetPanelTemplate("Default")
 	DockletMenu.buttons = {}
 	DockletMenu:SetFrameStrata("DIALOG")
@@ -671,10 +677,20 @@ function MOD:CreateDockPanels()
 
 		DockletMenu.buttons[i]:Show()
 	end
+
 	DockletMenu:SetSize(135, 94)
 	DockletMenu:Hide()
 	SV:AddToDisplayAudit(DockletMenu)
 end
+
+local function BorderColorUpdates()
+	SVUITopPanel:SetBackdropColor(unpack(SV.Media.color.special))
+	SVUITopPanel:SetBackdropBorderColor(0,0,0,1)
+	SVUIBottomPanel:SetBackdropColor(unpack(SV.Media.color.special))
+	SVUIBottomPanel:SetBackdropBorderColor(0,0,0,1)
+end
+
+SV:NewCallback(BorderColorUpdates)
 
 do
 	local LastAddedMacro;
@@ -736,30 +752,30 @@ do
 
 	local function AddMacroTool(frame)
 		local width;
-		local height = SuperDockToolBarRight.currentSize;
+		local height = RightSuperDockToolBar.currentSize;
 		if not LastAddedMacro then
-			frame:Point("RIGHT", SuperDockMacroBar, "RIGHT", -6, 0);
+			frame:Point("RIGHT", RightSuperDockUtilityBar, "RIGHT", -6, 0);
 		else
 			frame:Point("RIGHT", LastAddedMacro, "LEFT", -6, 0);
 		end
 		LastAddedMacro = frame;
 		MacroCount = MacroCount + 1;
 		width = MacroCount * (height + 6)
-		SuperDockMacroBar:Size(width, height)
+		RightSuperDockUtilityBar:Size(width, height)
 	end 
 
 	local function CreateMacroToolButton(proName, proID, itemID, size) 
 		local data = TOOL_DATA[proID]
 		if(not data) then return end
-		local button = CreateFrame("Button", ("%s_MacroBarButton"):format(itemID), SuperDockMacroBar, "SecureActionButtonTemplate")
+		local button = CreateFrame("Button", ("%s_MacroBarButton"):format(itemID), RightSuperDockUtilityBar, "SecureActionButtonTemplate")
 		button:Size(size, size)
 		AddMacroTool(button)
 		button:SetFramedButtonTemplate()
-		button.icon = button:CreateTexture(nil, "OVERLAY")
-		button.icon:FillInner(button, 2, 2)
-		button.icon:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Icons\PROFESSIONS]])
-		button.icon:SetTexCoord(data[1], data[2], data[3], data[4])
-		button.icon:SetGradient("VERTICAL", 0.5, 0.53, 0.55, 0.8, 0.8, 1)
+		button.Icon = button:CreateTexture(nil, "OVERLAY")
+		button.Icon:FillInner(button, 2, 2)
+		button.Icon:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Icons\PROFESSIONS]])
+		button.Icon:SetTexCoord(data[1], data[2], data[3], data[4])
+		button.Icon:SetGradient("VERTICAL", 0.5, 0.53, 0.55, 0.8, 0.8, 1)
 		button.skillName = proName;
 		button.itemId = itemID;
 		button.TText = proName;
@@ -783,27 +799,27 @@ do
 			button:SetAttribute("macrotext", "/cast " .. proName)
 		end
 
-		MOD:ActivateDockletButton(button, nil, SetMacroTooltip)
+		ActivateDockletButton(button, nil, SetMacroTooltip)
 	end 
 
 	function MOD:LoadToolBarProfessions()
-		if(MOD.ToolBarLoaded) then return end
+		if(SV.ToolBarLoaded) then return end
 		if(InCombatLockdown()) then MOD:RegisterEvent("PLAYER_REGEN_ENABLED"); return end
-		local size = SuperDockMacroBar.currentSize
-		local hearth = CreateFrame("Button", "RightSuperDockHearthButton", SuperDockMacroBar, "SecureActionButtonTemplate")
+		local size = RightSuperDockUtilityBar.currentSize
+		local hearth = CreateFrame("Button", "RightSuperDockHearthButton", RightSuperDockUtilityBar, "SecureActionButtonTemplate")
 		hearth:Size(size, size)
 		AddMacroTool(hearth)
 		hearth:SetFramedButtonTemplate()
-		hearth.icon = hearth:CreateTexture(nil, "OVERLAY", nil, 0)
-		hearth.icon:FillInner(hearth,2,2)
-		hearth.icon:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Icons\\DOCK-HEARTH")
-		hearth.icon:SetTexCoord(0,0.5,0,1)
+		hearth.Icon = hearth:CreateTexture(nil, "OVERLAY", nil, 0)
+		hearth.Icon:FillInner(hearth,2,2)
+		hearth.Icon:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Icons\\DOCK-HEARTH")
+		hearth.Icon:SetTexCoord(0,0.5,0,1)
 
 		hearth:RegisterForClicks("AnyUp")
 		hearth:SetAttribute("type", "item")
 		hearth:SetAttribute("item", "Hearthstone")
 
-		MOD:ActivateDockletButton(hearth, nil, SetHearthTooltip)
+		ActivateDockletButton(hearth, nil, SetHearthTooltip)
 
 		for i = 1, #HEARTH_SPELLS do
 			if(IsSpellKnown(HEARTH_SPELLS[i])) then
@@ -841,7 +857,7 @@ do
 			end
 		end
 
-		MOD.ToolBarLoaded = true
+		SV.ToolBarLoaded = true
 	end
 end
 --[[ 
@@ -850,7 +866,7 @@ EXTERNALLY ACCESSIBLE METHODS
 ##########################################################
 ]]--
 SV.CurrentlyDocked = {};
-function SV:IsDockletReady(arg)
+function MOD:IsDockletReady(arg)
 	local addon = arg;
 	if arg == "DockletMain" or arg == "DockletExtra" then
 		addon = self.db.SVDock.docklets[arg]
@@ -861,47 +877,15 @@ function SV:IsDockletReady(arg)
 	return true
 end
 
-function SV:RemoveTool()
-	if not self or not self.listIndex then return end 
-	local name = self:GetName();
-	if not SAFETY_CACHE[name] then return end 
-	SAFETY_CACHE[name] = false;
-	local i = self.listIndex;
-	tremove(TOOL_CACHE, i)
-	local width;
-	local height = SuperDockToolBarRight.currentSize;
-	local PREV_TOOL = TOOL_CACHE[#TOOL_CACHE]
-	local xOffset = (#TOOL_CACHE - 1) * (height + 6) + 6
-	PREV_TOOL:SetPoint("RIGHT", SuperDockToolBarRight, "RIGHT", (xOffset * -1), 0);
-	width = #TOOL_CACHE * (height + 6)
-	SuperDockToolBarRight:Size(width, height)
-	self:Hide()
-end 
-
-function SV:AddTool()
-	local name = self:GetName();
-	if SAFETY_CACHE[name] then return end 
-	SAFETY_CACHE[name] = true;
-	local width;
-	local height = SuperDockToolBarRight.currentSize;
-	local xOffset = #TOOL_CACHE * (height + 6) + 6
-	self:SetPoint("RIGHT", SuperDockToolBarRight, "RIGHT", (xOffset * -1), 0);
-	tinsert(TOOL_CACHE, self)
- 	self.listIndex = #TOOL_CACHE;
-	width = #TOOL_CACHE * (height + 6)
-	SuperDockToolBarRight:Size(width, height)
-	self:Show()
-end
-
 do
 	local function UnregisterDocklet(name)
 		local frame = _G[name];
 		if not frame or not frame.listIndex then return end 
 		local i = frame.listIndex;
-		tremove(DOCKLET_CACHE, i)
+		tremove(MOD.Docklets.FRAMES, i)
 	end
 
-	function SV:ReloadDocklets(alert)
+	function MOD:ReloadDocklets(alert)
 		if InCombatLockdown() then return end
 
 		local frame, i;
@@ -913,7 +897,7 @@ do
 				self.db.SVDock.docklets.MainWindow = "None"
 			end
 		elseif AddOnButton.IsRegistered then
-			self.RemoveTool(AddOnButton)
+			RemoveTool(AddOnButton)
 			AddOnButton.TText = "";
 			AddOnButton.IsRegistered = false;
 		end
@@ -924,8 +908,8 @@ do
 				self.db.SVDock.docklets.ExtraWindow = "None"
 			end
 		end
-		SuperDockletMain.FrameName = "None"
-		SuperDockletExtra.FrameName = "None"
+		SVUI_AddonDock1.FrameName = "None"
+		SVUI_AddonDock2.FrameName = "None"
 
 		local width = self.db.SVDock.dockRightWidth or 350;
 		local height = (self.db.SVDock.dockRightHeight or 180) - 22
@@ -934,41 +918,41 @@ do
 			if self:IsDockletReady("DockletExtra") and self.db.SVDock.docklets.enableExtra then
 				width = width * 0.5;
 			end
-			SuperDockletMain:ClearAllPoints()
-			SuperDockletMain:Size(width,height)
-			SuperDockletMain:Point('BOTTOMLEFT',RightSuperDock,'BOTTOMLEFT',1,1)
-			SuperDockletExtra:ClearAllPoints()
-			SuperDockletExtra:Size(width,height)
-			SuperDockletExtra:Point('BOTTOMLEFT',SuperDockletMain,'BOTTOMRIGHT',0,0)
+			SVUI_AddonDock1:ClearAllPoints()
+			SVUI_AddonDock1:Size(width,height)
+			SVUI_AddonDock1:Point('BOTTOMLEFT',RightSuperDock,'BOTTOMLEFT',1,1)
+			SVUI_AddonDock2:ClearAllPoints()
+			SVUI_AddonDock2:Size(width,height)
+			SVUI_AddonDock2:Point('BOTTOMLEFT',SVUI_AddonDock1,'BOTTOMRIGHT',0,0)
 		end
 	end 
 end
 
-function SV:RegisterDocklet(name, tooltip, texture, onclick, isdefault)
+function MOD:RegisterDocklet(name, tooltip, texture, onclick, isdefault)
 	local frame = _G[name];
 	if frame and (frame.IsObjectType and frame:IsObjectType("Frame")) and (frame.IsProtected and not frame:IsProtected()) then 
 		frame:ClearAllPoints()
-		frame:SetParent(SuperDockWindowRight)
-		frame:FillInner(SuperDockWindowRight, 4, 4)
+		frame:SetParent(RightSuperDockFrameHolder)
+		frame:FillInner(RightSuperDockFrameHolder, 4, 4)
 		frame.FrameName = name;
-		tinsert(DOCKLET_CACHE, frame);
-		frame.listIndex = #DOCKLET_CACHE;
-		frame.ToolbarButton = self.SVDock:CreateBasicToolButton(tooltip, texture, onclick, name, isdefault)
+		tinsert(self.Docklets.FRAMES, frame);
+		frame.listIndex = #self.Docklets.FRAMES;
+		frame.ToolbarButton = CreateBasicToolButton(tooltip, texture, onclick, name, isdefault)
 	end
 end
 
-function SV:RegisterMainDocklet(name)
+function MOD:RegisterMainDocklet(name)
 	local frame = _G[name];
 	if (frame and (frame.IsObjectType and frame:IsObjectType("Frame")) and (frame.IsProtected and not frame:IsProtected())) then 
-		SuperDockletMain.FrameName = name;
+		SVUI_AddonDock1.FrameName = name;
 		SV.db.SVDock.docklets.MainWindow = name;
 		frame:ClearAllPoints()
-		frame:SetParent(SuperDockletMain)
-		frame:SetAllPoints(SuperDockletMain)
+		frame:SetParent(SVUI_AddonDock1)
+		frame:SetAllPoints(SVUI_AddonDock1)
 		frame.ToggleName = "SVUI_AddonDocklet";
-		tinsert(DOCKLET_CACHE, frame);
-		frame.listIndex = #DOCKLET_CACHE;
-		self.AddTool(AddOnButton)
+		tinsert(self.Docklets.FRAMES, frame);
+		frame.listIndex = #self.Docklets.FRAMES;
+		AddTool(AddOnButton)
 		AddOnButton.TText = "";
 		AddOnButton.IsRegistered = true
 		self.CurrentlyDocked[name] = true
@@ -976,17 +960,17 @@ function SV:RegisterMainDocklet(name)
 	end
 end 
 
-function SV:RegisterExtraDocklet(name)
+function MOD:RegisterExtraDocklet(name)
 	local frame = _G[name];
 	if (frame and (frame.IsObjectType and frame:IsObjectType("Frame")) and (frame.IsProtected and not frame:IsProtected())) then 
-		SuperDockletExtra.FrameName = name;
+		SVUI_AddonDock2.FrameName = name;
 		SV.db.SVDock.docklets.ExtraWindow = name;
 		frame:ClearAllPoints()
-		frame:SetParent(SuperDockletExtra)
-		frame:SetAllPoints(SuperDockletExtra)
+		frame:SetParent(SVUI_AddonDock2)
+		frame:SetAllPoints(SVUI_AddonDock2)
 		frame.ToggleName = "SVUI_AddonDocklet";
-		tinsert(DOCKLET_CACHE, frame);
-		frame.listIndex = #DOCKLET_CACHE;
+		tinsert(self.Docklets.FRAMES, frame);
+		frame.listIndex = #self.Docklets.FRAMES;
 		AddOnButton.TText = "";
 		self.CurrentlyDocked[name] = true;
 		if not InCombatLockdown() and frame:IsShown() then frame:Hide() end 
@@ -1004,22 +988,18 @@ function MOD:UpdateSuperDock()
 	local rightHeight = SV.db.SVDock.dockRightHeight or 180;
 	local buttonsize = SV.db.SVDock.buttonSize or 22;
 	local spacing = SV.db.SVDock.buttonSpacing or 4;
-	local statBarWidth = SV.db.SVDock.dockStatWidth or defaultStatBarWidth
 
 	_G["LeftSuperDock"]:Size(leftWidth, leftHeight)
-	_G["SuperDockAlertLeft"]:Width(leftWidth)
-	_G["SuperDockWindowLeft"]:Size(leftWidth, leftHeight)
+	_G["LeftSuperDockAlert"]:Width(leftWidth)
+	_G["LeftSuperDockFrameHolder"]:Size(leftWidth, leftHeight)
 	_G["RightSuperDock"]:Size(rightWidth, rightHeight)
-	_G["SuperDockAlertRight"]:Width(rightWidth)
-	_G["SuperDockWindowRight"]:Size(rightWidth, rightHeight)
-	_G["SuperDockBottomDataAnchor"]:Size(statBarWidth - 2, buttonsize - 8)
-	_G["BottomLeftDataPanel"]:Size((statBarWidth * 0.5) - 1, buttonsize - 8)
-	_G["BottomRightDataPanel"]:Size((statBarWidth * 0.5) - 1, buttonsize - 8)
+	_G["RightSuperDockAlert"]:Width(rightWidth)
+	_G["RightSuperDockFrameHolder"]:Size(rightWidth, rightHeight)
 
 	self:BottomPanelVisibility();
 	self:TopPanelVisibility();
 	self:UpdateDockBackdrops();
-	SV:ReloadDocklets()
+	self:ReloadDocklets()
 end  
 
 function MOD:UpdateDockBackdrops()
@@ -1071,14 +1051,13 @@ function MOD:Load()
 		SV.cache.Docks.SuperDockFaded = false
 	end
 
-	self:CreateSuperBorders()
 	self:CreateDockPanels()
+
 	local width = RightSuperDock:GetWidth();
 	local height = RightSuperDock:GetHeight() - 22
-	SuperDockWindowRight:Size(width, height)
-	SuperDockWindowRight:SetPoint("BOTTOMLEFT", SuperDockAlertRight, "TOPLEFT", 0, 0)
-	SuperDockWindowRight:SetScript("OnShow", Docklet_OnShow)
-	--SuperDockWindowRight:SetScript("OnHide", CycleDocklets)
+	RightSuperDockFrameHolder:Size(width, height)
+	RightSuperDockFrameHolder:SetPoint("BOTTOMLEFT", RightSuperDockAlert, "TOPLEFT", 0, 0)
+	RightSuperDockFrameHolder:SetScript("OnShow", Docklet_OnShow)
 
 	if not InCombatLockdown()then 
 		CycleDocklets()
@@ -1086,26 +1065,27 @@ function MOD:Load()
 
 	hooksecurefunc(RightSuperDock, "SetSize", rightDockSizeHook)
 	self:UpdateDockBackdrops()
-	SuperDockletMain:SetFrameLevel(SuperDockWindowRight:GetFrameLevel() + 50)
-	SuperDockletExtra:SetFrameLevel(SuperDockWindowRight:GetFrameLevel() + 50)
+	SVUI_AddonDock1:SetFrameLevel(RightSuperDockFrameHolder:GetFrameLevel() + 50)
+	SVUI_AddonDock2:SetFrameLevel(RightSuperDockFrameHolder:GetFrameLevel() + 50)
 
-	local size = SuperDockToolBarRight.currentSize;
+	local size = RightSuperDockToolBar.currentSize;
 
-	AddOnButton:SetParent(SuperDockToolBarRight)
+	AddOnButton:SetParent(RightSuperDockToolBar)
 	AddOnButton:Size(size, size)
 	AddOnButton:SetFramedButtonTemplate()
-	AddOnButton.icon = AddOnButton:CreateTexture(nil, "OVERLAY")
-	AddOnButton.icon:FillInner()
-	AddOnButton.icon:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Icons\DOCK-ADDON]])
+	AddOnButton.Icon = AddOnButton:CreateTexture(nil, "OVERLAY")
+	AddOnButton.Icon:FillInner()
+	AddOnButton.Icon:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Icons\DOCK-ADDON]])
 	AddOnButton.TText = "";
 	AddOnButton.IsRegistered = false;
 
-	MOD:ActivateDockletButton(AddOnButton, AddonDockletToggle)
+	ActivateDockletButton(AddOnButton, AddonDockletToggle)
 
 	AddOnButton:Hide()
 
-	SuperDockletMain:SetScript("OnShow", DockletFrame_OnShow)
-	SuperDockletExtra:SetScript("OnShow", DockletFrame_OnShow)
-	SV:ReloadDocklets(true)
+	SVUI_AddonDock1:SetScript("OnShow", DockletFrame_OnShow)
+	SVUI_AddonDock2:SetScript("OnShow", DockletFrame_OnShow)
+	self:ReloadDocklets(true)
+
 	SV.Timers:ExecuteTimer(self.LoadToolBarProfessions, 5)
 end

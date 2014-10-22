@@ -27,21 +27,14 @@ local AddonName, AddonObject = ...
 
 assert(LibSuperVillain, AddonName .. " requires LibSuperVillain")
 
-local PLUGIN = LibSuperVillain("Registry"):NewPlugin(AddonName, AddonObject, "FightOMatic_Profile", nil, "FightOMatic_Cache")
+AddonObject.configs = {
+  ["annoyingEmotes"] = false,  
+}
 
+local PLUGIN = LibSuperVillain("Registry"):NewPlugin(AddonName, AddonObject, "FightOMatic_Profile", nil, "FightOMatic_Cache")
 local Schema = PLUGIN.Schema;
 local SV = _G["SVUI"];
 local L = SV.L
---[[ 
-########################################################## 
-CONFIG DATA
-##########################################################
-]]--
-PLUGIN.configs = {
-	["annoyingEmotes"] = false,  
-}
-
-PLUGIN.db = table.copy(PLUGIN.configs);
 --[[ 
 ########################################################## 
 CONFIG OPTIONS

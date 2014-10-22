@@ -14,8 +14,6 @@
 
 SVUI_ConfigOMatic License Copyright 2014 http://wowinterface.com
 
-(Adapted and inspired by ElvUI) Copyright 2014 http://www.tukui.org
-
 The contents of this addon, excluding third-party resources, are
 copyrighted to their authors with all rights reserved.
 
@@ -33,6 +31,3 @@ All rights not explicitly addressed in this license are reserved by
 the copyright holders.
 
 You can write Munglunch at Wowinterface.com for reporting abuse / bugs.
-
-You can contact Elv at Tukui.org for details regarding
-grants allowed for this license.

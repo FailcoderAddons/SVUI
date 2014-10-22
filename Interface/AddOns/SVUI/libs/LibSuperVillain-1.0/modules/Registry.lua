@@ -204,24 +204,8 @@ function string.explode(str, delim)
    return res
 end
 
---[[
- /$$$$$$$             /$$              /$$                                   
-| $$__  $$           | $$             | $$                                   
-| $$  \ $$ /$$$$$$  /$$$$$$   /$$$$$$ | $$$$$$$  /$$$$$$   /$$$$$$$  /$$$$$$ 
-| $$  | $$|____  $$|_  $$_/  |____  $$| $$__  $$|____  $$ /$$_____/ /$$__  $$
-| $$  | $$ /$$$$$$$  | $$     /$$$$$$$| $$  \ $$ /$$$$$$$|  $$$$$$ | $$$$$$$$
-| $$  | $$/$$__  $$  | $$ /$$/$$__  $$| $$  | $$/$$__  $$ \____  $$| $$_____/
-| $$$$$$$/  $$$$$$$  |  $$$$/  $$$$$$$| $$$$$$$/  $$$$$$$ /$$$$$$$/|  $$$$$$$
-|_______/ \_______/   \___/  \_______/|_______/ \_______/|_______/  \_______/
-                                                                             
-                                                                             
-DataBase is a component used to create and manage SVUI data objects.
-
-It's main purpose is to keep all methods and logic needed to properly maintain 
-valid data outside of the core object.
---]]
-
 --DATABASE LOCAL HELPERS
+
 local function SanitizeStorage(data)
     for k,v in pairs(data) do
         if(k == "STORED" or k == "SAFEDATA" or k == "LAYOUT") then
@@ -230,33 +214,17 @@ local function SanitizeStorage(data)
     end
 end
 
-local function LiveProfileChange()
-    local LastKey = SOURCE_KEY
-    if(PROFILE_SV.SAFEDATA and PROFILE_SV.SAFEDATA.dualSpecEnabled) then 
-        SOURCE_KEY = GetSpecialization()
-        lib.EventManager:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
-
-        if(not SOURCE_KEY) then
-            SOURCE_KEY = 1
+local function copydefaults(d, s)
+    if(type(s) ~= "table") then return end
+    if(type(d) ~= "table") then return end
+    for k, v in pairs(s) do
+        local saved = rawget(d, k)
+        if type(v) == "table" then
+            if not saved then rawset(d, k, {}) end
+            copydefaults(d[k], v)
+        else
+            rawset(d, k, v)
         end
-
-        if(LastKey ~= SOURCE_KEY) then
-            --construct core dataset
-            local db           = rawget(CoreObject.db, "data")
-            db                 = PROFILE_SV.STORED[SOURCE_KEY]
-
-            local cache        = rawget(CoreObject.cache, "data")
-            cache              = CACHE_SV.STORED[SOURCE_KEY]
-
-            if(CoreObject.ReLoad) then
-                CoreObject:ReLoad()
-            end
-
-            lib:RefreshAll()
-        end
-    else
-        SOURCE_KEY = 1
-        lib.EventManager:UnregisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
     end
 end
 
@@ -359,6 +327,41 @@ local meta_database = {
         return rawget(t, k)  
     end,
 }
+
+local function LiveProfileChange()
+    local LastKey = SOURCE_KEY
+    if(PROFILE_SV.SAFEDATA and PROFILE_SV.SAFEDATA.dualSpecEnabled) then 
+        SOURCE_KEY = GetSpecialization()
+        lib.EventManager:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
+
+        if(not SOURCE_KEY) then
+            SOURCE_KEY = 1
+        end
+
+        if(LastKey ~= SOURCE_KEY) then
+            --construct core dataset
+            local db           = setmetatable({}, meta_transdata)
+            db.data            = PROFILE_SV.STORED[SOURCE_KEY]
+            db.defaults        = CoreObject.configs
+            wipe(CoreObject.db)
+            CoreObject.db      = db
+
+            local cache        = setmetatable({}, meta_database)
+            cache.data         = CACHE_SV.STORED[SOURCE_KEY]
+            wipe(CoreObject.cache)
+            CoreObject.cache   = cache
+
+            if(CoreObject.ReLoad) then
+                CoreObject:ReLoad()
+            end
+
+            lib:RefreshAll()
+        end
+    else
+        SOURCE_KEY = 1
+        lib.EventManager:UnregisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
+    end
+end
 
 --DATABASE PUBLIC METHODS
 function lib:Remove(key)
@@ -724,20 +727,20 @@ function lib:LoadQueuedPlugins()
             if(obj and enabled and (not obj.initialized)) then
                 local halt = false
 
-                if((not obj.db) and files.PROFILE and _G[files.PROFILE]) then
+                if(files.PROFILE and _G[files.PROFILE]) then
                     local db = setmetatable({}, meta_transdata)
                     db.data = _G[files.PROFILE]
                     db.defaults = obj.configs
                     obj.db = db
                 end
 
-                if((not obj.cache) and files.CACHE and _G[files.CACHE]) then
+                if(files.CACHE and _G[files.CACHE]) then
                     local cache = setmetatable({}, meta_database)
                     cache.data = _G[files.CACHE]
                     obj.cache = cache
                 end
 
-                if((not obj.public) and files.GLOBAL and _G[files.GLOBAL]) then
+                if(files.GLOBAL and _G[files.GLOBAL]) then
                     local public = setmetatable({}, meta_database)
                     public.data = _G[files.GLOBAL]
                     obj.public = public
@@ -787,6 +790,10 @@ function lib:NewPlugin(addonName, addonObject, pfile, gfile, cfile)
     addonObject.UnregisterEvent     = unregisterEvent
     addonObject.RegisterUpdate      = registerUpdate
     addonObject.UnregisterUpdate    = unregisterUpdate
+
+    addonObject.public              = addonObject.public or {}
+    addonObject.configs             = addonObject.configs or {}
+    addonObject.db                  = tablesplice(addonObject.configs, {})
 
     if(IsAddOnLoaded(addonName) and not lod) then
         CoreObject.Options.args.plugins.args.pluginOptions.args[schema] = {

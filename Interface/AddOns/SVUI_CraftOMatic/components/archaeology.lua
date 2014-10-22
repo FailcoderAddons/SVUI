@@ -224,9 +224,9 @@ EVENT HANDLER
 do
 	local SURVEYCDFONT = SV.Media.font.numbers
 	local SURVEYCOLOR = {
-		{0.1, 1, 0.1},
-		{1, 0.5, 0.1},
-		{1, 0.1, 0}
+		{0.1, 1, 0.1, 1},
+		{1, 0.5, 0.1, 1},
+		{1, 0.1, 0, 1}
 	}
 	local SURVEYSCALE = {3, 2, 1}
 	local last = 0
@@ -237,13 +237,13 @@ do
 	local ArchSiteFound;
 	local ArchCanSurvey, ArchWillSurvey = false, false;
 
-	SurveyCooldown:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
+	SurveyCooldown:SetPoint("CENTER", UIParent, "CENTER", 0, -50)
 	SurveyCooldown:SetSize(50, 50)
 	SurveyCooldown.text = SurveyCooldown:CreateTexture(nil, "OVERLAY")
 	SurveyCooldown.text:SetAllPoints(SurveyCooldown)
 	SurveyCooldown.text:SetVertexColor(0,1,0.12,0.5)
 	SurveyCooldown:SetScale(1)
-	SV.Animate:Kapow(SurveyCooldown, true)
+	SV.Animate:Kapow(SurveyCooldown)
 
 	local Arch_OnEvent = function(self, event, ...)
 		if(InCombatLockdown() or not archSpell) then return end
@@ -294,32 +294,32 @@ do
 
 	local Survey_OnUpdate = function(self, elapsed)
 		last = last + elapsed
-		if last > 1 then
+		if last >= 1 then
 			time = time - 1
-			local img = COUNT_TEX .. time
-			if time <= 0 then
-				self:SetScript("OnUpdate", nil)
-				self.text:SetTexture(nil)
-				self:SetScale(1)
-				time = 3
-			else
-				self.text:SetTexture(img)
+			if time > 0 then
+				self.text:SetTexture(COUNT_TEX .. time)
 				self.text:SetVertexColor(unpack(SURVEYCOLOR[time]))
-				self:SetScale(SURVEYSCALE[time])
-				self.anim:Play()
+				if not self.anim:IsPlaying() then 
+			        self.anim:Play()
+			    end
+			else
+				time = 3
+				self:SetScript("OnUpdate", nil)
 			end
 			last = 0
-		else
-			self:SetScript("OnUpdate", nil)
 		end
 	end 
 
 	local Survey_OnEvent = function(self, event, unit, _, _, _, spellid)
 		if not unit == "player" then return end
 		if spellid == 80451 then
+			time = 3
 			self.text:SetTexture(COUNT_TEX .. 3)
-			self:SetScale(1)
+			self.text:SetVertexColor(1,0,0,1)
 			self:SetScript("OnUpdate", Survey_OnUpdate)
+			if not self.anim:IsPlaying() then 
+		        self.anim:Play()
+		    end
 		end
 	end 
 

@@ -45,10 +45,10 @@ SV.Options.args.SVUnit.args.boss = {
 	order = 1000, 
 	childGroups = "tab", 
 	get = function(l)return SV.db.SVUnit["boss"][l[#l]]end, 
-	set = function(l, m)MOD:ChangeDBVar(m, l[#l], "boss");MOD:SetEnemyFrames("boss", MAX_BOSS_FRAMES)end, 
+	set = function(l, m)MOD:ChangeDBVar(m, l[#l], "boss");MOD:SetEnemyFrame("boss", MAX_BOSS_FRAMES)end, 
 	args = {
 		enable = {type = "toggle", order = 1, name = L["Enable"]},
-		displayFrames = {type = "execute", order = 2, name = L["Display Frames"], desc = L["Force the frames to show, they will act as if they are the player frame."], func = function()MOD:SwapElement("boss", 4)end}, 
+		displayFrames = {type = "execute", order = 2, name = L["Display Frames"], desc = L["Force the frames to show, they will act as if they are the player frame."], func = function()MOD:ViewEnemyFrames("boss", 4)end}, 
 		resetSettings = {type = "execute", order = 3, name = L["Restore Defaults"], func = function(l, m)MOD:ResetUnitOptions("boss")SV.Mentalo:Reset("Boss Frames")end}, 
 		tabGroups = {
 			order = 3, 
@@ -74,7 +74,7 @@ SV.Options.args.SVUnit.args.boss = {
 									name = "",
 								},
 								rangeCheck = {order = 3, name = L["Range Check"], desc = L["Check if you are in range to cast spells on this specific unit."], type = "toggle"}, 
-								hideonnpc = {type = "toggle", order = 4, name = L["Text Toggle On NPC"], desc = L["Power text will be hidden on NPC targets, in addition the name text will be repositioned to the power texts anchor point."], get = function(l)return SV.db.SVUnit["boss"]["power"].hideonnpc end, set = function(l, m)SV.db.SVUnit["boss"]["power"].hideonnpc = m;MOD:SetEnemyFrames("boss")end}, 
+								hideonnpc = {type = "toggle", order = 4, name = L["Text Toggle On NPC"], desc = L["Power text will be hidden on NPC targets, in addition the name text will be repositioned to the power texts anchor point."], get = function(l)return SV.db.SVUnit["boss"]["power"].hideonnpc end, set = function(l, m)SV.db.SVUnit["boss"]["power"].hideonnpc = m;MOD:SetEnemyFrame("boss")end}, 
 								threatEnabled = {type = "toggle", order = 5, name = L["Show Threat"]}
 							}
 						},
@@ -90,15 +90,15 @@ SV.Options.args.SVUnit.args.boss = {
 						},
 					}
 				},
-				misc = ns:SetMiscConfigGroup(false, MOD.SetEnemyFrames, "boss", MAX_BOSS_FRAMES),
-				health = ns:SetHealthConfigGroup(false, MOD.SetEnemyFrames, "boss", MAX_BOSS_FRAMES), 
-				power = ns:SetPowerConfigGroup(false, MOD.SetEnemyFrames, "boss", MAX_BOSS_FRAMES), 
-				name = ns:SetNameConfigGroup(MOD.SetEnemyFrames, "boss", MAX_BOSS_FRAMES), 
-				portrait = ns:SetPortraitConfigGroup(MOD.SetEnemyFrames, "boss", MAX_BOSS_FRAMES), 
-				buffs = ns:SetAuraConfigGroup(true, "buffs", false, MOD.SetEnemyFrames, "boss", MAX_BOSS_FRAMES), 
-				debuffs = ns:SetAuraConfigGroup(true, "debuffs", false, MOD.SetEnemyFrames, "boss", MAX_BOSS_FRAMES), 
-				castbar = ns:SetCastbarConfigGroup(MOD.SetEnemyFrames, "boss", MAX_BOSS_FRAMES), 
-				icons = ns:SetIconConfigGroup(MOD.SetEnemyFrames, "boss", MAX_BOSS_FRAMES)
+				misc = ns:SetMiscConfigGroup(false, MOD.SetEnemyFrame, "boss", MAX_BOSS_FRAMES),
+				health = ns:SetHealthConfigGroup(false, MOD.SetEnemyFrame, "boss", MAX_BOSS_FRAMES), 
+				power = ns:SetPowerConfigGroup(false, MOD.SetEnemyFrame, "boss", MAX_BOSS_FRAMES), 
+				name = ns:SetNameConfigGroup(MOD.SetEnemyFrame, "boss", MAX_BOSS_FRAMES), 
+				portrait = ns:SetPortraitConfigGroup(MOD.SetEnemyFrame, "boss", MAX_BOSS_FRAMES), 
+				buffs = ns:SetAuraConfigGroup(true, "buffs", false, MOD.SetEnemyFrame, "boss", MAX_BOSS_FRAMES), 
+				debuffs = ns:SetAuraConfigGroup(true, "debuffs", false, MOD.SetEnemyFrame, "boss", MAX_BOSS_FRAMES), 
+				castbar = ns:SetCastbarConfigGroup(MOD.SetEnemyFrame, "boss", MAX_BOSS_FRAMES), 
+				icons = ns:SetIconConfigGroup(MOD.SetEnemyFrame, "boss", MAX_BOSS_FRAMES)
 			}
 		}
 	}
@@ -114,10 +114,10 @@ SV.Options.args.SVUnit.args.arena = {
 	order = 1100, 
 	childGroups = "tab", 
 	get = function(l)return SV.db.SVUnit["arena"][l[#l]]end, 
-	set = function(l, m)MOD:ChangeDBVar(m, l[#l], "arena");MOD:SetEnemyFrames("arena", 5)end, 
+	set = function(l, m)MOD:ChangeDBVar(m, l[#l], "arena");MOD:SetEnemyFrame("arena", 5)end, 
 	args = {
 		enable = {type = "toggle", order = 1, name = L["Enable"]}, 
-		displayFrames = {type = "execute", order = 2, name = L["Display Frames"], desc = L["Force the frames to show, they will act as if they are the player frame."], func = function()MOD:SwapElement("arena", 5)end},
+		displayFrames = {type = "execute", order = 2, name = L["Display Frames"], desc = L["Force the frames to show, they will act as if they are the player frame."], func = function()MOD:ViewEnemyFrames("arena", 5)end},
 		resetSettings = {type = "execute", order = 3, name = L["Restore Defaults"], func = function(l, m)MOD:ResetUnitOptions("arena")SV.Mentalo:Reset("Arena Frames")end}, 
 		tabGroups = {
 			order = 3, 
@@ -144,7 +144,7 @@ SV.Options.args.SVUnit.args.arena = {
 								},
 								predict = {order = 3, name = L["Heal Prediction"], desc = L["Show a incomming heal prediction bar on the unitframe. Also display a slightly different colored bar for incoming overheals."], type = "toggle"}, 
 								rangeCheck = {order = 4, name = L["Range Check"], desc = L["Check if you are in range to cast spells on this specific unit."], type = "toggle"}, 
-								hideonnpc = {type = "toggle", order = 5, name = L["Text Toggle On NPC"], desc = L["Power text will be hidden on NPC targets, in addition the name text will be repositioned to the power texts anchor point."], get = function(l)return SV.db.SVUnit["arena"]["power"].hideonnpc end, set = function(l, m)SV.db.SVUnit["arena"]["power"].hideonnpc = m;MOD:SetEnemyFrames("arena")end}, 
+								hideonnpc = {type = "toggle", order = 5, name = L["Text Toggle On NPC"], desc = L["Power text will be hidden on NPC targets, in addition the name text will be repositioned to the power texts anchor point."], get = function(l)return SV.db.SVUnit["arena"]["power"].hideonnpc end, set = function(l, m)SV.db.SVUnit["arena"]["power"].hideonnpc = m;MOD:SetEnemyFrame("arena")end}, 
 								threatEnabled = {type = "toggle", order = 6, name = L["Show Threat"]}
 							}
 						},
@@ -169,7 +169,7 @@ SV.Options.args.SVUnit.args.arena = {
 									order = 1, 
 									name = L["Enable"],
 									get = function(l)return SV.db.SVUnit.arena.pvp.enable end, 
-									set = function(l, m)MOD:ChangeDBVar(m, "enable", "arena", "pvp");MOD:SetEnemyFrames("arena", 5)end,
+									set = function(l, m)MOD:ChangeDBVar(m, "enable", "arena", "pvp");MOD:SetEnemyFrame("arena", 5)end,
 								},
 								trinketGroup = {
 									order = 2,
@@ -177,7 +177,7 @@ SV.Options.args.SVUnit.args.arena = {
 									type = "group", 
 									name = L["Trinkets"],
 									get = function(l)return SV.db.SVUnit.arena.pvp[l[#l]]end, 
-									set = function(l, m)MOD:ChangeDBVar(m, l[#l], "arena", "pvp");MOD:SetEnemyFrames("arena", 5)end,
+									set = function(l, m)MOD:ChangeDBVar(m, l[#l], "arena", "pvp");MOD:SetEnemyFrame("arena", 5)end,
 									disabled = function() return not SV.db.SVUnit.arena.pvp.enable end,
 									args = {
 										trinketPosition = {
@@ -221,7 +221,7 @@ SV.Options.args.SVUnit.args.arena = {
 									type = "group", 
 									name = L["Enemy Specs"],
 									get = function(l)return SV.db.SVUnit.arena.pvp[l[#l]]end, 
-									set = function(l, m)MOD:ChangeDBVar(m, l[#l], "arena", "pvp");MOD:SetEnemyFrames("arena", 5)end,
+									set = function(l, m)MOD:ChangeDBVar(m, l[#l], "arena", "pvp");MOD:SetEnemyFrame("arena", 5)end,
 									disabled = function() return not SV.db.SVUnit.arena.pvp.enable end,
 									args = {
 										specPosition = {
@@ -263,13 +263,13 @@ SV.Options.args.SVUnit.args.arena = {
 						},
 					}
 				},
-				misc = ns:SetMiscConfigGroup(false, MOD.SetEnemyFrames, "arena", 5),
-				health = ns:SetHealthConfigGroup(false, MOD.SetEnemyFrames, "arena", 5), 
-				power = ns:SetPowerConfigGroup(false, MOD.SetEnemyFrames, "arena", 5), 
-				name = ns:SetNameConfigGroup(MOD.SetEnemyFrames, "arena", 5), 
-				buffs = ns:SetAuraConfigGroup(false, "buffs", false, MOD.SetEnemyFrames, "arena", 5), 
-				debuffs = ns:SetAuraConfigGroup(false, "debuffs", false, MOD.SetEnemyFrames, "arena", 5), 
-				castbar = ns:SetCastbarConfigGroup(MOD.SetEnemyFrames, "arena", 5)
+				misc = ns:SetMiscConfigGroup(false, MOD.SetEnemyFrame, "arena", 5),
+				health = ns:SetHealthConfigGroup(false, MOD.SetEnemyFrame, "arena", 5), 
+				power = ns:SetPowerConfigGroup(false, MOD.SetEnemyFrame, "arena", 5), 
+				name = ns:SetNameConfigGroup(MOD.SetEnemyFrame, "arena", 5), 
+				buffs = ns:SetAuraConfigGroup(false, "buffs", false, MOD.SetEnemyFrame, "arena", 5), 
+				debuffs = ns:SetAuraConfigGroup(false, "debuffs", false, MOD.SetEnemyFrame, "arena", 5), 
+				castbar = ns:SetCastbarConfigGroup(MOD.SetEnemyFrame, "arena", 5)
 			}
 		}
 	}

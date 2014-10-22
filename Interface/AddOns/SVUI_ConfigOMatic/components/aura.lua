@@ -183,6 +183,7 @@ SV.Options.args.SVAura = {
 			order = 3, 
 			type = "toggle", 
 			name = L["Disabled Blizzard"],
+			disabled = function() return not SV.db.SVAura.enable end,
 			get = function(a)return SV.db.SVAura.disableBlizzard end,
 			set = function(a,b)SV.db.SVAura.disableBlizzard = b;SV:StaticPopup_Show("RL_CLIENT")end
 		},
@@ -191,6 +192,7 @@ SV.Options.args.SVAura = {
 			type = "group", 
 			name = L["Options"], 
 			childGroups = "tree", 
+			disabled = function() return not SV.db.SVAura.enable end,
 			args = {
 				common = {
 					order = 10, 
