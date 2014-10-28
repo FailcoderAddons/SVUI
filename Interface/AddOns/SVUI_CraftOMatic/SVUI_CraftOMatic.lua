@@ -270,7 +270,7 @@ function PLUGIN:EndJobModes()
 		self[currentModeKey].Disable()
 	end
 	currentModeKey = false;
-	if self.Docklet:IsShown() then self.Docklet.ToolbarButton:Click() end
+	if self.Docklet:IsShown() then self.Docklet.DockButton:Click() end
 	self:ChangeModeGear()
 	self.ModeAlert:Hide();
 	SendModeMessage("Mode Disabled", CombatText_StandardScroll, 1, 0.35, 0);
@@ -343,7 +343,7 @@ local ModeAlert_OnHide = function()
 		SV:AddonMessage(ERR_NOT_IN_COMBAT);  
 		return; 
 	end
-	RightSuperDockAlert:Deactivate()
+	SV.Dock.Right.Alert:Deactivate()
 end
 
 local ModeAlert_OnShow = function(self)
@@ -353,7 +353,7 @@ local ModeAlert_OnShow = function(self)
 		return; 
 	end
 	SV:SecureFadeIn(self, 0.3, 0, 1)
-	RightSuperDockAlert:Activate(self)
+	SV.Dock.Right.Alert:Activate(self)
 end
 
 local ModeAlert_OnMouseDown = function(self)
@@ -392,21 +392,18 @@ function PLUGIN:Load()
 	self.InModeGear = false;
 
 	local ALERT_HEIGHT = 60;
-	local DOCK_WIDTH = RightSuperDockFrameHolder:GetWidth();
-	local DOCK_HEIGHT = RightSuperDockFrameHolder:GetHeight();
+	local DOCK_WIDTH = SV.Dock.Right.Window:GetWidth();
+	local DOCK_HEIGHT = SV.Dock.Right.Window:GetHeight();
 	local DOCKLET_WIDTH = DOCK_WIDTH - 4
 	local DOCKLET_HEIGHT = DOCK_HEIGHT - 4
 	local BUTTON_SIZE = (DOCK_HEIGHT * 0.25) - 4;
 
-	local modesDocklet = CreateFrame("Frame", "SVUI_ModesDockFrame", RightSuperDockFrameHolder)
-	modesDocklet:SetWidth(DOCKLET_WIDTH);
-	modesDocklet:SetHeight(DOCKLET_HEIGHT);
-	modesDocklet:SetPoint("CENTER",RightSuperDockFrameHolder,"CENTER",0,0);
+	self.Docklet = SV.Dock:NewDocklet("Right", "SVUI_ModesDockFrame", self.TitleID, ICON_FILE);
 
-	local modesToolBar = CreateFrame("Frame", "SVUI_ModesDockToolBar", modesDocklet)
+	local modesToolBar = CreateFrame("Frame", "SVUI_ModesDockToolBar", self.Docklet)
 	modesToolBar:SetWidth(BUTTON_SIZE + 4);
 	modesToolBar:SetHeight((BUTTON_SIZE + 4) * 4);
-	modesToolBar:SetPoint("BOTTOMLEFT",modesDocklet,"BOTTOMLEFT",0,0);
+	modesToolBar:SetPoint("BOTTOMLEFT", self.Docklet, "BOTTOMLEFT", 0, 0);
 
 	local mode4Button = CreateFrame("Frame", "SVUI_ModeButton4", modesToolBar)
 	mode4Button:SetPoint("BOTTOM",modesToolBar,"BOTTOM",0,0)
@@ -456,8 +453,8 @@ function PLUGIN:Load()
 	mode1Button:SetScript('OnLeave', ModeButton_OnLeave)
 	mode1Button:SetScript('OnMouseDown', ModeButton_OnMouseDown)
 
-	local ModeAlert = CreateFrame("Frame", nil, RightSuperDockAlert)
-	ModeAlert:SetAllPoints(RightSuperDockAlert)
+	local ModeAlert = CreateFrame("Frame", nil, SV.Dock.Right.Alert)
+	ModeAlert:SetAllPoints(SV.Dock.Right.Alert)
 	ModeAlert:SetBackdrop({
         bgFile = [[Interface\AddOns\SVUI\assets\artwork\Bars\HALFTONE]],
         edgeFile = [[Interface\BUTTONS\WHITE8X8]],
@@ -491,8 +488,8 @@ function PLUGIN:Load()
 
 	ModeLogsFrame:SetFrameStrata("MEDIUM")
 	ModeLogsFrame:SetPoint("TOPLEFT", mode1Button, "TOPRIGHT", 5, -5)
-	ModeLogsFrame:SetPoint("BOTTOMRIGHT", modesDocklet, "BOTTOMRIGHT", -5, 5)
-	ModeLogsFrame:SetParent(modesDocklet)
+	ModeLogsFrame:SetPoint("BOTTOMRIGHT", self.Docklet, "BOTTOMRIGHT", -5, 5)
+	ModeLogsFrame:SetParent(self.Docklet)
 
 	local title = CreateFrame("ScrollingMessageFrame", nil, ModeLogsFrame)
 	title:SetSpacing(4)
@@ -543,14 +540,8 @@ function PLUGIN:Load()
     self.ModeAlert = ModeAlert
 	self.TitleWindow = title
 	self.LogWindow = log
-	self.Docklet = modesDocklet
-
-	SV.SVDock:RegisterDocklet("SVUI_ModesDockFrame", self.TitleID, ICON_FILE, false)
-
 	self.Docklet:Hide()
-
 	self.ListenerEnabled = false;
-
 	self:CraftingReset()
 	self:LoadCookingMode()
 	self:LoadFishingMode()

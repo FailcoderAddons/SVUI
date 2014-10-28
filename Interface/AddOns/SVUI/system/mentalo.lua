@@ -82,14 +82,14 @@ local function SnapStickyFrame(frameA, frameB, left, top, right, bottom)
 		end
 		if lA  <= (lB  +  Sticky.rangeX) and lA  >= (lB - Sticky.rangeX) then
 			newX = lB  +  wA
-			if frameB == UIParent or frameB == WorldFrame or frameB == SVUI_ScreenMask then 
+			if frameB == UIParent or frameB == WorldFrame or frameB == SVUIParent then 
 				newX = newX  +  4
 			end
 			snap = true
 		end
 		if rA  <= (rB  +  Sticky.rangeX) and rA  >= (rB - Sticky.rangeX) then
 			newX = rB - wA
-			if frameB == UIParent or frameB == WorldFrame or frameB == SVUI_ScreenMask then 
+			if frameB == UIParent or frameB == WorldFrame or frameB == SVUIParent then 
 				newX = newX - 4
 			end
 			snap = true
@@ -110,14 +110,14 @@ local function SnapStickyFrame(frameA, frameB, left, top, right, bottom)
 		end
 		if tA  <= (tB  +  Sticky.rangeY) and tA  >= (tB - Sticky.rangeY) then
 			newY = tB - hA
-			if frameB == UIParent or frameB == WorldFrame or frameB == SVUI_ScreenMask then 
+			if frameB == UIParent or frameB == WorldFrame or frameB == SVUIParent then 
 				newY = newY - 4
 			end
 			snap = true
 		end
 		if bA  <= (bB  +  Sticky.rangeY) and bA  >= (bB - Sticky.rangeY) then
 			newY = bB  +  hA
-			if frameB == UIParent or frameB == WorldFrame or frameB == SVUI_ScreenMask then 
+			if frameB == UIParent or frameB == WorldFrame or frameB == SVUIParent then 
 				newY = newY  +  4
 			end
 			snap = true
@@ -230,7 +230,7 @@ local function CurrentPosition(frame)
 	local anchor1, parent, anchor2, x, y = frame:GetPoint()
 	local parentName
 	if not parent then 
-		parentName = "SVUI_ScreenMask" 
+		parentName = "SVUIParent" 
 	elseif not parent:GetName() then 
 		parentName = "SVUI_Player" 
 	else
@@ -789,7 +789,7 @@ local XML_MentaloPrecisionInputX_EnterPressed = function(self)
 			local xOffset, yOffset, anchor = CalculateOffsets()
 			yOffset = tonumber(SVUI_MentaloPrecisionSetY.CurrentValue)
 			CurrentFrameTarget:ClearAllPoints()
-			CurrentFrameTarget:Point(anchor, SVUI_ScreenMask, anchor, current, yOffset)
+			CurrentFrameTarget:Point(anchor, SVUIParent, anchor, current, yOffset)
 			Mentalo:SaveMovable(CurrentFrameTarget.name)
 		end
 		self.CurrentValue = current
@@ -805,7 +805,7 @@ local XML_MentaloPrecisionInputY_EnterPressed = function(self)
 			local xOffset, yOffset, anchor = CalculateOffsets()
 			xOffset = tonumber(SVUI_MentaloPrecisionSetX.CurrentValue)
 			CurrentFrameTarget:ClearAllPoints()
-			CurrentFrameTarget:Point(anchor, SVUI_ScreenMask, anchor, xOffset, current)
+			CurrentFrameTarget:Point(anchor, SVUIParent, anchor, xOffset, current)
 			Mentalo:SaveMovable(CurrentFrameTarget.name)
 		end
 		self.CurrentValue = current

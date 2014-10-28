@@ -701,8 +701,8 @@ local function MakeLogWindow()
 
 	frame:SetFrameStrata("MEDIUM")
 	frame:SetPoint("TOPLEFT", PLUGIN.Summary, "BOTTOMLEFT",0,0)
-	frame:SetPoint("BOTTOMRIGHT", SVUI_FightOMaticDock, "BOTTOMRIGHT",0,0)
-	frame:SetParent(SVUI_FightOMaticDock)
+	frame:SetPoint("BOTTOMRIGHT", PLUGIN.Docklet, "BOTTOMRIGHT",0,0)
+	frame:SetParent(PLUGIN.Docklet)
 
 	local output = CreateFrame("ScrollingMessageFrame", nil, frame)
 	output:SetSpacing(4)
@@ -740,8 +740,8 @@ local function MakeCommWindow()
 
 	frame:SetFrameStrata("MEDIUM")
 	frame:SetPoint("TOPLEFT", PLUGIN.Summary, "BOTTOMLEFT",0,0)
-	frame:SetPoint("BOTTOMRIGHT", SVUI_FightOMaticDock, "BOTTOMRIGHT",0,0)
-	frame:SetParent(SVUI_FightOMaticDock)
+	frame:SetPoint("BOTTOMRIGHT", PLUGIN.Docklet, "BOTTOMRIGHT",0,0)
+	frame:SetParent(PLUGIN.Docklet)
 
 	local fallback = CreateFrame("Frame", nil, frame)
 	fallback:SetAllPoints(frame)
@@ -822,8 +822,8 @@ local function MakeUtilityWindow()
 
 	frame:SetFrameStrata("MEDIUM")
 	frame:SetPoint("TOPLEFT", PLUGIN.Summary, "BOTTOMLEFT",0,0)
-	frame:SetPoint("BOTTOMRIGHT", SVUI_FightOMaticDock, "BOTTOMRIGHT",0,0)
-	frame:SetParent(SVUI_FightOMaticDock)
+	frame:SetPoint("BOTTOMRIGHT", PLUGIN.Docklet, "BOTTOMRIGHT",0,0)
+	frame:SetParent(PLUGIN.Docklet)
 
 	local fbText = frame:CreateFontString(nil, "OVERLAY")
 	fbText:SetAllPoints(frame)
@@ -842,8 +842,8 @@ local function MakeInfoWindow()
 
 	frame:SetFrameStrata("MEDIUM")
 	frame:SetPoint("TOPLEFT", PLUGIN.Summary, "BOTTOMLEFT",0,0)
-	frame:SetPoint("BOTTOMRIGHT", SVUI_FightOMaticDock, "BOTTOMRIGHT",0,0)
-	frame:SetParent(SVUI_FightOMaticDock)
+	frame:SetPoint("BOTTOMRIGHT", PLUGIN.Docklet, "BOTTOMRIGHT",0,0)
+	frame:SetParent(PLUGIN.Docklet)
 
 	local DATA_WIDTH = (frame:GetWidth() * 0.5) - 2;
 	local DATA_HEIGHT = frame:GetHeight() - 2;
@@ -900,7 +900,7 @@ local FightOMaticAlert_OnHide = function()
 		SV:AddonMessage(ERR_NOT_IN_COMBAT);  
 		return; 
 	end
-	RightSuperDockAlert:Deactivate()
+	SV.Dock.Right.Alert:Deactivate()
 end
 
 local FightOMaticAlert_OnShow = function(self)
@@ -910,7 +910,7 @@ local FightOMaticAlert_OnShow = function(self)
 		return; 
 	end
 	SV:SecureFadeIn(self, 0.3, 0, 1)
-	RightSuperDockAlert:Activate(self)
+	SV.Dock.Right.Alert:Activate(self)
 end
 
 local FightOMaticAlert_OnMouseDown = function(self)
@@ -996,24 +996,20 @@ function PLUGIN:Load()
 	self.cache = self.cache or {}
 	
 	local ALERT_HEIGHT = 60;
-	local DOCK_WIDTH = RightSuperDockFrameHolder:GetWidth();
-	local DOCK_HEIGHT = RightSuperDockFrameHolder:GetHeight();
+	local DOCK_WIDTH = SV.Dock.Right.Window:GetWidth();
+	local DOCK_HEIGHT = SV.Dock.Right.Window:GetHeight();
 	local BUTTON_SIZE = (DOCK_HEIGHT * 0.25) - 4;
 
 	self.HitBy = false;
 	self.Scanning = false;
 	self.InPVP = false
 
-	local holder = CreateFrame("Frame", "SVUI_FightOMaticDock", RightSuperDockFrameHolder)
-	holder:SetFrameStrata("BACKGROUND")
-	holder:SetWidth(DOCK_WIDTH - 4);
-	holder:SetHeight(DOCK_HEIGHT - 4);
-	holder:SetPoint("CENTER",RightSuperDockFrameHolder,"CENTER",0,0);
+	self.Docklet = SV.Dock:NewDocklet("Right", "SVUI_FightOMaticDock", self.TitleID, ICON_FILE)
 
-	local toolBar = CreateFrame("Frame", "SVUI_FightOMaticToolBar", holder)
+	local toolBar = CreateFrame("Frame", "SVUI_FightOMaticToolBar", self.Docklet)
 	toolBar:SetWidth(BUTTON_SIZE + 4);
 	toolBar:SetHeight((BUTTON_SIZE + 4) * 4);
-	toolBar:SetPoint("BOTTOMLEFT",holder,"BOTTOMLEFT",0,0);
+	toolBar:SetPoint("BOTTOMLEFT", self.Docklet, "BOTTOMLEFT", 0, 0);
 
 	local tbDivider = toolBar:CreateTexture(nil,"OVERLAY")
     tbDivider:SetTexture(0,0,0,0.5)
@@ -1073,12 +1069,12 @@ function PLUGIN:Load()
 	tool1:SetScript('OnLeave', FightOMaticTool_OnLeave)
 	tool1:SetScript('OnMouseDown', Scanner_OnMouseDown)
 
-	local title = CreateFrame("ScrollingMessageFrame", nil, holder)
+	local title = CreateFrame("ScrollingMessageFrame", nil, self.Docklet)
 	title:SetSpacing(4)
 	title:SetClampedToScreen(false)
 	title:SetFrameStrata("MEDIUM")
 	title:SetPoint("TOPLEFT", toolBar, "TOPRIGHT",0,0)
-	title:SetPoint("BOTTOMRIGHT", holder, "TOPRIGHT",0,-16)
+	title:SetPoint("BOTTOMRIGHT", self.Docklet, "TOPRIGHT",0,-16)
 	title:SetFontTemplate(SV.Media.font.names, 16, "OUTLINE", "CENTER", "MIDDLE")
 	title:SetMaxLines(1)
 	title:EnableMouseWheel(false)
@@ -1093,7 +1089,7 @@ function PLUGIN:Load()
 
     self.Title = title
 
-    local listbutton = CreateFrame("Button", nil, holder)
+    local listbutton = CreateFrame("Button", nil, self.Docklet)
     listbutton:SetPoint("TOPLEFT", title, "BOTTOMLEFT",0,0)
 	listbutton:SetPoint("BOTTOMRIGHT", title, "BOTTOMRIGHT",0,-14)
 	listbutton:SetButtonTemplate(true)
@@ -1104,7 +1100,7 @@ function PLUGIN:Load()
 
 	self.Switch = listbutton
 
-    local summary = CreateFrame("ScrollingMessageFrame", nil, holder)
+    local summary = CreateFrame("ScrollingMessageFrame", nil, self.Docklet)
 	summary:SetSpacing(4)
 	summary:SetClampedToScreen(false)
 	summary:SetFrameStrata("MEDIUM")
@@ -1129,9 +1125,7 @@ function PLUGIN:Load()
 	MakeUtilityWindow()
 	MakeInfoWindow()
 
-	SV.SVDock:RegisterDocklet("SVUI_FightOMaticDock", self.TitleID, ICON_FILE)
-
-	holder:Hide()
+	self.Docklet:Hide()
 
 	self:ResetLogs()
 

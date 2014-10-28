@@ -45,8 +45,8 @@ local function StyleALDamageMeter()
   PLUGIN:ApplyFrameStyle(alDamageMeterFrame)
   alDamageMeterFrame:HookScript('OnShow', function()
     if InCombatLockdown() then return end 
-    if SV.CurrentlyDocked["alDamagerMeterFrame"] then
-      RightSuperDockFrameHolder:Show()
+    if PLUGIN:ValidateDocklet("alDamageMeter") then
+      PLUGIN.Docklet:Show()
     end
   end)
 end

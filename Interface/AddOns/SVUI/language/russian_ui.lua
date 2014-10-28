@@ -1,5 +1,6 @@
 local L = LibSuperVillain("Linguist"):Lang("ruRU");
 if not L then return; end
+L["Hearthstone"] = true;
 --[[LOGIN MESSAGE]]--
 L["LOGIN_MSG"] = "обро пожаловать в |cffFFFF1ASupervillain UI|r! Держите свои %s и ваши %s."
 L["LOGIN_MSG2"] = "Версия |cffAA78FF%s|r, наберите /sv для доступа в меню настроек."

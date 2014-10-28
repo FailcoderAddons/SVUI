@@ -431,7 +431,7 @@ local ContainerFrame_UpdateLayout = function(self)
 	end
 
 	if(SV.db.SVBag.alignToChat) then
-		containerWidth = (isBank and SV.db.SVDock.dockLeftWidth or SV.db.SVDock.dockRightWidth)
+		containerWidth = (isBank and SV.db.Dock.dockLeftWidth or SV.db.Dock.dockRightWidth)
 		local avg = 0.08;
 		if(precount > 287) then
 			avg = 0.12
@@ -827,11 +827,11 @@ function MOD:ModifyBags()
 	if(docked) then
 		if self.BagFrame then
 			self.BagFrame:ClearAllPoints()
-			self.BagFrame:Point("BOTTOMRIGHT", RightSuperDock, "BOTTOMRIGHT", 0, 0)
+			self.BagFrame:Point("BOTTOMRIGHT", SV.Dock.Right, "BOTTOMRIGHT", 0, 0)
 		end 
 		if self.BankFrame then
 			self.BankFrame:ClearAllPoints()
-			self.BankFrame:Point("BOTTOMLEFT", LeftSuperDock, "BOTTOMLEFT", 0, 0)
+			self.BankFrame:Point("BOTTOMLEFT", SV.Dock.Left, "BOTTOMLEFT", 0, 0)
 		end
 	else
 		if self.BagFrame then
@@ -873,7 +873,7 @@ do
 		if MOD.BagBarLoaded then return end
 
 		local bar = CreateFrame("Frame", "SVUI_BagBar", SV.Screen)
-		bar:SetPoint("TOPRIGHT", RightSuperDock, "TOPLEFT", -4, 0)
+		bar:SetPoint("TOPRIGHT", SV.Dock.Right, "TOPLEFT", -4, 0)
 		bar.buttons = {}
 		bar:EnableMouse(true)
 		bar:SetScript("OnEnter", Bags_OnEnter)

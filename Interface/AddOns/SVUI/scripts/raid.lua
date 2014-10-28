@@ -94,8 +94,8 @@ local function ToggleRaidUtil(event)
 	end
 
 	if CheckRaidStatus() then
-		local width = TopSuperDockToolBar.openWidth
-		TopSuperDockToolBar:SetWidth(width)
+		local width = SV.Dock.Top:GetAttribute("buttonSize") + 12
+		SV.Dock.Top.ToolBar:SetWidth(width)
 		if RaidUtilityPanel.toggled == true then
 			SVUI_RaidTools:Hide()
 			RaidUtilityPanel:Show()		
@@ -104,7 +104,7 @@ local function ToggleRaidUtil(event)
 			RaidUtilityPanel:Hide()
 		end
 	else
-		TopSuperDockToolBar:SetWidth(1)
+		SV.Dock.Top.ToolBar:SetWidth(1)
 		SVUI_RaidTools:Hide()
 		RaidUtilityPanel:Hide()
 	end
@@ -119,13 +119,13 @@ RaidUtilFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 RaidUtilFrame:SetScript("OnEvent", ToggleRaidUtil)
 
 local function LoadRaidUtility()
-	local buttonsize = SV.db.SVDock.buttonSize or 22;
+	local buttonsize = SV.db.Dock.buttonSize or 22;
 	--Create main frame
 	local RaidUtilityPanel = CreateFrame("Frame", "RaidUtilityPanel", SV.Screen, "SecureHandlerClickTemplate")
 	RaidUtilityPanel:SetPanelTemplate('Transparent')
 	RaidUtilityPanel:Width(120)
 	RaidUtilityPanel:Height(PANEL_HEIGHT)
-	RaidUtilityPanel:SetPoint("TOPLEFT", TopSuperDockToolBar, "BOTTOMLEFT", 0, -2)
+	RaidUtilityPanel:SetPoint("TOPLEFT", SV.Dock.Top.ToolBar, "BOTTOMLEFT", 0, -2)
 	RaidUtilityPanel:SetFrameLevel(3)
 	RaidUtilityPanel.toggled = false
 	RaidUtilityPanel:SetFrameStrata("HIGH")
@@ -134,7 +134,7 @@ local function LoadRaidUtility()
 	--Show Button
 	local SVUI_RaidTools = CreateFrame("Button", "SVUI_RaidTools", SV.Screen, "UIMenuButtonStretchTemplate, SecureHandlerClickTemplate")
 	SVUI_RaidTools:Size(buttonsize, buttonsize)
-	SVUI_RaidTools:Point("CENTER", TopSuperDockToolBar, "CENTER", 0, 0)
+	SVUI_RaidTools:Point("CENTER", SV.Dock.Top.ToolBar, "CENTER", 0, 0)
 	SVUI_RaidTools.icon = SVUI_RaidTools:CreateTexture(nil,"OVERLAY",nil)
 	SVUI_RaidTools.icon:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Icons\DOCK-RAIDTOOL]])
 	SVUI_RaidTools.icon:Point("TOPLEFT", SVUI_RaidTools, "TOPLEFT", 1, -1)

@@ -27,12 +27,6 @@ local Schema = PLUGIN.Schema;
 ARCHEOLOGYFRAME PLUGINR
 ##########################################################
 ]]--
---240 24
-local progressBarHolder = CreateFrame("Frame", "SVUI_ArcheologyProgressBar", nil)
-progressBarHolder:SetSize(240, 24)
-progressBarHolder:SetPoint("BOTTOM", CastingBarFrame, "TOP", 0, 10)
-SV.Mentalo:Add(progressBarHolder, "Archeology Progress Bar")
-
 local function ArchaeologyStyle()
 	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.archaeology ~= true then return end 
 
@@ -82,6 +76,12 @@ local function ArchaeologyStyle()
 	ArchaeologyFrameArtifactPageIcon:SetParent(ArchaeologyFrameArtifactPageIcon.backdrop)
 	ArchaeologyFrameArtifactPageIcon:SetDrawLayer("OVERLAY")
 	PLUGIN:ApplyCloseButtonStyle(ArchaeologyFrameCloseButton)
+
+	local progressBarHolder = CreateFrame("Frame", "SVUI_ArcheologyProgressBar", nil)
+	progressBarHolder:SetSize(240, 24)
+	progressBarHolder:SetPoint("BOTTOM", CastingBarFrame, "TOP", 0, 10)
+	SV.Mentalo:Add(progressBarHolder, "Archeology Progress Bar")
+	
 	ArcheologyDigsiteProgressBar:SetAllPoints(progressBarHolder)
 	progressBarHolder:SetParent(ArcheologyDigsiteProgressBar)
 end 

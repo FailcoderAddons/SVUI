@@ -40,7 +40,7 @@ local _, ns = ...
 ##################################################################################################
 ]]
 SV.Options.args.SVUnit.args.player={
-	name = L['Player Frame'],
+	name = L['Player'],
 	type = 'group',
 	order = 3,
 	childGroups = "tab",

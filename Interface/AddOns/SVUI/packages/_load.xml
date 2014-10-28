@@ -1,6 +1,5 @@
 ﻿<Ui xmlns="http://www.blizzard.com/wow/ui/">
 	<Include file="stats\SVStats.xml"/>
-    <Script file="dock\SVDock.lua"/>
     <Include file="aura\SVAura.xml"/>
     <Script file="map\SVMap.lua"/>
     <Include file="plates\SVPlate.xml"/>

@@ -363,6 +363,7 @@ local function PetBattleStyle()
 	BottomFrame.Delimiter:RemoveTextures()
 
 	BottomFrame.xpBar:ClearAllPoints()
+	BottomFrame.xpBar:RemoveTextures()
 	BottomFrame.xpBar:SetParent(PetBattleActionBar)
 	BottomFrame.xpBar:Size((PBAB_WIDTH * 0.8) - 4, 16)
 	BottomFrame.xpBar:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Bars\DEFAULT]])

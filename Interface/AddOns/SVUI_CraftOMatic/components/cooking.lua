@@ -171,7 +171,7 @@ CORE METHODS
 ]]--
 function PLUGIN.Cooking:Enable()
 	PLUGIN.Cooking:Update()
-	if(not PLUGIN.Docklet:IsShown()) then PLUGIN.Docklet.ToolbarButton:Click() end
+	if(not PLUGIN.Docklet:IsShown()) then PLUGIN.Docklet.DockButton:Click() end
 	if(PLUGIN.db.cooking.autoequip) then
 		UpdateChefWear();
 	end

@@ -48,7 +48,7 @@ local function StyleOmen()
   Omen.db.profile.TitleBar.UseSameBG = true
 
   hooksecurefunc(Omen, 'UpdateBackdrop', function(self)
-    if not SVUI.CurrentlyDocked["OmenAnchor"] then
+    if(not PLUGIN:ValidateDocklet("Omen")) then
       PLUGIN:ApplyFrameStyle(self.BarList, 'Transparent')
       self.Title:RemoveTextures()
       self.Title:SetPanelTemplate("Default")

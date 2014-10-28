@@ -33,24 +33,12 @@ GET ADDON DATA
 local PLUGIN = select(2, ...);
 local Schema = PLUGIN.Schema;
 local activePanels = {};
-local SkadaHolder, SkadaHolder2
 local StupidSkada = function() return end
 --[[ 
 ########################################################## 
 SKADA
 ##########################################################
 ]]--
-local function CheckForHolders()
-  if(not SkadaHolder) then
-    SkadaHolder = CreateFrame("Frame", "SkadaHolder", SVUI_AddonDock1)
-  end
-  if(not SkadaHolder2) then
-    SkadaHolder2 = CreateFrame("Frame", "SkadaHolder2", SVUI_AddonDock2)
-  end
-  SkadaHolder:SetSize(SVUI_AddonDock1:GetSize())
-  SkadaHolder2:SetSize(SVUI_AddonDock2:GetSize())
-end
-
 local function skada_panel_loader(holder, window)
   if(not window) then return end 
 
@@ -80,14 +68,13 @@ end
 
 function PLUGIN:Docklet_Skada()
   if not Skada then return end 
-  CheckForHolders()
   for index,window in pairs(Skada:GetWindows()) do
     local wname = window.db.name or "Skada"
     local key = "SkadaBarWindow" .. wname
-    if(SVUI.db.SVDock.docklets.DockletMain == key)then 
-      skada_panel_loader(SkadaHolder, window)
-    elseif(SVUI.db.SVDock.docklets.enableExtra and SVUI.db.SVDock.docklets.DockletExtra == key) then
-      skada_panel_loader(SkadaHolder2, window)
+    if(PLUGIN.cache.Docks[1] == key)then 
+      skada_panel_loader(PLUGIN.Docklet.Dock1, window)
+    elseif(SVUI.db.Dock.docklets.enableExtra and PLUGIN.cache.Docks[2] == key) then
+      skada_panel_loader(PLUGIN.Docklet.Dock2, window)
     else
       window.db.barslocked = false;
     end
@@ -100,6 +87,8 @@ end
 
 local function StyleSkada()
   assert(Skada, "AddOn Not Loaded")
+
+  Skada.displays['bar'].ApplySettings = StupidSkada
 
   CheckForHolders()
   Skada.ShowPopup = Skada_ShowPopup
@@ -138,13 +127,13 @@ local function StyleSkada()
   end)
 
   hooksecurefunc(Skada, 'CreateWindow', function()
-    if SVUI.CurrentlyDocked["SkadaHolder"] or SVUI.CurrentlyDocked["SkadaHolder2"] then
+    if PLUGIN:ValidateDocklet("Skada") then
       PLUGIN:Docklet_Skada()
     end
   end)
 
   hooksecurefunc(Skada, 'DeleteWindow', function()
-    if SVUI.CurrentlyDocked["SkadaHolder"] or SVUI.CurrentlyDocked["SkadaHolder2"] then
+    if PLUGIN:ValidateDocklet("Skada") then
       PLUGIN:Docklet_Skada()
     end
   end)

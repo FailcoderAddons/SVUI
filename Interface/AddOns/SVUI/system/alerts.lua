@@ -555,7 +555,7 @@ local SysPop_Find = function(which, data)
 	end
 	for index = 1, MAX_STATIC_POPUPS, 1 do
 		local frame = _G["SVUI_SystemAlert"..index];
-		if ( frame:IsShown() and (frame.which == which) and (not info.multiple or (frame.data == data)) ) then
+		if (frame and frame:IsShown() and (frame.which == which) and (not info.multiple or (frame.data == data)) ) then
 			return frame;
 		end
 	end
@@ -644,7 +644,7 @@ function SV:StaticPopup_Show(which, text_arg1, text_arg2, data)
 		end
 		for i = index, MAX_STATIC_POPUPS do
 			local frame = _G["SVUI_SystemAlert"..i];
-			if ( not frame:IsShown() ) then
+			if (frame and not frame:IsShown() ) then
 				dialog = frame;
 				break;
 			end

@@ -222,27 +222,31 @@ local function AuctionStyle()
 		local buttonItem = _G["BrowseButton"..h.."Item"];
 		local buttonTex = _G["BrowseButton"..h.."ItemIconTexture"];
 
-		if(button) then
-			if(buttonTex) then 
-				buttonTex:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-				buttonTex:FillInner()
-			end 
-
+		if(button) then 
 			button:RemoveTextures()
-			button:SetButtonTemplate()
+			button:SetButtonTemplate(false, 1, 1, 1)
+			button.Panel:ClearAllPoints()
+			button.Panel:SetPoint("TOPLEFT", button, "TOPLEFT", 0, 0)
+			button.Panel:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", 0, 5)
 
-			if(buttonItem) then 
-				buttonItem:SetButtonTemplate()
-				buttonItem.Panel:SetAllPoints()
+			if(buttonItem) then
+				buttonItem:RemoveTextures()
+				buttonItem:SetSlotTemplate(true, 2, 0, 0)
+				buttonTex:SetParent(buttonItem.Panel)
+				buttonTex:FillInner(buttonItem.Panel, 2, 2)
 				buttonItem:HookScript("OnUpdate", function()
 					buttonItem:GetNormalTexture():Die()
 				end)
 
+				if(buttonTex) then 
+					buttonTex:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+				end
+
 				local highLight = button:GetHighlightTexture()
 				_G["BrowseButton"..h.."Highlight"] = highLight
 				highLight:ClearAllPoints()
-				highLight:Point("TOPLEFT", buttonItem, "TOPRIGHT", 2, 0)
-				highLight:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", -2, 5)
+				highLight:Point("TOPLEFT", buttonItem, "TOPRIGHT", 2, -2)
+				highLight:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", -2, 7)
 				button:GetPushedTexture():SetAllPoints(highLight)
 			end 
 		end 

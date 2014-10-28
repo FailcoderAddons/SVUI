@@ -679,14 +679,7 @@ local function GuildFrameStyle()
 		local button = _G["GuildRewardsContainerButton"..i]
 		if button then
 			button:RemoveTextures()
-			button:SetFixedPanelTemplate("Button")
-			if button.icon then
-				button.icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-				button.icon:ClearAllPoints()
-				button.icon:Point("TOPLEFT", button, "TOPLEFT", 2, -2)
-				button.Panel:WrapOuter(button.icon)
-				button.icon:SetParent(button.Panel)
-			end
+			PLUGIN:ApplyItemButtonStyle(button)
 		end
 	end 
 

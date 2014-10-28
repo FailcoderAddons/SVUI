@@ -109,10 +109,18 @@ AddonObject.configs = {
 		["alDamageMeter"] = true, 
 		["Omen"] = true, 
 		["TradeSkillDW"] = true, 
-	}
+	},
+	["docklets"] = {
+		["DockletMain"] = "None", 
+		["MainWindow"] = "None", 
+		["DockletExtra"] = "None", 
+		["ExtraWindow"] = "None", 
+		["enableExtra"] = false, 
+		["DockletCombatFade"] = true
+	},
 };
 
-local PLUGIN = LibSuperVillain("Registry"):NewPlugin(AddonName, AddonObject, "StyleOMatic_Profile", "StyleOMatic_Global")
+local PLUGIN = LibSuperVillain("Registry"):NewPlugin(AddonName, AddonObject, "StyleOMatic_Profile", "StyleOMatic_Global", "StyleOMatic_Cache")
 local Schema = PLUGIN.Schema;
 local SV = _G["SVUI"];
 local L = SV.L

@@ -40,7 +40,7 @@ local _, ns = ...
 ##################################################################################################
 ]]
 SV.Options.args.SVUnit.args.boss = {
-	name = L["Boss Frames"], 
+	name = L["Boss"], 
 	type = "group", 
 	order = 1000, 
 	childGroups = "tab", 
@@ -109,7 +109,7 @@ SV.Options.args.SVUnit.args.boss = {
 ##################################################################################################
 ]]
 SV.Options.args.SVUnit.args.arena = {
-	name = L["Arena Frames"], 
+	name = L["Arena"], 
 	type = "group", 
 	order = 1100, 
 	childGroups = "tab", 
@@ -280,7 +280,7 @@ SV.Options.args.SVUnit.args.arena = {
 ##################################################################################################
 ]]
 SV.Options.args.SVUnit.args.tank = {
-	name = L["Tank Frames"], 
+	name = L["Tank"], 
 	type = "group", 
 	order = 1200, 
 	childGroups = "tab", 
@@ -330,7 +330,7 @@ SV.Options.args.SVUnit.args.tank = {
 ##################################################################################################
 ]]
 SV.Options.args.SVUnit.args.assist = {
-	name = L["Assist Frames"], 
+	name = L["Assist"], 
 	type = "group", 
 	order = 1300, 
 	childGroups = "tab", 

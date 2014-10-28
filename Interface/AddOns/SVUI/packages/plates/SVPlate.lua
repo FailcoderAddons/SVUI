@@ -66,7 +66,6 @@ LOCAL VARS
 ##########################################################
 ]]--
 local numChildren = -1;
-local latestColor = {1,0.5,0.5};
 local PlateRegistry, VisiblePlates = {}, {};
 local WorldFrameUpdateHook, UpdatePlateElements, PlateForge;
 local BLIZZ_PLATE, SVUI_PLATE, PLATE_REF, PLATE_ARGS, PLATE_AURAS, PLATE_AURAICONS, PLATE_GRIP, PLATE_REALNAME;
@@ -769,6 +768,14 @@ do
 	end
 
 	local function GetPlateReaction(plate)
+		local class, classToken, _
+		if plate.guid ~= nil then
+			class, classToken, _, _, _, _, _ = GetPlayerInfoByGUID(plate.guid)
+			if RAID_CLASS_COLORS[class] then
+				return class
+			end
+		end
+
 		local oldR,oldG,oldB = plate.health:GetStatusBarColor()
 		local r = floor(oldR * 100 + .5) * 0.01;
 		local g = floor(oldG * 100 + .5) * 0.01;
@@ -800,11 +807,13 @@ do
 	local function ColorizeAndScale(plate, frame)
 		local unitType = GetPlateReaction(plate)
 		local scale = 1
+
 		plate.setting.unitcategory = unitType
-		if SVUI_CLASS_COLORS[unitType] then
-			latestColor = {SVUI_CLASS_COLORS[unitType].r,SVUI_CLASS_COLORS[unitType].g,SVUI_CLASS_COLORS[unitType].b}
-		elseif RAID_CLASS_COLORS[unitType] then
-			latestColor = {RAID_CLASS_COLORS[unitType].r,RAID_CLASS_COLORS[unitType].g,RAID_CLASS_COLORS[unitType].b}
+
+		local latestColor;
+		
+		if RAID_CLASS_COLORS[unitType] then
+			latestColor = {RAID_CLASS_COLORS[unitType].r, RAID_CLASS_COLORS[unitType].g, RAID_CLASS_COLORS[unitType].b}
 		elseif unitType == "TAPPED_NPC" then
 			latestColor = NPReactTap
 		elseif unitType == "HOSTILE_NPC" or unitType == "NEUTRAL_NPC" then
@@ -865,6 +874,7 @@ do
 		--frame.health.eliteborder.bottom:SetVertexColor(unpack(latestColor))
 		--frame.health.eliteborder.right:SetVertexColor(unpack(latestColor))
 		--frame.health.eliteborder.left:SetVertexColor(unpack(latestColor))
+		
 		if(NPUsePointer and NPPointerMatch and plate.setting.unit == "target") then
 			NPGlow:SetBackdropBorderColor(unpack(latestColor))
 		end

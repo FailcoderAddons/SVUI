@@ -1,23 +1,5 @@
 ﻿<Ui xmlns="http://www.blizzard.com/wow/ui/">
-    <Button name="SVUI_DockletButtonTemplate" virtual="true">
-        <Size x="22" y="22"/>
-        <Attributes>
-            <Attribute name="tipText" type="string" value="Toggle" />
-            <Attribute name="ownerFrame" type="string" value="" />
-            <Attribute name="bgGradient" type="string" value="default" />
-            <Attribute name="iconGradient" type="string" value="icon" />
-        </Attributes>
-        <Layers>
-            <Layer level="OVERLAY">
-                <Texture parentKey="Icon" file="Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT">
-                    <Anchors>
-                        <Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="2" y="-2" />
-                        <Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="-2" y="2" />
-                    </Anchors>
-                </Texture>
-            </Layer>
-        </Layers>
-    </Button>
+    
     <Frame name="SVUI_ShadowTemplate" virtual="true">
         <Attributes>
             <Attribute name="shadowAlpha" type="number" value="0.5" />

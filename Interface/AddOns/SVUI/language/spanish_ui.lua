@@ -4,6 +4,7 @@ if not L then
 	L = Localization:Lang("esMX")
 end
 if not L then return; end
+L["Hearthstone"] = true;
 --[[LOGIN MESSAGE]]--
 L["LOGIN_MSG"] = "Bienvenido a |cffFFFF1ASupervillain UI|r! Mantenga su %s y su %s."
 L["LOGIN_MSG2"] = "Versión |cffAA78FF%s|r, escribe /sv para acceder al menú de configuración."

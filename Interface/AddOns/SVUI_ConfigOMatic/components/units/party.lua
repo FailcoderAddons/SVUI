@@ -36,7 +36,7 @@ if(not MOD) then return end
 local _, ns = ...
 
 SV.Options.args.SVUnit.args.party = {
-	name = L['Party Frames'],
+	name = L['Party'],
 	type = 'group',
 	order = 11,
 	childGroups = "tab",

@@ -40,7 +40,7 @@ local _, ns = ...
 ##################################################################################################
 ]]
 SV.Options.args.SVUnit.args.pet = {
-	name = L["Pet Frame"], 
+	name = L["Pet"], 
 	type = "group", 
 	order = 4, 
 	childGroups = "tab", 
@@ -152,7 +152,7 @@ SV.Options.args.SVUnit.args.pet = {
 ##################################################################################################
 ]]
 SV.Options.args.SVUnit.args.pettarget = {
-	name = L["PetTarget Frame"], 
+	name = L["Pet Target"], 
 	type = "group", order = 5, 
 	childGroups = "tab", 
 	get = function(l)return SV.db.SVUnit["pettarget"][l[#l]]end, 

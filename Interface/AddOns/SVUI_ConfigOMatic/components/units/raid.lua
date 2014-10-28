@@ -35,359 +35,346 @@ local MOD = SV.SVUnit
 if(not MOD) then return end 
 local _, ns = ...
 
-local RaidCategories = {
-	[10] = "Raid (10)",
-	[25] = "Raid (15,20,25)",
-	[40] = "Raid (40)",
-}
-
-local subOrder = 11;
-for w=10,40,15 do
-	local raidToken = ("raid%d"):format(w)
-	local raidGlobal = ("SVUI_Raid%d"):format(w)
-	subOrder = subOrder + 1
-	SV.Options.args.SVUnit.args[raidToken] = {
-		name = RaidCategories[w], 
-		type = "group", 
-		order = subOrder, 
-		childGroups = "tab", 
-		get = function(l) return SV.db.SVUnit[raidToken][l[#l]] end, 
-		set = function(l, m) MOD:ChangeDBVar(m, l[#l], raidToken); MOD:SetGroupFrame(raidToken) end, 
-		args = {
-			enable = {
-				type = "toggle", 
-				order = 1, 
-				name = L["Enable"], 
-			}, 
-			configureToggle = {
-				order = 2, 
-				type = "execute", 
-				name = L["Display Frames"], 
-				func = function() 
-					local setForced = (_G[raidGlobal].forceShow ~= true) or nil; 
-					MOD:ViewGroupFrames(_G[raidGlobal], setForced) 
-				end, 
-			}, 
-			resetSettings = {
-				type = "execute", 
-				order = 3, 
-				name = L["Restore Defaults"], 
-				func = function(l, m)MOD:ResetUnitOptions(raidToken) SV.Mentalo:Reset("Raid Frames") end, 
-			}, 
-			tabGroups = {
-				order = 3, 
-				type = "group", 
-				name = L["Unit Options"], 
-				childGroups = "tree", 
-				args = {
-					commonGroup = {
-						order = 1, 
-						type = "group", 
-						name = L["General Settings"], 
-						args = {
-							showPlayer = 
+SV.Options.args.SVUnit.args["raid"] = {
+	name = "Raid", 
+	type = "group", 
+	order = 12, 
+	childGroups = "tab", 
+	get = function(l) return SV.db.SVUnit["raid"][l[#l]] end, 
+	set = function(l, m) MOD:ChangeDBVar(m, l[#l], "raid"); MOD:SetGroupFrame("raid") end, 
+	args = {
+		enable = {
+			type = "toggle", 
+			order = 1, 
+			name = L["Enable"], 
+		}, 
+		configureToggle = {
+			order = 2, 
+			type = "execute", 
+			name = L["Display Frames"], 
+			func = function() 
+				local setForced = (_G["SVUI_Raid"].forceShow ~= true) or nil; 
+				MOD:ViewGroupFrames(_G["SVUI_Raid"], setForced) 
+			end, 
+		}, 
+		resetSettings = {
+			type = "execute", 
+			order = 3, 
+			name = L["Restore Defaults"], 
+			func = function(l, m)MOD:ResetUnitOptions("raid") SV.Mentalo:Reset("Raid Frames") end, 
+		}, 
+		tabGroups = {
+			order = 3, 
+			type = "group", 
+			name = L["Unit Options"], 
+			childGroups = "tree", 
+			args = {
+				commonGroup = {
+					order = 1, 
+					type = "group", 
+					name = L["General Settings"], 
+					args = {
+						showPlayer = 
+						{
+							order = 1, 
+							type = "toggle", 
+							name = L["Display Player"], 
+							desc = L["When true, always show player in raid frames."],
+							get = function(l)return SV.db.SVUnit["raid"].showPlayer end, 
+							set = function(l, m) MOD:ChangeDBVar(m, l[#l], "raid"); MOD:SetGroupFrame("raid", true) end, 
+						},
+						hideonnpc = 
+						{
+							type = "toggle", 
+							order = 2, 
+							name = L["Text Toggle On NPC"], 
+							desc = L["Power text will be hidden on NPC targets, in addition the name text will be repositioned to the power texts anchor point."], 
+							get = function(l)return SV.db.SVUnit["raid"]["power"].hideonnpc end, 
+							set = function(l, m) SV.db.SVUnit["raid"]["power"].hideonnpc = m; MOD:SetGroupFrame("raid")end, 
+						},
+						rangeCheck = {
+							order = 3, 
+							name = L["Range Check"], 
+							desc = L["Check if you are in range to cast spells on this specific unit."], 
+							type = "toggle", 
+						},
+						gps = {
+							order = 4, 
+							name = "GPS Tracking", 
+							desc = "Show an arrow giving the direction and distance to the frames unit.", 
+							type = "toggle", 
+						}, 
+						predict = {
+							order = 5, 
+							name = L["Heal Prediction"], 
+							desc = L["Show a incomming heal prediction bar on the unitframe. Also display a slightly different colored bar for incoming overheals."], 
+							type = "toggle", 
+						}, 
+						threatEnabled = {
+							type = "toggle", 
+							order = 6, 
+							name = L["Show Threat"], 
+						}, 
+						colorOverride = {
+							order = 7, 
+							name = L["Class Color Override"], 
+							desc = L["Override the default class color setting."], 
+							type = "select", 
+							values = 
 							{
-								order = 1, 
-								type = "toggle", 
-								name = L["Display Player"], 
-								desc = L["When true, always show player in raid frames."],
-								get = function(l)return SV.db.SVUnit[raidToken].showPlayer end, 
-								set = function(l, m) MOD:ChangeDBVar(m, l[#l], raidToken); MOD:SetGroupFrame(raidToken, true) end, 
-							},
-							hideonnpc = 
+								["USE_DEFAULT"] = L["Use Default"], 
+								["FORCE_ON"] = L["Force On"], 
+								["FORCE_OFF"] = L["Force Off"], 
+							}, 
+						}, 
+						positionsGroup = {
+							order = 100, 
+							name = L["Size and Positions"], 
+							type = "group", 
+							guiInline = true, 
+							set = function(l, m)MOD:ChangeDBVar(m, l[#l], "raid");MOD:SetGroupFrame("raid", true)end, 
+							args = 
+							{ 
+								width = 
+								{
+									order = 1, 
+									name = L["Width"], 
+									type = "range", 
+									min = 10, 
+									max = 500, 
+									step = 1, 
+									set = function(l, m)MOD:ChangeDBVar(m, l[#l], "raid");MOD:SetGroupFrame("raid")end, 
+								}, 
+								height = 
+								{
+									order = 2, 
+									name = L["Height"], 
+									type = "range", 
+									min = 10, 
+									max = 500, 
+									step = 1, 
+									set = function(l, m)MOD:ChangeDBVar(m, l[#l], "raid");MOD:SetGroupFrame("raid")end, 
+								}, 
+								spacer = 
+								{
+									order = 3, 
+									name = "", 
+									type = "description", 
+									width = "full", 
+								}, 
+								showBy = 
+								{
+									order = 4, 
+									name = L["Growth Direction"], 
+									desc = L["Growth direction from the first unitframe."], 
+									type = "select", 
+									values = 
+									{
+										DOWN_RIGHT = format(L["%s and then %s"], L["Down"], L["Right"]), 
+										DOWN_LEFT = format(L["%s and then %s"], L["Down"], L["Left"]), 
+										UP_RIGHT = format(L["%s and then %s"], L["Up"], L["Right"]), 
+										UP_LEFT = format(L["%s and then %s"], L["Up"], L["Left"]), 
+										RIGHT_DOWN = format(L["%s and then %s"], L["Right"], L["Down"]), 
+										RIGHT_UP = format(L["%s and then %s"], L["Right"], L["Up"]), 
+										LEFT_DOWN = format(L["%s and then %s"], L["Left"], L["Down"]), 
+										LEFT_UP = format(L["%s and then %s"], L["Left"], L["Up"]), 
+									}, 
+								},
+								gRowCol = 
+								{
+									order = 5, 
+									type = "range", 
+									name = L["Groups Per Row / Column"], 
+									min = 1, 
+									max = 8, 
+									step = 1, 
+									set = function(l, m)
+										MOD:ChangeDBVar(m, l[#l], "raid");
+										MOD:SetGroupFrame("raid")
+										if(_G["SVUI_Raid"] and _G["SVUI_Raid"].isForced) then	
+											MOD:ViewGroupFrames(_G["SVUI_Raid"])
+											MOD:ViewGroupFrames(_G["SVUI_Raid"], true)
+										end
+									end, 
+								}, 
+								wrapXOffset = 
+								{
+									order = 6, 
+									type = "range", 
+									name = L["Horizontal Spacing"], 
+									min = 0, 
+									max = 50, 
+									step = 1, 
+								}, 
+								wrapYOffset = 
+								{
+									order = 7, 
+									type = "range", 
+									name = L["Vertical Spacing"], 
+									min = 0, 
+									max = 50, 
+									step = 1, 
+								}, 
+							}, 
+						},
+						sortingGroup = {
+							order = 300, 
+							type = "group", 
+							guiInline = true, 
+							name = L["Sorting"], 
+							set = function(l, m)MOD:ChangeDBVar(m, l[#l], "raid");MOD:SetGroupFrame("raid", true)end, 
+							args = 
 							{
-								type = "toggle", 
-								order = 2, 
-								name = L["Text Toggle On NPC"], 
-								desc = L["Power text will be hidden on NPC targets, in addition the name text will be repositioned to the power texts anchor point."], 
-								get = function(l)return SV.db.SVUnit[raidToken]["power"].hideonnpc end, 
-								set = function(l, m) SV.db.SVUnit[raidToken]["power"].hideonnpc = m; MOD:SetGroupFrame(raidToken)end, 
-							},
-							rangeCheck = {
-								order = 3, 
-								name = L["Range Check"], 
-								desc = L["Check if you are in range to cast spells on this specific unit."], 
-								type = "toggle", 
-							},
-							gps = {
-								order = 4, 
-								name = "GPS Tracking", 
-								desc = "Show an arrow giving the direction and distance to the frames unit.", 
-								type = "toggle", 
-							}, 
-							predict = {
-								order = 5, 
-								name = L["Heal Prediction"], 
-								desc = L["Show a incomming heal prediction bar on the unitframe. Also display a slightly different colored bar for incoming overheals."], 
-								type = "toggle", 
-							}, 
-							threatEnabled = {
-								type = "toggle", 
-								order = 6, 
-								name = L["Show Threat"], 
-							}, 
-							colorOverride = {
-								order = 7, 
-								name = L["Class Color Override"], 
-								desc = L["Override the default class color setting."], 
-								type = "select", 
-								values = 
+								sortMethod = 
 								{
-									["USE_DEFAULT"] = L["Use Default"], 
-									["FORCE_ON"] = L["Force On"], 
-									["FORCE_OFF"] = L["Force Off"], 
-								}, 
-							}, 
-							positionsGroup = {
-								order = 100, 
-								name = L["Size and Positions"], 
-								type = "group", 
-								guiInline = true, 
-								set = function(l, m)MOD:ChangeDBVar(m, l[#l], raidToken);MOD:SetGroupFrame(raidToken, true)end, 
-								args = 
-								{ 
-									width = 
+									order = 1, 
+									name = L["Group By"], 
+									desc = L["Set the order that the group will sort."], 
+									type = "select", 
+									values = 
 									{
-										order = 1, 
-										name = L["Width"], 
-										type = "range", 
-										min = 10, 
-										max = 500, 
-										step = 1, 
-										set = function(l, m)MOD:ChangeDBVar(m, l[#l], raidToken);MOD:SetGroupFrame(raidToken)end, 
-									}, 
-									height = 
-									{
-										order = 2, 
-										name = L["Height"], 
-										type = "range", 
-										min = 10, 
-										max = 500, 
-										step = 1, 
-										set = function(l, m)MOD:ChangeDBVar(m, l[#l], raidToken);MOD:SetGroupFrame(raidToken)end, 
-									}, 
-									spacer = 
-									{
-										order = 3, 
-										name = "", 
-										type = "description", 
-										width = "full", 
-									}, 
-									showBy = 
-									{
-										order = 4, 
-										name = L["Growth Direction"], 
-										desc = L["Growth direction from the first unitframe."], 
-										type = "select", 
-										values = 
-										{
-											DOWN_RIGHT = format(L["%s and then %s"], L["Down"], L["Right"]), 
-											DOWN_LEFT = format(L["%s and then %s"], L["Down"], L["Left"]), 
-											UP_RIGHT = format(L["%s and then %s"], L["Up"], L["Right"]), 
-											UP_LEFT = format(L["%s and then %s"], L["Up"], L["Left"]), 
-											RIGHT_DOWN = format(L["%s and then %s"], L["Right"], L["Down"]), 
-											RIGHT_UP = format(L["%s and then %s"], L["Right"], L["Up"]), 
-											LEFT_DOWN = format(L["%s and then %s"], L["Left"], L["Down"]), 
-											LEFT_UP = format(L["%s and then %s"], L["Left"], L["Up"]), 
-										}, 
-									},
-									gRowCol = 
-									{
-										order = 5, 
-										type = "range", 
-										name = L["Groups Per Row / Column"], 
-										min = 1, 
-										max = 8, 
-										step = 1, 
-										set = function(l, m)
-											MOD:ChangeDBVar(m, l[#l], raidToken);
-											MOD:SetGroupFrame(raidToken)
-											if(_G[raidGlobal] and _G[raidGlobal].isForced) then	
-												MOD:ViewGroupFrames(_G[raidGlobal])
-												MOD:ViewGroupFrames(_G[raidGlobal], true)
-											end
-										end, 
-									}, 
-									wrapXOffset = 
-									{
-										order = 6, 
-										type = "range", 
-										name = L["Horizontal Spacing"], 
-										min = 0, 
-										max = 50, 
-										step = 1, 
-									}, 
-									wrapYOffset = 
-									{
-										order = 7, 
-										type = "range", 
-										name = L["Vertical Spacing"], 
-										min = 0, 
-										max = 50, 
-										step = 1, 
+										["CLASS"] = CLASS, 
+										["ROLE"] = ROLE.."(Tanks, Healers, DPS)", 
+										["ROLE_TDH"] = ROLE.."(Tanks, DPS, Healers)", 
+										["ROLE_HDT"] = ROLE.."(Healers, DPS, Tanks)", 
+										["ROLE_HTD"] = ROLE.."(Healers, Tanks, DPS)", 
+										["NAME"] = NAME, 
+										["MTMA"] = L["Main Tanks  /  Main Assist"], 
+										["GROUP"] = GROUP, 
 									}, 
 								}, 
-							},
-							sortingGroup = {
-								order = 300, 
-								type = "group", 
-								guiInline = true, 
-								name = L["Sorting"], 
-								set = function(l, m)MOD:ChangeDBVar(m, l[#l], raidToken);MOD:SetGroupFrame(raidToken, true)end, 
-								args = 
+								sortDir = 
 								{
-									sortMethod = 
+									order = 2, 
+									name = L["Sort Direction"], 
+									desc = L["Defines the sort order of the selected sort method."], 
+									type = "select", 
+									values = 
 									{
-										order = 1, 
-										name = L["Group By"], 
-										desc = L["Set the order that the group will sort."], 
-										type = "select", 
-										values = 
-										{
-											["CLASS"] = CLASS, 
-											["ROLE"] = ROLE.."(Tanks, Healers, DPS)", 
-											["ROLE_TDH"] = ROLE.."(Tanks, DPS, Healers)", 
-											["ROLE_HDT"] = ROLE.."(Healers, DPS, Tanks)", 
-											["ROLE_HTD"] = ROLE.."(Healers, Tanks, DPS)", 
-											["NAME"] = NAME, 
-											["MTMA"] = L["Main Tanks  /  Main Assist"], 
-											["GROUP"] = GROUP, 
-										}, 
+										["ASC"] = L["Ascending"], 
+										["DESC"] = L["Descending"], 
 									}, 
-									sortDir = 
-									{
-										order = 2, 
-										name = L["Sort Direction"], 
-										desc = L["Defines the sort order of the selected sort method."], 
-										type = "select", 
-										values = 
-										{
-											["ASC"] = L["Ascending"], 
-											["DESC"] = L["Descending"], 
-										}, 
-									}, 
-									spacer = 
-									{
-										order = 3, 
-										type = "description", 
-										width = "full", 
-										name = " ", 
-									},  
-									invertGroupingOrder = 
-									{
-										order = 4, 
-										name = L["Invert Grouping Order"], 
-										desc = L["Enabling this inverts the grouping order when the raid is not full, this will reverse the direction it starts from."], 
-										disabled = function()return not SV.db.SVUnit[raidToken].customSorting end, 
-										type = "toggle", 
-									},  
 								}, 
-							}
+								spacer = 
+								{
+									order = 3, 
+									type = "description", 
+									width = "full", 
+									name = " ", 
+								},  
+								invertGroupingOrder = 
+								{
+									order = 4, 
+									name = L["Invert Grouping Order"], 
+									desc = L["Enabling this inverts the grouping order when the raid is not full, this will reverse the direction it starts from."], 
+									disabled = function()return not SV.db.SVUnit["raid"].customSorting end, 
+									type = "toggle", 
+								},  
+							}, 
 						}
-					}, 
-					misc = ns:SetMiscConfigGroup(true, MOD.SetGroupFrame, raidToken), 
-					health = ns:SetHealthConfigGroup(true, MOD.SetGroupFrame, raidToken), 
-					power = ns:SetPowerConfigGroup(false, MOD.SetGroupFrame, raidToken), 
-					name = ns:SetNameConfigGroup(MOD.SetGroupFrame, raidToken), 
-					buffs = ns:SetAuraConfigGroup(true, "buffs", true, MOD.SetGroupFrame, raidToken), 
-					debuffs = ns:SetAuraConfigGroup(true, "debuffs", true, MOD.SetGroupFrame, raidToken), 
-					auraWatch = {
-						order = 600, 
-						type = "group", 
-						name = L["Aura Watch"], 
-						args = {
-							enable = {
-								type = "toggle", 
-								name = L["Enable"], 
-								order = 1,
-								get = function(l)return SV.db.SVUnit[raidToken].auraWatch.enable end, 
-								set = function(l, m)MOD:ChangeDBVar(m, "enable", raidToken, "auraWatch");MOD:SetGroupFrame(raidToken)end, 
-							}, 
-							size = {
-								type = "range", 
-								name = L["Size"], 
-								desc = L["Size of the indicator icon."], 
-								order = 2, 
-								min = 4, 
-								max = 15, 
-								step = 1,
-								get = function(l)return SV.db.SVUnit[raidToken].auraWatch.size end, 
-								set = function(l, m)MOD:ChangeDBVar(m, "size", raidToken, "auraWatch");MOD:SetGroupFrame(raidToken)end, 
-							}, 
-							configureButton = {
-								type = "execute", 
-								name = L["Configure Auras"], 
-								func = function()ns:SetToFilterConfig("BuffWatch")end, 
-								order = 3, 
-							}, 
-
-						}, 
-					}, 
-					rdebuffs = {
-						order = 800, 
-						type = "group", 
-						name = L["RaidDebuff Indicator"], 
-						get = function(l)return
-						SV.db.SVUnit[raidToken]["rdebuffs"][l[#l]]end, 
-						set = function(l, m)MOD:ChangeDBVar(m, l[#l], raidToken, "rdebuffs");MOD:SetGroupFrame(raidToken)end, 
-						args = {
-							enable = {
-								type = "toggle", 
-								name = L["Enable"], 
-								order = 1, 
-							}, 
-							size = {
-								type = "range", 
-								name = L["Size"], 
-								order = 2, 
-								min = 8, 
-								max = 35, 
-								step = 1, 
-							}, 
-							fontSize = {
-								type = "range", 
-								name = L["Font Size"], 
-								order = 3, 
-								min = 7, 
-								max = 22, 
-								step = 1, 
-							}, 
-							xOffset = {
-								order = 4, 
-								type = "range", 
-								name = L["xOffset"], 
-								min =  - 300, 
-								max = 300, 
-								step = 1, 
-							}, 
-							yOffset = {
-								order = 5, 
-								type = "range", 
-								name = L["yOffset"], 
-								min =  - 300, 
-								max = 300, 
-								step = 1, 
-							}, 
-							configureButton = {
-								type = "execute", 
-								name = L["Configure Auras"], 
-								func = function()ns:SetToFilterConfig("Raid")end, 
-								order = 7, 
-							}, 
-						}, 
-					}, 
-					icons = ns:SetIconConfigGroup(MOD.SetGroupFrame, raidToken), 
+					}
 				}, 
+				misc = ns:SetMiscConfigGroup(true, MOD.SetGroupFrame, "raid"), 
+				health = ns:SetHealthConfigGroup(true, MOD.SetGroupFrame, "raid"), 
+				power = ns:SetPowerConfigGroup(false, MOD.SetGroupFrame, "raid"), 
+				name = ns:SetNameConfigGroup(MOD.SetGroupFrame, "raid"), 
+				buffs = ns:SetAuraConfigGroup(true, "buffs", true, MOD.SetGroupFrame, "raid"), 
+				debuffs = ns:SetAuraConfigGroup(true, "debuffs", true, MOD.SetGroupFrame, "raid"), 
+				auraWatch = {
+					order = 600, 
+					type = "group", 
+					name = L["Aura Watch"], 
+					args = {
+						enable = {
+							type = "toggle", 
+							name = L["Enable"], 
+							order = 1,
+							get = function(l)return SV.db.SVUnit["raid"].auraWatch.enable end, 
+							set = function(l, m)MOD:ChangeDBVar(m, "enable", "raid", "auraWatch");MOD:SetGroupFrame("raid")end, 
+						}, 
+						size = {
+							type = "range", 
+							name = L["Size"], 
+							desc = L["Size of the indicator icon."], 
+							order = 2, 
+							min = 4, 
+							max = 15, 
+							step = 1,
+							get = function(l)return SV.db.SVUnit["raid"].auraWatch.size end, 
+							set = function(l, m)MOD:ChangeDBVar(m, "size", "raid", "auraWatch");MOD:SetGroupFrame("raid")end, 
+						}, 
+						configureButton = {
+							type = "execute", 
+							name = L["Configure Auras"], 
+							func = function()ns:SetToFilterConfig("BuffWatch")end, 
+							order = 3, 
+						}, 
+
+					}, 
+				}, 
+				rdebuffs = {
+					order = 800, 
+					type = "group", 
+					name = L["RaidDebuff Indicator"], 
+					get = function(l)return
+					SV.db.SVUnit["raid"]["rdebuffs"][l[#l]]end, 
+					set = function(l, m)MOD:ChangeDBVar(m, l[#l], "raid", "rdebuffs");MOD:SetGroupFrame("raid")end, 
+					args = {
+						enable = {
+							type = "toggle", 
+							name = L["Enable"], 
+							order = 1, 
+						}, 
+						size = {
+							type = "range", 
+							name = L["Size"], 
+							order = 2, 
+							min = 8, 
+							max = 35, 
+							step = 1, 
+						}, 
+						fontSize = {
+							type = "range", 
+							name = L["Font Size"], 
+							order = 3, 
+							min = 7, 
+							max = 22, 
+							step = 1, 
+						}, 
+						xOffset = {
+							order = 4, 
+							type = "range", 
+							name = L["xOffset"], 
+							min =  - 300, 
+							max = 300, 
+							step = 1, 
+						}, 
+						yOffset = {
+							order = 5, 
+							type = "range", 
+							name = L["yOffset"], 
+							min =  - 300, 
+							max = 300, 
+							step = 1, 
+						}, 
+						configureButton = {
+							type = "execute", 
+							name = L["Configure Auras"], 
+							func = function()ns:SetToFilterConfig("Raid")end, 
+							order = 7, 
+						}, 
+					}, 
+				}, 
+				icons = ns:SetIconConfigGroup(MOD.SetGroupFrame, "raid"), 
 			}, 
 		}, 
-	}
-end
+	}, 
+}
 
-subOrder = subOrder + 1
 SV.Options.args.SVUnit.args.raidpet = {
-	order = subOrder,
+	order = 13,
 	type = 'group',
-	name = L['Raid Pet Frames'],
+	name = L['Raid Pets'],
 	childGroups = "tab",
 	get = function(l)return
 	SV.db.SVUnit['raidpet'][l[#l]]end,

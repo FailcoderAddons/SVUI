@@ -555,10 +555,10 @@ local function CreateAuraHeader(filter)
 end 
 
 function MOD:ReLoad()
+	if(InCombatLockdown()) then return end
 	local maxShown = #AURA_ICONS - 1
 	local CB_HEIGHT = SVUI_MinimapFrame:GetHeight() - 50
 	local CB_WIDTH = (CB_HEIGHT / maxShown) + 4
-	--print("Reload "..CB_WIDTH)
 	SVUI_AurasAnchor:SetSize(CB_WIDTH, CB_HEIGHT)
 	AURA_FADE_TIME = SV.db.SVAura.fadeBy
 	MOD:UpdateAuraHeader(SVUI_PlayerBuffs, "buffs");
@@ -580,6 +580,7 @@ function MOD:Load()
 	local auras = CreateFrame("Frame", "SVUI_AurasAnchor", SV.Screen)
 	auras:SetSize(CB_WIDTH, CB_HEIGHT)
 	auras:Point("TOPRIGHT", Minimap, "TOPLEFT", -8, 0)
+	SV:AddToDisplayAudit(auras)
 	
 	self.BuffFrame = CreateAuraHeader("HELPFUL")
 	self.BuffFrame:SetPoint("TOPRIGHT", auras, "TOPLEFT", -8, 0)
@@ -589,6 +590,7 @@ function MOD:Load()
 	SVUI_ConsolidatedBuffs:SetParent(SV.Screen)
 	SVUI_ConsolidatedBuffs:SetAllPoints(auras)
 	SVUI_ConsolidatedBuffs:SetFrameStrata("BACKGROUND")
+	SV:AddToDisplayAudit(SVUI_ConsolidatedBuffs)
 
 	for i = 1, NUM_LE_RAID_BUFF_TYPES do 
 		SVUI_ConsolidatedBuffs[i] = CreateHyperBuff(i)

@@ -40,7 +40,7 @@ local _, ns = ...
 ##################################################################################################
 ]]
 SV.Options.args.SVUnit.args.target={
-	name = L['Target Frame'],
+	name = L['Target'],
 	type = 'group',
 	order = 6,
 	childGroups = "tab",
@@ -205,7 +205,7 @@ SV.Options.args.SVUnit.args.target={
 ##################################################################################################
 ]]
 SV.Options.args.SVUnit.args.targettarget={
-	name=L['TargetTarget Frame'],
+	name=L['Target of Target'],
 	type='group',
 	order=7,
 	childGroups="tab",

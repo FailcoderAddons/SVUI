@@ -149,7 +149,7 @@ local function LFDFrameStyle()
   GroupFinderFrameGroupButton1.icon:SetTexture("Interface\\Icons\\INV_Helmet_08")
   GroupFinderFrameGroupButton2.icon:SetTexture("Interface\\Icons\\inv_helmet_06")
   GroupFinderFrameGroupButton3.icon:SetTexture("Interface\\Icons\\Icon_Scenarios")
-  GroupFinderFrameGroupButton4.icon:SetTexture("Interface\\Addons\\SVUI\\assets\\artwork\\Icons\\SVUI-EMBLEM")
+  GroupFinderFrameGroupButton4.icon:SetTexture("Interface\\Addons\\SVUI\\assets\\artwork\\Icons\\SVUI-ICON")
 
   LFGDungeonReadyDialogBackground:Die()
   LFGDungeonReadyDialogEnterDungeonButton:SetButtonTemplate()

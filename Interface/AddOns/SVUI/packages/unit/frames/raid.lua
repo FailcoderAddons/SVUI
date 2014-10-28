@@ -376,8 +376,7 @@ RAID FRAMES
 ##########################################################
 ]]--
 local RaidUnitUpdate = function(self)
-    local token = self.___key
-    local db = SV.db.SVUnit[token]
+    local db = SV.db.SVUnit.raid
     self.colors = oUF_Villain.colors;
     self:RegisterForClicks(SV.db.SVUnit.fastClickTarget and "AnyDown" or "AnyUp")
 

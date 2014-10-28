@@ -187,7 +187,7 @@ local UpdateThreat = function(self, event, unit)
 end
 
 local UpdatePlayerThreat = function(self, event, unit)
-	if(unit ~= self.unit) or not unit or not IsLoggedIn() then return end
+	if(unit ~= "player") then return end
 	local threat = self.Threat
 	local status = UnitThreatSituation(unit)
 	local r, g, b
@@ -196,6 +196,7 @@ local UpdatePlayerThreat = function(self, event, unit)
 		threat:SetBackdropBorderColor(r, g, b)
 		if(status > 1) then
 			threat.OhShit:Show()
+			threat.OhShit.anim:Play()
 		end
 	else
 		threat:SetBackdropBorderColor(0, 0, 0, 0.5)
@@ -224,17 +225,16 @@ local function CreateThreat(frame, unit)
     threat:SetBackdropBorderColor(0,0,0,0.5)
 
 	if(unit == "player") then
-		local aggro = CreateFrame("Frame", nil, threat)
+		local aggro = CreateFrame("Frame", "SVUI_PlayerThreatAlert", threat)
 		aggro:SetFrameStrata("HIGH")
 		aggro:SetFrameLevel(30)
 		aggro:Size(52,52)
-		aggro:Point("TOPRIGHT",frame,16,16)
+		aggro:SetPoint("TOPRIGHT",frame,"TOPRIGHT",16,16)
 		aggro.bg = aggro:CreateTexture(nil, "BORDER")
 		aggro.bg:FillInner(aggro)
 		aggro.bg:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\UNIT-AGGRO")
-		SV.Animate:Pulse(aggro)
-		aggro:Hide()
-		aggro:SetScript("OnShow", OhShit_OnShow)
+		SV.Animate:Pulse(aggro, false)
+		--aggro:SetScript("OnShow", OhShit_OnShow)
 		
 		threat.OhShit = aggro
 		threat.Override = UpdatePlayerThreat
@@ -350,7 +350,6 @@ end
 function MOD:SetActionPanel(frame, unit, noHealthText, noPowerText, noMiscText)
 	if(unit and (unit == "target" or unit == "player")) then
 		frame.ActionPanel = CreateActionPanel(frame, 3)
-		frame.Threat = CreateThreat(frame.ActionPanel, unit)
 
 		local info = CreateFrame("Frame", nil, frame)
 		info:SetFrameStrata("BACKGROUND")
@@ -465,6 +464,8 @@ function MOD:SetActionPanel(frame, unit, noHealthText, noPowerText, noMiscText)
 		frame.InfoPanel:Point("TOPLEFT", frame.ActionPanel, "TOPLEFT", 2, -2)
 		frame.InfoPanel:Point("BOTTOMRIGHT", frame.ActionPanel, "BOTTOMRIGHT", -2, 2)
 	end
+
+	frame.Threat = CreateThreat(frame.ActionPanel, unit)
 
 	frame.InfoPanel.Name = CreateNameText(frame.InfoPanel, unit)
 

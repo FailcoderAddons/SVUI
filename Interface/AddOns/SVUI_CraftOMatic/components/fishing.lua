@@ -333,7 +333,7 @@ CORE METHODS
 ]]--
 function PLUGIN.Fishing:Enable()
 	PLUGIN:UpdateFishingMode()
-	if(not PLUGIN.Docklet:IsShown()) then PLUGIN.Docklet.ToolbarButton:Click() end
+	if(not PLUGIN.Docklet:IsShown()) then PLUGIN.Docklet.DockButton:Click() end
 	UpdateFishingGear(PLUGIN.db.fishing.autoequip);
 	PlaySoundFile("Sound\\Spells\\Tradeskills\\FishCast.wav")
 	PLUGIN.ModeAlert:SetBackdropColor(0.25, 0.52, 0.1)

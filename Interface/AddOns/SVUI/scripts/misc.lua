@@ -474,7 +474,7 @@ end
 
 local function CreateTotemBar()
 	if(not SV.db.totems.enable) then return; end
-	local xOffset = SV.db.SVDock.dockLeftWidth + 12
+	local xOffset = SV.db.Dock.dockLeftWidth + 12
 	TotemBar = CreateFrame("Frame", "SVUI_TotemBar", SV.Screen)
 	TotemBar:SetPoint("BOTTOMLEFT", SV.Screen, "BOTTOMLEFT", xOffset, 40)
 	for i = 1, MAX_TOTEMS do

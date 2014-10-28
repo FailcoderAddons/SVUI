@@ -584,8 +584,8 @@ local _hook_GameTooltip_SetDefaultAnchor = function(self, parent)
 		self:ClearAllPoints()
 		if(SV.SVBag.BagFrame and SV.SVBag.BagFrame:IsShown()) then
 			self:SetPoint("BOTTOMRIGHT", SV.SVBag.BagFrame, "TOPRIGHT", -44, 18)
-		elseif(RightSuperDock:GetAlpha() == 1 and RightSuperDock:IsShown()) then 
-			self:SetPoint("BOTTOMRIGHT", RightSuperDock, "TOPRIGHT", -44, 18)
+		elseif(SV.Dock.Right:GetAlpha() == 1 and SV.Dock.Right:IsShown()) then 
+			self:SetPoint("BOTTOMRIGHT", SV.Dock.Right, "TOPRIGHT", -44, 18)
 		else 
 			self:SetPoint("BOTTOMRIGHT", SV.Screen, "BOTTOMRIGHT", -44, 78)
 		end 
@@ -866,7 +866,7 @@ function MOD:Load()
 	if not SV.db.SVTip.enable then return end
 
 	local anchor = CreateFrame("Frame", "SVUI_ToolTip", SV.Screen)
-	anchor:Point("BOTTOMRIGHT", RightSuperDock, "TOPRIGHT", 0, 60)
+	anchor:Point("BOTTOMRIGHT", SV.Dock.Right, "TOPRIGHT", 0, 60)
 	anchor:Size(130, 20)
 	anchor:SetFrameLevel(anchor:GetFrameLevel()  +  50)
 	SV.Mentalo:Add(anchor, L["Tooltip"])

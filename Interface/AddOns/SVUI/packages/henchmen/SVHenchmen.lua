@@ -646,7 +646,7 @@ function SV:ToggleHenchman()
 			minion:Show()
 			minion.anim:Play()
 		end 
-		RightSuperDockToggleButton.icon:SetGradient(unpack(SV.Media.gradient.green))
+		MOD.DockButton.Icon:SetGradient(unpack(SV.Media.gradient.green))
 	else 
 		UpdateHenchmanModel(true)
 		for _,frame in pairs(SUBOPTIONS)do
@@ -670,7 +670,7 @@ function SV:ToggleHenchman()
 			minion.anim:Finish()
 			minion:Hide()
 		end 
-		RightSuperDockToggleButton.icon:SetGradient("VERTICAL", 0.5, 0.53, 0.55, 0.8, 0.8, 1)
+		MOD.DockButton.Icon:SetGradient("VERTICAL", 0.5, 0.53, 0.55, 0.8, 0.8, 1)
 	end 
 end 
 
@@ -912,36 +912,40 @@ function MOD:QUEST_COMPLETE()
 	if(not SV.db.SVHenchmen.autoquestcomplete and (not SV.db.SVHenchmen.autoquestreward)) then return end 
 	if(IsShiftKeyDown()) then return false; end
 	local rewards = GetNumQuestChoices()
-	if rewards > 1 then
+	local rewardsFrame = QuestInfoFrame.rewardsFrame;
+	if(rewards > 1) then
 		local auto_select = QuestFrameRewardPanel.itemChoice or QuestInfoFrame.itemChoice;
 		local selection, value = 1, 0;
-		if SV.db.SVHenchmen.autoquestreward == true then
-			for i = 1, rewards do 
-				local iLink = GetQuestItemLink("choice", i)
-				if iLink then 
-					local iValue = select(11,GetItemInfo(iLink))
-					if iValue and iValue > value then 
-						value = iValue;
-						selection = i 
-					end 
+		
+		for i = 1, rewards do 
+			local iLink = GetQuestItemLink("choice", i)
+			if iLink then 
+				local iValue = select(11,GetItemInfo(iLink))
+				if iValue and iValue > value then 
+					value = iValue;
+					selection = i 
 				end 
 			end 
-			local chosenItem = _G[("QuestInfoItem%d"):format(selection)]
-			if chosenItem.type == "choice" then 
-				QuestInfoItemHighlight:ClearAllPoints()
-				QuestInfoItemHighlight:SetAllPoints(chosenItem)
-				QuestInfoItemHighlight:Show()
-				QuestInfoFrame.itemChoice = chosenItem:GetID()
-				SV:HenchmanSays("A Minion Has Chosen Your Reward!")
-			end
 		end
+
+		local chosenItem = QuestInfo_GetRewardButton(rewardsFrame, selection)
+		
+		if chosenItem.type == "choice" then 
+			QuestInfoItemHighlight:ClearAllPoints()
+			QuestInfoItemHighlight:SetAllPoints(chosenItem)
+			QuestInfoItemHighlight:Show()
+			QuestInfoFrame.itemChoice = chosenItem:GetID()
+			SV:HenchmanSays("A Minion Has Chosen Your Reward!")
+		end
+
 		auto_select = selection
-		if SV.db.SVHenchmen.autoquestcomplete == true then
+
+		if SV.db.SVHenchmen.autoquestreward == true then
 			GetQuestReward(auto_select)
 		end
 	else
 		if(SV.db.SVHenchmen.autoquestcomplete == true) then
-			GetQuestReward(GetNumQuestChoices())
+			GetQuestReward(rewards)
 		end
 	end
 end 
@@ -951,9 +955,11 @@ BUILD FUNCTION / UPDATE
 ##########################################################
 ]]--
 function MOD:Load()
+	self.DockButton = SV.Dock.Left.Bar:Create("Call Henchman!", [[Interface\AddOns\SVUI\assets\artwork\Icons\DOCK-HENCHMAN]], SV.ToggleHenchman, "SVUI_Henchmen")
+
 	local bubble = CreateFrame("Frame", "HenchmenSpeechBubble", SV.Screen)
 	bubble:SetSize(256,128)
-	bubble:Point("BOTTOMRIGHT", RightSuperDockToggleButton, "TOPLEFT", 0, 0)
+	bubble:Point("BOTTOMRIGHT", self.DockButton, "TOPLEFT", 0, 0)
 	bubble:SetFrameStrata("DIALOG")
 	bubble:SetFrameLevel(24)
 	bubble.bg = bubble:CreateTexture(nil,"BORDER")

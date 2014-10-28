@@ -19,6 +19,10 @@ GET ADDON DATA
 local SV = select(2, ...)
 
 local playerClass = select(2, UnitClass("player"));
+local rez = GetCVar("gxResolution");
+local gxWidth = tonumber(rez:match("(%d+)x%d+"));
+local bw = gxWidth * 0.5
+local defaultStatBarWidth = min(bw, 800)
 
 local filterClass = playerClass or "NONE"
 
@@ -35,6 +39,10 @@ local function safename(id)
     return n
 end
 
+local NAMEFONT = "SVUI Name Font";
+if(GetLocale() ~= "enUS") then
+	NAMEFONT = "Roboto"
+end
 --[[ SYSTEM DATA ]]--
 
 SV.configs = {}
@@ -83,7 +91,7 @@ SV.configs["totems"] = {
 SV.configs["media"] = {
     ["fonts"] = {
         ["default"] = "SVUI System Font", 
-        ["name"] = "SVUI Name Font", 
+        ["name"] = NAMEFONT, 
         ["number"] = "SVUI Number Font", 
         ["combat"] = "SVUI Combat Font", 
         ["giant"] = "SVUI Action Font", 
@@ -463,7 +471,7 @@ SV.configs["SVChat"] = {
 	["basicTools"] = true,
 };
 
-SV.configs["SVDock"] = {
+SV.configs["Dock"] = {
 	["enable"] = true, 
 	["dockLeftWidth"] = 412, 
 	["dockLeftHeight"] = 224, 
@@ -560,7 +568,7 @@ SV.configs["SVOverride"] = {
 SV.configs["SVPlate"] = {
 	["enable"] = true, 
 	["filter"] = {}, 
-	["font"] = "SVUI Name Font", 
+	["font"] = NAMEFONT, 
 	["fontSize"] = 10, 
 	["fontOutline"] = "OUTLINE", 
 	["comboPoints"] = true, 
@@ -973,7 +981,7 @@ SV.configs["SVUnit"] = {
 			["tags"] = "[name:color][name:18][smartlevel]", 
 			["xOffset"] = -2, 
 			["yOffset"] = 36, 
-			["font"] = "SVUI Name Font", 
+			["font"] = NAMEFONT, 
 			["fontSize"] = 15, 
 			["fontOutline"] = "OUTLINE", 
 		}, 
@@ -2408,305 +2416,8 @@ SV.configs["SVUnit"] = {
 			["camDistanceScale"] = 1, 
 			["style"] = "3D", 
 		}, 
-	}, 
-	["raid10"] = {
-		["enable"] = true,
-		["gridAllowed"] = true,
-		["rangeCheck"] = true, 
-		["threatEnabled"] = true, 
-		["visibility"] = "[@raid6, noexists][@raid11, exists][nogroup] hide;show", 
-		["showBy"] = "RIGHT_DOWN", 
-		["wrapXOffset"] = 8, 
-		["wrapYOffset"] = 8,
-		["groupCount"] = 2,
-		["gRowCol"] = 1,
-		["sortMethod"] = "GROUP", 
-		["sortDir"] = "ASC", 
-		["showPlayer"] = true, 
-		["predict"] = false, 
-		["colorOverride"] = "USE_DEFAULT", 
-		["width"] = 75, 
-		["height"] = 34,
-		["formatting"] = {
-			["power_colored"] = true, 
-			["power_type"] = "none", 
-			["power_class"] = false, 
-			["power_alt"] = false, 
-			["health_colored"] = true, 
-			["health_type"] = "none", 
-			["name_colored"] = true, 
-			["name_length"] = 4, 
-			["smartlevel"] = false, 
-			["absorbs"] = false, 
-			["threat"] = false, 
-			["incoming"] = false, 
-			["yOffset"] = 0, 
-			["xOffset"] = 0, 
-		}, 
-		["misc"] = {
-			["tags"] = ""
-		}, 
-		["health"] = 
-		{ 
-			["tags"] = "", 
-			["position"] = "BOTTOM", 
-			["orientation"] = "HORIZONTAL", 
-			["frequentUpdates"] = false, 
-			["yOffset"] = 0, 
-			["xOffset"] = 0, 
-			["reversed"] = false,
-			["fontSize"] = 10,
-		}, 
-		["power"] = 
-		{
-			["enable"] = true, 
-			["tags"] = "", 
-			["frequentUpdates"] = false, 
-			["height"] = 4, 
-			["position"] = "BOTTOMRIGHT", 
-			["hideonnpc"] = false, 
-			["yOffset"] = 0, 
-			["xOffset"] = 0,
-			["fontSize"] = 10,
-		}, 
-		["name"] = 
-		{
-			["position"] = "INNERTOPLEFT", 
-			["tags"] = "[name:color][name:4]", 
-			["yOffset"] = 0, 
-			["xOffset"] = 8, 
-			["font"] = "SVUI Default Font", 
-			["fontSize"] = 10, 
-			["fontOutline"] = "OUTLINE", 
-		}, 
-		["buffs"] = 
-		{
-			["enable"] = false, 
-			["perrow"] = 3, 
-			["numrows"] = 1, 
-			["attachTo"] = "FRAME", 
-			["anchorPoint"] = "RIGHT", 
-			["verticalGrowth"] = "UP", 
-			["horizontalGrowth"] = "RIGHT", 
-			["filterPlayer"] = true, 
-			["filterRaid"] = true, 
-			["filterBlocked"] = true, 
-			["filterAllowed"] = false, 
-			["filterInfinite"] = true, 
-			["filterDispellable"] = false, 
-			["useFilter"] = "", 
-			["xOffset"] = 8, 
-			["yOffset"] = 0, 
-			["sizeOverride"] = 0, 
-		}, 
-		["debuffs"] = 
-		{
-			["enable"] = false, 
-			["perrow"] = 3, 
-			["numrows"] = 1, 
-			["attachTo"] = "FRAME", 
-			["anchorPoint"] = "RIGHT", 
-			["verticalGrowth"] = "UP", 
-			["horizontalGrowth"] = "RIGHT", 
-			["filterPlayer"] = false, 
-			["filterBlocked"] = true, 
-			["filterAllowed"] = false, 
-			["filterInfinite"] = false, 
-			["filterDispellable"] = false, 
-			["useFilter"] = "", 
-			["xOffset"] = 8, 
-			["yOffset"] = 0, 
-			["sizeOverride"] = 0, 
-		}, 
-		["auraWatch"] = 
-		{
-			["enable"] = true, 
-			["size"] = 8, 
-		}, 
-		["rdebuffs"] = 
-		{
-			["enable"] = true, 
-			["size"] = 26, 
-			["xOffset"] = 0, 
-			["yOffset"] = 2, 
-		}, 
-		["icons"] = 
-		{
-			["raidicon"] = 
-			{
-				["enable"] = true, 
-				["size"] = 15, 
-				["attachTo"] = "INNERBOTTOMRIGHT", 
-				["xOffset"] = -8, 
-				["yOffset"] = 0, 
-			}, 
-			["roleIcon"] = 
-			{
-				["enable"] = true, 
-				["size"] = 12, 
-				["attachTo"] = "INNERBOTTOMLEFT", 
-				["xOffset"] = 8, 
-				["yOffset"] = 0, 
-			}, 
-			["raidRoleIcons"] = 
-			{
-				["enable"] = true, 
-				["size"] = 18, 
-				["attachTo"] = "TOPLEFT", 
-				["xOffset"] = 8, 
-				["yOffset"] = -4, 
-			}, 
-		}, 
-	}, 
-	["raid25"] = {
-		["enable"] = true,
-		["gridAllowed"] = true,
-		["rangeCheck"] = true, 
-		["threatEnabled"] = true, 
-		["visibility"] = "[@raid11, noexists][@raid26, exists][nogroup] hide;show",
-		["showBy"] = "RIGHT_DOWN", 
-		["wrapXOffset"] = 8, 
-		["wrapYOffset"] = 8,
-		["groupCount"] = 5,
-		["gRowCol"] = 1,
-		["sortMethod"] = "GROUP", 
-		["sortDir"] = "ASC", 
-		["showPlayer"] = true, 
-		["predict"] = false, 
-		["colorOverride"] = "USE_DEFAULT", 
-		["width"] = 50, 
-		["height"] = 30,
-		["formatting"] = {
-			["power_colored"] = true, 
-			["power_type"] = "none", 
-			["power_class"] = false, 
-			["power_alt"] = false, 
-			["health_colored"] = true, 
-			["health_type"] = "none", 
-			["name_colored"] = true, 
-			["name_length"] = 4, 
-			["smartlevel"] = false, 
-			["absorbs"] = false, 
-			["threat"] = false, 
-			["incoming"] = false, 
-			["yOffset"] = 0, 
-			["xOffset"] = 0, 
-		}, 
-		["misc"] = {
-			["tags"] = ""
-		}, 
-		["health"] = 
-		{ 
-			["tags"] = "", 
-			["position"] = "BOTTOM", 
-			["orientation"] = "HORIZONTAL", 
-			["frequentUpdates"] = false, 
-			["yOffset"] = 0, 
-			["xOffset"] = 0, 
-			["reversed"] = false,
-			["fontSize"] = 10,
-		}, 
-		["power"] = 
-		{
-			["enable"] = true, 
-			["tags"] = "", 
-			["height"] = 4, 
-			["position"] = "BOTTOMRIGHT", 
-			["hideonnpc"] = false, 
-			["yOffset"] = 0, 
-			["xOffset"] = 0,
-			["fontSize"] = 10,
-		}, 
-		["name"] = 
-		{
-			["position"] = "INNERTOPLEFT", 
-			["tags"] = "[name:color][name:4]", 
-			["yOffset"] = 0, 
-			["xOffset"] = 8, 
-			["font"] = "SVUI Default Font", 
-			["fontSize"] = 10, 
-			["fontOutline"] = "OUTLINE", 
-		}, 
-		["buffs"] = 
-		{
-			["enable"] = false, 
-			["perrow"] = 3, 
-			["numrows"] = 1, 
-			["attachTo"] = "FRAME", 
-			["anchorPoint"] = "RIGHT", 
-			["verticalGrowth"] = "UP", 
-			["horizontalGrowth"] = "RIGHT", 
-			["filterPlayer"] = true, 
-			["filterRaid"] = true, 
-			["filterBlocked"] = true, 
-			["filterAllowed"] = false, 
-			["filterInfinite"] = true, 
-			["filterDispellable"] = false, 
-			["useFilter"] = "", 
-			["xOffset"] = 8, 
-			["yOffset"] = 0, 
-			["sizeOverride"] = 0, 
-		}, 
-		["debuffs"] = 
-		{
-			["enable"] = false, 
-			["perrow"] = 3, 
-			["numrows"] = 1, 
-			["attachTo"] = "FRAME", 
-			["anchorPoint"] = "RIGHT", 
-			["verticalGrowth"] = "UP", 
-			["horizontalGrowth"] = "RIGHT", 
-			["filterPlayer"] = false, 
-			["filterBlocked"] = true, 
-			["filterAllowed"] = false, 
-			["filterInfinite"] = false, 
-			["filterDispellable"] = false, 
-			["useFilter"] = "", 
-			["xOffset"] = 8, 
-			["yOffset"] = 0, 
-			["sizeOverride"] = 0, 
-		}, 
-		["auraWatch"] = 
-		{
-			["enable"] = true, 
-			["size"] = 8, 
-		}, 
-		["rdebuffs"] = 
-		{
-			["enable"] = true, 
-			["size"] = 26, 
-			["xOffset"] = 0, 
-			["yOffset"] = 2, 
-		}, 
-		["icons"] = 
-		{
-			["raidicon"] = 
-			{
-				["enable"] = true, 
-				["size"] = 15, 
-				["attachTo"] = "INNERBOTTOMRIGHT", 
-				["xOffset"] = -8, 
-				["yOffset"] = 0, 
-			}, 
-			["roleIcon"] = 
-			{
-				["enable"] = true, 
-				["size"] = 12, 
-				["attachTo"] = "INNERBOTTOMLEFT", 
-				["xOffset"] = 8, 
-				["yOffset"] = 0, 
-			}, 
-			["raidRoleIcons"] = 
-			{
-				["enable"] = true, 
-				["size"] = 18, 
-				["attachTo"] = "TOPLEFT", 
-				["xOffset"] = 8, 
-				["yOffset"] = -4, 
-			}, 
-		}, 
-	}, 
-	["raid40"] = {
+	},
+	["raid"] = {
 		["enable"] = true,
 		["gridAllowed"] = true,
 		["rangeCheck"] = true, 

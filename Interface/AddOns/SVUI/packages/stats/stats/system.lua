@@ -214,45 +214,67 @@ local function OnLeave(self)
 	MOD.tooltip:Hide()
 end
 
-local Update
-if(SV.DebugMode) then
-	Update = function(self, t)
-		int = int - t
-		if int < 0 then
-			UpdateAddOnMemoryUsage()
-			local svuiRAMout = formatMem(GetAddOnMemoryUsage("SVUI"))
-			self.text:SetFormattedText("RAM: %s%s|r", statusColors[1], svuiRAMout)
-			int = 1
-			if enteredFrame then
-				OnEnter(self)
-			end		
-		end
+local Update = function(self, t)
+	int = int - t
+	int2 = int2 - t
+	
+	if int < 0 then
+		RebuildAddonList()
+		int = 10
 	end
-else
-	Update = function(self, t)
-		int = int - t
-		int2 = int2 - t
-		
-		if int < 0 then
-			RebuildAddonList()
-			int = 10
-		end
-		if int2 < 0 then
-			local framerate = floor(GetFramerate())
-			local latency = select(4, GetNetStats()) 
-						
-			self.text:SetFormattedText("FPS: %s%d|r MS: %s%d|r", 
-				statusColors[framerate >= 30 and 1 or (framerate >= 20 and framerate < 30) and 2 or (framerate >= 10 and framerate < 20) and 3 or 4], 
-				framerate, 
-				statusColors[latency < 150 and 1 or (latency >= 150 and latency < 300) and 2 or (latency >= 300 and latency < 500) and 3 or 4], 
-				latency)
-			int2 = 1
-			if enteredFrame then
-				OnEnter(self)
-			end		
-		end
+	if int2 < 0 then
+		local framerate = floor(GetFramerate())
+		local latency = select(4, GetNetStats()) 
+					
+		self.text:SetFormattedText("FPS: %s%d|r MS: %s%d|r", 
+			statusColors[framerate >= 30 and 1 or (framerate >= 20 and framerate < 30) and 2 or (framerate >= 10 and framerate < 20) and 3 or 4], 
+			framerate, 
+			statusColors[latency < 150 and 1 or (latency >= 150 and latency < 300) and 2 or (latency >= 300 and latency < 500) and 3 or 4], 
+			latency)
+		int2 = 1
+		if enteredFrame then
+			OnEnter(self)
+		end		
 	end
 end
+-- if(SV.DebugMode) then
+-- 	Update = function(self, t)
+-- 		int = int - t
+-- 		if int < 0 then
+-- 			UpdateAddOnMemoryUsage()
+-- 			local svuiRAMout = formatMem(GetAddOnMemoryUsage("SVUI"))
+-- 			self.text:SetFormattedText("RAM: %s%s|r", statusColors[1], svuiRAMout)
+-- 			int = 1
+-- 			if enteredFrame then
+-- 				OnEnter(self)
+-- 			end		
+-- 		end
+-- 	end
+-- else
+-- 	Update = function(self, t)
+-- 		int = int - t
+-- 		int2 = int2 - t
+		
+-- 		if int < 0 then
+-- 			RebuildAddonList()
+-- 			int = 10
+-- 		end
+-- 		if int2 < 0 then
+-- 			local framerate = floor(GetFramerate())
+-- 			local latency = select(4, GetNetStats()) 
+						
+-- 			self.text:SetFormattedText("FPS: %s%d|r MS: %s%d|r", 
+-- 				statusColors[framerate >= 30 and 1 or (framerate >= 20 and framerate < 30) and 2 or (framerate >= 10 and framerate < 20) and 3 or 4], 
+-- 				framerate, 
+-- 				statusColors[latency < 150 and 1 or (latency >= 150 and latency < 300) and 2 or (latency >= 300 and latency < 500) and 3 or 4], 
+-- 				latency)
+-- 			int2 = 1
+-- 			if enteredFrame then
+-- 				OnEnter(self)
+-- 			end		
+-- 		end
+-- 	end
+-- end
 
 MOD:Extend('System', nil, nil, Update, Click, OnEnter, OnLeave)
 

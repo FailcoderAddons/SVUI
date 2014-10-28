@@ -42,7 +42,7 @@ local Schema = PLUGIN.Schema;
 local LSM = LibStub("LibSharedMedia-3.0")
 local NewHook = hooksecurefunc;
 
-local ScaledOffset = SV.Scale(1)
+local ScaledOffset = SV:Scale(1)
 --[[ 
 ########################################################## 
  /$$$$$$$$/$$$$$$$   /$$$$$$  /$$      /$$ /$$$$$$$$
@@ -624,9 +624,11 @@ end
 function PLUGIN:ApplyAlertStyle(frame)
 	if(not frame or (frame and frame.StyleHooked)) then return end 
 
+	local lvl = frame:GetFrameLevel()
+	if lvl < 1 then lvl = 1 end
     local alertpanel = CreateFrame("Frame", nil, frame)
     alertpanel:SetAllPoints(frame)
-    alertpanel:SetFrameLevel(frame:GetFrameLevel() - 1)
+    alertpanel:SetFrameLevel(lvl - 1)
     alertpanel:SetBackdrop({
         bgFile = [[Interface\AddOns\SVUI\assets\artwork\Template\Alert\ALERT-BG]]
     })

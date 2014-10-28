@@ -541,19 +541,7 @@ local function LoadPresetData()
 						position = "INNERTOPLEFT"
 					},
 				},
-				["raid10"] = {
-					width = 50,
-					height = 30,
-					wrapXOffset = 6,
-					wrapYOffset = 6,
-				},
-				["raid25"] = {
-					width = 50,
-					height = 30,
-					wrapXOffset = 6,
-					wrapYOffset = 6,
-				},
-				["raid40"] = {
+				["raid"] = {
 					width = 50,
 					height = 30,
 					wrapXOffset = 6,
@@ -626,19 +614,7 @@ local function LoadPresetData()
 						position = "INNERTOPLEFT"
 					},
 				},
-				["raid10"] = {
-					width = 50,
-					height = 30,
-					wrapXOffset = 6,
-					wrapYOffset = 6,
-				},
-				["raid25"] = {
-					width = 50,
-					height = 30,
-					wrapXOffset = 6,
-					wrapYOffset = 6,
-				},
-				["raid40"] = {
+				["raid"] = {
 					width = 50,
 					height = 30,
 					wrapXOffset = 6,
@@ -717,19 +693,7 @@ local function LoadPresetData()
 						position = "INNERRIGHT"
 					},
 				},
-				["raid10"] = {
-					width = 50,
-					height = 30,
-					wrapXOffset = 6,
-					wrapYOffset = 6,
-				},
-				["raid25"] = {
-					width = 50,
-					height = 30,
-					wrapXOffset = 6,
-					wrapYOffset = 6,
-				},
-				["raid40"] = {
+				["raid"] = {
 					width = 50,
 					height = 30,
 					wrapXOffset = 6,
@@ -790,19 +754,7 @@ local function LoadPresetData()
 						position = "INNERTOPLEFT"
 					},
 				},
-				["raid10"] = {
-					width = 50,
-					height = 30,
-					wrapXOffset = 6,
-					wrapYOffset = 6,
-				},
-				["raid25"] = {
-					width = 50,
-					height = 30,
-					wrapXOffset = 6,
-					wrapYOffset = 6,
-				},
-				["raid40"] = {
+				["raid"] = {
 					width = 50,
 					height = 30,
 					wrapXOffset = 6,
@@ -841,55 +793,7 @@ local function LoadPresetData()
 						["yOffset"] = 0,
 					},
 				},
-				["raid10"] = {
-					width = 50,
-					height = 30,
-					gRowCol = 1,
-					wrapXOffset = 9,
-					wrapYOffset = 13,
-					showBy = "RIGHT_DOWN", 
-					["power"] = {
-						["enable"] = false,
-					},
-					["icons"] = {
-						["roleIcon"] = {
-							["attachTo"] = "INNERBOTTOMLEFT", 
-							["xOffset"] = 8, 
-							["yOffset"] = 1, 
-						},
-					},
-					["name"] = {
-						["font"] = "SVUI Default Font",
-						["position"] = "INNERTOPLEFT",
-						["xOffset"] = 8,
-						["yOffset"] = 0,
-					},
-				},
-				["raid25"] = {
-					width = 50,
-					height = 30,
-					gRowCol = 1,
-					wrapXOffset = 9,
-					wrapYOffset = 13,
-					showBy = "RIGHT_DOWN",
-					["power"] = {
-						["enable"] = false,
-					},
-					["icons"] = {
-						["roleIcon"] = {
-							["attachTo"] = "INNERBOTTOMLEFT", 
-							["xOffset"] = 8, 
-							["yOffset"] = 1, 
-						},
-					},
-					["name"] = {
-						["font"] = "SVUI Default Font",
-						["position"] = "INNERTOPLEFT",
-						["xOffset"] = 8,
-						["yOffset"] = 0,
-					},
-				},
-				["raid40"] = {
+				["raid"] = {
 					width = 50,
 					height = 30,
 					gRowCol = 1,
@@ -943,55 +847,7 @@ local function LoadPresetData()
 						["yOffset"] = 0,
 					},
 				},
-				["raid10"] = {
-					width = 50,
-					height = 30,
-					["showBy"] = "DOWN_RIGHT",
-					["gRowCol"] = 1,
-					["wrapXOffset"] = 4,
-					["wrapYOffset"] = 4,
-					["power"] = {
-						["enable"] = true,
-					},
-					["icons"] = {
-						["roleIcon"] = {
-							["attachTo"] = "INNERBOTTOMLEFT", 
-							["xOffset"] = 8, 
-							["yOffset"] = 0, 
-						},
-					},
-					["name"] = {
-						["font"] = "SVUI Default Font",
-						["position"] = "INNERTOPLEFT",
-						["xOffset"] = 8,
-						["yOffset"] = 0,
-					},
-				},
-				["raid25"] = {
-					width = 50,
-					height = 30,
-					["showBy"] = "DOWN_RIGHT",
-					["gRowCol"] = 1,
-					["wrapXOffset"] = 4,
-					["wrapYOffset"] = 4,
-					["power"] = {
-						["enable"] = true,
-					},
-					["icons"] = {
-						["roleIcon"] = {
-							["attachTo"] = "INNERBOTTOMLEFT", 
-							["xOffset"] = 8, 
-							["yOffset"] = 0, 
-						},
-					},
-					["name"] = {
-						["font"] = "SVUI Default Font",
-						["position"] = "INNERTOPLEFT",
-						["xOffset"] = 8,
-						["yOffset"] = 0,
-					},
-				},
-				["raid40"] = {
+				["raid"] = {
 					width = 50,
 					height = 30,
 					["showBy"] = "DOWN_RIGHT",
@@ -1049,55 +905,7 @@ local function LoadPresetData()
 						["yOffset"] = 1,
 					},
 				},
-				["raid10"] = {
-					["showBy"] = "UP_RIGHT",
-					["gRowCol"] = 2,
-					["wrapXOffset"] = 4,
-					["wrapYOffset"] = 4,
-					["power"] = {
-						["enable"] = false,
-					},
-					["icons"] = {
-						["roleIcon"] = {
-							["attachTo"] = "INNERLEFT",
-							["xOffset"] = 10,
-							["yOffset"] = 1,
-						},
-					},
-					["name"] = {
-						["font"] = "Roboto",
-						["position"] = "CENTER",
-						["xOffset"] = 0,
-						["yOffset"] = 1,
-					},
-					["width"] = 80,
-					["height"] = 20,
-				},
-				["raid25"] = {
-					["showBy"] = "UP_RIGHT",
-					["gRowCol"] = 3,
-					["wrapXOffset"] = 4,
-					["wrapYOffset"] = 4,
-					["power"] = {
-						["enable"] = false,
-					},
-					["icons"] = {
-						["roleIcon"] = {
-							["attachTo"] = "INNERLEFT",
-							["xOffset"] = 10,
-							["yOffset"] = 1,
-						},
-					},
-					["name"] = {
-						["font"] = "Roboto",
-						["position"] = "CENTER",
-						["xOffset"] = 0,
-						["yOffset"] = 1,
-					},
-					["width"] = 80,
-					["height"] = 20,
-				},
-				["raid40"] = {
+				["raid"] = {
 					["showBy"] = "UP_RIGHT",
 					["gRowCol"] = 4,
 					["wrapXOffset"] = 4,
@@ -1139,21 +947,7 @@ local function LoadPresetData()
 						enable = false,
 					},
 				},
-				["raid10"] = {
-					["gridAllowed"] = true,
-					["wrapXOffset"] = 1,
-					["wrapYOffset"] = 1,
-					["gRowCol"] = 1,
-					["showBy"] = "RIGHT_DOWN",
-				},
-				["raid25"] = {
-					["gridAllowed"] = true,
-					["wrapXOffset"] = 1,
-					["wrapYOffset"] = 1,
-					["gRowCol"] = 1,
-					["showBy"] = "RIGHT_DOWN",
-				},
-				["raid40"] = {
+				["raid"] = {
 					["gridAllowed"] = true,
 					["wrapXOffset"] = 1,
 					["wrapYOffset"] = 1,

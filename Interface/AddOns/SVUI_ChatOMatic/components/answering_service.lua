@@ -772,11 +772,11 @@ function PLUGIN:GetServiceState()
 	if inUse then
 		if onHold then
 			self.Docklet:SetPanelColor("yellow")
-			self.Docklet.icon:SetGradient(unpack(YELLOW_GRADIENT))
+			self.Docklet.Icon:SetGradient(unpack(YELLOW_GRADIENT))
 			self.Docklet.stateColor = YELLOW_GRADIENT
 		else
 			self.Docklet:SetPanelColor("green")
-			self.Docklet.icon:SetGradient(unpack(GREEN_GRADIENT))
+			self.Docklet.Icon:SetGradient(unpack(GREEN_GRADIENT))
 			self.Docklet.stateColor = GREEN_GRADIENT
 		end
 	else
@@ -791,11 +791,11 @@ function PLUGIN:HangUp(caller,ignored)
 	local inUse,onHold = self:GetServiceState()
 
 	if inUse == false then
-		self.Window:Hide()
+		self.Docklet:Hide()
 	elseif onHold == true then
-		self.Window:Show()
+		self.Docklet:Show()
 	else
-		self.Window:Show()
+		self.Docklet:Show()
 	end
 
 	if(ignored) then
@@ -867,11 +867,11 @@ OTHER HANDLERS
 ##########################################################
 ]]--
 local AnsweringOnClick = function()
-	if(not PLUGIN.Window) then return end
-	if(PLUGIN.Window:IsShown()) then
-		PLUGIN.Window:Hide()
+	if(not PLUGIN.Docklet) then return end
+	if(PLUGIN.Docklet:IsShown()) then
+		PLUGIN.Docklet:Hide()
 	else
-		PLUGIN.Window:Show()
+		PLUGIN.Docklet:Show()
 	end
 end
 
@@ -903,70 +903,44 @@ function PLUGIN:EnableAnsweringService()
 	self:RegisterEvent("CHAT_MSG_IGNORED")
 	self:RegisterUpdate("PhoneTimeUpdate", 4)
 
-	local buttonsize = LeftSuperDockToolBar.currentSize
+	self.Docklet = SV.Dock:NewDocklet("Left", "SVUI_ChatOMaticDock", "Answering Service", ICON_FILE, AnsweringOnClick)
 
-	local docklet = CreateFrame("Button", nil, UIParent)
-	docklet:SetParent(LeftSuperDockToolBar)
-	docklet:Point("LEFT", LeftSuperDockToolBar, "LEFT", 3, 0)
-	docklet:Size(buttonsize, buttonsize)
-	docklet:SetFramedButtonTemplate()
-	docklet.icon = docklet:CreateTexture(nil, "OVERLAY")
-	docklet.icon:FillInner(docklet,2,2)
-	docklet.icon:SetTexture(ICON_FILE)
-	docklet.stateColor = {"VERTICAL", 0.33, 0.25, 0.13, 0.47, 0.39, 0.27}
-	docklet.TText = L["Show / Hide Phone Lines"]
-	docklet:RegisterForClicks("AnyUp")
-
-	--SV.SVDock:ActivateDockletButton(docklet, AnsweringOnClick)
-
-	LeftSuperDockToolBar:SetWidth(buttonsize + 4)
-
-	self.Docklet = docklet
-
-	local window = CreateFrame("Frame", nil, UIParent)
-	window:SetFrameStrata("MEDIUM")
-	window:SetWidth(128)  
-	window:SetHeight(145) 
-	window:SetScript("OnDragStart", function(this) this:StartMoving() end)
-	window:SetScript("OnDragStop", function(this) this:StopMovingOrSizing() end)
-	window:SetPoint("BOTTOMRIGHT", LeftSuperDock, "TOPRIGHT", 0, 6)
-	window:SetFixedPanelTemplate("Transparent")
-	window:SetMovable(true)
-	window:EnableMouse(true)
-	window:SetClampedToScreen(true)
-	window:RegisterForDrag("LeftButton")
+	local window = CreateFrame("Frame", nil, self.Docklet)
+	window:SetPoint("TOPLEFT", self.Docklet, "TOPLEFT", -4, 4)
+	window:SetPoint("BOTTOMRIGHT", self.Docklet, "BOTTOMRIGHT", 4, -4)
+	window:SetFrameStrata("HIGH")
+	window:SetPanelTemplate()
 
 	local title = window:CreateFontString("HenchmenOperatorText") 
-	title:SetWidth(128)  
+	title:SetPoint("TOPLEFT", window, "TOPLEFT", 0, -2)
+	title:SetPoint("TOPRIGHT", window, "TOPRIGHT", 0, -2)  
 	title:SetHeight(50) 
 	title:SetFontObject(GameFontNormal)
 	title:SetTextColor(0.5, 0.5, 1, 1)
 	title:SetJustifyH("CENTER")
 	title:SetJustifyV("TOP")
-	title:SetPoint("TOP", window, "TOP", 0, -2)
 	title:SetText("Henchman Answering Service")
 
 	for x = 1, 5 do
 		local phLn = CreateFrame("Button", "HenchmenPhoneLine"..x, window)
-		phLn:SetWidth(124)  
+		phLn:SetPoint("TOPLEFT", window, "TOPLEFT", 8, ((-20) - (x * 25)))
+		phLn:SetPoint("TOPRIGHT", window, "TOPRIGHT", -8, ((-20) - (x * 25))) 
 		phLn:SetHeight(20) 
-		phLn:SetPoint("TOPLEFT", window, "TOPLEFT", 2, ((-16) - (x * 21)))
 		phLn:RegisterForClicks("AnyUp")
 		phLn:SetScript("OnClick", PhoneLineClick)
 		phLn:SetFixedPanelTemplate("Button")
 		phLn.Text = phLn:CreateFontString() 
-		phLn.Text:SetWidth(124)  
+		phLn.Text:SetPoint("TOPLEFT", phLn, "TOPLEFT", 0, 0)
+		phLn.Text:SetPoint("TOPRIGHT", phLn, "TOPRIGHT", 0, 0)   
 		phLn.Text:SetHeight(20) 
 		phLn.Text:SetFontObject(GameFontNormalSmall)
 		phLn.Text:SetTextColor(1, 1, 1, 1)
 		phLn.Text:SetJustifyH("CENTER")
 		phLn.Text:SetJustifyV("MIDDLE")
-		phLn.Text:SetPoint("TOP", "HenchmenPhoneLine"..x, "TOP")
 		phLn.Text:SetText("Empty Phone Line")
 	end
 	
-	self.Window = window
-	self.Window:Hide()
+	self.Docklet:Hide()
 
 	local strMsg
 	if self.db.autoAnswer == true then

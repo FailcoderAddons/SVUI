@@ -363,7 +363,7 @@ CORE FUNCTIONS
 ]]--
 function PLUGIN.Archaeology:Enable()
 	PLUGIN.Archaeology:Update()
-	if(not PLUGIN.Docklet:IsShown()) then PLUGIN.Docklet.ToolbarButton:Click() end
+	if(not PLUGIN.Docklet:IsShown()) then PLUGIN.Docklet.DockButton:Click() end
 
 	PlaySoundFile("Sound\\Item\\UseSounds\\UseCrinklingPaper.wav")
 	PLUGIN.ModeAlert:SetBackdropColor(0.25, 0.52, 0.1)
@@ -458,7 +458,7 @@ function PLUGIN:LoadArchaeologyMode()
 		end
 		bar:SetStatusBarColor(0.2, 0.2, 0.8, 0.5)
 		
-		local sOffset = SV.Scale(1)
+		local sOffset = SV:Scale(1)
 		-- Race Text
 		local race = bar:CreateFontString()
 		race:SetFontObject(NumberFont_Outline_Large)

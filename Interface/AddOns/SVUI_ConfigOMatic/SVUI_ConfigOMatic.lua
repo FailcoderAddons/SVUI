@@ -94,17 +94,9 @@ local function CommonFontSizeUpdate()
     SV.db.SVUnit.arena.power.fontSize = largefont;
     SV.db.SVUnit.arena.name.fontSize = largefont;
 
-    SV.db.SVUnit.raid10.health.fontSize = largefont;
-    SV.db.SVUnit.raid10.power.fontSize = largefont;
-    SV.db.SVUnit.raid10.name.fontSize = largefont;
-
-    SV.db.SVUnit.raid25.health.fontSize = largefont;
-    SV.db.SVUnit.raid25.power.fontSize = largefont;
-    SV.db.SVUnit.raid25.name.fontSize = largefont;
-
-    SV.db.SVUnit.raid40.health.fontSize = largefont;
-    SV.db.SVUnit.raid40.power.fontSize = largefont;
-    SV.db.SVUnit.raid40.name.fontSize = largefont;
+    SV.db.SVUnit.raid.health.fontSize = largefont;
+    SV.db.SVUnit.raid.power.fontSize = largefont;
+    SV.db.SVUnit.raid.name.fontSize = largefont;
 
     SV.db.SVUnit.tank.health.fontSize = largefont;
     SV.db.SVUnit.assist.health.fontSize = largefont;

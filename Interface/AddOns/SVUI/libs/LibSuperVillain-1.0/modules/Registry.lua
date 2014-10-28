@@ -152,7 +152,7 @@ function table.dump(targetTable)
     return "{ "..output.." }";
 end
 
-function math.parsefloat(value,decimal)
+function math.parsefloat(value, decimal)
     if(decimal and decimal > 0) then 
         local calc1 = 10 ^ decimal;
         local calc2 = (value * calc1) + 0.5;
@@ -561,10 +561,10 @@ local registerEvent = function(self, eventname, eventfunc)
         self.___eventframe.___owner = self
         self.___eventframe:SetScript("OnEvent", innerOnEvent)
     end
-
+    
     if(not self.___eventframe[eventname]) then
         local fn = eventfunc
-        if type(eventfunc) == "string" then
+        if(type(eventfunc) == "string") then
             fn = self[eventfunc]
         elseif(not fn and self[eventname]) then
             fn = self[eventname]
@@ -589,7 +589,8 @@ local innerOnUpdate = function(self, elapsed)
         for name, fn in pairs(callbacks) do
             local _, catch = pcall(fn, obj)
             if(catch and CoreObject.Debugging) then
-                print(catch)
+                local schema = obj.Schema
+                HandleErrors(schema, "OnUpdate", catch)
             end
         end
 
@@ -669,8 +670,8 @@ function lib:RefreshAll()
     end
 end
 
-function lib:LiveUpdate()
-    if(PROFILE_SV.SAFEDATA.NEEDSLIVEUPDATE and not C_PetBattles.IsInBattle()) then
+function lib:LiveUpdate(override)
+    if((PROFILE_SV.SAFEDATA.NEEDSLIVEUPDATE or override) and not C_PetBattles.IsInBattle()) then
         self:RefreshAll()
         PROFILE_SV.SAFEDATA.NEEDSLIVEUPDATE = false
     end
@@ -722,6 +723,10 @@ end
 function lib:LoadQueuedPlugins()
     if PLUGINS then
         for schema,files in pairs(PLUGINS) do
+            if(not PROFILE_SV.SAFEDATA[schema]) then
+                PROFILE_SV.SAFEDATA[schema] = {["enable"] = true}
+            end
+
             local obj = _G[schema]
             local enabled = PROFILE_SV.SAFEDATA[schema].enable
             if(obj and enabled and (not obj.initialized)) then
@@ -734,13 +739,15 @@ function lib:LoadQueuedPlugins()
                     obj.db = db
                 end
 
-                if(files.CACHE and _G[files.CACHE]) then
+                if(files.CACHE) then
+                    if not _G[files.CACHE] then _G[files.CACHE] = {} end
                     local cache = setmetatable({}, meta_database)
                     cache.data = _G[files.CACHE]
                     obj.cache = cache
                 end
 
-                if(files.GLOBAL and _G[files.GLOBAL]) then
+                if(files.GLOBAL) then
+                    if not _G[files.GLOBAL] then _G[files.GLOBAL] = {} end
                     local public = setmetatable({}, meta_database)
                     public.data = _G[files.GLOBAL]
                     obj.public = public
@@ -767,14 +774,13 @@ function lib:NewPlugin(addonName, addonObject, pfile, gfile, cfile)
     local header    = GetAddOnMetadata(addonName, HeaderFromMeta)
     local schema    = GetAddOnMetadata(addonName, SchemaFromMeta)
     local lod       = IsAddOnLoadOnDemand(addonName)
-
-    PROFILE_SV.SAFEDATA[schema] = PROFILE_SV.SAFEDATA[schema] or {["enable"] = true}
-
     local addonmeta = {}
-    local oldmeta = getmetatable(addonObject)
+    local oldmeta   = getmetatable(addonObject)
+
     if oldmeta then
         for k, v in pairs(oldmeta) do addonmeta[k] = v end
     end
+
     addonmeta.__tostring = rootstring
     setmetatable( addonObject, addonmeta )
 
@@ -793,6 +799,7 @@ function lib:NewPlugin(addonName, addonObject, pfile, gfile, cfile)
 
     addonObject.public              = addonObject.public or {}
     addonObject.configs             = addonObject.configs or {}
+    addonObject.cache               = addonObject.cache or {}
     addonObject.db                  = tablesplice(addonObject.configs, {})
 
     if(IsAddOnLoaded(addonName) and not lod) then
@@ -836,7 +843,6 @@ end
 
 local function NewLoadOnDemand(addonName, schema, header)
     LoadOnDemand[schema] = addonName;
-    PROFILE_SV.SAFEDATA[schema] = PROFILE_SV.SAFEDATA[schema] or {["enable"] = false}
     CoreObject.Options.args.plugins.args.pluginOptions.args[schema] = {
         type = "group", 
         name = header, 
@@ -857,7 +863,7 @@ local function NewLoadOnDemand(addonName, schema, header)
                     if(not IsAddOnLoaded(addonName)) then
                         local loaded, reason = LoadAddOn(addonName)
                         PROFILE_SV.SAFEDATA[schema].enable = true
-                        lib:LoadQueuedPlugins()
+                        CoreObject:StaticPopup_Show("RL_CLIENT")
                     else
                         PROFILE_SV.SAFEDATA[schema].enable = false
                         CoreObject:StaticPopup_Show("RL_CLIENT")
@@ -883,8 +889,8 @@ local Library_OnEvent = function(self, event, arg, ...)
         end
     elseif(event == "ADDON_LOADED") then
         if(arg == CoreName) then
-            if(not CoreObject.___loaded and CoreObject.Load) then
-                CoreObject:Load()
+            if(not CoreObject.___loaded and CoreObject.PreLoad) then
+                CoreObject:PreLoad()
                 CoreObject.___loaded = true
                 self:UnregisterEvent("ADDON_LOADED")
             end
@@ -912,6 +918,39 @@ local Core_NewScript = function(self, fn)
     if(fn and type(fn) == "function") then
         ScriptQueue[#ScriptQueue+1] = fn
     end 
+end
+
+local Core_NewSubClass = function(self, schema, header)
+    if(self[schema]) then return end
+
+    AllowedIndexes[schema] = schema
+
+    local addonName = ("SVUI [%s]"):format(schema)
+
+    local obj = {
+        NameID              = addonName,
+        TitleID             = header,
+        Schema              = schema,
+        initialized         = false,
+        CombatLocked        = false,
+        ChangeDBVar         = changeDBVar,
+        RegisterEvent       = registerEvent,
+        UnregisterEvent     = unregisterEvent,
+        RegisterUpdate      = registerUpdate,
+        UnregisterUpdate    = unregisterUpdate
+    }
+
+    local addonmeta = {}
+    local oldmeta = getmetatable(obj)
+    if oldmeta then
+        for k, v in pairs(oldmeta) do addonmeta[k] = v end
+    end
+    addonmeta.__tostring = rootstring
+    setmetatable( obj, addonmeta )
+
+    self[schema] = obj
+    
+    return self[schema]
 end
 
 local Core_NewPackage = function(self, schema, header)
@@ -1017,6 +1056,7 @@ function lib:NewCore(gfile, efile, pfile, cfile)
     CoreObject.NewCallback          = Core_NewCallback
     CoreObject.NewScript            = Core_NewScript
     CoreObject.NewPackage           = Core_NewPackage
+    CoreObject.NewSubClass          = Core_NewSubClass
     CoreObject.ResetData            = Core_ResetData
     CoreObject.db                   = tablesplice(CoreObject.configs, {})
 
@@ -1086,9 +1126,10 @@ function lib:Initialize()
 
     --PROFILE SAVED VARIABLES
     if not _G[PROFILE_FILENAME] then _G[PROFILE_FILENAME] = {} end
-    PROFILE_SV = _G[PROFILE_FILENAME]
-    PROFILE_SV.SAFEDATA = PROFILE_SV.SAFEDATA or {dualSpecEnabled = false}
 
+    PROFILE_SV = _G[PROFILE_FILENAME]
+
+    if not PROFILE_SV.SAFEDATA then PROFILE_SV.SAFEDATA = {dualSpecEnabled = false} end
     if not PROFILE_SV.SAFEDATA.NEEDSLIVEUPDATE then PROFILE_SV.SAFEDATA.NEEDSLIVEUPDATE = false end
 
     if(PROFILE_SV.SAFEDATA and PROFILE_SV.SAFEDATA.dualSpecEnabled) then 
@@ -1176,12 +1217,20 @@ function lib:Initialize()
             NewLoadOnDemand(addonName, schema, header)
         end
     end
+
+    CoreObject.initialized = true
 end
 
 function lib:Launch()
     if LoadOnDemand then
         for schema,name in pairs(LoadOnDemand) do
+
+            if(not PROFILE_SV.SAFEDATA[schema]) then
+                PROFILE_SV.SAFEDATA[schema] = {["enable"] = false}
+            end
+
             local db = PROFILE_SV.SAFEDATA[schema]
+
             if(db and (db.enable or db.enable ~= false)) then
                 if(not IsAddOnLoaded(name)) then
                     local loaded, reason = LoadAddOn(name)

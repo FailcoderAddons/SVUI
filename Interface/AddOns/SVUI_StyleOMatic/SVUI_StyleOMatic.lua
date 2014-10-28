@@ -54,7 +54,6 @@ local NewHook = hooksecurefunc;
 CORE DATA
 ##########################################################
 ]]--
-PLUGIN.DockedParent = {}
 PLUGIN.AddOnQueue = {};
 PLUGIN.AddOnEvents = {};
 PLUGIN.CustomQueue = {};
@@ -261,100 +260,199 @@ end
 OPTIONS CREATION
 ##########################################################
 ]]--
-local RegisterAddonDocklets = function()
-	local MAIN = _G["SVUI_AddonDock1"];
-	local EXTRA = _G["SVUI_AddonDock2"];
-	local main = SV.db.SVDock.docklets.DockletMain;
-  	local alternate = SV.db.SVDock.docklets.enableExtra and SV.db.SVDock.docklets.DockletExtra or "";
-  	local tipLeft, tipRight = "", "";
-  	if main == nil or main == "None" then return end 
+function PLUGIN:ValidateDocklet(addon)
+	local dock1 = self.cache.Docks[1] or "";
+	local dock2 = SV.db.Dock.docklets.enableExtra and self.cache.Docks[2] or "";
   	
-	if find(main, "Skada") or find(alternate, "Skada") then
-		if SV.SVDock:IsDockletReady("Skada") then
-			PLUGIN:Docklet_Skada()
-			if find(alternate, "Skada") and EXTRA.FrameName  ~= "SkadaHolder2" then
-				tipRight = "and Skada";
-				SV.SVDock:RegisterExtraDocklet("SkadaHolder2")
-				PLUGIN.DockedParent["Skada"] = EXTRA
-			end
-			if find(main, "Skada") and MAIN.FrameName  ~= "SkadaHolder" then
-				tipLeft = "Skada";
-				SV.SVDock:RegisterMainDocklet("SkadaHolder")
-				PLUGIN.DockedParent["Skada"] = MAIN
-			end
+	if(find(dock1, addon) or find(dock2, addon)) then
+		return true 
+	end
+
+	return false
+end
+
+function PLUGIN:RegisterAddonDocklets()
+	local dock1 = self.cache.Docks[1] or "";
+	local dock2 = SV.db.Dock.docklets.enableExtra and self.cache.Docks[2] or "";
+  	local tipLeft, tipRight = "", "";
+  	
+	if((find(dock1, "Skada") or find(dock2, "Skada")) and SV.Dock:IsDockletReady("Skada")) then
+		self:Docklet_Skada()
+		if(find(dock2, "Skada")) then
+			tipRight = "and Skada";
+		elseif(find(dock1, "Skada")) then
+			tipLeft = "Skada";
 		end 
-	end 
-	if main == "Omen" or alternate == "Omen" then
-		if SV.SVDock:IsDockletReady("Omen") then
-			if alternate == "Omen" and EXTRA.FrameName ~= "OmenAnchor" then
-				tipRight = "and Omen";
-				SV.SVDock:RegisterExtraDocklet("OmenAnchor")
-				PLUGIN:Docklet_Omen(EXTRA)
-				PLUGIN.DockedParent["Omen"] = EXTRA
-			elseif MAIN.FrameName ~= "OmenAnchor" then
-				tipLeft = "Omen";
-				SV.SVDock:RegisterMainDocklet("OmenAnchor")
-				PLUGIN:Docklet_Omen(MAIN)
-				PLUGIN.DockedParent["Omen"] = MAIN
-			end
+	end
+
+	if((dock1 == "Omen" or dock2 == "Omen") and SV.Dock:IsDockletReady("Omen")) then
+		if(dock2 == "Omen") then
+			self:Docklet_Omen(self.Docklet.Dock1)
+			tipRight = "and Omen";
+		elseif(dock1 == "Omen") then
+			self:Docklet_Omen(self.Docklet.Dock2)
+			tipLeft = "Omen";
+		end
+	end
+
+	if((dock1 == "Recount" or dock2 == "Recount") and SV.Dock:IsDockletReady("Recount")) then
+		if(dock2 == "Recount") then
+			self:Docklet_Recount(self.Docklet.Dock1)
+			tipRight = "and Recount";
+		elseif(dock1 == "Recount") then
+			self:Docklet_Recount(self.Docklet.Dock2)
+			tipLeft = "Recount";
+		end
+	end
+
+	if((dock1 == "TinyDPS" or dock2 == "TinyDPS") and SV.Dock:IsDockletReady("TinyDPS")) then
+		if(dock2 == "TinyDPS") then
+			self:Docklet_TinyDPS(self.Docklet.Dock1)
+			tipRight = "and TinyDPS";
+		elseif(dock1 == "TinyDPS") then
+			self:Docklet_TinyDPS(self.Docklet.Dock2)
+			tipLeft = "TinyDPS";
 		end 
-	end 
-	if main == "Recount" or alternate == "Recount" then
-		if SV.SVDock:IsDockletReady("Recount") then
-			if alternate == "Recount" and EXTRA.FrameName ~= "Recount_MainWindow" then
-				tipRight = "and Recount";
-				SV.SVDock:RegisterExtraDocklet("Recount_MainWindow")
-				PLUGIN:Docklet_Recount(EXTRA)
-				PLUGIN.DockedParent["Recount"] = EXTRA
-			elseif MAIN.FrameName ~= "Recount_MainWindow" then
-				tipLeft = "Recount";
-				SV.SVDock:RegisterMainDocklet("Recount_MainWindow")
-				PLUGIN:Docklet_Recount(MAIN)
-				PLUGIN.DockedParent["Recount"] = MAIN
-			end
-		end 
-	end 
-	if main == "TinyDPS" or alternate == "TinyDPS" then
-		if SV.SVDock:IsDockletReady("TinyDPS") then
-			if alternate == "TinyDPS" and EXTRA.FrameName ~= "tdpsFrame" then
-				tipRight = "and TinyDPS";
-				SV.SVDock:RegisterExtraDocklet("tdpsFrame")
-				PLUGIN:Docklet_TinyDPS(EXTRA)
-				PLUGIN.DockedParent["TinyDPS"] = EXTRA
-			elseif MAIN.FrameName ~= "tdpsFrame" then
-				tipLeft = "TinyDPS";
-				SV.SVDock:RegisterMainDocklet("tdpsFrame")
-				PLUGIN:Docklet_TinyDPS(MAIN)
-				PLUGIN.DockedParent["TinyDPS"] = MAIN
-			end
-		end 
-	end 
-	if main == "alDamageMeter" or alternate == "alDamageMeter" then
-		if SV.SVDock:IsDockletReady("alDamageMeter") then
-			if alternate == "alDamageMeter" and EXTRA.FrameName ~= "alDamagerMeterFrame" then
-				tipRight = "and alDamageMeter";
-				SV.SVDock:RegisterExtraDocklet("alDamagerMeterFrame")
-				PLUGIN:Docklet_alDamageMeter(EXTRA)
-				PLUGIN.DockedParent["alDamageMeter"] = EXTRA
-			elseif MAIN.FrameName ~= "alDamagerMeterFrame" then
-				tipLeft = "alDamageMeter";
-				SV.SVDock:RegisterMainDocklet("alDamagerMeterFrame")
-				PLUGIN:Docklet_alDamageMeter(MAIN)
-				PLUGIN.DockedParent["alDamageMeter"] = MAIN
-			end
-		end 
+	end
+
+	if((dock1 == "alDamageMeter" or dock2 == "alDamageMeter") and SV.Dock:IsDockletReady("alDamageMeter")) then
+		if(dock2 == "alDamageMeter") then
+			self:Docklet_alDamageMeter(self.Docklet.Dock1)
+			tipRight = "and alDamageMeter";
+		elseif(dock1 == "alDamageMeter") then
+			self:Docklet_alDamageMeter(self.Docklet.Dock2)
+			tipLeft = "alDamageMeter";
+		end
 	end 
 
-	if(_G["SVUI_AddonDocklet"]) then
-		_G["SVUI_AddonDocklet"].TText = ("%s%s"):format(tipLeft, tipRight)
+	local width,height = self.Docklet:GetSize();
+
+	if SV.Dock:IsDockletReady(dock1) then
+		self.Docklet:Enable()
+		self.Docklet.DockButton:SetAttribute("tipText", ("%s%s"):format(tipLeft, tipRight))
+		if SV.Dock:IsDockletReady(dock2) then
+			width = width * 0.5;
+		end
+		self.Docklet.Dock1:ClearAllPoints()
+		self.Docklet.Dock1:Size(width, height)
+		self.Docklet.Dock1:Point('BOTTOMLEFT', self.Docklet, 'BOTTOMLEFT', 1, 1)
+		self.Docklet.Dock1:Show()
+		if SV.Dock:IsDockletReady(dock2) then
+			self.Docklet.Dock2:ClearAllPoints()
+			self.Docklet.Dock2:Size(width,height)
+			self.Docklet.Dock2:Point('BOTTOMLEFT', self.Docklet.Dock1, 'BOTTOMRIGHT', 0, 0)
+			self.Docklet.Dock2:Show()
+		end
+	else
+		self.Docklet:Disable()
 	end
-end 
+end
+
+local DockableAddons = {
+	["alDamageMeter"] = L["alDamageMeter"],
+	["Skada"] = L["Skada"],
+	["Recount"] = L["Recount"],
+	["TinyDPS"] = L["TinyDPS"],
+	["Omen"] = L["Omen"]
+}
+
+local function GetLiveDockletsA()
+	local test = SV.db.Dock.docklets.DockletExtra;
+	local t = {["None"] = L["None"]};
+	for n,l in pairs(DockableAddons) do
+		if IsAddOnLoaded(n) or IsAddOnLoaded(l) then
+			if (test ~= n and test ~= l) then
+				if n == "Skada" and _G.Skada then
+					for index,window in pairs(_G.Skada:GetWindows()) do
+					    local key = window.db.name
+					    t["SkadaBarWindow"..key] = (key == "Skada") and "Skada - Main" or "Skada - "..key;
+					end
+				else
+					t[n] = l;
+				end
+			end
+		end
+	end
+	return t;
+end
+
+local function GetLiveDockletsB()
+	local test = SV.db.Dock.docklets.DockletMain;
+	local t = {["None"] = L["None"]};
+	for n,l in pairs(DockableAddons) do
+		if IsAddOnLoaded(n) or IsAddOnLoaded(l) then
+			if (test ~= n and test ~= l) then
+				if n == "Skada" and _G.Skada then
+					for index,window in pairs(_G.Skada:GetWindows()) do
+					    local key = window.db.name
+					    t["SkadaBarWindow"..key] = (key == "Skada") and "Skada - Main" or "Skada - "..key;
+					end
+				else
+					t[n] = l;
+				end
+			end
+		end
+	end
+	return t;
+end
+
+local function GetDockableAddons()
+	local test = PLUGIN.cache.Docks[1];
+	local t = {{text = "None", func = function() PLUGIN.cache.Docks[1] = "None"; PLUGIN:RegisterAddonDocklets() end}};
+	for n,l in pairs(DockableAddons) do
+		if IsAddOnLoaded(n) or IsAddOnLoaded(l) then
+			if (not test or (test and not test:find(n))) then
+				if n == "Skada" and _G.Skada then
+					for index,window in pairs(_G.Skada:GetWindows()) do
+						local keyName = window.db.name
+					    local key = "SkadaBarWindow" .. keyName
+					    local name = (keyName == "Skada") and "Skada - Main" or "Skada - " .. keyName;
+					    tinsert(t,{text = name, func = function() PLUGIN.cache.Docks[1] = key; PLUGIN:RegisterAddonDocklets() end});
+					end
+				else
+					tinsert(t,{text = n, func = function() PLUGIN.cache.Docks[1] = l; PLUGIN:RegisterAddonDocklets() end});
+				end
+			end
+		end
+	end
+	return t;
+end
+
+local AddonDockletToggle = function(self)
+	if(not InCombatLockdown()) then
+		self.Parent:Refresh()
+
+		if(not self.Parent.Parent.Window:IsShown()) then
+			self.Parent.Parent.Window:Show()
+		end
+	end
+
+	if(not PLUGIN.Docklet:IsShown()) then
+		PLUGIN.Docklet:Show()
+	end
+
+	if(not PLUGIN.Docklet.Dock1:IsShown()) then
+		PLUGIN.Docklet.Dock1:Show()
+	end
+
+	if(not PLUGIN.Docklet.Dock2:IsShown()) then
+		PLUGIN.Docklet.Dock2:Show()
+	end
+
+	self:Activate()
+end
 --[[ 
 ########################################################## 
 BUILD FUNCTION
 ##########################################################
 ]]--
+function PLUGIN:ReLoad()
+	self:RegisterAddonDocklets()
+end
+
 function PLUGIN:Load()
+	self.cache.Docks = self.cache.Docks or {"None", "None"}
+
 	local alert = CreateFrame('Frame', nil, UIParent);
 	alert:SetFixedPanelTemplate('Transparent');
 	alert:SetSize(250, 70);
@@ -383,9 +481,64 @@ function PLUGIN:Load()
 	alert:Hide();
 	self.Alert = alert;
 
-	NewHook(SV.SVDock, "ReloadDocklets", RegisterAddonDocklets);
-	SV.SVDock:ReloadDocklets();
+	self.Docklet = SV.Dock:NewDocklet("Right", "SVUI_StyleOMaticDock", self.TitleID, [[Interface\AddOns\SVUI\assets\artwork\Icons\DOCK-ADDON]], AddonDockletToggle)
+	SV.Dock.Right.Bar.Button.GetMenuList = GetDockableAddons
+	self.Docklet.DockButton.GetMenuList = GetDockableAddons
+	self.Docklet.DockButton:SetAttribute("hasDropDown", true)
+
+	local w,h = self.Docklet:GetSize()
+	self.Docklet.Dock1 = CreateFrame("Frame", "SVUI_StyleOMaticDockAddon1", self.Docklet)
+	self.Docklet.Dock1:SetSize(w,h)
+	self.Docklet.Dock2 = CreateFrame("Frame", "SVUI_StyleOMaticDockAddon2", self.Docklet)
+	self.Docklet.Dock2:SetSize(w,h)
+
+	self.Docklet:Hide()
+
+	self:RegisterAddonDocklets()
 
 	self:RegisterEvent("PLAYER_ENTERING_WORLD");
 	self:RegisterEvent("ADDON_LOADED");
+
+	SV.Dock.Registration.Options.docklets = {
+		order = 100,
+		type = 'group',
+		name = 'Addon Docklets',
+		guiInline = true,
+		args = {
+			DockletMain = {
+				type = "select",
+				order = 1,
+				name = "Primary Docklet",
+				desc = "Select an addon to occupy the primary docklet window",
+				values = function()return GetLiveDockletsA()end,
+				get = function()return PLUGIN.cache.Docks[1] end,
+				set = function(a,value) PLUGIN.cache.Docks[1] = value; PLUGIN:RegisterAddonDocklets() end,
+			},
+			DockletCombatFade = {
+				type = "toggle",
+				order = 2,
+				name = "Out of Combat (Hide)",
+				get = function()return PLUGIN.db.docklets.DockletCombatFade end,
+				set = function(a,value) PLUGIN.db.docklets.DockletCombatFade = value;end
+			},
+			enableExtra = {
+				type = "toggle",
+				order = 3,
+				name = "Split Docklet",
+				desc = "Split the primary docklet window for 2 addons.",
+				get = function()return PLUGIN.db.docklets.enableExtra end,
+				set = function(a,value) PLUGIN.db.docklets.enableExtra = value; PLUGIN:RegisterAddonDocklets() end,
+			},
+			DockletExtra = {
+				type = "select",
+				order = 4,
+				name = "Secondary Docklet",
+				desc = "Select another addon",
+				disabled = function()return (not PLUGIN.db.docklets.enableExtra or PLUGIN.cache.Docks[1] == "None") end, 
+				values = function()return GetLiveDockletsB()end,
+				get = function()return PLUGIN.cache.Docks[2] end,
+				set = function(a,value) PLUGIN.cache.Docks[2] = value; PLUGIN:RegisterAddonDocklets() end,
+			}
+		}
+	}
 end

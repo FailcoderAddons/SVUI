@@ -59,7 +59,6 @@ local IsAddOnLoaded         = _G.IsAddOnLoaded;
 local InCombatLockdown      = _G.InCombatLockdown;
 local GetAddOnInfo          = _G.GetAddOnInfo;
 local LoadAddOn             = _G.LoadAddOn;
-local SendAddonMessage      = _G.SendAddonMessage;
 local LibStub               = _G.LibStub;
 local GetAddOnMetadata      = _G.GetAddOnMetadata;
 local GetCVarBool           = _G.GetCVarBool;
@@ -233,7 +232,10 @@ SVUI.Timers     = LibSuperVillain("Timers");
 
 --[[ UTILITY FRAMES ]]--
 
-SVUI.Screen = _G["SVUI_ScreenMask"];
+SVUI.Screen = CreateFrame("Frame", "SVUIParent", UIParent);
+SVUI.Screen:SetFrameLevel(UIParent:GetFrameLevel());
+SVUI.Screen:SetPoint("CENTER", UIParent, "CENTER");
+SVUI.Screen:SetSize(UIParent:GetSize());
 
 SVUI.Cloaked = CreateFrame("Frame", nil, UIParent);
 SVUI.Cloaked:Hide();
@@ -329,7 +331,7 @@ end
 
 function SVUI:ResetAllUI(confirmed)
     if InCombatLockdown()then 
-        SendAddonMessage(ERR_NOT_IN_COMBAT)
+        self:AddonMessage(ERR_NOT_IN_COMBAT)
         return 
     end 
     if(not confirmed) then 
@@ -341,7 +343,7 @@ end
 
 function SVUI:ResetUI(confirmed)
     if InCombatLockdown()then 
-        SendAddonMessage(ERR_NOT_IN_COMBAT)
+        self:AddonMessage(ERR_NOT_IN_COMBAT)
         return 
     end 
     if(not confirmed) then 
@@ -359,7 +361,7 @@ end
 
 function SVUI:ToggleConfig()
     if InCombatLockdown() then 
-        SendAddonMessage(ERR_NOT_IN_COMBAT) 
+        self:AddonMessage(ERR_NOT_IN_COMBAT) 
         self:RegisterEvent('PLAYER_REGEN_ENABLED')
         return 
     end 
@@ -392,7 +394,8 @@ end
 
 function SVUI:VersionCheck()
     local minimumVersion = 5.0;
-    local installedVersion = SVLib:GetSafeData("install_version");
+    --print(table.dump(self.safedata))
+    local installedVersion = self.safedata.install_version;
     if(installedVersion) then
         if(type(installedVersion) == "string") then
             installedVersion = tonumber(installedVersion)
@@ -445,11 +448,6 @@ end
 
 function SVUI:PET_BATTLE_OPENING_START()
     self:FlushDisplayAudit()
-end
-
-function SVUI:PET_BATTLE_CLOSE()
-    self:PushDisplayAudit()
-    SVLib:LiveUpdate()
 end
 
 function SVUI:PLAYER_REGEN_DISABLED()
@@ -508,35 +506,10 @@ function SVUI:ReLoad()
     self:AddonMessage("All user settings reloaded");
 end
 
-function SVUI:Load()
+function SVUI:PreLoad()
     self.Timers:ClearAllTimers()
 
-    SVLib:Initialize()
-
-    self.Screen:SetAttribute("AUTO_SCALE", self.db.general.autoScale)
-    self.Screen:SetAttribute("MULTI_MONITOR", self.db.general.multiMonitor)
-
-    self:RefreshSystemFonts();
-    self:LoadSystemAlerts();
-
     self:RegisterEvent('PLAYER_REGEN_DISABLED');
-    self.Timers:Initialize()
-end 
-
-function SVUI:Initialize()
-    SVLib:Launch();
-
-    self.Screen:SetAttribute("AUTO_SCALE", self.db.general.autoScale)
-    self.Screen:SetAttribute("MULTI_MONITOR", self.db.general.multiMonitor)
-
-    self:InitializeUIScale();
-    self:PlayerInfoUpdate();
-    self.Mentalo:Initialize()
-    self:VersionCheck()
-    self:RefreshAllSystemMedia();
-
-    hooksecurefunc("StaticPopup_Show", self.StaticPopup_Show)
-
     self:RegisterEvent("PLAYER_ENTERING_WORLD");
     self:RegisterEvent("UI_SCALE_CHANGED");
     self:RegisterEvent("PET_BATTLE_CLOSE");
@@ -548,6 +521,42 @@ function SVUI:Initialize()
     self:RegisterEvent("CHARACTER_POINTS_CHANGED", "PlayerInfoUpdate");
     self:RegisterEvent("UNIT_INVENTORY_CHANGED", "PlayerInfoUpdate");
     self:RegisterEvent("UPDATE_BONUS_ACTIONBAR", "PlayerInfoUpdate");
+end 
+
+function SVUI:Initialize()
+    SVLib:Initialize();
+
+    local rez = GetCVar("gxResolution");
+    local gxHeight = tonumber(match(rez,"%d+x(%d+)"));
+    local gxWidth = tonumber(match(rez,"(%d+)x%d+"));
+
+    self.DisplaySettings = SVLib:NewGlobal("Display")
+    if(not self.DisplaySettings.screenheight or (self.DisplaySettings.screenheight and type(self.DisplaySettings.screenheight) ~= "number")) then 
+        self.DisplaySettings.screenheight = gxHeight 
+    end
+    if(not self.DisplaySettings.screenwidth or (self.DisplaySettings.screenwidth and type(self.DisplaySettings.screenwidth) ~= "number")) then 
+        self.DisplaySettings.screenwidth = gxWidth 
+    end
+
+    self:UI_SCALE_CHANGED()
+
+    self:RefreshSystemFonts();
+    self:LoadSystemAlerts();
+    self.Timers:Initialize();
+    self.Dock:Initialize();
+    self.Mentalo:Initialize();
+
+    self.safedata = SVLib:GetSafeData();
+
+
+    SVLib:Launch();
+
+    self:UI_SCALE_CHANGED("PLAYER_LOGIN")
+    self:PlayerInfoUpdate();
+    self:VersionCheck()
+    self:RefreshAllSystemMedia();
+
+    hooksecurefunc("StaticPopup_Show", self.StaticPopup_Show)
 
     SVLib:RefreshModule("SVMap");
 

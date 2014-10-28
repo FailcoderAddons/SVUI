@@ -45,8 +45,8 @@ local function StyleTinyDPS()
 	
 	tdpsFrame:HookScript("OnShow", function()
 		if InCombatLockdown() then return end 
-		if SV.CurrentlyDocked["tdpsFrame"] then
-			RightSuperDockFrameHolder:Show()
+		if PLUGIN:ValidateDocklet("TinyDPS") then
+			PLUGIN.Docklet:Show()
 		end
 	end)
 
@@ -62,8 +62,6 @@ PLUGIN:SaveAddonStyle("TinyDPS", StyleTinyDPS)
 
 function PLUGIN:Docklet_TinyDPS(parent)
 	if not tdpsFrame then return end 
-	tdpsFrame:SetFixedPanelTemplate("Transparent", true)
-	tdpsFrame:SetFrameStrata("LOW")
 	tdps.hideOOC = false;
 	tdps.hideIC = false;
 	tdps.hideSolo = false;

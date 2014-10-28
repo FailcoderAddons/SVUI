@@ -154,7 +154,7 @@ SV.Options.args.SVPlate = {
 							type = "toggle",
 							order = 1,
 							name = L["Combat Toggle"],
-							desc = L["Toggle the nameplates to be visible outside of combat and visible inside combat."],
+							desc = L["Toggle the nameplates to be invisible outside of combat and visible inside combat."],
 							set = function(d,e)MOD:ChangeDBVar(e,d[#d])MOD:CombatToggle()end
 						},
 						comboPoints = {

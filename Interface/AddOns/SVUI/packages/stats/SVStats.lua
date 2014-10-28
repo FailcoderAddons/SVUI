@@ -146,7 +146,7 @@ local UpdateAnchor = function()
 			width = anchor:GetWidth() / numPoints - 4;
 			height = anchor:GetHeight() - 4;
 			if(backdrops) then
-				height = RightSuperDockToggleButton:GetHeight() - 6
+				height = SV.Dock.Right.Bar.Button:GetHeight() - 6
 			end
 		end
 
@@ -669,11 +669,15 @@ function MOD:UpdateStatSize()
 	local gxWidth = tonumber(rez:match("(%d+)x%d+"));
 	local bw = gxWidth * 0.5
 	local defaultStatBarWidth = min(bw, 800)
-	local buttonsize = LeftSuperDockToolBar.currentSize or 22
+	local buttonsize = SV.Dock.Left.Bar.ToolBar:GetHeight()
     local statBarWidth = SV.db.SVStats.dockStatWidth or defaultStatBarWidth
+    _G["SVUI_TopStatsDock"]:Size(statBarWidth - 2, buttonsize - 8)
+	_G["SVUI_StatsBar1"]:Size((statBarWidth * 0.5) - 1, buttonsize - 8)
+	_G["SVUI_StatsBar2"]:Size((statBarWidth * 0.5) - 1, buttonsize - 8)
 	_G["SVUI_BottomStatsDock"]:Size(statBarWidth - 2, buttonsize - 8)
 	_G["SVUI_StatsBar3"]:Size((statBarWidth * 0.5) - 1, buttonsize - 8)
 	_G["SVUI_StatsBar4"]:Size((statBarWidth * 0.5) - 1, buttonsize - 8)
+	self:Generate()
 end
 --[[ 
 ########################################################## 
@@ -682,7 +686,6 @@ BUILD FUNCTION / UPDATE
 ]]--
 function MOD:ReLoad()
 	self:UpdateStatSize()
-	self:Generate()
 end 
 
 function MOD:Load()
@@ -690,8 +693,8 @@ function MOD:Load()
 	local gxWidth = tonumber(rez:match("(%d+)x%d+"));
 	local bw = gxWidth * 0.5
 	local defaultStatBarWidth = min(bw, 800)
-	local buttonsize = LeftSuperDockToolBar.currentSize or 22
-    local spacing = LeftSuperDock.currentSpacing or 4
+	local buttonsize = SV.Dock.Left.Bar.ToolBar:GetHeight()
+    local spacing = SV.Dock.Left:GetAttribute("spacingSize")
     local statBarWidth = SV.db.SVStats.dockStatWidth or defaultStatBarWidth
 
 	hexHighlight = SV:HexColor("highlight") or "FFFFFF"
@@ -711,7 +714,7 @@ function MOD:Load()
 
 	local topanchor = CreateFrame("Frame", "SVUI_TopStatsDock", SV.Screen)
 	topanchor:Size(statBarWidth - 2, buttonsize - 8)
-	topanchor:Point("LEFT", TopSuperDockToolBar, "RIGHT", spacing, 0)
+	topanchor:Point("LEFT", SV.Dock.Top.ToolBar, "RIGHT", spacing, 0)
 	SV:AddToDisplayAudit(topanchor)
 
 	local topleftdata = CreateFrame("Frame", "SVUI_StatsBar1", topanchor)
@@ -731,7 +734,6 @@ function MOD:Load()
 	local bottomanchor = CreateFrame("Frame", "SVUI_BottomStatsDock", SV.Screen)
 	bottomanchor:Size(statBarWidth - 2, buttonsize - 8)
 	bottomanchor:Point("BOTTOM", SV.Screen, "BOTTOM", 0, 2)
-	--SV:AddToDisplayAudit(bottomanchor)
 
 	local bottomleftdata = CreateFrame("Frame", "SVUI_StatsBar3", bottomanchor)
 	bottomleftdata:Size((statBarWidth * 0.5) - 1, buttonsize - 8)

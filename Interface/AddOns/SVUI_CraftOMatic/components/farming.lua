@@ -528,7 +528,7 @@ function PLUGIN:PrepareFarmingTools()
 	local BUTTONSPACE = self.db.farming.buttonspacing or 2;
 
 	ModeLogsFrame = self.LogWindow;
-	DockButton = self.Docklet.ToolbarButton
+	DockButton = self.Docklet.DockButton
 
 	if not self.db.farming.undocked then
 		local bgTex = [[Interface\BUTTONS\WHITE8X8]]

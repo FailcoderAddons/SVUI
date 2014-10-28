@@ -942,7 +942,7 @@ local ArenaPrepHandler = CreateFrame("Frame")
 local ArenaPrepHandler_OnEvent = function(self, event)
     local prepframe
     local _, instanceType = IsInInstance()
-    if(not SV.db.SVUnit.arena or not SV.db.SVUnit.arena.enable or instanceType ~= "arena") then return end
+    if(not SV.db.SVUnit or not SV.db.SVUnit.arena or not SV.db.SVUnit.arena.enable or instanceType ~= "arena") then return end
     if event == "PLAYER_LOGIN" then
         for i = 1, 5 do
             prepframe = _G["SVUI_Arena"..i.."PrepFrame"]

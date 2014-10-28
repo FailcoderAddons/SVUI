@@ -40,7 +40,7 @@ local _, ns = ...
 ##################################################################################################
 ]]
 SV.Options.args.SVUnit.args.focus = {
-	name = L["Focus Frame"], 
+	name = L["Focus"], 
 	type = "group", 
 	order = 9, 
 	childGroups = "tab", 
@@ -153,7 +153,7 @@ SV.Options.args.SVUnit.args.focus = {
 ##################################################################################################
 ]]
 SV.Options.args.SVUnit.args.focustarget = {
-	name = L["FocusTarget Frame"], 
+	name = L["FocusTarget"], 
 	type = "group", 
 	order = 10, 
 	childGroups = "tab", 
@@ -179,7 +179,19 @@ SV.Options.args.SVUnit.args.focustarget = {
 							guiInline = true, 
 							name = L["Base Settings"],
 							args = {
-								showAuras = {order = 1, type = "execute", name = L["Show Auras"], func = function()local U = SVUI_FocusTarget;if U.forceShowAuras then U.forceShowAuras = nil else U.forceShowAuras = true end MOD:SetUnitFrame("focustarget")end}, 
+								showAuras = {
+									order = 1, 
+									type = "execute", 
+									name = L["Show Auras"], 
+									func = function()
+										if(SVUI_FocusTarget.forceShowAuras == true) then 
+											SVUI_FocusTarget.forceShowAuras = nil 
+										else 
+											SVUI_FocusTarget.forceShowAuras = true 
+										end 
+										MOD:SetUnitFrame("focustarget")
+									end
+								}, 
 								spacer1 = {
 									order = 2,
 									type = "description", 

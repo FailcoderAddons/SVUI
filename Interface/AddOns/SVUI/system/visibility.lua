@@ -44,22 +44,22 @@ FRAME VISIBILITY MANAGEMENT
 ##########################################################
 ]]--
 function SV:AddToDisplayAudit(frame)
-    if frame.IsVisible and frame.GetParent then
+    if(frame.GetParent) then
         DisplayFrames[frame] = frame:GetParent()
     end 
 end 
 
 function SV:FlushDisplayAudit()
+    self.NeedsFrameAudit = true 
     if(InCombatLockdown()) then return end 
     for frame, _ in pairs(DisplayFrames)do 
         frame:SetParent(self.Cloaked) 
     end
-    self.NeedsFrameAudit = true 
 end 
 
 function SV:PushDisplayAudit()
     if(InCombatLockdown()) then return end
-    for frame, parent in pairs(DisplayFrames)do 
+    for frame, parent in pairs(DisplayFrames) do
         frame:SetParent(parent or self.Screen) 
     end
     self.NeedsFrameAudit = false

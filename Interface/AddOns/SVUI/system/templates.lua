@@ -52,45 +52,7 @@ LOCAL VARS
 local SizeScaled, HeightScaled, WidthScaled, PointScaled, WrapOuter, FillInner
 local TemplateUpdateFrames = {};
 local FontUpdateFrames = {};
-local NewFrame = CreateFrame;
-local NewHook = hooksecurefunc;
 local STANDARD_TEXT_FONT = _G.STANDARD_TEXT_FONT;
---[[ 
-########################################################## 
-UI SCALING
-##########################################################
-]]--
-function SV:InitializeUIScale()
-    local activeScale = self.Screen:GetAttribute("ACTIVE_SCALE")
-    local testScale1 = parsefloat(UIParent:GetScale(), 5)
-    local testScale2 = parsefloat(activeScale, 5)
-    if(testScale1 ~= testScale2) then 
-        SetCVar("useUiScale", 1)
-        SetCVar("uiScale", activeScale)
-        WorldMapFrame.hasTaint = true;
-    end
-end
-
-function SV:UI_SCALE_CHANGED(event)
-    local activeScale = self.Screen:GetAttribute("ACTIVE_SCALE")
-    local testScale1 = parsefloat(UIParent:GetScale(), 5)
-    local testScale2 = parsefloat(activeScale, 5)
-    local change = abs((testScale1 * 100) - (testScale2 * 100))
-    if(change > 1) then
-        if(self.Screen:GetAttribute("AUTO_SCALE")) then
-            self:StaticPopup_Show('FAILED_UISCALE')
-        else
-            self:StaticPopup_Show('RL_CLIENT')
-        end
-    end
-end
-
-local function scaled(value)
-    local SCREEN_MOD = SV.Screen:GetAttribute("MODIFIED_SCALE");
-    return SCREEN_MOD * floor(value / SCREEN_MOD + .5);
-end
-
-SV.Scale = scaled
 --[[ 
 ########################################################## 
 APPENDED POSITIONING METHODS
@@ -102,19 +64,19 @@ do
     function SizeScaled(self, width, height)
         if(type(width) == "number") then
             local h = (height and type(height) == "number") and height or width
-            self:SetSize(scaled(width), scaled(h))
+            self:SetSize(SV:Scale(width), SV:Scale(h))
         end
     end 
 
     function WidthScaled(self, width)
         if(type(width) == "number") then
-            self:SetWidth(scaled(width))
+            self:SetWidth(SV:Scale(width))
         end
     end 
 
     function HeightScaled(self, height)
         if(type(height) == "number") then
-            self:SetHeight(scaled(height))
+            self:SetHeight(SV:Scale(height))
         end
     end
 
@@ -125,7 +87,7 @@ do
         for i = 1, n do
             arg = PARAMS[i]
             if(arg and type(arg) == "number") then 
-                PARAMS[i] = scaled(arg)
+                PARAMS[i] = SV:Scale(arg)
             end 
         end 
         self:SetPoint(unpack(PARAMS))
@@ -134,8 +96,8 @@ do
     function WrapOuter(self, parent, x, y)
         x = type(x) == "number" and x or 1
         y = y or x
-        local nx = scaled(x);
-        local ny = scaled(y);
+        local nx = SV:Scale(x);
+        local ny = SV:Scale(y);
         parent = parent or self:GetParent()
         if self:GetPoint() then 
             self:ClearAllPoints()
@@ -147,8 +109,8 @@ do
     function FillInner(self, parent, x, y)
         x = type(x) == "number" and x or 1
         y = y or x
-        local nx = scaled(x);
-        local ny = scaled(y);
+        local nx = SV:Scale(x);
+        local ny = SV:Scale(y);
         parent = parent or self:GetParent()
         if self:GetPoint() then 
             self:ClearAllPoints()
@@ -162,7 +124,7 @@ end
 APPENDED DESTROY METHODS
 ##########################################################
 ]]--
-local _purgatory = NewFrame("Frame", nil)
+local _purgatory = CreateFrame("Frame", nil)
 _purgatory:Hide()
 
 local function Die(self)
@@ -421,7 +383,6 @@ end
 
 local function CreateCooldownTimer(frame)
     local timer = CreateFrame('Frame', nil, frame)
-    timer:Hide()
     timer:SetAllPoints()
     timer:SetScript('OnUpdate', Cooldown_OnUpdate)
 
@@ -430,7 +391,10 @@ local function CreateCooldownTimer(frame)
     timeText:SetJustifyH("CENTER")
     timer.text = timeText;
 
+    timer:Hide()
+
     frame.timer = timer;
+
     local width, height = frame:GetSize()
     Cooldown_OnSizeChanged(frame, width, height)
     frame:SetScript('OnSizeChanged', Cooldown_OnSizeChanged)
@@ -458,7 +422,7 @@ local _hook_Cooldown_SetCooldown = function(self, start, duration, elapsed)
     if self.timer then 
         if elapsed and elapsed > 0 then 
             self.timer:SetAlpha(0)
-        else 
+        else
             self.timer:SetAlpha(0.8)
         end 
     end 
@@ -491,7 +455,7 @@ local function CreatePanelTemplate(frame, templateName, underlay, noupdate, padd
     local xmlTemplate = XML_LOOKUP[templateName] or "SVUI_PanelTemplate_Default"
     local borderColor = {0,0,0,1}
 
-    frame.Panel = NewFrame('Frame', nil, frame, xmlTemplate)
+    frame.Panel = CreateFrame('Frame', nil, frame, xmlTemplate)
 
     local level = frame:GetFrameLevel()
     if(level == 0 and not InCombatLockdown()) then
@@ -505,7 +469,7 @@ local function CreatePanelTemplate(frame, templateName, underlay, noupdate, padd
 
     frame.Panel:SetFrameLevel(adjustment)
 
-    NewHook(frame, "SetFrameLevel", HookFrameLevel)
+    hooksecurefunc(frame, "SetFrameLevel", HookFrameLevel)
 
     if(defaultColor) then
         frame.Panel:SetAttribute("panelColor", defaultColor)
@@ -563,11 +527,11 @@ local function CreatePanelTemplate(frame, templateName, underlay, noupdate, padd
         end
 
         if(templateName ~= 'Transparent') then
-            NewHook(frame.Panel, "SetBackdropBorderColor", HookPanelBorderColor)
-            NewHook(frame, "SetBackdropBorderColor", HookBackdropBorderColor)
+            hooksecurefunc(frame.Panel, "SetBackdropBorderColor", HookPanelBorderColor)
+            hooksecurefunc(frame, "SetBackdropBorderColor", HookBackdropBorderColor)
             if(underlay) then
-                NewHook(frame, "SetBackdrop", HookBackdrop)
-                NewHook(frame, "SetBackdropColor", HookBackdropColor)
+                hooksecurefunc(frame, "SetBackdrop", HookBackdrop)
+                hooksecurefunc(frame, "SetBackdropColor", HookBackdropColor)
             end
             frame.BackdropNeedsUpdate = true
             if(templateName == 'Pattern' or templateName == 'Comic') then
@@ -738,10 +702,10 @@ local function SetBasicPanel(self, topX, topY, bottomX, bottomY, hasShadow)
 
         self.Panel:SetFrameLevel(adjustment)
 
-        NewHook(self, "SetFrameLevel", HookFrameLevel)
-        NewHook(self, "SetBackdrop", HookBackdrop)
-        NewHook(self, "SetBackdropColor", HookBackdropColor)
-        NewHook(self, "SetBackdropBorderColor", HookBackdropBorderColor)
+        hooksecurefunc(self, "SetFrameLevel", HookFrameLevel)
+        hooksecurefunc(self, "SetBackdrop", HookBackdrop)
+        hooksecurefunc(self, "SetBackdropColor", HookBackdropColor)
+        hooksecurefunc(self, "SetBackdropBorderColor", HookBackdropBorderColor)
     end
 end
 
@@ -873,7 +837,7 @@ local function SetButtonTemplate(self, invisible, overridePadding, xOffset, yOff
     if(self.SetHighlightTexture) then
         if(not self.hover) then
             local hover = self:CreateTexture(nil, "HIGHLIGHT")
-            FillInner(hover, self.Panel)
+            FillInner(hover, self.Panel, 2, 2)
             self.hover = hover;
         end
         self.hover:SetTexture(0.1, 0.8, 0.8, 0.5)
@@ -929,7 +893,7 @@ local function SetCheckboxTemplate(self, underlay, x, y)
     CreatePanelTemplate(self, "Slot", underlay, true, 1, x, y)
     CreateButtonPanel(self, false, true)
 
-    NewHook(self, "SetChecked", function(self,checked)
+    hooksecurefunc(self, "SetChecked", function(self,checked)
         local r,g,b = 0,0,0
         if(checked == 1 or checked == true) then
             r,g,b = self:GetCheckedTexture():GetVertexColor()
@@ -1141,7 +1105,7 @@ local function AppendMethods(OBJECT)
     if not OBJECT.SetFontTemplate then META.SetFontTemplate = SetFontTemplate end
 end
 
-local HANDLER, OBJECT = {["Frame"] = true}, NewFrame("Frame")
+local HANDLER, OBJECT = {["Frame"] = true}, CreateFrame("Frame")
 AppendMethods(OBJECT)
 AppendMethods(OBJECT:CreateTexture())
 AppendMethods(OBJECT:CreateFontString())

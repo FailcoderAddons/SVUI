@@ -3,8 +3,10 @@
     <Script file="configs.lua"/>
 	<Script file="media.lua"/>
     <Script file="utilities.lua"/>
-    <Script file="framework.lua"/>
     <Script file="visibility.lua"/>
+    <Script file="screen.lua"/>
+    <Script file="templates.lua"/>
+    <Script file="docks.lua"/>
     <Script file="slash.lua"/>
     <Script file="alerts.lua"/>
     <Script file="moveable.lua"/>

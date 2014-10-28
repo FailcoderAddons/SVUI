@@ -1148,9 +1148,7 @@ function MOD:FrameForge()
 		LoadedUnitFrames = true;
 	end
 	if not LoadedGroupHeaders then
-		self:SetGroupFrame("raid10")
-		self:SetGroupFrame("raid25")
-		self:SetGroupFrame("raid40")
+		self:SetGroupFrame("raid")
 		self:SetGroupFrame("raidpet")
 		self:SetGroupFrame("party")
 		self:SetGroupFrame("tank")
@@ -1199,7 +1197,9 @@ function MOD:ADDON_LOADED(event, addon)
 end
 
 function MOD:PLAYER_ENTERING_WORLD()
-	self:RefreshUnitFrames()
+	if(not SV.NeedsFrameAudit) then
+		self:RefreshUnitFrames()
+	end
 end
 
 local UnitFrameThreatIndicator_Hook = function(unit, unitFrame)

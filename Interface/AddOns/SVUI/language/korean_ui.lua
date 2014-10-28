@@ -1,5 +1,6 @@
 local L = LibSuperVillain("Linguist"):Lang("koKR");
 if not L then return; end
+L["Hearthstone"] = true;
 --[[LOGIN MESSAGE]]--
 L["LOGIN_MSG"] = "|cffFFFF1AUI를 악당|r에 오신 것을 환영합니다! 귀하의 유지 %s 당신을 %s."
 L["LOGIN_MSG2"] = "버전 |cffAA78FF%s|r, 유형 /sv 는 게임의 구성 메뉴에 액세스합니다."

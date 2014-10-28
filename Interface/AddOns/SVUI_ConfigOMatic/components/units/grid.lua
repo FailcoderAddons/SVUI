@@ -40,7 +40,7 @@ local _, ns = ...
 ##################################################################################################
 ]]
 SV.Options.args.SVUnit.args.grid = {
-	name = L["Grid Frames"], 
+	name = L["Grid"], 
 	type = "group", 
 	order = 1200, 
 	childGroups = "tab", 
@@ -49,7 +49,7 @@ SV.Options.args.SVUnit.args.grid = {
 			order = 1, 
 			type = "execute", 
 			name = L["Display Frames"], 
-			func = function()MOD:ViewGroupFrames(_G["SVUI_Raid40"], _G["SVUI_Raid40"].forceShow ~= true or nil, "raid40")end, 
+			func = function()MOD:ViewGroupFrames(_G["SVUI_Raid"], _G["SVUI_Raid"].forceShow ~= true or nil, "raid")end, 
 		},
 		gridCommon = {
 			order = 2, 
@@ -130,29 +130,13 @@ SV.Options.args.SVUnit.args.grid = {
 					get = function(key) return SV.db.SVUnit.party.targetsGroup.gridAllowed end,
 					set = function(key, value) SV.db.SVUnit.party.targetsGroup.gridAllowed = value; MOD:SetGroupFrame() end,
 				},
-				raid10 = {
+				raid = {
 					type = 'toggle',
 					order = 4,
 					name = L['Raid Grid'],
 					desc = L['If grid-mode is enabled, these units will be changed.'],
-					get = function(key) return SV.db.SVUnit.raid10.gridAllowed end,
-					set = function(key, value) SV.db.SVUnit.raid10.gridAllowed = value; MOD:SetGroupFrame("raid10"); end,
-				},
-				raid25 = {
-					type = 'toggle',
-					order = 5,
-					name = L['Raid Grid'],
-					desc = L['If grid-mode is enabled, these units will be changed.'],
-					get = function(key) return SV.db.SVUnit.raid25.gridAllowed end,
-					set = function(key, value) SV.db.SVUnit.raid25.gridAllowed = value; MOD:SetGroupFrame("raid25"); end,
-				},
-				raid40 = {
-					type = 'toggle',
-					order = 6,
-					name = L['Raid Grid'],
-					desc = L['If grid-mode is enabled, these units will be changed.'],
-					get = function(key) return SV.db.SVUnit.raid40.gridAllowed end,
-					set = function(key, value) SV.db.SVUnit.raid40.gridAllowed = value; MOD:SetGroupFrame("raid40") end,
+					get = function(key) return SV.db.SVUnit.raid.gridAllowed end,
+					set = function(key, value) SV.db.SVUnit.raid.gridAllowed = value; MOD:SetGroupFrame("raid"); end,
 				},
 				raidpet = {
 					type = 'toggle',
