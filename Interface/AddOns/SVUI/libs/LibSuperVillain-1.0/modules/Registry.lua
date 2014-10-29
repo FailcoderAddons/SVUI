@@ -79,8 +79,8 @@ if not lib then return end -- No upgrade needed
 
 local CoreName, CoreObject  = ...
 local AddonVersion          = GetAddOnMetadata(..., "Version");
-local SchemaFromMeta        = "X-" .. CoreName .. "-Schema";
-local HeaderFromMeta        = "X-" .. CoreName .. "-Header";
+local SchemaFromMeta        = "X-SVUISchema";
+local HeaderFromMeta        = "X-SVUIName";
 local InterfaceVersion      = select(4, GetBuildInfo());
 
 --[[ COMMON LOCAL VARS ]]--
@@ -1209,12 +1209,14 @@ function lib:Initialize()
 
     for i = 1, addonCount do
         local addonName, _, _, _, _, reason = GetAddOnInfo(i)
-        local lod = IsAddOnLoadOnDemand(i)
-        local header = GetAddOnMetadata(i, HeaderFromMeta)
-        local schema = GetAddOnMetadata(i, SchemaFromMeta)
 
-        if(lod and schema) then
-            NewLoadOnDemand(addonName, schema, header)
+        if(IsAddOnLoadOnDemand(i)) then
+            local header = GetAddOnMetadata(i, HeaderFromMeta)
+            local schema = GetAddOnMetadata(i, SchemaFromMeta)
+
+            if(header and schema) then
+                NewLoadOnDemand(addonName, schema, header)
+            end
         end
     end
 

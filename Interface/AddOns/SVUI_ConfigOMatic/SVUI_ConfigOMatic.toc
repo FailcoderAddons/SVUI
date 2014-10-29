@@ -7,6 +7,6 @@
 ## LoadOnDemand: 1
 ## X-Notes: Special thanks to Elv and Tukz for their incredible work.
 ## X-Email: munglunch@gmail.com
-## X-SVUI-Header: Config-O-Matic
+## X-SVUIName: Config-O-Matic
 
 SVUI_ConfigOMatic.xml

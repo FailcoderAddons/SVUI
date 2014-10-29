@@ -64,10 +64,10 @@ local Schema = PKG.Schema
     (there are two possibilities at the time of this writing. "Header" and "Schema") 
 
     so it will end up looking like this:
-    X-SVUI-Header
+    X-SVUIName
 
     or this:
-    X-SVUI-Schema
+    X-SVUISchema
 
     Your toc should end up looking something like this:
 
@@ -76,8 +76,8 @@ local Schema = PKG.Schema
     ## Interface: 60000
     ## Author: SumFukinDude
     ## Version: 1.0
-    ## X-SVUI-Header: Some Fukin Addon
-    ## X-SVUI-Schema: SumFukinSchema
+    ## X-SVUIName: Some Fukin Addon
+    ## X-SVUISchema: SumFukinSchema
 
 
     Having defined and initialized all requirements at this point, your database will now
@@ -89,7 +89,7 @@ local Schema = PKG.Schema
     LoadOnDemand:
 
     When schema is defined for plugins that are NOT loaded by default, the library will
-    be able to parse all toc files that contain an "X-SVUI-Schema" property and generate
+    be able to parse all toc files that contain an "X-SVUISchema" property and generate
     a database entry as well as a config option so that we can manipulate that plugin and
     save our changes.
 

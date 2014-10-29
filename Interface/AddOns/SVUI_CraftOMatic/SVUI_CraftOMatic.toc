@@ -7,7 +7,7 @@
 ## RequiredDeps: SVUI
 ## LoadOnDemand: 1
 ## X-Email: munglunch@gmail.com
-## X-SVUI-Header: Craft-O-Matic
-## X-SVUI-Schema: CraftOMatic
+## X-SVUIName: Craft-O-Matic
+## X-SVUISchema: CraftOMatic
 
 SVUI_CraftOMatic.xml

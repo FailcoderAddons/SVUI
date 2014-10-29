@@ -74,10 +74,11 @@ LOCALS
 -- local MISSING_MODEL_FILE = [[creature\ghost\ghost.m2]];
 -- local MISSING_MODEL_FILE = [[Spells\Monk_travelingmist_missile.m2]];
 local HEALTH_ANIM_FILE = [[Interface\Addons\SVUI\assets\artwork\Unitframe\UNIT-HEALTH-ANIMATION]];
-local ELITE_TOP = [[Interface\Addons\SVUI\assets\artwork\Unitframe\Border\ELITE-TOP]]
-local ELITE_BOTTOM = [[Interface\Addons\SVUI\assets\artwork\Unitframe\Border\ELITE-BOTTOM]]
-local ELITE_RIGHT = [[Interface\Addons\SVUI\assets\artwork\Unitframe\Border\ELITE-RIGHT]]
-local STUNNED_ANIM = [[Interface\Addons\SVUI\assets\artwork\Unitframe\UNIT-STUNNED]]
+local ELITE_TOP = [[Interface\Addons\SVUI\assets\artwork\Unitframe\Border\ELITE-TOP]];
+local ELITE_BOTTOM = [[Interface\Addons\SVUI\assets\artwork\Unitframe\Border\ELITE-BOTTOM]];
+local ELITE_RIGHT = [[Interface\Addons\SVUI\assets\artwork\Unitframe\Border\ELITE-RIGHT]];
+local STUNNED_ANIM = [[Interface\Addons\SVUI\assets\artwork\Unitframe\UNIT-STUNNED]];
+local AGGRO_TEXTURE = [[Interface\AddOns\SVUI\assets\artwork\Unitframe\UNIT-AGGRO]];
 local borderTex = [[Interface\Addons\SVUI\assets\artwork\Template\ROUND]]
 local token = {[0] = "MANA", [1] = "RAGE", [2] = "FOCUS", [3] = "ENERGY", [6] = "RUNIC_POWER"}
 
@@ -173,13 +174,12 @@ ACTIONPANEL
 ##########################################################
 ]]--
 local UpdateThreat = function(self, event, unit)
-	if(unit ~= self.unit) or not unit or not IsLoggedIn() then return end
+	if(not unit) then return end
 	local threat = self.Threat
 	local status = UnitThreatSituation(unit)
 	local r, g, b
 	if(status and status > 0) then
 		r, g, b = GetThreatStatusColor(status)
-		
 		threat:SetBackdropBorderColor(r, g, b)
 	else
 		threat:SetBackdropBorderColor(0, 0, 0, 0.5)
@@ -189,29 +189,28 @@ end
 local UpdatePlayerThreat = function(self, event, unit)
 	if(unit ~= "player") then return end
 	local threat = self.Threat
+	local aggro = self.Aggro
 	local status = UnitThreatSituation(unit)
 	local r, g, b
 	if(status and status > 0) then
 		r, g, b = GetThreatStatusColor(status)
 		threat:SetBackdropBorderColor(r, g, b)
-		if(status > 1) then
-			threat.OhShit:Show()
-			threat.OhShit.anim:Play()
+		if(status > 1 and (not aggro:IsShown())) then
+			aggro:Show()
 		end
 	else
 		threat:SetBackdropBorderColor(0, 0, 0, 0.5)
-		threat.OhShit:Hide()
+		if(aggro:IsShown()) then
+			aggro:Hide()
+		end
 	end 
 end
 
-local OhShit_OnShow = function(self)
-	if not self.anim:IsPlaying() then self.anim:Play() end 
-end
-
 local function CreateThreat(frame, unit)
-	local threat = CreateFrame('Frame', nil, frame)
-    threat:Point('TOPLEFT', frame, 'TOPLEFT', -3, 3)
-    threat:Point('BOTTOMRIGHT', frame, 'BOTTOMRIGHT', 3, -3)
+	if(not frame.ActionPanel) then return; end
+	local threat = CreateFrame("Frame", nil, frame.ActionPanel)
+    threat:Point("TOPLEFT", frame.ActionPanel, "TOPLEFT", -3, 3)
+    threat:Point("BOTTOMRIGHT", frame.ActionPanel, "BOTTOMRIGHT", 3, -3)
     threat:SetBackdrop({
         edgeFile = [[Interface\AddOns\SVUI\assets\artwork\Template\GLOW]],
         edgeSize = 3,
@@ -225,18 +224,20 @@ local function CreateThreat(frame, unit)
     threat:SetBackdropBorderColor(0,0,0,0.5)
 
 	if(unit == "player") then
-		local aggro = CreateFrame("Frame", "SVUI_PlayerThreatAlert", threat)
+		local aggro = CreateFrame("Frame", "SVUI_PlayerThreatAlert", frame)
 		aggro:SetFrameStrata("HIGH")
 		aggro:SetFrameLevel(30)
-		aggro:Size(52,52)
-		aggro:SetPoint("TOPRIGHT",frame,"TOPRIGHT",16,16)
-		aggro.bg = aggro:CreateTexture(nil, "BORDER")
-		aggro.bg:FillInner(aggro)
-		aggro.bg:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\UNIT-AGGRO")
-		SV.Animate:Pulse(aggro, false)
-		--aggro:SetScript("OnShow", OhShit_OnShow)
-		
-		threat.OhShit = aggro
+		aggro:SetSize(52,52)
+		aggro:SetPoint("TOPRIGHT", frame, "TOPRIGHT", 16, 16)
+		aggro.texture = aggro:CreateTexture(nil, "OVERLAY")
+		aggro.texture:SetAllPoints(aggro)
+		aggro.texture:SetTexture(AGGRO_TEXTURE)
+		SV.Animate:Pulse(aggro)
+		aggro:SetScript("OnShow", function(this)
+			this.anim:Play() 
+		end);
+		frame.Aggro = aggro
+
 		threat.Override = UpdatePlayerThreat
 	else
 		threat.Override = UpdateThreat
@@ -465,8 +466,6 @@ function MOD:SetActionPanel(frame, unit, noHealthText, noPowerText, noMiscText)
 		frame.InfoPanel:Point("BOTTOMRIGHT", frame.ActionPanel, "BOTTOMRIGHT", -2, 2)
 	end
 
-	frame.Threat = CreateThreat(frame.ActionPanel, unit)
-
 	frame.InfoPanel.Name = CreateNameText(frame.InfoPanel, unit)
 
 	local reverse = unit and (unit == "target" or unit == "focus" or unit == "boss" or unit == "arena") or false;
@@ -526,6 +525,8 @@ function MOD:SetActionPanel(frame, unit, noHealthText, noPowerText, noMiscText)
 
 	frame.StatusPanel:SetFrameStrata("LOW")
 	frame.StatusPanel:SetFrameLevel(28)
+
+	frame.Threat = CreateThreat(frame, unit)
 end
 --[[ 
 ########################################################## 

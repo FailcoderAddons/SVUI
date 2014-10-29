@@ -87,10 +87,6 @@ end
 
 local function StyleSkada()
   assert(Skada, "AddOn Not Loaded")
-
-  Skada.displays['bar'].ApplySettings = StupidSkada
-
-  CheckForHolders()
   Skada.ShowPopup = Skada_ShowPopup
   
   local SkadaDisplayBar = Skada.displays['bar']

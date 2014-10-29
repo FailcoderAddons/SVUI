@@ -9,7 +9,7 @@
 ## LoadOnDemand: 1
 ## X-Email: munglunch@gmail.com
 ## X-oUF: oUF_Villain
-## X-SVUI-Header: Track-O-Matic
-## X-SVUI-Schema: TrackOMatic
+## X-SVUIName: Track-O-Matic
+## X-SVUISchema: TrackOMatic
 
 SVUI_TrackOMatic.xml

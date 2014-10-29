@@ -159,6 +159,7 @@ local GetDefault = function(self)
 		self:Refresh()
 		self.Parent.Window.FrameLink = _G[window]
 		self.Parent.Window:Show()
+		_G[window]:Show()
 		button:Activate()
 	end
 end

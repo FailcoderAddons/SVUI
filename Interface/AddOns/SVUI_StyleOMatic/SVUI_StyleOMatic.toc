@@ -8,7 +8,7 @@
 ## RequiredDeps: SVUI
 ## OptionalDeps: Blizzard_DebugTools, Blizzard_PetJournal, SharedMedia
 ## X-Email: munglunch@gmail.com
-## X-SVUI-Header: Style-O-Matic
-## X-SVUI-Schema: StyleOMatic
+## X-SVUIName: Style-O-Matic
+## X-SVUISchema: StyleOMatic
 
 SVUI_StyleOMatic.xml

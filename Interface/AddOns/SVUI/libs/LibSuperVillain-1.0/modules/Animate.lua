@@ -28,6 +28,21 @@ local lib = LibSuperVillain:NewLibrary("Animate")
 
 if not lib then return end -- No upgrade needed
 
+local MANAGED_ANIMATIONS = {
+    ["Orbit"] = true,
+    ["Sprite"] = true,
+    ["SmallSprite"] = true,
+    ["StopSprite"] = false,
+    ["Pulse"] = false,
+    ["Kapow"] = false,
+    ["Flash"] = false,
+    ["StopFlash"] = false,
+    ["Slide"] = false,
+    ["SlideIn"] = false,
+    ["SlideOut"] = false,
+    ["RandomSlide"] = false,
+};
+
 --[[ LOCAL FUNCTIONS ]]--
 
 local Anim_OnShow = function(self)
@@ -56,14 +71,9 @@ local Anim_OnStop = function(self)
     if self.hideOnFinished and parent:IsShown() then
         parent:Hide()
     end
-    if self.savedFrameLevel or self.startscale then
+    if self.startscale then
         parent:SetScale(1)
-        if self.startscale then
-            self.startscale = 1
-        end
-        if self.savedFrameLevel then
-            parent:SetFrameLevel(self.savedFrameLevel)
-        end
+        self.startscale = 1
     end
 end 
 
@@ -108,23 +118,23 @@ local SmallSprite_OnUpdate = function(self)
         parent.overlay:SetTexCoord(left,right,0,1)
         parent.overlay:SetVertexColor(1,1,1,FlickerAlpha[order])
     end 
-end 
+end
 
-local PulseIn_OnUpdate = function(self)
+local Pulse_OnPlay = function(self)
+    local parent = self.parent
+    parent:SetAlpha(1)
+    parent:SetScale(1)
+end
+
+local Pulse_OnUpdate1 = function(self)
     local parent = self.parent
     local step = self:GetProgress()
-    if(parent.savedFrameLevel) then
-        parent:SetFrameLevel(128)
-    end
     parent:SetScale(1 + (1.05 * step))
 end 
 
-local PulseOut_OnUpdate = function(self)
+local Pulse_OnUpdate2 = function(self)
     local parent = self.parent
     local step = self:GetProgress()
-    if(parent.savedFrameLevel) then
-        parent:SetFrameLevel(128)
-    end
     parent:SetScale(1 + (1.05 * (1 - step)))
 end 
 
@@ -137,15 +147,7 @@ local Kapow_OnPlay = function(self)
     parent:SetScale(parent.startscale or 1)
 end
 
-local Kapow_OnStop = function(self)
-    self.parent:SetAlpha(0)
-end
-
-local Kapow_OnFinished = function(self)
-    self:Stop()
-end 
-
-local Kapow_OnUpdate = function(self)
+local Kapow_OnUpdate1 = function(self)
     local parent = self.parent
     local step = self:GetProgress()
     local scale = 1
@@ -193,19 +195,19 @@ end
 --[[ LIB METHODS ]]--
 
 local function AnimationTemplate(frame, animType, hideOnFinished, speed, special, scriptToParent)
-    if not animType then return end 
+    if(not frame or not animType) then return end 
 
     frame.anim = frame:CreateAnimationGroup(animType)
     frame.anim.parent = frame;
     frame.anim.hideOnFinished = hideOnFinished
 
-    if animType ~= 'Flash' and animType ~= 'Kapow' then
+    if(MANAGED_ANIMATIONS[animType]) then
         frame.anim:SetScript("OnPlay", Anim_OnPlay)
         frame.anim:SetScript("OnFinished", Anim_OnFinished)
         frame.anim:SetScript("OnStop", Anim_OnStop)
     end
 
-    if scriptToParent then
+    if(scriptToParent) then
         local frameParent = frame:GetParent();
         if(frameParent.SetScript) then
             frameParent.anim = frame.anim;
@@ -217,7 +219,7 @@ local function AnimationTemplate(frame, animType, hideOnFinished, speed, special
         frame:SetScript("OnHide", Anim_OnHide)
     end
 
-    if animType == 'Flash'then
+    if(animType == 'Flash') then
         frame.anim.fadeOnFinished = true
         if not speed then speed = 0.33 end 
 
@@ -234,7 +236,7 @@ local function AnimationTemplate(frame, animType, hideOnFinished, speed, special
         if special then 
             frame.anim:SetLooping("REPEAT")
         end
-    elseif animType == 'Orbit' then
+    elseif(animType == 'Orbit') then
         frame.anim[1] = SetNewAnimation(frame.anim, "Rotation")
         if special then 
             frame.anim[1]:SetDegrees(-360)
@@ -244,7 +246,7 @@ local function AnimationTemplate(frame, animType, hideOnFinished, speed, special
         frame.anim[1]:SetDuration(speed)
         frame.anim:SetLooping("REPEAT")
         frame.anim:Play()
-    elseif animType == 'Sprite' then
+    elseif(animType == 'Sprite') then
         frame.anim[1] = SetNewAnimation(frame.anim, "Translation")
         frame.anim[1]:SetOrder(1)
         frame.anim[1]:SetDuration(speed)
@@ -274,7 +276,7 @@ local function AnimationTemplate(frame, animType, hideOnFinished, speed, special
         end 
 
         frame.anim:SetLooping("REPEAT")
-    elseif animType == 'SmallSprite' then
+    elseif(animType == 'SmallSprite') then
         frame.anim[1] = SetNewAnimation(frame.anim, "Translation")
         frame.anim[1]:SetOrder(1)
         frame.anim[1]:SetDuration(speed)
@@ -315,7 +317,7 @@ local function AnimationTemplate(frame, animType, hideOnFinished, speed, special
         frame.anim[8]:SetDuration(speed)
         frame.anim[8]:SetScript("OnUpdate", SmallSprite_OnUpdate)
 
-        if special then 
+        if(special) then 
             frame.anim[9] = SetNewAnimation(frame.anim, "Translation")
             frame.anim[9]:SetOrder(9)
             frame.anim[9]:SetDuration(special)
@@ -324,20 +326,19 @@ local function AnimationTemplate(frame, animType, hideOnFinished, speed, special
         end 
 
         frame.anim:SetLooping("REPEAT")
-    elseif animType == 'Pulse' then
-        frame.anim.savedFrameLevel = frame:GetFrameLevel()
+    elseif(animType == 'Pulse') then
+        frame.anim:SetScript("OnPlay", Pulse_OnPlay)
 
         frame.anim[1] = SetNewAnimation(frame.anim)
         frame.anim[1]:SetDuration(0.2)
-        frame.anim[1]:SetEndDelay(0.1)
         frame.anim[1]:SetOrder(1)
-        frame.anim[1]:SetScript("OnUpdate", PulseIn_OnUpdate)
+        frame.anim[1]:SetScript("OnUpdate", Pulse_OnUpdate1)
 
         frame.anim[2] = SetNewAnimation(frame.anim)
         frame.anim[2]:SetDuration(0.6)
         frame.anim[2]:SetOrder(2)
-        frame.anim[2]:SetScript("OnUpdate", PulseOut_OnUpdate)
-    elseif animType == 'Kapow' then
+        frame.anim[2]:SetScript("OnUpdate", Pulse_OnUpdate2)
+    elseif(animType == 'Kapow') then
         frame.anim:SetScript("OnPlay", Kapow_OnPlay)
 
         frame.anim.startscale = frame:GetScale()
@@ -346,7 +347,7 @@ local function AnimationTemplate(frame, animType, hideOnFinished, speed, special
         frame.anim[1]:SetDuration(0.2)
         frame.anim[1]:SetOrder(1)
         frame.anim[1]:SetDegrees(360)
-        frame.anim[1]:SetScript("OnUpdate", Kapow_OnUpdate)
+        frame.anim[1]:SetScript("OnUpdate", Kapow_OnUpdate1)
 
         frame.anim[2] = SetNewAnimation(frame.anim)
         frame.anim[2]:SetDuration(0.3)
