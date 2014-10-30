@@ -517,7 +517,7 @@ function MOD:RefreshUnitLayout(frame, template)
 			cX = db.name.xOffset
 			cY = db.name.yOffset
 			nametext:ClearAllPoints()
-			SV:ReversePoint(nametext, point, infoPanel, cX, cY)
+			SV:SetReversePoint(nametext, point, infoPanel, cX, cY)
 
 			if(nametext.initialAnchor:find("RIGHT")) then
 				nametext:SetJustifyH("RIGHT")
@@ -549,7 +549,7 @@ function MOD:RefreshUnitLayout(frame, template)
 			cX = db.health.xOffset
 			cY = db.health.yOffset
 			healthtext:ClearAllPoints()
-			SV:ReversePoint(healthtext, point, infoPanel, cX, cY)
+			SV:SetReversePoint(healthtext, point, infoPanel, cX, cY)
 			frame:Tag(healthtext, db.health.tags)
 		end
 	end
@@ -565,7 +565,7 @@ function MOD:RefreshUnitLayout(frame, template)
 				cX = db.power.xOffset
 				cY = db.power.yOffset
 				powertext:ClearAllPoints()
-				SV:ReversePoint(powertext, point, infoPanel, cX, cY)
+				SV:SetReversePoint(powertext, point, infoPanel, cX, cY)
 				if db.power.attachTextToPower then 
 					powertext:SetParent(frame.Power)
 				else 
@@ -882,7 +882,7 @@ function MOD:RefreshUnitLayout(frame, template)
 
 			local attachTo = FindAnchorFrame(frame, db.buffs.attachTo, db.debuffs.attachTo == 'BUFFS' and db.buffs.attachTo == 'DEBUFFS')
 
-			SV:ReversePoint(buffs, db.buffs.anchorPoint, attachTo, db.buffs.xOffset + BOTTOM_MODIFIER, db.buffs.yOffset)
+			SV:SetReversePoint(buffs, db.buffs.anchorPoint, attachTo, db.buffs.xOffset + BOTTOM_MODIFIER, db.buffs.yOffset)
 			buffs:SetWidth((auraSize + buffs.spacing) * perRow)
 			buffs:Height((auraSize + buffs.spacing) * numRows)
 			buffs["growth-y"] = db.buffs.verticalGrowth;
@@ -914,7 +914,7 @@ function MOD:RefreshUnitLayout(frame, template)
 
 			local attachTo = FindAnchorFrame(frame, db.debuffs.attachTo, db.debuffs.attachTo == 'BUFFS' and db.buffs.attachTo == 'DEBUFFS')
 
-			SV:ReversePoint(debuffs, db.debuffs.anchorPoint, attachTo, db.debuffs.xOffset + BOTTOM_MODIFIER, db.debuffs.yOffset)
+			SV:SetReversePoint(debuffs, db.debuffs.anchorPoint, attachTo, db.debuffs.xOffset + BOTTOM_MODIFIER, db.debuffs.yOffset)
 			debuffs:SetWidth((auraSize + debuffs.spacing) * perRow)
 			debuffs:Height((auraSize + debuffs.spacing) * numRows)
 			debuffs["growth-y"] = db.debuffs.verticalGrowth;
@@ -996,7 +996,7 @@ function MOD:RefreshUnitLayout(frame, template)
 
 					classIcon:SetAlpha(1)
 					classIcon:Size(size)
-					SV:ReversePoint(classIcon, ico.classIcon.attachTo, healthPanel, ico.classIcon.xOffset, ico.classIcon.yOffset)
+					SV:SetReversePoint(classIcon, ico.classIcon.attachTo, healthPanel, ico.classIcon.xOffset, ico.classIcon.yOffset)
 				else 
 					classIcon:Hide()
 				end
@@ -1019,7 +1019,7 @@ function MOD:RefreshUnitLayout(frame, template)
 					else
 						raidIcon:SetAlpha(1)
 						raidIcon:Size(size)
-						SV:ReversePoint(raidIcon, ico.raidicon.attachTo, healthPanel, ico.raidicon.xOffset, ico.raidicon.yOffset)
+						SV:SetReversePoint(raidIcon, ico.raidicon.attachTo, healthPanel, ico.raidicon.xOffset, ico.raidicon.yOffset)
 					end
 				else 
 					frame:DisableElement('RaidIcon')
@@ -1044,7 +1044,7 @@ function MOD:RefreshUnitLayout(frame, template)
 					else
 						lfd:SetAlpha(1)
 						lfd:Size(size)
-						SV:ReversePoint(lfd, ico.roleIcon.attachTo, healthPanel, ico.roleIcon.xOffset, ico.roleIcon.yOffset)
+						SV:SetReversePoint(lfd, ico.roleIcon.attachTo, healthPanel, ico.roleIcon.xOffset, ico.roleIcon.yOffset)
 					end
 				else 
 					frame:DisableElement('LFDRole')
@@ -1070,7 +1070,7 @@ function MOD:RefreshUnitLayout(frame, template)
 					else
 						roles:SetAlpha(1)
 						roles:Size(size)
-						SV:ReversePoint(roles, ico.raidRoleIcons.attachTo, healthPanel, ico.raidRoleIcons.xOffset, ico.raidRoleIcons.yOffset)
+						SV:SetReversePoint(roles, ico.raidRoleIcons.attachTo, healthPanel, ico.raidRoleIcons.xOffset, ico.raidRoleIcons.yOffset)
 					end
 				else 
 					roles:Hide()

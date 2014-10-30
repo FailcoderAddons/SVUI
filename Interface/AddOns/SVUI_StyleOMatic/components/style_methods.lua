@@ -41,8 +41,6 @@ local PLUGIN = select(2, ...);
 local Schema = PLUGIN.Schema;
 local LSM = LibStub("LibSharedMedia-3.0")
 local NewHook = hooksecurefunc;
-
-local ScaledOffset = SV:Scale(1)
 --[[ 
 ########################################################## 
  /$$$$$$$$/$$$$$$$   /$$$$$$  /$$      /$$ /$$$$$$$$

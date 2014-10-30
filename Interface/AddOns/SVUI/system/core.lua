@@ -99,10 +99,15 @@ local SVLib = LibSuperVillain("Registry");
 local callbacks = {};
 local numCallbacks = 0;
 local playerClass = select(2, UnitClass("player"));
-local actualWidth, actualHeight = UIParent:GetSize()
 local messagePattern = "|cffFF2F00%s:|r";
 local debugPattern = "|cffFF2F00%s|r [|cff992FFF%s|r]|cffFF2F00:|r";
 local errorPattern = "|cffff0000Error -- |r|cffff9900Required addon '|r|cffffff00%s|r|cffff9900' is %s.|r"
+
+local rez = GetCVar("gxResolution");
+local defaultQuarterWidth = tonumber(rez:match("(%d+)x%d+")) * 0.2;
+local defaultQuarterHeight = tonumber(rez:match("%d+x(%d+)")) * 0.2;
+local defaultButtonSize = defaultQuarterHeight * 0.2;
+local defaultCenterWidth = ((defaultDockWidth * 2) - ((defaultButtonSize + 8) * 2));
 
 --[[ HELPERS ]]--
 
@@ -216,13 +221,10 @@ end
 local SVUI = SVLib:NewCore("SVUI_Global", "SVUI_Errors", "SVUI_Profile", "SVUI_Cache")
 
 SVUI.ConfigID           = "SVUI_ConfigOMatic";
-SVUI.class              = playerClass
-SVUI.ClassRole          = ""
-SVUI.UnitRole           = "NONE"
-SVUI.ConfigurationMode  = false
-SVUI.EffectiveScale     = 1
-SVUI.yScreenArea        = (actualHeight * 0.33)
-SVUI.xScreenArea        = (actualWidth * 0.33)
+SVUI.class              = playerClass;
+SVUI.ClassRole          = "";
+SVUI.UnitRole           = "NONE";
+SVUI.ConfigurationMode  = false;
 
 --[[ EMBEDDED LIBS ]]--
 
@@ -230,15 +232,20 @@ SVUI.L          = LibSuperVillain("Linguist"):Lang();
 SVUI.Animate    = LibSuperVillain("Animate");
 SVUI.Timers     = LibSuperVillain("Timers");
 
---[[ UTILITY FRAMES ]]--
-
 SVUI.Screen = CreateFrame("Frame", "SVUIParent", UIParent);
 SVUI.Screen:SetFrameLevel(UIParent:GetFrameLevel());
 SVUI.Screen:SetPoint("CENTER", UIParent, "CENTER");
 SVUI.Screen:SetSize(UIParent:GetSize());
 
-SVUI.Cloaked = CreateFrame("Frame", nil, UIParent);
-SVUI.Cloaked:Hide();
+SVUI.Screen.Estimates = {
+    width = defaultQuarterWidth,
+    height = defaultQuarterHeight,
+    center = defaultCenterWidth,
+    button = defaultButtonSize
+};
+
+SVUI.Hidden = CreateFrame("Frame", nil, UIParent);
+SVUI.Hidden:Hide();
 
 SVUI.Options = { 
     type = "group", 
@@ -411,10 +418,8 @@ end
 
 function SVUI:RefreshEverything(bypass)
     self:RefreshAllSystemMedia();
-    self.Screen:Hide();
     self.Mentalo:SetPositions();
     SVLib:RefreshAll();
-    self.Screen:Show();
     if not bypass then
         self:VersionCheck()
     end
@@ -526,28 +531,16 @@ end
 function SVUI:Initialize()
     SVLib:Initialize();
 
-    local rez = GetCVar("gxResolution");
-    local gxHeight = tonumber(match(rez,"%d+x(%d+)"));
-    local gxWidth = tonumber(match(rez,"(%d+)x%d+"));
-
-    self.DisplaySettings = SVLib:NewGlobal("Display")
-    if(not self.DisplaySettings.screenheight or (self.DisplaySettings.screenheight and type(self.DisplaySettings.screenheight) ~= "number")) then 
-        self.DisplaySettings.screenheight = gxHeight 
-    end
-    if(not self.DisplaySettings.screenwidth or (self.DisplaySettings.screenwidth and type(self.DisplaySettings.screenwidth) ~= "number")) then 
-        self.DisplaySettings.screenwidth = gxWidth 
-    end
-
     self:UI_SCALE_CHANGED()
 
     self:RefreshSystemFonts();
     self:LoadSystemAlerts();
+
     self.Timers:Initialize();
-    self.Dock:Initialize();
-    self.Mentalo:Initialize();
+
+    self:LoadFramework();
 
     self.safedata = SVLib:GetSafeData();
-
 
     SVLib:Launch();
 

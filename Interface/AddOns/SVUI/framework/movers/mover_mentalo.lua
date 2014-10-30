@@ -575,7 +575,7 @@ function Mentalo:New(frame, moveName, title, raised, snap, dragStopFunc)
 	frame:SetPoint(anchor1, movable, 0, 0)
 
 	local mtext = movable:CreateFontString(nil, "OVERLAY")
-	mtext:SetFontTemplate()
+	mtext:FontManager()
 	mtext:SetJustifyH("CENTER")
 	mtext:SetPoint("CENTER")
 	mtext:SetText(title or moveName)

@@ -1109,29 +1109,29 @@ do
 
 	local function UpdateThisPlate(plate)
 		if(not ProxyThisPlate(plate, true)) then return; end
-		SVUI_PLATE.name:SetFontTemplate(NPFont, NPFSize, NPFOutline)
+		SVUI_PLATE.name:FontManager(NPFont, NPFSize, NPFOutline)
 		SVUI_PLATE.name:SetTextColor(1, 1, 1)
-		SVUI_PLATE.level:SetFontTemplate(NPFont, NPFSize, NPFOutline)
+		SVUI_PLATE.level:FontManager(NPFont, NPFSize, NPFOutline)
 		if not PLATE_ARGS.scaled and not PLATE_ARGS.tiny then
 			SVUI_PLATE.health:SetSize(HBWidth, HBHeight)
 		end
 		SVUI_PLATE.health:SetStatusBarTexture(SV.Media.bar.textured)
-		SVUI_PLATE.health.text:SetFontTemplate(SV.Media.font.roboto, 8, "OUTLINE")
+		SVUI_PLATE.health.text:FontManager(SV.Media.font.roboto, 8, "OUTLINE")
 		SVUI_PLATE.cast:SetSize(HBWidth, (CBHeight + 20))
 		SVUI_PLATE.cast:SetStatusBarTexture(SV.Media.bar.lazer)
 		SVUI_PLATE.cast.text:SetFont(SV.Media.font.roboto, 8, "OUTLINE")
 		plate.cast.text:SetFont(SV.Media.font.roboto, 8, "OUTLINE")
 		plate.cast.icon:Size((CBHeight + HBHeight) + 5)
 		PLATE_REF.raidicon:ClearAllPoints()
-		SV:ReversePoint(PLATE_REF.raidicon, RIAnchor, SVUI_PLATE.health, RIXoffset, RIYoffset)	
+		SV:SetReversePoint(PLATE_REF.raidicon, RIAnchor, SVUI_PLATE.health, RIXoffset, RIYoffset)	
 		PLATE_REF.raidicon:SetSize(RISize, RISize)
 		SVUI_PLATE.health.icon:ClearAllPoints()
-		SV:ReversePoint(SVUI_PLATE.health.icon, RIAnchor, SVUI_PLATE.health, RIXoffset, RIYoffset)
+		SV:SetReversePoint(SVUI_PLATE.health.icon, RIAnchor, SVUI_PLATE.health, RIXoffset, RIYoffset)
 		SVUI_PLATE.health.icon:SetSize(RISize, RISize)
 		for index = 1, #PLATE_AURAICONS do 
 			if PLATE_AURAICONS and PLATE_AURAICONS[index] then
-				PLATE_AURAICONS[index].TimeLeft:SetFontTemplate(AuraFont, AuraFSize, AuraFOutline)
-				PLATE_AURAICONS[index].Stacks:SetFontTemplate(AuraFont, AuraFSize, AuraFOutline)
+				PLATE_AURAICONS[index].TimeLeft:FontManager(AuraFont, AuraFSize, AuraFOutline)
+				PLATE_AURAICONS[index].Stacks:FontManager(AuraFont, AuraFSize, AuraFOutline)
 				PLATE_AURAICONS[index].Icon:SetTexCoord(.07, 0.93, .23, 0.77)
 			end
 		end

@@ -148,7 +148,7 @@ local function SetDisplayStats(arg)
 		if(flags[1]) then 
 			frame.ItemLevel = frame:CreateFontString(nil, "OVERLAY")
 			frame.ItemLevel:Point("BOTTOMRIGHT", frame, "BOTTOMRIGHT", 2, 1)
-			frame.ItemLevel:SetFontTemplate(SV.Media.font.roboto, 10, "OUTLINE", "RIGHT")
+			frame.ItemLevel:FontManager(SV.Media.font.roboto, 10, "OUTLINE", "RIGHT")
 		end 
 		
 		if(arg == "Character" and flags[2]) then

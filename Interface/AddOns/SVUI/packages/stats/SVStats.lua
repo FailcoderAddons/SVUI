@@ -57,6 +57,9 @@ local LSM = LibStub("LibSharedMedia-3.0")
 local LDB = LibStub("LibDataBroker-1.1", true)
 local MOD = SV:NewPackage("SVStats", L["Statistics"]);
 
+MOD.TopBar = _G["SVUI_DockStatsTop"];
+MOD.BottomBar = _G["SVUI_DockStatsBottom"];
+
 MOD.Anchors = {};
 MOD.Statistics = {};
 MOD.DisabledList = {};
@@ -100,7 +103,6 @@ local BGStatString = "%s: %s"
 local myName = UnitName("player");
 local myClass = select(2,UnitClass("player"));
 local classColor = RAID_CLASS_COLORS[myClass];
-local StatMenuFrame = CreateFrame("Frame", "SVUI_StatMenu", UIParent);
 local SCORE_CACHE = {};
 local hexHighlight = "FFFFFF";
 local StatMenuListing = {}
@@ -146,7 +148,7 @@ local UpdateAnchor = function()
 			width = anchor:GetWidth() / numPoints - 4;
 			height = anchor:GetHeight() - 4;
 			if(backdrops) then
-				height = SV.Dock.Right.Bar.Button:GetHeight() - 6
+				height = SV.Dock.BottomRight.Bar.Button:GetHeight() - 6
 			end
 		end
 
@@ -277,11 +279,11 @@ function MOD:NewAnchor(parent, maxCount, tipAnchor, isTop, customTemplate, isVer
 			parent.holders[position].text = parent.holders[position].textframe:CreateFontString(nil, "OVERLAY", nil, 7)
 			parent.holders[position].text:SetAllPoints()
 			if(SV.db.SVStats.showBackground) then
-				parent.holders[position].text:SetFontTemplate(LSM:Fetch("font", SV.db.SVStats.font), SV.db.SVStats.fontSize, "NONE", "CENTER", "MIDDLE")
+				parent.holders[position].text:FontManager(LSM:Fetch("font", SV.db.SVStats.font), SV.db.SVStats.fontSize, "NONE", "CENTER", "MIDDLE")
 				parent.holders[position].text:SetShadowColor(0, 0, 0, 0.5)
 				parent.holders[position].text:SetShadowOffset(2, -4)
 			else
-				parent.holders[position].text:SetFontTemplate(LSM:Fetch("font", SV.db.SVStats.font), SV.db.SVStats.fontSize, SV.db.SVStats.fontOutline)
+				parent.holders[position].text:FontManager(LSM:Fetch("font", SV.db.SVStats.font), SV.db.SVStats.fontSize, SV.db.SVStats.fontOutline)
 				parent.holders[position].text:SetJustifyH("CENTER")
 				parent.holders[position].text:SetJustifyV("MIDDLE")
 			end
@@ -343,116 +345,12 @@ do
 		MOD.tooltip:Hide()
 	end
 
-	local DD_OnClick = function(self)
-		self.func()
-		self:GetParent():Hide()
-	end
-
-	local DD_OnEnter = function(self)
-		self.hoverTex:Show()
-	end
-
-	local DD_OnLeave = function(self)
-		self.hoverTex:Hide()
-	end
-
-	local function _locate(parent)
-		local centerX, centerY = parent:GetCenter()
-		local screenWidth = GetScreenWidth()
-		local screenHeight = GetScreenHeight()
-		local result;
-		if not centerX or not centerY then 
-			return "CENTER"
-		end 
-		local heightTop = screenHeight * 0.75;
-		local heightBottom = screenHeight * 0.25;
-		local widthLeft = screenWidth * 0.25;
-		local widthRight = screenWidth * 0.75;
-		if(((centerX > widthLeft) and (centerX < widthRight)) and (centerY > heightTop)) then 
-			result = "TOP"
-		elseif((centerX < widthLeft) and (centerY > heightTop)) then 
-			result = "TOPLEFT"
-		elseif((centerX > widthRight) and (centerY > heightTop)) then 
-			result = "TOPRIGHT"
-		elseif(((centerX > widthLeft) and (centerX < widthRight)) and centerY < heightBottom) then 
-			result = "BOTTOM"
-		elseif((centerX < widthLeft) and (centerY < heightBottom)) then 
-			result = "BOTTOMLEFT"
-		elseif((centerX > widthRight) and (centerY < heightBottom)) then 
-			result = "BOTTOMRIGHT"
-		elseif((centerX < widthLeft) and (centerY > heightBottom) and (centerY < heightTop)) then 
-			result = "LEFT"
-		elseif((centerX > widthRight) and (centerY < heightTop) and (centerY > heightBottom)) then 
-			result = "RIGHT"
-		else 
-			result = "CENTER"
-		end
-		return result 
-	end
-
-	function MOD:SetStatMenu(self, list)
-		if not StatMenuFrame.buttons then
-			StatMenuFrame.buttons = {}
-			StatMenuFrame:SetFrameStrata("DIALOG")
-			StatMenuFrame:SetClampedToScreen(true)
-			tinsert(UISpecialFrames, StatMenuFrame:GetName())
-			StatMenuFrame:Hide()
-		end
-		local maxPerColumn = 25
-		local cols = 1
-		for i=1, #StatMenuFrame.buttons do
-			StatMenuFrame.buttons[i]:Hide()
-		end
-
-		for i=1, #list do 
-			if not StatMenuFrame.buttons[i] then
-				StatMenuFrame.buttons[i] = CreateFrame("Button", nil, StatMenuFrame)
-				StatMenuFrame.buttons[i].hoverTex = StatMenuFrame.buttons[i]:CreateTexture(nil, 'OVERLAY')
-				StatMenuFrame.buttons[i].hoverTex:SetAllPoints()
-				StatMenuFrame.buttons[i].hoverTex:SetTexture([[Interface\QuestFrame\UI-QuestTitleHighlight]])
-				StatMenuFrame.buttons[i].hoverTex:SetBlendMode("ADD")
-				StatMenuFrame.buttons[i].hoverTex:Hide()
-				StatMenuFrame.buttons[i].text = StatMenuFrame.buttons[i]:CreateFontString(nil, 'BORDER')
-				StatMenuFrame.buttons[i].text:SetAllPoints()
-				StatMenuFrame.buttons[i].text:SetFont(SV.Media.font.roboto,12,"OUTLINE")
-				StatMenuFrame.buttons[i].text:SetJustifyH("LEFT")
-				StatMenuFrame.buttons[i]:SetScript("OnEnter", DD_OnEnter)
-				StatMenuFrame.buttons[i]:SetScript("OnLeave", DD_OnLeave)           
-			end
-			StatMenuFrame.buttons[i]:Show()
-			StatMenuFrame.buttons[i]:SetHeight(16)
-			StatMenuFrame.buttons[i]:SetWidth(135)
-			StatMenuFrame.buttons[i].text:SetText(list[i].text)
-			StatMenuFrame.buttons[i].func = list[i].func
-			StatMenuFrame.buttons[i]:SetScript("OnClick", DD_OnClick)
-			if i == 1 then
-				StatMenuFrame.buttons[i]:SetPoint("TOPLEFT", StatMenuFrame, "TOPLEFT", 10, -10)
-			elseif((i -1) % maxPerColumn == 0) then
-				StatMenuFrame.buttons[i]:SetPoint("TOPLEFT", StatMenuFrame.buttons[i - maxPerColumn], "TOPRIGHT", 10, 0)
-				cols = cols + 1
-			else
-				StatMenuFrame.buttons[i]:SetPoint("TOPLEFT", StatMenuFrame.buttons[i - 1], "BOTTOMLEFT")
-			end
-		end
-		local maxHeight = (min(maxPerColumn, #list) * 16) + 20
-		local maxWidth = (135 * cols) + (10 * cols)
-		StatMenuFrame:SetSize(maxWidth, maxHeight)    
-		StatMenuFrame:ClearAllPoints()
-		local point = _locate(self:GetParent()) 
-		if point:find("BOTTOM") then
-			StatMenuFrame:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 10, 10)
-		else
-			StatMenuFrame:SetPoint("TOPLEFT", self, "BOTTOMLEFT", 10, -10)
-		end
-		ToggleFrame(StatMenuFrame)
-	end
-
 	local Parent_OnClick = function(self, button)
 		if IsAltKeyDown() then
-			MOD:SetStatMenu(self, self.MenuList);
+			SV.Dropdown:Open(self, self.MenuList);
 		elseif(self.onClick) then
-			if(StatMenuFrame:IsShown()) then
-				ToggleFrame(StatMenuFrame)
+			if(SV.Dropdown:IsShown()) then
+				ToggleFrame(SV.Dropdown)
 			else
 				self.onClick(self, button);
 			end
@@ -663,29 +561,13 @@ function MOD:UnSet(parent)
 	self.DisabledList[parent.StatParent] = true
 	self:SetMenuLists()
 end
-
-function MOD:UpdateStatSize()
-	local rez = GetCVar("gxResolution");
-	local gxWidth = tonumber(rez:match("(%d+)x%d+"));
-	local bw = gxWidth * 0.5
-	local defaultStatBarWidth = min(bw, 800)
-	local buttonsize = SV.Dock.Left.Bar.ToolBar:GetHeight()
-    local statBarWidth = SV.db.SVStats.dockStatWidth or defaultStatBarWidth
-    _G["SVUI_TopStatsDock"]:Size(statBarWidth - 2, buttonsize - 8)
-	_G["SVUI_StatsBar1"]:Size((statBarWidth * 0.5) - 1, buttonsize - 8)
-	_G["SVUI_StatsBar2"]:Size((statBarWidth * 0.5) - 1, buttonsize - 8)
-	_G["SVUI_BottomStatsDock"]:Size(statBarWidth - 2, buttonsize - 8)
-	_G["SVUI_StatsBar3"]:Size((statBarWidth * 0.5) - 1, buttonsize - 8)
-	_G["SVUI_StatsBar4"]:Size((statBarWidth * 0.5) - 1, buttonsize - 8)
-	self:Generate()
-end
 --[[ 
 ########################################################## 
 BUILD FUNCTION / UPDATE
 ##########################################################
 ]]--
 function MOD:ReLoad()
-	self:UpdateStatSize()
+	self:Generate()
 end 
 
 function MOD:Load()
@@ -693,8 +575,8 @@ function MOD:Load()
 	local gxWidth = tonumber(rez:match("(%d+)x%d+"));
 	local bw = gxWidth * 0.5
 	local defaultStatBarWidth = min(bw, 800)
-	local buttonsize = SV.Dock.Left.Bar.ToolBar:GetHeight()
-    local spacing = SV.Dock.Left:GetAttribute("spacingSize")
+	local buttonsize = SV.Dock.BottomLeft.Bar.ToolBar:GetHeight()
+    local spacing = SV.Dock.BottomLeft:GetAttribute("spacingSize")
     local statBarWidth = SV.db.SVStats.dockStatWidth or defaultStatBarWidth
 
 	hexHighlight = SV:HexColor("highlight") or "FFFFFF"
@@ -710,50 +592,14 @@ function MOD:Load()
 	self.Accountant[playerRealm]["tokens"] = self.Accountant[playerRealm]["tokens"] or {};
 	self.Accountant[playerRealm]["tokens"][playerName] = self.Accountant[playerRealm]["tokens"][playerName] or 738;
 
-	--TOP STAT HOLDERS
-
-	local topanchor = CreateFrame("Frame", "SVUI_TopStatsDock", SV.Screen)
-	topanchor:Size(statBarWidth - 2, buttonsize - 8)
-	topanchor:Point("LEFT", SV.Dock.Top.ToolBar, "RIGHT", spacing, 0)
-	SV:AddToDisplayAudit(topanchor)
-
-	local topleftdata = CreateFrame("Frame", "SVUI_StatsBar1", topanchor)
-	topleftdata:Size((statBarWidth * 0.5) - 1, buttonsize - 8)
-	topleftdata:Point("LEFT", topanchor, "LEFT", 0, 0)
-	self:NewAnchor(topleftdata, 3, "ANCHOR_CURSOR", true)
-	SV.Mentalo:Add(topleftdata, L["Stats Dock 1"])
-
-	local toprightdata = CreateFrame("Frame", "SVUI_StatsBar2", topanchor)
-	toprightdata:Size((statBarWidth * 0.5) - 1, buttonsize - 8)
-	toprightdata:Point("RIGHT", topanchor, "RIGHT", 0, 0)
-	self:NewAnchor(toprightdata, 3, "ANCHOR_CURSOR", true)
-	SV.Mentalo:Add(toprightdata, L["Stats Dock 2"])
-
-	--BOTTOM STAT HOLDERS
-
-	local bottomanchor = CreateFrame("Frame", "SVUI_BottomStatsDock", SV.Screen)
-	bottomanchor:Size(statBarWidth - 2, buttonsize - 8)
-	bottomanchor:Point("BOTTOM", SV.Screen, "BOTTOM", 0, 2)
-
-	local bottomleftdata = CreateFrame("Frame", "SVUI_StatsBar3", bottomanchor)
-	bottomleftdata:Size((statBarWidth * 0.5) - 1, buttonsize - 8)
-	bottomleftdata:Point("LEFT", bottomanchor, "LEFT", 0, 0)
-	self:NewAnchor(bottomleftdata, 3, "ANCHOR_CURSOR")
-	SV.Mentalo:Add(bottomleftdata, L["Stats Dock 3"])
-
-	local bottomrightdata = CreateFrame("Frame", "SVUI_StatsBar4", bottomanchor)
-	bottomrightdata:Size((statBarWidth * 0.5) - 1, buttonsize - 8)
-	bottomrightdata:Point("RIGHT", bottomanchor, "RIGHT", 0, 0)
-	self:NewAnchor(bottomrightdata, 3, "ANCHOR_CURSOR")
-	SV.Mentalo:Add(bottomrightdata, L["Stats Dock 4"])
+	self:NewAnchor(SV.Dock.BottomCenter.Left, 3, "ANCHOR_CURSOR")
+	self:NewAnchor(SV.Dock.BottomCenter.Right, 3, "ANCHOR_CURSOR")
+	self:NewAnchor(SV.Dock.TopCenter.Left, 3, "ANCHOR_CURSOR")
+	self:NewAnchor(SV.Dock.TopCenter.Right, 3, "ANCHOR_CURSOR")
 
 	self:LoadServerGold()
 	self:CacheRepData()
 	self:CacheTokenData()
-
-	StatMenuFrame:SetParent(SV.Screen);
-	StatMenuFrame:SetPanelTemplate("Transparent");
-	StatMenuFrame:Hide()
 	
 	self.tooltip:SetParent(SV.Screen)
 	self.tooltip:SetFrameStrata("DIALOG")

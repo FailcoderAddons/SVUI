@@ -135,7 +135,7 @@ local Tracker_OnUpdate = function(self, elapsed)
                 self.BG:SetVertexColor(1,0,0,0.15)
             else
                 self.throttle = 0.02
-                local range = floor(distance * 1000)
+                local range = floor(distance)
                 self:Spin(angle)
                 if(range > 0) then
                     self.Arrow:SetAlpha(1)

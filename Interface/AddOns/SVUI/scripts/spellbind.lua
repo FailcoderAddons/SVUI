@@ -413,25 +413,7 @@ LOADER
 ]]--
 SVUI_SpellBinderCloseButton:SetScript("OnClick", SpellBindClose_OnClick)
 
-SpellBinder:RemoveTextures()
-
-SVUI_SpellBinderInset:RemoveTextures()
-
-SpellBinder:SetPanelTemplate("Action")
-SpellBinder.Panel:SetPoint("TOPLEFT", -18, 0)
-SpellBinder.Panel:SetPoint("BOTTOMRIGHT", 0, 0)
-
-SpellBinder.list:RemoveTextures()
-SpellBinder.list:SetPanelTemplate("Inset")
-
 SpellBinder.tab = CreateFrame("CheckButton", nil, _G["SpellBookSkillLineTab1"], "SpellBookSkillLineTabTemplate")
-SpellBinder.tab:RemoveTextures()
-SpellBinder.tab:SetButtonTemplate()
-SpellBinder.tab:SetNormalTexture("Interface\\ICONS\\Achievement_Guild_Doctorisin")
-SpellBinder.tab:GetNormalTexture():ClearAllPoints()
-SpellBinder.tab:GetNormalTexture():SetPoint("TOPLEFT", 2, -2)
-SpellBinder.tab:GetNormalTexture():SetPoint("BOTTOMRIGHT", -2, 2)
-SpellBinder.tab:GetNormalTexture():SetTexCoord(0.1, 0.9, 0.1, 0.9)
 SpellBinder.tab:SetScript("OnShow", SpellBindTab_OnShow)
 SpellBinder.tab:SetScript("OnClick", SpellBindTab_OnClick)
 SpellBinder.tab:Show()
@@ -447,6 +429,25 @@ local function LoadSpellBinder()
 	SV.cache.SpellBinder.spells = SV.cache.SpellBinder.spells or {}
 	SV.cache.SpellBinder.frames = SV.cache.SpellBinder.frames or {}
 	SV.cache.SpellBinder.keys = SV.cache.SpellBinder.keys or {}
+
+	SpellBinder:RemoveTextures()
+
+	SVUI_SpellBinderInset:RemoveTextures()
+
+	SpellBinder:SetPanelTemplate("Action")
+	SpellBinder.Panel:SetPoint("TOPLEFT", -18, 0)
+	SpellBinder.Panel:SetPoint("BOTTOMRIGHT", 0, 0)
+
+	SpellBinder.list:RemoveTextures()
+	SpellBinder.list:SetPanelTemplate("Inset")
+
+	SpellBinder.tab:RemoveTextures()
+	SpellBinder.tab:SetButtonTemplate()
+	SpellBinder.tab:SetNormalTexture("Interface\\ICONS\\Achievement_Guild_Doctorisin")
+	SpellBinder.tab:GetNormalTexture():ClearAllPoints()
+	SpellBinder.tab:GetNormalTexture():SetPoint("TOPLEFT", 2, -2)
+	SpellBinder.tab:GetNormalTexture():SetPoint("BOTTOMRIGHT", -2, 2)
+	SpellBinder.tab:GetNormalTexture():SetTexCoord(0.1, 0.9, 0.1, 0.9)
 
 	SpellBinder:BuildList()
 	SpellBinder:BuildSpells(true)

@@ -458,19 +458,18 @@ function PLUGIN:LoadArchaeologyMode()
 		end
 		bar:SetStatusBarColor(0.2, 0.2, 0.8, 0.5)
 		
-		local sOffset = SV:Scale(1)
 		-- Race Text
 		local race = bar:CreateFontString()
 		race:SetFontObject(NumberFont_Outline_Large)
 		race:SetText(RACE)
-		race:SetPoint("TOPLEFT", bar, "TOPLEFT", sOffset, -sOffset)
+		race:SetPoint("TOPLEFT", bar, "TOPLEFT", 1, -1)
 		race:SetTextColor(1,0.8,0)
 
 		-- Progress Text
 		local progress = bar:CreateFontString()
 		progress:SetFont(SV.Media.font.roboto, 11, "OUTLINE")
 		progress:SetText("")
-		progress:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT", -sOffset, sOffset)
+		progress:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT", -1, 1)
 
 		-- Solve
 		solve:SetAllPoints(bar)

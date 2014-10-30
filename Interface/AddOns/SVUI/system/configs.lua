@@ -19,10 +19,6 @@ GET ADDON DATA
 local SV = select(2, ...)
 
 local playerClass = select(2, UnitClass("player"));
-local rez = GetCVar("gxResolution");
-local gxWidth = tonumber(rez:match("(%d+)x%d+"));
-local bw = gxWidth * 0.5
-local defaultStatBarWidth = min(bw, 800)
 
 local filterClass = playerClass or "NONE"
 
@@ -448,6 +444,7 @@ SV.configs["SVBag"] = {
 
 SV.configs["SVChat"] = {
 	["enable"] = true, 
+	["docked"] = "BottomLeft",
 	["tabHeight"] = 20, 
 	["tabWidth"] = 75, 
 	["tabStyled"] = true, 
@@ -473,11 +470,12 @@ SV.configs["SVChat"] = {
 
 SV.configs["Dock"] = {
 	["enable"] = true, 
-	["dockLeftWidth"] = 412, 
-	["dockLeftHeight"] = 224, 
-	["dockRightWidth"] = 412, 
-	["dockRightHeight"] = 224, 
-	["buttonSize"] = 30, 
+	["dockLeftWidth"] = SV.Screen.Estimates.width, 
+	["dockLeftHeight"] = SV.Screen.Estimates.height, 
+	["dockRightWidth"] = SV.Screen.Estimates.width, 
+	["dockRightHeight"] = SV.Screen.Estimates.height,
+	["dockCenterWidth"] = SV.Screen.Estimates.center,
+	["buttonSize"] = SV.Screen.Estimates.button, 
 	["buttonSpacing"] = 4, 
 	["leftDockBackdrop"] = true, 
 	["rightDockBackdrop"] = true, 
@@ -635,9 +633,8 @@ SV.configs["SVStats"] = {
 	["font"] = "SVUI Number Font", 
 	["fontSize"] = 12, 
 	["fontOutline"] = "OUTLINE",
-	["showBackground"] = true,
+	["showBackground"] = false,
 	["shortGold"] = true,
-	["dockStatWidth"] = defaultStatBarWidth,
 	["panels"] = {
 		["SVUI_StatsBar4"] = {
 			["right"] = "Bags", 
@@ -663,10 +660,6 @@ SV.configs["SVStats"] = {
 	["localtime"] = true, 
 	["time24"] = false, 
 	["battleground"] = true, 
-	["topLeftDockPanel"] = true, 
-	["bottomLeftDockPanel"] = true, 
-	["bottomRightDockPanel"] = true, 
-	["panelTransparency"] = false,
 };
 
 SV.configs["SVTip"] = {
@@ -689,6 +682,12 @@ SV.configs["SVTip"] = {
 		["font"] = "Roboto", 
 		["fontSize"] = 10, 
 	}, 
+};
+
+SV.configs["SVTools"] = {
+	["enable"] = true, 
+	["professions"] = true, 
+	["breakStuff"] = true,
 };
 
 SV.configs["SVUnit"] = {

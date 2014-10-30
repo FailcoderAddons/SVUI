@@ -39,42 +39,17 @@ GET ADDON DATA
 ##########################################################
 ]]--
 local SV = select(2, ...)
-local L = SV.L
 
-SV.ScaleModifier = 1;
-
-local function GetUsableScreen()
-    local rez = GetCVar("gxResolution")
-    local height = rez:match("%d+x(%d+)")
-    local width = rez:match("(%d+)x%d+")
-    local gxHeight = tonumber(height)
-    local gxWidth = tonumber(width)
-    local gxMod = (768 / gxHeight)
-    return gxWidth, gxHeight, gxMod
-end
+SV.Screen = _G["SVUIParent"];
+local SCREEN_MOD = 1;
 --[[ 
 ########################################################## 
 UI SCALING
 ##########################################################
 ]]--
 function SV:UI_SCALE_CHANGED(event)
-    local scale, evalwidth
-    local gxWidth, gxHeight, gxMod = GetUsableScreen()
-
-    if(IsMacClient() and self.DisplaySettings and self.DisplaySettings.screenheight and self.DisplaySettings.screenwidth) then
-        if(gxHeight ~= self.DisplaySettings.screenheight or gxWidth ~= self.DisplaySettings.screenwidth) then 
-            gxHeight = self.DisplaySettings.screenheight;
-            gxWidth = self.DisplaySettings.screenwidth 
-        end 
-    end 
-    
-    if self.db.general.autoScale then
-        scale = max(0.64, min(1.15, gxMod))
-    else
-        scale = max(0.64, min(1.15, GetCVar("uiScale") or UIParent:GetScale() or gxMod))
-    end
-
-    self.ScaleModifier = gxMod / scale;
+    local evalwidth;
+    local gxWidth, gxHeight, gxScale = self.Screen:Update();
 
     if(gxWidth < 1600) then
         self.LowRez = true;
@@ -118,19 +93,17 @@ function SV:UI_SCALE_CHANGED(event)
     end
 
     local testScale1 = parsefloat(UIParent:GetScale(), 5)
-    local testScale2 = parsefloat(scale, 5)
+    local testScale2 = parsefloat(gxScale, 5)
 
     if(event == "PLAYER_LOGIN" and (testScale1 ~= testScale2)) then 
         SetCVar("useUiScale", 1)
-        SetCVar("uiScale", scale)
+        SetCVar("uiScale", gxScale)
         WorldMapFrame.hasTaint = true;
     end
 
     if(event == 'PLAYER_LOGIN' or event == 'UI_SCALE_CHANGED') then
-        if IsMacClient() then 
-            self.DisplaySettings.screenheight = floor(GetScreenHeight() * 100 + .5) / 100
-            self.DisplaySettings.screenwidth = floor(GetScreenWidth() * 100 + .5) / 100
-        end
+        self.Screen:ClearAllPoints()
+        self.Screen:SetPoint("CENTER")
 
         if evalwidth then
             local width = evalwidth
@@ -145,9 +118,6 @@ function SV:UI_SCALE_CHANGED(event)
             self.Screen:SetSize(UIParent:GetSize());
         end
 
-        self.Screen:ClearAllPoints()
-        self.Screen:SetPoint("CENTER")
-
         local change = abs((testScale1 * 100) - (testScale2 * 100))
         if(change > 1) then
             if(self.db.general.autoScale) then
@@ -156,13 +126,59 @@ function SV:UI_SCALE_CHANGED(event)
                 self:StaticPopup_Show('RL_CLIENT')
             end
         end
-
-        self.EffectiveScale = self.Screen:GetEffectiveScale()
-        self.ActualHeight = self.Screen:GetHeight()
-        self.ActualWidth = self.Screen:GetWidth()
     end
 end
 
 function SV:Scale(value)
-    return self.ScaleModifier * floor(value / self.ScaleModifier + .5);
+    return SCREEN_MOD * floor(value / SCREEN_MOD + .5);
+end
+
+function SV.Screen:Update()
+    local rez = GetCVar("gxResolution")
+    local height = rez:match("%d+x(%d+)")
+    local width = rez:match("(%d+)x%d+")
+    local gxHeight = tonumber(height)
+    local gxWidth = tonumber(width)
+    local gxMod = (768 / gxHeight)
+
+    local defaultQuarterWidth = width * 0.2;
+    local defaultQuarterHeight = height * 0.2;
+    local defaultButtonSize = defaultQuarterHeight * 0.2;
+    local defaultCenterWidth = ((defaultDockWidth * 2) - ((defaultButtonSize + 8) * 2));
+
+    self.Estimates = {
+        width = defaultQuarterWidth,
+        height = defaultQuarterHeight,
+        center = defaultCenterWidth,
+        button = defaultButtonSize
+    };
+
+    if(IsMacClient()) then
+        if(not self.MacDisplay) then
+            self.MacDisplay = SVLib:NewGlobal("Display");
+            if(not self.MacDisplay.Y or (self.MacDisplay.Y and type(self.MacDisplay.Y) ~= "number")) then 
+                self.MacDisplay.Y = gxHeight;
+            end
+            if(not self.MacDisplay.X or (self.MacDisplay.X and type(self.MacDisplay.X) ~= "number")) then 
+                self.MacDisplay.X = gxWidth;
+            end
+        end
+        if(self.MacDisplay and self.MacDisplay.Y and self.MacDisplay.X) then
+            if(gxHeight ~= self.MacDisplay.Y or gxWidth ~= self.MacDisplay.X) then 
+                gxHeight = self.MacDisplay.Y;
+                gxWidth = self.MacDisplay.X; 
+            end
+        end
+    end
+
+    local gxScale;
+    if(SV.db.general.autoScale) then
+        gxScale = max(0.64, min(1.15, gxMod));
+    else
+        gxScale = max(0.64, min(1.15, GetCVar("uiScale") or UIParent:GetScale() or gxMod));
+    end
+
+    SCREEN_MOD = (gxMod / gxScale);
+
+    return gxWidth, gxHeight, gxScale
 end

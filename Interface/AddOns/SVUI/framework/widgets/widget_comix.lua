@@ -30,7 +30,11 @@ GET ADDON DATA
 ]]--
 local SV = select(2, ...)
 local L = SV.L
-local Comix = CreateFrame("Frame");
+
+SV.Comix = CreateFrame("Frame");
+SV.Comix.Basic = _G["SVUI_ComixFrame1"]
+SV.Comix.Deluxe = _G["SVUI_ComixFrame2"]
+SV.Comix.Premium = _G["SVUI_ComixFrame3"]
 --[[ 
 ########################################################## 
 LOCAL VARS
@@ -81,12 +85,12 @@ local COMIX_DATA = {
 CORE FUNCTIONS
 ##########################################################
 ]]--
-function Comix:ReadyState(state)
+function SV.Comix:ReadyState(state)
 	if(state == nil) then return animReady end
 	animReady = state
 end
 
-function Comix:LaunchPremiumPopup()
+function SV.Comix:LaunchPremiumPopup()
 	local rng = random(1, 16);
 	local coords = COMIX_DATA[1][rng];
 	local offsets = COMIX_DATA[2][rng]
@@ -103,7 +107,7 @@ function Comix:LaunchPremiumPopup()
 	self.Premium.bg.anim:Play() 
 end
 
-function Comix:LaunchDeluxePopup()
+function SV.Comix:LaunchDeluxePopup()
 	local rng = random(1, 16);
 	local coords = COMIX_DATA[1][rng];
 	local step1_x = random(-100, 100);
@@ -119,7 +123,7 @@ function Comix:LaunchDeluxePopup()
 	self.Deluxe.anim:Play() 
 end
 
-function Comix:LaunchPopup()
+function SV.Comix:LaunchPopup()
 	local rng = random(1, 16);
 	local coords = COMIX_DATA[1][rng];
 	local step1_x = random(-100, 100);
@@ -148,82 +152,46 @@ local Comix_OnEvent = function(self, event, ...)
 end
 
 function SV:ToggleComix()
-	if not SV.db.general.comix then 
-		Comix:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-		Comix:SetScript("OnEvent", nil)
+	if not self.db.general.comix then 
+		self.Comix:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+		self.Comix:SetScript("OnEvent", nil)
 	else 
-		Comix:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-		Comix:SetScript("OnEvent", Comix_OnEvent)
+		self.Comix:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+		self.Comix:SetScript("OnEvent", Comix_OnEvent)
 	end 
 end 
 
 function SV:ToastyKombat()
-	--Comix:LaunchPopup("DELUXE")
+	--SV.Comix:LaunchPopup("DELUXE")
 	ComixToastyPanelBG.anim[2]:SetOffset(256, -256)
 	ComixToastyPanelBG.anim[2]:SetOffset(0, 0)
 	ComixToastyPanelBG.anim:Play()
 	PlaySoundFile([[Interface\AddOns\SVUI\assets\sounds\toasty.mp3]])
 end 
 
-local Comix_OnUpdate = function() Comix:ReadyState(true) end
-local Toasty_OnUpdate = function(self) Comix:ReadyState(true); self.parent:SetAlpha(0) end
+local Comix_OnUpdate = function() SV.Comix:ReadyState(true) end
+local Toasty_OnUpdate = function(self) SV.Comix:ReadyState(true); self.parent:SetAlpha(0) end
 
-local function LoadSVComix()
-	local basic = CreateFrame("Frame", "ComixBasicPanel", SV.Screen)
-	basic:SetSize(100, 100)
-	basic:SetFrameStrata("DIALOG")
-	basic:Point("CENTER", SV.Screen, "CENTER", 0, -50)
-	basic.tex = basic:CreateTexture(nil, "ARTWORK")
-	basic.tex:FillInner(basic)
-	basic.tex:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Doodads\COMICS-TYPE1]])
-	basic.tex:SetTexCoord(0,0.25,0,0.25)
-	SV.Animate:Kapow(basic, true)
-	basic:SetAlpha(0)
-	basic.anim[2]:SetScript("OnFinished", Comix_OnUpdate)
+function SV.Comix:Initialize()
+	self.Basic.tex:SetTexCoord(0,0.25,0,0.25)
+	SV.Animate:Kapow(self.Basic, true)
+	self.Basic:SetAlpha(0)
+	self.Basic.anim[2]:SetScript("OnFinished", Comix_OnUpdate)
 
-	Comix.Basic = basic
+	self.Deluxe.tex:SetTexCoord(0,0.25,0,0.25)
+	SV.Animate:RandomSlide(self.Deluxe, true)
+	self.Deluxe:SetAlpha(0)
+	self.Deluxe.anim[3]:SetScript("OnFinished", Comix_OnUpdate)
 
-	local deluxe = CreateFrame("Frame", "ComixDeluxePanel", SV.Screen)
-	deluxe:SetSize(100, 100)
-	deluxe:SetFrameStrata("DIALOG")
-	deluxe:Point("CENTER", SV.Screen, "CENTER", 0, -50)
-	deluxe.tex = deluxe:CreateTexture(nil, "ARTWORK")
-	deluxe.tex:FillInner(deluxe)
-	deluxe.tex:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Doodads\COMICS-TYPE2]])
-	deluxe.tex:SetTexCoord(0,0.25,0,0.25)
-	SV.Animate:RandomSlide(deluxe, true)
-	deluxe:SetAlpha(0)
-	deluxe.anim[3]:SetScript("OnFinished", Comix_OnUpdate)
+	self.Premium.tex:SetTexCoord(0,0.25,0,0.25)
+	SV.Animate:RandomSlide(self.Premium, true)
+	self.Premium:SetAlpha(0)
+	self.Premium.anim[3]:SetScript("OnFinished", Comix_OnUpdate)
 
-	Comix.Deluxe = deluxe
-
-	local premium = CreateFrame("Frame", "ComixPremiumPanel", SV.Screen)
-	premium:SetSize(100, 100)
-	premium:SetFrameStrata("DIALOG")
-	premium:Point("CENTER", SV.Screen, "CENTER", 0, -50)
-	premium.tex = premium:CreateTexture(nil, "ARTWORK")
-	premium.tex:FillInner(premium)
-	premium.tex:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Doodads\COMICS-TYPE3]])
-	premium.tex:SetTexCoord(0,0.25,0,0.25)
-	SV.Animate:RandomSlide(premium, true)
-	premium:SetAlpha(0)
-	premium.anim[3]:SetScript("OnFinished", Comix_OnUpdate)
-
-	local bg = CreateFrame("Frame", "ComixPremiumPanelBG", SV.Screen)
-	bg:SetSize(128, 128)
-	bg:SetFrameStrata("BACKGROUND")
-	bg:Point("CENTER", SV.Screen, "CENTER", 0, -50)
-	bg.tex = bg:CreateTexture(nil, "ARTWORK")
-	bg.tex:FillInner(bg)
-	bg.tex:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Doodads\COMICS-TYPE3-BG]])
-	bg.tex:SetTexCoord(0,0.25,0,0.25)
-	SV.Animate:RandomSlide(bg, false)
-	bg:SetAlpha(0)
-	bg.anim[3]:SetScript("OnFinished", Comix_OnUpdate)
-
-	premium.bg = bg
-
-	Comix.Premium = premium
+	self.Premium.bg.tex:SetTexCoord(0,0.25,0,0.25)
+	SV.Animate:RandomSlide(self.Premium.bg, false)
+	self.Premium.bg:SetAlpha(0)
+	self.Premium.bg.anim[3]:SetScript("OnFinished", Comix_OnUpdate)
 
 	--MOD
 	local toasty = CreateFrame("Frame", "ComixToastyPanelBG", UIParent)
@@ -237,8 +205,10 @@ local function LoadSVComix()
 	toasty:SetAlpha(0)
 	toasty.anim[4]:SetScript("OnFinished", Toasty_OnUpdate)
 
-	Comix:ReadyState(true)
-	SV:ToggleComix()
-end
+	self:ReadyState(true)
 
-SV:NewScript(LoadSVComix)
+	if SV.db.general.comix then 
+		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+		self:SetScript("OnEvent", Comix_OnEvent)
+	end
+end

@@ -358,7 +358,7 @@ local function CharacterFrameStyle()
 		local category = _G["CharacterStatsPaneCategory"..i]
 		if(category) then
 			category:RemoveTextures()
-			category:SetButtonTemplate()
+			category:SetPanelTemplate("Button", true, true)
 		end
 	end
 

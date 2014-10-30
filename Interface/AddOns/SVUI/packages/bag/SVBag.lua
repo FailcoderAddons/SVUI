@@ -580,7 +580,6 @@ local ContainerFrame_UpdateLayout = function(self)
 
 				if not bag[slotID] then
 					local slotName = ("%sSlot%d"):format(bagName, slotID)
-					local newTexName = ("%sNewItemTexture"):format(slotName)
 					local iconName = ("%sIconTexture"):format(slotName)
 					local cdName = ("%sCooldown"):format(slotName)
 
@@ -591,9 +590,14 @@ local ContainerFrame_UpdateLayout = function(self)
 					slot:SetSlotTemplate(true, 2, 0, 0, 0.45);
 					slot.Panel.Shadow:SetAttribute("shadowAlpha", 0.9)
 					
-					if(_G[newTexName]) then 
-						_G[newTexName]:Hide()
-					end 
+					if(slot.NewItemTexture) then 
+						slot.NewItemTexture:Hide()
+					end
+
+					if(slot.JunkIcon) then 
+						slot.JunkIcon:SetTexture([[Interface\BUTTONS\UI-GroupLoot-Coin-Up]]);
+						slot.JunkIcon:Point("TOPLEFT");
+					end
 
 					slot.iconTexture = _G[iconName];
 					slot.iconTexture:FillInner(slot);
@@ -697,7 +701,6 @@ local ReagentFrame_UpdateLayout = function(self)
 
 		if not bag[slotID] then
 			local slotName = ("%sSlot%d"):format(bagName, slotID)
-			local newTexName = ("%sNewItemTexture"):format(slotName)
 			local iconName = ("%sIconTexture"):format(slotName)
 			local cdName = ("%sCooldown"):format(slotName)
 
@@ -707,8 +710,13 @@ local ReagentFrame_UpdateLayout = function(self)
 			slot:RemoveTextures()
 			slot:SetSlotTemplate(true, 2, 0, 0, true);
 			
-			if(_G[newTexName]) then 
-				_G[newTexName]:Hide()
+			if(slot.NewItemTexture) then 
+				slot.NewItemTexture:Hide()
+			end
+
+			if(slot.JunkIcon) then 
+				slot.JunkIcon:SetTexture([[Interface\BUTTONS\UI-GroupLoot-Coin-Up]]);
+				slot.JunkIcon:Point("TOPLEFT");
 			end 
 
 			slot.iconTexture = _G[iconName];
@@ -827,11 +835,11 @@ function MOD:ModifyBags()
 	if(docked) then
 		if self.BagFrame then
 			self.BagFrame:ClearAllPoints()
-			self.BagFrame:Point("BOTTOMRIGHT", SV.Dock.Right, "BOTTOMRIGHT", 0, 0)
+			self.BagFrame:Point("BOTTOMRIGHT", SV.Dock.BottomRight, "BOTTOMRIGHT", 0, 0)
 		end 
 		if self.BankFrame then
 			self.BankFrame:ClearAllPoints()
-			self.BankFrame:Point("BOTTOMLEFT", SV.Dock.Left, "BOTTOMLEFT", 0, 0)
+			self.BankFrame:Point("BOTTOMLEFT", SV.Dock.BottomLeft, "BOTTOMLEFT", 0, 0)
 		end
 	else
 		if self.BagFrame then
@@ -873,16 +881,16 @@ do
 		if MOD.BagBarLoaded then return end
 
 		local bar = CreateFrame("Frame", "SVUI_BagBar", SV.Screen)
-		bar:SetPoint("TOPRIGHT", SV.Dock.Right, "TOPLEFT", -4, 0)
+		bar:SetPoint("TOPRIGHT", SV.Dock.BottomRight, "TOPLEFT", -4, 0)
 		bar.buttons = {}
 		bar:EnableMouse(true)
 		bar:SetScript("OnEnter", Bags_OnEnter)
 		bar:SetScript("OnLeave", Bags_OnLeave)
 
 		MainMenuBarBackpackButton:SetParent(bar)
-		MainMenuBarBackpackButton.SetParent = SV.Cloaked;
+		MainMenuBarBackpackButton.SetParent = SV.Screen.Hidden;
 		MainMenuBarBackpackButton:ClearAllPoints()
-		MainMenuBarBackpackButtonCount:SetFontTemplate(nil, 10)
+		MainMenuBarBackpackButtonCount:FontManager(nil, 10)
 		MainMenuBarBackpackButtonCount:ClearAllPoints()
 		MainMenuBarBackpackButtonCount:Point("BOTTOMRIGHT", MainMenuBarBackpackButton, "BOTTOMRIGHT", -1, 4)
 		MainMenuBarBackpackButton:HookScript("OnEnter", Bags_OnEnter)
@@ -897,7 +905,7 @@ do
 		for i = 0, frameCount do 
 			local bagSlot = _G["CharacterBag"..i.."Slot"]
 			bagSlot:SetParent(bar)
-			bagSlot.SetParent = SV.Cloaked;
+			bagSlot.SetParent = SV.Screen.Hidden;
 			bagSlot:HookScript("OnEnter", Bags_OnEnter)
 			bagSlot:HookScript("OnLeave", Bags_OnLeave)
 			AlterBagBar(bagSlot)
@@ -987,7 +995,7 @@ do
 	local function UpdateEquipmentInfo(slot, bag, index)
 		if not slot.equipmentinfo then 
 			slot.equipmentinfo = slot:CreateFontString(nil,"OVERLAY")
-			slot.equipmentinfo:SetFontTemplate(SV.Media.font.roboto, 10, "OUTLINE")
+			slot.equipmentinfo:FontManager(SV.Media.font.roboto, 10, "OUTLINE")
 			slot.equipmentinfo:SetAllPoints(slot)
 			slot.equipmentinfo:SetWordWrap(true)
 			slot.equipmentinfo:SetJustifyH('LEFT')
@@ -1275,7 +1283,7 @@ do
 		frame.BagMenu:Hide()
 
 		frame.goldText = frame:CreateFontString(nil, "OVERLAY")
-		frame.goldText:SetFontTemplate(SV.Media.font.numbers)
+		frame.goldText:FontManager(SV.Media.font.numbers)
 		frame.goldText:Point("BOTTOMRIGHT", frame.holderFrame, "TOPRIGHT", -2, 4)
 		frame.goldText:SetJustifyH("RIGHT")
 
@@ -1295,7 +1303,7 @@ do
 		frame.editBox:SetScript("OnChar", Search_OnInput)
 		frame.editBox.SearchReset = Search_OnKeyPressed
 		frame.editBox:SetText(SEARCH)
-		frame.editBox:SetFontTemplate(SV.Media.font.roboto)
+		frame.editBox:FontManager(SV.Media.font.roboto)
 
 		local searchButton = CreateFrame("Button", nil, frame)
 		searchButton:RegisterForClicks("LeftButtonUp", "RightButtonUp")
@@ -1388,7 +1396,7 @@ do
 			frame.currencyButton[h].icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 			frame.currencyButton[h].text = frame.currencyButton[h]:CreateFontString(nil, "OVERLAY")
 			frame.currencyButton[h].text:Point("LEFT", frame.currencyButton[h], "RIGHT", 2, 0)
-			frame.currencyButton[h].text:SetFontTemplate(SV.Media.font.numbers, 18, "NONE")
+			frame.currencyButton[h].text:FontManager(SV.Media.font.numbers, 18, "NONE")
 			frame.currencyButton[h]:SetScript("OnEnter", Token_OnEnter)
 			frame.currencyButton[h]:SetScript("OnLeave", Token_OnLeave)
 			frame.currencyButton[h]:SetScript("OnClick", Token_OnClick)

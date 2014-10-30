@@ -185,6 +185,30 @@ local SubOption_OnMouseUp = function(self)
 		end 
 	end 
 end 
+
+local Speech_OnTimeout = function() 
+	HenchmenSpeechBubble:Hide()
+	speechTimer = nil
+end 
+
+local Speech_OnEnter = function(self)
+	SV:SecureFadeOut(self, 0.5, 1, 0)
+	local newTimer = SV.Timers:ExecuteTimer(Speech_OnTimeout, 0.5, speechTimer)
+	speechTimer = newTimer
+	self:SetScript("OnEnter", nil)
+end 
+
+local Speech_OnShow = function(self)
+	if self.message then
+		self.txt:SetText(self.message)
+		local newTimer = SV.Timers:ExecuteTimer(Speech_OnTimeout, 5, speechTimer)
+		speechTimer = newTimer	
+		self.message = nil
+		self:SetScript("OnEnter", Speech_OnEnter)
+	else
+		self:Hide()
+	end
+end 
 --[[ 
 ########################################################## 
 LOCAL FUNCTIONS
@@ -276,7 +300,7 @@ function StopOpeningMail(msg, ...)
 	total_cash = nil;
 	needsToWait = false;
 	if msg then
-		SV:AddonMessage(msg)
+		SV:HenchmanSays(msg)
 	end 
 end 
 
@@ -418,7 +442,7 @@ local function CreateHenchmenSubOptions(buttonIndex,optionIndex)
 	frame.txt:SetTextColor(1,1,1)
 	frame.txthigh = frame:CreateFontString(nil,"HIGHLIGHT")
 	frame.txthigh:FillInner(frame)
-	frame.txthigh:SetFontTemplate(false,12,"OUTLINE","CENTER","MIDDLE")
+	frame.txthigh:FontManager(false,12,"OUTLINE","CENTER","MIDDLE")
 	frame.txthigh:SetTextColor(1,1,0)
 	SV.Animate:Slide(frame,500,0)
 
@@ -649,6 +673,11 @@ function SV:ToggleHenchman()
 		MOD.DockButton.Icon:SetGradient("VERTICAL", 0.5, 0.53, 0.55, 0.8, 0.8, 1)
 	end 
 end 
+
+function SV:HenchmanSays(msg)
+	HenchmenSpeechBubble.message = msg;
+	HenchmenSpeechBubble:Show();
+end
 --[[ 
 ########################################################## 
 MAIL HELPER
@@ -787,12 +816,12 @@ function MOD:MERCHANT_SHOW()
 			RepairAllItems(autoRepair=='GUILD')
 			local x,y,z= repairCost % 100,floor((repairCost % 10000)/100), floor(repairCost / 10000)
 			if autoRepair=='GUILD' then 
-				SV:AddonMessage("Repairs Complete! ...Using Guild Money!\n"..GetCoinTextureString(repairCost,12))
+				SV:HenchmanSays("Repairs Complete! ...Using Guild Money!\n"..GetCoinTextureString(repairCost,12))
 			else 
-				SV:AddonMessage("Repairs Complete!\n"..GetCoinTextureString(repairCost,12))
+				SV:HenchmanSays("Repairs Complete!\n"..GetCoinTextureString(repairCost,12))
 			end 
 		else 
-			SV:AddonMessage("The Minions Say You Are Too Broke To Repair! They Are Laughing..")
+			SV:HenchmanSays("The Minions Say You Are Too Broke To Repair! They Are Laughing..")
 		end 
 	end 
 end
@@ -906,7 +935,7 @@ function MOD:QUEST_COMPLETE()
 			QuestInfoItemHighlight:SetAllPoints(chosenItem)
 			QuestInfoItemHighlight:Show()
 			QuestInfoFrame.itemChoice = chosenItem:GetID()
-			SV:AddonMessage("A Minion Has Chosen Your Reward!")
+			SV:HenchmanSays("A Minion Has Chosen Your Reward!")
 		end
 
 		auto_select = selection
@@ -926,7 +955,26 @@ BUILD FUNCTION / UPDATE
 ##########################################################
 ]]--
 function MOD:Load()
-	self.DockButton = SV.Dock.Left.Bar:Create("Call Henchman!", [[Interface\AddOns\SVUI\assets\artwork\Icons\DOCK-HENCHMAN]], SV.ToggleHenchman, "SVUI_Henchmen")
+	self.DockButton = SV.Dock.BottomRight.Bar:Create("Call Henchman!", [[Interface\AddOns\SVUI\assets\artwork\Icons\DOCK-HENCHMAN]], SV.ToggleHenchman, "SVUI_Henchmen")
+
+	local bubble = CreateFrame("Frame", "HenchmenSpeechBubble", SV.Screen)
+	bubble:SetSize(256,128)
+	bubble:Point("BOTTOMRIGHT", self.DockButton, "TOPLEFT", 0, 0)
+	bubble:SetFrameStrata("DIALOG")
+	bubble:SetFrameLevel(24)
+	bubble.bg = bubble:CreateTexture(nil,"BORDER")
+	bubble.bg:SetAllPoints(bubble)
+	bubble.bg:SetTexture(BUBBLE)
+	bubble.bg:SetVertexColor(1,1,1)
+	bubble.txt = bubble:CreateFontString(nil,"DIALOG")
+	bubble.txt:Point("TOPLEFT", bubble, "TOPLEFT", 5, -5)
+	bubble.txt:Point("BOTTOMRIGHT", bubble, "BOTTOMRIGHT", -5, 20)
+	bubble.txt:SetFont(SV.Media.font.dialog,12,"NONE")
+	bubble.txt:SetText("")
+	bubble.txt:SetTextColor(0,0,0)
+	bubble.txt:SetWordWrap(true)
+	bubble:Hide()
+	bubble:SetScript('OnShow', Speech_OnShow)
 
 	if IsAddOnLoaded("Postal") then 
 		SV.db.SVHenchmen.mailOpener = false

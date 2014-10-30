@@ -290,10 +290,10 @@ function MOD:BreakStuffLoader()
 
 	if not allowed then return end
 
-	BreakStuffButton:SetParent(SV.Dock.Right.Bar.ToolBar)
-	local size = SV.Dock.Right.Bar.ToolBar:GetHeight()
+	BreakStuffButton:SetParent(SV.Dock.BottomRight.Bar.ToolBar)
+	local size = SV.Dock.BottomRight.Bar.ToolBar:GetHeight()
 	BreakStuffButton:Size(size, size)
-	BreakStuffButton:Point("RIGHT", SV.Dock.Right.Bar.ToolBar, "LEFT", -6, 0)
+	BreakStuffButton:Point("RIGHT", SV.Dock.BottomRight.Bar.ToolBar, "LEFT", -6, 0)
 	BreakStuffButton:Show();
 	BreakStuffButton:SetFramedButtonTemplate()
 	BreakStuffButton.icon=BreakStuffButton:CreateTexture(nil,"OVERLAY")

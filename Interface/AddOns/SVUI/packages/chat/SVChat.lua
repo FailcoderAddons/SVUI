@@ -71,6 +71,7 @@ local SV = select(2, ...)
 local L = SV.L
 local LSM = LibStub("LibSharedMedia-3.0")
 local MOD = SV:NewPackage("SVChat", L["Chat"]);
+
 --[[ 
 ########################################################## 
 LOCAL VARS
@@ -436,23 +437,23 @@ do
 
 	local EditBox_OnEditFocusGained = function(self)
 		self:Show()
-		if not SV.Dock.Left:IsShown()then 
-			SV.Dock.Left.editboxforced = true;
-			SV.Dock.Left.Bar.Button:GetScript("OnEnter")(SV.Dock.Left.Bar.Button)
+		if not MOD.Dock:IsShown()then 
+			MOD.Dock.editboxforced = true;
+			MOD.Dock.Bar.Button:GetScript("OnEnter")(MOD.Dock.Bar.Button)
 		end
 
-		SV.Dock.Left.Alert:Activate(self)
+		MOD.Dock.Alert:Activate(self)
 	end
 
 	local EditBox_OnEditFocusLost = function(self)
-		if SV.Dock.Left.editboxforced then 
-			SV.Dock.Left.editboxforced = nil;
-			if SV.Dock.Left:IsShown()then 
-				SV.Dock.Left.Bar.Button:GetScript("OnLeave")(SV.Dock.Left.Bar.Button)
+		if MOD.Dock.editboxforced then 
+			MOD.Dock.editboxforced = nil;
+			if MOD.Dock:IsShown()then 
+				MOD.Dock.Bar.Button:GetScript("OnLeave")(MOD.Dock.Bar.Button)
 			end 
 		end 
 		self:Hide()
-		SV.Dock.Left.Alert:Deactivate()
+		MOD.Dock.Alert:Deactivate()
 	end
 
 	local EditBox_OnTextChanged = function(self)
@@ -500,13 +501,13 @@ do
 		local lastTab = TabsList[1];
 		if(lastTab) then
 			lastTab:ClearAllPoints()
-			lastTab:Point("LEFT", SV.Dock.Left.Bar.ExtraBar, "LEFT", 2, 0);
+			lastTab:Point("LEFT", MOD.Dock.Bar.ExtraBar, "LEFT", 2, 0);
 		end
 		for chatID,frame in pairs(TabsList) do
 			if(frame and chatID ~= 1 and frame.isDocked) then
 				frame:ClearAllPoints()
 				if(not lastTab) then
-					frame:Point("LEFT", SV.Dock.Left.Bar.ExtraBar, "LEFT", 2, 0);
+					frame:Point("LEFT", MOD.Dock.Bar.ExtraBar, "LEFT", 2, 0);
 				else
 					frame:Point("LEFT", lastTab, "RIGHT", 6, 0);
 				end
@@ -536,17 +537,17 @@ do
 		TabSafety[name] = true;
 		TabsList[chatID] = frame
 	    frame.chatID = chatID;
-	    frame:SetParent(SV.Dock.Left.Bar.ExtraBar)
+	    frame:SetParent(MOD.Dock.Bar.ExtraBar)
 	    _repositionDockedTabs()
 	end
 
 	local function _customTab(tab, chatID, enabled)
 		if(tab.IsStyled) then return end 
 		local tabName = tab:GetName();
-		local tabSize = SV.Dock.Left.Bar.ExtraBar:GetHeight();
+		local tabSize = MOD.Dock.Bar.ExtraBar:GetHeight();
 		local tabText = tab.text:GetText() or "Chat "..chatID;
 
-		local holder = CreateFrame("Frame", ("SVUI_ChatTab%s"):format(chatID), SV.Dock.Left.Bar.ExtraBar)
+		local holder = CreateFrame("Frame", ("SVUI_ChatTab%s"):format(chatID), MOD.Dock.Bar.ExtraBar)
 		holder:SetWidth(tabSize * 1.75)
 		holder:SetHeight(tabSize)
 		tab.chatID = chatID;
@@ -656,7 +657,7 @@ do
 			_G[editBoxName.."FocusRight"]:Die()
 			editBox:SetFixedPanelTemplate("Button", true)
 			editBox:SetAltArrowKeyMode(false)
-			editBox:SetAllPoints(SV.Dock.Left.Alert)
+			editBox:SetAllPoints(MOD.Dock.Alert)
 			editBox:HookScript("OnEditFocusGained", EditBox_OnEditFocusGained)
 			editBox:HookScript("OnEditFocusLost", EditBox_OnEditFocusLost)
 			editBox:HookScript("OnTextChanged", EditBox_OnTextChanged)
@@ -665,7 +666,7 @@ do
 			chat:SetFading(CHAT_FADING)
 			chat:SetScript("OnHyperlinkClick", SVUI_OnHyperlinkShow)
 
-			local alertSize = (SV.Dock.Left.Bar.ExtraBar:GetHeight()) * 2;
+			local alertSize = (MOD.Dock.Bar.ExtraBar:GetHeight()) * 2;
 			local alert = CreateFrame("Frame", nil, tab)
 			alert:SetSize(alertSize, alertSize)
 			alert:SetFrameStrata("DIALOG")
@@ -711,7 +712,7 @@ do
 			local tabText = _G[name.."TabText"]
 			_modifyChat(chat, tabText)
 			tab.owner = chat;
-			chat:SetParent(SV.Dock.Left.Window)
+			chat:SetParent(MOD.Dock.Window)
 			if not chat.isDocked and chat:IsShown() then 
 				chat.Panel:Show()
 				if(not TAB_SKINS) then
@@ -732,11 +733,11 @@ do
 					FCF_SavePositionAndDimensions(chat)
 				end 
 				chat:ClearAllPoints()
-				chat:SetAllPoints(SV.Dock.Left.Window)
+				chat:SetAllPoints(MOD.Dock.Window)
 				if(not TAB_SKINS) then
 					tab.owner = chat;
 					tab.isDocked = chat.isDocked;
-					tab:SetParent(SV.Dock.Left.Bar.ExtraBar)
+					tab:SetParent(MOD.Dock.Bar.ExtraBar)
 					_modifyTab(tab, false)
 				else
 					tab.owner = chat;
@@ -822,7 +823,7 @@ do
 	end
 
 	local _hook_GDMFrameSetPoint = function(self)
-		self:SetAllPoints(SV.Dock.Left.Bar.ExtraBar)
+		self:SetAllPoints(MOD.Dock.Bar.ExtraBar)
 	end
 
 	local _hook_GDMScrollSetPoint = function(self, point, anchor, attachTo, x, y)
@@ -965,9 +966,12 @@ function MOD:ReLoad()
 end
 
 function MOD:Load()
-	ScrollIndicator:SetParent(SV.Dock.Left.Window)
+	local location = SV.db.SVChat.docked
+	self.Dock = SV.Dock[location]
+
+	ScrollIndicator:SetParent(self.Dock.Window)
 	ScrollIndicator:SetSize(20,20)
-	ScrollIndicator:SetPoint("BOTTOMRIGHT", SV.Dock.Left.Window, "BOTTOMRIGHT", 6, 0)
+	ScrollIndicator:SetPoint("BOTTOMRIGHT", self.Dock.Window, "BOTTOMRIGHT", 6, 0)
 	ScrollIndicator:SetFrameStrata("HIGH")
 	ScrollIndicator.icon = ScrollIndicator:CreateTexture(nil, "OVERLAY")
 	ScrollIndicator.icon:SetAllPoints()
@@ -985,9 +989,9 @@ function MOD:Load()
 	self:RefreshChatFrames(true)
 
 	_G.GeneralDockManagerOverflowButton:ClearAllPoints()
-	_G.GeneralDockManagerOverflowButton:SetPoint('BOTTOMRIGHT', SV.Dock.Left.Bar.ExtraBar, 'BOTTOMRIGHT', -2, 2)
+	_G.GeneralDockManagerOverflowButton:SetPoint('BOTTOMRIGHT', self.Dock.Bar.ExtraBar, 'BOTTOMRIGHT', -2, 2)
 	_G.GeneralDockManagerOverflowButtonList:SetFixedPanelTemplate('Transparent')
-	_G.GeneralDockManager:SetAllPoints(SV.Dock.Left.Bar.ExtraBar)
+	_G.GeneralDockManager:SetAllPoints(self.Dock.Bar.ExtraBar)
 
 	SetAllChatHooks()
 

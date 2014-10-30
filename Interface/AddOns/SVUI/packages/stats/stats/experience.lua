@@ -72,7 +72,7 @@ local function Experience_OnEvent(self, ...)
 		self.text:SetAllPoints(self)
 		self.text:SetJustifyH("CENTER")
 		self.barframe:Hide()
-		self.text:SetFontTemplate(LSM:Fetch("font",SV.db.SVStats.font),SV.db.SVStats.fontSize,SV.db.SVStats.fontOutline)
+		self.text:FontManager(LSM:Fetch("font",SV.db.SVStats.font),SV.db.SVStats.fontSize,SV.db.SVStats.fontOutline)
 	end 
 	local f, g = getUnitXP("player")
 	local h = GetXPExhaustion()
@@ -94,7 +94,7 @@ local function ExperienceBar_OnEvent(self, ...)
 	if (not self.barframe:IsShown())then
 		self.barframe:Show()
 		self.barframe.icon.texture:SetTexture("Interface\\Addons\\SVUI\\assets\\artwork\\Icons\\STAT-XP")
-		self.text:SetFontTemplate(LSM:Fetch("font",SV.db.SVStats.font),SV.db.SVStats.fontSize,"NONE")
+		self.text:FontManager(LSM:Fetch("font",SV.db.SVStats.font),SV.db.SVStats.fontSize,"NONE")
 	end
 	if not self.barframe.bar.extra:IsShown() then
 		self.barframe.bar.extra:Show()

@@ -129,13 +129,13 @@ local function WorldMap_OnShow()
     BlackoutWorld:SetTexture(0,0,0,0)
   end
 
-  WorldMapFrameAreaLabel:SetFontTemplate(nil, 50, "OUTLINE")
+  WorldMapFrameAreaLabel:FontManager(nil, 50, "OUTLINE")
   WorldMapFrameAreaLabel:SetShadowOffset(2, -2)
   WorldMapFrameAreaLabel:SetTextColor(0.90, 0.8294, 0.6407)
-  WorldMapFrameAreaDescription:SetFontTemplate(nil, 40, "OUTLINE")
+  WorldMapFrameAreaDescription:FontManager(nil, 40, "OUTLINE")
   WorldMapFrameAreaDescription:SetShadowOffset(2, -2)
-  WorldMapFrameAreaPetLevels:SetFontTemplate(nil, 25, 'OUTLINE')
-  WorldMapZoneInfo:SetFontTemplate(nil, 27, "OUTLINE")
+  WorldMapFrameAreaPetLevels:FontManager(nil, 25, 'OUTLINE')
+  WorldMapZoneInfo:FontManager(nil, 27, "OUTLINE")
   WorldMapZoneInfo:SetShadowOffset(2, -2)
 
   if InCombatLockdown() then return end 

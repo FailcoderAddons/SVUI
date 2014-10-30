@@ -343,7 +343,7 @@ local ModeAlert_OnHide = function()
 		SV:AddonMessage(ERR_NOT_IN_COMBAT);  
 		return; 
 	end
-	SV.Dock.Right.Alert:Deactivate()
+	SV.Dock.BottomRight.Alert:Deactivate()
 end
 
 local ModeAlert_OnShow = function(self)
@@ -353,7 +353,7 @@ local ModeAlert_OnShow = function(self)
 		return; 
 	end
 	SV:SecureFadeIn(self, 0.3, 0, 1)
-	SV.Dock.Right.Alert:Activate(self)
+	SV.Dock.BottomRight.Alert:Activate(self)
 end
 
 local ModeAlert_OnMouseDown = function(self)
@@ -392,13 +392,13 @@ function PLUGIN:Load()
 	self.InModeGear = false;
 
 	local ALERT_HEIGHT = 60;
-	local DOCK_WIDTH = SV.Dock.Right.Window:GetWidth();
-	local DOCK_HEIGHT = SV.Dock.Right.Window:GetHeight();
+	local DOCK_WIDTH = SV.Dock.BottomRight.Window:GetWidth();
+	local DOCK_HEIGHT = SV.Dock.BottomRight.Window:GetHeight();
 	local DOCKLET_WIDTH = DOCK_WIDTH - 4
 	local DOCKLET_HEIGHT = DOCK_HEIGHT - 4
 	local BUTTON_SIZE = (DOCK_HEIGHT * 0.25) - 4;
 
-	self.Docklet = SV.Dock:NewDocklet("Right", "SVUI_ModesDockFrame", self.TitleID, ICON_FILE);
+	self.Docklet = SV.Dock:NewDocklet("BottomRight", "SVUI_ModesDockFrame", self.TitleID, ICON_FILE);
 
 	local modesToolBar = CreateFrame("Frame", "SVUI_ModesDockToolBar", self.Docklet)
 	modesToolBar:SetWidth(BUTTON_SIZE + 4);
@@ -453,8 +453,8 @@ function PLUGIN:Load()
 	mode1Button:SetScript('OnLeave', ModeButton_OnLeave)
 	mode1Button:SetScript('OnMouseDown', ModeButton_OnMouseDown)
 
-	local ModeAlert = CreateFrame("Frame", nil, SV.Dock.Right.Alert)
-	ModeAlert:SetAllPoints(SV.Dock.Right.Alert)
+	local ModeAlert = CreateFrame("Frame", nil, SV.Dock.BottomRight.Alert)
+	ModeAlert:SetAllPoints(SV.Dock.BottomRight.Alert)
 	ModeAlert:SetBackdrop({
         bgFile = [[Interface\AddOns\SVUI\assets\artwork\Bars\HALFTONE]],
         edgeFile = [[Interface\BUTTONS\WHITE8X8]],
@@ -497,7 +497,7 @@ function PLUGIN:Load()
 	title:SetFrameStrata("MEDIUM")
 	title:SetPoint("TOPLEFT",ModeLogsFrame,"TOPLEFT",0,0)
 	title:SetPoint("BOTTOMRIGHT",ModeLogsFrame,"TOPRIGHT",0,-20)
-	title:SetFontTemplate(UNIT_NAME_FONT, 16, "OUTLINE", "CENTER", "MIDDLE")
+	title:FontManager(UNIT_NAME_FONT, 16, "OUTLINE", "CENTER", "MIDDLE")
 	title:SetMaxLines(1)
 	title:EnableMouseWheel(false)
 	title:SetFading(false)
@@ -521,7 +521,7 @@ function PLUGIN:Load()
 	log:SetFrameStrata("MEDIUM")
 	log:SetPoint("TOPLEFT",title,"BOTTOMLEFT",0,0)
 	log:SetPoint("BOTTOMRIGHT",ModeLogsFrame,"BOTTOMRIGHT",0,0)
-	log:SetFontTemplate(nil, self.db.fontSize, "OUTLINE")
+	log:FontManager(nil, self.db.fontSize, "OUTLINE")
 	log:SetJustifyH("CENTER")
 	log:SetJustifyV("MIDDLE")
 	log:SetShadowColor(0, 0, 0, 0)

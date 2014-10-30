@@ -106,7 +106,7 @@ local function RefreshMicrobar()
 	local buttonSize =  SV.db.SVBar.Micro.buttonsize or 30;
 	local spacing =  SV.db.SVBar.Micro.buttonspacing or 1;
 	local barWidth = (buttonSize + spacing) * 13;
-	SVUI_MicroBar_MOVE:Size(barWidth, buttonSize + 6)
+	SVUI_MicroBar_MOVE:Size(barWidth, buttonSize)
 	SVUI_MicroBar:SetAllPoints(SVUI_MicroBar_MOVE)
 	for i=1,13 do
 		local data = ICON_DATA[i]
@@ -116,9 +116,9 @@ local function RefreshMicrobar()
 			button:Size(buttonSize, buttonSize + 28)
 			button._fade = SV.db.SVBar.Micro.mouseover
 			if lastParent == SVUI_MicroBar then 
-				button:SetPoint("BOTTOMLEFT",lastParent,"BOTTOMLEFT",1,1)
+				button:SetPoint("LEFT", lastParent, "LEFT", 0, 0)
 			else 
-				button:SetPoint('LEFT',lastParent,'RIGHT',spacing,0)
+				button:SetPoint("LEFT", lastParent, "RIGHT", spacing, 0)
 			end 
 			lastParent = button;
 			button:Show()
@@ -168,7 +168,6 @@ end
 local MicroButton_OnEnter = function(self)
 	if(self._fade) then
 		SV:SecureFadeIn(SVUI_MicroBar,0.2,SVUI_MicroBar:GetAlpha(),1)
-		SV:SecureFadeOut(SVUI_MicroBar.screenMarker,0.1,SVUI_MicroBar:GetAlpha(),0)
 	end
 	if InCombatLockdown()then return end 
 	self.overlay:SetPanelColor("highlight")
@@ -178,7 +177,6 @@ end
 local MicroButton_OnLeave = function(self)
 	if(self._fade) then
 		SV:SecureFadeOut(SVUI_MicroBar,1,SVUI_MicroBar:GetAlpha(),0)
-		SV:SecureFadeIn(SVUI_MicroBar.screenMarker,5,SVUI_MicroBar:GetAlpha(),1)
 	end
 	if InCombatLockdown()then return end 
 	self.overlay:SetPanelColor("special")
@@ -188,10 +186,8 @@ end
 local MicroButton_OnUpdate = function()
 	if(not SV.db.SVBar.Micro.mouseover) then
 		SVUI_MicroBar:SetAlpha(1)
-		SVUI_MicroBar.screenMarker:SetAlpha(0)
 	else
 		SVUI_MicroBar:SetAlpha(0)
-		SVUI_MicroBar.screenMarker:SetAlpha(1)
 	end
 	GuildMicroButtonTabard:ClearAllPoints();
 	GuildMicroButtonTabard:Hide();
@@ -366,7 +362,7 @@ local function ModifyActionButton(parent)
 		count:ClearAllPoints()
 		count:SetPoint("BOTTOMRIGHT",1,1)
 		count:SetShadowOffset(1,-1)
-		count:SetFontTemplate(LSM:Fetch("font",SV.db.SVBar.countFont),SV.db.SVBar.countFontSize,SV.db.SVBar.countFontOutline)
+		count:FontManager(LSM:Fetch("font",SV.db.SVBar.countFont),SV.db.SVBar.countFontSize,SV.db.SVBar.countFontOutline)
 	end 
 	if icon then 
 		icon:SetTexCoord(.1,.9,.1,.9)
@@ -377,7 +373,7 @@ local function ModifyActionButton(parent)
 	if SV.db.SVBar.hotkeytext then 
 		hotkey:ClearAllPoints()
 		hotkey:SetAllPoints()
-		hotkey:SetFontTemplate(LSM:Fetch("font",SV.db.SVBar.font),SV.db.SVBar.fontSize,SV.db.SVBar.fontOutline)
+		hotkey:FontManager(LSM:Fetch("font",SV.db.SVBar.font),SV.db.SVBar.fontSize,SV.db.SVBar.fontOutline)
 		hotkey:SetJustifyH("RIGHT")
     	hotkey:SetJustifyV("TOP")
 		hotkey:SetShadowOffset(1,-1)
@@ -1320,7 +1316,7 @@ CreateMicroBar = function(self)
 	microBar:Size(barWidth,buttonSize + 6)
 	microBar:SetFrameStrata("HIGH")
 	microBar:SetFrameLevel(0)
-	microBar:Point('TOP',SV.Screen,'TOP',0,4)
+	microBar:Point('LEFT', SV.Dock.TopLeft.Bar, 'RIGHT', 0, 4)
 	SV:AddToDisplayAudit(microBar)
 
 	for i=1,13 do
@@ -1380,16 +1376,6 @@ CreateMicroBar = function(self)
 	SV.Mentalo:Add(microBar, L["Micro Bar"])
 
 	RefreshMicrobar()
-
-	microBar.screenMarker = NewFrame('Frame',nil,SV.Screen)
-	microBar.screenMarker:Point('TOP',SV.Screen,'TOP',0,2)
-	microBar.screenMarker:Size(20,20)
-	microBar.screenMarker:SetFrameStrata("BACKGROUND")
-	microBar.screenMarker:SetFrameLevel(4)
-	microBar.screenMarker.icon = microBar.screenMarker:CreateTexture(nil,'OVERLAY')
-	microBar.screenMarker.icon:SetAllPoints(microBar.screenMarker)
-	microBar.screenMarker.icon:SetTexture("Interface\\Addons\\SVUI\\assets\\artwork\\Icons\\ARROW-DOWN")
-	microBar.screenMarker.icon:SetGradient("VERTICAL", 0.5, 0.53, 0.55, 0.8, 0.8, 1)
 
 	SVUI_MicroBar:SetAlpha(0)
 end

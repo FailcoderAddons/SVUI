@@ -169,7 +169,7 @@ local UpdatePlayerFrame = function(self)
                 local size = iconDB.restIcon.size;
                 resting:ClearAllPoints()
                 resting:Size(size)
-                SV:ReversePoint(resting, iconDB.restIcon.attachTo, healthPanel, iconDB.restIcon.xOffset, iconDB.restIcon.yOffset)
+                SV:SetReversePoint(resting, iconDB.restIcon.attachTo, healthPanel, iconDB.restIcon.xOffset, iconDB.restIcon.yOffset)
                 if not self:IsElementEnabled("Resting")then 
                     self:EnableElement("Resting")
                 end 
@@ -186,7 +186,7 @@ local UpdatePlayerFrame = function(self)
                 local size = iconDB.combatIcon.size;
                 combat:ClearAllPoints()
                 combat:Size(size)
-                SV:ReversePoint(combat, iconDB.combatIcon.attachTo, healthPanel, iconDB.combatIcon.xOffset, iconDB.combatIcon.yOffset)
+                SV:SetReversePoint(combat, iconDB.combatIcon.attachTo, healthPanel, iconDB.combatIcon.xOffset, iconDB.combatIcon.yOffset)
                 if not self:IsElementEnabled("Combat")then 
                     self:EnableElement("Combat")
                 end 
@@ -314,7 +314,7 @@ CONSTRUCTORS["player"] = function(self, unit)
     self.Resting = MOD:CreateRestingIndicator(self)
     self.Combat = MOD:CreateCombatIndicator(self)
     self.PvPText = self.InfoPanel:CreateFontString(nil,'OVERLAY')
-    self.PvPText:SetFontTemplate(LSM:Fetch("font", SV.db.SVUnit.font), SV.db.SVUnit.fontSize, SV.db.SVUnit.fontOutline)
+    self.PvPText:FontManager(LSM:Fetch("font", SV.db.SVUnit.font), SV.db.SVUnit.fontSize, SV.db.SVUnit.fontOutline)
     self.Afflicted = MOD:CreateAfflicted(self)
     self.HealPrediction = MOD:CreateHealPrediction(self, true)
     self.AuraBars = MOD:CreateAuraBarHeader(self, key)

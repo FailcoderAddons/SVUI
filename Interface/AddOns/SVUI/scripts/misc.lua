@@ -38,6 +38,12 @@ local L = SV.L
 local toonclass = select(2, UnitClass('player'))
 --[[ 
 ########################################################## 
+TAINT FIX HACKS
+##########################################################
+]]--
+LFRParentFrame:SetScript("OnHide", nil)
+--[[ 
+########################################################## 
 MERCHANT MAX STACK
 ##########################################################
 ]]--
@@ -58,12 +64,6 @@ CHAT BUBBLES
 ##########################################################
 ]]--
 local function LoadStyledChatBubbles()
-	local TaintFix = CreateFrame("Frame")
-	TaintFix:SetScript("OnUpdate", function(self, elapsed)
-		if LFRBrowseFrame.timeToClear then
-			LFRBrowseFrame.timeToClear = nil
-		end
-	end)
 	if(SV.db.general.bubbles == true) then
 		local ChatBubbleHandler = CreateFrame("Frame", nil, UIParent)
 		local total = 0
@@ -76,10 +76,10 @@ local function LoadStyledChatBubbles()
 					if(region:GetTexture() == [[Interface\Tooltips\ChatBubble-Background]]) then 
 						region:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Chat\CHATBUBBLE-BG]])
 						needsUpdate = false 
-					elseif(region:GetTexture()==[[Interface\Tooltips\ChatBubble-Backdrop]]) then
+					elseif(region:GetTexture() == [[Interface\Tooltips\ChatBubble-Backdrop]]) then
 						region:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Chat\CHATBUBBLE-BACKDROP]])
 						needsUpdate = false 
-					elseif(region:GetTexture()==[[Interface\Tooltips\ChatBubble-Tail]]) then
+					elseif(region:GetTexture() == [[Interface\Tooltips\ChatBubble-Tail]]) then
 						region:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Chat\CHATBUBBLE-TAIL]])
 						needsUpdate = false 
 					else 
@@ -90,11 +90,7 @@ local function LoadStyledChatBubbles()
 				end
 			end
 			if needsUpdate then 
-				frame:SetBackdrop({
-					bgFile = [[Interface\BUTTONS\WHITE8X8]],
-					tile = false,
-					tileSize = 0,
-				});
+				frame:SetBackdrop(nil);
 				frame:SetClampedToScreen(false)
 				frame:SetFrameStrata("BACKGROUND")
 			end
@@ -114,7 +110,7 @@ local function LoadStyledChatBubbles()
 					for i = numKids + 1, newNumKids do
 						local frame = select(i, WorldFrame:GetChildren())
 						local b = frame:GetBackdrop()
-						if b and b.bgFile == [[Interface\Tooltips\ChatBubble-Background]] then
+						if(b and b.bgFile == [[Interface\Tooltips\ChatBubble-Background]]) then
 							styleBubble(frame)
 						end
 					end

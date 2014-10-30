@@ -325,25 +325,23 @@ function PLUGIN:RegisterAddonDocklets()
 		end
 	end 
 
-	local width,height = self.Docklet:GetSize();
-
 	if SV.Dock:IsDockletReady(dock1) then
-		self.Docklet:Enable()
-		self.Docklet.DockButton:SetAttribute("tipText", ("%s%s"):format(tipLeft, tipRight))
+		local width = self.Docklet:GetWidth();
+		self.Docklet:Enable();
+		self.Docklet.DockButton:SetAttribute("tipText", ("%s%s"):format(tipLeft, tipRight));
+
 		if SV.Dock:IsDockletReady(dock2) then
-			width = width * 0.5;
-		end
-		self.Docklet.Dock1:ClearAllPoints()
-		self.Docklet.Dock1:Size(width, height)
-		self.Docklet.Dock1:Point('BOTTOMLEFT', self.Docklet, 'BOTTOMLEFT', 1, 1)
-		self.Docklet.Dock1:Show()
-		if SV.Dock:IsDockletReady(dock2) then
-			self.Docklet.Dock2:ClearAllPoints()
-			self.Docklet.Dock2:Size(width,height)
-			self.Docklet.Dock2:Point('BOTTOMLEFT', self.Docklet.Dock1, 'BOTTOMRIGHT', 0, 0)
+			self.Docklet.Dock1:Show()
 			self.Docklet.Dock2:Show()
+			self.Docklet.Dock1:SetWidth(width * 0.5)
+		else
+			self.Docklet.Dock1:Show()
+			self.Docklet.Dock2:Hide()
+			self.Docklet.Dock1:SetWidth(width)
 		end
 	else
+		self.Docklet.Dock1:Hide()
+		self.Docklet.Dock2:Hide()
 		self.Docklet:Disable()
 	end
 end
@@ -481,16 +479,19 @@ function PLUGIN:Load()
 	alert:Hide();
 	self.Alert = alert;
 
-	self.Docklet = SV.Dock:NewDocklet("Right", "SVUI_StyleOMaticDock", self.TitleID, [[Interface\AddOns\SVUI\assets\artwork\Icons\DOCK-ADDON]], AddonDockletToggle)
-	SV.Dock.Right.Bar.Button.GetMenuList = GetDockableAddons
+	self.Docklet = SV.Dock:NewDocklet("BottomRight", "SVUI_StyleOMaticDock", self.TitleID, [[Interface\AddOns\SVUI\assets\artwork\Icons\DOCK-ADDON]], AddonDockletToggle)
+	SV.Dock.BottomRight.Bar.Button.GetMenuList = GetDockableAddons
 	self.Docklet.DockButton.GetMenuList = GetDockableAddons
 	self.Docklet.DockButton:SetAttribute("hasDropDown", true)
 
-	local w,h = self.Docklet:GetSize()
 	self.Docklet.Dock1 = CreateFrame("Frame", "SVUI_StyleOMaticDockAddon1", self.Docklet)
-	self.Docklet.Dock1:SetSize(w,h)
+	self.Docklet.Dock1:SetPoint('TOPLEFT', self.Docklet, 'TOPLEFT', 0, 0)
+	self.Docklet.Dock1:SetPoint('BOTTOMLEFT', self.Docklet, 'BOTTOMLEFT', 0, 0)
+	self.Docklet.Dock1:SetWidth(self.Docklet:GetWidth())
+
 	self.Docklet.Dock2 = CreateFrame("Frame", "SVUI_StyleOMaticDockAddon2", self.Docklet)
-	self.Docklet.Dock2:SetSize(w,h)
+	self.Docklet.Dock2:SetPoint('TOPLEFT', self.Docklet.Dock1, 'TOPRIGHT', 0, 0)
+	self.Docklet.Dock2:SetPoint('BOTTOMRIGHT', self.Docklet, 'BOTTOMRIGHT', 0, 0)
 
 	self.Docklet:Hide()
 

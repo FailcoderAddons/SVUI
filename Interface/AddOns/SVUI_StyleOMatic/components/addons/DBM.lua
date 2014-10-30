@@ -100,8 +100,8 @@ local function StyleBars(self)
 				frame:SetHeight(22)
 				name:Point('LEFT', frame, 'LEFT', 4, 0)
 				timer:Point('RIGHT', frame, 'RIGHT', -4, 0)
-				name:SetFontTemplate(SV.Media.font.default, 12, 'OUTLINE')
-				timer:SetFontTemplate(SV.Media.font.default, 12, 'OUTLINE')
+				name:FontManager(SV.Media.font.default, 12, 'OUTLINE')
+				timer:FontManager(SV.Media.font.default, 12, 'OUTLINE')
 				name:SetTextColor(bar.owner.options.TextColorR, bar.owner.options.TextColorG, bar.owner.options.TextColorB)
 				timer:SetTextColor(bar.owner.options.TextColorR, bar.owner.options.TextColorG, bar.owner.options.TextColorB)
 				if bar.owner.options.IconLeft then icon1:Show() icon1.overlay:Show() else icon1:Hide() icon1.overlay:Hide() end
@@ -123,7 +123,7 @@ local StyleBossTitle = function()
 	if not anchor.styled then
 		local header = {anchor:GetRegions()}
 		if header[1]:IsObjectType('FontString') then
-			header[1]:SetFontTemplate(SV.Media.font.default, 12, 'OUTLINE')
+			header[1]:FontManager(SV.Media.font.default, 12, 'OUTLINE')
 			header[1]:SetTextColor(1, 1, 1)
 			header[1]:SetShadowColor(0, 0, 0, 0)
 			anchor.styled = true	
@@ -171,8 +171,8 @@ local StyleBoss = function()
 		bar:SetHeight(22)
 		name:Point('LEFT', bar, 'LEFT', 4, 0)
 		timer:Point('RIGHT', bar, 'RIGHT', -4, 0)
-		name:SetFontTemplate(SV.Media.font.default, 12, 'OUTLINE')
-		timer:SetFontTemplate(SV.Media.font.default, 12, 'OUTLINE')
+		name:FontManager(SV.Media.font.default, 12, 'OUTLINE')
+		timer:FontManager(SV.Media.font.default, 12, 'OUTLINE')
 		count = count + 1
 	end
 end

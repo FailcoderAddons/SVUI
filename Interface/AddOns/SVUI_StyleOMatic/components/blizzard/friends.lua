@@ -114,7 +114,7 @@ local function ChannelList_OnUpdate()
 		if btn then
 			btn:RemoveTextures()
 			btn:SetHighlightTexture("Interface\\PaperDollInfoFrame\\UI-Character-Tab-Highlight")
-			_G["ChannelButton"..i.."Text"]:SetFontTemplate(nil, 12)
+			_G["ChannelButton"..i.."Text"]:FontManager(nil, 12)
 		end 
 	end 
 end 
@@ -191,7 +191,7 @@ local function FriendsFrameStyle()
 	FriendsFrameBattlenetFrame.BroadcastButton:SetScript('OnClick', function()
 		SV:StaticPopup_Show("SET_BN_BROADCAST")
 	end)
-	FriendsFrameBattlenetFrame.Tag:SetFontTemplate(SV.Media.font.narrator,16,"NONE")
+	FriendsFrameBattlenetFrame.Tag:FontManager(SV.Media.font.narrator,16,"NONE")
 	AddFriendNameEditBox:SetEditboxTemplate()
 	AddFriendFrame:SetFixedPanelTemplate("Transparent", true)
 	ScrollOfResurrectionSelectionFrame:SetFixedPanelTemplate('Transparent')

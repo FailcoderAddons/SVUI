@@ -1,0 +1,8 @@
+﻿<Ui xmlns="http://www.blizzard.com/wow/ui/">
+	<Include file="screen\screen.xml"/>
+    <Include file="panels\panels.xml"/>
+    <Include file="widgets\widgets.xml"/>
+    <Include file="movers\movers.xml"/>
+    <Include file="docks\docks.xml"/>
+    <Script file="framework.lua"/>
+</Ui>

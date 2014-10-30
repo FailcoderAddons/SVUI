@@ -378,7 +378,7 @@ SV.Options.args.common = {
 									type = 'toggle',
 									name = L["Awesome Game Menu"],
 									get = function(j)return SV.db.general.ego end,
-									set = function(j,value) SV.db.general.ego = value; SV:StaticPopup_Show("RL_CLIENT") end
+									set = function(j,value) SV.db.general.ego = value; SV.Ego:Toggle() end
 								},
 							}
 						},

@@ -334,7 +334,7 @@ function SV:RefreshSystemFonts()
   SetFont("NumberFont_Shadow_Small", UNICODE_FONT, unicodesize, "OUTLINE")
   SetFont("SystemFont_Tiny", UNICODE_FONT, unicodesize)
 
-  self:UpdateFontTemplates()
+  self:UpdateManagedFonts()
 end 
 
 function SV:RefreshAllSystemMedia()

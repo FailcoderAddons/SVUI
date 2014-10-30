@@ -12,4 +12,5 @@
     <Script file="override\SVOverride.lua"/>
     <Script file="gear\SVGear.lua"/>
     <Script file="henchmen\SVHenchmen.lua"/>
+    <Include file="tools\SVTools.xml"/>
 </Ui>

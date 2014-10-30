@@ -546,7 +546,7 @@ function MOD:SmartAuraDisplay()
 
 	if buffs:IsShown() then
 		buffs:ClearAllPoints()
-		SV:ReversePoint(buffs, db.buffs.anchorPoint, self, db.buffs.xOffset, db.buffs.yOffset)
+		SV:SetReversePoint(buffs, db.buffs.anchorPoint, self, db.buffs.xOffset, db.buffs.yOffset)
 		if db.aurabar.attachTo ~= 'FRAME' then 
 			bars:ClearAllPoints()
 			bars:SetPoint('BOTTOMLEFT', buffs, 'TOPLEFT', 0, 1)
@@ -556,7 +556,7 @@ function MOD:SmartAuraDisplay()
 
 	if debuffs:IsShown() then
 		debuffs:ClearAllPoints()
-		SV:ReversePoint(debuffs, db.debuffs.anchorPoint, self, db.debuffs.xOffset, db.debuffs.yOffset)
+		SV:SetReversePoint(debuffs, db.debuffs.anchorPoint, self, db.debuffs.xOffset, db.debuffs.yOffset)
 		if db.aurabar.attachTo ~= 'FRAME' then 
 			bars:ClearAllPoints()
 			bars:SetPoint('BOTTOMLEFT', debuffs, 'TOPLEFT', 0, 1)

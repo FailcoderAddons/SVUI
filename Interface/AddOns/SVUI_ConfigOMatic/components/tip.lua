@@ -157,7 +157,7 @@ SV.Options.args.SVTip = {
 									width = "full", 
 									name = L["Font"], 
 									values = AceGUIWidgetLSMlists.font, 
-									set = function(a,b)SV.db.SVTip.healthBar.font = b;GameTooltipStatusBar.text:SetFontTemplate(LSM:Fetch("font",SV.db.SVTip.healthBar.font), SV.db.SVTip.healthBar.fontSize,"OUTLINE")end
+									set = function(a,b)SV.db.SVTip.healthBar.font = b;GameTooltipStatusBar.text:FontManager(LSM:Fetch("font",SV.db.SVTip.healthBar.font), SV.db.SVTip.healthBar.fontSize,"OUTLINE")end
 								},
 								fontSize = {
 									order = 3, 
@@ -167,7 +167,7 @@ SV.Options.args.SVTip = {
 									max = 22, 
 									step = 1, 
 									width = "full", 
-									set = function(a,b)SV.db.SVTip.healthBar.fontSize = b;GameTooltipStatusBar.text:SetFontTemplate(LSM:Fetch("font",SV.db.SVTip.healthBar.font),SV.db.SVTip.healthBar.fontSize,"OUTLINE")end
+									set = function(a,b)SV.db.SVTip.healthBar.fontSize = b;GameTooltipStatusBar.text:FontManager(LSM:Fetch("font",SV.db.SVTip.healthBar.font),SV.db.SVTip.healthBar.fontSize,"OUTLINE")end
 								}
 							}
 						}

@@ -205,7 +205,11 @@ do
         return "CENTER"
     end})
 
-    function SV:ReversePoint(frame, point, target, x, y)
+    function SV:GetReversePoint(point)
+        return _inverted[point];
+    end
+
+    function SV:SetReversePoint(frame, point, target, x, y)
         if((not frame) or (not point)) then return; end
         local anchor = _inverted[point];
         local relative = _translated[point];
@@ -220,7 +224,7 @@ end
 
 function SV:AnchorToCursor(frame)
     local x, y = GetCursorPosition()
-    local vHold = self.yScreenArea
+    local vHold = (UIParent:GetHeight() * 0.33)
     local scale = self.Screen:GetEffectiveScale()
     local initialAnchor = "CENTER"
     local mod = 0
@@ -234,7 +238,7 @@ function SV:AnchorToCursor(frame)
     end
 
     frame:ClearAllPoints()
-    frame:SetPoint(initialAnchor, SV.Screen, "BOTTOMLEFT", (x  /  scale), (y  /  scale) + mod)
+    frame:SetPoint(initialAnchor, self.Screen, "BOTTOMLEFT", (x  /  scale), (y  /  scale) + mod)
 end
 --[[ 
 ########################################################## 

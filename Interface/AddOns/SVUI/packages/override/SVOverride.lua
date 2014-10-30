@@ -396,7 +396,7 @@ local function MirrorBarRegistry(barType)
 	bar:SetScript("OnUpdate", MirrorBar_OnUpdate)
 	local r, g, b = unpack(mirrorTypeColor[barType])
 	bar.text = bar:CreateFontString(nil, 'OVERLAY')
-	bar.text:SetFontTemplate(SV.Media.font.roboto, 12, 'OUTLINE')
+	bar.text:FontManager(SV.Media.font.roboto, 12, 'OUTLINE')
 	bar.text:SetJustifyH('CENTER')
 	bar.text:SetTextColor(1, 1, 1)
 	bar.text:SetPoint('LEFT', bar)
@@ -420,7 +420,7 @@ local function SetTimerStyle(bar)
 		if child:GetObjectType() == "Texture"then
 			child:SetTexture(0,0,0,0)
 		elseif child:GetObjectType() == "FontString" then 
-			child:SetFontTemplate(SV.Media.font.roboto, 12, 'OUTLINE')
+			child:FontManager(SV.Media.font.roboto, 12, 'OUTLINE')
 		end 
 	end 
 	bar:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]])

@@ -49,177 +49,7 @@ local L = SV.L
 LOCAL VARS
 ##########################################################
 ]]--
-local SizeScaled, HeightScaled, WidthScaled, PointScaled, WrapOuter, FillInner
-local TemplateUpdateFrames = {};
-local FontUpdateFrames = {};
-local STANDARD_TEXT_FONT = _G.STANDARD_TEXT_FONT;
---[[ 
-########################################################## 
-APPENDED POSITIONING METHODS
-##########################################################
-]]-- 
-do
-    local PARAMS = {}
-
-    function SizeScaled(self, width, height)
-        if(type(width) == "number") then
-            local h = (height and type(height) == "number") and height or width
-            self:SetSize(SV:Scale(width), SV:Scale(h))
-        end
-    end 
-
-    function WidthScaled(self, width)
-        if(type(width) == "number") then
-            self:SetWidth(SV:Scale(width))
-        end
-    end 
-
-    function HeightScaled(self, height)
-        if(type(height) == "number") then
-            self:SetHeight(SV:Scale(height))
-        end
-    end
-
-    function PointScaled(self, ...)
-        local n = select('#', ...) 
-        PARAMS = {...}
-        local arg
-        for i = 1, n do
-            arg = PARAMS[i]
-            if(arg and type(arg) == "number") then 
-                PARAMS[i] = SV:Scale(arg)
-            end 
-        end 
-        self:SetPoint(unpack(PARAMS))
-    end
-
-    function WrapOuter(self, parent, x, y)
-        x = type(x) == "number" and x or 1
-        y = y or x
-        local nx = SV:Scale(x);
-        local ny = SV:Scale(y);
-        parent = parent or self:GetParent()
-        if self:GetPoint() then 
-            self:ClearAllPoints()
-        end 
-        self:SetPoint("TOPLEFT", parent, "TOPLEFT", -nx, ny)
-        self:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", nx, -ny)
-    end 
-
-    function FillInner(self, parent, x, y)
-        x = type(x) == "number" and x or 1
-        y = y or x
-        local nx = SV:Scale(x);
-        local ny = SV:Scale(y);
-        parent = parent or self:GetParent()
-        if self:GetPoint() then 
-            self:ClearAllPoints()
-        end 
-        self:SetPoint("TOPLEFT", parent, "TOPLEFT", nx, -ny)
-        self:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", -nx, ny)
-    end
-end
---[[ 
-########################################################## 
-APPENDED DESTROY METHODS
-##########################################################
-]]--
-local _purgatory = CreateFrame("Frame", nil)
-_purgatory:Hide()
-
-local function Die(self)
-    if self.UnregisterAllEvents then 
-        self:UnregisterAllEvents()
-        self:SetParent(_purgatory)
-    else 
-        self:Hide()
-        self.Show = SV.fubar
-    end 
-end
-
-local function RemoveTextures(self, option)
-    if(self.Panel) then return end
-    local region, layer, texture
-    for i = 1, self:GetNumRegions()do 
-        region = select(i, self:GetRegions())
-        if(region and (region:GetObjectType() == "Texture")) then
-
-            layer = region:GetDrawLayer()
-            texture = region:GetTexture()
-
-            if(option) then
-                if(type(option) == "boolean") then 
-                    if region.UnregisterAllEvents then 
-                        region:UnregisterAllEvents()
-                        region:SetParent(_purgatory)
-                    else 
-                        region.Show = region.Hide 
-                    end 
-                    region:Hide()
-                elseif(type(option) == "string" and ((layer == option) or (texture ~= option))) then
-                    region:SetTexture(0,0,0,0)
-                end
-            else 
-                region:SetTexture(0,0,0,0)
-            end 
-        end 
-    end 
-end 
---[[ 
-########################################################## 
-APPENDED FONT TEMPLATING METHODS
-##########################################################
-]]--
-local function SetFontTemplate(self, font, fontSize, fontStyle, fontJustifyH, fontJustifyV, noUpdate)
-    if not self then return end
-    local STANDARDFONTSIZE = SV.db.media.fonts and SV.db.media.fonts.size or 12
-    font = font or [[Interface\AddOns\SVUI\assets\fonts\Default.ttf]]
-    fontSize = fontSize or STANDARDFONTSIZE;
-    fontJustifyH = fontJustifyH or "CENTER";
-    fontJustifyV = fontJustifyV or "MIDDLE";
-    if not font then return end
-    self.font = font;
-    self.fontSize = fontSize;
-    self.fontStyle = fontStyle;
-    self.fontJustifyH = fontJustifyH;
-    self.fontJustifyV = fontJustifyV;
-    self:SetFont(font, fontSize, fontStyle)
-    if(fontStyle and fontStyle ~= "NONE") then 
-        self:SetShadowColor(0, 0, 0, 0)
-    else 
-        self:SetShadowColor(0, 0, 0, 0.2)
-    end 
-    self:SetShadowOffset(1, -1)
-    self:SetJustifyH(fontJustifyH)
-    self:SetJustifyV(fontJustifyV)
-    self.useCommon = fontSize and (fontSize == STANDARDFONTSIZE);
-    if(not noUpdate) then
-        FontUpdateFrames[self] = true
-    end
-end 
---[[ 
-########################################################## 
-FONT UPDATE CALLBACK
-##########################################################
-]]--
-local function FontTemplateUpdates()
-    local STANDARDFONTSIZE = SV.db.media.fonts.size;
-    for i=1, #FontUpdateFrames do
-        local frame = FontUpdateFrames[i] 
-        if frame then
-            local fontSize = frame.useCommon and STANDARDFONTSIZE or frame.fontSize
-            frame:SetFont(frame.font, fontSize, frame.fontStyle)
-        else 
-            FontUpdateFrames[i] = nil 
-        end 
-    end 
-end
-
-function SV:UpdateFontTemplates()
-    FontTemplateUpdates()
-end
-
-SV:NewCallback(FontTemplateUpdates)
+local TemplateUpdateFrames = {}; 
 --[[ 
 ########################################################## 
 XML TEMPLATE LOOKUP TABLE
@@ -837,7 +667,7 @@ local function SetButtonTemplate(self, invisible, overridePadding, xOffset, yOff
     if(self.SetHighlightTexture) then
         if(not self.hover) then
             local hover = self:CreateTexture(nil, "HIGHLIGHT")
-            FillInner(hover, self.Panel, 2, 2)
+            hover:FillInner(self.Panel, 2, 2)
             self.hover = hover;
         end
         self.hover:SetTexture(0.1, 0.8, 0.8, 0.5)
@@ -847,7 +677,7 @@ local function SetButtonTemplate(self, invisible, overridePadding, xOffset, yOff
     if(self.SetPushedTexture) then
         if(not self.pushed) then 
             local pushed = self:CreateTexture(nil, "OVERLAY")
-            FillInner(pushed, self.Panel)
+            pushed:FillInner(self.Panel)
             self.pushed = pushed;
         end
 
@@ -859,7 +689,7 @@ local function SetButtonTemplate(self, invisible, overridePadding, xOffset, yOff
     if(self.SetCheckedTexture) then
         if(not self.checked) then 
             local checked = self:CreateTexture(nil, "OVERLAY")
-            FillInner(checked, self.Panel)
+            checked:FillInner(self.Panel)
             self.checked = checked;
         end
 
@@ -905,25 +735,25 @@ end
 local function SetEditboxTemplate(self, x, y, fixed)
     if(not self or (self and self.Panel)) then return end
 
-    if self.TopLeftTex then Die(self.TopLeftTex) end 
-    if self.TopRightTex then Die(self.TopRightTex) end 
-    if self.TopTex then Die(self.TopTex) end 
-    if self.BottomLeftTex then Die(self.BottomLeftTex) end 
-    if self.BottomRightTex then Die(self.BottomRightTex) end 
-    if self.BottomTex then Die(self.BottomTex) end 
-    if self.LeftTex then Die(self.LeftTex) end 
-    if self.RightTex then Die(self.RightTex) end 
-    if self.MiddleTex then Die(self.MiddleTex) end 
+    if self.TopLeftTex then self.TopLeftTex:Die() end 
+    if self.TopRightTex then self.TopRightTex:Die() end 
+    if self.TopTex then self.TopTex:Die() end 
+    if self.BottomLeftTex then self.BottomLeftTex:Die() end 
+    if self.BottomRightTex then self.BottomRightTex:Die() end 
+    if self.BottomTex then self.BottomTex:Die() end 
+    if self.LeftTex then self.LeftTex:Die() end 
+    if self.RightTex then self.RightTex:Die() end 
+    if self.MiddleTex then self.MiddleTex:Die() end 
     local underlay = true
     if(fixed ~= nil) then underlay = fixed end
     CreatePanelTemplate(self, "Inset", underlay, true, 1, x, y)
 
     local globalName = self:GetName();
     if globalName then 
-        if _G[globalName.."Left"] then Die(_G[globalName.."Left"]) end 
-        if _G[globalName.."Middle"] then Die(_G[globalName.."Middle"]) end 
-        if _G[globalName.."Right"] then Die(_G[globalName.."Right"]) end 
-        if _G[globalName.."Mid"] then Die(_G[globalName.."Mid"]) end
+        if _G[globalName.."Left"] then _G[globalName.."Left"]:Die() end 
+        if _G[globalName.."Middle"] then _G[globalName.."Middle"]:Die() end 
+        if _G[globalName.."Right"] then _G[globalName.."Right"]:Die() end 
+        if _G[globalName.."Mid"] then _G[globalName.."Mid"]:Die() end
 
         if globalName:find("Silver") or globalName:find("Copper") or globalName:find("Gold") then
             self.Panel:SetPoint("TOPLEFT", -3, 1)
@@ -1085,14 +915,6 @@ ENUMERATION
 ]]--
 local function AppendMethods(OBJECT)
     local META = getmetatable(OBJECT).__index
-    if not OBJECT.Size then META.Size = SizeScaled end
-    if not OBJECT.Width then META.Width = WidthScaled end
-    if not OBJECT.Height then META.Height = HeightScaled end
-    if not OBJECT.Point then META.Point = PointScaled end
-    if not OBJECT.WrapOuter then META.WrapOuter = WrapOuter end
-    if not OBJECT.FillInner then META.FillInner = FillInner end
-    if not OBJECT.Die then META.Die = Die end
-    if not OBJECT.RemoveTextures then META.RemoveTextures = RemoveTextures end
     if not OBJECT.SetBasicPanel then META.SetBasicPanel = SetBasicPanel end
     if not OBJECT.SetPanelTemplate then META.SetPanelTemplate = SetPanelTemplate end
     if not OBJECT.SetFixedPanelTemplate then META.SetFixedPanelTemplate = SetFixedPanelTemplate end
@@ -1102,7 +924,6 @@ local function AppendMethods(OBJECT)
     if not OBJECT.SetCheckboxTemplate then META.SetCheckboxTemplate = SetCheckboxTemplate end
     if not OBJECT.SetEditboxTemplate then META.SetEditboxTemplate = SetEditboxTemplate end
     if not OBJECT.SetFramedButtonTemplate then META.SetFramedButtonTemplate = SetFramedButtonTemplate end
-    if not OBJECT.SetFontTemplate then META.SetFontTemplate = SetFontTemplate end
 end
 
 local HANDLER, OBJECT = {["Frame"] = true}, CreateFrame("Frame")

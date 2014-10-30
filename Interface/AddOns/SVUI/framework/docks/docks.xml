@@ -1,9 +1,6 @@
 ﻿<Ui xmlns="http://www.blizzard.com/wow/ui/">
     <Button name="SVUI_DockletButtonTemplate" virtual="true" hidden="true">
         <Size x="22" y="22"/>
-        <Anchors>
-            <Anchor point="RIGHT" relativePoint="RIGHT" />
-        </Anchors>
         <Attributes>
             <Attribute name="tipText" type="string" value="" />
             <Attribute name="ownerFrame" type="string" value="None" />
@@ -20,6 +17,11 @@
                 </Texture>
             </Layer>
         </Layers>
+        <Scripts>
+            <OnLoad>
+                self:RegisterForClicks("LeftButtonUp", "RightButtonUp");
+            </OnLoad>
+        </Scripts>
     </Button>
 
     <Frame name="SVUI_DockletWindowTemplate" virtual="true">
@@ -29,7 +31,7 @@
         </Attributes>
     </Frame>
 
-    <Frame name="SVUI_DockBarLeft" frameStrata="BACKGROUND">
+    <Frame name="SVUI_DockBarBottomLeft" frameStrata="BACKGROUND">
         <Size y="22"/>
         <Attributes>
             <Attribute name="spacingSize" type="number" value="4" />
@@ -80,7 +82,7 @@
         </Frames>
     </Frame>
 
-    <Frame name="SVUI_DockLeft" frameStrata="BACKGROUND">
+    <Frame name="SVUI_DockBottomLeft" frameStrata="BACKGROUND">
         <Attributes>
             <Attribute name="spacingSize" type="number" value="4" />
             <Attribute name="buttonSize" type="number" value="22" />
@@ -107,7 +109,7 @@
         </Frames>
     </Frame>
 
-    <Frame name="SVUI_DockBarRight" frameStrata="BACKGROUND">
+    <Frame name="SVUI_DockBarBottomRight" frameStrata="BACKGROUND">
         <Size y="22"/>
         <Attributes>
             <Attribute name="spacingSize" type="number" value="4" />
@@ -158,7 +160,7 @@
         </Frames>
     </Frame>
 
-    <Frame name="SVUI_DockRight" frameStrata="BACKGROUND">
+    <Frame name="SVUI_DockBottomRight" frameStrata="BACKGROUND">
         <Attributes>
             <Attribute name="spacingSize" type="number" value="4" />
             <Attribute name="buttonSize" type="number" value="22" />
@@ -185,7 +187,8 @@
         </Frames>
     </Frame>
 
-    <Frame name="SVUI_DockTop" frameStrata="BACKGROUND">
+    <Frame name="SVUI_DockBarTopLeft" frameStrata="BACKGROUND">
+        <Size y="22"/>
         <Attributes>
             <Attribute name="spacingSize" type="number" value="4" />
             <Attribute name="buttonSize" type="number" value="22" />
@@ -194,12 +197,141 @@
             <Anchor point="TOPLEFT" />
         </Anchors>
         <Frames>
-            <Frame name="$parentToolBar" parentKey="ToolBar" frameStrata="BACKGROUND">
-                <Size y="1"/>
+            <Frame name="$parentToolBar" parentKey="ToolBar">
+                <Size x="1" y="22"/>
                 <Anchors>
-                    <Anchor point="TOPLEFT" relativePoint="TOPLEFT" />
+                    <Anchor point="TOPLEFT" relativeTo="$parent" />
                 </Anchors>
             </Frame>
         </Frames>
     </Frame>
+
+    <Frame name="SVUI_DockTopLeft" frameStrata="BACKGROUND">
+        <Attributes>
+            <Attribute name="spacingSize" type="number" value="4" />
+            <Attribute name="buttonSize" type="number" value="22" />
+        </Attributes>
+        <Anchors>
+            <Anchor point="TOPLEFT" />
+        </Anchors>
+        <Frames>
+            <Frame name="$parentAlert" parentKey="Alert" frameStrata="BACKGROUND">
+                <Size y="1"/>
+                <Anchors>
+                    <Anchor point="TOPRIGHT" x="0" y="4" />
+                    <Anchor point="TOPLEFT" x="0" y="4" />
+                </Anchors>
+            </Frame>
+            <Frame name="$parentWindow" parentKey="Window" frameStrata="BACKGROUND">
+                <Anchors>
+                    <Anchor point="TOPRIGHT" relativeTo="$parentAlert" relativePoint="BOTTOMRIGHT" x="0" y="4" />
+                    <Anchor point="TOPLEFT" relativeTo="$parentAlert" relativePoint="BOTTOMLEFT" x="0" y="4" />
+                    <Anchor point="BOTTOMLEFT" relativeTo="$parent" relativePoint="BOTTOMLEFT" x="0" y="0" />
+                    <Anchor point="BOTTOMRIGHT" relativeTo="$parent" relativePoint="BOTTOMRIGHT" x="0" y="0" />
+                </Anchors>
+            </Frame>
+        </Frames>
+    </Frame>
+
+    <Frame name="SVUI_DockBarTopRight" frameStrata="BACKGROUND">
+        <Size y="22"/>
+        <Attributes>
+            <Attribute name="spacingSize" type="number" value="4" />
+            <Attribute name="buttonSize" type="number" value="22" />
+        </Attributes>
+        <Anchors>
+            <Anchor point="TOPRIGHT" />
+        </Anchors>
+        <Frames>
+            <Frame name="$parentToolBar" parentKey="ToolBar">
+                <Size x="1" y="22"/>
+                <Anchors>
+                    <Anchor point="TOPRIGHT" relativeTo="$parent" />
+                </Anchors>
+            </Frame>
+        </Frames>
+    </Frame>
+
+    <Frame name="SVUI_DockTopRight" frameStrata="BACKGROUND">
+        <Attributes>
+            <Attribute name="spacingSize" type="number" value="4" />
+            <Attribute name="buttonSize" type="number" value="22" />
+        </Attributes>
+        <Anchors>
+            <Anchor point="TOPLEFT" />
+        </Anchors>
+        <Frames>
+            <Frame name="$parentAlert" parentKey="Alert" frameStrata="BACKGROUND">
+                <Size y="1"/>
+                <Anchors>
+                    <Anchor point="TOPRIGHT" x="0" y="4" />
+                    <Anchor point="TOPLEFT" x="0" y="4" />
+                </Anchors>
+            </Frame>
+            <Frame name="$parentWindow" parentKey="Window" frameStrata="BACKGROUND">
+                <Anchors>
+                    <Anchor point="TOPRIGHT" relativeTo="$parentAlert" relativePoint="BOTTOMRIGHT" x="0" y="4" />
+                    <Anchor point="TOPLEFT" relativeTo="$parentAlert" relativePoint="BOTTOMLEFT" x="0" y="4" />
+                    <Anchor point="BOTTOMLEFT" relativeTo="$parent" relativePoint="BOTTOMLEFT" x="0" y="0" />
+                    <Anchor point="BOTTOMRIGHT" relativeTo="$parent" relativePoint="BOTTOMRIGHT" x="0" y="0" />
+                </Anchors>
+            </Frame>
+        </Frames>
+    </Frame>
+
+    <Frame name="SVUI_DockBottomCenter" frameStrata="BACKGROUND">
+        <Size x="500" y="22"/>
+        <Attributes>
+            <Attribute name="spacingSize" type="number" value="4" />
+            <Attribute name="buttonSize" type="number" value="22" />
+        </Attributes>
+        <Anchors>
+            <Anchor point="BOTTOM" />
+        </Anchors>
+        <Frames>
+            <Frame name="$parentLeft" parentKey="Left">
+                <Size x="1" y="22"/>
+                <Anchors>
+                    <Anchor point="BOTTOMLEFT" relativePoint="BOTTOMLEFT" />
+                    <Anchor point="TOPRIGHT" relativePoint="TOP" />
+                </Anchors>
+            </Frame>
+            <Frame name="$parentRight" parentKey="Right">
+                <Size x="1" y="22"/>
+                <Anchors>
+                    <Anchor point="BOTTOMLEFT" relativeTo="$parentLeft" relativePoint="BOTTOMRIGHT" />
+                    <Anchor point="TOPRIGHT" relativeTo="$parent" relativePoint="TOPRIGHT" />
+                </Anchors>
+            </Frame>
+        </Frames>
+    </Frame>
+
+    <Frame name="SVUI_DockTopCenter" frameStrata="BACKGROUND">
+        <Size x="500" y="22"/>
+        <Attributes>
+            <Attribute name="spacingSize" type="number" value="4" />
+            <Attribute name="buttonSize" type="number" value="22" />
+        </Attributes>
+        <Anchors>
+            <Anchor point="TOP" />
+        </Anchors>
+        <Frames>
+            <Frame name="$parentLeft" parentKey="Left">
+                <Size x="1" y="22"/>
+                <Anchors>
+                    <Anchor point="BOTTOMLEFT" relativePoint="BOTTOMLEFT" />
+                    <Anchor point="TOPRIGHT" relativePoint="TOP" />
+                </Anchors>
+            </Frame>
+            <Frame name="$parentRight" parentKey="Right">
+                <Size x="1" y="22"/>
+                <Anchors>
+                    <Anchor point="BOTTOMLEFT" relativeTo="$parentLeft" relativePoint="BOTTOMRIGHT" />
+                    <Anchor point="TOPRIGHT" relativeTo="$parent" relativePoint="TOPRIGHT" />
+                </Anchors>
+            </Frame>
+        </Frames>
+    </Frame>
+
+    <Script file="docks.lua"/>
 </Ui>

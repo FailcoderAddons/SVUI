@@ -903,7 +903,7 @@ function PLUGIN:EnableAnsweringService()
 	self:RegisterEvent("CHAT_MSG_IGNORED")
 	self:RegisterUpdate("PhoneTimeUpdate", 4)
 
-	self.Docklet = SV.Dock:NewDocklet("Left", "SVUI_ChatOMaticDock", "Answering Service", ICON_FILE, AnsweringOnClick)
+	self.Docklet = SV.Dock:NewDocklet("BottomLeft", "SVUI_ChatOMaticDock", "Answering Service", ICON_FILE, AnsweringOnClick)
 
 	local window = CreateFrame("Frame", nil, self.Docklet)
 	window:SetPoint("TOPLEFT", self.Docklet, "TOPLEFT", -4, 4)

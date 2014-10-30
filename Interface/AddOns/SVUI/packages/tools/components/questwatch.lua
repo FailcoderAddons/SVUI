@@ -53,54 +53,55 @@ GET ADDON DATA
 ]]--
 local SV = select(2, ...)
 local L = SV.L
+
+local MOD = SV.SVTools;
 --[[ 
 ########################################################## 
 LOCAL VARS
 ##########################################################
 ]]--
-local QuestFrame, ObjectiveTrackerFrame;
-local ICON_FILE = [[Interface\AddOns\SVUI\assets\artwork\Icons\DOCK-QUESTS]]
-local OBJECTIVE_TRACKER_LINE_WIDTH = _G.OBJECTIVE_TRACKER_LINE_WIDTH;
+local ICON_FILE = [[Interface\AddOns\SVUI\assets\artwork\Icons\DOCK-QUESTS]];
 --[[ 
 ########################################################## 
 CORE FUNCTIONS
 ##########################################################
 ]]--
-local QuestFrame_OnEvent = function(self, event)
-	if(event == "QUEST_AUTOCOMPLETE" and SV.Dock.Right.Window and QuestFrame) then
-		if SV.Dock.Right.Window.FrameLink and SV.Dock.Right.Window.FrameLink:IsShown() then return end 
-		if not QuestFrame:IsShown() then
-			SV.Dock.Right.Window.FrameLink = QuestFrame
+function MOD:QUEST_AUTOCOMPLETE(event)
+	if(SV.Dock.BottomRight.Window and self.QuestWatch) then
+		if(not self.QuestWatch:IsShown()) then 
+			SV.Dock.BottomRight.Window.FrameLink = self.QuestWatch
 
-			if not SV.Dock.Right.Window:IsShown() then
-				SV.Dock.Right.Window:Show()
+			if not SV.Dock.BottomRight.Window:IsShown() then
+				SV.Dock.BottomRight.Window:Show()
 			end
 
-			SV.Dock.Right.Bar:Refresh()
-			QuestFrame:Show()
+			SV.Dock.BottomRight.Bar:Refresh()
+			self.QuestWatch:Show()
 
-			if(QuestFrame.DockButton) then
-				QuestFrame.DockButton:Activate()
+			if(self.QuestWatch.DockButton) then
+				self.QuestWatch.DockButton:Activate()
 			end
 		end
 	end
 end
 
-local function CreateQuestFrame()
-	ObjectiveTrackerFrame = _G.ObjectiveTrackerFrame
+function MOD:LoadQuestWatch()
+	local ObjectiveTrackerFrame = _G.ObjectiveTrackerFrame
+
 	if(not ObjectiveTrackerFrame) then return end
+
 	if(not SV.db.general.questWatch) then
 		ObjectiveTrackerFrame:RemoveTextures(true)
 
-		QuestFrame = CreateFrame("Frame", "SVUI_QuestFrame", UIParent);
-		QuestFrame:SetSize(200, ObjectiveTrackerFrame:GetHeight());
-		QuestFrame:SetPoint("TOPRIGHT", UIParent, "RIGHT", -200, 100);
+		self.QuestWatch = CreateFrame("Frame", "SVUI_QuestWatchFrame", UIParent);
+		self.QuestWatch:SetSize(200, ObjectiveTrackerFrame:GetHeight());
+		self.QuestWatch:SetPoint("TOPRIGHT", UIParent, "RIGHT", -200, 100);
 
 		ObjectiveTrackerFrame:ClearAllPoints()
 		ObjectiveTrackerFrame:SetClampedToScreen(false)
-		ObjectiveTrackerFrame:SetParent(QuestFrame)
-		ObjectiveTrackerFrame:SetAllPoints(QuestFrame)
-		ObjectiveTrackerFrame:SetFrameLevel(QuestFrame:GetFrameLevel()  +  1)
+		ObjectiveTrackerFrame:SetParent(self.QuestWatch)
+		ObjectiveTrackerFrame:SetAllPoints(self.QuestWatch)
+		ObjectiveTrackerFrame:SetFrameLevel(self.QuestWatch:GetFrameLevel()  +  1)
 		ObjectiveTrackerFrame.ClearAllPoints = SV.fubar;
 		ObjectiveTrackerFrame.SetPoint = SV.fubar;
 		ObjectiveTrackerFrame.SetAllPoints = SV.fubar;
@@ -123,24 +124,24 @@ local function CreateQuestFrame()
 	  		ObjectiveTrackerFrame.BlocksFrame.ScenarioHeader:SetBackdropColor(0, 0, 0, 0.5)
 	  	end
 
-		SV.Mentalo:Add(QuestFrame, "Quest Watch");
+		SV.Mentalo:Add(self.QuestWatch, "Quest Watch");
 	else
 		local bgTex = [[Interface\BUTTONS\WHITE8X8]]
 		local bdTex = SV.Media.bar.glow
-		local WIDTH, HEIGHT = SV.Dock.Right.Window:GetSize()
 
-		QuestFrame = SV.Dock:NewDocklet("Right", "SVUI_QuestFrame", "Quest Watch", ICON_FILE)
-		QuestFrame.DockButton:MakeDefault()
+		self.QuestWatch = SV.Dock:NewDocklet("BottomRight", "SVUI_QuestWatchFrame", "Quest Watch", ICON_FILE)
 
-		local listFrame = CreateFrame("ScrollFrame", nil, QuestFrame);
-		listFrame:SetPoint("TOPLEFT", QuestFrame, -62, 0);
-		listFrame:SetPoint("BOTTOMRIGHT", QuestFrame, -31, 21);
+		local WIDTH, HEIGHT = self.QuestWatch:GetSize()
+
+		local listFrame = CreateFrame("ScrollFrame", nil, self.QuestWatch);
+		listFrame:SetPoint("TOPLEFT", self.QuestWatch, -62, 0);
+		listFrame:SetPoint("BOTTOMRIGHT", self.QuestWatch, -31, 21);
 		listFrame:EnableMouseWheel(true);
 
 		local scrollFrame = CreateFrame("Slider", nil, listFrame);
 		scrollFrame:SetHeight(listFrame:GetHeight());
 		scrollFrame:SetWidth(18);
-		scrollFrame:SetPoint("TOPRIGHT", QuestFrame, "TOPRIGHT", -3, 0);
+		scrollFrame:SetPoint("TOPRIGHT", self.QuestWatch, "TOPRIGHT", -3, 0);
 		scrollFrame:SetBackdrop({bgFile = bgTex, edgeFile = bdTex, edgeSize = 4, insets = {left = 3, right = 3, top = 3, bottom = 3}});
 		scrollFrame:SetFrameLevel(6)
 		scrollFrame:SetFixedPanelTemplate("Transparent", true);
@@ -149,6 +150,9 @@ local function CreateQuestFrame()
 		scrollFrame:SetValueStep(5);
 		scrollFrame:SetMinMaxValues(1, 420);
 		scrollFrame:SetValue(1);
+		scrollFrame:SetScript("OnValueChanged", function(self, argValue)
+			listFrame:SetVerticalScroll(argValue)
+		end)
 
 		listFrame.slider = scrollFrame;
 		listFrame:SetScript("OnMouseWheel", function(self, delta)
@@ -170,14 +174,9 @@ local function CreateQuestFrame()
 		ObjectiveTrackerFrame:SetHeight(500)
 		ObjectiveTrackerFrame:SetWidth(WIDTH)
 		ObjectiveTrackerFrame:SetPoint("TOPRIGHT", listFrame, "TOPRIGHT", -31, 0)
-		ObjectiveTrackerFrame:SetFrameLevel(listFrame:GetFrameLevel()  +  1)
+		ObjectiveTrackerFrame:SetFrameLevel(listFrame:GetFrameLevel() + 1)
 
 		listFrame:SetScrollChild(ObjectiveTrackerFrame)
-		scrollFrame:SetScript("OnValueChanged", function(self, argValue)
-			listFrame:SetVerticalScroll(argValue)
-		end)
-		scrollFrame:ClearAllPoints()
-		scrollFrame:SetPoint("TOPRIGHT", QuestFrame, "TOPRIGHT", -3, 0)
 
 		ObjectiveTrackerFrame.ClearAllPoints = SV.fubar;
 		ObjectiveTrackerFrame.SetAllPoints = SV.fubar;
@@ -210,10 +209,7 @@ local function CreateQuestFrame()
 	  		ObjectiveTrackerFrame.BlocksFrame.ScenarioHeader:SetBackdropColor(0, 0, 0, 0.5)
 	  	end
 
-		local eventHandler = CreateFrame("Frame")
-		eventHandler:RegisterEvent("QUEST_AUTOCOMPLETE")
-		eventHandler:SetScript("OnEvent", QuestFrame_OnEvent)
+		self.QuestWatch.DockButton:MakeDefault();
+		self:RegisterEvent("QUEST_AUTOCOMPLETE");
 	end
-end 
-
-SV:NewScript(CreateQuestFrame)
+end

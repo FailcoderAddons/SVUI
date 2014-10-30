@@ -310,57 +310,6 @@ local function StyleAceGUI(event, addon)
 	end 
 
 	AceGUI.RegisterAsContainer = RegisterAsContainer
-
-	SV.Options.args.Dock.args.docklets = {
-		order = 100,
-		type = 'group',
-		name = 'Addon Docklets',
-		guiInline = true,
-		args = {
-			docked = {
-				order = 0,
-				type = 'group',
-				name = 'Docklet Settings',
-				guiInline = true,
-				args = {
-					DockletMain = {
-						type = "select",
-						order = 1,
-						name = "Primary Docklet",
-						desc = "Select an addon to occupy the primary docklet window",
-						values = function()return GetLiveDockletsA()end,
-						get = function()return PLUGIN.cache.Docks[1] end,
-						set = function(a,value) PLUGIN.cache.Docks[1] = value; PLUGIN:RegisterAddonDocklets() end,
-					},
-					DockletCombatFade = {
-						type = "toggle",
-						order = 2,
-						name = "Out of Combat (Hide)",
-						get = function()return PLUGIN.db.docklets.DockletCombatFade end,
-						set = function(a,value) PLUGIN.db.docklets.DockletCombatFade = value;end
-					},
-					enableExtra = {
-						type = "toggle",
-						order = 3,
-						name = "Split Docklet",
-						desc = "Split the primary docklet window for 2 addons.",
-						get = function()return PLUGIN.db.docklets.enableExtra end,
-						set = function(a,value) PLUGIN.db.docklets.enableExtra = value; PLUGIN:RegisterAddonDocklets() end,
-					},
-					DockletExtra = {
-						type = "select",
-						order = 4,
-						name = "Secondary Docklet",
-						desc = "Select another addon",
-						disabled = function()return (not PLUGIN.db.docklets.enableExtra or PLUGIN.cache.Docks[1] == "None") end, 
-						values = function()return GetLiveDockletsB()end,
-						get = function()return PLUGIN.cache.Docks[2] end,
-						set = function(a,value) PLUGIN.cache.Docks[2] = value; PLUGIN:RegisterAddonDocklets() end,
-					}
-				}
-			}
-		}
-	}
 end
 --[[ 
 ########################################################## 

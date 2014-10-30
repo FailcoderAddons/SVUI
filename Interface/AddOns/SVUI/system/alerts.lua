@@ -913,10 +913,10 @@ function SV:LoadSystemAlerts()
 		fgtex:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Template\\SAVED-FG")
 		SetConfigAlertAnim(configAlert.fg)
 
-		SV.Animate:Orbit(configAlert.bg, 10, false, true)
+		self.Animate:Orbit(configAlert.bg, 10, false, true)
 	end 
 	for i = 1, 4 do 
-		local alert = CreateFrame("Frame", "SVUI_SystemAlert"..i, SV.Screen, "StaticPopupTemplate")
+		local alert = CreateFrame("Frame", "SVUI_SystemAlert"..i, self.Screen, "StaticPopupTemplate")
 		alert:SetID(i)
 		alert:SetScript("OnShow", SysPop_Event_Show)
 		alert:SetScript("OnHide", SysPop_Event_Hide)

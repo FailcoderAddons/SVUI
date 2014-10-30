@@ -247,4 +247,7 @@
             </OnDragStop>
         </Scripts>
     </Frame>
+
+    <Script file="mover_mentalo.lua"/>
+    <Script file="mover_blizzard.lua"/>
 </Ui>

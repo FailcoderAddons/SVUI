@@ -236,9 +236,9 @@ local PartyUnitUpdate = function(self)
                 self:SetParent(self.originalParent)
                 self:Size(UNIT_WIDTH, UNIT_HEIGHT)
                 self:ClearAllPoints()
-                SV:ReversePoint(self, altDB.anchorPoint, self.originalParent, altDB.xOffset, altDB.yOffset)
+                SV:SetReversePoint(self, altDB.anchorPoint, self.originalParent, altDB.xOffset, altDB.yOffset)
             else 
-                self:SetParent(SV.Cloaked)
+                self:SetParent(SV.Screen.Hidden)
             end 
         end 
         do 
@@ -619,9 +619,9 @@ local TankUnitUpdate = function(self)
                 self:SetParent(self.originalParent)
                 self:Size(UNIT_WIDTH, UNIT_HEIGHT)
                 self:ClearAllPoints()
-                SV:ReversePoint(self, targets.anchorPoint, self.originalParent, targets.xOffset, targets.yOffset)
+                SV:SetReversePoint(self, targets.anchorPoint, self.originalParent, targets.xOffset, targets.yOffset)
             else 
-                self:SetParent(SV.Cloaked)
+                self:SetParent(SV.Screen.Hidden)
             end 
         end 
     elseif not InCombatLockdown() then
@@ -733,9 +733,9 @@ local AssistUnitUpdate = function(self)
                 self:SetParent(self.originalParent)
                 self:Size(UNIT_WIDTH, UNIT_HEIGHT)
                 self:ClearAllPoints()
-                SV:ReversePoint(self, targets.anchorPoint, self.originalParent, targets.xOffset, targets.yOffset)
+                SV:SetReversePoint(self, targets.anchorPoint, self.originalParent, targets.xOffset, targets.yOffset)
             else 
-                self:SetParent(SV.Cloaked)
+                self:SetParent(SV.Screen.Hidden)
             end 
         end 
     elseif not InCombatLockdown() then

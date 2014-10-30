@@ -427,7 +427,7 @@ function SV.Setup:ChatConfigs(mungs)
 	if not mungs then
 		if SV.Chat then 
 			SV.Chat:ReLoad(true)
-			if SV.Dock.Cache.IsFaded == true then SV.Dock.Left.Bar.Button:Click() end 
+			if SV.Dock.Cache.IsFaded == true then HideSuperDocks() end 
 		end
 		SV:SavedPopup()
 	end

@@ -900,7 +900,7 @@ local FightOMaticAlert_OnHide = function()
 		SV:AddonMessage(ERR_NOT_IN_COMBAT);  
 		return; 
 	end
-	SV.Dock.Right.Alert:Deactivate()
+	SV.Dock.BottomRight.Alert:Deactivate()
 end
 
 local FightOMaticAlert_OnShow = function(self)
@@ -910,7 +910,7 @@ local FightOMaticAlert_OnShow = function(self)
 		return; 
 	end
 	SV:SecureFadeIn(self, 0.3, 0, 1)
-	SV.Dock.Right.Alert:Activate(self)
+	SV.Dock.BottomRight.Alert:Activate(self)
 end
 
 local FightOMaticAlert_OnMouseDown = function(self)
@@ -996,15 +996,15 @@ function PLUGIN:Load()
 	self.cache = self.cache or {}
 	
 	local ALERT_HEIGHT = 60;
-	local DOCK_WIDTH = SV.Dock.Right.Window:GetWidth();
-	local DOCK_HEIGHT = SV.Dock.Right.Window:GetHeight();
+	local DOCK_WIDTH = SV.Dock.BottomRight.Window:GetWidth();
+	local DOCK_HEIGHT = SV.Dock.BottomRight.Window:GetHeight();
 	local BUTTON_SIZE = (DOCK_HEIGHT * 0.25) - 4;
 
 	self.HitBy = false;
 	self.Scanning = false;
 	self.InPVP = false
 
-	self.Docklet = SV.Dock:NewDocklet("Right", "SVUI_FightOMaticDock", self.TitleID, ICON_FILE)
+	self.Docklet = SV.Dock:NewDocklet("BottomRight", "SVUI_FightOMaticDock", self.TitleID, ICON_FILE)
 
 	local toolBar = CreateFrame("Frame", "SVUI_FightOMaticToolBar", self.Docklet)
 	toolBar:SetWidth(BUTTON_SIZE + 4);
@@ -1075,7 +1075,7 @@ function PLUGIN:Load()
 	title:SetFrameStrata("MEDIUM")
 	title:SetPoint("TOPLEFT", toolBar, "TOPRIGHT",0,0)
 	title:SetPoint("BOTTOMRIGHT", self.Docklet, "TOPRIGHT",0,-16)
-	title:SetFontTemplate(SV.Media.font.names, 16, "OUTLINE", "CENTER", "MIDDLE")
+	title:FontManager(SV.Media.font.names, 16, "OUTLINE", "CENTER", "MIDDLE")
 	title:SetMaxLines(1)
 	title:EnableMouseWheel(false)
 	title:SetFading(false)
@@ -1106,7 +1106,7 @@ function PLUGIN:Load()
 	summary:SetFrameStrata("MEDIUM")
 	summary:SetPoint("TOPLEFT", title, "BOTTOMLEFT",0,0)
 	summary:SetPoint("BOTTOMRIGHT", title, "BOTTOMRIGHT",0,-14)
-	summary:SetFontTemplate(SV.Media.font.system, 12, "OUTLINE", "CENTER", "MIDDLE")
+	summary:FontManager(SV.Media.font.system, 12, "OUTLINE", "CENTER", "MIDDLE")
 	summary:SetMaxLines(1)
 	summary:EnableMouse(false)
 	summary:SetFading(false)
