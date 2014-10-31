@@ -72,6 +72,8 @@ local L = SV.L
 local LSM = LibStub("LibSharedMedia-3.0")
 local MOD = SV:NewPackage("SVChat", L["Chat"]);
 
+MOD.Dock = SV.Dock.BottomLeft;
+
 --[[ 
 ########################################################## 
 LOCAL VARS
@@ -437,9 +439,9 @@ do
 
 	local EditBox_OnEditFocusGained = function(self)
 		self:Show()
-		if not MOD.Dock:IsShown()then 
+		if not SV.Dock.BottomLeft:IsShown()then 
 			MOD.Dock.editboxforced = true;
-			MOD.Dock.Bar.Button:GetScript("OnEnter")(MOD.Dock.Bar.Button)
+			SV.Dock.BottomLeft.Bar.Button:GetScript("OnEnter")(SV.Dock.BottomLeft.Bar.Button)
 		end
 
 		MOD.Dock.Parent.Alert:Activate(self)
@@ -448,8 +450,8 @@ do
 	local EditBox_OnEditFocusLost = function(self)
 		if MOD.Dock.editboxforced then 
 			MOD.Dock.editboxforced = nil;
-			if MOD.Dock:IsShown()then 
-				MOD.Dock.Bar.Button:GetScript("OnLeave")(MOD.Dock.Bar.Button)
+			if SV.Dock.BottomLeft:IsShown()then 
+				SV.Dock.BottomLeft.Bar.Button:GetScript("OnLeave")(SV.Dock.BottomLeft.Bar.Button)
 			end 
 		end 
 		self:Hide()
@@ -733,16 +735,13 @@ do
 					end
 				end
 			else
-				chat:ClearAllPoints();
-				chat:SetParent(MOD.Dock);
-				chat:SetWidth(CHAT_WIDTH);
-				chat:SetHeight(CHAT_HEIGHT);
-				chat:SetPoint("BOTTOMLEFT", MOD.Dock, "BOTTOMLEFT", 0, 0);
-				chat.Panel:Hide()
-
 				if id == 1 then
 					FCF_SavePositionAndDimensions(chat)
-				end 
+				end
+
+				--chat:SetParent(MOD.Dock);
+				chat:SetAllPoints(MOD.Dock);
+				chat.Panel:Hide() 
 				
 				if(not TAB_SKINS) then
 					tab.owner = chat;

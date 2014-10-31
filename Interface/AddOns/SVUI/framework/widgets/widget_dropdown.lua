@@ -140,7 +140,6 @@ function SV.Dropdown:Open(target, list)
 			self.option[i].divider = self.option[i]:CreateTexture(nil, 'BORDER');
 			self.option[i].divider:SetAllPoints();
 			self.option[i].divider:SetTexture([[Interface\AddOns\SVUI\\assets\artwork\Template\DROPDOWN-DIVIDER]]);
-			self.option[i].divider:SetBlendMode("ADD");
 			self.option[i].divider:Hide();
 
 			self.option[i].header = self.option[i]:CreateFontString(nil, 'OVERLAY');
@@ -180,9 +179,9 @@ function SV.Dropdown:Open(target, list)
 		elseif(list[i].title) then
 			self.option[i].header:Show();
 			self.option[i].header:SetText(list[i].title);
-			if(list[i].divider) then
-				self.option[i].divider:Show();
-			end
+			-- if(list[i].divider) then
+			-- 	self.option[i].divider:Show();
+			-- end
 		end
 
 		if(i == 1) then
