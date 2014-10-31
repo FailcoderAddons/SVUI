@@ -188,17 +188,21 @@ local function LoadToolBarProfessions()
 	end
 
 	-- HEARTH BUTTON
+	local hearthStone = GetItemInfo(6948);
 	local hearth = SV.Dock.BottomLeft.Bar:Create(L["Hearthstone"], HEARTH_ICON, nil, "SVUI_Hearth", SetHearthTooltip, "SecureActionButtonTemplate")
 	hearth.Icon:SetTexCoord(0,0.5,0,1)
-	hearth:SetAttribute("type", "item")
-	hearth:SetAttribute("item", GetItemInfo(6948))
+	hearth:SetAttribute("type", "macro")
+	local hasRightClick = false;
 	for i = 1, #HEARTH_SPELLS do
 		if(IsSpellKnown(HEARTH_SPELLS[i])) then
 			local rightClickSpell = GetSpellInfo(HEARTH_SPELLS[i])
-			hearth:SetAttribute("type2", "spell")
-			hearth:SetAttribute("spell", rightClickSpell)
 			hearth:SetAttribute("tipExtraText", rightClickSpell)
+			hearth:SetAttribute("macrotext", "/use [button:2] " .. rightClickSpell .. ";[nomod]" .. hearthStone)
+			hasRightClick = true;
 		end
+	end
+	if(not hasRightClick) then
+		hearth:SetAttribute("macrotext", "/use [nomod]" .. hearthStone)
 	end
 
 	-- PROFESSION BUTTONS
