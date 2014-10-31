@@ -305,11 +305,19 @@ local SlotUpdate = function(self, slotID)
 	
 	if(itemLink) then
 		local rarity = select(3, GetItemInfo(itemLink))
-		if(rarity and rarity > 1) then 
-			local r, g, b = GetItemQualityColor(rarity)
-			slot:SetBackdropColor(r, g, b, 0.6)
-			slot:SetBackdropBorderColor(r, g, b, 1)
+		if(rarity) then
+			if(rarity > 1) then 
+				local r, g, b = GetItemQualityColor(rarity)
+				slot:SetBackdropColor(r, g, b, 0.6)
+				slot:SetBackdropBorderColor(r, g, b, 1)
+				slot.JunkIcon:Hide()
+			elseif(rarity == 0) then 
+				slot.JunkIcon:Show()
+				slot:SetBackdropColor(0, 0, 0, 0.6)
+				slot:SetBackdropBorderColor(0, 0, 0, 1)
+			end
 		else
+			slot.JunkIcon:Hide()
 			slot:SetBackdropColor(0, 0, 0, 0.6)
 			slot:SetBackdropBorderColor(0, 0, 0, 1)
 		end
@@ -591,12 +599,13 @@ local ContainerFrame_UpdateLayout = function(self)
 					slot.Panel.Shadow:SetAttribute("shadowAlpha", 0.9)
 					
 					if(slot.NewItemTexture) then 
+						slot.NewItemTexture:SetTexture(nil);
 						slot.NewItemTexture:Hide()
 					end
 
 					if(slot.JunkIcon) then 
 						slot.JunkIcon:SetTexture([[Interface\BUTTONS\UI-GroupLoot-Coin-Up]]);
-						slot.JunkIcon:Point("TOPLEFT");
+						slot.JunkIcon:Point("TOPLEFT", slot, "TOPLEFT", -4, 4);
 					end
 
 					slot.iconTexture = _G[iconName];
@@ -716,7 +725,7 @@ local ReagentFrame_UpdateLayout = function(self)
 
 			if(slot.JunkIcon) then 
 				slot.JunkIcon:SetTexture([[Interface\BUTTONS\UI-GroupLoot-Coin-Up]]);
-				slot.JunkIcon:Point("TOPLEFT");
+				slot.JunkIcon:Point("TOPLEFT", slot, "TOPLEFT", -4, 4);
 			end 
 
 			slot.iconTexture = _G[iconName];
