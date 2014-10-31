@@ -73,12 +73,6 @@
                     <Anchor point="BOTTOMLEFT" relativeTo="$parentButton" relativePoint="BOTTOMRIGHT" x="4" y="0" />
                 </Anchors>
             </Frame>
-            <Frame name="$parentExtraBar" parentKey="ExtraBar">
-                <Size x="1" y="22"/>
-                <Anchors>
-                    <Anchor point="BOTTOMLEFT" relativeTo="$parentToolBar" relativePoint="BOTTOMRIGHT" x="4" y="0" />
-                </Anchors>
-            </Frame>
         </Frames>
     </Frame>
 
@@ -149,12 +143,6 @@
                 <Size x="1" y="22"/>
                 <Anchors>
                     <Anchor point="BOTTOMRIGHT" relativeTo="$parentButton" relativePoint="BOTTOMLEFT" x="-4" y="0" />
-                </Anchors>
-            </Frame>
-            <Frame name="$parentExtraBar" parentKey="ExtraBar">
-                <Size x="1" y="22"/>
-                <Anchors>
-                    <Anchor point="BOTTOMRIGHT" relativeTo="$parentToolBar" relativePoint="BOTTOMLEFT" x="-4" y="0" />
                 </Anchors>
             </Frame>
         </Frames>

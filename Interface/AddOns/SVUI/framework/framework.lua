@@ -30,7 +30,7 @@ local SV = select(2, ...);
 function SV:LoadFramework()
 	self.Dropdown:Initialize()
 	self.Dock:Initialize();
-    self.Mentalo:Initialize();
+  self.Mentalo:Initialize();
 	self.Comix:Initialize()
 	self.Ego:Initialize()
 end

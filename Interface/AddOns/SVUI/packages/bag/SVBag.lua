@@ -291,6 +291,10 @@ local SlotUpdate = function(self, slotID)
 
 	slot:Show()
 
+	if(slot.JunkIcon and slot.JunkIcon:IsShown()) then
+		slot.JunkIcon:Hide()
+	end
+
 	local texture, count, locked, rarity = GetContainerItemInfo(bag, slotID);
 	local start, duration, enable = GetContainerItemCooldown(bag, slotID);
 	local itemLink = GetContainerItemLink(bag, slotID);
@@ -310,14 +314,12 @@ local SlotUpdate = function(self, slotID)
 				local r, g, b = GetItemQualityColor(rarity)
 				slot:SetBackdropColor(r, g, b, 0.6)
 				slot:SetBackdropBorderColor(r, g, b, 1)
-				slot.JunkIcon:Hide()
 			elseif(rarity == 0) then 
 				slot.JunkIcon:Show()
 				slot:SetBackdropColor(0, 0, 0, 0.6)
 				slot:SetBackdropBorderColor(0, 0, 0, 1)
 			end
 		else
-			slot.JunkIcon:Hide()
 			slot:SetBackdropColor(0, 0, 0, 0.6)
 			slot:SetBackdropBorderColor(0, 0, 0, 1)
 		end

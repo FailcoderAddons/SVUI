@@ -343,7 +343,7 @@ local ModeAlert_OnHide = function()
 		SV:AddonMessage(ERR_NOT_IN_COMBAT);  
 		return; 
 	end
-	SV.Dock.BottomRight.Alert:Deactivate()
+	PLUGIN.Docklet.Parent.Alert:Deactivate()
 end
 
 local ModeAlert_OnShow = function(self)
@@ -353,7 +353,7 @@ local ModeAlert_OnShow = function(self)
 		return; 
 	end
 	SV:SecureFadeIn(self, 0.3, 0, 1)
-	SV.Dock.BottomRight.Alert:Activate(self)
+	PLUGIN.Docklet.Parent.Alert:Activate(self)
 end
 
 local ModeAlert_OnMouseDown = function(self)
@@ -391,14 +391,11 @@ function PLUGIN:Load()
 	self.WornItems = {};
 	self.InModeGear = false;
 
-	local ALERT_HEIGHT = 60;
-	local DOCK_WIDTH = SV.Dock.BottomRight.Window:GetWidth();
-	local DOCK_HEIGHT = SV.Dock.BottomRight.Window:GetHeight();
-	local DOCKLET_WIDTH = DOCK_WIDTH - 4
-	local DOCKLET_HEIGHT = DOCK_HEIGHT - 4
-	local BUTTON_SIZE = (DOCK_HEIGHT * 0.25) - 4;
-
 	self.Docklet = SV.Dock:NewDocklet("BottomRight", "SVUI_ModesDockFrame", self.TitleID, ICON_FILE);
+
+	local DOCK_HEIGHT = self.Docklet.DockButton:GetHeight();
+	local DOCKLET_HEIGHT = DOCK_HEIGHT - 4;
+	local BUTTON_SIZE = (DOCK_HEIGHT * 0.25) - 4;
 
 	local modesToolBar = CreateFrame("Frame", "SVUI_ModesDockToolBar", self.Docklet)
 	modesToolBar:SetWidth(BUTTON_SIZE + 4);
@@ -453,8 +450,8 @@ function PLUGIN:Load()
 	mode1Button:SetScript('OnLeave', ModeButton_OnLeave)
 	mode1Button:SetScript('OnMouseDown', ModeButton_OnMouseDown)
 
-	local ModeAlert = CreateFrame("Frame", nil, SV.Dock.BottomRight.Alert)
-	ModeAlert:SetAllPoints(SV.Dock.BottomRight.Alert)
+	local ModeAlert = CreateFrame("Frame", nil, self.Docklet)
+	ModeAlert:SetAllPoints(self.Docklet.Parent.Alert)
 	ModeAlert:SetBackdrop({
         bgFile = [[Interface\AddOns\SVUI\assets\artwork\Bars\HALFTONE]],
         edgeFile = [[Interface\BUTTONS\WHITE8X8]],

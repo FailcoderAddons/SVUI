@@ -72,6 +72,8 @@ local L = SV.L
 DOCKING
 ##########################################################
 ]]--
+local ORDER_TEMP = {};
+
 local DOCK_LOCATIONS = {
 	["BottomLeft"] = {1, "LEFT", true},
 	["BottomRight"] = {-1, "RIGHT", true},
@@ -84,17 +86,19 @@ local STAT_LOCATIONS = {
 	["TopCenter"] = {1, "LEFT", false},
 };
 
-local MOVE_LOCATIONS = { "BottomLeft", "BottomRight", "TopLeft" };
-
 local Dock = SV:NewSubClass("Dock", L["Docks"]);
 
 Dock.Border = {};
+Dock.Registration = {};
+Dock.CustomOptions = {};
+Dock.Locations = {};
 
-Dock.Registration = {
-	Windows = {},
-	Buttons = {},
-	Options = {}
-};
+local DOCK_DROPDOWN_OPTIONS = {};
+
+DOCK_DROPDOWN_OPTIONS["BottomLeft"] = { text = "To BottomLeft", func = function(button) Dock.BottomLeft.Bar:Add(button) end };
+DOCK_DROPDOWN_OPTIONS["BottomRight"] = { text = "To BottomRight", func = function(button) Dock.BottomRight.Bar:Add(button) end };
+DOCK_DROPDOWN_OPTIONS["TopLeft"] = { text = "To TopLeft", func = function(button) Dock.TopLeft.Bar:Add(button) end };
+--DOCK_DROPDOWN_OPTIONS["TopRight"] = { text = "To TopRight", func = function(button) Dock.TopRight.Bar:Add(button) end };
 --[[ 
 ########################################################## 
 CORE FUNCTIONS
@@ -134,7 +138,7 @@ SET DOCKBAR FUNCTIONS
 ##########################################################
 ]]--
 local RefreshDockButtons = function(self)
-	for name,docklet in pairs(Dock.Registration.Windows) do
+	for name,docklet in pairs(Dock.Registration) do
 		if(docklet) then
 			if(not InCombatLockdown() or (InCombatLockdown() and (docklet.IsProtected and not docklet:IsProtected()))) then
 				if(docklet.DockButton) then
@@ -284,89 +288,174 @@ end
 
 local DockletEnable = function(self)
 	local dock = self.Parent;
-	dock.Bar:Add(self.DockButton)
+	if(self.DockButton) then dock.Bar:Add(self.DockButton) end
 end
 
 local DockletDisable = function(self)
 	local dock = self.Parent;
-	dock.Bar:Remove(self.DockButton)
+	if(self.DockButton) then dock.Bar:Remove(self.DockButton) end
+end
+
+local DockletRelocate = function(self, location)
+	local newParent = Dock[location];
+
+	if(not newParent) then return end
+
+	if(self.DockButton) then 
+		newParent.Bar:Add(self.DockButton) 
+	end
+	
+	if(self.Bar) then 
+		local height = newParent.Bar.ToolBar:GetHeight();
+		local mod = newParent.Bar.Data[1];
+		local barAnchor = newParent.Bar.Data[2];
+		local barReverse = SV:GetReversePoint(barAnchor);
+		local spacing = SV.db.Dock.buttonSpacing;
+
+		self.Bar:ClearAllPoints();
+		self.Bar:Point(barAnchor, newParent.Bar.ToolBar, barReverse, (spacing * mod), 0)
+	end
 end
 
 local GetDockablePositions = function(self)
 	local button = self;
 	local name = button:GetName();
 	local bar = button.Parent;
-	local currentLocation = Dock.Registration.Buttons[name];
+	local currentLocation = Dock.Locations[name];
 
-	local t = {{text = "Disable", func = function() bar:Remove(button) end}};
+	local t = {{ title = "Move This", divider = true }};
 
-	for _,location in pairs(MOVE_LOCATIONS) do
+	for location,option in pairs(DOCK_DROPDOWN_OPTIONS) do
 		if(currentLocation ~= location) then
-		    local key = "Move to " .. location
-		    local otherbar = Dock[location].Bar
-		    tinsert(t,{text = key, func = function() otherbar:Add(button) end});
+		    tinsert(t, option);
 		end
 	end
+
+	tinsert(t, { title = "Order", divider = true });
+
+	for i=1, #bar.Data.Order do
+		if(i ~= button.OrderIndex) then
+			local positionText = ("Position #%d"):format(i);
+		    tinsert(t, { text = positionText, func = function(this) this.Parent:Resort(this, i) end });
+		end
+	end
+
 	return t;
 end
 
-local AddToDock = function(self, button)
-	local name = button:GetName();
-	local registeredLocation = Dock.Registration.Buttons[name]
-	local currentLocation = self.Data.Location
-	if(registeredLocation) then
-		if(registeredLocation == currentLocation) then 
-			return 
+local RefreshBarOrder = function(self, button, targetIndex)
+	local targetName = button:GetName();
+
+	wipe(ORDER_TEMP);
+	for i = i, #self.Data.Order do
+		local nextName = self.Data.Order[i];
+		if(i < targetIndex) then
+			tinsert(ORDER_TEMP, nextName)
+		elseif(i == targetIndex) then
+			tinsert(ORDER_TEMP, targetName)
+			tinsert(ORDER_TEMP, nextName)
 		else
-			Dock[registeredLocation].Bar:Remove(button)
+			if(targetName ~= nextName) then
+				tinsert(ORDER_TEMP, nextName)
+			end
 		end
 	end
-	Dock.Registration.Buttons[name] = currentLocation;
-	local anchor = upper(currentLocation)
+
+	wipe(self.Data.Order);
+	local safeIndex = 1;
+	for i = i, #ORDER_TEMP do
+		local nextName = ORDER_TEMP[i];
+		local nextButton = self.Data.Buttons[nextName];
+		if(nextButton) then
+			tinsert(self.Data.Order, nextName);
+			nextButton.OrderIndex = safeIndex;
+			safeIndex = safeIndex + 1;
+		end
+	end
+end
+
+local RefreshBarLayout = function(self)
+	local anchor = upper(self.Data.Location)
 	local mod = self.Data.Modifier
 	local height = self.ToolBar:GetHeight();
-	local xOffset = #self.Data.Buttons * (height + 6) + 6
-	button:ClearAllPoints()
-	button:SetParent(self.ToolBar);
-	button:SetPoint(anchor, self.ToolBar, anchor, (xOffset * mod), 0);
-	tinsert(self.Data.Buttons, button)
- 	button.listIndex = #self.Data.Buttons;
-	button:Show()
-	local newWidth = xOffset + height
-	self.ToolBar:SetWidth(newWidth)
+	local count = #self.Data.Order;
+	local width = count * (height + 6) + 6;
+	local offset = 1;
 
+	self.ToolBar:SetWidth(width);
+	local safeIndex = 1;
+	for i = 1, count do
+		local nextName = self.Data.Order[i];
+		local nextButton = self.Data.Buttons[nextName];
+		if(nextButton) then
+			offset = (safeIndex - 1) * (height + 6) + 6
+			nextButton:ClearAllPoints();
+			nextButton:SetPoint(anchor, self.ToolBar, anchor, (offset * mod), 0);
+			if(not nextButton:IsShown()) then
+				nextButton:Show();
+			end
+			nextButton.OrderIndex = safeIndex;
+			safeIndex = safeIndex + 1;
+		end
+	end
+end
+
+local AddToDock = function(self, button)
+	if not button then return end 
+	local name = button:GetName();
+	local registeredLocation = Dock.Locations[name]
+	local currentLocation = self.Data.Location
+
+	if(registeredLocation and (registeredLocation ~= currentLocation) and Dock[registeredLocation].Bar.Buttons[name]) then
+		Dock[registeredLocation].Bar:Remove(button)
+	end
+	if(self.Data.Buttons[name]) then return end
+
+	Dock.Locations[name] = currentLocation;
+
+	button:SetParent(self.ToolBar);
 	if(button.FrameLink) then
+		local frameName = button.FrameLink:GetName()
+		Dock.Locations[frameName] = currentLocation;
 		button.FrameLink:ClearAllPoints()
 		button.FrameLink:SetParent(self.Parent.Window)
 		button.FrameLink:FillInner(self.Parent.Window, 4, 4)
 	end
+
+	tinsert(self.Data.Order, name);
+	self.Data.Buttons[name] = button;
+	self:Update()
 end
 
 local RemoveFromDock = function(self, button)
-	if not button or not button.listIndex then return end 
+	if not button then return end 
 	local name = button:GetName();
-	local registeredLocation = Dock.Registration.Buttons[name];
+	local registeredLocation = Dock.Locations[name];
 	local currentLocation = self.Data.Location
-	if(not registeredLocation or (registeredLocation and (registeredLocation ~= currentLocation))) then return end 
-	Dock.Registration.Buttons[name] = nil;
-	local index = button.listIndex;
-	tremove(self.Data.Buttons, index)
+
+	if(registeredLocation and (registeredLocation == currentLocation)) then 
+		Dock.Locations[name] = nil;
+	end
+	if(not self.Data.Buttons[name]) then return end
+
 	button:Hide()
 	if(button.FrameLink) then
+		local frameName = button.FrameLink:GetName()
+		Dock.Locations[frameName] = nil;
 		button.FrameLink:Hide()
 	end
-	local height = self.ToolBar:GetHeight();
-	local anchor = upper(currentLocation)
-	local mod = self.Data.Modifier
-	local xOffset = 0
-	for i = 1, #self.Data.Buttons do
-		local nextButton = self.Data.Buttons[i]
-		xOffset = (i - 1) * (height + 6) + 6
-		nextButton:ClearAllPoints()
-		nextButton:SetPoint(anchor, self.ToolBar, anchor, (xOffset * mod), 0);
+
+	for i = 1, #self.Data.Order do
+		local nextName = self.Data.Order[i];
+		if(nextName == name) then
+			tremove(self.Data.Order, i);
+			break;
+		end
 	end
-	local newWidth = xOffset + 1
-	self.ToolBar:SetWidth(newWidth)
+
+	button.OrderIndex = 0;
+	self.Data.Buttons[name] = nil;
+	self:Update()
 end
 
 local ActivateDockletButton = function(self, button, clickFunction, tipFunction, isAction)
@@ -395,8 +484,7 @@ local ActivateDockletButton = function(self, button, clickFunction, tipFunction,
 	end
 end
 
-local CreateBasicToolButton = function(self, displayName, texture, onclick, frameName, tipFunction, primaryTemplate)
-	local globalName = frameName or displayName;
+local CreateBasicToolButton = function(self, displayName, texture, onclick, globalName, tipFunction, primaryTemplate)
 	local dockIcon = texture or [[Interface\AddOns\SVUI\assets\artwork\Icons\SVUI-ICON]];
 	local size = self.ToolBar:GetHeight();
 	local template = "SVUI_DockletButtonTemplate"
@@ -405,7 +493,7 @@ local CreateBasicToolButton = function(self, displayName, texture, onclick, fram
 		template = primaryTemplate .. ", SVUI_DockletButtonTemplate"
 	end
 
-	local button = _G[globalName .. "DockletButton"] or CreateFrame("Button", ("%sDockletButton"):format(globalName), self.ToolBar, template)
+	local button = _G[globalName .. "DockletButton"] or CreateFrame("Button", globalName, self.ToolBar, template)
 
 	button:ClearAllPoints()
 	button:Size(size, size)
@@ -413,6 +501,8 @@ local CreateBasicToolButton = function(self, displayName, texture, onclick, fram
 	button.Icon:SetTexture(dockIcon)
 	button:SetAttribute("tipText", displayName)
     button:SetAttribute("ownerFrame", globalName)
+
+    button.OrderIndex = 0;
 
     self:Add(button)
 	self:Initialize(button, onclick, tipFunction, primaryTemplate)
@@ -435,6 +525,8 @@ for location, settings in pairs(DOCK_LOCATIONS) do
 	Dock[location].Bar.Refresh = RefreshDockButtons;
 	Dock[location].Bar.GetDefault = GetDefault;
 	Dock[location].Bar.Toggle = ToggleDockletWindow;
+	Dock[location].Bar.Update = RefreshBarLayout;
+	Dock[location].Bar.Resort = RefreshBarOrder;
 	Dock[location].Bar.Add = AddToDock;
 	Dock[location].Bar.Remove = RemoveFromDock;
 	Dock[location].Bar.Initialize = ActivateDockletButton;
@@ -445,6 +537,7 @@ for location, settings in pairs(DOCK_LOCATIONS) do
 		Modifier = settings[1],
 		Default = "",
 		Buttons = {},
+		Order = {},
 	};
 end
 
@@ -528,15 +621,28 @@ SV:NewCallback(BorderColorUpdates)
 EXTERNALLY ACCESSIBLE METHODS
 ##########################################################
 ]]--
-function Dock:GetDimensions()
-	local leftWidth = SV.db.Dock.dockLeftWidth;
-	local leftHeight = SV.db.Dock.dockLeftHeight;
-	local rightWidth = SV.db.Dock.dockRightWidth;
-	local rightHeight = SV.db.Dock.dockRightWidth;
-	local centerWidth = SV.db.Dock.dockCenterWidth;
-	local buttonsize = SV.db.Dock.buttonSize;
-	local spacing = SV.db.Dock.buttonSpacing;
-	return leftWidth, leftHeight, rightWidth, rightHeight, centerWidth, buttonsize, spacing;
+function Dock:SetDockButton(location, displayName, texture, onclick, globalName, tipFunction, primaryTemplate)
+	if(self.Locations[globalName]) then
+		location = self.Locations[globalName];
+	else
+		self.Locations[globalName] = location;
+	end
+	local parent = self[location]
+	return parent.Bar:Create(displayName, texture, onclick, globalName, tipFunction, primaryTemplate)
+end
+
+function Dock:GetDimensions(location)
+	local width, height;
+
+	if(location:find("Left")) then
+		width = SV.db.Dock.dockLeftWidth;
+		height = SV.db.Dock.dockLeftHeight;
+	else
+		width = SV.db.Dock.dockRightWidth;
+		height = SV.db.Dock.dockRightWidth;
+	end
+
+	return width, height;
 end
 
 function Dock:IsDockletReady(arg)
@@ -553,31 +659,66 @@ function Dock:IsDockletReady(arg)
 	return true
 end
 
-function Dock:NewDocklet(location, name, readableName, texture, onclick)
-	local newParent = self[location]
+function Dock:NewDocklet(location, globalName, readableName, texture, onclick)
+	if(self.Registration[globalName]) then return end;
+	
+	if(self.Locations[globalName]) then
+		location = self.Locations[globalName];
+	else
+		self.Locations[globalName] = location;
+	end
+
+	local newParent = self[location];
 	if(not newParent) then return end
-	local frame = CreateFrame("Frame", name, UIParent, "SVUI_DockletWindowTemplate");
+	local frame = CreateFrame("Frame", globalName, UIParent, "SVUI_DockletWindowTemplate");
 	frame:SetParent(newParent.Window);
 	frame:FillInner(newParent.Window, 4, 4);
 	frame:SetFrameStrata("BACKGROUND");
 	frame.Parent = newParent
 	frame.Disable = DockletDisable;
 	frame.Enable = DockletEnable;
-	frame.DockButton = newParent.Bar:Create(readableName, texture, onclick, name);
+	frame.Relocate = DockletRelocate;
+
+	local buttonName = ("%sButton"):format(globalName)
+	frame.DockButton = newParent.Bar:Create(readableName, texture, onclick, buttonName);
 	frame.DockButton.FrameLink = frame
-	self.Registration.Windows[name] = frame;
+	self.Registration[globalName] = frame;
 	return frame
 end
 
-function Dock:MoveDocklet(name, location)
-	local newParent = self[location]
+function Dock:NewAdvancedDocklet(location, globalName)
+	if(self.Registration[globalName]) then return end;
+
+	if(self.Locations[globalName]) then
+		location = self.Locations[globalName];
+	else
+		self.Locations[globalName] = location;
+	end
+
+	local newParent = self[location];
 	if(not newParent) then return end
-	local frame = _G[name];
-	if(not frame) then return end
+
+	local frame = CreateFrame("Frame", globalName, UIParent, "SVUI_DockletWindowTemplate");
 	frame:SetParent(newParent.Window);
 	frame:FillInner(newParent.Window, 4, 4);
-	newParent.Bar:Add(frame.DockButton)
-	self.Registration.Windows[name] = frame;
+	frame:SetFrameStrata("BACKGROUND");
+	frame.Parent = newParent
+	frame.Disable = DockletDisable;
+	frame.Enable = DockletEnable;
+	frame.Relocate = DockletRelocate;
+
+	local height = newParent.Bar.ToolBar:GetHeight();
+	local mod = newParent.Bar.Data[1];
+	local barAnchor = newParent.Bar.Data[2];
+	local barReverse = SV:GetReversePoint(barAnchor);
+	local spacing = SV.db.Dock.buttonSpacing;
+
+	frame.Bar = CreateFrame("Frame", nil, newParent);
+	frame.Bar:Size(1, height);
+	frame.Bar:Point(barAnchor, newParent.Bar.ToolBar, barReverse, (spacing * mod), 0)
+	SV.Mentalo:Add(frame.Bar, globalName .. " Dock Bar");
+
+	self.Registration[globalName] = frame;
 	return frame
 end
 --[[ 
@@ -619,21 +760,33 @@ function Dock:TopBorderVisibility()
 end
 
 function Dock:Refresh()
-	local leftWidth, leftHeight, rightWidth, rightHeight, centerWidth, buttonsize, spacing = self:GetDimensions();
-	local centerHeight = buttonsize * 0.5
+	local buttonsize = SV.db.Dock.buttonSize;
+	local spacing = SV.db.Dock.buttonSpacing;
+	local centerWidth = SV.db.Dock.dockCenterWidth;
+	local centerHeight = buttonsize * 0.5;
 
-	self.BottomLeft.Bar:Size(leftWidth, buttonsize)
-	self.BottomLeft:Size(leftWidth, leftHeight)
-	self.BottomRight.Bar:Size(rightWidth, buttonsize)
-	self.BottomRight:Size(rightWidth, rightHeight)
+	for location, settings in pairs(DOCK_LOCATIONS) do
+		local width, height = self:GetDimensions(location);
+		local dock = self[location];
 
-	self.BottomCenter:SetSize(centerWidth, centerHeight)
-	self.BottomCenter.Left:SetSize((centerWidth * 0.5), centerHeight)
-	self.BottomCenter.Right:SetSize((centerWidth * 0.5), centerHeight)
+		dock.Bar:Size(width, buttonsize)
+	    dock.Bar.ToolBar:Size(1, buttonsize)
+	    dock:Size(width, height)
+	    dock.Alert:Size(width, 1)
+	    dock.Window:Size(width, height)
 
-	self.TopCenter:SetSize(centerWidth, centerHeight)
-	self.TopCenter.Left:SetSize((centerWidth * 0.5), centerHeight)
-	self.TopCenter.Right:SetSize((centerWidth * 0.5), centerHeight)
+	    if(dock.Bar.Button) then
+	    	dock.Bar.Button:Size(buttonsize, buttonsize)
+	    end
+	end
+
+	self.BottomCenter:Size(centerWidth, centerHeight)
+	self.BottomCenter.Left:Size((centerWidth * 0.5), centerHeight)
+	self.BottomCenter.Right:Size((centerWidth * 0.5), centerHeight)
+
+	self.TopCenter:Size(centerWidth, centerHeight)
+	self.TopCenter.Left:Size((centerWidth * 0.5), centerHeight)
+	self.TopCenter.Right:Size((centerWidth * 0.5), centerHeight)
 
 	self:BottomBorderVisibility();
 	self:TopBorderVisibility();
@@ -647,7 +800,20 @@ function Dock:Initialize()
 		SV.cache.Docks.IsFaded = false
 	end
 
-	local leftWidth, leftHeight, rightWidth, rightHeight, centerWidth, buttonsize, spacing = self:GetDimensions();
+	if(not SV.cache.Docks.Order) then 
+		SV.cache.Docks.Order = {}
+	end
+
+	if(not SV.cache.Docks.Locations) then 
+		SV.cache.Docks.Locations = {}
+	end
+
+	self.Locations = SV.cache.Docks.Locations;
+
+	local buttonsize = SV.db.Dock.buttonSize;
+	local spacing = SV.db.Dock.buttonSpacing;
+	local centerWidth = SV.db.Dock.dockCenterWidth;
+	local centerHeight = buttonsize * 0.5;
 	local texture = [[Interface\AddOns\SVUI\assets\artwork\Template\BUTTON]];
 
 	-- [[ TOP AND BOTTOM BORDERS ]] --
@@ -697,6 +863,7 @@ function Dock:Initialize()
 	self:BottomBorderVisibility()
 
 	for location, settings in pairs(DOCK_LOCATIONS) do
+		local width, height = self:GetDimensions(location);
 		local dock = self[location];
 		local mod = settings[1];
 		local anchor = upper(location);
@@ -708,37 +875,47 @@ function Dock:Initialize()
 
 		dock.Bar:SetParent(SV.Screen)
 		dock.Bar:ClearAllPoints()
-		dock.Bar:Size(leftWidth, buttonsize)
+		dock.Bar:Size(width, buttonsize)
 		dock.Bar:SetPoint(anchor, SV.Screen, anchor, (2 * mod), (2 * vertMod))
+
+		if(not SV.cache.Docks.Order[location]) then 
+			SV.cache.Docks.Order[location] = {}
+		end
+
+		dock.Bar.Data.Order = SV.cache.Docks.Order[location];
 
 		if(dock.Bar.Button) then
 	    	dock.Bar.Button:Size(buttonsize, buttonsize)
 	    	dock.Bar.Button:SetFramedButtonTemplate()
+	    	dock.Bar.ToolBar:ClearAllPoints()
 	    	dock.Bar.ToolBar:Point(barAnchor, dock.Bar.Button, barReverse, (spacing * mod), 0)
 	    	dock.Bar:Initialize(dock.Bar.Button, HideSuperDocks)
 	    end
 
 	    dock.Bar.ToolBar:Size(1, buttonsize)
-		
-		if(dock.Bar.ExtraBar) then
-	    	dock.Bar.ExtraBar:Point(barAnchor, dock.Bar.ToolBar, barReverse, (spacing * mod), 0)
-		    dock.Bar.ExtraBar:Size(leftWidth, buttonsize)
-		    SV.Mentalo:Add(dock.Bar.ExtraBar, location .. " Dock Extended Bar")
-	    end
 
 	    dock:SetParent(SV.Screen)
 	    dock:ClearAllPoints()
 	    dock:SetPoint(anchor, dock.Bar, reverse, 0, (12 * vertMod))
-	    dock:Size(leftWidth, leftHeight)
+	    dock:Size(width, height)
 	    dock:SetAttribute("buttonSize", buttonsize)
 	    dock:SetAttribute("spacingSize", spacing)
 
-	    SV.Mentalo:Add(dock.Bar, location .. " Dock ToolBar")
+	    dock.Alert:ClearAllPoints()
+	    dock.Alert:Size(width, 1)
+	    dock.Alert:SetPoint(anchor, dock, reverse, 0, 0)
+
+	    dock.Window:ClearAllPoints()
+	    dock.Window:Size(width, height)
+	    dock.Window:SetPoint(anchor, dock.Alert, reverse, 0, (2 * vertMod))
+
+	    SV.Mentalo:Add(dock.Bar, location .. " Dock ToolBar");
 
 		if(isBottom) then 
 			dock.backdrop = SetSuperDockStyle(dock.Window, isBottom)
+			dock.Window:SetScript("OnShow", Docklet_OnShow)
 		end
-		dock.Window:SetScript("OnShow", Docklet_OnShow)
+		
 		SV.Mentalo:Add(dock, location .. " Dock Window")
 	end
 
@@ -754,8 +931,6 @@ function Dock:Initialize()
 		self.TopLeft.Bar:Refresh()
 		self.TopRight.Bar:Refresh()
 	end
-
-	local centerHeight = buttonsize * 0.5
 
 	--BOTTOM CENTER BAR
 	self.BottomCenter:SetParent(SV.Screen)

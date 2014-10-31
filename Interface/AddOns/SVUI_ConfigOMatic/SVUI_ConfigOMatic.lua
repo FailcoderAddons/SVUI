@@ -413,7 +413,7 @@ SV.Options.args.common = {
 									name = L['Cooldown Text'], 
 									desc = L["Display cooldown text on anything with the cooldown spiral."], 
 									get = function(j)return SV.db.general.cooldown end, 
-									set = function(j,value)SV.db.general.cooldown = value;SV:StaticPopup_Show("RL_CLIENT")end
+									set = function(j,value)SV.db.general.cooldown = value; SV:StaticPopup_Show("RL_CLIENT")end
 								},
 								size = {
 									order = 4, 

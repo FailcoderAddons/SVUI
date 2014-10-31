@@ -265,10 +265,11 @@ COOLDOWN HELPER
 local function CreateCooldown(button)
     local cooldown = button:GetName() and _G[button:GetName().."Cooldown"]
     if(cooldown) then
+        if(not SV.db.general or (SV.db.general and (not SV.db.general.cooldown))) then return end
         cooldown:ClearAllPoints()
         cooldown:FillInner()
         cooldown:SetSwipeColor(0, 0, 0, 1)
-        --cooldown:SetHideCountdownNumbers(true)
+        cooldown:SetHideCountdownNumbers(true)
 
         if(not cooldown.HookedCooldown) then
             hooksecurefunc(cooldown, "SetCooldown", _hook_Cooldown_SetCooldown)

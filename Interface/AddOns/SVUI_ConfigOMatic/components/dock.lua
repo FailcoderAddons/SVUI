@@ -219,6 +219,6 @@ SV.Options.args.Dock.args.custom = {
 	args = {}
 }
 
-for key, params in pairs(MOD.Registration.Options) do
+for key, params in pairs(MOD.CustomOptions) do
 	SV.Options.args.Dock.args.custom.args[key] = params
 end

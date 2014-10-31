@@ -500,7 +500,7 @@ function PLUGIN:Load()
 	self:RegisterEvent("PLAYER_ENTERING_WORLD");
 	self:RegisterEvent("ADDON_LOADED");
 
-	SV.Dock.Registration.Options.docklets = {
+	SV.Dock.CustomOptions.docklets = {
 		order = 100,
 		type = 'group',
 		name = 'Addon Docklets',

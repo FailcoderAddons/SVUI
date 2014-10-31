@@ -60,20 +60,21 @@ local L = SV.L
 
 SV.Dropdown = _G["SVUI_DropdownFrame"];
 
-local DD_OnClick = function(self)
-	self.func()
+local DropdownButton_OnClick = function(self)
+	self.func(self.target)
 	self:GetParent():Hide()
 end
 
-local DD_OnEnter = function(self)
+local DropdownButton_OnEnter = function(self)
 	self.hoverTex:Show()
 end
 
-local DD_OnLeave = function(self)
+local DropdownButton_OnLeave = function(self)
 	self.hoverTex:Hide()
 end
 
-local function GetScreenPosition(parent)
+local function GetScreenPosition(frame)
+	local parent = frame:GetParent()
 	local centerX, centerY = parent:GetCenter()
 	local screenWidth = GetScreenWidth()
 	local screenHeight = GetScreenHeight()
@@ -107,78 +108,111 @@ local function GetScreenPosition(parent)
 	return result 
 end
 
-function SV.Dropdown:Open(parent, list)
+function SV.Dropdown:Open(target, list)
 	if(InCombatLockdown() or (not list)) then return end
 
-	if not self.buttons then
-		self.buttons = {}
-		self:SetFrameStrata("DIALOG")
-		self:SetClampedToScreen(true)
-		tinsert(UISpecialFrames, self:GetName())
-		self:Hide()
-	end
-	local maxPerColumn = 25
-	local cols = 1
-	for i=1, #self.buttons do
-		self.buttons[i]:Hide()
+	if(not self.option) then
+		self.option = {};
+		self:SetFrameStrata("DIALOG");
+		self:SetClampedToScreen(true);
+		tinsert(UISpecialFrames, self:GetName());
+		self:Hide();
 	end
 
-	for i=1, #list do 
-		if not self.buttons[i] then
-			self.buttons[i] = CreateFrame("Button", nil, self)
-			self.buttons[i].hoverTex = self.buttons[i]:CreateTexture(nil, 'OVERLAY')
-			self.buttons[i].hoverTex:SetAllPoints()
-			self.buttons[i].hoverTex:SetTexture([[Interface\QuestFrame\UI-QuestTitleHighlight]])
-			self.buttons[i].hoverTex:SetBlendMode("ADD")
-			self.buttons[i].hoverTex:Hide()
-			self.buttons[i].text = self.buttons[i]:CreateFontString(nil, 'BORDER')
-			self.buttons[i].text:SetAllPoints()
-			self.buttons[i].text:SetFont(SV.Media.font.roboto,12,"OUTLINE")
-			self.buttons[i].text:SetJustifyH("LEFT")
-			self.buttons[i]:SetScript("OnEnter", DD_OnEnter)
-			self.buttons[i]:SetScript("OnLeave", DD_OnLeave)           
+	local maxPerColumn = 25;
+	local cols = 1;
+
+	for i=1, #self.option do
+		self.option[i].button:Hide();
+		self.option[i].divider:Hide();
+		self.option[i].header:Hide();
+		self.option[i]:Hide();
+	end
+
+	for i=1, #list do
+		if(not self.option[i]) then
+			-- HOLDER
+			self.option[i] = CreateFrame("Frame", nil, self);
+			self.option[i]:SetHeight(16);
+			self.option[i]:SetWidth(135);
+
+			-- DIVIDER
+			self.option[i].divider = self.option[i]:CreateTexture(nil, 'BORDER');
+			self.option[i].divider:SetAllPoints();
+			self.option[i].divider:SetTexture([[Interface\AddOns\SVUI\\assets\artwork\Template\DROPDOWN-DIVIDER]]);
+			self.option[i].divider:SetBlendMode("ADD");
+			self.option[i].divider:Hide();
+
+			self.option[i].header = self.option[i]:CreateFontString(nil, 'OVERLAY');
+			self.option[i].header:SetAllPoints();
+			self.option[i].header:SetFont(SV.Media.font.roboto, 14, "OUTLINE");
+			self.option[i].header:SetTextColor(1, 0.8, 0)
+			self.option[i].header:SetJustifyH("CENTER");
+			self.option[i].header:SetJustifyV("MIDDLE");
+
+			-- BUTTON
+			self.option[i].button = CreateFrame("Button", nil, self.option[i]);
+			self.option[i].button:SetAllPoints();
+
+			self.option[i].button.hoverTex = self.option[i].button:CreateTexture(nil, 'OVERLAY');
+			self.option[i].button.hoverTex:SetAllPoints();
+			self.option[i].button.hoverTex:SetTexture([[Interface\QuestFrame\UI-QuestTitleHighlight]]);
+			self.option[i].button.hoverTex:SetBlendMode("ADD");
+			self.option[i].button.hoverTex:Hide();
+
+			self.option[i].button.text = self.option[i].button:CreateFontString(nil, 'BORDER');
+			self.option[i].button.text:SetAllPoints();
+			self.option[i].button.text:SetFont(SV.Media.font.roboto, 12, "OUTLINE");
+			self.option[i].button.text:SetJustifyH("LEFT");
+
+			self.option[i].button:SetScript("OnEnter", DropdownButton_OnEnter);
+			self.option[i].button:SetScript("OnLeave", DropdownButton_OnLeave);
+			self.option[i].button:SetScript("OnClick", DropdownButton_OnClick);   
 		end
-		self.buttons[i]:Show()
-		self.buttons[i]:SetHeight(16)
-		self.buttons[i]:SetWidth(135)
-		self.buttons[i].text:SetText(list[i].text)
-		self.buttons[i].func = list[i].func
-		self.buttons[i]:SetScript("OnClick", DD_OnClick)
-		if i == 1 then
-			self.buttons[i]:SetPoint("TOPLEFT", self, "TOPLEFT", 10, -10)
-		elseif((i -1) % maxPerColumn == 0) then
-			self.buttons[i]:SetPoint("TOPLEFT", self.buttons[i - maxPerColumn], "TOPRIGHT", 10, 0)
+
+		self.option[i]:Show();
+
+		if(list[i].text) then
+			self.option[i].button:Show();
+			self.option[i].button.target = target;
+			self.option[i].button.text:SetText(list[i].text);
+			self.option[i].button.func = list[i].func;
+		elseif(list[i].title) then
+			self.option[i].header:Show();
+			self.option[i].header:SetText(list[i].title);
+			if(list[i].divider) then
+				self.option[i].divider:Show();
+			end
+		end
+
+		if(i == 1) then
+			self.option[i]:SetPoint("TOPLEFT", self, "TOPLEFT", 10, -10)
+		elseif((i - 1) % maxPerColumn == 0) then
+			self.option[i]:SetPoint("TOPLEFT", self.option[i - maxPerColumn], "TOPRIGHT", 10, 0)
 			cols = cols + 1
 		else
-			self.buttons[i]:SetPoint("TOPLEFT", self.buttons[i - 1], "BOTTOMLEFT")
+			self.option[i]:SetPoint("TOPLEFT", self.option[i - 1], "BOTTOMLEFT")
 		end
 	end
 
-	local maxHeight = (min(maxPerColumn, #list) * 16) + 20
-	local maxWidth = (135 * cols) + (10 * cols)
-	self:SetSize(maxWidth, maxHeight)    
-	self:ClearAllPoints()
-	local point = GetScreenPosition(parent:GetParent()) 
-	if point:find("BOTTOM") then
-		self:SetPoint("BOTTOMLEFT", parent, "TOPLEFT", 10, 10)
-	else
-		self:SetPoint("TOPLEFT", parent, "BOTTOMLEFT", 10, -10)
-	end
-	ToggleFrame(self)
-end
+	local maxHeight = (min(maxPerColumn, #list) * 16) + 20;
+	local maxWidth = (135 * cols) + (10 * cols);
+	local point = GetScreenPosition(target);
 
-local DockletButton_OnClick = function(self, button)
-	if InCombatLockdown() then return end
-	if(button == "RightButton" and self:GetAttribute("hasDropDown") and self.GetMenuList) then
-		local list = self:GetMenuList()
-		Dock:SetFilterMenu(self, list);
+	self:ClearAllPoints();
+	self:SetSize(maxWidth, maxHeight);
+
+	if(point:find("BOTTOM")) then
+		self:SetPoint("BOTTOMLEFT", target, "TOPLEFT", 10, 10);
 	else
-		if self.PostClickFunction then
-			self:PostClickFunction()
-		else
-			self.Parent:Toggle(self)
-		end
+		self:SetPoint("TOPLEFT", target, "BOTTOMLEFT", 10, -10);
 	end
+
+	if(GameTooltip:IsShown()) then
+		GameTooltip:Hide();
+	end
+
+	ToggleFrame(self);
 end
 
 function SV.Dropdown:Initialize()
@@ -186,7 +220,7 @@ function SV.Dropdown:Initialize()
 	self:SetFrameStrata("DIALOG")
 	self:SetFrameLevel(99)
 	self:SetPanelTemplate("Default")
-	self.buttons = {}
+	self.option = {}
 	self:SetClampedToScreen(true)
 	self:SetSize(135, 94)
 

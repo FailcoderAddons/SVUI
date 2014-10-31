@@ -285,10 +285,7 @@ UpdateTemplates["party"] = function(self)
     local index = 1;
     local attIndex = ("child%d"):format(index)
     local childFrame = self:GetAttribute(attIndex)
-    if(not childFrame) then return end
-    local childName = childFrame:GetName()
-    local petFrame = _G[("%sPet"):format(childName)]
-    local targetFrame = _G[("%sTarget"):format(childName)]
+    local childName, petFrame, targetFrame;
 
     while childFrame do
         childFrame:UnitUpdate()
@@ -428,10 +425,7 @@ UpdateTemplates["raid"] = function(self)
     local index = 1;
     local attIndex = ("child%d"):format(index)
     local childFrame = self:GetAttribute(attIndex)
-    if(not childFrame) then return end
-    local childName = childFrame:GetName()
-    local petFrame = _G[("%sPet"):format(childName)]
-    local targetFrame = _G[("%sTarget"):format(childName)]
+    local childName, petFrame, targetFrame;
 
     while childFrame do
         childFrame:UnitUpdate()
@@ -530,10 +524,7 @@ UpdateTemplates["raidpet"] = function(self)
     local index = 1;
     local attIndex = ("child%d"):format(index)
     local childFrame = self:GetAttribute(attIndex)
-    if(not childFrame) then return end
-    local childName = childFrame:GetName()
-    local petFrame = _G[("%sPet"):format(childName)]
-    local targetFrame = _G[("%sTarget"):format(childName)]
+    local childName, petFrame, targetFrame;
 
     while childFrame do
         childFrame:UnitUpdate()
@@ -832,12 +823,14 @@ local HeaderMediaUpdate = function(self)
     local index = 1;
     local attIndex = ("child%d"):format(index)
     local childFrame = self:GetAttribute(attIndex)
-    local childName = childFrame:GetName()
-    local petFrame = _G[("%sPet"):format(childName)]
-    local targetFrame = _G[("%sTarget"):format(childName)]
+    local childName, petFrame, targetFrame;
 
-    while childFrame do 
+    while childFrame do
         MOD.RefreshUnitMedia(childFrame, token)
+        
+        childName = childFrame:GetName()
+        petFrame = _G[("%sPet"):format(childName)]
+        targetFrame = _G[("%sTarget"):format(childName)]
         
         if(petFrame) then 
             MOD.RefreshUnitMedia(petFrame, token)
@@ -850,9 +843,6 @@ local HeaderMediaUpdate = function(self)
         index = index + 1;
         attIndex = ("child%d"):format(index)
         childFrame = self:GetAttribute(attIndex)
-        childName = childFrame:GetName()
-        petFrame = _G[("%sPet"):format(childName)]
-        targetFrame = _G[("%sTarget"):format(childName)]
     end
 end
 
@@ -883,20 +873,24 @@ local HeaderEnableChildren = function(self)
     self.isForced = true;
     for i=1, select("#", self:GetChildren()) do
         local childFrame = select(i, self:GetChildren())
-        childFrame:RegisterForClicks(nil)
-        childFrame:SetID(i)
-        childFrame.TargetGlow:SetAlpha(0)
-        childFrame:Allow()
+        if(childFrame and childFrame.RegisterForClicks) then
+            childFrame:RegisterForClicks(nil)
+            childFrame:SetID(i)
+            childFrame.TargetGlow:SetAlpha(0)
+            childFrame:Allow()
+        end
     end  
 end
 
 local HeaderDisableChildren = function(self)
     self.isForced = nil;
-    for i=1,select("#", self:GetChildren()) do 
+    for i=1, select("#", self:GetChildren()) do 
         local childFrame = select(i, self:GetChildren())
-        childFrame:RegisterForClicks(SV.db.SVUnit.fastClickTarget and 'AnyDown' or 'AnyUp')
-        childFrame.TargetGlow:SetAlpha(1)
-        childFrame:Restrict()
+        if(childFrame and childFrame.RegisterForClicks) then
+            childFrame:RegisterForClicks(SV.db.SVUnit.fastClickTarget and 'AnyDown' or 'AnyUp')
+            childFrame.TargetGlow:SetAlpha(1)
+            childFrame:Restrict()
+        end
     end 
 end
 
