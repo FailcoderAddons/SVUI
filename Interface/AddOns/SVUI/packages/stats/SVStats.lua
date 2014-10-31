@@ -145,7 +145,7 @@ local UpdateAnchor = function()
 			width = anchor:GetWidth() / numPoints - 4;
 			height = anchor:GetHeight() - 4;
 			if(backdrops) then
-				height = SV.Dock.BottomRight.Bar.Button:GetHeight() - 6
+				height = height + 6
 			end
 		end
 

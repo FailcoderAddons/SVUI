@@ -648,7 +648,7 @@ end
 
 function Dock:Refresh()
 	local leftWidth, leftHeight, rightWidth, rightHeight, centerWidth, buttonsize, spacing = self:GetDimensions();
-	local centerHeight = buttonsize * 0.7
+	local centerHeight = buttonsize * 0.5
 
 	self.BottomLeft.Bar:Size(leftWidth, buttonsize)
 	self.BottomLeft:Size(leftWidth, leftHeight)
@@ -783,13 +783,13 @@ function Dock:Initialize()
 		self.TopRight.Bar:Refresh()
 	end
 
-	local centerHeight = buttonsize * 0.7
+	local centerHeight = buttonsize * 0.5
 
 	--BOTTOM CENTER BAR
 	self.BottomCenter:SetParent(SV.Screen)
 	self.BottomCenter:ClearAllPoints()
 	self.BottomCenter:SetSize(centerWidth, centerHeight)
-	self.BottomCenter:SetPoint("BOTTOM", SV.Screen, "BOTTOM", 0, 0)
+	self.BottomCenter:SetPoint("BOTTOM", SV.Screen, "BOTTOM", 0, 2)
 
 	self.BottomCenter.Left:SetSize((centerWidth * 0.5), centerHeight)
 	self.BottomCenter.Left:SetPoint("LEFT")
@@ -803,7 +803,7 @@ function Dock:Initialize()
 	self.TopCenter:SetParent(SV.Screen)
 	self.TopCenter:ClearAllPoints()
 	self.TopCenter:SetSize(centerWidth, centerHeight)
-	self.TopCenter:SetPoint("TOP", SV.Screen, "TOP", 0, 0)
+	self.TopCenter:SetPoint("TOP", SV.Screen, "TOP", 0, -2)
 
 	self.TopCenter.Left:SetSize((centerWidth * 0.5), centerHeight)
 	self.TopCenter.Left:SetPoint("LEFT", self.TopCenter, "LEFT")
