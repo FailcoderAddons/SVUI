@@ -583,11 +583,11 @@ local _hook_GameTooltip_SetDefaultAnchor = function(self, parent)
 	if not SV.Mentalo:HasMoved("SVUI_ToolTip_MOVE")then
 		self:ClearAllPoints()
 		if(SV.SVBag.BagFrame and SV.SVBag.BagFrame:IsShown()) then
-			self:SetPoint("BOTTOMRIGHT", SV.SVBag.BagFrame, "TOPRIGHT", -44, 18)
+			self:SetPoint("BOTTOMLEFT", SV.SVBag.BagFrame, "TOPLEFT", 0, 20)
 		elseif(SV.Dock.BottomRight:GetAlpha() == 1 and SV.Dock.BottomRight:IsShown()) then 
-			self:SetPoint("BOTTOMRIGHT", SV.Dock.BottomRight, "TOPRIGHT", -44, 18)
+			self:SetPoint("BOTTOMLEFT", SV.Dock.BottomRight, "TOPLEFT", 0, 20)
 		else 
-			self:SetPoint("BOTTOMRIGHT", SV.Screen, "BOTTOMRIGHT", -44, 78)
+			self:SetPoint("BOTTOMLEFT", SV.Dock.BottomRight.Bar, "TOPLEFT", 0, 20)
 		end 
 	else
 		local point = Pinpoint(SVUI_ToolTip_MOVE)
@@ -860,13 +860,14 @@ function MOD:ReLoad()
 end
 
 function MOD:Load()
-	BNToastFrame:Point("TOPRIGHT", SVUI_MinimapFrame, "BOTTOMLEFT", 0, -10)
+	BNToastFrame:ClearAllPoints()
+	BNToastFrame:Point("BOTTOMRIGHT", SV.Dock.BottomLeft, "TOPRIGHT", 0, 20)
 	SV.Mentalo:Add(BNToastFrame, L["BattleNet Frame"], nil, nil, nil, nil, "BattleNetToasts")
 	NewHook(BNToastFrame, "SetPoint", _hook_BNToastOnShow)
 	if not SV.db.SVTip.enable then return end
 
 	local anchor = CreateFrame("Frame", "SVUI_ToolTip", SV.Screen)
-	anchor:Point("BOTTOMRIGHT", SV.Dock.BottomRight, "TOPRIGHT", 0, 60)
+	anchor:Point("BOTTOMLEFT", SV.Dock.BottomRight, "TOPLEFT", 0, 20)
 	anchor:Size(130, 20)
 	anchor:SetFrameLevel(anchor:GetFrameLevel()  +  50)
 	SV.Mentalo:Add(anchor, L["Tooltip"])

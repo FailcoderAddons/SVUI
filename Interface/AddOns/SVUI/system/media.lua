@@ -146,6 +146,7 @@ do
   SV.Media["color"] = {
     ["default"]     = {0.2, 0.2, 0.2, 1}, 
     ["special"]     = {.37, .32, .29, 1},
+    ["specialdark"] = {.23, .22, .21, 1},
     ["unique"]      = {0.32, 0.258, 0.21, 1},  
     ["class"]       = {r1, g1, b1, 1},
     ["bizzaro"]     = {ir1, ig1, ib1, 1},
@@ -251,12 +252,13 @@ function SV:HexColor(arg1,arg2,arg3)
 end
 
 function SV:MediaUpdate()
-  self.Media.color.default  = self.db.media.colors.default
-  self.Media.color.special  = self.db.media.colors.special
-  self.Media.bg.pattern     = LSM:Fetch("background", self.db.media.textures.pattern)
-  self.Media.bg.comic       = LSM:Fetch("background", self.db.media.textures.comic)
-  self.Media.bg.unitlarge   = LSM:Fetch("background", self.db.media.textures.unitlarge)
-  self.Media.bg.unitsmall   = LSM:Fetch("background", self.db.media.textures.unitsmall)
+  self.Media.color.default      = self.db.media.colors.default
+  self.Media.color.special      = self.db.media.colors.special
+  self.Media.color.specialdark  = self.db.media.colors.specialdark
+  self.Media.bg.pattern         = LSM:Fetch("background", self.db.media.textures.pattern)
+  self.Media.bg.comic           = LSM:Fetch("background", self.db.media.textures.comic)
+  self.Media.bg.unitlarge       = LSM:Fetch("background", self.db.media.textures.unitlarge)
+  self.Media.bg.unitsmall       = LSM:Fetch("background", self.db.media.textures.unitsmall)
 
   local cColor1 = self.Media.color.special
   local cColor2 = self.Media.color.default

@@ -1148,11 +1148,11 @@ function MOD:FrameForge()
 		LoadedUnitFrames = true;
 	end
 	if not LoadedGroupHeaders then
+		self:SetGroupFrame("tank")
+		self:SetGroupFrame("assist")
 		self:SetGroupFrame("raid")
 		self:SetGroupFrame("raidpet")
 		self:SetGroupFrame("party")
-		self:SetGroupFrame("tank")
-		self:SetGroupFrame("assist")
 		LoadedGroupHeaders = true
 	end
 end

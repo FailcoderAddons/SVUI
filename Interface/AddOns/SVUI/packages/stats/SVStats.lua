@@ -57,17 +57,14 @@ local LSM = LibStub("LibSharedMedia-3.0")
 local LDB = LibStub("LibDataBroker-1.1", true)
 local MOD = SV:NewPackage("SVStats", L["Statistics"]);
 
-MOD.TopBar = _G["SVUI_DockStatsTop"];
-MOD.BottomBar = _G["SVUI_DockStatsBottom"];
-
 MOD.Anchors = {};
 MOD.Statistics = {};
 MOD.DisabledList = {};
 MOD.StatListing = {[""] = "None"};
 MOD.tooltip = CreateFrame("GameTooltip", "StatisticTooltip", UIParent, "GameTooltipTemplate")
 MOD.BGPanels = {
-	["SVUI_StatsBar1"] = {left = "Honor", middle = "Kills", right = "Assists"},
-	["SVUI_StatsBar2"] = {left = "Damage", middle = "Healing", right = "Deaths"}
+	["SVUI_DockTopCenterLeft"] = {left = "Honor", middle = "Kills", right = "Assists"},
+	["SVUI_DockTopCenterRight"] = {left = "Damage", middle = "Healing", right = "Deaths"}
 };
 MOD.BGStats = {
 	["Name"] = {1, NAME}, 
@@ -475,10 +472,10 @@ do
 				local this = positionIndex[parent.useIndex][i]
 				local subList = twipe(parent.holders[this].MenuList)
 
-				tinsert(subList,{text = NONE, func = function() MOD:ChangeDBVar(NONE, this, "panels", place); MOD:Generate() end});
+				tinsert(subList,{text = NONE, func = function() MOD:ChangeDBVar("", this, "docks", place); MOD:Generate() end});
 				for _,name in pairs(list) do
 					if(not disabled[name]) then
-						tinsert(subList,{text = name, func = function() MOD:ChangeDBVar(name, this, "panels", place); MOD:Generate() end});
+						tinsert(subList,{text = name, func = function() MOD:ChangeDBVar(name, this, "docks", place); MOD:Generate() end});
 					end
 				end
 			end
@@ -533,7 +530,7 @@ do
 					parent.holders[position]:Show()
 				else 
 					for name, config in pairs(statTable)do
-						for panelName, panelData in pairs(db.panels) do 
+						for panelName, panelData in pairs(db.docks) do 
 							if(panelData and type(panelData) == "table") then 
 								if(panelName == place and panelData[position] and panelData[position] == name) then 
 									_load(parent.holders[position], name, config)
@@ -571,14 +568,6 @@ function MOD:ReLoad()
 end 
 
 function MOD:Load()
-	local rez = GetCVar("gxResolution");
-	local gxWidth = tonumber(rez:match("(%d+)x%d+"));
-	local bw = gxWidth * 0.5
-	local defaultStatBarWidth = min(bw, 800)
-	local buttonsize = SV.Dock.BottomLeft.Bar.ToolBar:GetHeight()
-    local spacing = SV.Dock.BottomLeft:GetAttribute("spacingSize")
-    local statBarWidth = SV.db.SVStats.dockStatWidth or defaultStatBarWidth
-
 	hexHighlight = SV:HexColor("highlight") or "FFFFFF"
 	local hexClass = classColor.colorStr
 	BGStatString = "|cff" .. hexHighlight .. "%s: |c" .. hexClass .. "%s|r";

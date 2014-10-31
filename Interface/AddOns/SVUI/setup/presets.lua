@@ -87,6 +87,7 @@ local function LoadPresetData()
 			["default"] = {
 				["colors"] = {
 					["special"] = {.37, .32, .29, 1},
+					["specialdark"] = {.23, .22, .21, 1},
 				},
 				["textures"] = {
 					["pattern"] = "SVUI Backdrop 1",
@@ -104,6 +105,7 @@ local function LoadPresetData()
 			["kaboom"] = {
 				["colors"] = {
 					["special"] = {.28, .31, .32, 1},
+					["specialdark"] = {.21, .22, .23, 1},
 				},
 				["textures"] = {
 					["pattern"] = "SVUI Backdrop 2",
@@ -121,6 +123,7 @@ local function LoadPresetData()
 			["classy"] = {
 				["colors"] = {
 					["special"] = {r2, g2, b2, 1},
+					["specialdark"] = {(r2 * 0.75), (g2 * 0.75), (b2 * 0.75), 1},
 				},
 				["textures"] = {
 					["pattern"] = "SVUI Backdrop 3",
@@ -138,6 +141,7 @@ local function LoadPresetData()
 			["dark"] = {
 				["colors"] = {
 					["special"] = {.25, .26, .27, 1},
+					["specialdark"] = {.17, .18, .19, 1},
 				},
 				["textures"] = {
 					["pattern"] = "SVUI Backdrop 4",

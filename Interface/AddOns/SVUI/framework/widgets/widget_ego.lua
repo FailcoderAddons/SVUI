@@ -54,7 +54,7 @@ local Activate = function(self)
 	local emote = Sequences[key][1]
 	self:SetAlpha(1)
 	self.ModelLeft:SetAnimation(emote)
-	self.ModelRight:SetAnimation(emote)
+	-- self.ModelRight:SetAnimation(emote)
 end
 
 function SV.Ego:Initialize()
@@ -66,10 +66,10 @@ function SV.Ego:Initialize()
 	self.ModelLeft:SetPortraitZoom(0.3)
 	self.ModelLeft:SetPosition(0,0,-0.25)
 
-	self.ModelRight:SetUnit("player")
-	self.ModelRight:SetRotation(-1)
-	self.ModelRight:SetPortraitZoom(0.3)
-	self.ModelRight:SetPosition(0,0,-0.25)
+	-- self.ModelRight:SetUnit("player")
+	-- self.ModelRight:SetRotation(-1)
+	-- self.ModelRight:SetPortraitZoom(0.3)
+	-- self.ModelRight:SetPosition(0,0,-0.25)
 
 	self:SetScript("OnShow", Activate)
 end

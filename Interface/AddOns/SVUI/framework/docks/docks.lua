@@ -84,6 +84,8 @@ local STAT_LOCATIONS = {
 	["TopCenter"] = {1, "LEFT", false},
 };
 
+local MOVE_LOCATIONS = { "BottomLeft", "BottomRight", "TopLeft" };
+
 local Dock = SV:NewSubClass("Dock", L["Docks"]);
 
 Dock.Border = {};
@@ -149,12 +151,14 @@ end
 local GetDefault = function(self)
 	local default = self.Data.Default
 	local button = _G[default]
-	local window = button:GetAttribute("ownerFrame")
-	if window and _G[window] then
-		self:Refresh()
-		self.Parent.Window.FrameLink = _G[window]
-		self.Parent.Window:Show()
-		button:Activate()
+	if(button) then
+		local window = button:GetAttribute("ownerFrame")
+		if window and _G[window] then
+			self:Refresh()
+			self.Parent.Window.FrameLink = _G[window]
+			self.Parent.Window:Show()
+			button:Activate()
+		end
 	end
 end
 
@@ -231,7 +235,11 @@ local DockletButton_OnEnter = function(self, ...)
 		self:CustomTooltip()
 	else
 		local tipText = self:GetAttribute("tipText")
-		GameTooltip:AddLine(tipText, 1, 1, 1)
+		GameTooltip:AddDoubleLine("[Left-Click]", tipText, 0, 1, 0, 1, 1, 1)
+	end
+	if(self:GetAttribute("hasDropDown") and self.GetMenuList) then
+		GameTooltip:AddLine(" ")
+		GameTooltip:AddDoubleLine("[Alt + Click]", "Docking Options", 0, 0.5, 1, 0.5, 1, 0.5)
 	end
 	GameTooltip:Show()
 end 
@@ -264,6 +272,16 @@ local DockletButton_OnClick = function(self, button)
 	end
 end
 
+local DockletButton_OnPostClick = function(self, button)
+	if InCombatLockdown() then return end
+	if(IsAltKeyDown() and self:GetAttribute("hasDropDown") and self.GetMenuList) then
+		local list = self:GetMenuList()
+		SV.Dropdown:Open(self, list);
+	elseif(SV.Dropdown:IsShown()) then
+		ToggleFrame(SV.Dropdown)
+	end
+end
+
 local DockletEnable = function(self)
 	local dock = self.Parent;
 	dock.Bar:Add(self.DockButton)
@@ -282,7 +300,7 @@ local GetDockablePositions = function(self)
 
 	local t = {{text = "Disable", func = function() bar:Remove(button) end}};
 
-	for location, settings in pairs(DOCK_LOCATIONS) do
+	for _,location in pairs(MOVE_LOCATIONS) do
 		if(currentLocation ~= location) then
 		    local key = "Move to " .. location
 		    local otherbar = Dock[location].Bar
@@ -347,11 +365,11 @@ local RemoveFromDock = function(self, button)
 		nextButton:ClearAllPoints()
 		nextButton:SetPoint(anchor, self.ToolBar, anchor, (xOffset * mod), 0);
 	end
-	local newWidth = xOffset + height
+	local newWidth = xOffset + 1
 	self.ToolBar:SetWidth(newWidth)
 end
 
-local ActivateDockletButton = function(self, button, clickFunction, tipFunction)
+local ActivateDockletButton = function(self, button, clickFunction, tipFunction, isAction)
 	button.Activate = DockButtonActivate
 	button.Deactivate = DockButtonDeactivate
 	button.MakeDefault = DockButtonMakeDefault
@@ -366,18 +384,26 @@ local ActivateDockletButton = function(self, button, clickFunction, tipFunction)
 	button.Icon:SetGradient(unpack(SV.Media.gradient.icon))
 	button:SetScript("OnEnter", DockletButton_OnEnter)
 	button:SetScript("OnLeave", DockletButton_OnLeave)
-	button:SetScript("OnClick", DockletButton_OnClick)
+	if(not isAction) then
+		button:SetScript("OnClick", DockletButton_OnClick)
+	else
+		button:SetScript("PostClick", DockletButton_OnPostClick)
+	end
 
 	if(clickFunction and type(clickFunction) == "function") then
 		button.PostClickFunction = clickFunction
 	end
 end
 
-local CreateBasicToolButton = function(self, displayName, texture, onclick, frameName, tipFunction, isAction)
+local CreateBasicToolButton = function(self, displayName, texture, onclick, frameName, tipFunction, primaryTemplate)
 	local globalName = frameName or displayName;
 	local dockIcon = texture or [[Interface\AddOns\SVUI\assets\artwork\Icons\SVUI-ICON]];
 	local size = self.ToolBar:GetHeight();
-	local template = isAction and "SecureActionButtonTemplate,SVUI_DockletButtonTemplate" or "SVUI_DockletButtonTemplate"
+	local template = "SVUI_DockletButtonTemplate"
+
+	if(primaryTemplate) then
+		template = primaryTemplate .. ", SVUI_DockletButtonTemplate"
+	end
 
 	local button = _G[globalName .. "DockletButton"] or CreateFrame("Button", ("%sDockletButton"):format(globalName), self.ToolBar, template)
 
@@ -389,7 +415,7 @@ local CreateBasicToolButton = function(self, displayName, texture, onclick, fram
     button:SetAttribute("ownerFrame", globalName)
 
     self:Add(button)
-	self:Initialize(button, onclick, tipFunction)
+	self:Initialize(button, onclick, tipFunction, primaryTemplate)
 	
 	return button
 end
@@ -490,7 +516,7 @@ local function SetSuperDockStyle(dock, isBottom)
 end
 
 local function BorderColorUpdates()
-	Dock.Border.Top:SetBackdropColor(unpack(SV.Media.color.special))
+	Dock.Border.Top:SetBackdropColor(unpack(SV.Media.color.specialdark))
 	Dock.Border.Top:SetBackdropBorderColor(0,0,0,1)
 	Dock.Border.Bottom:SetBackdropColor(unpack(SV.Media.color.special))
 	Dock.Border.Bottom:SetBackdropBorderColor(0,0,0,1)
@@ -622,13 +648,20 @@ end
 
 function Dock:Refresh()
 	local leftWidth, leftHeight, rightWidth, rightHeight, centerWidth, buttonsize, spacing = self:GetDimensions();
+	local centerHeight = buttonsize * 0.7
 
 	self.BottomLeft.Bar:Size(leftWidth, buttonsize)
 	self.BottomLeft:Size(leftWidth, leftHeight)
 	self.BottomRight.Bar:Size(rightWidth, buttonsize)
 	self.BottomRight:Size(rightWidth, rightHeight)
-	self.BottomCenter:Size(centerWidth, (buttonsize * 0.6))
-	self.TopCenter:Size(centerWidth, (buttonsize * 0.6))
+
+	self.BottomCenter:SetSize(centerWidth, centerHeight)
+	self.BottomCenter.Left:SetSize((centerWidth * 0.5), centerHeight)
+	self.BottomCenter.Right:SetSize((centerWidth * 0.5), centerHeight)
+
+	self.TopCenter:SetSize(centerWidth, centerHeight)
+	self.TopCenter.Left:SetSize((centerWidth * 0.5), centerHeight)
+	self.TopCenter.Right:SetSize((centerWidth * 0.5), centerHeight)
 
 	self:BottomBorderVisibility();
 	self:TopBorderVisibility();
@@ -659,7 +692,7 @@ function Dock:Initialize()
 		edgeSize = 1, 
 		insets = {left = 0, right = 0, top = 0, bottom = 0}
 	})
-	self.Border.Top:SetBackdropColor(unpack(SV.Media.color.special))
+	self.Border.Top:SetBackdropColor(unpack(SV.Media.color.specialdark))
 	self.Border.Top:SetBackdropBorderColor(0,0,0,1)
 	self.Border.Top:SetFrameLevel(0)
 	self.Border.Top:SetFrameStrata('BACKGROUND')
@@ -699,10 +732,12 @@ function Dock:Initialize()
 		local barAnchor = settings[2];
 		local barReverse = SV:GetReversePoint(barAnchor);
 		local isBottom = settings[3];
+		local vertMod = isBottom and 1 or -1
 
 		dock.Bar:SetParent(SV.Screen)
+		dock.Bar:ClearAllPoints()
 		dock.Bar:Size(leftWidth, buttonsize)
-		dock.Bar:SetPoint(anchor, SV.Screen, anchor, 2, 2)
+		dock.Bar:SetPoint(anchor, SV.Screen, anchor, (2 * mod), (2 * vertMod))
 
 		if(dock.Bar.Button) then
 	    	dock.Bar.Button:Size(buttonsize, buttonsize)
@@ -716,10 +751,12 @@ function Dock:Initialize()
 		if(dock.Bar.ExtraBar) then
 	    	dock.Bar.ExtraBar:Point(barAnchor, dock.Bar.ToolBar, barReverse, (spacing * mod), 0)
 		    dock.Bar.ExtraBar:Size(leftWidth, buttonsize)
+		    SV.Mentalo:Add(dock.Bar.ExtraBar, location .. " Dock Extended Bar")
 	    end
 
 	    dock:SetParent(SV.Screen)
-	    dock:SetPoint(anchor, dock.Bar, reverse, 0, 12)
+	    dock:ClearAllPoints()
+	    dock:SetPoint(anchor, dock.Bar, reverse, 0, (12 * vertMod))
 	    dock:Size(leftWidth, leftHeight)
 	    dock:SetAttribute("buttonSize", buttonsize)
 	    dock:SetAttribute("spacingSize", spacing)
@@ -746,18 +783,34 @@ function Dock:Initialize()
 		self.TopRight.Bar:Refresh()
 	end
 
-	--BOTTOM CENTER BAR
+	local centerHeight = buttonsize * 0.7
 
-	self.BottomCenter:Size(centerWidth, (buttonsize * 0.6))
-	--self.BottomBar:Point("BOTTOM", SV.Screen, "BOTTOM", 0, 2)
+	--BOTTOM CENTER BAR
+	self.BottomCenter:SetParent(SV.Screen)
+	self.BottomCenter:ClearAllPoints()
+	self.BottomCenter:SetSize(centerWidth, centerHeight)
+	self.BottomCenter:SetPoint("BOTTOM", SV.Screen, "BOTTOM", 0, 0)
+
+	self.BottomCenter.Left:SetSize((centerWidth * 0.5), centerHeight)
+	self.BottomCenter.Left:SetPoint("LEFT")
 	SV.Mentalo:Add(self.BottomCenter.Left, L["BottomCenter Dock Left"])
+
+	self.BottomCenter.Right:SetSize((centerWidth * 0.5), centerHeight)
+	self.BottomCenter.Right:SetPoint("RIGHT")
 	SV.Mentalo:Add(self.BottomCenter.Right, L["BottomCenter Dock Right"])
 
 	--TOP CENTER BAR
+	self.TopCenter:SetParent(SV.Screen)
+	self.TopCenter:ClearAllPoints()
+	self.TopCenter:SetSize(centerWidth, centerHeight)
+	self.TopCenter:SetPoint("TOP", SV.Screen, "TOP", 0, 0)
 
-	self.TopCenter:Size(centerWidth, (buttonsize * 0.6))
-	--self.TopCenter:Point("TOP", SV.Screen, "TOP", 0, -2)
+	self.TopCenter.Left:SetSize((centerWidth * 0.5), centerHeight)
+	self.TopCenter.Left:SetPoint("LEFT", self.TopCenter, "LEFT")
 	SV.Mentalo:Add(self.TopCenter.Left, L["TopCenter Dock Left"])
+
+	self.TopCenter.Right:SetSize((centerWidth * 0.5), centerHeight)
+	self.TopCenter.Right:SetPoint("LEFT", self.TopCenter.Left, "RIGHT")
 	SV.Mentalo:Add(self.TopCenter.Right, L["TopCenter Dock Right"])
 
 	self:UpdateDockBackdrops()

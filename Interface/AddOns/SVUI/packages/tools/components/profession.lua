@@ -125,9 +125,8 @@ end
 local SetMacroTooltip = function(self)
 	local text1 = self:GetAttribute("tipText")
 	local text2 = self:GetAttribute("tipExtraText")
-	if(not text2) then
-		GameTooltip:AddLine(text1, 1, 1, 1)
-	else
+	GameTooltip:AddDoubleLine("[Left-Click]", text1, 0, 1, 0, 1, 1, 1)
+	if(text2) then
 		GameTooltip:AddDoubleLine("[Left-Click]", text1, 0, 1, 0, 1, 1, 1)
 		GameTooltip:AddDoubleLine("[Right-Click]", "Use " .. text2, 0, 1, 0, 1, 1, 1)
 		if InCombatLockdown() then return end
@@ -140,7 +139,7 @@ local SetMacroTooltip = function(self)
 end
 
 local SetHearthTooltip = function(self)
-	GameTooltip:AddLine(L["Hearthstone"], 1, 1, 1)
+	GameTooltip:AddDoubleLine("[Left-Click]", L["Hearthstone"], 0, 1, 0, 1, 1, 1)
 	if InCombatLockdown() then return end
 	local remaining = GetMacroCooldown(6948)
 	GameTooltip:AddDoubleLine(L["Time Remaining"], remaining, 1, 1, 1, 0, 1, 1)
@@ -156,7 +155,7 @@ local function CreateMacroToolButton(proName, proID, itemID)
 	if(not data) then return end
 
 	local globalName = ("SVUI_%s"):format(proName)
-	local button = SV.Dock.BottomRight.Bar:Create(proName, ICON_SHEET, nil, globalName, SetMacroTooltip, true)
+	local button = SV.Dock.BottomRight.Bar:Create(proName, ICON_SHEET, nil, globalName, SetMacroTooltip, "SecureActionButtonTemplate")
 
 	button.Icon:SetTexCoord(data[1], data[2], data[3], data[4])
 
@@ -173,10 +172,10 @@ local function CreateMacroToolButton(proName, proID, itemID)
 		end
 		button:SetAttribute("tipExtraText", rightClick)
 		button:SetAttribute("type", "macro")
-		button:SetAttribute("macrotext", "/cast [button:2] " .. rightClick .. ";" .. proName)
+		button:SetAttribute("macrotext", "/cast [button:2] " .. rightClick .. ";[nomod]" .. proName)
 	else
 		button:SetAttribute("type", "macro")
-		button:SetAttribute("macrotext", "/cast " .. proName)
+		button:SetAttribute("macrotext", "/cast [nomod]" .. proName)
 	end
 end 
 
@@ -189,7 +188,7 @@ local function LoadToolBarProfessions()
 	end
 
 	-- HEARTH BUTTON
-	local hearth = SV.Dock.BottomRight.Bar:Create(L["Hearthstone"], HEARTH_ICON, nil, "SVUI_Hearth", SetHearthTooltip, true)
+	local hearth = SV.Dock.BottomLeft.Bar:Create(L["Hearthstone"], HEARTH_ICON, nil, "SVUI_Hearth", SetHearthTooltip, "SecureActionButtonTemplate")
 	hearth.Icon:SetTexCoord(0,0.5,0,1)
 	hearth:SetAttribute("type", "item")
 	hearth:SetAttribute("item", GetItemInfo(6948))

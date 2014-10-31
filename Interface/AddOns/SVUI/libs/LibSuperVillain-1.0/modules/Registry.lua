@@ -1044,7 +1044,7 @@ function lib:NewCore(gfile, efile, pfile, cfile)
     CoreObject.NameID               = CoreName;
     CoreObject.Version              = AddonVersion;
     CoreObject.GameVersion          = tonumber(InterfaceVersion);
-    CoreObject.DebugMode            = false;
+    CoreObject.DebugMode            = true;
     CoreObject.Schema               = GetAddOnMetadata(CoreName, SchemaFromMeta);
     CoreObject.TitleID              = GetAddOnMetadata(CoreName, HeaderFromMeta);
 

@@ -635,23 +635,23 @@ SV.configs["SVStats"] = {
 	["fontOutline"] = "OUTLINE",
 	["showBackground"] = false,
 	["shortGold"] = true,
-	["panels"] = {
-		["SVUI_StatsBar4"] = {
-			["right"] = "Bags", 
-			["left"] = "Friends", 
-			["middle"] = "Guild", 
-		}, 
-		["SVUI_StatsBar3"] = {
-			["left"] = "Time", 
-			["middle"] = "System", 	
-			["right"] = "Gold", 
-		}, 
-		["SVUI_StatsBar1"] = {
-			["left"] = "Durability Bar", 
+	["docks"] = {
+		["SVUI_DockBottomCenterLeft"] = {
+			["left"] = "Experience Bar", 
 			["middle"] = "Reputation Bar", 
-			["right"] = "Experience Bar", 
+			["right"] = "Durability Bar",  
+		}, 
+		["SVUI_DockBottomCenterRight"] = {
+			["left"] = "Gold", 
+			["middle"] = "System", 	
+			["right"] = "Time", 
+		}, 
+		["SVUI_DockTopCenterLeft"] = {
+			["left"] = "None", 
+			["middle"] = "None", 
+			["right"] = "None",
 		},
-		["SVUI_StatsBar2"] = {
+		["SVUI_DockTopCenterRight"] = {
 			["left"] = "None", 
 			["middle"] = "None", 
 			["right"] = "None", 

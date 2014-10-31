@@ -636,6 +636,7 @@ SV.Options.args.common = {
 									end,
 									set = function(key, rValue, gValue, bValue, aValue)
 										SV.db.media.colors.special = {rValue, gValue, bValue, aValue}
+										SV.db.media.colors.specialdark = {(rValue * 0.75), (gValue * 0.75), (bValue * 0.75), aValue}
 										SV:MediaUpdate()
 									end,
 								},

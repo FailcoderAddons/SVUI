@@ -210,6 +210,7 @@ function MOD:LoadQuestWatch()
 	  	end
 
 		self.QuestWatch.DockButton:MakeDefault();
+		self.QuestWatch:Show();
 		self:RegisterEvent("QUEST_AUTOCOMPLETE");
 	end
 end

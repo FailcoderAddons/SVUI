@@ -141,12 +141,13 @@ SV.Options.args.SVStats = {
 do
 	local orderIncrement = 0;
 	local statValues = MOD.StatListing
-	local configTable = SV.db.SVStats.panels;
+	local configTable = SV.db.SVStats.docks;
 	local optionTable = SV.Options.args.SVStats.args.panels.args;
 
 	for panelName, panelPositions in pairs(configTable)do 
 		orderIncrement = orderIncrement + 1;
 		if(not _G[panelName]) then 
+			print(panelName)
 			optionTable[panelName] = nil;
 			return 
 		end 
@@ -163,8 +164,8 @@ do
 					type = 'select',
 					name = L[position] or upper(position),
 					values = statValues,
-					get = function(key) return SV.db.SVStats.panels[panelName][key[#key]] end,
-					set = function(key, value) MOD:ChangeDBVar(value, key[#key], "panels", panelName); MOD:Generate() end
+					get = function(key) return SV.db.SVStats.docks[panelName][key[#key]] end,
+					set = function(key, value) MOD:ChangeDBVar(value, key[#key], "docks", panelName); MOD:Generate() end
 				}
 			end 
 		end 

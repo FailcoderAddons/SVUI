@@ -87,110 +87,99 @@ function MOD:UpdateRaidLeader(event)
 	end
 	if CheckRaidStatus() then
 		SV.Dock.TopLeft.Bar:Add(self.RaidTool)
-		if self.RaidToolMenu.toggled == true then
-			self.RaidToolMenu:Show()		
+		if self.RaidTool.Menu.toggled == true then
+			self.RaidTool.Menu:Show()		
 		else
-			self.RaidToolMenu:Hide()
+			self.RaidTool.Menu:Hide()
 		end
 	else
 		SV.Dock.TopLeft.Bar:Remove(self.RaidTool)
-		self.RaidToolMenu:Hide()
+		self.RaidTool.Menu:Hide()
 	end
 end 
 
 function MOD:LoadRaidLeaderTools()
 	local dock = SV.Dock.TopLeft.Bar
-
-	self.RaidToolMenu = CreateFrame("Frame", "SVUI_RaidToolMenu", SV.Screen, "SecureHandlerClickTemplate");
-	self.RaidToolMenu:SetPanelTemplate('Transparent');
-	self.RaidToolMenu:Width(120);
-	self.RaidToolMenu:Height(120);
-	self.RaidToolMenu:SetPoint("TOPLEFT", dock.ToolBar, "BOTTOMLEFT", 0, -2);
-	self.RaidToolMenu:SetFrameLevel(3);
-	self.RaidToolMenu.toggled = false;
-	self.RaidToolMenu:SetFrameStrata("HIGH");
 	
-	self.RaidTool = dock:Create(RAID_CONTROL, ICON_FILE, nil, "SVUI_RaidToolToggle", nil, true);
+	self.RaidTool = dock:Create(RAID_CONTROL, ICON_FILE, nil, "SVUI_RaidToolToggle");
 	self.RaidTool:SetAttribute("hasDropDown", false);
-	self.RaidTool:SetFrameRef("SVUI_RaidToolMenu", self.RaidToolMenu);
-	self.RaidTool:SetAttribute("_onclick", [=[
-		local raidUtil = self:GetFrameRef("SVUI_RaidToolMenu")
-		local closeButton = raidUtil:GetFrameRef("SVUI_RaidToolCloseButton")
-		self:Hide(); 
-		raidUtil:Show(); 
 
+	self.RaidTool.Menu = CreateFrame("Frame", "SVUI_RaidToolMenu", self.RaidTool, "SecureHandlerClickTemplate");
+	self.RaidTool.Menu:SetPanelTemplate('Transparent');
+	self.RaidTool.Menu:Width(120);
+	self.RaidTool.Menu:Height(140);
+	self.RaidTool.Menu:SetPoint("TOPLEFT", dock.ToolBar, "BOTTOMLEFT", 0, -2);
+	self.RaidTool.Menu:SetFrameLevel(3);
+	self.RaidTool.Menu.toggled = false;
+	self.RaidTool.Menu:SetFrameStrata("HIGH");
+
+	local SVUI_RaidToolToggle = CreateFrame("Button", "SVUI_RaidToolToggle", self.RaidTool, "UIMenuButtonStretchTemplate, SecureHandlerClickTemplate")
+	SVUI_RaidToolToggle:SetAllPoints(self.RaidTool)
+	SVUI_RaidToolToggle:RemoveTextures()
+	SVUI_RaidToolToggle:SetFrameRef("SVUI_RaidToolMenu", SVUI_RaidToolMenu)
+	SVUI_RaidToolToggle:SetAttribute("_onclick", [=[
+		local raidUtil = self:GetFrameRef("SVUI_RaidToolMenu");
+		local closeButton = self:GetFrameRef("SVUI_RaidToolCloseButton");
+		raidUtil:Show(); 
 		local point = self:GetPoint();		
-		local raidUtilPoint, raidUtilRelative, closeButtonPoint, closeButtonRelative, yOffset
+		local raidUtilPoint, raidUtilRelative, closeButtonPoint, closeButtonRelative
 		if point:find("BOTTOM") then
 			raidUtilPoint = "BOTTOMLEFT"
-			raidUtilRelative = "TOPLEFT"
-			closeButtonPoint = "TOP"
-			closeButtonRelative = "BOTTOM"
-			yOffset = 1						
+			raidUtilRelative = "TOPLEFT"				
 		else
 			raidUtilPoint = "TOPLEFT"
-			raidUtilRelative = "BOTTOMLEFT"
-			closeButtonPoint = "BOTTOM"
-			closeButtonRelative = "TOP"
-			yOffset = -1			
+			raidUtilRelative = "BOTTOMLEFT"			
 		end
 		
 		raidUtil:ClearAllPoints()
 		closeButton:ClearAllPoints()
 		raidUtil:SetPoint(raidUtilPoint, self, raidUtilRelative, 2, -2)
-		closeButton:SetPoint(closeButtonRelative, raidUtil, closeButtonPoint, 0, yOffset)
+		closeButton:SetPoint("BOTTOM", raidUtil, "BOTTOM", 0, 2)
 	]=]);
+	SVUI_RaidToolToggle:SetScript("PostClick", function(self) self:RemoveTextures(); SVUI_RaidToolMenu.toggled = true end);
 
-	self.RaidTool:SetScript("OnMouseUp", function(self) self.RaidToolMenu.toggled = true end);
-
-	SV:AddToDisplayAudit(self.RaidToolMenu);
 	SV:AddToDisplayAudit(self.RaidTool);
 
 	--Close Button
-	local close = NewToolButton("SVUI_RaidToolCloseButton", self.RaidToolMenu, "UIMenuButtonStretchTemplate, SecureHandlerClickTemplate", 30, 18, "TOP", self.RaidToolMenu, "BOTTOM", 0, -1, "X");
-	close:SetFrameRef("SVUI_RaidToolToggle", self.RaidTool);
-	close:SetAttribute("_onclick", [=[
-		self:GetParent():Hide();
-		self:GetFrameRef("SVUI_RaidToolToggle"):Show();
-	]=]);
-	close:SetScript("OnMouseUp", function(self) self.RaidToolMenu.toggled = false end);
+	local close = NewToolButton("SVUI_RaidToolCloseButton", self.RaidTool.Menu, "UIMenuButtonStretchTemplate, SecureHandlerClickTemplate", 30, 18, "BOTTOM", self.RaidTool.Menu, "BOTTOM", 0, 2, "X");
+	close:SetAttribute("_onclick", [=[ self:GetParent():Hide(); ]=]);
+	SVUI_RaidToolToggle:SetFrameRef("SVUI_RaidToolCloseButton", close)
+	close:SetScript("PostClick", function() SVUI_RaidToolMenu.toggled = false end);
 
-	self.RaidToolMenu:SetFrameRef("SVUI_RaidToolCloseButton", close);
-
-	local disband = NewToolButton("SVUI_RaidToolDisbandButton", self.RaidToolMenu, "UIMenuButtonStretchTemplate", 109, 18, "TOP", self.RaidToolMenu, "TOP", 0, -5, L['Disband Group'])
+	local disband = NewToolButton("SVUI_RaidToolDisbandButton", self.RaidTool.Menu, "UIMenuButtonStretchTemplate", 109, 18, "TOP", self.RaidTool.Menu, "TOP", 0, -5, L['Disband Group'])
 	disband:SetScript("OnMouseUp", function(self)
 		if CheckRaidStatus() then
 			SV:StaticPopup_Show("DISBAND_RAID")
 		end
 	end)
 
-	local rolecheck = NewToolButton("SVUI_RaidToolRoleButton", self.RaidToolMenu, "UIMenuButtonStretchTemplate", 109, 18, "TOP", disband, "BOTTOM", 0, -5, ROLE_POLL)
+	local rolecheck = NewToolButton("SVUI_RaidToolRoleButton", self.RaidTool.Menu, "UIMenuButtonStretchTemplate", 109, 18, "TOP", disband, "BOTTOM", 0, -5, ROLE_POLL)
 	rolecheck:SetScript("OnMouseUp", function(self)
 		if CheckRaidStatus() then
 			InitiateRolePoll()
 		end
 	end)
 
-	local ready = NewToolButton("SVUI_RaidToolReadyButton", self.RaidToolMenu, "UIMenuButtonStretchTemplate", 109, 18, "TOP", rolecheck, "BOTTOM", 0, -5, READY_CHECK)
+	local ready = NewToolButton("SVUI_RaidToolReadyButton", self.RaidTool.Menu, "UIMenuButtonStretchTemplate", 109, 18, "TOP", rolecheck, "BOTTOM", 0, -5, READY_CHECK)
 	ready:SetScript("OnMouseUp", function(self)
 		if CheckRaidStatus() then
 			DoReadyCheck()
 		end
 	end)
 
-	local control = NewToolButton("SVUI_RaidToolControlButton", self.RaidToolMenu, "UIMenuButtonStretchTemplate", 109, 18, "TOP", ready, "BOTTOM", 0, -5, L['Raid Menu'])
+	local control = NewToolButton("SVUI_RaidToolControlButton", self.RaidTool.Menu, "UIMenuButtonStretchTemplate", 109, 18, "TOP", ready, "BOTTOM", 0, -5, L['Raid Menu'])
 	control:SetScript("OnMouseUp", function(self)
 		ToggleFriendsFrame(4)
 	end)
 
 	local markerButton = _G["CompactRaidFrameManagerDisplayFrameLeaderOptionsRaidWorldMarkerButton"];
-	local oldReadyCheck = _G["CompactRaidFrameManagerDisplayFrameLeaderOptionsRaidWorldMarkerButton"];
+	local oldReadyCheck = _G["CompactRaidFrameManagerDisplayFrameLeaderOptionsInitiateReadyCheck"];
 	local oldRollCheck = _G["CompactRaidFrameManagerDisplayFrameLeaderOptionsInitiateRolePoll"];
 
 	if(markerButton) then
 		markerButton:ClearAllPoints()
 		markerButton:SetPoint("TOP", control, "BOTTOM", 0, -5)
-		markerButton:SetParent(self.RaidToolMenu)
+		markerButton:SetParent(self.RaidTool.Menu)
 		markerButton:Height(18)
 		markerButton:SetWidth(109)
 		markerButton:RemoveTextures()
@@ -221,4 +210,5 @@ function MOD:LoadRaidLeaderTools()
 
 	self:RegisterEvent("GROUP_ROSTER_UPDATE", "UpdateRaidLeader")
 	self:RegisterEvent("PLAYER_ENTERING_WORLD", "UpdateRaidLeader")
+	self:UpdateRaidLeader() 
 end

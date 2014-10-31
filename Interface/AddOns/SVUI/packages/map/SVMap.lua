@@ -923,7 +923,7 @@ function MOD:Load()
 
 	if(SV.db.SVMap.minimapbar.enable == true) then
 		MMBHolder = CreateFrame("Frame", "SVUI_MiniMapButtonHolder", mapHolder)
-		MMBHolder:Point("TOPRIGHT", SVUI_MiniMapCoords, "BOTTOMRIGHT", 0, -4)
+		MMBHolder:Point("TOPRIGHT", SV.Dock.TopRight, "BOTTOMRIGHT", 0, -4)
 		MMBHolder:Size(mapHolder:GetWidth(), 32)
 		MMBHolder:SetFrameStrata("BACKGROUND")
 		MMBBar = CreateFrame("Frame", "SVUI_MiniMapButtonBar", MMBHolder)

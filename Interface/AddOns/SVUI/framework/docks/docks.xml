@@ -4,7 +4,7 @@
         <Attributes>
             <Attribute name="tipText" type="string" value="" />
             <Attribute name="ownerFrame" type="string" value="None" />
-            <Attribute name="hasDropDown" type="boolean" value="false" />
+            <Attribute name="hasDropDown" type="boolean" value="true" />
             <Attribute name="isActive" type="boolean" value="false" />
         </Attributes>
         <Layers>
@@ -38,7 +38,7 @@
             <Attribute name="buttonSize" type="number" value="22" />
         </Attributes>
         <Anchors>
-            <Anchor point="BOTTOMLEFT" />
+            <Anchor point="BOTTOMLEFT" x="1" y="1" />
         </Anchors>
         <Frames>
             <Button name="$parentButton" parentKey="Button">
@@ -100,10 +100,10 @@
             </Frame>
             <Frame name="$parentWindow" parentKey="Window" frameStrata="BACKGROUND">
                 <Anchors>
-                    <Anchor point="BOTTOMRIGHT" relativeTo="$parentAlert" relativePoint="TOPRIGHT" x="0" y="4" />
-                    <Anchor point="BOTTOMLEFT" relativeTo="$parentAlert" relativePoint="TOPLEFT" x="0" y="4" />
-                    <Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT" x="0" y="0" />
-                    <Anchor point="TOPRIGHT" relativeTo="$parent" relativePoint="TOPRIGHT" x="0" y="0" />
+                    <Anchor point="BOTTOMRIGHT" relativeTo="$parentAlert" relativePoint="TOPRIGHT" x="-4" y="4" />
+                    <Anchor point="BOTTOMLEFT" relativeTo="$parentAlert" relativePoint="TOPLEFT" x="4" y="4" />
+                    <Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT" x="4" y="0" />
+                    <Anchor point="TOPRIGHT" relativeTo="$parent" relativePoint="TOPRIGHT" x="-4" y="0" />
                 </Anchors>
             </Frame>
         </Frames>
@@ -116,7 +116,7 @@
             <Attribute name="buttonSize" type="number" value="22" />
         </Attributes>
         <Anchors>
-            <Anchor point="BOTTOMRIGHT" />
+            <Anchor point="BOTTOMRIGHT" x="-1" y="1" />
         </Anchors>
         <Frames>
             <Button name="$parentButton" parentKey="Button">
@@ -178,10 +178,10 @@
             </Frame>
             <Frame name="$parentWindow" parentKey="Window" frameStrata="BACKGROUND">
                 <Anchors>
-                    <Anchor point="BOTTOMRIGHT" relativeTo="$parentAlert" relativePoint="TOPRIGHT" x="0" y="4" />
-                    <Anchor point="BOTTOMLEFT" relativeTo="$parentAlert" relativePoint="TOPLEFT" x="0" y="4" />
-                    <Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT" x="0" y="0" />
-                    <Anchor point="TOPRIGHT" relativeTo="$parent" relativePoint="TOPRIGHT" x="0" y="0" />
+                    <Anchor point="BOTTOMRIGHT" relativeTo="$parentAlert" relativePoint="TOPRIGHT" x="-4" y="4" />
+                    <Anchor point="BOTTOMLEFT" relativeTo="$parentAlert" relativePoint="TOPLEFT" x="4" y="4" />
+                    <Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT" x="4" y="0" />
+                    <Anchor point="TOPRIGHT" relativeTo="$parent" relativePoint="TOPRIGHT" x="-4" y="0" />
                 </Anchors>
             </Frame>
         </Frames>
@@ -258,7 +258,7 @@
             <Attribute name="buttonSize" type="number" value="22" />
         </Attributes>
         <Anchors>
-            <Anchor point="TOPLEFT" />
+            <Anchor point="TOPRIGHT" />
         </Anchors>
         <Frames>
             <Frame name="$parentAlert" parentKey="Alert" frameStrata="BACKGROUND">

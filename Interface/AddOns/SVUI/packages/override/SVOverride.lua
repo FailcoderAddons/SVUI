@@ -153,7 +153,7 @@ local Vehicle_OnSetPoint = function(self,_,parent)
 		if _G.VehicleSeatIndicator_MOVE then
 			VehicleSeatIndicator:Point("BOTTOM", VehicleSeatIndicator_MOVE, "BOTTOM", 0, 0)
 		else
-			VehicleSeatIndicator:Point("TOPLEFT", SV.Screen, "TOPLEFT", 22, -45)
+			VehicleSeatIndicator:Point("TOPLEFT", SV.Dock.TopLeft, "TOPLEFT", 0, 0)
 			SV.Mentalo:Add(VehicleSeatIndicator, L["Vehicle Seat Frame"])
 		end 
 		VehicleSeatIndicator:SetScale(0.8)
@@ -478,7 +478,7 @@ end
 
 local SVUI_LootFrameHolder = CreateFrame("Frame","SVUI_LootFrameHolder",SV.Screen);
 local SVUI_LootFrame = CreateFrame('Button', 'SVUI_LootFrame', SVUI_LootFrameHolder);
-SVUI_LootFrameHolder:Point("TOPLEFT",36,-195);
+SVUI_LootFrameHolder:Point("BOTTOMRIGHT", SV.Dock.TopLeft, "BOTTOMRIGHT", 0, 0);
 SVUI_LootFrameHolder:Width(150);
 SVUI_LootFrameHolder:Height(22);
 
@@ -1031,7 +1031,7 @@ function MOD:Load()
 	NewHook(DurabilityFrame, "SetPoint", Dura_OnSetPoint)
 	
 	TicketStatusFrame:ClearAllPoints()
-	TicketStatusFrame:SetPoint("TOPLEFT", SV.Screen, "TOPLEFT", 250, -5)
+	TicketStatusFrame:SetPoint("TOPRIGHT", SV.Dock.TopLeft, "TOPRIGHT", 0, 0)
 	SV.Mentalo:Add(TicketStatusFrame, L["GM Ticket Frame"], nil, nil, nil, nil, "GM")
 	HelpOpenTicketButton:SetParent(Minimap)
 	HelpOpenTicketButton:ClearAllPoints()
@@ -1046,9 +1046,24 @@ function MOD:Load()
 	self:RegisterEvent('PLAYER_REGEN_DISABLED', ErrorFrameHandler)
 	self:RegisterEvent('PLAYER_REGEN_ENABLED', ErrorFrameHandler)
 
+	local wsc = CreateFrame("Frame", "SVUI_WorldStateHolder", SV.Screen)
+	wsc:SetSize(200, 45)
+	wsc:SetPoint("TOP", SV.Dock.TopCenter, "BOTTOM", 0, -10)
+	SV.Mentalo:Add(wsc, L["Capture Bars"])
+	NewHook("UIParent_ManageFramePositions", CaptureBarHandler)
+
+	local altPower = CreateFrame("Frame", "SVUI_AltPowerBar", UIParent)
+	altPower:SetPoint("TOP", SV.Dock.TopCenter, "BOTTOM", 0, -60)
+	altPower:Size(128, 50)
+	PlayerPowerBarAlt:ClearAllPoints()
+	PlayerPowerBarAlt:SetPoint("CENTER", altPower, "CENTER")
+	PlayerPowerBarAlt:SetParent(altPower)
+	PlayerPowerBarAlt.ignoreFramePositionManager = true;
+	SV.Mentalo:Add(altPower, L["Alternative Power"])
+
 	SVUI_AlertFrame:SetParent(SV.Screen)
-	SVUI_AlertFrame:SetPoint("TOP", SV.Screen, "TOP", 0, -18);
-	SV.Mentalo:Add(SVUI_AlertFrame, L["Loot  /  Alert Frames"], nil, nil, AlertFramePostMove_Hook)
+	SVUI_AlertFrame:SetPoint("TOP", SV.Dock.TopCenter, "BOTTOM", 0, -115);
+	SV.Mentalo:Add(SVUI_AlertFrame, L["Loot / Alert Frames"], nil, nil, AlertFramePostMove_Hook)
 	NewHook('AlertFrame_FixAnchors', AlertFramePostMove_Hook)
 	NewHook('AlertFrame_SetLootAnchors', _hook_AlertFrame_SetLootAnchors)
 	NewHook('AlertFrame_SetLootWonAnchors', _hook_AlertFrame_SetLootWonAnchors)
@@ -1096,9 +1111,11 @@ function MOD:Load()
 	self:RegisterEvent("MIRROR_TIMER_PAUSE", MirrorBarToggleHandler)
 	self:RegisterEvent("START_TIMER", MirrorBarToggleHandler)
 
+	local exitSize = ExtraActionBarFrame:GetSize()
+
 	local exit = CreateFrame("Button", "SVUI_BailOut", SV.Screen)
-	exit:Size(40, 40)
-	exit:Point("TOPLEFT", SVUI_MinimapFrame, "BOTTOMLEFT", 0, -30)
+	exit:Size(exitSize)
+	exit:Point("BOTTOM", SV.Screen, "BOTTOM", 0, 275)
 	exit:SetNormalTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Icons\\EXIT")
 	exit:SetPushedTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Icons\\EXIT")
 	exit:SetHighlightTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Icons\\EXIT")
@@ -1115,20 +1132,7 @@ function MOD:Load()
 
 	SV.Mentalo:Add(exit, L["Bail Out"])
 
-	local altPower = CreateFrame("Frame", "SVUI_AltPowerBar", UIParent)
-	altPower:SetPoint("TOP", SV.Screen, "TOP", 0, -18)
-	altPower:Size(128, 50)
-	PlayerPowerBarAlt:ClearAllPoints()
-	PlayerPowerBarAlt:SetPoint("CENTER", altPower, "CENTER")
-	PlayerPowerBarAlt:SetParent(altPower)
-	PlayerPowerBarAlt.ignoreFramePositionManager = true;
-	SV.Mentalo:Add(altPower, L["Alternative Power"])
-
-	local wsc = CreateFrame("Frame", "SVUI_WorldStateHolder", SV.Screen)
-	wsc:SetSize(200, 45)
-	wsc:SetPoint("TOP", SV.Screen, "TOP", 0, -100)
-	SV.Mentalo:Add(wsc, L["Capture Bars"])
-	NewHook("UIParent_ManageFramePositions", CaptureBarHandler)
-
+	LossOfControlFrame:ClearAllPoints()
+	LossOfControlFrame:SetPoint("TOP", SV.Screen, "TOP", 0, -225)
 	SV.Mentalo:Add(LossOfControlFrame, L["Loss Control Icon"], nil, nil, nil, nil, "LoC")
 end
