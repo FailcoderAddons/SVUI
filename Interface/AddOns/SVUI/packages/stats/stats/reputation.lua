@@ -168,7 +168,7 @@ end
 
 local function Reputation_OnClick(self, button)
 	MOD:CacheRepData()
-	MOD:SetStatMenu(self, RepMenuList) 
+	SV.Dropdown:Open(self, RepMenuList) 
 end 
 
 MOD:Extend("Reputation", StatEvents, Reputation_OnEvent, nil, Reputation_OnClick, Reputation_OnEnter)

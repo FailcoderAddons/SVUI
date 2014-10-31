@@ -106,7 +106,7 @@ local errorPattern = "|cffff0000Error -- |r|cffff9900Required addon '|r|cffffff0
 local rez = GetCVar("gxResolution");
 local defaultQuarterWidth = tonumber(rez:match("(%d+)x%d+")) * 0.2;
 local defaultQuarterHeight = tonumber(rez:match("%d+x(%d+)")) * 0.2;
-local defaultButtonSize = defaultQuarterHeight * 0.15;
+local defaultButtonSize = 22;
 local defaultCenterWidth = ((defaultQuarterWidth * 2) - ((defaultButtonSize + 8) * 2));
 
 --[[ HELPERS ]]--

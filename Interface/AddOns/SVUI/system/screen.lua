@@ -143,7 +143,7 @@ function SV.Screen:Update()
 
     local defaultQuarterWidth = width * 0.2;
     local defaultQuarterHeight = height * 0.2;
-    local defaultButtonSize = defaultQuarterHeight * 0.15;
+    local defaultButtonSize = 22;
     local defaultCenterWidth = ((defaultQuarterWidth * 2) - ((defaultButtonSize + 8) * 2));
 
     self.Estimates = {

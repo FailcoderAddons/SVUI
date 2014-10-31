@@ -201,7 +201,7 @@ end
 local function Tokens_OnClick(self, button)
 	TokenParent = self;
   MOD:CacheTokenData()
-	MOD:SetStatMenu(self, TokenMenuList) 
+	SV.Dropdown:Open(self, TokenMenuList) 
 end 
 
 MOD:Extend('Tokens', TokenEvents, TokensEventHandler, nil,  Tokens_OnClick,  Tokens_OnEnter)
