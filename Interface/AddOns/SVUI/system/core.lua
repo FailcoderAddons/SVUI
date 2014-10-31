@@ -103,12 +103,6 @@ local messagePattern = "|cffFF2F00%s:|r";
 local debugPattern = "|cffFF2F00%s|r [|cff992FFF%s|r]|cffFF2F00:|r";
 local errorPattern = "|cffff0000Error -- |r|cffff9900Required addon '|r|cffffff00%s|r|cffff9900' is %s.|r"
 
-local rez = GetCVar("gxResolution");
-local defaultQuarterWidth = tonumber(rez:match("(%d+)x%d+")) * 0.2;
-local defaultQuarterHeight = tonumber(rez:match("%d+x(%d+)")) * 0.2;
-local defaultButtonSize = 22;
-local defaultCenterWidth = ((defaultQuarterWidth * 2) - ((defaultButtonSize + 8) * 2));
-
 --[[ HELPERS ]]--
 
 local function _removedeprecated()
@@ -236,13 +230,6 @@ SVUI.Screen = CreateFrame("Frame", "SVUIParent", UIParent);
 SVUI.Screen:SetFrameLevel(UIParent:GetFrameLevel());
 SVUI.Screen:SetPoint("CENTER", UIParent, "CENTER");
 SVUI.Screen:SetSize(UIParent:GetSize());
-
-SVUI.Screen.Estimates = {
-    width = defaultQuarterWidth,
-    height = defaultQuarterHeight,
-    center = defaultCenterWidth,
-    button = defaultButtonSize
-};
 
 SVUI.Hidden = CreateFrame("Frame", nil, UIParent);
 SVUI.Hidden:Hide();

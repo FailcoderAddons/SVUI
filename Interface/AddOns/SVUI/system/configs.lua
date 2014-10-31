@@ -19,8 +19,10 @@ GET ADDON DATA
 local SV = select(2, ...)
 
 local playerClass = select(2, UnitClass("player"));
-
 local filterClass = playerClass or "NONE"
+local rez = GetCVar("gxResolution");
+local defaultDockWidth = tonumber(rez:match("(%d+)x%d+")) * 0.5;
+local defaultCenterWidth = min(defaultDockWidth, 800);
 
 local function safename(id)
     local n = GetSpellInfo(id)  
@@ -470,12 +472,12 @@ SV.configs["SVChat"] = {
 
 SV.configs["Dock"] = {
 	["enable"] = true, 
-	["dockLeftWidth"] = SV.Screen.Estimates.width, 
-	["dockLeftHeight"] = SV.Screen.Estimates.height, 
-	["dockRightWidth"] = SV.Screen.Estimates.width, 
-	["dockRightHeight"] = SV.Screen.Estimates.height,
-	["dockCenterWidth"] = SV.Screen.Estimates.center,
-	["buttonSize"] = SV.Screen.Estimates.button, 
+	["dockLeftWidth"] = 412, 
+	["dockLeftHeight"] = 224, 
+	["dockRightWidth"] = 412, 
+	["dockRightHeight"] = 224,
+	["dockCenterWidth"] = defaultCenterWidth,
+	["buttonSize"] = 30, 
 	["buttonSpacing"] = 4, 
 	["leftDockBackdrop"] = true, 
 	["rightDockBackdrop"] = true, 

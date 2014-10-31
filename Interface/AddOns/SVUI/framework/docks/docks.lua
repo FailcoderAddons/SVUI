@@ -529,41 +529,13 @@ EXTERNALLY ACCESSIBLE METHODS
 ##########################################################
 ]]--
 function Dock:GetDimensions()
-	local leftWidth = SV.Screen.Estimates.width;
-	if(SV.db.Dock.dockLeftWidth and (SV.db.Dock.dockLeftWidth ~= leftWidth)) then
-		leftWidth = SV.db.Dock.dockLeftWidth;
-	end
-
-	local leftHeight = SV.Screen.Estimates.height;
-	if(SV.db.Dock.dockLeftHeight and (SV.db.Dock.dockLeftHeight ~= leftHeight)) then
-		leftHeight = SV.db.Dock.dockLeftHeight;
-	end
-
-	local rightWidth = SV.Screen.Estimates.width;
-	if(SV.db.Dock.dockRightWidth and (SV.db.Dock.dockRightWidth ~= rightWidth)) then
-		rightWidth = SV.db.Dock.dockRightWidth;
-	end
-
-	local rightHeight = SV.Screen.Estimates.height;
-	if(SV.db.Dock.dockRightHeight and (SV.db.Dock.dockRightHeight ~= rightHeight)) then
-		rightHeight = SV.db.Dock.dockRightHeight;
-	end
-
-	local centerWidth = SV.Screen.Estimates.center;
-	if(SV.db.Dock.dockCenterWidth and (SV.db.Dock.dockCenterWidth ~= centerWidth)) then
-		centerWidth = SV.db.Dock.dockCenterWidth;
-	end
-
-	local buttonsize = SV.Screen.Estimates.button;
-	if(SV.db.Dock.buttonSize and (SV.db.Dock.buttonSize ~= buttonsize)) then
-		buttonsize = SV.db.Dock.buttonSize;
-	end
-
-	local spacing = 4;
-	if(SV.db.Dock.buttonSpacing and (SV.db.Dock.buttonSpacing ~= spacing)) then
-		spacing = SV.db.Dock.buttonSpacing;
-	end
-
+	local leftWidth = SV.db.Dock.dockLeftWidth;
+	local leftHeight = SV.db.Dock.dockLeftHeight;
+	local rightWidth = SV.db.Dock.dockRightWidth;
+	local rightHeight = SV.db.Dock.dockRightWidth;
+	local centerWidth = SV.db.Dock.dockCenterWidth;
+	local buttonsize = SV.db.Dock.buttonSize;
+	local spacing = SV.db.Dock.buttonSpacing;
 	return leftWidth, leftHeight, rightWidth, rightHeight, centerWidth, buttonsize, spacing;
 end
 

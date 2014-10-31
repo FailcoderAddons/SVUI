@@ -141,18 +141,6 @@ function SV.Screen:Update()
     local gxWidth = tonumber(width)
     local gxMod = (768 / gxHeight)
 
-    local defaultQuarterWidth = width * 0.2;
-    local defaultQuarterHeight = height * 0.2;
-    local defaultButtonSize = 22;
-    local defaultCenterWidth = ((defaultQuarterWidth * 2) - ((defaultButtonSize + 8) * 2));
-
-    self.Estimates = {
-        width = defaultQuarterWidth,
-        height = defaultQuarterHeight,
-        center = defaultCenterWidth,
-        button = defaultButtonSize
-    };
-
     if(IsMacClient()) then
         if(not self.MacDisplay) then
             self.MacDisplay = SVLib:NewGlobal("Display");
