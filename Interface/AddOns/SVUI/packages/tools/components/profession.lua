@@ -172,7 +172,7 @@ local function CreateMacroToolButton(proName, proID, itemID)
 		end
 		button:SetAttribute("tipExtraText", rightClick)
 		button:SetAttribute("type", "macro")
-		button:SetAttribute("macrotext", "/cast [button:2] " .. rightClick .. ";[nomod]" .. proName)
+		button:SetAttribute("macrotext", "/cast [button:2][nomod] " .. rightClick .. ";[nomod]" .. proName)
 	else
 		button:SetAttribute("type", "macro")
 		button:SetAttribute("macrotext", "/cast [nomod]" .. proName)
@@ -197,7 +197,7 @@ local function LoadToolBarProfessions()
 		if(IsSpellKnown(HEARTH_SPELLS[i])) then
 			local rightClickSpell = GetSpellInfo(HEARTH_SPELLS[i])
 			hearth:SetAttribute("tipExtraText", rightClickSpell)
-			hearth:SetAttribute("macrotext", "/use [button:2] " .. rightClickSpell .. ";[nomod]" .. hearthStone)
+			hearth:SetAttribute("macrotext", "/use [button:2][nomod] " .. rightClickSpell .. ";[nomod]" .. hearthStone)
 			hasRightClick = true;
 		end
 	end
