@@ -45,7 +45,7 @@ local function skada_panel_loader(holder, window)
   local bars = Skada.displays['bar']
 
   if(not bars) then return end
-  bars.ApplySettings = StupidSkada
+  bars.ApplySettings = function() return end
   local width,height = holder:GetSize()
 
   window.db.barspacing = 1;
@@ -120,6 +120,8 @@ local function StyleSkada()
     skada.Panel:ClearAllPoints()
     skada.Panel:SetPoint('TOPLEFT', panelAnchor, 'TOPLEFT', -2, 2)
     skada.Panel:SetPoint('BOTTOMRIGHT', skada, 'BOTTOMRIGHT', 2, -2)
+
+    Skada.displays['bar'].ApplySettings = function() return end
   end)
 
   hooksecurefunc(Skada, 'CreateWindow', function()

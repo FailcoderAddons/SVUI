@@ -101,7 +101,7 @@ end
 function MOD:LoadRaidLeaderTools()
 	local dock = SV.Dock.TopLeft.Bar
 	
-	self.RaidTool = dock:Create(RAID_CONTROL, ICON_FILE, nil, "SVUI_RaidToolDockButton");
+	self.RaidTool = SV.Dock:SetDockButton("TopLeft", RAID_CONTROL, ICON_FILE, nil, "SVUI_RaidToolDockButton");
 	self.RaidTool:SetAttribute("hasDropDown", false);
 
 	self.RaidTool.Menu = CreateFrame("Frame", "SVUI_RaidToolMenu", self.RaidTool, "SecureHandlerClickTemplate");

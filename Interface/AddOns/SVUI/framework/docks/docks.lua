@@ -331,33 +331,35 @@ local GetDockablePositions = function(self)
 		end
 	end
 
-	-- tinsert(t, { title = "Order", divider = true });
+	tinsert(t, { title = "Re-Order", divider = true });
 
-	-- for i=1, #button.Parent.Data.Order do
-	-- 	if(i ~= button.OrderIndex) then
-	-- 		local positionText = ("Position #%d"):format(i);
-	-- 	    tinsert(t, { text = positionText, func = function() button.Parent:ChangeOrder(button, i) end });
-	-- 	end
-	-- end
+	for i=1, #button.Parent.Data.Order do
+		if(i ~= button.OrderIndex) then
+			local positionText = ("Position #%d"):format(i);
+		    tinsert(t, { text = positionText, func = function() button.Parent:ChangeOrder(button, i) end });
+		end
+	end
 
 	return t;
 end
 
 local ChangeBarOrder = function(self, button, targetIndex)
 	local targetName = button:GetName();
+	local currentIndex = button.OrderIndex;
 	wipe(ORDER_TEST);
 	wipe(ORDER_TEMP);
 	for i = 1, #self.Data.Order do
 		local nextName = self.Data.Order[i];
-		if(i < targetIndex) then
-			tinsert(ORDER_TEMP, nextName)
-		elseif(i == targetIndex) then
-			tinsert(ORDER_TEMP, targetName)
-			tinsert(ORDER_TEMP, nextName)
-		else
-			if(targetName ~= nextName) then
+		if(i == targetIndex) then
+			if(currentIndex > targetIndex) then
+				tinsert(ORDER_TEMP, targetName)
 				tinsert(ORDER_TEMP, nextName)
+			else
+				tinsert(ORDER_TEMP, nextName)
+				tinsert(ORDER_TEMP, targetName)
 			end
+		elseif(targetName ~= nextName) then
+			tinsert(ORDER_TEMP, nextName)
 		end
 	end
 
@@ -377,14 +379,13 @@ local ChangeBarOrder = function(self, button, targetIndex)
 	self:Update()
 end
 
-local RefreshBarLayout = function(self)
+local RefreshBarOrder = function(self)
 	wipe(ORDER_TEST);
 	wipe(ORDER_TEMP);
 	for i = 1, #self.Data.Order do
 		local nextName = self.Data.Order[i];
 		tinsert(ORDER_TEMP, nextName)
 	end
-
 	wipe(self.Data.Order);
 	local safeIndex = 1;
 	for i = 1, #ORDER_TEMP do
@@ -397,12 +398,27 @@ local RefreshBarLayout = function(self)
 			safeIndex = safeIndex + 1;
 		end
 	end
+end
 
+local CheckBarOrder = function(self, targetName)
+	local found = false;
+	for i = 1, #self.Data.Order do
+		if(self.Data.Order[i] == targetName) then
+			found = true;
+		end
+	end
+	if(not found) then
+		tinsert(self.Data.Order, targetName);
+		self:UpdateOrder();
+	end
+end
+
+local RefreshBarLayout = function(self)
 	local anchor = upper(self.Data.Location)
 	local mod = self.Data.Modifier
-	local height = self.ToolBar:GetHeight();
+	local size = self.ToolBar:GetHeight();
 	local count = #self.Data.Order;
-	local width = count * (height + 6) + 6;
+	local width = count * (size + 6) + 6;
 	local offset = 1;
 
 	self.ToolBar:SetWidth(width);
@@ -411,8 +427,9 @@ local RefreshBarLayout = function(self)
 		local nextName = self.Data.Order[i];
 		local nextButton = self.Data.Buttons[nextName];
 		if(nextButton) then
-			offset = (safeIndex - 1) * (height + 6) + 6
+			offset = (safeIndex - 1) * (size + 6) + 6
 			nextButton:ClearAllPoints();
+			nextButton:Size(size, size);
 			nextButton:SetPoint(anchor, self.ToolBar, anchor, (offset * mod), 0);
 			if(not nextButton:IsShown()) then
 				nextButton:Show();
@@ -439,59 +456,29 @@ local AddToDock = function(self, button)
 		if(registeredLocation ~= currentLocation) then
 			if(Dock[registeredLocation].Bar.Data.Buttons[name]) then
 				Dock[registeredLocation].Bar:Remove(button);
-				self.Data.Buttons[name] = button;
-				tinsert(self.Data.Order, name);
-				Dock.Locations[name] = currentLocation;
-				button.Parent = self;
-				button:SetParent(self.ToolBar);
-
-				if(button.FrameLink) then
-					local frameName = button.FrameLink:GetName()
-					Dock.Locations[frameName] = currentLocation;
-					button.FrameLink:ClearAllPoints()
-					button.FrameLink:SetParent(self.Parent.Window)
-					button.FrameLink:FillInner(self.Parent.Window, 4, 4)
-				end
-
-				self:Update()
 			else
 				Dock[registeredLocation].Bar:Add(button);
 				return
 			end
-		else
-			self.Data.Buttons[name] = button;
-			tinsert(self.Data.Order, name);
-			Dock.Locations[name] = currentLocation;
-			button.Parent = self;
-			button:SetParent(self.ToolBar);
-
-			if(button.FrameLink) then
-				local frameName = button.FrameLink:GetName()
-				Dock.Locations[frameName] = currentLocation;
-				button.FrameLink:ClearAllPoints()
-				button.FrameLink:SetParent(self.Parent.Window)
-				button.FrameLink:FillInner(self.Parent.Window, 4, 4)
-			end
-
-			self:Update()
 		end
-	else
-		self.Data.Buttons[name] = button;
-		tinsert(self.Data.Order, name);
-		Dock.Locations[name] = currentLocation;
-		button.Parent = self;
-		button:SetParent(self.ToolBar);
-
-		if(button.FrameLink) then
-			local frameName = button.FrameLink:GetName()
-			Dock.Locations[frameName] = currentLocation;
-			button.FrameLink:ClearAllPoints()
-			button.FrameLink:SetParent(self.Parent.Window)
-			button.FrameLink:FillInner(self.Parent.Window, 4, 4)
-		end
-
-		self:Update()
 	end
+
+	self:CheckOrder(name);
+	self.Data.Buttons[name] = button;
+	
+	Dock.Locations[name] = currentLocation;
+	button.Parent = self;
+	button:SetParent(self.ToolBar);
+
+	if(button.FrameLink) then
+		local frameName = button.FrameLink:GetName()
+		Dock.Locations[frameName] = currentLocation;
+		button.FrameLink:ClearAllPoints()
+		button.FrameLink:SetParent(self.Parent.Window)
+		button.FrameLink:FillInner(self.Parent.Window, 4, 4)
+	end
+
+	self:Update()
 end
 
 local RemoveFromDock = function(self, button)
@@ -523,6 +510,7 @@ local RemoveFromDock = function(self, button)
 
 	button.OrderIndex = 0;
 	self.Data.Buttons[name] = nil;
+	self:UpdateOrder()
 	self:Update()
 end
 
@@ -594,7 +582,9 @@ for location, settings in pairs(DOCK_LOCATIONS) do
 	Dock[location].Bar.GetDefault = GetDefault;
 	Dock[location].Bar.Toggle = ToggleDockletWindow;
 	Dock[location].Bar.Update = RefreshBarLayout;
+	Dock[location].Bar.UpdateOrder = RefreshBarOrder;
 	Dock[location].Bar.ChangeOrder = ChangeBarOrder;
+	Dock[location].Bar.CheckOrder = CheckBarOrder;
 	Dock[location].Bar.Add = AddToDock;
 	Dock[location].Bar.Remove = RemoveFromDock;
 	Dock[location].Bar.Initialize = ActivateDockletButton;
@@ -832,7 +822,7 @@ function Dock:Refresh()
 	local buttonsize = SV.db.Dock.buttonSize;
 	local spacing = SV.db.Dock.buttonSpacing;
 	local centerWidth = SV.db.Dock.dockCenterWidth;
-	local centerHeight = buttonsize * 0.5;
+	local centerHeight = buttonsize * 0.7;
 
 	for location, settings in pairs(DOCK_LOCATIONS) do
 		local width, height = self:GetDimensions(location);
@@ -847,6 +837,8 @@ function Dock:Refresh()
 	    if(dock.Bar.Button) then
 	    	dock.Bar.Button:Size(buttonsize, buttonsize)
 	    end
+
+	    dock.Bar:Update()
 	end
 
 	self.BottomCenter:Size(centerWidth, centerHeight)
@@ -882,7 +874,7 @@ function Dock:Initialize()
 	local buttonsize = SV.db.Dock.buttonSize;
 	local spacing = SV.db.Dock.buttonSpacing;
 	local centerWidth = SV.db.Dock.dockCenterWidth;
-	local centerHeight = buttonsize * 0.5;
+	local centerHeight = buttonsize * 0.7;
 	local texture = [[Interface\AddOns\SVUI\assets\artwork\Template\BUTTON]];
 
 	-- [[ TOP AND BOTTOM BORDERS ]] --

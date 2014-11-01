@@ -168,7 +168,6 @@ end
 local MicroButton_OnEnter = function(self)
 	if(self._fade) then
 		SV:SecureFadeIn(SVUI_MicroBar,0.2,SVUI_MicroBar:GetAlpha(),1)
-		SV:SecureFadeOut(SVUI_MicroBar.screenMarker,0.1,SVUI_MicroBar:GetAlpha(),0)
 	end
 	if InCombatLockdown()then return end 
 	self.overlay:SetPanelColor("highlight")
@@ -178,7 +177,6 @@ end
 local MicroButton_OnLeave = function(self)
 	if(self._fade) then
 		SV:SecureFadeOut(SVUI_MicroBar,1,SVUI_MicroBar:GetAlpha(),0)
-		SV:SecureFadeIn(SVUI_MicroBar.screenMarker,5,SVUI_MicroBar:GetAlpha(),1)
 	end
 	if InCombatLockdown()then return end 
 	self.overlay:SetPanelColor("special")
@@ -188,10 +186,8 @@ end
 local MicroButton_OnUpdate = function()
 	if(not SV.db.SVBar.Micro.mouseover) then
 		SVUI_MicroBar:SetAlpha(1)
-		SVUI_MicroBar.screenMarker:SetAlpha(0)
 	else
 		SVUI_MicroBar:SetAlpha(0)
-		SVUI_MicroBar.screenMarker:SetAlpha(1)
 	end
 	GuildMicroButtonTabard:ClearAllPoints();
 	GuildMicroButtonTabard:Hide();
@@ -1381,21 +1377,6 @@ CreateMicroBar = function(self)
 	SV.Mentalo:Add(microBar, L["Micro Bar"])
 
 	RefreshMicrobar()
-
-	local holderData = ICON_DATA[12]
-
-	microBar.screenMarker = NewFrame('Frame', nil, SV.Screen)
-	microBar.screenMarker:Point('BOTTOMLEFT', microBar, 'BOTTOMLEFT', 0, 0)
-	microBar.screenMarker:Size(buttonSize, buttonSize)
-	microBar.screenMarker:SetFrameStrata("BACKGROUND")
-	microBar.screenMarker:SetFrameLevel(4)
-	microBar.screenMarker.icon = microBar.screenMarker:CreateTexture(nil,'OVERLAY')
-	microBar.screenMarker.icon:SetAllPoints(microBar.screenMarker)
-	microBar.screenMarker.icon:SetTexture(ICON_FILE)
-	microBar.screenMarker.icon:SetTexCoord(holderData[2],holderData[3],holderData[4],holderData[5])
-	microBar.screenMarker.icon:SetGradient("VERTICAL", 0.2, 0.2, 0.2, 0, 0, 0)
-
-
 	SVUI_MicroBar:SetAlpha(0)
 end
 

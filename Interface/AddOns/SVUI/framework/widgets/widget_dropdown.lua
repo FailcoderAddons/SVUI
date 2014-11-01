@@ -139,12 +139,12 @@ function SV.Dropdown:Open(target, list)
 			-- DIVIDER
 			self.option[i].divider = self.option[i]:CreateTexture(nil, 'BORDER');
 			self.option[i].divider:SetAllPoints();
-			self.option[i].divider:SetTexture([[Interface\AddOns\SVUI\\assets\artwork\Template\DROPDOWN-DIVIDER]]);
+			self.option[i].divider:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DROPDOWN-DIVIDER]]);
 			self.option[i].divider:Hide();
 
 			self.option[i].header = self.option[i]:CreateFontString(nil, 'OVERLAY');
 			self.option[i].header:SetAllPoints();
-			self.option[i].header:SetFont(SV.Media.font.roboto, 14, "OUTLINE");
+			self.option[i].header:SetFont(SV.Media.font.roboto, 10, "OUTLINE");
 			self.option[i].header:SetTextColor(1, 0.8, 0)
 			self.option[i].header:SetJustifyH("CENTER");
 			self.option[i].header:SetJustifyV("MIDDLE");
@@ -179,9 +179,9 @@ function SV.Dropdown:Open(target, list)
 		elseif(list[i].title) then
 			self.option[i].header:Show();
 			self.option[i].header:SetText(list[i].title);
-			-- if(list[i].divider) then
-			-- 	self.option[i].divider:Show();
-			-- end
+			if(list[i].divider) then
+				self.option[i].divider:Show();
+			end
 		end
 
 		if(i == 1) then
@@ -195,7 +195,7 @@ function SV.Dropdown:Open(target, list)
 	end
 
 	local maxHeight = (min(maxPerColumn, #list) * 16) + 20;
-	local maxWidth = (135 * cols) + (10 * cols);
+	local maxWidth = (135 * cols) + (10 * cols) + 10;
 	local point = GetScreenPosition(target);
 
 	self:ClearAllPoints();
@@ -221,7 +221,7 @@ function SV.Dropdown:Initialize()
 	self:SetPanelTemplate("Default")
 	self.option = {}
 	self:SetClampedToScreen(true)
-	self:SetSize(135, 94)
+	self:SetSize(155, 94)
 
 	SV:AddToDisplayAudit(self)
 end

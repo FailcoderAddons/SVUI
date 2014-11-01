@@ -155,7 +155,7 @@ local function CreateMacroToolButton(proName, proID, itemID)
 	if(not data) then return end
 
 	local globalName = ("SVUI_%s"):format(proName)
-	local button = SV.Dock.BottomRight.Bar:Create(proName, ICON_SHEET, nil, globalName, SetMacroTooltip, "SecureActionButtonTemplate")
+	local button = SV.Dock:SetDockButton("BottomRight", proName, ICON_SHEET, nil, globalName, SetMacroTooltip, "SecureActionButtonTemplate")
 
 	button.Icon:SetTexCoord(data[1], data[2], data[3], data[4])
 
@@ -189,7 +189,7 @@ local function LoadToolBarProfessions()
 
 	-- HEARTH BUTTON
 	local hearthStone = GetItemInfo(6948);
-	local hearth = SV.Dock.BottomLeft.Bar:Create(L["Hearthstone"], HEARTH_ICON, nil, "SVUI_Hearth", SetHearthTooltip, "SecureActionButtonTemplate")
+	local hearth = SV.Dock:SetDockButton("BottomLeft", L["Hearthstone"], HEARTH_ICON, nil, "SVUI_Hearth", SetHearthTooltip, "SecureActionButtonTemplate")
 	hearth.Icon:SetTexCoord(0,0.5,0,1)
 	hearth:SetAttribute("type", "macro")
 	local hasRightClick = false;

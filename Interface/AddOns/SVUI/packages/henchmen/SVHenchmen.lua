@@ -926,7 +926,7 @@ BUILD FUNCTION / UPDATE
 ##########################################################
 ]]--
 function MOD:Load()
-	self.DockButton = SV.Dock.BottomLeft.Bar:Create("Call Henchman!", [[Interface\AddOns\SVUI\assets\artwork\Icons\DOCK-HENCHMAN]], SV.ToggleHenchman, "SVUI_Henchmen")
+	self.DockButton = SV.Dock:SetDockButton("BottomLeft", "Call Henchman!", [[Interface\AddOns\SVUI\assets\artwork\Icons\DOCK-HENCHMAN]], SV.ToggleHenchman, "SVUI_Henchmen")
 
 	if IsAddOnLoaded("Postal") then 
 		SV.db.SVHenchmen.mailOpener = false

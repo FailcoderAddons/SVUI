@@ -619,7 +619,6 @@ do
 			chat:SetClampedToScreen(false)
 			chat:RemoveTextures(true)
 			chat:SetBackdropColor(0,0,0,0)
-			chat.SetBackdropColor = SV.fubar
 			_G[chatName.."ButtonFrame"]:Die()
 			-------------------------------------------
 			_G[tabName .."Left"]:SetTexture(0,0,0,0)
@@ -719,8 +718,8 @@ do
 			local tabText = _G[name.."TabText"]
 			_modifyChat(chat, tabText)
 			tab.owner = chat;
-			if not chat.isDocked and chat:IsShown() then 
-				chat:SetParent(UIParent)
+			if not chat.isDocked and chat:IsShown() then
+				chat:SetSize(CHAT_WIDTH, CHAT_HEIGHT)
 				chat.Panel:Show()
 				if(not TAB_SKINS) then
 					tab.isDocked = chat.isDocked;
@@ -739,9 +738,10 @@ do
 					FCF_SavePositionAndDimensions(chat)
 				end
 
-				--chat:SetParent(MOD.Dock);
+				chat:ClearAllPoints();
 				chat:SetAllPoints(MOD.Dock);
-				chat.Panel:Hide() 
+				chat:SetBackdropColor(0,0,0,0);
+				chat.Panel:Hide();
 				
 				if(not TAB_SKINS) then
 					tab.owner = chat;
