@@ -935,6 +935,8 @@ function MOD:RefreshUnitLayout(frame, template)
 		if db.aurabar.enable then 
 			if not frame:IsElementEnabled("AuraBars") then frame:EnableElement("AuraBars") end 
 			auraBar:Show()
+
+			auraBar.forceShow = frame.forceShowAuras;
 			auraBar.friendlyAuraType = db.aurabar.friendlyAuraType
 			auraBar.enemyAuraType = db.aurabar.enemyAuraType
 

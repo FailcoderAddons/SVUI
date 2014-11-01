@@ -118,10 +118,17 @@ local function forceCVars()
 	InterfaceOptionsActionBarsPanelPickupActionKeyDropDown:RefreshValue()
 end
 
-local function ShowLayout(show40)
-	if(not _G["SVUI_Raid40"] or (show40 and _G["SVUI_Raid40"].forceShow == true)) then return end
-	if(not show40 and _G["SVUI_Raid40"].forceShow ~= true) then return end
-	SV.SVUnit:ViewGroupFrames(_G["SVUI_Raid40"], show40)
+local function ShowLayout(show)
+	if(not _G["SVUI_Raid"] or (show and _G["SVUI_Raid"].forceShow == true)) then return end
+	if(not show and _G["SVUI_Raid"].forceShow ~= true) then return end
+	SV.SVUnit:ViewGroupFrames(_G["SVUI_Raid"], show)
+end
+
+local function ShowAuras(show)
+	if(not _G["SVUI_Player"] or (show and _G["SVUI_Player"].forceShowAuras)) then return end
+	if(not show and not _G["SVUI_Player"].forceShowAuras) then return end
+	_G["SVUI_Player"].forceShowAuras = show
+	SV.SVUnit:SetUnitFrame("player")
 end
 
 local function BarShuffle()
@@ -325,8 +332,7 @@ function SV.Setup:ChatConfigs(mungs)
 		local chatID = chat:GetID()
 		if i == 1 then 
 			chat:ClearAllPoints()
-			chat:Point("BOTTOMLEFT", SVUI_DockLeft, "BOTTOMLEFT", 5, 5)
-			chat:Point("TOPRIGHT", SVUI_DockLeft, "TOPRIGHT", -5, -10)
+			chat:SetAllPoints(SV.SVChat.Dock);
 		end 
 		FCF_SavePositionAndDimensions(chat)
 		FCF_StopDragging(chat)
@@ -699,12 +705,14 @@ end
 local InstallerFrame_SetPage = function(self, newPage)
 	PageData, MAX_PAGE = SV.Setup:CopyPage(newPage)
 	CURRENT_PAGE = newPage;
-	local willShowLayout = CURRENT_PAGE == 5 or CURRENT_PAGE == 6
+	local willShowLayout = CURRENT_PAGE == 5 or CURRENT_PAGE == 6;
+	local willShowAuras = CURRENT_PAGE == 8;
 
 	self:PreparePage()
 	self.Status:SetText(CURRENT_PAGE.."  /  "..MAX_PAGE)
 
 	ShowLayout(willShowLayout)
+	ShowAuras(willShowAuras)
 
 	for option, data in pairs(PageData) do
 		if(type(data) == "table" and data[1] and data[2]) then
@@ -803,7 +811,7 @@ function SV.Setup:Install(autoLoaded)
 		local frame = CreateFrame("Button", "SVUI_InstallerFrame", UIParent)
 		frame:Size(550, 400)
 		frame:SetPanelTemplate("Action")
-		frame:SetPoint("CENTER")
+		frame:SetPoint("TOP", SV.Screen, "TOP", 0, -150)
 		frame:SetFrameStrata("TOOLTIP")
 
 		frame.SetPage = InstallerFrame_SetPage;
@@ -1144,7 +1152,9 @@ function SV.Setup:Install(autoLoaded)
 	SVUI_InstallerFrame:SetScript("OnHide", function()
 		StopMusic()
 		SetCVar("Sound_MusicVolume", user_music_vol)
-		musicIsPlaying = nil
+		musicIsPlaying = nil;
+		ShowLayout()
+		ShowAuras()
 	end)
 	
 	SVUI_InstallerFrame:Show()

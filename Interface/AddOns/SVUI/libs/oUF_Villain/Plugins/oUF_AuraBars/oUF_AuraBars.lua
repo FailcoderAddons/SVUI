@@ -266,10 +266,24 @@ local function Update(self, event, unit)
 	local auras = {}
 	local lastAuraIndex = 0
 	for index = 1, 40 do
-		local name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, shouldConsolidate, spellID = UnitAura(unit, index, helpOrHarm)
+		local name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff = UnitAura(unit, index, helpOrHarm);
+
+		if auraBars.forceShow then
+			spellID = 47540
+			name, rank, icon = GetSpellInfo(spellID)
+			count, debuffType, duration, expirationTime, unitCaster, isStealable, shouldConsolidate, canApplyAura, isBossDebuff = 5, 'Magic', 0, 60, 'player', nil, nil, nil, nil
+		end
+
 		if not name then break end
+
+		local show = true
+		if not auraBars.forceShow then
+			show = (auraBars.filter or DefaultFilter)(self, unit, name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, shouldConsolidate, spellID)
+		else
+			show = lastAuraIndex < 5;
+		end
 		
-		if (auraBars.filter or DefaultFilter)(self, unit, name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, shouldConsolidate, spellID) then
+		if (show) then
 			lastAuraIndex = lastAuraIndex + 1
 			auras[lastAuraIndex] = {}
 			auras[lastAuraIndex].spellID = spellID
