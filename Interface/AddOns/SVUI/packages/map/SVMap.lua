@@ -706,6 +706,7 @@ function MOD:Load()
 	Minimap:SetClampedToScreen(false)
 
 	local mapHolder = SVUI_MinimapFrame
+mapHolder:SetParent(SV.Screen);
 	mapHolder:SetFrameStrata("BACKGROUND")
 	mapHolder.backdrop = mapHolder:CreateTexture(nil, "BACKGROUND", nil, -2)
 	mapHolder:Point("TOPRIGHT", SV.Screen, "TOPRIGHT", -10, -10)
