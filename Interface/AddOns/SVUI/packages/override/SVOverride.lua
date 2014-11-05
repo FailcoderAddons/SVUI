@@ -485,7 +485,7 @@ SVUI_LootFrameHolder:Height(22);
 SVUI_LootFrame:SetClampedToScreen(true);
 SVUI_LootFrame:SetPoint('TOPLEFT');
 SVUI_LootFrame:Size(256,64);
-SVUI_LootFrame:SetFrameStrata("FULLSCREEN");
+SVUI_LootFrame:SetFrameStrata("FULLSCREEN_DIALOG");
 SVUI_LootFrame:SetToplevel(true);
 SVUI_LootFrame.title = SVUI_LootFrame:CreateFontString(nil,'OVERLAY');
 SVUI_LootFrame.title:Point('BOTTOMLEFT',SVUI_LootFrame,'TOPLEFT',0,1);

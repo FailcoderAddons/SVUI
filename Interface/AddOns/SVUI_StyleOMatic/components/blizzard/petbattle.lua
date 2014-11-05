@@ -329,9 +329,9 @@ local function PetBattleStyle()
 	PetBattleActionBar:SetFrameStrata('BACKGROUND')
 	PetBattleActionBar:SetFixedPanelTemplate("Blackout")
 
-	local SVUI_BottomStatsDock = _G.SVUI_BottomStatsDock;
-	if(SVUI_BottomStatsDock) then
-		PetBattleActionBar:SetPoint("BOTTOM", SVUI_BottomStatsDock, "TOP", 0, 4)
+	local SVUI_DockBottomCenter = _G.SVUI_DockBottomCenter;
+	if(SVUI_DockBottomCenter) then
+		PetBattleActionBar:SetPoint("BOTTOM", SVUI_DockBottomCenter, "TOP", 0, 4)
 	else
 		PetBattleActionBar:SetPoint("BOTTOM", SV.Screen, "BOTTOM", 0, 4)
 	end

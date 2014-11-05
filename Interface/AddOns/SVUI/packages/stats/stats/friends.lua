@@ -380,6 +380,6 @@ local FriendsColorUpdate = function()
 	end 
 end 
 
-SV:NewCallback(FriendsColorUpdate)
+LibSuperVillain("Registry"):NewCallback("CORE_MEDIA_UPDATED", "FriendsColorUpdates", FriendsColorUpdate)
 
 MOD:Extend('Friends', StatEvents, OnEvent, nil, Click, OnEnter)

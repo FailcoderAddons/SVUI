@@ -85,4 +85,6 @@ function PLUGIN:Docklet_Omen(parent)
   OmenBarList:SetFixedPanelTemplate('Transparent')
   OmenAnchor:ClearAllPoints()
   OmenAnchor:SetAllPoints(parent)
+
+  parent.Framelink = OmenAnchor
 end 

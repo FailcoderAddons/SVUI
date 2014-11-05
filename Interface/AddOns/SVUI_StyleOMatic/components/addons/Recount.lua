@@ -141,4 +141,6 @@ function PLUGIN:Docklet_Recount(parent)
   Recount:LockWindows(true)
   Recount:ResizeMainWindow()
   Recount_MainWindow_ScrollBar:Hide()
+
+  parent.Framelink = Recount.MainWindow
 end 

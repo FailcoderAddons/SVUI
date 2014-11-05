@@ -275,6 +275,9 @@ function PLUGIN:RegisterAddonDocklets()
 	local dock1 = self.cache.Docks[1] or "";
 	local dock2 = SV.db.Dock.docklets.enableExtra and self.cache.Docks[2] or "";
   	local tipLeft, tipRight = "", "";
+
+  	self.Docklet.Dock1.FrameLink = nil;
+  	self.Docklet.Dock2.FrameLink = nil;
   	
 	if((find(dock1, "Skada") or find(dock2, "Skada")) and SV.Dock:IsDockletReady("Skada")) then
 		self:Docklet_Skada()
@@ -439,6 +442,26 @@ local AddonDockletToggle = function(self)
 
 	self:Activate()
 end
+
+local ShowSubDocklet = function(self)
+	local frame  = self.FrameLink
+	if(frame and frame.Show) then
+		if(InCombatLockdown() and (frame.IsProtected and frame:IsProtected())) then return end
+		if(not frame:IsShown()) then
+			frame:Show()
+		end
+	end
+end
+
+local HideSubDocklet = function(self)
+	local frame  = self.FrameLink
+	if(frame and frame.Hide) then
+		if(InCombatLockdown() and (frame.IsProtected and frame:IsProtected())) then return end
+		if(frame:IsShown()) then
+			frame:Hide()
+		end
+	end
+end
 --[[ 
 ########################################################## 
 BUILD FUNCTION
@@ -479,19 +502,23 @@ function PLUGIN:Load()
 	alert:Hide();
 	self.Alert = alert;
 
-	self.Docklet = SV.Dock:NewDocklet("BottomRight", "SVUI_StyleOMaticDock", self.TitleID, [[Interface\AddOns\SVUI\assets\artwork\Icons\DOCK-ADDON]], AddonDockletToggle)
-	SV.Dock.BottomRight.Bar.Button.GetMenuList = GetDockableAddons
-	self.Docklet.DockButton.GetMenuList = GetDockableAddons
-	self.Docklet.DockButton:SetAttribute("hasDropDown", true)
+	self.Docklet = SV.Dock:NewDocklet("BottomRight", "SVUI_StyleOMaticDock", self.TitleID, [[Interface\AddOns\SVUI\assets\artwork\Icons\DOCK-ADDON]], AddonDockletToggle);
+	SV.Dock.BottomRight.Bar.Button.GetMenuList = GetDockableAddons;
+	self.Docklet.DockButton.GetMenuList = GetDockableAddons;
+	self.Docklet.DockButton:SetAttribute("hasDropDown", true);
 
-	self.Docklet.Dock1 = CreateFrame("Frame", "SVUI_StyleOMaticDockAddon1", self.Docklet)
-	self.Docklet.Dock1:SetPoint('TOPLEFT', self.Docklet, 'TOPLEFT', 0, 0)
-	self.Docklet.Dock1:SetPoint('BOTTOMLEFT', self.Docklet, 'BOTTOMLEFT', 0, 0)
-	self.Docklet.Dock1:SetWidth(self.Docklet:GetWidth())
+	self.Docklet.Dock1 = CreateFrame("Frame", "SVUI_StyleOMaticDockAddon1", self.Docklet);
+	self.Docklet.Dock1:SetPoint('TOPLEFT', self.Docklet, 'TOPLEFT', 0, 0);
+	self.Docklet.Dock1:SetPoint('BOTTOMLEFT', self.Docklet, 'BOTTOMLEFT', 0, 0);
+	self.Docklet.Dock1:SetWidth(self.Docklet:GetWidth());
+	self.Docklet.Dock1:SetScript('OnShow', ShowSubDocklet);
+	self.Docklet.Dock1:SetScript('OnHide', HideSubDocklet);
 
-	self.Docklet.Dock2 = CreateFrame("Frame", "SVUI_StyleOMaticDockAddon2", self.Docklet)
-	self.Docklet.Dock2:SetPoint('TOPLEFT', self.Docklet.Dock1, 'TOPRIGHT', 0, 0)
-	self.Docklet.Dock2:SetPoint('BOTTOMRIGHT', self.Docklet, 'BOTTOMRIGHT', 0, 0)
+	self.Docklet.Dock2 = CreateFrame("Frame", "SVUI_StyleOMaticDockAddon2", self.Docklet);
+	self.Docklet.Dock2:SetPoint('TOPLEFT', self.Docklet.Dock1, 'TOPRIGHT', 0, 0);
+	self.Docklet.Dock2:SetPoint('BOTTOMRIGHT', self.Docklet, 'BOTTOMRIGHT', 0, 0);
+	self.Docklet.Dock2:SetScript('OnShow', ShowSubDocklet);
+	self.Docklet.Dock2:SetScript('OnHide', HideSubDocklet);
 
 	self.Docklet:Hide()
 

@@ -69,4 +69,6 @@ function PLUGIN:Docklet_TinyDPS(parent)
 	tdpsFrame:ClearAllPoints()
 	tdpsFrame:SetAllPoints(parent)
 	tdpsRefresh()
+
+	parent.Framelink = tdpsFrame
 end

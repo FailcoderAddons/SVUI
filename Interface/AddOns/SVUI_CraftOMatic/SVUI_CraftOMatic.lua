@@ -383,6 +383,23 @@ local ModeButton_OnMouseDown = function(self)
 end
 --[[ 
 ########################################################## 
+SIZING CALLBACK
+##########################################################
+]]--
+local function ResizeCraftingDock()
+	local DOCK_HEIGHT = PLUGIN.Docklet.Window:GetHeight();
+	local BUTTON_SIZE = (DOCK_HEIGHT * 0.25) - 4;
+	SVUI_ModesDockToolBar:SetWidth(BUTTON_SIZE + 4);
+	SVUI_ModesDockToolBar:SetHeight((BUTTON_SIZE + 4) * 4);
+	SVUI_ModeButton4:SetSize(BUTTON_SIZE,BUTTON_SIZE);
+	SVUI_ModeButton3:SetSize(BUTTON_SIZE,BUTTON_SIZE);
+	SVUI_ModeButton2:SetSize(BUTTON_SIZE,BUTTON_SIZE);
+	SVUI_ModeButton1:SetSize(BUTTON_SIZE,BUTTON_SIZE);
+end
+
+LibSuperVillain("Registry"):NewCallback("DOCKS_UPDATED", "ResizeCraftingDock", ResizeCraftingDock);
+--[[ 
+########################################################## 
 BUILD FUNCTION
 ##########################################################
 ]]--
@@ -393,7 +410,7 @@ function PLUGIN:Load()
 
 	self.Docklet = SV.Dock:NewDocklet("BottomRight", "SVUI_ModesDockFrame", self.TitleID, ICON_FILE);
 
-	local DOCK_HEIGHT = self.Docklet.DockButton:GetHeight();
+	local DOCK_HEIGHT = self.Docklet.Window:GetHeight();
 	local DOCKLET_HEIGHT = DOCK_HEIGHT - 4;
 	local BUTTON_SIZE = (DOCK_HEIGHT * 0.25) - 4;
 

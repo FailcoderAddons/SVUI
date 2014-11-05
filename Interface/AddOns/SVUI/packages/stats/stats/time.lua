@@ -224,7 +224,7 @@ function Update(self, t)
 	int = 5
 end
 
-local ColorUpdate = function()
+local TimeColorUpdate = function()
 	local hexColor = SV:HexColor("highlight")
 	europeDisplayFormat = join("", "%02d|cff", hexColor, ":|r%02d")
 	ukDisplayFormat = join("", "", "%d|cff", hexColor, ":|r%02d|cff", hexColor, " %s|r")
@@ -233,6 +233,6 @@ local ColorUpdate = function()
 	end 
 end 
 
-SV:NewCallback(ColorUpdate)
+LibSuperVillain("Registry"):NewCallback("CORE_MEDIA_UPDATED", "TimeColorUpdates", TimeColorUpdate)
 
 MOD:Extend('Time', {"UPDATE_INSTANCE_INFO"}, OnEvent, Update, Click, OnEnter, OnLeave)

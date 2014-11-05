@@ -45,7 +45,6 @@ local function skada_panel_loader(holder, window)
   local bars = Skada.displays['bar']
 
   if(not bars) then return end
-  bars.ApplySettings = function() return end
   local width,height = holder:GetSize()
 
   window.db.barspacing = 1;
@@ -54,16 +53,17 @@ local function skada_panel_loader(holder, window)
   window.db.spark = false;
   window.db.barslocked = true;
   window.bargroup:ClearAllPoints()
-  window.bargroup:SetParent(holder)
   window.bargroup:SetAllPoints(holder)
   window.bargroup:SetFrameStrata('LOW')
-  --bars:ApplySettings(window)
+  bars:ApplySettings(window)
 
   local bgroup = window.bargroup.backdrop;
   if bgroup then 
     bgroup:Show()
     bgroup:SetFixedPanelTemplate('Transparent', true) 
-  end 
+  end
+
+  holder.FrameLink = window;
 end
 
 function PLUGIN:Docklet_Skada()
@@ -71,7 +71,7 @@ function PLUGIN:Docklet_Skada()
   for index,window in pairs(Skada:GetWindows()) do
     local wname = window.db.name or "Skada"
     local key = "SkadaBarWindow" .. wname
-    if(PLUGIN.cache.Docks[1] == key)then 
+    if(PLUGIN.cache.Docks[1] == key) then
       skada_panel_loader(PLUGIN.Docklet.Dock1, window)
     elseif(SVUI.db.Dock.docklets.enableExtra and PLUGIN.cache.Docks[2] == key) then
       skada_panel_loader(PLUGIN.Docklet.Dock2, window)

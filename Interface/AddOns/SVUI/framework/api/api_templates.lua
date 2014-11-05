@@ -908,7 +908,7 @@ local function FrameTemplateUpdates()
     end
 end
 
-SV:NewCallback(FrameTemplateUpdates)
+LibSuperVillain("Registry"):NewCallback("CORE_MEDIA_UPDATED", "FrameTemplateUpdates", FrameTemplateUpdates)
 --[[ 
 ########################################################## 
 ENUMERATION

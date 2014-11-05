@@ -92,8 +92,7 @@ local CACHE_FILENAME        = CoreName.."_Cache";
 local SOURCE_KEY            = 1;
 local GLOBAL_SV, PROFILE_SV, CACHE_SV, ERROR_CACHE, PLUGINS, MODULES;
 local PluginString = ""
-local AllowedIndexes, LoadOnDemand = {},{};
-local Callbacks, ScriptQueue = {},{};
+local AllowedIndexes, LoadOnDemand, ScriptQueue = {},{},{};
 
 local playerClass = select(2,UnitClass("player"));
 
@@ -102,6 +101,10 @@ local INFO_FORMAT = "|cffFFFF00%s|r\n        |cff33FF00Version: %s|r |cff0099FFb
 if GetLocale() == "ruRU" then
     INFO_FORMAT = "|cffFFFF00%s|r\n        |cff33FF00Версия: %s|r |cff0099FFот %s|r";
 end
+
+--[[ LIB CUSTOM EVENT CALLBACKS ]]--
+
+lib.Callbacks = {};
 
 --[[ LIB EVENT LISTENER ]]--
 
@@ -636,13 +639,15 @@ end
 
 --REGISTRY PUBLIC METHODS
 
-function lib:RunCallbacks()
-    for i=1, #Callbacks do 
-        local fn = Callbacks[i]
+function lib:Trigger(eventName)
+    if(not eventName) then return end;
+    local eventCallabcks = self.Callbacks[eventName];
+    if(not eventCallabcks) then return end;
+    for id, fn in pairs(eventCallabcks) do 
         if(fn and type(fn) == "function") then
             local _, catch = pcall(fn)
             if(catch) then
-                HandleErrors("LibSuperVillain:Registry", "Callback", catch)
+                HandleErrors("LibSuperVillain:Registry:Trigger(" .. eventName .. "):", id, catch)
             end
         end
     end
@@ -768,6 +773,16 @@ function lib:LoadQueuedPlugins()
 end
 
 --[[ CONSTRUCTORS ]]--
+
+function lib:NewCallback(event, id, callback)
+    if((not event) or (not id)) then return end; 
+    if(callback and type(callback) == "function") then
+        if(not self.Callbacks[event]) then
+            self.Callbacks[event] = {}
+        end
+        self.Callbacks[event][id] = callback
+    end 
+end
 
 function lib:NewPlugin(addonName, addonObject, pfile, gfile, cfile)
     local version   = GetAddOnMetadata(addonName, "Version")
@@ -908,12 +923,6 @@ end
 
 -- CORE OBJECT CONSTRUCT
 
-local Core_NewCallback = function(self, fn)
-    if(fn and type(fn) == "function") then
-        Callbacks[#Callbacks+1] = fn
-    end 
-end
-
 local Core_NewScript = function(self, fn)
     if(fn and type(fn) == "function") then
         ScriptQueue[#ScriptQueue+1] = fn
@@ -1053,7 +1062,6 @@ function lib:NewCore(gfile, efile, pfile, cfile)
     CoreObject.RegisterUpdate       = registerUpdate
     CoreObject.UnregisterUpdate     = unregisterUpdate
 
-    CoreObject.NewCallback          = Core_NewCallback
     CoreObject.NewScript            = Core_NewScript
     CoreObject.NewPackage           = Core_NewPackage
     CoreObject.NewSubClass          = Core_NewSubClass

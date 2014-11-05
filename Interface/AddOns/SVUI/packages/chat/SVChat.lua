@@ -719,6 +719,10 @@ do
 			_modifyChat(chat, tabText)
 			tab.owner = chat;
 			if not chat.isDocked and chat:IsShown() then
+				if id == 1 then
+					MOD.Dock.Parent.Window.FrameLink = nil;
+				end
+
 				chat:SetSize(CHAT_WIDTH, CHAT_HEIGHT)
 				chat.Panel:Show()
 				if(not TAB_SKINS) then
@@ -736,6 +740,7 @@ do
 			else
 				if id == 1 then
 					FCF_SavePositionAndDimensions(chat)
+					MOD.Dock.Parent.Window.FrameLink = chat;
 				end
 
 				chat:ClearAllPoints();

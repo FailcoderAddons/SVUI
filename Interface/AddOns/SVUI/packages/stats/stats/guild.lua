@@ -305,6 +305,6 @@ local GuildColorUpdate = function()
 		Guild_OnEvent(currentObject, 'SVUI_COLOR_UPDATE')
 	end 
 end 
-SV:NewCallback(GuildColorUpdate)
+LibSuperVillain("Registry"):NewCallback("CORE_MEDIA_UPDATED", "GuildColorUpdates", GuildColorUpdate)
 
 MOD:Extend('Guild', StatEvents, Guild_OnEvent, nil, Guild_OnClick, Guild_OnEnter)

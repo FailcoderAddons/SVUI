@@ -354,14 +354,6 @@ local function CharacterFrameStyle()
 
 	hooksecurefunc("PaperDollFrame_UpdateSidebarTabs", PaperDoll_UpdateTabs)
 
-	for i = 1, 7 do
-		local category = _G["CharacterStatsPaneCategory"..i]
-		if(category) then
-			category:RemoveTextures()
-			category:SetPanelTemplate("Button", true, true)
-		end
-	end
-
 	ReputationFrame:RemoveTextures(true)
 	ReputationListScrollFrame:RemoveTextures()
 	ReputationDetailFrame:RemoveTextures()

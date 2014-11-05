@@ -144,7 +144,7 @@ local DurColorUpdate = function()
 		Durability_OnEvent(currentObject)
 	end 
 end 
-SV:NewCallback(DurColorUpdate)
+LibSuperVillain("Registry"):NewCallback("CORE_MEDIA_UPDATED", "DurColorUpdates", DurColorUpdate)
 
 MOD:Extend("Durability", StatEvents, Durability_OnEvent, nil, Durability_OnClick, Durability_OnEnter)
 MOD:Extend("Durability Bar", StatEvents, DurabilityBar_OnEvent, nil, Durability_OnClick, Durability_OnEnter)

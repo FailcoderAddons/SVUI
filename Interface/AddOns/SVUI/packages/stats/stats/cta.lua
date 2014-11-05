@@ -155,6 +155,6 @@ local CTAColorUpdate = function()
 		CTA_OnEvent(currentObject)
 	end 
 end 
-SV:NewCallback(CTAColorUpdate)
+LibSuperVillain("Registry"):NewCallback("CORE_MEDIA_UPDATED", "CTAColorUpdates", CTAColorUpdate)
 
 MOD:Extend('Call to Arms', StatEvents, CTA_OnEvent, nil, CTA_OnClick, CTA_OnEnter)

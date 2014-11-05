@@ -215,7 +215,7 @@ end
 
 SV.UpdateManagedFonts = UpdateManagedFonts
 
-SV:NewCallback(FontTemplateUpdates)
+LibSuperVillain("Registry"):NewCallback("CORE_MEDIA_UPDATED", "FontTemplateUpdates", FontTemplateUpdates);
 --[[ 
 ########################################################## 
 ENUMERATION

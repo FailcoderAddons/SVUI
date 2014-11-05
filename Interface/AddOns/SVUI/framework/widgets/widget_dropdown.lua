@@ -165,8 +165,7 @@ function SV.Dropdown:Open(target, list)
 			self.option[i].button.text:SetJustifyH("LEFT");
 
 			self.option[i].button:SetScript("OnEnter", DropdownButton_OnEnter);
-			self.option[i].button:SetScript("OnLeave", DropdownButton_OnLeave);
-			self.option[i].button:SetScript("OnClick", DropdownButton_OnClick);   
+			self.option[i].button:SetScript("OnLeave", DropdownButton_OnLeave);   
 		end
 
 		self.option[i]:Show();
@@ -176,12 +175,14 @@ function SV.Dropdown:Open(target, list)
 			self.option[i].button.target = target;
 			self.option[i].button.text:SetText(list[i].text);
 			self.option[i].button.func = list[i].func;
+			self.option[i].button:SetScript("OnClick", DropdownButton_OnClick);
 		elseif(list[i].title) then
 			self.option[i].header:Show();
 			self.option[i].header:SetText(list[i].title);
 			if(list[i].divider) then
 				self.option[i].divider:Show();
 			end
+			self.option[i].button:SetScript("OnClick", nil);
 		end
 
 		if(i == 1) then

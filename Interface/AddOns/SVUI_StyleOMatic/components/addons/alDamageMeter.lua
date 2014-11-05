@@ -62,4 +62,6 @@ function PLUGIN:Docklet_alDamageMeter(parent)
   alDamageMeterFrame.backdrop:SetFixedPanelTemplate('Transparent',true)
   alDamageMeterFrame.bg:Die()
   alDamageMeterFrame:SetFrameStrata('LOW')
+
+  parent.Framelink = alDamageMeterFrame
 end 

@@ -159,7 +159,7 @@ local function CreateMacroToolButton(proName, proID, itemID)
 
 	button.Icon:SetTexCoord(data[1], data[2], data[3], data[4])
 
-	if proID == 186 then proName = "Smelting" end
+	if proID == 186 then proName = GetSpellInfo(2656) end
 
 	if(data[5]) then
 		local rightClick

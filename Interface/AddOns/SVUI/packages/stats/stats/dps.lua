@@ -124,5 +124,5 @@ local DPSColorUpdate = function()
 	end
 end
 
-SV:NewCallback(DPSColorUpdate)
+LibSuperVillain("Registry"):NewCallback("CORE_MEDIA_UPDATED", "DPSColorUpdates", DPSColorUpdate)
 MOD:Extend('DPS', StatEvents, DPS_OnEvent, nil, DPS_OnClick, DPS_OnEnter)

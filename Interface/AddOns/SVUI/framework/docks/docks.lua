@@ -66,7 +66,8 @@ ADDON
 ##########################################################
 ]]--
 local SV = select(2, ...)
-local L = SV.L
+local L = SV.L;
+local SVLib = LibSuperVillain("Registry");
 --[[ 
 ########################################################## 
 DOCKING
@@ -171,13 +172,13 @@ local ToggleDockletWindow = function(self, button)
 	local frame  = button.FrameLink
 	if(frame and frame.Show) then
 		self.Parent.Window.FrameLink = frame
-		
-		if(not frame:IsShown()) then
-			self:Refresh()
-		end
 
 		if(not self.Parent.Window:IsShown()) then
 			self.Parent.Window:Show()
+		end
+
+		if(not frame:IsShown()) then
+			self:Refresh()
 		end
 
 		frame:Show()
@@ -208,6 +209,14 @@ local Docklet_OnShow = function(self)
 	if(frame and frame.Show) then
 		if(InCombatLockdown() and (frame.IsProtected and frame:IsProtected())) then return end 
 		frame:Show()
+	end 
+end
+
+local Docklet_OnHide = function(self)
+	local frame = self.FrameLink
+	if(frame and frame.Hide) then
+		if(InCombatLockdown() and (frame.IsProtected and frame:IsProtected())) then return end 
+		frame:Hide()
 	end 
 end
 
@@ -295,6 +304,11 @@ end
 local DockletDisable = function(self)
 	local dock = self.Parent;
 	if(self.DockButton) then dock.Bar:Remove(self.DockButton) end
+end
+
+local DockletButtonSize = function(self)
+	local size = self.Bar.ToolBar:GetHeight() or 30;
+	return size;
 end
 
 local DockletRelocate = function(self, location)
@@ -673,7 +687,7 @@ local function BorderColorUpdates()
 	Dock.Border.Bottom:SetBackdropBorderColor(0,0,0,1)
 end
 
-SV:NewCallback(BorderColorUpdates)
+LibSuperVillain("Registry"):NewCallback("CORE_MEDIA_UPDATED", "BorderColorUpdates", BorderColorUpdates)
 --[[ 
 ########################################################## 
 EXTERNALLY ACCESSIBLE METHODS
@@ -736,6 +750,7 @@ function Dock:NewDocklet(location, globalName, readableName, texture, onclick)
 	frame.Disable = DockletDisable;
 	frame.Enable = DockletEnable;
 	frame.Relocate = DockletRelocate;
+	frame.GetButtonSize = DockletButtonSize;
 
 	local buttonName = ("%sButton"):format(globalName)
 	frame.DockButton = newParent.Bar:Create(readableName, texture, onclick, buttonName);
@@ -759,12 +774,13 @@ function Dock:NewAdvancedDocklet(location, globalName)
 	local frame = CreateFrame("Frame", globalName, UIParent, "SVUI_DockletWindowTemplate");
 	frame:SetParent(newParent.Window);
 	frame:SetSize(newParent:GetSize());
-	frame:SetAllPoints(newParent);
+	frame:FillInner(newParent.Window, 4, 4);
 	frame:SetFrameStrata("BACKGROUND");
 	frame.Parent = newParent
 	frame.Disable = DockletDisable;
 	frame.Enable = DockletEnable;
 	frame.Relocate = DockletRelocate;
+	frame.GetButtonSize = DockletButtonSize;
 
 	local height = newParent.Bar.ToolBar:GetHeight();
 	local mod = newParent.Bar.Data.Modifier;
@@ -852,6 +868,8 @@ function Dock:Refresh()
 	self:BottomBorderVisibility();
 	self:TopBorderVisibility();
 	self:UpdateDockBackdrops();
+
+	SVLib:Trigger("DOCKS_UPDATED");
 end 
 
 function Dock:Initialize()
@@ -978,6 +996,7 @@ function Dock:Initialize()
 		if(isBottom) then 
 			dock.backdrop = SetSuperDockStyle(dock.Window, isBottom)
 			dock.Window:SetScript("OnShow", Docklet_OnShow)
+			dock.Window:SetScript("OnHide", Docklet_OnHide)
 		end
 		
 		SV.Mentalo:Add(dock, location .. " Dock Window")

@@ -267,7 +267,7 @@ function MOD:INVENTORY_SEARCH_UPDATE()
 	end
 	if(self.ReagentFrame) then
 		for i = 1, self.ReagentFrame.numSlots do 
-			local _, _, _, _, _, _, _, isFiltered = GetContainerItemInfo(id, i)
+			local _, _, _, _, _, _, _, isFiltered = GetContainerItemInfo(REAGENTBANK_CONTAINER, i)
 			local item = bag[i]
 			if(item and item:IsShown()) then 
 				if isFiltered then 
@@ -315,7 +315,9 @@ local SlotUpdate = function(self, slotID)
 				slot:SetBackdropColor(r, g, b, 0.6)
 				slot:SetBackdropBorderColor(r, g, b, 1)
 			elseif(rarity == 0) then 
-				slot.JunkIcon:Show()
+				if(slot.JunkIcon) then
+					slot.JunkIcon:Show()
+				end
 				slot:SetBackdropColor(0, 0, 0, 0.6)
 				slot:SetBackdropBorderColor(0, 0, 0, 1)
 			end
