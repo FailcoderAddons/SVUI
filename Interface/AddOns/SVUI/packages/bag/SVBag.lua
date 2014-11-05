@@ -268,7 +268,7 @@ function MOD:INVENTORY_SEARCH_UPDATE()
 	if(self.ReagentFrame) then
 		for i = 1, self.ReagentFrame.numSlots do 
 			local _, _, _, _, _, _, _, isFiltered = GetContainerItemInfo(REAGENTBANK_CONTAINER, i)
-			local item = bag[i]
+			local item = frame.Bags[REAGENTBANK_CONTAINER][i]
 			if(item and item:IsShown()) then 
 				if isFiltered then 
 					SetItemButtonDesaturated(item, 1)
