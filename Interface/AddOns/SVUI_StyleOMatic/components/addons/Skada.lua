@@ -55,7 +55,6 @@ local function skada_panel_loader(holder, window)
   window.bargroup:ClearAllPoints()
   window.bargroup:SetAllPoints(holder)
   window.bargroup:SetFrameStrata('LOW')
-  bars:ApplySettings(window)
 
   local bgroup = window.bargroup.backdrop;
   if bgroup then 
@@ -120,8 +119,6 @@ local function StyleSkada()
     skada.Panel:ClearAllPoints()
     skada.Panel:SetPoint('TOPLEFT', panelAnchor, 'TOPLEFT', -2, 2)
     skada.Panel:SetPoint('BOTTOMRIGHT', skada, 'BOTTOMRIGHT', 2, -2)
-
-    Skada.displays['bar'].ApplySettings = function() return end
   end)
 
   hooksecurefunc(Skada, 'CreateWindow', function()
