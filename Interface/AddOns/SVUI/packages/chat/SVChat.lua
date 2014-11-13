@@ -718,7 +718,7 @@ do
 			tab.owner = chat;
 			if not chat.isDocked and chat:IsShown() then
 				if id == 1 then
-					MOD.Dock.Parent.Window.FrameLink = nil;
+					MOD.Dock.ChatWindow = nil;
 				end
 
 				chat:SetSize(CHAT_WIDTH, CHAT_HEIGHT)
@@ -738,7 +738,7 @@ do
 			else
 				if id == 1 then
 					FCF_SavePositionAndDimensions(chat)
-					MOD.Dock.Parent.Window.FrameLink = chat;
+					MOD.Dock.ChatWindow = chat;
 				end
 
 				chat:ClearAllPoints();
@@ -948,6 +948,22 @@ do
 	end
 end
 
+local ChatDockShow = function(self)
+	if(not InCombatLockdown()) then
+		if(self.ChatWindow and (not self.ChatWindow:IsShown())) then
+			self.ChatWindow:Show()
+		end
+	end
+end
+
+local ChatDockHide = function(self)
+	if(not InCombatLockdown()) then
+		if(self.ChatWindow and self.ChatWindow:IsShown()) then
+			self.ChatWindow:Hide()
+		end
+	end
+end
+
 function MOD:UpdateLocals()
 	CHAT_WIDTH = (SV.db.Dock.dockLeftWidth or 350) - 10;
 	CHAT_HEIGHT = (SV.db.Dock.dockLeftHeight or 180) - 15;
@@ -979,6 +995,8 @@ end
 
 function MOD:Load()
 	self.Dock = SV.Dock:NewAdvancedDocklet("BottomLeft", "SVUI_ChatFrameDock")
+	self.Dock:SetScript("OnShow", ChatDockShow)
+	self.Dock:SetScript("OnHide", ChatDockHide)
 
 	ScrollIndicator:SetParent(self.Dock)
 	ScrollIndicator:SetSize(20,20)

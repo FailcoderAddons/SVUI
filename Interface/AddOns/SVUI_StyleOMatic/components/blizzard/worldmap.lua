@@ -181,6 +181,8 @@ local function WorldMapStyle()
   WorldMapFrameNavBar:SetPanelTemplate("Blackout")
   WorldMapFrameTutorialButton:ClearAllPoints()
   WorldMapFrameTutorialButton:Point("LEFT", WorldMapFrameNavBar.Panel, "RIGHT", -50, 0)
+
+  AdjustMapLevel()
 end 
 --[[ 
 ########################################################## 

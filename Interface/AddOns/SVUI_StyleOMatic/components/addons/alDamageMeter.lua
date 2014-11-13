@@ -64,6 +64,4 @@ function PLUGIN:Docklet_alDamageMeter(parent)
   alDamageMeterFrame:SetFrameStrata('LOW')
 
   parent.Framelink = alDamageMeterFrame
-
-  PLUGIN.Docklet.Parent.Bar:GetDefault()
 end 

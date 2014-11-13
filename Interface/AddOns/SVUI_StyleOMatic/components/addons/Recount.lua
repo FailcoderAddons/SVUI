@@ -143,6 +143,4 @@ function PLUGIN:Docklet_Recount(parent)
   Recount_MainWindow_ScrollBar:Hide()
 
   parent.Framelink = Recount.MainWindow
-
-  PLUGIN.Docklet.Parent.Bar:GetDefault()
 end 

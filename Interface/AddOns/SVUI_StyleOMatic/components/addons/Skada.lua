@@ -78,8 +78,6 @@ function PLUGIN:Docklet_Skada()
       window.db.barslocked = false;
     end
   end
-
-  PLUGIN.Docklet.Parent.Bar:GetDefault()
 end
 
 local function Skada_ShowPopup(self)

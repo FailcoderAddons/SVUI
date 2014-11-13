@@ -211,12 +211,14 @@ end
 
 local AlertActivate = function(self, child)
 	local size = SV.db.Dock.buttonSize or 22;
-	self:Height(size)
+	self:Height((size + 4))
+	self.backdrop:Show()
 	child:ClearAllPoints()
 	child:SetAllPoints(self)
 end 
 
 local AlertDeactivate = function(self)
+	self.backdrop:Hide()
 	self:Height(1)
 end
 
@@ -1023,8 +1025,9 @@ function Dock:Initialize()
 
 	    SV.Mentalo:Add(dock.Bar, location .. " Dock ToolBar");
 
-		if(isBottom) then 
+		if(isBottom) then
 			dock.backdrop = SetSuperDockStyle(dock.Window, isBottom)
+			dock.Alert.backdrop = SetSuperDockStyle(dock.Alert, isBottom)
 			dock.Window:SetScript("OnShow", Docklet_OnShow)
 			dock.Window:SetScript("OnHide", Docklet_OnHide)
 		end
