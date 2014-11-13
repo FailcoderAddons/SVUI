@@ -278,71 +278,72 @@ function PLUGIN:RegisterAddonDocklets()
 
   	self.Docklet.Dock1.FrameLink = nil;
   	self.Docklet.Dock2.FrameLink = nil;
-  	
-	if((find(dock1, "Skada") or find(dock2, "Skada")) and self:ValidateDocklet("Skada")) then
-		self:Docklet_Skada()
-		if(find(dock2, "Skada")) then
-			tipRight = "and Skada";
-		elseif(find(dock1, "Skada")) then
-			tipLeft = "Skada";
-		end 
-	end
 
-	if((dock1 == "Omen" or dock2 == "Omen") and self:ValidateDocklet("Omen")) then
-		if(dock2 == "Omen") then
-			self:Docklet_Omen(self.Docklet.Dock1)
-			tipRight = "and Omen";
-		elseif(dock1 == "Omen") then
-			self:Docklet_Omen(self.Docklet.Dock2)
-			tipLeft = "Omen";
-		end
-	end
-
-	if((dock1 == "Recount" or dock2 == "Recount") and self:ValidateDocklet("Recount")) then
-		if(dock2 == "Recount") then
-			self:Docklet_Recount(self.Docklet.Dock1)
-			tipRight = "and Recount";
-		elseif(dock1 == "Recount") then
-			self:Docklet_Recount(self.Docklet.Dock2)
-			tipLeft = "Recount";
-		end
-	end
-
-	if((dock1 == "TinyDPS" or dock2 == "TinyDPS") and self:ValidateDocklet("TinyDPS")) then
-		if(dock2 == "TinyDPS") then
-			self:Docklet_TinyDPS(self.Docklet.Dock1)
-			tipRight = "and TinyDPS";
-		elseif(dock1 == "TinyDPS") then
-			self:Docklet_TinyDPS(self.Docklet.Dock2)
-			tipLeft = "TinyDPS";
-		end 
-	end
-
-	if((dock1 == "alDamageMeter" or dock2 == "alDamageMeter") and self:ValidateDocklet("alDamageMeter")) then
-		if(dock2 == "alDamageMeter") then
-			self:Docklet_alDamageMeter(self.Docklet.Dock1)
-			tipRight = "and alDamageMeter";
-		elseif(dock1 == "alDamageMeter") then
-			self:Docklet_alDamageMeter(self.Docklet.Dock2)
-			tipLeft = "alDamageMeter";
-		end
-	end 
-
-	if self:ValidateDocklet(dock1) then
+  	if self:ValidateDocklet(dock1) then
 		local width = self.Docklet:GetWidth();
 		self.Docklet:Enable();
-		self.Docklet.DockButton:SetAttribute("tipText", ("%s%s"):format(tipLeft, tipRight));
 
 		if self:ValidateDocklet(dock2) then
 			self.Docklet.Dock1:Show()
-			self.Docklet.Dock2:Show()
 			self.Docklet.Dock1:SetWidth(width * 0.5)
+			self.Docklet.Dock2:Show()
+			self.Docklet.Dock2:SetWidth(width * 0.5)
 		else
 			self.Docklet.Dock1:Show()
 			self.Docklet.Dock2:Hide()
 			self.Docklet.Dock1:SetWidth(width)
 		end
 
+		if((find(dock1, "Skada") or find(dock2, "Skada")) and self:ValidateDocklet("Skada")) then
+			self:Docklet_Skada()
+			if(find(dock2, "Skada")) then
+				tipRight = "and Skada";
+			elseif(find(dock1, "Skada")) then
+				tipLeft = "Skada";
+			end 
+		end
+
+		if((dock1 == "Omen" or dock2 == "Omen") and self:ValidateDocklet("Omen")) then
+			if(dock2 == "Omen") then
+				self:Docklet_Omen(self.Docklet.Dock1)
+				tipRight = "and Omen";
+			elseif(dock1 == "Omen") then
+				self:Docklet_Omen(self.Docklet.Dock2)
+				tipLeft = "Omen";
+			end
+		end
+
+		if((dock1 == "Recount" or dock2 == "Recount") and self:ValidateDocklet("Recount")) then
+			if(dock2 == "Recount") then
+				self:Docklet_Recount(self.Docklet.Dock1)
+				tipRight = "and Recount";
+			elseif(dock1 == "Recount") then
+				self:Docklet_Recount(self.Docklet.Dock2)
+				tipLeft = "Recount";
+			end
+		end
+
+		if((dock1 == "TinyDPS" or dock2 == "TinyDPS") and self:ValidateDocklet("TinyDPS")) then
+			if(dock2 == "TinyDPS") then
+				self:Docklet_TinyDPS(self.Docklet.Dock1)
+				tipRight = "and TinyDPS";
+			elseif(dock1 == "TinyDPS") then
+				self:Docklet_TinyDPS(self.Docklet.Dock2)
+				tipLeft = "TinyDPS";
+			end 
+		end
+
+		if((dock1 == "alDamageMeter" or dock2 == "alDamageMeter") and self:ValidateDocklet("alDamageMeter")) then
+			if(dock2 == "alDamageMeter") then
+				self:Docklet_alDamageMeter(self.Docklet.Dock1)
+				tipRight = "and alDamageMeter";
+			elseif(dock1 == "alDamageMeter") then
+				self:Docklet_alDamageMeter(self.Docklet.Dock2)
+				tipLeft = "alDamageMeter";
+			end
+		end
+
+		self.Docklet.DockButton:SetAttribute("tipText", ("%s%s"):format(tipLeft, tipRight));
 		self.Docklet.DockButton:MakeDefault();
 	else
 		self.Docklet.Dock1:Hide()
@@ -350,7 +351,7 @@ function PLUGIN:RegisterAddonDocklets()
 		self.Docklet:Disable()
 
 		self.Docklet.Parent.Bar:UnsetDefault();
-	end
+	end 
 end
 
 local DockableAddons = {
@@ -508,17 +509,19 @@ function PLUGIN:Load()
 	self.Docklet.DockButton.GetMenuList = GetDockableAddons;
 	self.Docklet.DockButton:SetAttribute("hasDropDown", true);
 
+	local dockWidth = self.Docklet:GetWidth()
+
 	self.Docklet.Dock1 = CreateFrame("Frame", "SVUI_StyleOMaticDockAddon1", self.Docklet);
 	self.Docklet.Dock1:SetPoint('TOPLEFT', self.Docklet, 'TOPLEFT', 0, 0);
 	self.Docklet.Dock1:SetPoint('BOTTOMLEFT', self.Docklet, 'BOTTOMLEFT', 0, 0);
-	self.Docklet.Dock1:SetWidth(self.Docklet:GetWidth());
+	self.Docklet.Dock1:SetWidth(dockWidth);
 	self.Docklet.Dock1:SetScript('OnShow', ShowSubDocklet);
 	self.Docklet.Dock1:SetScript('OnHide', HideSubDocklet);
 
 	self.Docklet.Dock2 = CreateFrame("Frame", "SVUI_StyleOMaticDockAddon2", self.Docklet);
 	self.Docklet.Dock2:SetPoint('TOPLEFT', self.Docklet.Dock1, 'TOPRIGHT', 0, 0);
-	self.Docklet.Dock2:SetPoint('BOTTOMRIGHT', self.Docklet, 'BOTTOMRIGHT', 0, 0);
-	self.Docklet.Dock2:SetWidth(1);
+	self.Docklet.Dock2:SetPoint('BOTTOMLEFT', self.Docklet.Dock1, 'BOTTOMRIGHT', 0, 0);
+	self.Docklet.Dock2:SetWidth(dockWidth * 0.5);
 	self.Docklet.Dock2:SetScript('OnShow', ShowSubDocklet);
 	self.Docklet.Dock2:SetScript('OnHide', HideSubDocklet);
 

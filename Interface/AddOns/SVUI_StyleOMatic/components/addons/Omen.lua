@@ -65,7 +65,7 @@ PLUGIN:SaveAddonStyle("Omen", StyleOmen, nil, true)
 
 function PLUGIN:Docklet_Omen(parent)
   if not Omen then return end 
-  local db=Omen.db;
+  local db = Omen.db;
   db.profile.Scale=1;
   db.profile.Bar.Spacing=1;
   db.profile.Background.EdgeSize=2;

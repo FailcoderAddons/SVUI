@@ -39,13 +39,8 @@ local StupidSkada = function() return end
 SKADA
 ##########################################################
 ]]--
-local function skada_panel_loader(holder, window)
-  if(not window) then return end 
-
-  local bars = Skada.displays['bar']
-
-  if(not bars) then return end
-  local width,height = holder:GetSize()
+local function skada_panel_loader(dock, window)
+  local width,height = dock:GetSize()
 
   window.db.barspacing = 1;
   window.db.barwidth = width - 4;
@@ -53,7 +48,7 @@ local function skada_panel_loader(holder, window)
   window.db.spark = false;
   window.db.barslocked = true;
   window.bargroup:ClearAllPoints()
-  window.bargroup:SetAllPoints(holder)
+  window.bargroup:SetAllPoints(dock)
   window.bargroup:SetFrameStrata('LOW')
 
   local bgroup = window.bargroup.backdrop;
@@ -62,20 +57,27 @@ local function skada_panel_loader(holder, window)
     bgroup:SetFixedPanelTemplate('Transparent', true) 
   end
 
-  holder.FrameLink = window;
+  dock.FrameLink = window;
 end
 
 function PLUGIN:Docklet_Skada()
-  if not Skada then return end 
+  if not Skada then return end
+
+  local mainDock = PLUGIN.cache.Docks[1]
+  local splitDock = PLUGIN.db.docklets.enableExtra and PLUGIN.cache.Docks[2] or "None"
+
   for index,window in pairs(Skada:GetWindows()) do
-    local wname = window.db.name or "Skada"
-    local key = "SkadaBarWindow" .. wname
-    if(PLUGIN.cache.Docks[1] == key) then
-      skada_panel_loader(PLUGIN.Docklet.Dock1, window)
-    elseif(PLUGIN.db.docklets.enableExtra and PLUGIN.cache.Docks[2] == key) then
-      skada_panel_loader(PLUGIN.Docklet.Dock2, window)
-    else
-      window.db.barslocked = false;
+    if(window) then
+      local wname = window.db.name or "Skada"
+      local key = "SkadaBarWindow" .. wname
+
+      if(mainDock:find(key) and (not PLUGIN.Docklet.Dock1.FrameLink)) then
+        skada_panel_loader(PLUGIN.Docklet.Dock1, window);
+      elseif(splitDock:find(key) and (not PLUGIN.Docklet.Dock2.FrameLink)) then
+        skada_panel_loader(PLUGIN.Docklet.Dock2, window);
+      else
+        window.db.barslocked = false;
+      end
     end
   end
 end
