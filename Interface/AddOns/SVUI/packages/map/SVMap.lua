@@ -770,6 +770,11 @@ function MOD:Load()
 	QueueStatusMinimapButton:ClearAllPoints()
 	QueueStatusMinimapButton:Point("BOTTOMLEFT", mapHolder, "BOTTOMLEFT", 6, 5)
 	QueueStatusMinimapButton:SetPanelTemplate("Button", false, 1, -2, -2)
+
+	GarrisonLandingPageMinimapButton:ClearAllPoints()
+	GarrisonLandingPageMinimapButton:Point("BOTTOMLEFT", mapHolder, "BOTTOMLEFT", 0, 0)
+	GarrisonLandingPageMinimapButton:SetPanelTemplate("Button", false, 1, -2, -2)
+
 	QueueStatusFrame:SetClampedToScreen(true)
 	QueueStatusMinimapButtonBorder:Hide()
 	QueueStatusMinimapButton:SetScript("OnShow", function()
