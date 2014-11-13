@@ -72,8 +72,6 @@ local L = SV.L
 local LSM = LibStub("LibSharedMedia-3.0")
 local MOD = SV:NewPackage("SVChat", L["Chat"]);
 
-MOD.Dock = SV.Dock.BottomLeft;
-
 --[[ 
 ########################################################## 
 LOCAL VARS
