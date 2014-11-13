@@ -362,19 +362,17 @@ local DockableAddons = {
 }
 
 local function GetLiveDockletsA()
-	local test = SV.db.Dock.docklets.DockletExtra;
+	local test = PLUGIN.cache.Docks[2];
 	local t = {["None"] = L["None"]};
 	for n,l in pairs(DockableAddons) do
-		if IsAddOnLoaded(n) or IsAddOnLoaded(l) then
-			if (test ~= n and test ~= l) then
-				if n == "Skada" and _G.Skada then
-					for index,window in pairs(_G.Skada:GetWindows()) do
-					    local key = window.db.name
-					    t["SkadaBarWindow"..key] = (key == "Skada") and "Skada - Main" or "Skada - "..key;
-					end
-				else
-					t[n] = l;
+		if (test ~= n) then
+			if(n:find("Skada") and _G.Skada) then
+				for index,window in pairs(_G.Skada:GetWindows()) do
+				    local key = window.db.name
+				    t["SkadaBarWindow"..key] = (key == "Skada") and "Skada - Main" or "Skada - "..key;
 				end
+			else
+				if IsAddOnLoaded(n) or IsAddOnLoaded(l) then t[n] = l end
 			end
 		end
 	end
@@ -382,19 +380,17 @@ local function GetLiveDockletsA()
 end
 
 local function GetLiveDockletsB()
-	local test = SV.db.Dock.docklets.DockletMain;
+	local test = PLUGIN.cache.Docks[1];
 	local t = {["None"] = L["None"]};
 	for n,l in pairs(DockableAddons) do
-		if IsAddOnLoaded(n) or IsAddOnLoaded(l) then
-			if (test ~= n and test ~= l) then
-				if n == "Skada" and _G.Skada then
-					for index,window in pairs(_G.Skada:GetWindows()) do
-					    local key = window.db.name
-					    t["SkadaBarWindow"..key] = (key == "Skada") and "Skada - Main" or "Skada - "..key;
-					end
-				else
-					t[n] = l;
+		if (test ~= n) then
+			if(n:find("Skada") and _G.Skada) then
+				for index,window in pairs(_G.Skada:GetWindows()) do
+				    local key = window.db.name
+				    t["SkadaBarWindow"..key] = (key == "Skada") and "Skada - Main" or "Skada - "..key;
 				end
+			else
+				if IsAddOnLoaded(n) or IsAddOnLoaded(l) then t[n] = l end
 			end
 		end
 	end
@@ -405,16 +401,16 @@ local function GetDockableAddons()
 	local test = PLUGIN.cache.Docks[1];
 	local t = {{text = "None", func = function() PLUGIN.cache.Docks[1] = "None"; PLUGIN:RegisterAddonDocklets() end}};
 	for n,l in pairs(DockableAddons) do
-		if IsAddOnLoaded(n) or IsAddOnLoaded(l) then
-			if (not test or (test and not test:find(n))) then
-				if n == "Skada" and _G.Skada then
-					for index,window in pairs(_G.Skada:GetWindows()) do
-						local keyName = window.db.name
-					    local key = "SkadaBarWindow" .. keyName
-					    local name = (keyName == "Skada") and "Skada - Main" or "Skada - " .. keyName;
-					    tinsert(t,{text = name, func = function() PLUGIN.cache.Docks[1] = key; PLUGIN:RegisterAddonDocklets() end});
-					end
-				else
+		if (not test or (test and not test:find(n))) then
+			if(n:find("Skada") and _G.Skada) then
+				for index,window in pairs(_G.Skada:GetWindows()) do
+					local keyName = window.db.name
+				    local key = "SkadaBarWindow" .. keyName
+				    local name = (keyName == "Skada") and "Skada - Main" or "Skada - " .. keyName;
+				    tinsert(t,{text = name, func = function() PLUGIN.cache.Docks[1] = key; PLUGIN:RegisterAddonDocklets() end});
+				end
+			else
+				if IsAddOnLoaded(n) or IsAddOnLoaded(l) then 
 					tinsert(t,{text = n, func = function() PLUGIN.cache.Docks[1] = l; PLUGIN:RegisterAddonDocklets() end});
 				end
 			end
@@ -522,7 +518,7 @@ function PLUGIN:Load()
 	self.Docklet.Dock2 = CreateFrame("Frame", "SVUI_StyleOMaticDockAddon2", self.Docklet);
 	self.Docklet.Dock2:SetPoint('TOPLEFT', self.Docklet.Dock1, 'TOPRIGHT', 0, 0);
 	self.Docklet.Dock2:SetPoint('BOTTOMRIGHT', self.Docklet, 'BOTTOMRIGHT', 0, 0);
-	self.Docklet.Dock2:SetWidth(self.Docklet:GetWidth());
+	self.Docklet.Dock2:SetWidth(1);
 	self.Docklet.Dock2:SetScript('OnShow', ShowSubDocklet);
 	self.Docklet.Dock2:SetScript('OnHide', HideSubDocklet);
 
@@ -539,15 +535,15 @@ function PLUGIN:Load()
 			order = 1,
 			name = "Primary Docklet",
 			desc = "Select an addon to occupy the primary docklet window",
-			values = function()return GetLiveDockletsA()end,
-			get = function()return PLUGIN.cache.Docks[1] end,
+			values = function() return GetLiveDockletsA() end,
+			get = function() return PLUGIN.cache.Docks[1] end,
 			set = function(a,value) PLUGIN.cache.Docks[1] = value; PLUGIN:RegisterAddonDocklets() end,
 		},
 		DockletCombatFade = {
 			type = "toggle",
 			order = 2,
 			name = "Out of Combat (Hide)",
-			get = function()return PLUGIN.db.docklets.DockletCombatFade end,
+			get = function() return PLUGIN.db.docklets.DockletCombatFade end,
 			set = function(a,value) PLUGIN.db.docklets.DockletCombatFade = value;end
 		},
 		enableExtra = {
@@ -555,7 +551,7 @@ function PLUGIN:Load()
 			order = 3,
 			name = "Split Docklet",
 			desc = "Split the primary docklet window for 2 addons.",
-			get = function()return PLUGIN.db.docklets.enableExtra end,
+			get = function() return PLUGIN.db.docklets.enableExtra end,
 			set = function(a,value) PLUGIN.db.docklets.enableExtra = value; PLUGIN:RegisterAddonDocklets() end,
 		},
 		DockletExtra = {
@@ -563,9 +559,9 @@ function PLUGIN:Load()
 			order = 4,
 			name = "Secondary Docklet",
 			desc = "Select another addon",
-			disabled = function()return (not PLUGIN.db.docklets.enableExtra or PLUGIN.cache.Docks[1] == "None") end, 
-			values = function()return GetLiveDockletsB() end,
-			get = function()return PLUGIN.cache.Docks[2] end,
+			disabled = function() return (not PLUGIN.db.docklets.enableExtra or PLUGIN.cache.Docks[1] == "None") end, 
+			values = function() return GetLiveDockletsB() end,
+			get = function() return PLUGIN.cache.Docks[2] end,
 			set = function(a,value) PLUGIN.cache.Docks[2] = value; PLUGIN:RegisterAddonDocklets() end,
 		}
 	}
