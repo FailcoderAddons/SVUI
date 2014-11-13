@@ -342,10 +342,14 @@ function PLUGIN:RegisterAddonDocklets()
 			self.Docklet.Dock2:Hide()
 			self.Docklet.Dock1:SetWidth(width)
 		end
+
+		self.Docklet.DockButton:MakeDefault();
 	else
 		self.Docklet.Dock1:Hide()
 		self.Docklet.Dock2:Hide()
 		self.Docklet:Disable()
+
+		self.Docklet.Parent.Bar:UnsetDefault();
 	end
 end
 
@@ -500,6 +504,7 @@ function PLUGIN:Load()
 	alert.Accept:SetButtonTemplate();
 	alert.Close:SetButtonTemplate();
 	alert:Hide();
+
 	self.Alert = alert;
 
 	self.Docklet = SV.Dock:NewDocklet("BottomRight", "SVUI_StyleOMaticDock", self.TitleID, [[Interface\AddOns\SVUI\assets\artwork\Icons\DOCK-ADDON]], AddonDockletToggle);
@@ -517,6 +522,7 @@ function PLUGIN:Load()
 	self.Docklet.Dock2 = CreateFrame("Frame", "SVUI_StyleOMaticDockAddon2", self.Docklet);
 	self.Docklet.Dock2:SetPoint('TOPLEFT', self.Docklet.Dock1, 'TOPRIGHT', 0, 0);
 	self.Docklet.Dock2:SetPoint('BOTTOMRIGHT', self.Docklet, 'BOTTOMRIGHT', 0, 0);
+	self.Docklet.Dock2:SetWidth(self.Docklet:GetWidth());
 	self.Docklet.Dock2:SetScript('OnShow', ShowSubDocklet);
 	self.Docklet.Dock2:SetScript('OnHide', HideSubDocklet);
 

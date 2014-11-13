@@ -69,8 +69,23 @@ SV.Options.args.Dock.args["common"] = {
 			get = function(j)return SV.db.Dock.topPanel end,
 			set = function(key,value)MOD:ChangeDBVar(value,key[#key]);MOD:TopBorderVisibility()end
 		},
+		dockCenterWidth = {
+			order = 3,
+			type = 'range',
+			name = L['Stat Panel Width'],
+			desc = L["PANEL_DESC"], 
+			min = 400, 
+			max = 1800, 
+			step = 1,
+			width = "full",
+			get = function()return SV.db.Dock.dockCenterWidth; end, 
+			set = function(key,value)
+				MOD:ChangeDBVar(value,key[#key]);
+				MOD:Refresh()
+			end, 
+		},
 		buttonSize = {
-			order = 3, 
+			order = 4, 
 			type = "range", 
 			name = L["Dock Button Size"], 
 			desc = L["PANEL_DESC"], 

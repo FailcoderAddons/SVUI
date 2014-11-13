@@ -384,13 +384,7 @@ local function AdjustMapSize()
 		BlackoutWorld:SetTexture(0,0,0,0)
 	else
 		BlackoutWorld:SetTexture(0, 0, 0, 1)
-	end 
-	
-	WorldMapFrame:SetFrameLevel(1)
-  	WorldMapDetailFrame:SetFrameLevel(2)
-  	WorldMapFrame:SetFrameStrata('HIGH')
-  	WorldMapArchaeologyDigSites:SetFrameLevel(3)
-  	WorldMapArchaeologyDigSites:SetFrameStrata('DIALOG')
+	end
 end  
 
 local function UpdateWorldMapConfig()
@@ -524,12 +518,6 @@ local _hook_WorldMapFrame_OnShow = function()
       WorldMap_ToggleSizeUp()
       Initialized = true
     end
-
-	WorldMapFrame:SetFrameLevel(1)
-  	WorldMapDetailFrame:SetFrameLevel(2)
-  	WorldMapFrame:SetFrameStrata('HIGH')
-  	WorldMapArchaeologyDigSites:SetFrameLevel(3)
-  	WorldMapArchaeologyDigSites:SetFrameStrata('DIALOG')
 end 
 
 local _hook_WorldMapFrame_OnHide = function()
@@ -560,22 +548,41 @@ function MOD:RefreshMiniMap()
 	NARR_PREFIX = "";
 
 	if(self.Holder and self.Holder:IsShown()) then
-		--local minimapRotationEnabled = GetCVar("rotateMinimap") ~= "0"
-		self.Holder:Size(MM_WIDTH, MM_HEIGHT)
-		self.Holder.backdrop:SetGradient(unpack(MM_COLOR))
-		Minimap:Size(MM_SIZE,MM_SIZE)
-		if SV.db.SVMap.customshape then
-			Minimap:SetPoint("BOTTOMLEFT", self.Holder, "BOTTOMLEFT", MM_BRDR, -(MM_OFFSET_BOTTOM - MM_BRDR))
-			Minimap:SetPoint("TOPRIGHT", self.Holder, "TOPRIGHT", -MM_BRDR, (MM_OFFSET_TOP - MM_BRDR))
-			Minimap:SetMaskTexture('Interface\\AddOns\\SVUI\\assets\\artwork\\Minimap\\MINIMAP_MASK_RECTANGLE')
-		else
+		local minimapRotationEnabled = GetCVar("rotateMinimap") ~= "0"
+
+		if(minimapRotationEnabled) then
+			SV.Dock.TopRight:Size(MM_WIDTH, (MM_WIDTH + 4))
+			self.Holder:Size(MM_WIDTH, MM_WIDTH)
+			Minimap:Size(MM_SIZE,MM_SIZE)
+			self.Holder.Square:Hide()
+			self.Holder.Circle:Show()
+			self.Holder.Circle:SetGradient(unpack(MM_COLOR))
 			Minimap:SetHitRectInsets(0, 0, 0, 0)
 			Minimap:FillInner(self.Holder, MM_BRDR, MM_BRDR)
-			Minimap:SetMaskTexture('Interface\\AddOns\\SVUI\\assets\\artwork\\Minimap\\MINIMAP_MASK_SQUARE')
+			Minimap:SetMaskTexture('Textures\\MinimapMask')
+		else
+			SV.Dock.TopRight:Size(MM_WIDTH, (MM_HEIGHT + 4))
+			self.Holder:Size(MM_WIDTH, MM_HEIGHT)
+			Minimap:Size(MM_SIZE,MM_SIZE)
+			self.Holder.Circle:Hide()
+			self.Holder.Square:Show()
+			self.Holder.Square.Panel.Skin:SetGradient(unpack(MM_COLOR))
+
+			if SV.db.SVMap.customshape then
+				Minimap:SetPoint("BOTTOMLEFT", self.Holder, "BOTTOMLEFT", MM_BRDR, -(MM_OFFSET_BOTTOM - MM_BRDR))
+				Minimap:SetPoint("TOPRIGHT", self.Holder, "TOPRIGHT", -MM_BRDR, (MM_OFFSET_TOP - MM_BRDR))
+				Minimap:SetMaskTexture('Interface\\AddOns\\SVUI\\assets\\artwork\\Minimap\\MINIMAP_MASK_RECTANGLE')
+			else
+				Minimap:SetHitRectInsets(0, 0, 0, 0)
+				Minimap:FillInner(self.Holder, MM_BRDR, MM_BRDR)
+				Minimap:SetMaskTexture('Interface\\AddOns\\SVUI\\assets\\artwork\\Minimap\\MINIMAP_MASK_SQUARE')
+			end
 		end
 		Minimap:SetParent(self.Holder)
 		Minimap:SetZoom(1)
 		Minimap:SetZoom(0)
+	else
+		SV.Dock.TopRight:Size(MM_WIDTH, (MM_HEIGHT + 4))
 	end
 
 	self.Zone:SetSize(MM_WIDTH,28)
@@ -620,6 +627,10 @@ function MOD:RefreshMiniMap()
 	end
 
 	UpdateWorldMapConfig()
+end
+
+local function RotationHook()
+	MOD:RefreshMiniMap()
 end
 --[[ 
 ########################################################## 
@@ -706,41 +717,21 @@ function MOD:Load()
 	Minimap:SetClampedToScreen(false)
 
 	local mapHolder = SVUI_MinimapFrame
-mapHolder:SetParent(SV.Screen);
+	mapHolder:SetParent(SV.Screen);
 	mapHolder:SetFrameStrata("BACKGROUND")
-	mapHolder.backdrop = mapHolder:CreateTexture(nil, "BACKGROUND", nil, -2)
 	mapHolder:Point("TOPRIGHT", SV.Screen, "TOPRIGHT", -10, -10)
 	mapHolder:Size(MM_WIDTH, MM_HEIGHT)
-	mapHolder.backdrop:ClearAllPoints()
-	mapHolder.backdrop:WrapOuter(mapHolder, 2)
-	mapHolder.backdrop:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]])
-	mapHolder.backdrop:SetGradient(unpack(MM_COLOR))
-	mapHolder:SetPanelTemplate("Blackout")
 
-	local border = CreateFrame("Frame", nil, mapHolder)
-	border:WrapOuter(mapHolder.backdrop)
-	border.left = border:CreateTexture(nil, "BACKGROUND", nil, -1)
-	border.left:SetTexture(0, 0, 0)
-	border.left:SetPoint("TOPLEFT")
-	border.left:SetPoint("BOTTOMLEFT")
-	border.left:SetWidth(1)
-	border.right = border:CreateTexture(nil, "BACKGROUND", nil, -1)
-	border.right:SetTexture(0, 0, 0)
-	border.right:SetPoint("TOPRIGHT")
-	border.right:SetPoint("BOTTOMRIGHT")
-	border.right:SetWidth(1)
-	border.top = border:CreateTexture(nil, "BACKGROUND", nil, -1)
-	border.top:SetTexture(0, 0, 0)
-	border.top:SetPoint("TOPLEFT")
-	border.top:SetPoint("TOPRIGHT")
-	border.top:SetHeight(1)
-	border.bottom = border:CreateTexture(nil, "BACKGROUND", nil, -1)
-	border.bottom:SetTexture(0, 0, 0)
-	border.bottom:SetPoint("BOTTOMLEFT")
-	border.bottom:SetPoint("BOTTOMRIGHT")
-	border.bottom:SetHeight(1)
+	mapHolder.Square = CreateFrame("Frame", nil, mapHolder)
+	mapHolder.Square:WrapOuter(mapHolder, 2)
+	mapHolder.Square:SetPanelTemplate("Blackout")
+	mapHolder.Square.Panel.Skin:SetGradient(unpack(MM_COLOR))
 
-	mapHolder.border = border
+	mapHolder.Circle = mapHolder:CreateTexture(nil, "BACKGROUND", nil, -2)
+	mapHolder.Circle:WrapOuter(mapHolder, 2)
+	mapHolder.Circle:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Minimap\\MINIMAP-ROUND")
+	mapHolder.Circle:SetGradient(unpack(MM_COLOR))
+	mapHolder.Circle:Hide()
 
 	if TimeManagerClockButton then
 		TimeManagerClockButton:Die()
@@ -845,26 +836,23 @@ mapHolder:SetParent(SV.Screen);
 	if(SV.db.SVMap.tinyWorldMap) then
 		setfenv(WorldMapFrame_OnShow, setmetatable({ UpdateMicroButtons = SV.fubar }, { __index = _G }))
 		WorldMapFrame:SetParent(SV.Screen)
-		WorldMapFrame:SetFrameLevel(1)
-		WorldMapFrame:SetFrameStrata('HIGH')
-		WorldMapDetailFrame:SetFrameLevel(2)
 		WorldMapFrame:HookScript('OnShow', _hook_WorldMapFrame_OnShow)
 		WorldMapFrame:HookScript('OnHide', _hook_WorldMapFrame_OnHide)
 	end
 
-	local CoordsHolder = CreateFrame('Frame', 'SVUI_WorldMapCoords', WorldMapFrame)
-	CoordsHolder:SetFrameLevel(WorldMapDetailFrame:GetFrameLevel() + 1)
-	CoordsHolder:SetFrameStrata(WorldMapDetailFrame:GetFrameStrata())
-	CoordsHolder.playerCoords=CoordsHolder:CreateFontString(nil,'OVERLAY')
-	CoordsHolder.mouseCoords=CoordsHolder:CreateFontString(nil,'OVERLAY')
-	CoordsHolder.playerCoords:SetTextColor(1,1,0)
-	CoordsHolder.mouseCoords:SetTextColor(1,1,0)
-	CoordsHolder.playerCoords:SetFontObject(NumberFontNormal)
-	CoordsHolder.mouseCoords:SetFontObject(NumberFontNormal)
-	CoordsHolder.playerCoords:SetPoint("BOTTOMLEFT",WorldMapFrame,"BOTTOMLEFT",5,5)
-	CoordsHolder.playerCoords:SetText(PLAYER..":   0, 0")
-	CoordsHolder.mouseCoords:SetPoint("BOTTOMLEFT",CoordsHolder.playerCoords,"TOPLEFT",0,5)
-	CoordsHolder.mouseCoords:SetText(MOUSE_LABEL..":   0, 0")
+	local WMCoords = CreateFrame('Frame', 'SVUI_WorldMapCoords', WorldMapFrame)
+	WMCoords:SetFrameLevel(WorldMapDetailFrame:GetFrameLevel() + 1)
+	WMCoords:SetFrameStrata(WorldMapDetailFrame:GetFrameStrata())
+	WMCoords.playerCoords=WMCoords:CreateFontString(nil,'OVERLAY')
+	WMCoords.mouseCoords=WMCoords:CreateFontString(nil,'OVERLAY')
+	WMCoords.playerCoords:SetTextColor(1,1,0)
+	WMCoords.mouseCoords:SetTextColor(1,1,0)
+	WMCoords.playerCoords:SetFontObject(NumberFontNormal)
+	WMCoords.mouseCoords:SetFontObject(NumberFontNormal)
+	WMCoords.playerCoords:SetPoint("BOTTOMLEFT",WorldMapFrame,"BOTTOMLEFT",5,5)
+	WMCoords.playerCoords:SetText(PLAYER..":   0, 0")
+	WMCoords.mouseCoords:SetPoint("BOTTOMLEFT",WMCoords.playerCoords,"TOPLEFT",0,5)
+	WMCoords.mouseCoords:SetText(MOUSE_LABEL..":   0, 0")
 
 	DropDownList1:HookScript('OnShow', _hook_DropDownList1)
 	WorldFrame:SetAllPoints()
@@ -946,4 +934,6 @@ mapHolder:SetParent(SV.Screen);
 	self:RegisterEvent('PLAYER_REGEN_DISABLED')
 	self:RegisterEvent("ZONE_CHANGED")
 	self:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+
+	NewHook("Minimap_UpdateRotationSetting", RotationHook)
 end

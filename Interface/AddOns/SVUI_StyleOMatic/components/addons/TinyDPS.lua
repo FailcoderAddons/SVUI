@@ -71,4 +71,6 @@ function PLUGIN:Docklet_TinyDPS(parent)
 	tdpsRefresh()
 
 	parent.Framelink = tdpsFrame
+
+	PLUGIN.Docklet.Parent.Bar:GetDefault()
 end

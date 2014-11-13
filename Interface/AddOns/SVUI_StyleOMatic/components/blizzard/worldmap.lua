@@ -30,11 +30,9 @@ HELPERS
 local function AdjustMapLevel()
   if InCombatLockdown()then return end
     local WorldMapFrame = _G.WorldMapFrame;
-    WorldMapFrame:SetFrameLevel(4)
-    WorldMapDetailFrame:SetFrameLevel(6)
-    WorldMapFrame:SetFrameStrata('HIGH')
-    WorldMapArchaeologyDigSites:SetFrameLevel(8)
-    WorldMapArchaeologyDigSites:SetFrameStrata('DIALOG')
+    WorldMapFrame:SetFrameLevel(1)
+    WorldMapDetailFrame:SetFrameLevel(2)
+    WorldMapArchaeologyDigSites:SetFrameLevel(3)
 end
 
 local function WorldMap_SmallView()
@@ -149,7 +147,6 @@ WORLDMAP PLUGINR
 local function WorldMapStyle()
   if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.worldmap ~= true then return end
 
-  WorldMapFrame:SetFrameLevel(4)
   PLUGIN:ApplyWindowStyle(WorldMapFrame, true, true)
   WorldMapFrame.Panel:SetPanelTemplate("Blackout")
 
@@ -157,10 +154,7 @@ local function WorldMapStyle()
   PLUGIN:ApplyScrollFrameStyle(WorldMapQuestDetailScrollFrameScrollBar, 4)
   PLUGIN:ApplyScrollFrameStyle(WorldMapQuestRewardScrollFrameScrollBar, 4)
 
-  WorldMapDetailFrame:SetFrameLevel(6)
   WorldMapDetailFrame:SetPanelTemplate("Blackout")
-
-  WorldMapArchaeologyDigSites:SetFrameLevel(8)
   
   WorldMapFrameSizeDownButton:SetFrameLevel(999)
   WorldMapFrameSizeUpButton:SetFrameLevel(999)

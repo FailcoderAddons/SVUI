@@ -163,6 +163,22 @@ local GetDefault = function(self)
 			self:Refresh()
 			self.Parent.Window.FrameLink = _G[window]
 			self.Parent.Window:Show()
+			_G[window]:Show()
+			button:Activate()
+		end
+	end
+end
+
+local OldDefault = function(self)
+	local default = self.Parent.Data.OriginalDefault
+	local button = _G[default]
+	if(button) then
+		local window = button:GetAttribute("ownerFrame")
+		if window and _G[window] then
+			self:Refresh()
+			self.Parent.Window.FrameLink = _G[window]
+			self.Parent.Window:Show()
+			_G[window]:Show()
 			button:Activate()
 		end
 	end
@@ -223,18 +239,27 @@ end
 local DockButtonMakeDefault = function(self)
 	self.Parent.Data.Default = self:GetName()
 	self.Parent:GetDefault()
+	if(not self.Parent.Data.OriginalDefault) then
+		self.Parent.Data.OriginalDefault = self:GetName()
+	end
 end 
 
 local DockButtonActivate = function(self)
 	self:SetAttribute("isActive", true)
 	self:SetPanelColor("green")
 	self.Icon:SetGradient(unpack(SV.Media.gradient.green))
+	if(self.FrameLink) then
+		self.FrameLink:Show()
+	end
 end 
 
 local DockButtonDeactivate = function(self)
 	self:SetAttribute("isActive", false)
 	self:SetPanelColor("default")
 	self.Icon:SetGradient(unpack(SV.Media.gradient.icon))
+	if(self.FrameLink) then
+		self.FrameLink:Hide()
+	end
 end
 
 local DockletButton_OnEnter = function(self, ...)
@@ -460,9 +485,9 @@ end
 
 local AddToDock = function(self, button)
 	if not button then return end
+	local name = button:GetName();
 	if(self.Data.Buttons[name]) then return end
 
-	local name = button:GetName();
 	local registeredLocation = Dock.Locations[name]
 	local currentLocation = self.Data.Location
 
@@ -477,8 +502,8 @@ local AddToDock = function(self, button)
 		end
 	end
 
-	self:CheckOrder(name);
 	self.Data.Buttons[name] = button;
+	self:CheckOrder(name);
 	
 	Dock.Locations[name] = currentLocation;
 	button.Parent = self;
@@ -489,7 +514,7 @@ local AddToDock = function(self, button)
 		Dock.Locations[frameName] = currentLocation;
 		button.FrameLink:ClearAllPoints()
 		button.FrameLink:SetParent(self.Parent.Window)
-		button.FrameLink:FillInner(self.Parent.Window, 4, 4)
+		button.FrameLink:FillInner(self.Parent.Window)
 	end
 
 	self:Update()
@@ -594,6 +619,7 @@ for location, settings in pairs(DOCK_LOCATIONS) do
 	Dock[location].Bar.Parent = Dock[location];
 	Dock[location].Bar.Refresh = RefreshDockButtons;
 	Dock[location].Bar.GetDefault = GetDefault;
+	Dock[location].Bar.UnsetDefault = OldDefault;
 	Dock[location].Bar.Toggle = ToggleDockletWindow;
 	Dock[location].Bar.Update = RefreshBarLayout;
 	Dock[location].Bar.UpdateOrder = RefreshBarOrder;
@@ -744,7 +770,8 @@ function Dock:NewDocklet(location, globalName, readableName, texture, onclick)
 	if(not newParent) then return end
 	local frame = CreateFrame("Frame", globalName, UIParent, "SVUI_DockletWindowTemplate");
 	frame:SetParent(newParent.Window);
-	frame:FillInner(newParent.Window, 4, 4);
+	frame:SetSize(newParent.Window:GetSize());
+	frame:SetAllPoints(newParent.Window);
 	frame:SetFrameStrata("BACKGROUND");
 	frame.Parent = newParent
 	frame.Disable = DockletDisable;
@@ -756,6 +783,7 @@ function Dock:NewDocklet(location, globalName, readableName, texture, onclick)
 	frame.DockButton = newParent.Bar:Create(readableName, texture, onclick, buttonName);
 	frame.DockButton.FrameLink = frame
 	self.Registration[globalName] = frame;
+
 	return frame
 end
 
@@ -773,8 +801,8 @@ function Dock:NewAdvancedDocklet(location, globalName)
 
 	local frame = CreateFrame("Frame", globalName, UIParent, "SVUI_DockletWindowTemplate");
 	frame:SetParent(newParent.Window);
-	frame:SetSize(newParent:GetSize());
-	frame:FillInner(newParent.Window, 4, 4);
+	frame:SetSize(newParent.Window:GetSize());
+	frame:SetAllPoints(newParent.Window);
 	frame:SetFrameStrata("BACKGROUND");
 	frame.Parent = newParent
 	frame.Disable = DockletDisable;
@@ -841,20 +869,22 @@ function Dock:Refresh()
 	local centerHeight = buttonsize * 0.7;
 
 	for location, settings in pairs(DOCK_LOCATIONS) do
-		local width, height = self:GetDimensions(location);
-		local dock = self[location];
+		if(location ~= "TopRight") then
+			local width, height = self:GetDimensions(location);
+			local dock = self[location];
 
-		dock.Bar:Size(width, buttonsize)
-	    dock.Bar.ToolBar:SetHeight(buttonsize)
-	    dock:Size(width, height)
-	    dock.Alert:Size(width, 1)
-	    dock.Window:Size(width, height)
+			dock.Bar:Size(width, buttonsize)
+		    dock.Bar.ToolBar:SetHeight(buttonsize)
+		    dock:Size(width, height)
+		    dock.Alert:Size(width, 1)
+		    dock.Window:Size(width, height)
 
-	    if(dock.Bar.Button) then
-	    	dock.Bar.Button:Size(buttonsize, buttonsize)
-	    end
+		    if(dock.Bar.Button) then
+		    	dock.Bar.Button:Size(buttonsize, buttonsize)
+		    end
 
-	    dock.Bar:Update()
+		    dock.Bar:Update()
+		end
 	end
 
 	self.BottomCenter:Size(centerWidth, centerHeight)

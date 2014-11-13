@@ -27,11 +27,7 @@ local Schema = PLUGIN.Schema;
 HELPERS
 ##########################################################
 ]]--
-local AlphaHelper = function(self, value, flag)
-	if(not flag and value ~= 1) then 
-		self:SetAlpha(1, true)
-	end 
-end 
+local AlphaBlock = function() return end
 --[[ 
 ########################################################## 
 ALERTFRAME PLUGINR
@@ -62,7 +58,7 @@ local function AlertStyle()
 			local frame = _G["AchievementAlertFrame"..i]
 			if frame then 
 				frame:SetAlpha(1)
-				hooksecurefunc(frame, "SetAlpha", AlphaHelper)
+				frame.SetAlpha = AlphaBlock
 				if not frame.Panel then 
 					frame:SetBasicPanel()
 					frame.Panel:Point("TOPLEFT", _G[frame:GetName().."Background"], "TOPLEFT", -2, -6)
@@ -98,7 +94,7 @@ local function AlertStyle()
 				frame:SetAlpha(1)
 				
 				if(not frame.AlphaHooked) then 
-					hooksecurefunc(frame, "SetAlpha", AlphaHelper)
+					frame.SetAlpha = AlphaBlock
 					frame.AlphaHooked = true
 				end
 
@@ -138,7 +134,7 @@ local function AlertStyle()
 			frame:SetAlpha(1)
 			
 			if(not frame.AlphaHooked) then 
-				hooksecurefunc(frame, "SetAlpha", AlphaHelper)
+				frame.SetAlpha = AlphaBlock
 				frame.AlphaHooked = true
 			end
 
@@ -171,7 +167,7 @@ local function AlertStyle()
 		local frame = ChallengeModeAlertFrame1;
 		if frame then 
 			frame:SetAlpha(1)
-			hooksecurefunc(frame, "SetAlpha", AlphaHelper)
+			frame.SetAlpha = AlphaBlock
 			if not frame.Panel then 
 				frame:SetBasicPanel()
 				frame.Panel:Point("TOPLEFT", frame, "TOPLEFT", 19, -6)
@@ -203,7 +199,7 @@ local function AlertStyle()
 		local frame = ScenarioAlertFrame1;
 		if frame then 
 			frame:SetAlpha(1)
-			hooksecurefunc(frame, "SetAlpha", AlphaHelper)
+			frame.SetAlpha = AlphaBlock
 			if not frame.Panel then 
 				frame:SetBasicPanel()
 				frame.Panel:Point("TOPLEFT", frame, "TOPLEFT", 4, 4)
@@ -235,7 +231,7 @@ local function AlertStyle()
 			local frame = _G["CriteriaAlertFrame"..i]
 			if frame then 
 				frame:SetAlpha(1)
-				hooksecurefunc(frame, "SetAlpha", AlphaHelper)
+				frame.SetAlpha = AlphaBlock
 				if not frame.Panel then 
 					frame:SetBasicPanel()
 					frame.Panel:Point("TOPLEFT", frame, "TOPLEFT", -2, -6)
@@ -265,7 +261,7 @@ local function AlertStyle()
 			local frame = LOOT_WON_ALERT_FRAMES[i]
 			if frame then 
 				frame:SetAlpha(1)
-				hooksecurefunc(frame, "SetAlpha", AlphaHelper)
+				frame.SetAlpha = AlphaBlock
 				frame.Background:Die()
 				frame.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 				frame.IconBorder:Die()
@@ -291,7 +287,7 @@ local function AlertStyle()
 			local frame = MONEY_WON_ALERT_FRAMES[i]
 			if frame then 
 				frame:SetAlpha(1)
-				hooksecurefunc(frame, "SetAlpha", AlphaHelper)
+				frame.SetAlpha = AlphaBlock
 				frame.Background:Die()
 				frame.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 				frame.IconBorder:Die()
@@ -312,7 +308,7 @@ local function AlertStyle()
 
 	local frame = BonusRollMoneyWonFrame;
 	frame:SetAlpha(1)
-	hooksecurefunc(frame, "SetAlpha", AlphaHelper)
+	frame.SetAlpha = AlphaBlock
 	frame.Background:Die()
 	frame.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 	frame.IconBorder:Die()
@@ -326,7 +322,7 @@ local function AlertStyle()
 
 	local frame = BonusRollLootWonFrame;
 	frame:SetAlpha(1)
-	hooksecurefunc(frame, "SetAlpha", AlphaHelper)
+	frame.SetAlpha = AlphaBlock
 	frame.Background:Die()
 	frame.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 	frame.IconBorder:Die()

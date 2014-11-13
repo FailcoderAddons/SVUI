@@ -641,13 +641,13 @@ SV.configs["SVStats"] = {
 	["docks"] = {
 		["SVUI_DockBottomCenterLeft"] = {
 			["left"] = "Experience Bar", 
-			["middle"] = "Reputation Bar", 
-			["right"] = "Durability Bar",  
+			["middle"] = "Time", 
+			["right"] = "System",  
 		}, 
 		["SVUI_DockBottomCenterRight"] = {
 			["left"] = "Gold", 
-			["middle"] = "System", 	
-			["right"] = "Time", 
+			["middle"] = "Durability", 	
+			["right"] = "Reputation Bar", 
 		}, 
 		["SVUI_DockTopCenterLeft"] = {
 			["left"] = "None", 
