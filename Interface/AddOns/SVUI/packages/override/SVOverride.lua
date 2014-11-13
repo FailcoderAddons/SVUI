@@ -828,13 +828,14 @@ local OpenedLootHandler = function(_, event, autoLoot)
 		cursorX = cursorX / SVUI_LootFrame:GetEffectiveScale()
 		cursorY = (cursorY  /  (SVUI_LootFrame:GetEffectiveScale()));
 		SVUI_LootFrame:ClearAllPoints()
-		SVUI_LootFrame:Point("TOPLEFT", nil, "BOTTOMLEFT", cursorX - 40, cursorY + 20)
+		SVUI_LootFrame:SetPoint("TOPLEFT", nil, "BOTTOMLEFT", cursorX - 40, cursorY + 20)
 		SVUI_LootFrame:GetCenter()
-		SVUI_LootFrame:Raise()
 	else
 		SVUI_LootFrame:ClearAllPoints()
 		SVUI_LootFrame:SetPoint("TOPLEFT", SVUI_LootFrameHolder, "TOPLEFT")
-	end 
+	end
+
+	SVUI_LootFrame:Raise()
 
 	local iQuality, nameWidth, titleWidth = 0, 0, SVUI_LootFrame.title:GetStringWidth()
 	UpdateLootUpvalues()
