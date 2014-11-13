@@ -77,7 +77,7 @@ local MM_OFFSET_BOTTOM = (MM_SIZE * 0.11)
 local MM_WIDTH = MM_SIZE + (MM_BRDR * 2)
 local MM_HEIGHT = (MM_SIZE - (MM_OFFSET_TOP + MM_OFFSET_BOTTOM) + (MM_BRDR * 2))
 local SVUI_MinimapFrame = CreateFrame("Frame", "SVUI_MinimapFrame", UIParent)
-SVUI_MinimapFrame:Size(MM_WIDTH, MM_HEIGHT)
+--SVUI_MinimapFrame:Size(MM_WIDTH, MM_HEIGHT)
 --[[
  /$$$$$$$  /$$   /$$ /$$$$$$$$/$$$$$$$$/$$$$$$  /$$   /$$  /$$$$$$ 
 | $$__  $$| $$  | $$|__  $$__/__  $$__/$$__  $$| $$$ | $$ /$$__  $$
