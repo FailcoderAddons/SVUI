@@ -110,14 +110,6 @@ AddonObject.configs = {
 		["Omen"] = true, 
 		["TradeSkillDW"] = true, 
 	},
-	["docklets"] = {
-		["DockletMain"] = "None", 
-		["MainWindow"] = "None", 
-		["DockletExtra"] = "None", 
-		["ExtraWindow"] = "None", 
-		["enableExtra"] = false, 
-		["DockletCombatFade"] = true
-	},
 };
 
 local PLUGIN = LibSuperVillain("Registry"):NewPlugin(AddonName, AddonObject, "StyleOMatic_Profile", "StyleOMatic_Global", "StyleOMatic_Cache")

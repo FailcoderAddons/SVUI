@@ -63,17 +63,16 @@ end
 function PLUGIN:Docklet_Skada()
   if not Skada then return end
 
-  local mainDock = PLUGIN.cache.Docks[1]
-  local splitDock = PLUGIN.db.docklets.enableExtra and PLUGIN.cache.Docks[2] or "None"
+  local dock1,dock2,enabled1,enabled2 = PLUGIN:FetchDocklets();
 
   for index,window in pairs(Skada:GetWindows()) do
     if(window) then
       local wname = window.db.name or "Skada"
       local key = "SkadaBarWindow" .. wname
 
-      if(mainDock:find(key) and (not PLUGIN.Docklet.Dock1.FrameLink)) then
+      if(enabled1 and dock1:find(key)) then
         skada_panel_loader(PLUGIN.Docklet.Dock1, window);
-      elseif(splitDock:find(key) and (not PLUGIN.Docklet.Dock2.FrameLink)) then
+      elseif(enabled2 and dock2:find(key)) then
         skada_panel_loader(PLUGIN.Docklet.Dock2, window);
       else
         window.db.barslocked = false;

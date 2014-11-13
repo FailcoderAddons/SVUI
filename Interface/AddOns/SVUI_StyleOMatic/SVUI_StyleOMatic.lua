@@ -260,30 +260,45 @@ end
 OPTIONS CREATION
 ##########################################################
 ]]--
+function PLUGIN:FetchDocklets()
+	local dock1 = self.cache.Docks[1] or "None";
+	local dock2 = self.cache.Docks[2] or "None";
+	local enabled1 = (dock1 ~= "None")
+	local enabled2 = (dock2 ~= "None")
+	return dock1, dock2, enabled1, enabled2
+end
+
 function PLUGIN:ValidateDocklet(addon)
-	local dock1 = self.cache.Docks[1] or "";
-	local dock2 = self.db.docklets.enableExtra and self.cache.Docks[2] or "";
-  	
-	if(find(dock1, addon) or find(dock2, addon)) then
-		return true 
+	local dock1,dock2,enabled1,enabled2 = self:FetchDocklets();
+	local valid = false;
+
+	if(dock1:find(addon) or dock2:find(addon)) then
+		valid = true 
 	end
 
+	return valid,enabled1,enabled2
+end
+
+function PLUGIN:DockletReady(addon, dock)
+	if((not addon) or (not dock)) then return false end
+	if(dock:find(addon)) then
+		return true 
+	end
 	return false
 end
 
 function PLUGIN:RegisterAddonDocklets()
-	local dock1 = self.cache.Docks[1] or "";
-	local dock2 = self.db.docklets.enableExtra and self.cache.Docks[2] or "";
+	local dock1,dock2,enabled1,enabled2 = self:FetchDocklets();
   	local tipLeft, tipRight = "", "";
 
   	self.Docklet.Dock1.FrameLink = nil;
   	self.Docklet.Dock2.FrameLink = nil;
 
-  	if self:ValidateDocklet(dock1) then
+  	if(enabled1) then
 		local width = self.Docklet:GetWidth();
 		self.Docklet:Enable();
 
-		if self:ValidateDocklet(dock2) then
+		if(enabled2) then
 			self.Docklet.Dock1:Show()
 			self.Docklet.Dock1:SetWidth(width * 0.5)
 			self.Docklet.Dock2:Show()
@@ -294,52 +309,43 @@ function PLUGIN:RegisterAddonDocklets()
 			self.Docklet.Dock1:SetWidth(width)
 		end
 
-		if((find(dock1, "Skada") or find(dock2, "Skada")) and self:ValidateDocklet("Skada")) then
-			self:Docklet_Skada()
-			if(find(dock2, "Skada")) then
-				tipRight = "and Skada";
-			elseif(find(dock1, "Skada")) then
+		while(not self.Docklet.Dock1.FrameLink) do
+			if(self:DockletReady("Skada", dock1)) then
 				tipLeft = "Skada";
-			end 
-		end
-
-		if((dock1 == "Omen" or dock2 == "Omen") and self:ValidateDocklet("Omen")) then
-			if(dock2 == "Omen") then
-				self:Docklet_Omen(self.Docklet.Dock1)
-				tipRight = "and Omen";
-			elseif(dock1 == "Omen") then
-				self:Docklet_Omen(self.Docklet.Dock2)
+				self:Docklet_Skada()
+			elseif(self:DockletReady("Omen", dock1)) then
 				tipLeft = "Omen";
-			end
-		end
-
-		if((dock1 == "Recount" or dock2 == "Recount") and self:ValidateDocklet("Recount")) then
-			if(dock2 == "Recount") then
-				self:Docklet_Recount(self.Docklet.Dock1)
-				tipRight = "and Recount";
-			elseif(dock1 == "Recount") then
-				self:Docklet_Recount(self.Docklet.Dock2)
+				self:Docklet_Omen(self.Docklet.Dock1)
+			elseif(self:DockletReady("Recount", dock1)) then
 				tipLeft = "Recount";
+				self:Docklet_Recount(self.Docklet.Dock1)
+			elseif(self:DockletReady("TinyDPS", dock1)) then
+				tipLeft = "TinyDPS";
+				self:Docklet_TinyDPS(self.Docklet.Dock1) 
+			elseif(self:DockletReady("alDamageMeter", dock1)) then
+				tipLeft = "alDamageMeter";
+				self:Docklet_alDamageMeter(self.Docklet.Dock1)
 			end
 		end
 
-		if((dock1 == "TinyDPS" or dock2 == "TinyDPS") and self:ValidateDocklet("TinyDPS")) then
-			if(dock2 == "TinyDPS") then
-				self:Docklet_TinyDPS(self.Docklet.Dock1)
-				tipRight = "and TinyDPS";
-			elseif(dock1 == "TinyDPS") then
-				self:Docklet_TinyDPS(self.Docklet.Dock2)
-				tipLeft = "TinyDPS";
-			end 
-		end
-
-		if((dock1 == "alDamageMeter" or dock2 == "alDamageMeter") and self:ValidateDocklet("alDamageMeter")) then
-			if(dock2 == "alDamageMeter") then
-				self:Docklet_alDamageMeter(self.Docklet.Dock1)
-				tipRight = "and alDamageMeter";
-			elseif(dock1 == "alDamageMeter") then
-				self:Docklet_alDamageMeter(self.Docklet.Dock2)
-				tipLeft = "alDamageMeter";
+		if(enabled2) then
+			while(not self.Docklet.Dock2.FrameLink) do
+				if(self:DockletReady("Skada", dock2)) then
+					tipRight = "and Skada";
+					self:Docklet_Skada()
+				elseif(self:DockletReady("Omen", dock2)) then
+					tipRight = "and Omen";
+					self:Docklet_Omen(self.Docklet.Dock2)
+				elseif(self:DockletReady("Recount", dock2)) then
+					tipRight = "and Recount";
+					self:Docklet_Recount(self.Docklet.Dock2)
+				elseif(self:DockletReady("TinyDPS", dock2)) then
+					tipRight = "and TinyDPS";
+					self:Docklet_TinyDPS(self.Docklet.Dock2)
+				elseif(self:DockletReady("alDamageMeter", dock2)) then
+					tipRight = "and alDamageMeter";
+					self:Docklet_alDamageMeter(self.Docklet.Dock2)
+				end
 			end
 		end
 
@@ -542,27 +548,12 @@ function PLUGIN:Load()
 			get = function() return PLUGIN.cache.Docks[1] end,
 			set = function(a,value) PLUGIN.cache.Docks[1] = value; PLUGIN:RegisterAddonDocklets() end,
 		},
-		DockletCombatFade = {
-			type = "toggle",
-			order = 2,
-			name = "Out of Combat (Hide)",
-			get = function() return PLUGIN.db.docklets.DockletCombatFade end,
-			set = function(a,value) PLUGIN.db.docklets.DockletCombatFade = value;end
-		},
-		enableExtra = {
-			type = "toggle",
-			order = 3,
-			name = "Split Docklet",
-			desc = "Split the primary docklet window for 2 addons.",
-			get = function() return PLUGIN.db.docklets.enableExtra end,
-			set = function(a,value) PLUGIN.db.docklets.enableExtra = value; PLUGIN:RegisterAddonDocklets() end,
-		},
-		DockletExtra = {
+		DockletSplit = {
 			type = "select",
-			order = 4,
+			order = 2,
 			name = "Secondary Docklet",
 			desc = "Select another addon",
-			disabled = function() return (not PLUGIN.db.docklets.enableExtra or PLUGIN.cache.Docks[1] == "None") end, 
+			disabled = function() return (PLUGIN.cache.Docks[1] == "None") end, 
 			values = function() return GetLiveDockletsB() end,
 			get = function() return PLUGIN.cache.Docks[2] end,
 			set = function(a,value) PLUGIN.cache.Docks[2] = value; PLUGIN:RegisterAddonDocklets() end,
