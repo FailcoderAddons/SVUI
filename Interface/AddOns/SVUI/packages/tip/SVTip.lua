@@ -181,7 +181,7 @@ end
 local SetBurstColor = function(self, r, g, b)
 	local a = self.ToggleAlpha
 	self[1]:SetVertexColor(r, g, b, a)
-	self[2]:SetVertexColor(r, g, b, a)
+	--self[2]:SetVertexColor(r, g, b, a)
 	self[3]:SetVertexColor(0, 0, 0, 0)
 	self[4]:SetVertexColor(0, 0, 0, 0)
 	self:SetMaskBorder(r, g, b)
@@ -190,7 +190,7 @@ end
 local SetToneColor = function(self, r, g, b)
 	local a = self.ToggleAlpha
 	self[1]:SetVertexColor(0, 0, 0, 0)
-	self[2]:SetVertexColor(0, 0, 0, 0)
+	--self[2]:SetVertexColor(0, 0, 0, 0)
 	self[3]:SetVertexColor(r, g, b, a)
 	self[4]:SetVertexColor(r, g, b, a)
 	self:SetMaskBorder(r, g, b)
@@ -198,7 +198,7 @@ end
 
 local ClearMaskColors = function(self)
 	self[1]:SetVertexColor(0, 0, 0, 0)
-	self[2]:SetVertexColor(0, 0, 0, 0)
+	--self[2]:SetVertexColor(0, 0, 0, 0)
 	self[3]:SetVertexColor(0, 0, 0, 0)
 	self[4]:SetVertexColor(0, 0, 0, 0)
 
@@ -583,11 +583,11 @@ local _hook_GameTooltip_SetDefaultAnchor = function(self, parent)
 	if not SV.Mentalo:HasMoved("SVUI_ToolTip_MOVE")then
 		self:ClearAllPoints()
 		if(SV.SVBag.BagFrame and SV.SVBag.BagFrame:IsShown()) then
-			self:SetPoint("BOTTOMLEFT", SV.SVBag.BagFrame, "TOPLEFT", 0, 20)
+			self:SetPoint("BOTTOMLEFT", SV.SVBag.BagFrame, "TOPLEFT", 0, 24)
 		elseif(SV.Dock.BottomRight:GetAlpha() == 1 and SV.Dock.BottomRight:IsShown()) then 
-			self:SetPoint("BOTTOMLEFT", SV.Dock.BottomRight, "TOPLEFT", 0, 20)
+			self:SetPoint("BOTTOMLEFT", SV.Dock.BottomRight, "TOPLEFT", 0, 24)
 		else 
-			self:SetPoint("BOTTOMLEFT", SV.Dock.BottomRight.Bar, "TOPLEFT", 0, 20)
+			self:SetPoint("BOTTOMLEFT", SV.Dock.BottomRight.Bar, "TOPLEFT", 0, 24)
 		end 
 	else
 		local point = Pinpoint(SVUI_ToolTip_MOVE)
@@ -724,10 +724,10 @@ local function ApplyTooltipSkins()
 			mask[2]:SetPoint("TOPRIGHT", mask, "BOTTOMRIGHT", 0, 0)
 			mask[2]:SetHeight(mask:GetWidth() * 0.25)
 			mask[2]:SetWidth(mask:GetWidth() * 0.25)
-			mask[2]:SetTexture(TT_BOTTOM)
-			mask[2]:SetVertexColor(0,0,0)
-			mask[2]:SetBlendMode("BLEND")
-			mask[2]:SetAlpha(alpha)
+			--mask[2]:SetTexture(TT_BOTTOM)
+			--mask[2]:SetVertexColor(0,0,0)
+			--mask[2]:SetBlendMode("BLEND")
+			--mask[2]:SetAlpha(alpha)
 			--[[ HALFTONE RIGHT ]]
 			mask[3] = mask:CreateTexture(nil, "BACKGROUND")
 			mask[3]:SetPoint("LEFT", mask, "RIGHT", 0, 0)
@@ -867,7 +867,7 @@ function MOD:Load()
 	if not SV.db.SVTip.enable then return end
 
 	local anchor = CreateFrame("Frame", "SVUI_ToolTip", SV.Screen)
-	anchor:Point("BOTTOMLEFT", SV.Dock.BottomRight, "TOPLEFT", 0, 20)
+	anchor:Point("BOTTOMLEFT", SV.Dock.BottomRight, "TOPLEFT", 0, 24)
 	anchor:Size(130, 20)
 	anchor:SetFrameLevel(anchor:GetFrameLevel()  +  50)
 	SV.Mentalo:Add(anchor, L["Tooltip"])
