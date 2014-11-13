@@ -170,7 +170,7 @@ local GetDefault = function(self)
 end
 
 local OldDefault = function(self)
-	local default = self.Parent.Data.OriginalDefault
+	local default = self.Data.OriginalDefault
 	local button = _G[default]
 	if(button) then
 		local window = button:GetAttribute("ownerFrame")
