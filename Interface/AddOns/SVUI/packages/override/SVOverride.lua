@@ -488,7 +488,7 @@ SVUI_LootFrame:SetSize(256,64);
 SVUI_LootFrame:SetFrameStrata("FULLSCREEN_DIALOG");
 SVUI_LootFrame:SetToplevel(true);
 SVUI_LootFrame.title = SVUI_LootFrame:CreateFontString(nil,'OVERLAY');
-SVUI_LootFrame.title:Point('BOTTOMLEFT',SVUI_LootFrame,'TOPLEFT',0,1);
+SVUI_LootFrame.title:SetPoint('BOTTOMLEFT',SVUI_LootFrame,'TOPLEFT',0,1);
 SVUI_LootFrame.slots = {};
 SVUI_LootFrame:SetScript("OnHide", Loot_OnHide);
 
