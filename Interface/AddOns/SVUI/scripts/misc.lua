@@ -318,7 +318,7 @@ end
 
 for i=1,8 do 
 	local raidMark = CreateFrame("Button", "RaidMarkIconButton"..i, RaidMarkFrame)
-	raidMark:Size(40)
+	raidMark:SetSize(40)
 	raidMark:SetID(i)
 	raidMark.Texture = raidMark:CreateTexture(raidMark:GetName().."NormalTexture","ARTWORK")
 	raidMark.Texture:SetTexture([[Interface\TargetingFrame\UI-RaidTargetingIcons]])
