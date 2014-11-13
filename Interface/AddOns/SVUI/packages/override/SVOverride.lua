@@ -478,13 +478,13 @@ end
 
 local SVUI_LootFrameHolder = CreateFrame("Frame","SVUI_LootFrameHolder",SV.Screen);
 local SVUI_LootFrame = CreateFrame('Button', 'SVUI_LootFrame', SVUI_LootFrameHolder);
-SVUI_LootFrameHolder:Point("BOTTOMRIGHT", SVUI_DockTopLeft, "BOTTOMRIGHT", 0, 0);
-SVUI_LootFrameHolder:Width(150);
-SVUI_LootFrameHolder:Height(22);
+SVUI_LootFrameHolder:SetPoint("BOTTOMRIGHT", SVUI_DockTopLeft, "BOTTOMRIGHT", 0, 0);
+SVUI_LootFrameHolder:SetWidth(150);
+SVUI_LootFrameHolder:SetHeight(22);
 
 SVUI_LootFrame:SetClampedToScreen(true);
 SVUI_LootFrame:SetPoint('TOPLEFT');
-SVUI_LootFrame:Size(256,64);
+SVUI_LootFrame:SetSize(256,64);
 SVUI_LootFrame:SetFrameStrata("FULLSCREEN_DIALOG");
 SVUI_LootFrame:SetToplevel(true);
 SVUI_LootFrame.title = SVUI_LootFrame:CreateFontString(nil,'OVERLAY');
