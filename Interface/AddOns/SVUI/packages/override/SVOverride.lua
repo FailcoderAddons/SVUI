@@ -478,7 +478,7 @@ end
 
 local SVUI_LootFrameHolder = CreateFrame("Frame","SVUI_LootFrameHolder",SV.Screen);
 local SVUI_LootFrame = CreateFrame('Button', 'SVUI_LootFrame', SVUI_LootFrameHolder);
-SVUI_LootFrameHolder:Point("BOTTOMRIGHT", SV.Dock.TopLeft, "BOTTOMRIGHT", 0, 0);
+SVUI_LootFrameHolder:Point("BOTTOMRIGHT", SVUI_DockTopLeft, "BOTTOMRIGHT", 0, 0);
 SVUI_LootFrameHolder:Width(150);
 SVUI_LootFrameHolder:Height(22);
 
