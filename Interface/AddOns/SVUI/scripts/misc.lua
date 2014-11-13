@@ -296,7 +296,7 @@ RAIDMARKERS
 local ButtonIsDown;
 local RaidMarkFrame=CreateFrame("Frame", "SVUI_RaidMarkFrame", UIParent)
 RaidMarkFrame:EnableMouse(true)
-RaidMarkFrame:SetSize(100,100)
+RaidMarkFrame:SetSize(100, 100)
 RaidMarkFrame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
 RaidMarkFrame:SetFrameStrata("DIALOG")
 
@@ -318,7 +318,7 @@ end
 
 for i=1,8 do 
 	local raidMark = CreateFrame("Button", "RaidMarkIconButton"..i, RaidMarkFrame)
-	raidMark:SetSize(40)
+	raidMark:SetSize(40, 40)
 	raidMark:SetID(i)
 	raidMark.Texture = raidMark:CreateTexture(raidMark:GetName().."NormalTexture","ARTWORK")
 	raidMark.Texture:SetTexture([[Interface\TargetingFrame\UI-RaidTargetingIcons]])
@@ -629,10 +629,10 @@ local function LoadThreatBar()
 		local anchor = _G.SVUI_Target
 		local ThreatBar = CreateFrame('StatusBar', 'SVUI_ThreatBar', SV.Screen);
 		ThreatBar:SetStatusBarTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Doodads\\THREAT-BAR")
-		ThreatBar:SetSize(50,100)
+		ThreatBar:SetSize(50, 100)
 		ThreatBar:SetFrameStrata('MEDIUM')
 		ThreatBar:SetOrientation("VERTICAL")
-		ThreatBar:SetMinMaxValues(0,100)
+		ThreatBar:SetMinMaxValues(0, 100)
 		if(anchor) then
 			ThreatBar:Point('LEFT', _G.SVUI_Target, 'RIGHT', 0, 10)
 		else
