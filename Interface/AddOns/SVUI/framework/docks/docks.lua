@@ -744,20 +744,6 @@ function Dock:GetDimensions(location)
 	return width, height;
 end
 
-function Dock:IsDockletReady(arg)
-	local addon = arg;
-	if(SV.db.Dock.docklets[arg]) then
-		addon = SV.db.Dock.docklets[arg]
-	end
-	if(addon == nil or addon == "None") then 
-		return false 
-	end
-	if(addon and (not _G[addon])) then 
-		return false 
-	end 
-	return true
-end
-
 function Dock:NewDocklet(location, globalName, readableName, texture, onclick)
 	if(self.Registration[globalName]) then return end;
 	

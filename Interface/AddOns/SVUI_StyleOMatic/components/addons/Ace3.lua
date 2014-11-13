@@ -29,54 +29,6 @@ HELPERS
 ]]--
 local RegisterAsWidget, RegisterAsContainer;
 
-local DockableAddons = {
-	["alDamageMeter"] = L["alDamageMeter"],
-	["Skada"] = L["Skada"],
-	["Recount"] = L["Recount"],
-	["TinyDPS"] = L["TinyDPS"],
-	["Omen"] = L["Omen"]
-}
-
-local function GetLiveDockletsA()
-	local test = SV.db.Dock.docklets.DockletExtra;
-	local t = {["None"] = L["None"]};
-	for n,l in pairs(DockableAddons) do
-		if IsAddOnLoaded(n) or IsAddOnLoaded(l) then
-			if (test ~= n and test ~= l) then
-				if n == "Skada" and _G.Skada then
-					for index,window in pairs(_G.Skada:GetWindows()) do
-					    local key = window.db.name
-					    t["SkadaBarWindow"..key] = (key == "Skada") and "Skada - Main" or "Skada - "..key;
-					end
-				else
-					t[n] = l;
-				end
-			end
-		end
-	end
-	return t;
-end
-
-local function GetLiveDockletsB()
-	local test = SV.db.Dock.docklets.DockletMain;
-	local t = {["None"] = L["None"]};
-	for n,l in pairs(DockableAddons) do
-		if IsAddOnLoaded(n) or IsAddOnLoaded(l) then
-			if (test ~= n and test ~= l) then
-				if n == "Skada" and _G.Skada then
-					for index,window in pairs(_G.Skada:GetWindows()) do
-					    local key = window.db.name
-					    t["SkadaBarWindow"..key] = (key == "Skada") and "Skada - Main" or "Skada - "..key;
-					end
-				else
-					t[n] = l;
-				end
-			end
-		end
-	end
-	return t;
-end
-
 local ProxyLSMType = {
 	["LSM30_Font"] = true, 
 	["LSM30_Sound"] = true, 

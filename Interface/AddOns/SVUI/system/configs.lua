@@ -484,14 +484,6 @@ SV.configs["Dock"] = {
 	["rightDockBackdrop"] = true, 
 	["topPanel"] = true, 
 	["bottomPanel"] = true, 
-	["docklets"] = {
-		["DockletMain"] = "None", 
-		["MainWindow"] = "None", 
-		["DockletExtra"] = "None", 
-		["ExtraWindow"] = "None", 
-		["enableExtra"] = false, 
-		["DockletCombatFade"] = true
-	},
 };
 
 SV.configs["SVGear"] = {

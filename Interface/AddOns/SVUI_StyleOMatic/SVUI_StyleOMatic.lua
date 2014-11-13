@@ -262,7 +262,7 @@ OPTIONS CREATION
 ]]--
 function PLUGIN:ValidateDocklet(addon)
 	local dock1 = self.cache.Docks[1] or "";
-	local dock2 = SV.db.Dock.docklets.enableExtra and self.cache.Docks[2] or "";
+	local dock2 = self.db.docklets.enableExtra and self.cache.Docks[2] or "";
   	
 	if(find(dock1, addon) or find(dock2, addon)) then
 		return true 
@@ -273,13 +273,13 @@ end
 
 function PLUGIN:RegisterAddonDocklets()
 	local dock1 = self.cache.Docks[1] or "";
-	local dock2 = SV.db.Dock.docklets.enableExtra and self.cache.Docks[2] or "";
+	local dock2 = self.db.docklets.enableExtra and self.cache.Docks[2] or "";
   	local tipLeft, tipRight = "", "";
 
   	self.Docklet.Dock1.FrameLink = nil;
   	self.Docklet.Dock2.FrameLink = nil;
   	
-	if((find(dock1, "Skada") or find(dock2, "Skada")) and SV.Dock:IsDockletReady("Skada")) then
+	if((find(dock1, "Skada") or find(dock2, "Skada")) and self:ValidateDocklet("Skada")) then
 		self:Docklet_Skada()
 		if(find(dock2, "Skada")) then
 			tipRight = "and Skada";
@@ -288,7 +288,7 @@ function PLUGIN:RegisterAddonDocklets()
 		end 
 	end
 
-	if((dock1 == "Omen" or dock2 == "Omen") and SV.Dock:IsDockletReady("Omen")) then
+	if((dock1 == "Omen" or dock2 == "Omen") and self:ValidateDocklet("Omen")) then
 		if(dock2 == "Omen") then
 			self:Docklet_Omen(self.Docklet.Dock1)
 			tipRight = "and Omen";
@@ -298,7 +298,7 @@ function PLUGIN:RegisterAddonDocklets()
 		end
 	end
 
-	if((dock1 == "Recount" or dock2 == "Recount") and SV.Dock:IsDockletReady("Recount")) then
+	if((dock1 == "Recount" or dock2 == "Recount") and self:ValidateDocklet("Recount")) then
 		if(dock2 == "Recount") then
 			self:Docklet_Recount(self.Docklet.Dock1)
 			tipRight = "and Recount";
@@ -308,7 +308,7 @@ function PLUGIN:RegisterAddonDocklets()
 		end
 	end
 
-	if((dock1 == "TinyDPS" or dock2 == "TinyDPS") and SV.Dock:IsDockletReady("TinyDPS")) then
+	if((dock1 == "TinyDPS" or dock2 == "TinyDPS") and self:ValidateDocklet("TinyDPS")) then
 		if(dock2 == "TinyDPS") then
 			self:Docklet_TinyDPS(self.Docklet.Dock1)
 			tipRight = "and TinyDPS";
@@ -318,7 +318,7 @@ function PLUGIN:RegisterAddonDocklets()
 		end 
 	end
 
-	if((dock1 == "alDamageMeter" or dock2 == "alDamageMeter") and SV.Dock:IsDockletReady("alDamageMeter")) then
+	if((dock1 == "alDamageMeter" or dock2 == "alDamageMeter") and self:ValidateDocklet("alDamageMeter")) then
 		if(dock2 == "alDamageMeter") then
 			self:Docklet_alDamageMeter(self.Docklet.Dock1)
 			tipRight = "and alDamageMeter";
@@ -328,12 +328,12 @@ function PLUGIN:RegisterAddonDocklets()
 		end
 	end 
 
-	if SV.Dock:IsDockletReady(dock1) then
+	if self:ValidateDocklet(dock1) then
 		local width = self.Docklet:GetWidth();
 		self.Docklet:Enable();
 		self.Docklet.DockButton:SetAttribute("tipText", ("%s%s"):format(tipLeft, tipRight));
 
-		if SV.Dock:IsDockletReady(dock2) then
+		if self:ValidateDocklet(dock2) then
 			self.Docklet.Dock1:Show()
 			self.Docklet.Dock2:Show()
 			self.Docklet.Dock1:SetWidth(width * 0.5)

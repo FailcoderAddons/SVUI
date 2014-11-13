@@ -72,7 +72,7 @@ function PLUGIN:Docklet_Skada()
     local key = "SkadaBarWindow" .. wname
     if(PLUGIN.cache.Docks[1] == key) then
       skada_panel_loader(PLUGIN.Docklet.Dock1, window)
-    elseif(SVUI.db.Dock.docklets.enableExtra and PLUGIN.cache.Docks[2] == key) then
+    elseif(PLUGIN.db.docklets.enableExtra and PLUGIN.cache.Docks[2] == key) then
       skada_panel_loader(PLUGIN.Docklet.Dock2, window)
     else
       window.db.barslocked = false;
