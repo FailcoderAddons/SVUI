@@ -92,7 +92,6 @@ local Dock = SV:NewSubClass("Dock", L["Docks"]);
 
 Dock.Border = {};
 Dock.Registration = {};
-Dock.CustomOptions = {};
 Dock.Locations = {};
 
 local DOCK_DROPDOWN_OPTIONS = {};

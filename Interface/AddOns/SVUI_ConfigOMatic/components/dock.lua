@@ -224,7 +224,7 @@ SV.Options.args.Dock.args["rightDockGroup"] = {
 			}
 		},
 		questHeaders = {
-			order = 4, 
+			order = 5, 
 			type = "group", 
 			name = L['Quest Header Styled'], 
 			args = {
@@ -241,14 +241,12 @@ SV.Options.args.Dock.args["rightDockGroup"] = {
 	}
 };
 
-SV.Options.args.Dock.args.custom = {
-	order = 5,
-	type = 'group',
-	name = 'Custom Docks',
-	guiInline = true,
-	args = {}
-}
-
-for key, params in pairs(MOD.CustomOptions) do
-	SV.Options.args.Dock.args.custom.args[key] = params
+if(MOD.CustomOptions) then
+	SV.Options.args.Dock.args.custom = {
+		order = 5,
+		type = 'group',
+		name = 'Custom Docks',
+		guiInline = true,
+		args = MOD.CustomOptions
+	}
 end
