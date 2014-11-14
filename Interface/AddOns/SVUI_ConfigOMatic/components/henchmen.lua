@@ -115,7 +115,7 @@ SV.Options.args.SVHenchmen={
 							name = L['Skip Cinematics'],
 							desc = L['Automatically skip any cinematic sequences.'],
 							get = function(j)return SV.db.SVHenchmen.skipcinematics end,
-							set = function(j,value)SV.db.SVHenchmen.skipcinematics = value;SV:StaticPopup_Show("RL_CLIENT") end
+							set = function(j,value) SV.db.SVHenchmen.skipcinematics = value; SV:StaticPopup_Show("RL_CLIENT") end
 						},
 						autoRepair = {
 							order = 8,

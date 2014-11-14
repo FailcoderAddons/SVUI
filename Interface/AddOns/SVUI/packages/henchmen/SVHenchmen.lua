@@ -959,21 +959,13 @@ function MOD:Load()
 		end)
 	end 
 
-	local skippy = CreateFrame("Frame")
-	skippy:RegisterEvent("CINEMATIC_START")
-	skippy:SetScript("OnEvent", function(_, event)
-		if event == "CINEMATIC_START" then
-			if(SV.db.SVHenchmen.skipcinematics) then
-				CinematicFrame_CancelCinematic()
-			end
-		end
-	end)
-	local PlayMovie_hook = MovieFrame_PlayMovie
-	MovieFrame_PlayMovie = function(...)
-		if(SV.db.SVHenchmen.skipcinematics) then
-			GameMovieFinished()
-		else
-			PlayMovie_hook(...)
-		end
+	if(SV.db.SVHenchmen.skipcinematics) then
+		local skippy = CreateFrame("Frame")
+		skippy:RegisterEvent("CINEMATIC_START")
+		skippy:SetScript("OnEvent", function(self, event)
+			CinematicFrame_CancelCinematic()
+		end)
+
+		MovieFrame:SetScript("OnEvent", function() GameMovieFinished() end)
 	end
 end 

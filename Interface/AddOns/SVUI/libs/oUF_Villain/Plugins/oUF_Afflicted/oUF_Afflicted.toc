@@ -2,7 +2,7 @@
 ## Title: oUF Afflicted
 ## Notes: Adds Custom Debuff Highlighting to oUF.
 ## Author: Munglunch
-## Version: 5.1
+## Version: 5.2
 ## X-Category: oUF
 ## Dependencies: oUF
 

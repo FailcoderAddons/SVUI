@@ -80,11 +80,11 @@ function SV.Ego:Initialize()
 	self.ModelRight:SetPortraitZoom(0.05)
 	self.ModelRight:SetPosition(0,0,-0.25)
 
-	local splash = self:CreateTexture(nil, "OVERLAY")
-	splash:SetSize(600, 300)
-	splash:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\SPLASH-BLACK")
-	splash:SetBlendMode("ADD")
-	splash:SetPoint("TOP", 0, 0)
+	-- local splash = self:CreateTexture(nil, "OVERLAY")
+	-- splash:SetSize(600, 300)
+	-- splash:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\SPLASH-BLACK")
+	-- splash:SetBlendMode("ADD")
+	-- splash:SetPoint("TOP", 0, 0)
 
 	self:SetScript("OnShow", Activate)
 end

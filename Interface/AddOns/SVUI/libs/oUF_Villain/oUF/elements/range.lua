@@ -26,7 +26,7 @@ local function UpdateSpellList()
 	twipe(longEnemySpells)
 	twipe(enemySpells)
 	twipe(petSpells)
-	
+
 	if class == "PRIEST" then
 		AddSpell(enemySpells, 585) -- Smite
 		AddSpell(longEnemySpells, 589) -- Shadow Word: Pain
@@ -36,8 +36,8 @@ local function UpdateSpellList()
 		AddSpell(enemySpells, 33786) -- Cyclone
 		AddSpell(longEnemySpells, 5176) -- Wrath
 		AddSpell(friendlySpells, 774) -- Rejuvenation
-		AddSpell(resSpells, 50769) -- Revive 
-		AddSpell(resSpells, 20484) -- Rebirth 
+		AddSpell(resSpells, 50769) -- Revive
+		AddSpell(resSpells, 20484) -- Rebirth
 	elseif class == "PALADIN" then
 		AddSpell(enemySpells, 20271) -- Judgement
 		AddSpell(friendlySpells, 85673) -- Word of Glory
@@ -45,10 +45,10 @@ local function UpdateSpellList()
 		AddSpell(longEnemySpells, 114165) -- Holy Prism
 		AddSpell(longEnemySpells, 114157) -- Execution Sentence
 	elseif class == "SHAMAN" then
-		AddSpell(enemySpells, 8042) -- Earth Shock 
+		AddSpell(enemySpells, 8042) -- Earth Shock
 		AddSpell(longEnemySpells, 403) -- Lightning Bolt
 		AddSpell(friendlySpells, 8004) -- Healing Surge
-		AddSpell(resSpells, 2008) -- Ancestral Spirit 
+		AddSpell(resSpells, 2008) -- Ancestral Spirit
 	elseif class == "WARLOCK" then
 		AddSpell(enemySpells, 5782) -- Fear
 		AddSpell(longEnemySpells, 172) -- Corruption
@@ -66,21 +66,20 @@ local function UpdateSpellList()
 	elseif class == "DEATHKNIGHT" then
 		AddSpell(enemySpells, 49576) -- Death Grip
 		AddSpell(friendlySpells, 47541) -- Death Coil
-		AddSpell(resSpells, 61999) -- Raise Ally 
+		AddSpell(resSpells, 61999) -- Raise Ally
 	elseif class == "ROGUE" then
-		AddSpell(enemySpells, 2094) -- Blind 
+		AddSpell(enemySpells, 2094) -- Blind
 		AddSpell(longEnemySpells, 1725) -- Distract
 		AddSpell(friendlySpells, 57934) -- Tricks of the Trade
 	elseif class == "WARRIOR" then
 		AddSpell(enemySpells, 5246) -- Intimidating Shout
 		AddSpell(enemySpells, 100) -- Charge
 		AddSpell(longEnemySpells, 355) -- Taunt
-		AddSpell(friendlySpells, 3411) -- Intervene
 	elseif class == "MONK" then
 		AddSpell(enemySpells, 115546) -- Provoke
 		AddSpell(friendlySpells, 115450) -- Detox
 		AddSpell(resSpells, 115178) -- Resuscitate
-	end	
+	end
 end
 
 local function getUnit(unit)
@@ -206,7 +205,7 @@ local OnRangeUpdate = function(self, elapsed)
 						end
 					end
 				else
-					object:SetAlpha(range.insideAlpha)
+					object:SetAlpha(range.insideAlpha)	
 				end
 			end
 		end

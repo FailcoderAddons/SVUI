@@ -348,11 +348,11 @@ local SlotUpdate = function(self, slotID)
 		slot:SetBackdropBorderColor(r, g, b, 1)
 	end
 
-	if(C_NewItems.IsNewItem(bag, slotID)) then 
-		ActionButton_ShowOverlayGlow(slot)
-	else 
-		ActionButton_HideOverlayGlow(slot)
-	end
+	-- if(C_NewItems.IsNewItem(bag, slotID)) then 
+	-- 	ActionButton_ShowOverlayGlow(slot)
+	-- else 
+	-- 	ActionButton_HideOverlayGlow(slot)
+	-- end
 
 	SetItemButtonTexture(slot, texture)
 	SetItemButtonCount(slot, count)

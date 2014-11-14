@@ -258,6 +258,9 @@ local function SaveActionButton(parent)
 	local button = parent:GetName()
 	local cooldown = _G[button.."Cooldown"]
 	cooldown.SizeOverride = SV.db.SVBar.cooldownSize
+	if(not parent.cd) then
+		parent.cd = cooldown;
+	end
 	MOD:FixKeybindText(parent)
 	MOD.ButtonCache[parent] = true 
 	parent:SetSlotTemplate(true, 2, 0, 0, 0.75)
@@ -629,7 +632,11 @@ CORE FUNCTIONS
 do
 	local Button_OnEnter = function(self)
 		local parent = self:GetParent()
-		if parent and parent._fade then 
+		if parent and parent._fade then
+			if self.cd then
+				self.cd:SetSwipeColor(0, 0, 0, 1)
+				self.cd:SetDrawBling(true)
+			end
 			SV:SecureFadeIn(parent, 0.2, parent:GetAlpha(), parent._alpha)
 		end
 	end 
@@ -637,7 +644,11 @@ do
 	local Button_OnLeave = function(self)
 		local parent = self:GetParent()
 		GameTooltip:Hide()
-		if parent and parent._fade then 
+		if parent and parent._fade then
+			if self.cd then
+				self.cd:SetSwipeColor(0, 0, 0, 0)
+				self.cd:SetDrawBling(false)
+			end
 			SV:SecureFadeOut(parent, 1, parent:GetAlpha(), 0)
 		end
 	end 
@@ -712,12 +723,20 @@ do
 				else 
 					button:Hide()
 				end
+				if button.cd then
+					button.cd:SetSwipeColor(0, 0, 0, 0)
+					button.cd:SetDrawBling(false)
+				end
 			else 
 				if hideByScale then
 					button:SetScale(1)
 	      			button:SetAlpha(1)
 				else 
 					button:Show()
+				end
+				if button.cd then
+					button.cd:SetSwipeColor(0, 0, 0, 1)
+					button.cd:SetDrawBling(true)
 				end
 			end 
 
@@ -1047,7 +1066,6 @@ do
 		for i = 1, maxButtons do
 			local button = _G["SVUI_StanceBarButton"..i]
 			local icon = _G["SVUI_StanceBarButton"..i.."Icon"]
-			local cd = _G["SVUI_StanceBarButton"..i.."Cooldown"]
 			if i <= maxForms then 
 				texture, name, isActive, isCastable = GetShapeshiftFormInfo(i)
 				if texture == "Interface\\Icons\\Spell_Nature_WispSplode" and SV.db.SVBar.Stance.style == "darkenInactive" then 
@@ -1056,10 +1074,16 @@ do
 
 				icon:SetTexture(texture)
 
-				if texture then 
-					cd:SetAlpha(1)
-				else 
-					cd:SetAlpha(0)
+				if(button.cd) then
+					if texture then 
+						button.cd:SetAlpha(1)
+						button.cd:SetSwipeColor(0, 0, 0, 1)
+						button.cd:SetDrawBling(true)
+					else 
+						button.cd:SetAlpha(0)
+						button.cd:SetSwipeColor(0, 0, 0, 0)
+						button.cd:SetDrawBling(false)
+					end
 				end
 
 				if isActive then 
@@ -1216,7 +1240,7 @@ do
 			end 
 			button.isToken = isToken;
 			button.tooltipSubtext = subtext;
-			if arg and actionName  ~= "PET_ACTION_FOLLOW" then
+			if arg and actionName ~= "PET_ACTION_FOLLOW" then
 				if(IsPetAttackAction(i)) then PetActionButton_StartFlash(button) end
 			else
 				if(IsPetAttackAction(i)) then PetActionButton_StopFlash(button) end
@@ -1247,10 +1271,21 @@ do
 					SetDesaturation(icon, nil)
 				else 
 					SetDesaturation(icon, 1)
-				end 
+				end
+				if(button.cd) then
+					button.cd:SetAlpha(1)
+					button.cd:SetSwipeColor(0, 0, 0, 1)
+					button.cd:SetDrawBling(true)
+				end
 			else 
-				icon:Hide() 
-			end 
+				icon:Hide()
+				if(button.cd) then
+					button.cd:SetAlpha(0)
+					button.cd:SetSwipeColor(0, 0, 0, 0)
+					button.cd:SetDrawBling(false)
+				end
+			end
+			
 			if(not PetHasActionBar() and actionIcon and actionName  ~= "PET_ACTION_FOLLOW") then 
 				PetActionButton_StopFlash(button)
 				SetDesaturation(icon, 1)
