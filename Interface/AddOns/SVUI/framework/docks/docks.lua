@@ -107,37 +107,34 @@ CORE FUNCTIONS
 ]]--
 _G.HideSuperDocks = function()
 	GameTooltip:Hide()
-	local activeChatFrame = FCFDock_GetSelectedWindow(GENERAL_CHAT_DOCK)
 	if SV.cache.Docks.IsFaded then 
 		SV.cache.Docks.IsFaded = nil;
 		SV:SecureFadeIn(Dock.BottomLeft, 0.2, Dock.BottomLeft:GetAlpha(), 1)
 		SV:SecureFadeIn(Dock.BottomRight, 0.2, Dock.BottomRight:GetAlpha(), 1)
-		SV:SecureFadeIn(activeChatFrame, 0.2, activeChatFrame:GetAlpha(), 1)
+		SVLib:Trigger("DOCKS_FADE_IN");
 	else 
 		SV.cache.Docks.IsFaded = true;
 		SV:SecureFadeOut(Dock.BottomLeft, 0.2, Dock.BottomLeft:GetAlpha(), 0, true)
 		SV:SecureFadeOut(Dock.BottomRight, 0.2, Dock.BottomRight:GetAlpha(), 0, true)
-		SV:SecureFadeOut(activeChatFrame, 0.2, activeChatFrame:GetAlpha(), 0, true)
+		SVLib:Trigger("DOCKS_FADE_OUT");
 	end
 end
 
 function Dock:EnterFade()
 	if SV.cache.Docks.IsFaded then
-		local activeChatFrame = FCFDock_GetSelectedWindow(GENERAL_CHAT_DOCK)
 		self.BottomLeft:Show()
 		SV:SecureFadeIn(self.BottomLeft, 0.2, self.BottomLeft:GetAlpha(), 1)
-		SV:SecureFadeIn(activeChatFrame, 0.2, activeChatFrame:GetAlpha(), 1)
 		self.BottomRight:Show()
 		SV:SecureFadeIn(self.BottomRight, 0.2, self.BottomRight:GetAlpha(), 1)
+		SVLib:Trigger("DOCKS_FADE_IN");
 	end
 end 
 
 function Dock:ExitFade()
 	if SV.cache.Docks.IsFaded then
-		local activeChatFrame = FCFDock_GetSelectedWindow(GENERAL_CHAT_DOCK)
 		SV:SecureFadeOut(self.BottomLeft, 0.2, self.BottomLeft:GetAlpha(), 0, true)
 		SV:SecureFadeOut(self.BottomRight, 0.2, self.BottomRight:GetAlpha(), 0, true)
-		SV:SecureFadeOut(activeChatFrame, 0.2, activeChatFrame:GetAlpha(), 0, true)
+		SVLib:Trigger("DOCKS_FADE_OUT");
 	end
 end
 --[[ 

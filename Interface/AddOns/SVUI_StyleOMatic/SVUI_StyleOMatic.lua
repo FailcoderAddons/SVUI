@@ -469,6 +469,24 @@ local HideSubDocklet = function(self)
 		end
 	end
 end
+
+local function DockFadeInDocklet()
+	local active = PLUGIN.Docklet.DockButton:GetAttribute("isActive")
+	if(active) then
+		PLUGIN.Docklet.Dock1:Show()
+		PLUGIN.Docklet.Dock2:Show()
+	end
+end
+LibSuperVillain("Registry"):NewCallback("DOCKS_FADE_IN", "DockFadeInDocklet", DockFadeInDocklet);
+
+local function DockFadeOutDocklet()
+	local active = PLUGIN.Docklet.DockButton:GetAttribute("isActive")
+	if(active) then
+		PLUGIN.Docklet.Dock1:Hide()
+		PLUGIN.Docklet.Dock2:Hide()
+	end
+end
+LibSuperVillain("Registry"):NewCallback("DOCKS_FADE_OUT", "DockFadeOutDocklet", DockFadeOutDocklet);
 --[[ 
 ########################################################## 
 BUILD FUNCTION

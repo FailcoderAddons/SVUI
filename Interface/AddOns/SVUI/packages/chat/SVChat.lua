@@ -942,6 +942,18 @@ do
 	end
 end
 
+local function DockFadeInChat()
+	local activeChatFrame = FCFDock_GetSelectedWindow(GENERAL_CHAT_DOCK)
+	SV:SecureFadeIn(activeChatFrame, 0.2, activeChatFrame:GetAlpha(), 1)
+end
+LibSuperVillain("Registry"):NewCallback("DOCKS_FADE_IN", "DockFadeInChat", DockFadeInChat);
+
+local function DockFadeOutChat()
+	local activeChatFrame = FCFDock_GetSelectedWindow(GENERAL_CHAT_DOCK)
+	SV:SecureFadeOut(activeChatFrame, 0.2, activeChatFrame:GetAlpha(), 0, true)
+end
+LibSuperVillain("Registry"):NewCallback("DOCKS_FADE_OUT", "DockFadeOutChat", DockFadeOutChat);
+
 function MOD:UpdateLocals()
 	CHAT_WIDTH = (SV.db.Dock.dockLeftWidth or 350) - 10;
 	CHAT_HEIGHT = (SV.db.Dock.dockLeftHeight or 180) - 15;
