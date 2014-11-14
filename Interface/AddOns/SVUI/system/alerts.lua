@@ -197,6 +197,14 @@ SV.SystemAlert["RESET_UI_CHECK"] = {
 	timeout = 0, 
 	whileDead = 1
 };
+SV.SystemAlert["RESETDOCKS_CHECK"] = {
+	text = L["Are you sure you want to reset every dock button back to it's default position?"], 
+	button1 = ACCEPT, 
+	button2 = CANCEL, 
+	OnAccept = function(a)SV.Dock:ResetAllButtons()end, 
+	timeout = 0, 
+	whileDead = 1
+};
 SV.SystemAlert["CONFIRM_LOOT_DISTRIBUTION"] = {
 	text = CONFIRM_LOOT_DISTRIBUTION, 
 	button1 = YES, 

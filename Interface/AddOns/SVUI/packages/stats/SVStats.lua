@@ -346,11 +346,7 @@ do
 		if IsAltKeyDown() then
 			SV.Dropdown:Open(self, self.MenuList);
 		elseif(self.onClick) then
-			if(SV.Dropdown:IsShown()) then
-				ToggleFrame(SV.Dropdown)
-			else
-				self.onClick(self, button);
-			end
+			self.onClick(self, button);
 		end
 	end
 
@@ -487,6 +483,7 @@ do
 		if(self.ListNeedsUpdate) then
 			self:SetMenuLists()
 		end
+		
 		local instance, groupType = IsInInstance()
 		local anchorTable = self.Anchors
 		local statTable = self.Statistics

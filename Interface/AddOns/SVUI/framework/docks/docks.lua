@@ -105,18 +105,22 @@ DOCK_DROPDOWN_OPTIONS["TopLeft"] = { text = "To TopLeft", func = function(button
 CORE FUNCTIONS
 ##########################################################
 ]]--
-_G.HideSuperDocks = function()
+_G.HideSuperDocks = function(self, button)
 	GameTooltip:Hide()
-	if SV.cache.Docks.IsFaded then 
-		SV.cache.Docks.IsFaded = nil;
-		SV:SecureFadeIn(Dock.BottomLeft, 0.2, Dock.BottomLeft:GetAlpha(), 1)
-		SV:SecureFadeIn(Dock.BottomRight, 0.2, Dock.BottomRight:GetAlpha(), 1)
-		SVLib:Trigger("DOCKS_FADE_IN");
-	else 
-		SV.cache.Docks.IsFaded = true;
-		SV:SecureFadeOut(Dock.BottomLeft, 0.2, Dock.BottomLeft:GetAlpha(), 0, true)
-		SV:SecureFadeOut(Dock.BottomRight, 0.2, Dock.BottomRight:GetAlpha(), 0, true)
-		SVLib:Trigger("DOCKS_FADE_OUT");
+	if(button and IsAltKeyDown()) then
+		SV:StaticPopup_Show('RESETDOCKS_CHECK')
+	else
+		if SV.cache.Docks.IsFaded then 
+			SV.cache.Docks.IsFaded = nil;
+			SV:SecureFadeIn(Dock.BottomLeft, 0.2, Dock.BottomLeft:GetAlpha(), 1)
+			SV:SecureFadeIn(Dock.BottomRight, 0.2, Dock.BottomRight:GetAlpha(), 1)
+			SVLib:Trigger("DOCKS_FADE_IN");
+		else 
+			SV.cache.Docks.IsFaded = true;
+			SV:SecureFadeOut(Dock.BottomLeft, 0.2, Dock.BottomLeft:GetAlpha(), 0, true)
+			SV:SecureFadeOut(Dock.BottomRight, 0.2, Dock.BottomRight:GetAlpha(), 0, true)
+			SVLib:Trigger("DOCKS_FADE_OUT");
+		end
 	end
 end
 
@@ -207,9 +211,6 @@ local ToggleDockletWindow = function(self, button)
 		button:Deactivate()
 		self:GetDefault()
 	end
-	if(SV.Dropdown:IsShown()) then
-		ToggleFrame(SV.Dropdown)
-	end
 end
 
 local AlertActivate = function(self, child)
@@ -267,6 +268,21 @@ local DockButtonDeactivate = function(self)
 	end
 end
 
+local DockButton_OnEnter = function(self, ...)
+	Dock:EnterFade()
+
+	self:SetPanelColor("highlight")
+	self.Icon:SetGradient(unpack(SV.Media.gradient.bizzaro))
+
+	GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT", 0, 4)
+	GameTooltip:ClearLines()
+	local tipText = self:GetAttribute("tipText")
+	GameTooltip:AddDoubleLine("[Left-Click]", tipText, 0, 1, 0, 1, 1, 1)
+	GameTooltip:AddLine(" ")
+	GameTooltip:AddDoubleLine("[Alt + Click]", "Reset Dock Buttons", 0, 0.5, 1, 0.5, 1, 0.5)
+	GameTooltip:Show()
+end
+
 local DockletButton_OnEnter = function(self, ...)
 	Dock:EnterFade()
 
@@ -321,8 +337,6 @@ local DockletButton_OnPostClick = function(self, button)
 	if(IsAltKeyDown() and self:GetAttribute("hasDropDown") and self.GetMenuList) then
 		local list = self:GetMenuList()
 		SV.Dropdown:Open(self, list);
-	elseif(SV.Dropdown:IsShown()) then
-		ToggleFrame(SV.Dropdown)
 	end
 end
 
@@ -711,6 +725,14 @@ local function SetSuperDockStyle(dock, isBottom)
 	return backdrop 
 end
 
+local function InitDockButton(button)
+	button:SetPanelColor("default")
+	button.Icon:SetGradient(unpack(SV.Media.gradient.icon))
+	button:SetScript("OnEnter", DockButton_OnEnter)
+	button:SetScript("OnLeave", DockletButton_OnLeave)
+	button:SetScript("OnClick", HideSuperDocks)
+end
+
 local function BorderColorUpdates()
 	Dock.Border.Top:SetBackdropColor(unpack(SV.Media.color.specialdark))
 	Dock.Border.Top:SetBackdropBorderColor(0,0,0,1)
@@ -859,6 +881,12 @@ function Dock:TopBorderVisibility()
 	end 
 end
 
+function Dock:ResetAllButtons()
+	wipe(SV.cache.Docks.Order)
+	wipe(SV.cache.Docks.Locations)
+	ReloadUI()
+end
+
 function Dock:Refresh()
 	local buttonsize = SV.db.Dock.buttonSize;
 	local spacing = SV.db.Dock.buttonSpacing;
@@ -997,7 +1025,7 @@ function Dock:Initialize()
 	    	dock.Bar.Button:SetFramedButtonTemplate()
 	    	dock.Bar.ToolBar:Size(1, buttonsize)
 	    	dock.Bar.ToolBar:Point(barAnchor, dock.Bar.Button, barReverse, (spacing * mod), 0)
-	    	dock.Bar:Initialize(dock.Bar.Button, HideSuperDocks)
+	    	InitDockButton(dock.Bar.Button)
 	    else
 	    	dock.Bar.ToolBar:Size(1, buttonsize)
 	    	dock.Bar.ToolBar:Point(barAnchor, dock.Bar, barAnchor, 0, 0)

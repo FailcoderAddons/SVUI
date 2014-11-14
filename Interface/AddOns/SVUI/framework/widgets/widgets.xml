@@ -122,13 +122,13 @@
                     <Anchor point="BOTTOMRIGHT" relativePoint="BOTTOM" x="0" y="300" />
                 </Anchors>
             </PlayerModel>
-            <!-- <PlayerModel name="$parentModelRight" parentKey="ModelRight" frameStrata="BACKGROUND">
+            <PlayerModel name="$parentModelRight" parentKey="ModelRight" frameStrata="BACKGROUND">
                 <Size y="1"/>
                 <Anchors>
-                    <Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="250" y="-300" />
-                    <Anchor point="BOTTOMRIGHT" relativePoint="BOTTOM" x="250" y="300" />
+                    <Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x="250" y="-300" />
+                    <Anchor point="BOTTOMLEFT" relativePoint="BOTTOM" x="0" y="300" />
                 </Anchors>
-            </PlayerModel> -->
+            </PlayerModel>
         </Frames>
     </Frame>
 

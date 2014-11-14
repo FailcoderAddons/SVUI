@@ -53,7 +53,7 @@ function SV:FlushDisplayAudit()
     self.NeedsFrameAudit = true 
     if(InCombatLockdown()) then return end 
     for frame, _ in pairs(DisplayFrames)do 
-        frame:SetParent(self.Screen.Hidden) 
+        frame:SetParent(self.Hidden) 
     end
 end 
 

@@ -95,46 +95,58 @@ local HookPanelBorderColor = function(self,r,g,b,a)
     end 
 end 
 
-local HookBackdrop = function(self,...) 
-    self.Panel:SetBackdrop(...) 
+local HookBackdrop = function(self,...)
+    if(self.Panel) then
+        self.Panel:SetBackdrop(...)
+    end
 end 
 
 local HookBackdropColor = function(self,...) 
-    self.Panel:SetBackdropColor(...) 
+    if(self.Panel) then
+        self.Panel:SetBackdropColor(...)
+    end
 end 
 
 local HookBackdropBorderColor = function(self,...)
-    self.Panel:SetBackdropBorderColor(...)
+    if(self.Panel) then
+        self.Panel:SetBackdropBorderColor(...)
+    end
 end 
 
 local HookVertexColor = function(self,...) 
-    self.Panel.Skin:SetVertexColor(...) 
+    if(self.Panel) then
+        self.Panel.Skin:SetVertexColor(...)
+    end
 end 
 
 local HookCustomBackdrop = function(self)
-    local bgid = self.Panel:GetAttribute("panelID")
-    local newBgFile = SV.Media.bg[bgid]
-    local bd = {
-        bgFile = newBgFile, 
-        edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
-        tile = false, 
-        tileSize = 0, 
-        edgeSize = 2, 
-        insets = 
-        {
-            left = 2, 
-            right = 2, 
-            top = 2, 
-            bottom = 2, 
-        }, 
-    }
-    self:SetBackdrop(bd)
+    if(self.Panel) then
+        local bgid = self.Panel:GetAttribute("panelID")
+        local newBgFile = SV.Media.bg[bgid]
+        local bd = {
+            bgFile = newBgFile, 
+            edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
+            tile = false, 
+            tileSize = 0, 
+            edgeSize = 2, 
+            insets = 
+            {
+                left = 2, 
+                right = 2, 
+                top = 2, 
+                bottom = 2, 
+            }, 
+        }
+        self:SetBackdrop(bd)
+    end
 end
 
 local HookFrameLevel = function(self, level)
-    local adjustment = level - 1;
-    if(adjustment < 0) then adjustment = 0 end
-    self.Panel:SetFrameLevel(adjustment)
+    if(self.Panel) then
+        local adjustment = level - 1;
+        if(adjustment < 0) then adjustment = 0 end
+        self.Panel:SetFrameLevel(adjustment)
+    end
 end
 
 local Cooldown_ForceUpdate = function(self)

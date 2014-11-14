@@ -34,10 +34,19 @@ local SV = select(2, ...);
 SV.Ego = _G["SVUI_EgoFrame"];
 
 local Sequences = {
-	{65, 1000}, --shrug
+	--{65, 1000}, --shrug
 	{70, 1000}, --laugh
-	{74, 1000}, --roar
-	{82, 1000}, --flex
+	--{74, 1000}, --roar
+	--{82, 1000}, --flex
+	{5, 1000}, --run
+	{125, 1000}, --spell2
+	{125, 1000}, --spell2
+	{26, 1000}, --attack
+	{26, 1000}, --attack
+	{26, 1000}, --attack
+	{26, 1000}, --attack
+	{5, 1000}, --run
+	{69, 1000}, --dance
 };
 
 local function rng()
@@ -54,7 +63,7 @@ local Activate = function(self)
 	local emote = Sequences[key][1]
 	self:SetAlpha(1)
 	self.ModelLeft:SetAnimation(emote)
-	-- self.ModelRight:SetAnimation(emote)
+	self.ModelRight:SetAnimation(emote)
 end
 
 function SV.Ego:Initialize()
@@ -63,13 +72,19 @@ function SV.Ego:Initialize()
 
 	self.ModelLeft:SetUnit("player")
 	self.ModelLeft:SetRotation(1)
-	self.ModelLeft:SetPortraitZoom(0.3)
+	self.ModelLeft:SetPortraitZoom(0.05)
 	self.ModelLeft:SetPosition(0,0,-0.25)
 
-	-- self.ModelRight:SetUnit("player")
-	-- self.ModelRight:SetRotation(-1)
-	-- self.ModelRight:SetPortraitZoom(0.3)
-	-- self.ModelRight:SetPosition(0,0,-0.25)
+	self.ModelRight:SetUnit("player")
+	self.ModelRight:SetRotation(-1)
+	self.ModelRight:SetPortraitZoom(0.05)
+	self.ModelRight:SetPosition(0,0,-0.25)
+
+	local splash = self:CreateTexture(nil, "OVERLAY")
+	splash:SetSize(600, 300)
+	splash:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\SPLASH-BLACK")
+	splash:SetBlendMode("ADD")
+	splash:SetPoint("TOP", 0, 0)
 
 	self:SetScript("OnShow", Activate)
 end

@@ -291,8 +291,11 @@ local SlotUpdate = function(self, slotID)
 
 	slot:Show()
 
-	if(slot.JunkIcon and slot.JunkIcon:IsShown()) then
+	if(slot.JunkIcon) then
 		slot.JunkIcon:Hide()
+	end
+	if(slot.questIcon) then
+		slot.questIcon:Hide();
 	end
 
 	local texture, count, locked, rarity = GetContainerItemInfo(bag, slotID);
@@ -306,10 +309,22 @@ local SlotUpdate = function(self, slotID)
 	else 
 		SetItemButtonTextureVertexColor(slot, 1, 1, 1)
 	end
+
+	slot:SetBackdropColor(0, 0, 0, 0.6)
+	slot:SetBackdropBorderColor(0, 0, 0, 1)
 	
 	if(itemLink) then
 		local rarity = select(3, GetItemInfo(itemLink))
-		if(rarity) then
+		local isQuestItem, questId, isActiveQuest = GetContainerItemQuestInfo(bag, slotID);
+
+		if(questId and not isActive) then
+			slot:SetBackdropBorderColor(1.0, 0.3, 0.3);
+			if(slot.questIcon) then
+				slot.questIcon:Show();
+			end
+		elseif(questId or isQuestItem) then
+			slot:SetBackdropBorderColor(1.0, 0.3, 0.3);
+		elseif(rarity) then
 			if(rarity > 1) then 
 				local r, g, b = GetItemQualityColor(rarity)
 				slot:SetBackdropColor(r, g, b, 0.6)
@@ -325,13 +340,12 @@ local SlotUpdate = function(self, slotID)
 			slot:SetBackdropColor(0, 0, 0, 0.6)
 			slot:SetBackdropBorderColor(0, 0, 0, 1)
 		end
-	elseif(bagType) then
+	end
+	
+	if(bagType) then
 		local r, g, b = bagType[1], bagType[2], bagType[3];
 		slot:SetBackdropColor(r, g, b, 0.6)
 		slot:SetBackdropBorderColor(r, g, b, 1)
-	else
-		slot:SetBackdropColor(0, 0, 0, 0.6)
-		slot:SetBackdropBorderColor(0, 0, 0, 1)
 	end
 
 	if(C_NewItems.IsNewItem(bag, slotID)) then 
@@ -594,6 +608,7 @@ local ContainerFrame_UpdateLayout = function(self)
 					local slotName = ("%sSlot%d"):format(bagName, slotID)
 					local iconName = ("%sIconTexture"):format(slotName)
 					local cdName = ("%sCooldown"):format(slotName)
+					local questIcon = ("%sIconQuestTexture"):format(slotName)
 
 					slot = CreateFrame("CheckButton", slotName, bag, template);
 					slot:SetNormalTexture("");
@@ -615,6 +630,16 @@ local ContainerFrame_UpdateLayout = function(self)
 					slot.iconTexture = _G[iconName];
 					slot.iconTexture:FillInner(slot);
 					slot.iconTexture:SetTexCoord(0.1, 0.9, 0.1, 0.9);
+
+					if(_G[questIcon]) then
+						slot.questIcon = _G[questIcon]
+					else
+						slot.questIcon = slot:CreateTexture(nil, "OVERLAY")
+					end
+					slot.questIcon:SetTexture(TEXTURE_ITEM_QUEST_BANG);
+					slot.questIcon:FillInner(slot);
+					slot.questIcon:SetTexCoord(0.1, 0.9, 0.1, 0.9);
+
 					slot.cooldown = _G[cdName];
 
 					bag[slotID] = slot
@@ -901,7 +926,7 @@ do
 		bar:SetScript("OnLeave", Bags_OnLeave)
 
 		MainMenuBarBackpackButton:SetParent(bar)
-		MainMenuBarBackpackButton.SetParent = SV.Screen.Hidden;
+		MainMenuBarBackpackButton.SetParent = SV.Hidden;
 		MainMenuBarBackpackButton:ClearAllPoints()
 		MainMenuBarBackpackButtonCount:FontManager(nil, 10)
 		MainMenuBarBackpackButtonCount:ClearAllPoints()
@@ -918,7 +943,7 @@ do
 		for i = 0, frameCount do 
 			local bagSlot = _G["CharacterBag"..i.."Slot"]
 			bagSlot:SetParent(bar)
-			bagSlot.SetParent = SV.Screen.Hidden;
+			bagSlot.SetParent = SV.Hidden;
 			bagSlot:HookScript("OnEnter", Bags_OnEnter)
 			bagSlot:HookScript("OnLeave", Bags_OnLeave)
 			AlterBagBar(bagSlot)

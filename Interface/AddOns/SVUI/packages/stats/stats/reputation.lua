@@ -91,7 +91,7 @@ local function Reputation_OnEvent(self, ...)
 		self.text:SetShadowOffset(2, -4)
 	end 
 	local ID = 100
-	local isFriend, friendText
+	local friendText
 	local name, reaction, min, max, value = GetWatchedFactionInfo()
 	local numFactions = GetNumFactions();
 	if not name then 
@@ -102,14 +102,14 @@ local function Reputation_OnEvent(self, ...)
 			local friendID, friendRep, friendMaxRep, _, _, _, friendTextLevel = GetFriendshipReputation(isChild);
 			if(not factionName or (name == "No watched factions") or (name == factionName)) then
 				if friendID ~= nil then
-					isFriend = true
 					friendText = friendTextLevel
 				else
 					ID = standingID
 				end
 			end
 		end
-		self.text:SetFormattedText("|cff22EF5F%s|r|cff888888 - [|r%d%%|cff888888]|r", isFriend and friendText or _G["FACTION_STANDING_LABEL"..ID], ((value - min) / (max - min) * 100))
+		friendText = friendText or _G["FACTION_STANDING_LABEL"..ID] or " ";
+		self.text:SetFormattedText("|cff22EF5F%s|r|cff888888 - [|r%d%%|cff888888]|r", friendText, ((value - min) / (max - min) * 100))
 	end 
 end 
 
