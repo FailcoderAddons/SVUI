@@ -30,6 +30,10 @@ HELPERS
 local function AdjustMapLevel()
   if InCombatLockdown()then return end
     local WorldMapFrame = _G.WorldMapFrame;
+    WorldMapFrame:SetFrameStrata("HIGH");
+    WorldMapTooltip:SetFrameStrata("TOOLTIP");
+    WorldMapPlayerLower:SetFrameStrata("MEDIUM");
+    WorldMapPlayerLower:SetFrameStrata("FULLSCREEN");
     WorldMapFrame:SetFrameLevel(1)
     WorldMapDetailFrame:SetFrameLevel(2)
     WorldMapArchaeologyDigSites:SetFrameLevel(3)
@@ -40,6 +44,9 @@ local function WorldMap_SmallView()
   WorldMapFrame.Panel:ClearAllPoints()
   WorldMapFrame.Panel:WrapOuter(WorldMapFrame, 4, 4)
   WorldMapFrame.Panel.Panel:WrapOuter(WorldMapFrame.Panel)
+  if(SVUI_WorldMapCoords) then
+    SVUI_WorldMapCoords.playerCoords:SetPoint("BOTTOMLEFT", WorldMapFrame, "BOTTOMLEFT", 5, 5)
+  end
 end 
 
 local function WorldMap_FullView()
@@ -49,6 +56,9 @@ local function WorldMap_FullView()
   WorldMapFrame.Panel:Size(w + 24, h + 98)
   WorldMapFrame.Panel:Point("TOP", WorldMapFrame, "TOP", 0, 0)
   WorldMapFrame.Panel.Panel:WrapOuter(WorldMapFrame.Panel)
+  if(SVUI_WorldMapCoords) then
+    SVUI_WorldMapCoords.playerCoords:SetPoint("BOTTOMLEFT", WorldMapFrame.Panel, "BOTTOMLEFT", 5, 5)
+  end
 end 
 
 local function StripQuestMapFrame()
@@ -182,7 +192,7 @@ local function WorldMapStyle()
   WorldMapFrameTutorialButton:ClearAllPoints()
   WorldMapFrameTutorialButton:Point("LEFT", WorldMapFrameNavBar.Panel, "RIGHT", -50, 0)
 
-  AdjustMapLevel()
+  WorldMap_OnShow()
 end 
 --[[ 
 ########################################################## 

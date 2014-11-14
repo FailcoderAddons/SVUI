@@ -76,6 +76,7 @@ local MM_OFFSET_TOP = (MM_SIZE * 0.07)
 local MM_OFFSET_BOTTOM = (MM_SIZE * 0.11)
 local MM_WIDTH = MM_SIZE + (MM_BRDR * 2)
 local MM_HEIGHT = (MM_SIZE - (MM_OFFSET_TOP + MM_OFFSET_BOTTOM) + (MM_BRDR * 2))
+local WM_ALPHA = false;
 local SVUI_MinimapFrame = CreateFrame("Frame", "SVUI_MinimapFrame", UIParent)
 SVUI_MinimapFrame:SetSize(MM_WIDTH, MM_HEIGHT)
 --[[
@@ -275,15 +276,6 @@ do
 	end
 end
 
-local function CheckMovement()
-	if(not WorldMapFrame:IsShown()) then return end 
-	if GetUnitSpeed("player") ~= 0 then
-		WorldMapFrame:SetAlpha(SV.db.SVMap.mapAlpha)
-	else
-		WorldMapFrame:SetAlpha(1)
-	end 
-end
-
 local function UpdateMapCoords()
 	local xF, yF = "|cffffffffx:  |r%.1f", "|cffffffffy:  |r%.1f"
 	local skip = IsInInstance()
@@ -329,8 +321,13 @@ local function UpdateMapCoords()
 			SVUI_WorldMapCoords.playerCoords:SetText("")
 		end
 	end
-	if(SV.db.SVMap.mapAlpha < 100) then
-		CheckMovement()
+	if(WM_ALPHA and WorldMapFrame:IsShown() and (not WorldMapFrame_InWindowedMode())) then
+		local speed = GetUnitSpeed("player")
+		if(speed ~= 0) then
+			WorldMapFrame:SetAlpha(0.2)
+		else
+			WorldMapFrame:SetAlpha(1)
+		end 
 	end
 end
 
@@ -694,6 +691,7 @@ function MOD:UpdateLocals()
 	MM_OFFSET_BOTTOM = (MM_SIZE * 0.11)
 	MM_WIDTH = MM_SIZE + (MM_BRDR * 2)
 	MM_HEIGHT = db.customshape and (MM_SIZE - (MM_OFFSET_TOP + MM_OFFSET_BOTTOM) + (MM_BRDR * 2)) or MM_WIDTH
+	WM_ALPHA = GetCVarBool("mapFade")
 end
 
 function MOD:ReLoad()
@@ -854,15 +852,15 @@ function MOD:Load()
 	local WMCoords = CreateFrame('Frame', 'SVUI_WorldMapCoords', WorldMapFrame)
 	WMCoords:SetFrameLevel(WorldMapDetailFrame:GetFrameLevel() + 1)
 	WMCoords:SetFrameStrata(WorldMapDetailFrame:GetFrameStrata())
-	WMCoords.playerCoords=WMCoords:CreateFontString(nil,'OVERLAY')
-	WMCoords.mouseCoords=WMCoords:CreateFontString(nil,'OVERLAY')
+	WMCoords.playerCoords = WMCoords:CreateFontString(nil,'OVERLAY')
+	WMCoords.mouseCoords = WMCoords:CreateFontString(nil,'OVERLAY')
 	WMCoords.playerCoords:SetTextColor(1,1,0)
 	WMCoords.mouseCoords:SetTextColor(1,1,0)
 	WMCoords.playerCoords:SetFontObject(NumberFontNormal)
 	WMCoords.mouseCoords:SetFontObject(NumberFontNormal)
-	WMCoords.playerCoords:SetPoint("BOTTOMLEFT",WorldMapFrame,"BOTTOMLEFT",5,5)
+	WMCoords.playerCoords:SetPoint("BOTTOMLEFT", WorldMapFrame, "BOTTOMLEFT", 5, 5)
 	WMCoords.playerCoords:SetText(PLAYER..":   0, 0")
-	WMCoords.mouseCoords:SetPoint("BOTTOMLEFT",WMCoords.playerCoords,"TOPLEFT",0,5)
+	WMCoords.mouseCoords:SetPoint("BOTTOMLEFT", WMCoords.playerCoords, "TOPLEFT", 0, 5)
 	WMCoords.mouseCoords:SetText(MOUSE_LABEL..":   0, 0")
 
 	DropDownList1:HookScript('OnShow', _hook_DropDownList1)

@@ -222,17 +222,6 @@ SV.Options.args.SVMap = {
 					desc = L["Don't scale the large world map to block out sides of the screen."],
 					set = function(a,b)MOD:ChangeDBVar(b,a[#a])MOD:ReLoad()end
 				},
-				mapAlpha = {
-					order = 2,
-					name = L['Map Alpha While Moving'],
-					desc = L['Controls what the transparency of the worldmap will be set to when you are moving.'],
-					type = 'range',
-					isPercent = true,
-					min = 0,
-					max = 1,
-					step = 0.01,
-					set = function(a,b)MOD:ChangeDBVar(b,a[#a])MOD:ReLoad()end
-				},
 			}
 		},  
 	}

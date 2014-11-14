@@ -161,9 +161,12 @@ local function CreateMacroToolButton(proName, proID, itemID)
 
 	if proID == 186 then proName = GetSpellInfo(2656) end
 
+	button:RegisterForClicks("AnyDown")
+	button:SetAttribute("type1", "macro")
+	button:SetAttribute("macrotext1", "/cast [nomod]" .. proName)
+
 	if(data[5]) then
 		local rightClick
-		button:RegisterForClicks("AnyDown")
 		if(data[6] and GetItemCount(data[6], true) > 0) then
 			rightClick = GetItemInfo(data[6])
 			button.ItemToUse = data[6]
@@ -171,11 +174,8 @@ local function CreateMacroToolButton(proName, proID, itemID)
 			rightClick = GetSpellInfo(data[5])
 		end
 		button:SetAttribute("tipExtraText", rightClick)
-		button:SetAttribute("type", "macro")
-		button:SetAttribute("macrotext", "/cast [button:2][nomod] " .. rightClick .. ";[nomod]" .. proName)
-	else
-		button:SetAttribute("type", "macro")
-		button:SetAttribute("macrotext", "/cast [nomod]" .. proName)
+		button:SetAttribute("type2", "macro")
+		button:SetAttribute("macrotext2", "/cast [nomod] " .. rightClick)
 	end
 end 
 
@@ -191,18 +191,17 @@ local function LoadToolBarProfessions()
 	local hearthStone = GetItemInfo(6948);
 	local hearth = SV.Dock:SetDockButton("BottomLeft", L["Hearthstone"], HEARTH_ICON, nil, "SVUI_Hearth", SetHearthTooltip, "SecureActionButtonTemplate")
 	hearth.Icon:SetTexCoord(0,0.5,0,1)
-	hearth:SetAttribute("type", "macro")
+	hearth:SetAttribute("type1", "macro")
+	hearth:SetAttribute("macrotext1", "/use [nomod]" .. hearthStone)
 	local hasRightClick = false;
 	for i = 1, #HEARTH_SPELLS do
 		if(IsSpellKnown(HEARTH_SPELLS[i])) then
 			local rightClickSpell = GetSpellInfo(HEARTH_SPELLS[i])
 			hearth:SetAttribute("tipExtraText", rightClickSpell)
-			hearth:SetAttribute("macrotext", "/use [button:2][nomod] " .. rightClickSpell .. ";[nomod]" .. hearthStone)
+			hearth:SetAttribute("type2", "macro")
+			hearth:SetAttribute("macrotext2", "/use [nomod] " .. rightClickSpell)
 			hasRightClick = true;
 		end
-	end
-	if(not hasRightClick) then
-		hearth:SetAttribute("macrotext", "/use [nomod]" .. hearthStone)
 	end
 
 	-- PROFESSION BUTTONS

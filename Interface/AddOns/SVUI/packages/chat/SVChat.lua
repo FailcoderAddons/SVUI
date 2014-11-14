@@ -437,19 +437,18 @@ do
 
 	local EditBox_OnEditFocusGained = function(self)
 		self:Show()
-		if not SV.Dock.BottomLeft:IsShown()then 
+		if not MOD.Dock.Parent:IsShown()then 
 			MOD.Dock.editboxforced = true;
-			SV.Dock.BottomLeft.Bar.Button:GetScript("OnEnter")(SV.Dock.BottomLeft.Bar.Button)
+			MOD.Dock.Parent.Bar.Button:GetScript("OnEnter")(MOD.Dock.Parent.Bar.Button)
 		end
-
 		MOD.Dock.Parent.Alert:Activate(self)
 	end
 
 	local EditBox_OnEditFocusLost = function(self)
 		if MOD.Dock.editboxforced then 
 			MOD.Dock.editboxforced = nil;
-			if SV.Dock.BottomLeft:IsShown()then 
-				SV.Dock.BottomLeft.Bar.Button:GetScript("OnLeave")(SV.Dock.BottomLeft.Bar.Button)
+			if MOD.Dock.Parent:IsShown()then 
+				MOD.Dock.Parent.Bar.Button:GetScript("OnLeave")(MOD.Dock.Parent.Bar.Button)
 			end 
 		end 
 		self:Hide()
@@ -657,7 +656,7 @@ do
 			_G[editBoxName.."FocusLeft"]:Die()
 			_G[editBoxName.."FocusMid"]:Die()
 			_G[editBoxName.."FocusRight"]:Die()
-			editBox:SetFixedPanelTemplate("Button", true)
+			editBox:SetPanelTemplate("Inset", true, 2, -2, -3)
 			editBox:SetAltArrowKeyMode(false)
 			editBox:SetAllPoints(MOD.Dock.Parent.Alert)
 			editBox:HookScript("OnEditFocusGained", EditBox_OnEditFocusGained)
@@ -709,7 +708,7 @@ do
 
 		CHAT_WIDTH, CHAT_HEIGHT = MOD.Dock:GetSize();	
 
-		for i,name in pairs(CHAT_FRAMES)do 
+		for i,name in pairs(CHAT_FRAMES) do 
 			local chat = _G[name]
 			local id = chat:GetID() 
 			local tab = _G[name.."Tab"]
@@ -717,10 +716,6 @@ do
 			_modifyChat(chat, tabText)
 			tab.owner = chat;
 			if not chat.isDocked and chat:IsShown() then
-				if id == 1 then
-					MOD.Dock.ChatWindow = nil;
-				end
-
 				chat:SetSize(CHAT_WIDTH, CHAT_HEIGHT)
 				chat.Panel:Show()
 				if(not TAB_SKINS) then
@@ -738,7 +733,6 @@ do
 			else
 				if id == 1 then
 					FCF_SavePositionAndDimensions(chat)
-					MOD.Dock.ChatWindow = chat;
 				end
 
 				chat:ClearAllPoints();
@@ -948,22 +942,6 @@ do
 	end
 end
 
-local ChatDockShow = function(self)
-	if(not InCombatLockdown()) then
-		if(self.ChatWindow and (not self.ChatWindow:IsShown())) then
-			self.ChatWindow:Show()
-		end
-	end
-end
-
-local ChatDockHide = function(self)
-	if(not InCombatLockdown()) then
-		if(self.ChatWindow and self.ChatWindow:IsShown()) then
-			self.ChatWindow:Hide()
-		end
-	end
-end
-
 function MOD:UpdateLocals()
 	CHAT_WIDTH = (SV.db.Dock.dockLeftWidth or 350) - 10;
 	CHAT_HEIGHT = (SV.db.Dock.dockLeftHeight or 180) - 15;
@@ -995,8 +973,6 @@ end
 
 function MOD:Load()
 	self.Dock = SV.Dock:NewAdvancedDocklet("BottomLeft", "SVUI_ChatFrameDock")
-	self.Dock:SetScript("OnShow", ChatDockShow)
-	self.Dock:SetScript("OnHide", ChatDockHide)
 
 	ScrollIndicator:SetParent(self.Dock)
 	ScrollIndicator:SetSize(20,20)

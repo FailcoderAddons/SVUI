@@ -107,30 +107,37 @@ CORE FUNCTIONS
 ]]--
 _G.HideSuperDocks = function()
 	GameTooltip:Hide()
+	local activeChatFrame = FCFDock_GetSelectedWindow(GENERAL_CHAT_DOCK)
 	if SV.cache.Docks.IsFaded then 
 		SV.cache.Docks.IsFaded = nil;
 		SV:SecureFadeIn(Dock.BottomLeft, 0.2, Dock.BottomLeft:GetAlpha(), 1)
 		SV:SecureFadeIn(Dock.BottomRight, 0.2, Dock.BottomRight:GetAlpha(), 1)
+		SV:SecureFadeIn(activeChatFrame, 0.2, activeChatFrame:GetAlpha(), 1)
 	else 
 		SV.cache.Docks.IsFaded = true;
 		SV:SecureFadeOut(Dock.BottomLeft, 0.2, Dock.BottomLeft:GetAlpha(), 0, true)
 		SV:SecureFadeOut(Dock.BottomRight, 0.2, Dock.BottomRight:GetAlpha(), 0, true)
+		SV:SecureFadeOut(activeChatFrame, 0.2, activeChatFrame:GetAlpha(), 0, true)
 	end
 end
 
 function Dock:EnterFade()
-	if SV.cache.Docks.IsFaded then 
+	if SV.cache.Docks.IsFaded then
+		local activeChatFrame = FCFDock_GetSelectedWindow(GENERAL_CHAT_DOCK)
 		self.BottomLeft:Show()
 		SV:SecureFadeIn(self.BottomLeft, 0.2, self.BottomLeft:GetAlpha(), 1)
+		SV:SecureFadeIn(activeChatFrame, 0.2, activeChatFrame:GetAlpha(), 1)
 		self.BottomRight:Show()
 		SV:SecureFadeIn(self.BottomRight, 0.2, self.BottomRight:GetAlpha(), 1)
 	end
 end 
 
 function Dock:ExitFade()
-	if SV.cache.Docks.IsFaded then 
+	if SV.cache.Docks.IsFaded then
+		local activeChatFrame = FCFDock_GetSelectedWindow(GENERAL_CHAT_DOCK)
 		SV:SecureFadeOut(self.BottomLeft, 0.2, self.BottomLeft:GetAlpha(), 0, true)
 		SV:SecureFadeOut(self.BottomRight, 0.2, self.BottomRight:GetAlpha(), 0, true)
+		SV:SecureFadeOut(activeChatFrame, 0.2, activeChatFrame:GetAlpha(), 0, true)
 	end
 end
 --[[ 
@@ -210,7 +217,7 @@ end
 
 local AlertActivate = function(self, child)
 	local size = SV.db.Dock.buttonSize or 22;
-	self:Height((size + 4))
+	self:Height(size)
 	self.backdrop:Show()
 	child:ClearAllPoints()
 	child:SetAllPoints(self)
@@ -821,6 +828,9 @@ function Dock:UpdateDockBackdrops()
 		Dock.BottomRight.backdrop:Show()
 		Dock.BottomRight.backdrop:ClearAllPoints()
 		Dock.BottomRight.backdrop:WrapOuter(Dock.BottomRight.Window, 4, 4)
+
+		Dock.BottomRight.Alert.backdrop:ClearAllPoints()
+		Dock.BottomRight.Alert.backdrop:WrapOuter(Dock.BottomRight.Alert, 4, 4)
 	else
 		Dock.BottomRight.backdrop:Hide()
 	end
@@ -828,6 +838,9 @@ function Dock:UpdateDockBackdrops()
 		Dock.BottomLeft.backdrop:Show()
 		Dock.BottomLeft.backdrop:ClearAllPoints()
 		Dock.BottomLeft.backdrop:WrapOuter(Dock.BottomLeft.Window, 4, 4)
+
+		Dock.BottomLeft.Alert.backdrop:ClearAllPoints()
+		Dock.BottomLeft.Alert.backdrop:WrapOuter(Dock.BottomLeft.Alert, 4, 4)
 	else
 		Dock.BottomLeft.backdrop:Hide()
 	end
@@ -1006,13 +1019,14 @@ function Dock:Initialize()
 
 	    dock.Window:ClearAllPoints()
 	    dock.Window:Size(width, height)
-	    dock.Window:SetPoint(anchor, dock.Alert, reverse, 0, (2 * vertMod))
+	    dock.Window:SetPoint(anchor, dock.Alert, reverse, 0, (4 * vertMod))
 
 	    SV.Mentalo:Add(dock.Bar, location .. " Dock ToolBar");
 
 		if(isBottom) then
 			dock.backdrop = SetSuperDockStyle(dock.Window, isBottom)
 			dock.Alert.backdrop = SetSuperDockStyle(dock.Alert, isBottom)
+			dock.Alert.backdrop:Hide()
 			dock.Window:SetScript("OnShow", Docklet_OnShow)
 			dock.Window:SetScript("OnHide", Docklet_OnHide)
 		end
