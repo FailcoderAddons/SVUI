@@ -135,6 +135,7 @@ local function getColoredString(text, color)
 end
 
 local function GetActiveMissions()
+	local hasMission = false
 	GameTooltip:AddLine(" ", 1, 1, 1)
 	for key,data in pairs(C_Garrison.GetInProgressMissions()) do
 		local mission = ("%s - %s"):format(data.level, data.name);
@@ -149,6 +150,11 @@ local function GetActiveMissions()
 		end
 
 		GameTooltip:AddDoubleLine(mission, remaining, 0, 1, 0, 1, 1, 1)
+		hasMission = true
+	end
+
+	if(not hasMission) then
+		GameTooltip:AddLine("No Active Missions", 1, 1, 1)
 	end
 
 	-- for key,garrisonMission in pairs(C_Garrison.GetCompleteMissions()) do

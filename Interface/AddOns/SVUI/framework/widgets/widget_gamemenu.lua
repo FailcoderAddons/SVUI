@@ -31,7 +31,7 @@ GET ADDON DATA
 ]]--
 local SV = select(2, ...);
 
-SV.Ego = _G["SVUI_EgoFrame"];
+SV.GameMenu = _G["SVUI_GameMenuFrame"];
 
 local Sequences = {
 	--{65, 1000}, --shrug
@@ -66,7 +66,7 @@ local Activate = function(self)
 	self.ModelRight:SetAnimation(emote)
 end
 
-function SV.Ego:Initialize()
+function SV.GameMenu:Initialize()
 	self:SetFrameLevel(0)
 	self:SetAllPoints(SV.Screen)
 
@@ -89,7 +89,7 @@ function SV.Ego:Initialize()
 	self:SetScript("OnShow", Activate)
 end
 
-function SV.Ego:Toggle()
+function SV.GameMenu:Toggle()
 	if(SV.db.general.ego) then
 		self:Show()
 		self:SetScript("OnShow", Activate)

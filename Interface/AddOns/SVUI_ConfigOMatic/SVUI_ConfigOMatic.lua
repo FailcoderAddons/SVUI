@@ -307,7 +307,7 @@ SV.Options.args.common = {
 									type = 'toggle',
 									name = L["Enable Comic Popups"],
 									get = function(j)return SV.db.general.comix end,
-									set = function(j,value) SV.db.general.comix = value; SV:ToggleComix() end
+									set = function(j,value) SV.db.general.comix = value; SV.Comix:Toggle(value) end
 								},
 								bigComix = {
 									order = 1,
@@ -378,7 +378,7 @@ SV.Options.args.common = {
 									type = 'toggle',
 									name = L["Awesome Game Menu"],
 									get = function(j)return SV.db.general.ego end,
-									set = function(j,value) SV.db.general.ego = value; SV.Ego:Toggle() end
+									set = function(j,value) SV.db.general.ego = value; SV.GameMenu:Toggle() end
 								},
 							}
 						},

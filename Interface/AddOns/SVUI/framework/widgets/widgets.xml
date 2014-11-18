@@ -95,7 +95,8 @@
     </Frame>
 
     <Frame name="SVUI_DropdownFrame" frameStrata="DIALOG" hidden="true" />
-    <Frame name="SVUI_EgoFrame" parent="GameMenuFrame">
+
+    <Frame name="SVUI_GameMenuFrame" parent="GameMenuFrame">
         <Layers>
             <Layer level="BACKGROUND" textureSubLevel="-7">
                 <Texture file="Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT">
@@ -127,6 +128,35 @@
                 <Anchors>
                     <Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x="250" y="-300" />
                     <Anchor point="BOTTOMLEFT" relativePoint="BOTTOM" x="0" y="300" />
+                </Anchors>
+            </PlayerModel>
+        </Frames>
+    </Frame>
+
+    <Frame name="SVUI_AFKFrame">
+        <Layers>
+            <Layer level="BACKGROUND" textureSubLevel="-7">
+                <Texture file="Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="0" y="0" />
+                        <Anchor point="BOTTOMRIGHT" relativePoint="TOPRIGHT" x="0" y="-100" />
+                    </Anchors>
+                    <Color r="0" g="0" b="0" a="0.8" />
+                </Texture>
+                <Texture file="Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT">
+                    <Anchors>
+                        <Anchor point="BOTTOMLEFT" relativePoint="BOTTOMLEFT" x="0" y="0" />
+                        <Anchor point="TOPRIGHT" relativePoint="BOTTOMRIGHT" x="0" y="100" />
+                    </Anchors>
+                    <Color r="0" g="0" b="0" a="0.8" />
+                </Texture>
+            </Layer>
+        </Layers>
+        <Frames>
+            <PlayerModel name="$parentModel" parentKey="Model" frameStrata="BACKGROUND">
+                <Size x="800" y="800"/>
+                <Anchors>
+                    <Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" />
                 </Anchors>
             </PlayerModel>
         </Frames>
@@ -182,6 +212,6 @@
     </Frame>
 
     <Script file="widget_dropdown.lua"/>
-    <Script file="widget_ego.lua"/>
+    <Script file="widget_gamemenu.lua"/>
     <Script file="widget_comix.lua"/>
 </Ui>
