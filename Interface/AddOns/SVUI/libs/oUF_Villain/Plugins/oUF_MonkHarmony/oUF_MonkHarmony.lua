@@ -33,10 +33,13 @@ local function Update(self, event, unit)
 	local numPoints = UnitPowerMax("player", SPELL_POWER_CHI)
 
 	for i = 1, numPoints do
-		if i <= light then
-			hb[i]:Show()
-		else
-			hb[i]:Hide()
+		local orb = hb[i]
+		if(orb) then
+			if i <= light then
+				orb:Show()
+			else
+				orb:Hide()
+			end
 		end
 	end
 	

@@ -77,15 +77,15 @@ local ORDER_TEMP = {};
 local ORDER_TEST = {};
 
 local DOCK_LOCATIONS = {
-	["BottomLeft"] = {1, "LEFT", true},
-	["BottomRight"] = {-1, "RIGHT", true},
-	["TopLeft"] = {1, "LEFT", false},
-	["TopRight"] = {-1, "RIGHT", false},
+	["BottomLeft"] = {1, "LEFT", true, "ANCHOR_TOPLEFT"},
+	["BottomRight"] = {-1, "RIGHT", true, "ANCHOR_TOPLEFT"},
+	["TopLeft"] = {1, "LEFT", false, "ANCHOR_BOTTOMLEFT"},
+	["TopRight"] = {-1, "RIGHT", false, "ANCHOR_BOTTOMLEFT"},
 };
 
 local STAT_LOCATIONS = {
-	["BottomCenter"] = {1, "LEFT", true},
-	["TopCenter"] = {1, "LEFT", false},
+	["BottomCenter"] = {1, "LEFT", true, "ANCHOR_TOPLEFT"},
+	["TopCenter"] = {1, "LEFT", false, "ANCHOR_BOTTOMLEFT"},
 };
 
 local Dock = SV:NewSubClass("Dock", L["Docks"]);
@@ -146,6 +146,24 @@ end
 SET DOCKBAR FUNCTIONS
 ##########################################################
 ]]--
+local RefreshDockWindows = function(self)
+	-- print(table.dump(self.Data.Windows))
+	for name,window in pairs(self.Data.Windows) do
+		if(window) then
+			if(not InCombatLockdown() or (InCombatLockdown() and (window.IsProtected and not window:IsProtected()))) then
+				if(window.DockButton) then
+					window.DockButton:Deactivate()
+				end
+				if window.Hide then
+					window:Hide()
+				end
+			end
+		else
+			print("Error: No Window Found (" .. name .. ")")
+		end
+	end
+end
+
 local RefreshDockButtons = function(self)
 	for name,docklet in pairs(Dock.Registration) do
 		if(docklet) then
@@ -199,13 +217,8 @@ local ToggleDockletWindow = function(self, button)
 		if(not self.Parent.Window:IsShown()) then
 			self.Parent.Window:Show()
 		end
-
-		if(not frame:IsShown()) then
-			self:Refresh()
-		end
-
+		self:Cycle()
 		frame:Show()
-		
 		button:Activate()
 	else
 		button:Deactivate()
@@ -289,7 +302,8 @@ local DockletButton_OnEnter = function(self, ...)
 	self:SetPanelColor("highlight")
 	self.Icon:SetGradient(unpack(SV.Media.gradient.bizzaro))
 
-	GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT", 0, 4)
+	local tipAnchor = self:GetAttribute("tipAnchor")
+	GameTooltip:SetOwner(self, tipAnchor, 0, 4)
 	GameTooltip:ClearLines()
 	if(self.CustomTooltip) then
 		self:CustomTooltip()
@@ -380,8 +394,14 @@ local GetDockablePositions = function(self)
 	local button = self;
 	local name = button:GetName();
 	local currentLocation = Dock.Locations[name];
+	local t;
 
-	local t = {{ title = "Move This", divider = true }};
+	if(self.GetPreMenuList) then
+		t = self:GetPreMenuList();
+		tinsert(t, { title = "Move This", divider = true })
+	else
+		t = {{ title = "Move This", divider = true }};
+	end
 
 	for location,option in pairs(DOCK_DROPDOWN_OPTIONS) do
 		if(currentLocation ~= location) then
@@ -476,10 +496,7 @@ local RefreshBarLayout = function(self)
 	local mod = self.Data.Modifier
 	local size = self.ToolBar:GetHeight();
 	local count = #self.Data.Order;
-	local width = count * (size + 6) + 6;
 	local offset = 1;
-
-	self.ToolBar:SetWidth(width);
 	local safeIndex = 1;
 	for i = 1, count do
 		local nextName = self.Data.Order[i];
@@ -496,6 +513,8 @@ local RefreshBarLayout = function(self)
 			safeIndex = safeIndex + 1;
 		end
 	end
+
+	self.ToolBar:SetWidth(offset + size);
 
 	if(SV.Dropdown:IsShown()) then
 		ToggleFrame(SV.Dropdown)
@@ -529,13 +548,18 @@ local AddToDock = function(self, button)
 	button:SetParent(self.ToolBar);
 
 	if(button.FrameLink) then
-		local frameName = button.FrameLink:GetName()
+		local frame = button.FrameLink
+		local frameName = frame:GetName()
+		self.Data.Windows[frameName] = frame;
 		Dock.Locations[frameName] = currentLocation;
-		button.FrameLink:ClearAllPoints()
-		button.FrameLink:SetParent(self.Parent.Window)
-		button.FrameLink:FillInner(self.Parent.Window)
+		frame:ClearAllPoints()
+		frame:SetParent(self.Parent.Window)
+		frame:FillInner(self.Parent.Window)
+
+		frame.Parent = self.Parent
 	end
 
+	-- self:UpdateOrder()
 	self:Update()
 end
 
@@ -564,6 +588,7 @@ local RemoveFromDock = function(self, button)
 		local frameName = button.FrameLink:GetName()
 		Dock.Locations[frameName] = nil;
 		button.FrameLink:Hide()
+		self.Data.Windows[frameName] = nil;
 	end
 
 	button.OrderIndex = 0;
@@ -614,6 +639,7 @@ local CreateBasicToolButton = function(self, displayName, texture, onclick, glob
 	button:SetFramedButtonTemplate()
 	button.Icon:SetTexture(dockIcon)
 	button:SetAttribute("tipText", displayName)
+	button:SetAttribute("tipAnchor", self.Data.TipAnchor)
     button:SetAttribute("ownerFrame", globalName)
 
     button.OrderIndex = 0;
@@ -637,6 +663,7 @@ for location, settings in pairs(DOCK_LOCATIONS) do
 
 	Dock[location].Bar.Parent = Dock[location];
 	Dock[location].Bar.Refresh = RefreshDockButtons;
+	Dock[location].Bar.Cycle = RefreshDockWindows;
 	Dock[location].Bar.GetDefault = GetDefault;
 	Dock[location].Bar.UnsetDefault = OldDefault;
 	Dock[location].Bar.Toggle = ToggleDockletWindow;
@@ -652,8 +679,10 @@ for location, settings in pairs(DOCK_LOCATIONS) do
 		Location = location,
 		Anchor = settings[2],
 		Modifier = settings[1],
+		TipAnchor = settings[4],
 		Default = "",
 		Buttons = {},
+		Windows = {},
 		Order = {},
 	};
 end
@@ -792,6 +821,8 @@ function Dock:NewDocklet(location, globalName, readableName, texture, onclick)
 	frame.Relocate = DockletRelocate;
 	frame.GetButtonSize = DockletButtonSize;
 
+	newParent.Bar.Data.Windows[globalName] = frame;
+
 	local buttonName = ("%sButton"):format(globalName)
 	frame.DockButton = newParent.Bar:Create(readableName, texture, onclick, buttonName);
 	frame.DockButton.FrameLink = frame
@@ -822,6 +853,8 @@ function Dock:NewAdvancedDocklet(location, globalName)
 	frame.Enable = DockletEnable;
 	frame.Relocate = DockletRelocate;
 	frame.GetButtonSize = DockletButtonSize;
+
+	newParent.Bar.Data.Windows[globalName] = frame;
 
 	local height = newParent.Bar.ToolBar:GetHeight();
 	local mod = newParent.Bar.Data.Modifier;

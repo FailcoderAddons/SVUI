@@ -196,12 +196,16 @@ local UpdatePlayerThreat = function(self, event, unit)
 		r, g, b = GetThreatStatusColor(status)
 		threat:SetBackdropBorderColor(r, g, b)
 		if(status > 1 and (not aggro:IsShown())) then
+			self.Combat:Hide()
 			aggro:Show()
 		end
 	else
 		threat:SetBackdropBorderColor(0, 0, 0, 0.5)
 		if(aggro:IsShown()) then
 			aggro:Hide()
+			if(UnitAffectingCombat('player')) then
+				self.Combat:Show()
+			end
 		end
 	end 
 end
@@ -227,8 +231,8 @@ local function CreateThreat(frame, unit)
 		local aggro = CreateFrame("Frame", "SVUI_PlayerThreatAlert", frame)
 		aggro:SetFrameStrata("HIGH")
 		aggro:SetFrameLevel(30)
-		aggro:SetSize(52,52)
-		aggro:SetPoint("TOPRIGHT", frame, "TOPRIGHT", 16, 16)
+		aggro:SetSize(40,40)
+		aggro:SetPoint("TOPRIGHT", frame, "TOPRIGHT", 6, 6)
 		aggro.texture = aggro:CreateTexture(nil, "OVERLAY")
 		aggro.texture:SetAllPoints(aggro)
 		aggro.texture:SetTexture(AGGRO_TEXTURE)

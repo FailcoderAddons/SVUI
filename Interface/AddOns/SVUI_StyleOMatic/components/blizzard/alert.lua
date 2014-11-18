@@ -269,7 +269,7 @@ local function AlertStyle()
 				frame.shine:Die()
 				if not frame.Icon.b then 
 					frame.Icon.b = CreateFrame("Frame", nil, frame)
-					frame.Icon.b:SetFixedPanelTemplate("Default")
+					frame.Icon.b:SetPanelTemplate("Transparent")
 					frame.Icon.b:WrapOuter(frame.Icon)
 					frame.Icon:SetParent(frame.Icon.b)
 				end 

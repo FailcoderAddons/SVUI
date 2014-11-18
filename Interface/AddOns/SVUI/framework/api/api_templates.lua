@@ -44,6 +44,7 @@ GET ADDON DATA
 ]]--
 local SV = select(2, ...)
 local L = SV.L
+local SVLib = LibSuperVillain("Registry");
 --[[ 
 ########################################################## 
 LOCAL VARS
@@ -590,13 +591,10 @@ local function SetPanelColor(self, ...)
             if(arg1 == "VERTICAL" or arg1 == "HORIZONTAL") then
                 self.Panel.Skin:SetGradient(...)
             elseif(SV.Media.gradient[arg1]) then
-                if self.__border then
+                if self.ColorBorder then
                     local d,r,g,b,r2,g2,b2 = unpack(SV.Media.gradient[arg1])
                     --self.Panel.Skin:SetGradient(d,r,g,b,r2,g2,b2)
-                    self.__border[1]:SetTexture(r2,g2,b2)
-                    self.__border[2]:SetTexture(r2,g2,b2)
-                    self.__border[3]:SetTexture(r2,g2,b2)
-                    self.__border[4]:SetTexture(r2,g2,b2)
+                    self:ColorBorder(r2,g2,b2,arg1)
                 else
                     self.Panel.Skin:SetGradient(unpack(SV.Media.gradient[arg1]))
                     if(SV.Media.color[arg1]) then
@@ -610,11 +608,8 @@ local function SetPanelColor(self, ...)
     elseif(type(arg1) == "string" and SV.Media.color[arg1]) then
         local t = SV.Media.color[arg1]
         local r,g,b,a = t[1], t[2], t[3], t[4] or 1;
-        if self.__border then
-            self.__border[1]:SetTexture(r,g,b)
-            self.__border[2]:SetTexture(r,g,b)
-            self.__border[3]:SetTexture(r,g,b)
-            self.__border[4]:SetTexture(r,g,b)
+        if self.ColorBorder then
+            self:ColorBorder(r,g,b,arg1)
         else
             self:SetBackdropColor(r,g,b)
         end
@@ -777,7 +772,30 @@ local function SetEditboxTemplate(self, x, y, fixed)
             end 
         end 
     end
-end 
+end
+
+local SetFrameBorderColor = function(self, r, g, b, setPrevious, reset)
+    if(setPrevious) then
+        self.__border.__previous = setPrevious
+    elseif(reset) then
+        r,g,b = unpack(SV.Media.color[self.__border.__previous])
+    end
+    self.__border[1]:SetTexture(r, g, b)
+    self.__border[2]:SetTexture(r, g, b)
+    self.__border[3]:SetTexture(r, g, b)
+    self.__border[4]:SetTexture(r, g, b)
+end
+
+local ShowAlertFlash = function(self)
+    self:ColorBorder(1,0.9,0)
+    SV.Animate:Flash(self.__border, 0.75, true)
+end
+
+local HideAlertFlash = function(self)
+    local r,g,b = unpack(SV.Media.color.default);
+    self:ColorBorder(1,0.9,0,nil,true)
+    SV.Animate:StopFlash(self.__border)
+end
 
 local function SetFramedButtonTemplate(self, template, borderSize)
     if(not self or (self and self.Panel)) then return end
@@ -812,57 +830,62 @@ local function SetFramedButtonTemplate(self, template, borderSize)
         local t = SV.Media.color.default
         local r,g,b = t[1], t[2], t[3]
 
-        local border = {}
+        local border = CreateFrame("Frame", nil, self)
+        border:SetAllPoints()
 
-        border[1] = self:CreateTexture(nil,"BORDER")
+        border[1] = border:CreateTexture(nil,"BORDER")
         border[1]:SetTexture(r,g,b)
         border[1]:SetPoint("TOPLEFT", -1, 1)
         border[1]:SetPoint("BOTTOMLEFT", -1, -1)
         border[1]:SetWidth(borderSize)
 
-        local leftoutline = self:CreateTexture(nil,"BORDER")
+        local leftoutline = border:CreateTexture(nil,"BORDER")
         leftoutline:SetTexture(0,0,0)
         leftoutline:SetPoint("TOPLEFT", -2, 2)
         leftoutline:SetPoint("BOTTOMLEFT", -2, -2)
         leftoutline:SetWidth(1)
 
-        border[2] = self:CreateTexture(nil,"BORDER")
+        border[2] = border:CreateTexture(nil,"BORDER")
         border[2]:SetTexture(r,g,b)
         border[2]:SetPoint("TOPRIGHT", 1, 1)
         border[2]:SetPoint("BOTTOMRIGHT", 1, -1)
         border[2]:SetWidth(borderSize)
 
-        local rightoutline = self:CreateTexture(nil,"BORDER")
+        local rightoutline = border:CreateTexture(nil,"BORDER")
         rightoutline:SetTexture(0,0,0)
         rightoutline:SetPoint("TOPRIGHT", 2, 2)
         rightoutline:SetPoint("BOTTOMRIGHT", 2, -2)
         rightoutline:SetWidth(1)
 
-        border[3] = self:CreateTexture(nil,"BORDER")
+        border[3] = border:CreateTexture(nil,"BORDER")
         border[3]:SetTexture(r,g,b)
         border[3]:SetPoint("TOPLEFT", -1, 1)
         border[3]:SetPoint("TOPRIGHT", 1, 1)
         border[3]:SetHeight(borderSize)
 
-        local topoutline = self:CreateTexture(nil,"BORDER")
+        local topoutline = border:CreateTexture(nil,"BORDER")
         topoutline:SetTexture(0,0,0)
         topoutline:SetPoint("TOPLEFT", -2, 2)
         topoutline:SetPoint("TOPRIGHT", 2, 2)
         topoutline:SetHeight(1)
 
-        border[4] = self:CreateTexture(nil,"BORDER")
+        border[4] = border:CreateTexture(nil,"BORDER")
         border[4]:SetTexture(r,g,b)
         border[4]:SetPoint("BOTTOMLEFT", -1, -1)
         border[4]:SetPoint("BOTTOMRIGHT", 1, -1)
         border[4]:SetHeight(borderSize)
 
-        local bottomoutline = self:CreateTexture(nil,"BORDER")
+        local bottomoutline = border:CreateTexture(nil,"BORDER")
         bottomoutline:SetTexture(0,0,0)
         bottomoutline:SetPoint("BOTTOMLEFT", -2, -2)
         bottomoutline:SetPoint("BOTTOMRIGHT", 2, -2)
         bottomoutline:SetHeight(1)
 
         self.__border = border
+        self.__border.__previous = 'default';
+        self.ColorBorder = SetFrameBorderColor
+        self.StartAlert = ShowAlertFlash
+        self.StopAlert = HideAlertFlash
     end
 
     if(not self.hover) then
@@ -920,7 +943,7 @@ local function FrameTemplateUpdates()
     end
 end
 
-LibSuperVillain("Registry"):NewCallback("CORE_MEDIA_UPDATED", "FrameTemplateUpdates", FrameTemplateUpdates)
+SVLib:NewCallback("CORE_MEDIA_UPDATED", "FrameTemplateUpdates", FrameTemplateUpdates)
 --[[ 
 ########################################################## 
 ENUMERATION

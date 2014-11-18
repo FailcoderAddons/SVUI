@@ -59,9 +59,22 @@ local BuyMaxStack = function(self, ...)
 end
 
 local MaxStackTooltip = function(self)
-    GameTooltip:AddDoubleLine("[Alt + Click]", "Buy a full stack.", 0, 0.5, 1, 0.5, 1, 0.5)
+	wipe(GameTooltip.InjectedDouble)
+	local itemLink = GetMerchantItemLink(self:GetID())
+	if not itemLink then return end
+	local maxStack = select(8, GetItemInfo(itemLink))
+	if(not (maxStack > 1)) then return end
+    GameTooltip.InjectedDouble[1] = "[Alt + Click]"
+    GameTooltip.InjectedDouble[2] = "Buy a full stack."
+    GameTooltip.InjectedDouble[3] = 0
+    GameTooltip.InjectedDouble[4] = 0.5
+    GameTooltip.InjectedDouble[5] = 1
+    GameTooltip.InjectedDouble[6] = 0.5
+    GameTooltip.InjectedDouble[7] = 1
+    GameTooltip.InjectedDouble[8] = 0.5
 end
 
+-- hooksecurefunc(GameTooltip, "SetMerchantItem", MaxStackTooltip);
 hooksecurefunc("MerchantItemButton_OnEnter", MaxStackTooltip);
 hooksecurefunc("MerchantItemButton_OnModifiedClick", BuyMaxStack);
 --[[ 

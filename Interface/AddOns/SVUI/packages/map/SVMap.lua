@@ -79,6 +79,11 @@ local MM_HEIGHT = (MM_SIZE - (MM_OFFSET_TOP + MM_OFFSET_BOTTOM) + (MM_BRDR * 2))
 local WM_ALPHA = false;
 local SVUI_MinimapFrame = CreateFrame("Frame", "SVUI_MinimapFrame", UIParent)
 SVUI_MinimapFrame:SetSize(MM_WIDTH, MM_HEIGHT)
+--[[ 
+########################################################## 
+GENERAL HELPERS
+##########################################################
+]]--
 --[[
  /$$$$$$$  /$$   /$$ /$$$$$$$$/$$$$$$$$/$$$$$$  /$$   /$$  /$$$$$$ 
 | $$__  $$| $$  | $$|__  $$__/__  $$__/$$__  $$| $$$ | $$ /$$__  $$
@@ -385,14 +390,6 @@ local function AdjustMapSize()
 end  
 
 local function UpdateWorldMapConfig()
-	if InCombatLockdown()then return end
-
-	if(not MOD.WorldMapHooked) then
-		NewHook("WorldMap_ToggleSizeUp", AdjustMapSize)
-		NewHook("WorldMap_ToggleSizeDown", SetSmallWorldMap)
-		MOD.WorldMapHooked = true
-	end
-	
 	if(not MM_XY_COORD or MM_XY_COORD == "HIDE") then
 		if MOD.CoordTimer then
 			SV.Timers:RemoveLoop(MOD.CoordTimer)
@@ -400,11 +397,17 @@ local function UpdateWorldMapConfig()
 		end
 		SVUI_MiniMapCoords.playerXCoords:SetText("")
 		SVUI_MiniMapCoords.playerYCoords:SetText("")
-		SVUI_MiniMapCoords:Hide()
 	else
-		SVUI_MiniMapCoords:Show()
+		if((not InCombatLockdown()) and (not SVUI_MiniMapCoords:IsShown())) then SVUI_MiniMapCoords:Show() end
 		UpdateMapCoords()
 		MOD.CoordTimer = SV.Timers:ExecuteLoop(UpdateMapCoords, 0.2)
+	end
+
+	if InCombatLockdown()then return end
+	if(not MOD.WorldMapHooked) then
+		NewHook("WorldMap_ToggleSizeUp", AdjustMapSize)
+		NewHook("WorldMap_ToggleSizeDown", SetSmallWorldMap)
+		MOD.WorldMapHooked = true
 	end
 	AdjustMapSize() 
 end
@@ -711,7 +714,11 @@ function MOD:Load()
 	Minimap:SetPlayerTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Minimap\\MINIMAP_ARROW")
 	Minimap:SetCorpsePOIArrowTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Minimap\\MINIMAP_CORPSE_ARROW")
 	Minimap:SetPOIArrowTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Minimap\\MINIMAP_GUIDE_ARROW")
-	Minimap:SetBlipTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Minimap\\MINIMAP_ICONS")
+	if(SV.db.SVMap.customIcons) then
+		Minimap:SetBlipTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Minimap\\MINIMAP_ICONS")
+	else
+		Minimap:SetBlipTexture("Interface\\Minimap\\OBJECTICONS")
+	end
 	Minimap:SetClampedToScreen(false)
 
 	local mapHolder = SVUI_MinimapFrame
@@ -773,24 +780,19 @@ function MOD:Load()
 	QueueStatusMinimapButton:Point("BOTTOMLEFT", mapHolder, "BOTTOMLEFT", 6, 5)
 	QueueStatusMinimapButton:SetPanelTemplate("Button", false, 1, -2, -2)
 
-	GarrisonLandingPageMinimapButton:ClearAllPoints()
-	GarrisonLandingPageMinimapButton:Point("BOTTOMLEFT", mapHolder, "BOTTOMLEFT", 6, 5)
-	GarrisonLandingPageMinimapButton:SetPanelTemplate("Button", false, 1, -2, -2)
-
 	QueueStatusFrame:SetClampedToScreen(true)
 	QueueStatusMinimapButtonBorder:Hide()
 	QueueStatusMinimapButton:SetScript("OnShow", function()
 		MiniMapInstanceDifficulty:Point("BOTTOMLEFT", QueueStatusMinimapButton, "TOPLEFT", 0, 0)
 		GuildInstanceDifficulty:Point("BOTTOMLEFT", QueueStatusMinimapButton, "TOPLEFT", 0, 0)
 		MiniMapChallengeMode:Point("BOTTOMLEFT", QueueStatusMinimapButton, "TOPRIGHT", 0, 0)
-		GarrisonLandingPageMinimapButton:Point("BOTTOMLEFT", QueueStatusMinimapButton, "BOTTOMRIGHT", 0, 0)
 	end)
 	QueueStatusMinimapButton:SetScript("OnHide", function()
-	    GarrisonLandingPageMinimapButton:Point("BOTTOMLEFT", mapHolder, "BOTTOMLEFT", 0, 0)
 		MiniMapInstanceDifficulty:Point("LEFT", mapHolder, "LEFT", 0, 0)
 		GuildInstanceDifficulty:Point("LEFT", mapHolder, "LEFT", 0, 0)
 		MiniMapChallengeMode:Point("LEFT", mapHolder, "LEFT", 12, 0)
 	end)
+
 	if FeedbackUIButton then
 		FeedbackUIButton:Die()
 	end

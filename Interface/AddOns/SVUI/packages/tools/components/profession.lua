@@ -76,6 +76,7 @@ LOCALS
 ]]--
 local ICON_SHEET = [[Interface\AddOns\SVUI\assets\artwork\Icons\PROFESSIONS]];
 local HEARTH_ICON = [[Interface\AddOns\SVUI\assets\artwork\Icons\DOCK-HEARTH]];
+
 local TOOL_DATA = {
 	[171] 	= {0,0.25,0,0.25}, 				-- PRO-ALCHEMY
     [794] 	= {0.25,0.5,0,0.25,80451}, 		-- PRO-ARCHAELOGY
@@ -139,14 +140,15 @@ local SetMacroTooltip = function(self)
 end
 
 local SetHearthTooltip = function(self)
-	GameTooltip:AddDoubleLine("[Left-Click]", L["Hearthstone"], 0, 1, 0, 1, 1, 1)
+	local text1 = self:GetAttribute("tipText")
+	local text2 = self:GetAttribute("tipExtraText")
+	GameTooltip:AddDoubleLine("[Left-Click]", text1, 0, 1, 0, 1, 1, 1)
 	if InCombatLockdown() then return end
 	local remaining = GetMacroCooldown(6948)
 	GameTooltip:AddDoubleLine(L["Time Remaining"], remaining, 1, 1, 1, 0, 1, 1)
-	local extraText = self:GetAttribute("tipExtraText")
-	if(extraText) then
+	if(text2) then
 		GameTooltip:AddLine(" ", 1, 1, 1)
-		GameTooltip:AddDoubleLine(extraText, "[Right Click]", 1, 1, 1, 0, 1, 0)
+		GameTooltip:AddDoubleLine("[Right Click]", text2, 0, 1, 0, 1, 1, 1)
 	end
 end
 
@@ -161,7 +163,7 @@ local function CreateMacroToolButton(proName, proID, itemID)
 
 	if proID == 186 then proName = GetSpellInfo(2656) end
 
-	button:RegisterForClicks("AnyDown")
+	--button:RegisterForClicks("AnyDown")
 	button:SetAttribute("type1", "macro")
 	button:SetAttribute("macrotext1", "/cast [nomod]" .. proName)
 
@@ -177,7 +179,7 @@ local function CreateMacroToolButton(proName, proID, itemID)
 		button:SetAttribute("type2", "macro")
 		button:SetAttribute("macrotext2", "/cast [nomod] " .. rightClick)
 	end
-end 
+end
 
 local function LoadToolBarProfessions()
 	if((not SV.db.SVTools.professions) or MOD.ToolBarLoaded) then return end
@@ -189,18 +191,20 @@ local function LoadToolBarProfessions()
 
 	-- HEARTH BUTTON
 	local hearthStone = GetItemInfo(6948);
-	local hearth = SV.Dock:SetDockButton("BottomLeft", L["Hearthstone"], HEARTH_ICON, nil, "SVUI_Hearth", SetHearthTooltip, "SecureActionButtonTemplate")
-	hearth.Icon:SetTexCoord(0,0.5,0,1)
-	hearth:SetAttribute("type1", "macro")
-	hearth:SetAttribute("macrotext1", "/use [nomod]" .. hearthStone)
-	local hasRightClick = false;
-	for i = 1, #HEARTH_SPELLS do
-		if(IsSpellKnown(HEARTH_SPELLS[i])) then
-			local rightClickSpell = GetSpellInfo(HEARTH_SPELLS[i])
-			hearth:SetAttribute("tipExtraText", rightClickSpell)
-			hearth:SetAttribute("type2", "macro")
-			hearth:SetAttribute("macrotext2", "/use [nomod] " .. rightClickSpell)
-			hasRightClick = true;
+	if(hearthStone and type(hearthStone) == "string") then
+		local hearth = SV.Dock:SetDockButton("BottomLeft", L["Hearthstone"], HEARTH_ICON, nil, "SVUI_Hearth", SetHearthTooltip, "SecureActionButtonTemplate")
+		hearth.Icon:SetTexCoord(0,0.5,0,1)
+		hearth:SetAttribute("type1", "macro")
+		hearth:SetAttribute("macrotext1", "/use [nomod]" .. hearthStone)
+		local hasRightClick = false;
+		for i = 1, #HEARTH_SPELLS do
+			if(IsSpellKnown(HEARTH_SPELLS[i])) then
+				local rightClickSpell = GetSpellInfo(HEARTH_SPELLS[i])
+				hearth:SetAttribute("tipExtraText", rightClickSpell)
+				hearth:SetAttribute("type2", "macro")
+				hearth:SetAttribute("macrotext2", "/use [nomod] " .. rightClickSpell)
+				hasRightClick = true;
+			end
 		end
 	end
 

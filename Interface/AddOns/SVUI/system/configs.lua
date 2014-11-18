@@ -105,7 +105,7 @@ SV.configs["media"] = {
     ["colors"] = {
         ["default"]      = {0.2, 0.2, 0.2, 1}, 
         ["special"]      = {0.37, 0.32, 0.29, 1}, 
-        ["specialdark"]      = {0.37, 0.32, 0.29, 1}, 
+        ["specialdark"]  = {0.37, 0.32, 0.29, 1}, 
     }, 
     ["unitframes"] = {
         ["health"]       = {0.3, 0.5, 0.3}, 
@@ -532,7 +532,8 @@ SV.configs["SVMap"] = {
 		["SquareMap"] = true,
 		["PocketPlot"] = true,
 	},
-	["enable"] = true, 
+	["enable"] = true,
+	["customIcons"] = true,
 	["mapAlpha"] = 1, 
 	["tinyWorldMap"] = true, 
 	["size"] = 240, 
@@ -2601,7 +2602,7 @@ SV.configs["SVUnit"] = {
 		["health"] = 
 		{
 			["tags"] = "[health:color][health:deficit]", 
-			["position"] = "BOTTOM", 
+			["position"] = "INNERBOTTOMRIGHT", 
 			["orientation"] = "HORIZONTAL", 
 			["frequentUpdates"] = false, 
 			["yOffset"] = 0, 

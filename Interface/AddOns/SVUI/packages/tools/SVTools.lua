@@ -78,6 +78,11 @@ function MOD:PLAYER_REGEN_ENABLED()
 		self:UpdateProfessionTools()
 	end
 
+	if(self.GarrisonNeedsUpdate) then
+		self.GarrisonNeedsUpdate = nil;
+		self:UpdateGarrisonTool()
+	end
+
 	if(self.RaidLeaderNeedsUpdate) then
 		self.RaidLeaderNeedsUpdate = nil;
 		self:UpdateRaidLeader()
@@ -86,11 +91,13 @@ end
 
 function MOD:ReLoad()
 	self:UpdateProfessionTools()
+	self:UpdateGarrisonTool()
 	self:UpdateRaidLeader()
 end 
 
 function MOD:Load()
 	self:LoadQuestWatch()
 	self:LoadProfessionTools()
+	self:LoadGarrisonTool()
 	self:LoadRaidLeaderTools()
 end

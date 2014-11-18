@@ -273,9 +273,13 @@ local function tiplevel(this, start)
 end
 
 local _hook_GameTooltip_OnTooltipSetUnit = function(self)
-	self.SuperBorder:ClearMaskColors()
+	local mask = self.SuperBorder
+	mask:ClearMaskColors()
+	mask:ClearAllPoints()
+	mask:SetPoint("TOPLEFT", self, "TOPLEFT", 0, 0)
+
 	local unit = select(2, self:GetUnit())
-	local TamablePet;
+	-- local TamablePet;
 	if self:GetOwner()  ~= UIParent and SV.db.SVTip.visibility.unitFrames  ~= "NONE" then 
 		local vis = SV.db.SVTip.visibility.unitFrames;
 		if vis == "ALL" or not (vis == "SHIFT" and IsShiftKeyDown() or vis == "CTRL" and IsControlKeyDown() or vis == "ALT" and IsAltKeyDown()) then 
@@ -356,7 +360,7 @@ local _hook_GameTooltip_OnTooltipSetUnit = function(self)
 
 		if(not IsAddOnLoaded("HealBot") and (SV.db.SVTip.inspectInfo or isShiftKeyDown)) then 
 			ShowInspectInfo(self, unit, unitLevel, colors.r, colors.g, colors.b, 0)
-		end 
+		end
 	else
 		if UnitIsTapped(unit) and not UnitIsTappedByPlayer(unit) then 
 			colors = TAPPED_COLOR
@@ -390,9 +394,9 @@ local _hook_GameTooltip_OnTooltipSetUnit = function(self)
 				local family = UnitCreatureFamily(unit) or creatureType
 				if(SV.class == "HUNTER" and creatureType == PET_TYPE_SUFFIX[8] and (family and TAMABLE_FAMILIES[family])) then
 					local hunterLevel = UnitLevel("player")
-					if(unitLevel <= hunterLevel) then
-						TamablePet = true
-					end
+					-- if(unitLevel <= hunterLevel) then
+					-- 	TamablePet = true
+					-- end
 				end
 				creatureType = family
 			else
@@ -400,11 +404,11 @@ local _hook_GameTooltip_OnTooltipSetUnit = function(self)
 			end
 
 			lvlLine:SetFormattedText("|cff%02x%02x%02x%s|r%s %s%s", qColor.r * 255, qColor.g * 255, qColor.b * 255, unitLevel > 0 and unitLevel or "??", classification[creatureClassification] or "", creatureType, temp)
-		end 
+		end
 	end
-	if(TamablePet) then
-		GameTooltip:AddLine(TAMABLE_INDICATOR)
-	end
+	-- if(TamablePet) then
+	-- 	self:AddLine(TAMABLE_INDICATOR)
+	-- end
 	if SV.db.SVTip.targetInfo then
 		local unitTarget = unit.."target"
 		if(unit ~= "player" and UnitExists(unitTarget)) then 
@@ -413,7 +417,7 @@ local _hook_GameTooltip_OnTooltipSetUnit = function(self)
 			else 
 				totColor = FACTION_BAR_COLORS[UnitReaction(unitTarget, "player")]
 			end 
-			GameTooltip:AddDoubleLine(format("%s:", TARGET), format("|cff%02x%02x%02x%s|r", totColor.r * 255, totColor.g * 255, totColor.b * 255, UnitName(unitTarget)))
+			self:AddDoubleLine(format("%s:", TARGET), format("|cff%02x%02x%02x%s|r", totColor.r * 255, totColor.g * 255, totColor.b * 255, UnitName(unitTarget)))
 		end 
 		if IsInGroup() then 
 			for i = 1, GetNumGroupMembers() do 
@@ -425,21 +429,29 @@ local _hook_GameTooltip_OnTooltipSetUnit = function(self)
 			end 
 			local maxTargets = #targetList;
 			if maxTargets > 0 then 
-				GameTooltip:AddLine(format("%s (|cffffffff%d|r): %s", L["Targeted By:"], maxTargets, tconcat(targetList, ", ")), nil, nil, nil, true)
+				self:AddLine(format("%s (|cffffffff%d|r): %s", L["Targeted By:"], maxTargets, tconcat(targetList, ", ")), nil, nil, nil, true)
 				twipe(targetList)
 			end 
 		end 
-	end 
-	if colors then 
+	end
+
+	if colors then
 		GameTooltipStatusBar:SetStatusBarColor(colors.r, colors.g, colors.b)
 	else 
 		GameTooltipStatusBar:SetStatusBarColor(0.6, 0.6, 0.6)
-	end 
+	end
+	
+	if(GameTooltipStatusBar:IsShown()) then
+		mask:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 0, mask.ToggleHeight)
+	else
+		mask:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 0, 0)
+	end
 end 
 
 local _hook_GameTooltipStatusBar_OnValueChanged = function(self, value)
-	if not value or not SV.db.SVTip.healthBar.text or not self.text then return end 
-	local unit = select(2,self:GetParent():GetUnit())
+	if not value or not SV.db.SVTip.healthBar.text or not self.text then return end
+	local tooltip = self:GetParent()
+	local unit = select(2, tooltip:GetUnit())
 	if not unit then 
 		local mFocus = GetMouseFocus()
 		if mFocus and mFocus:GetAttribute("unit") then 
@@ -447,14 +459,14 @@ local _hook_GameTooltipStatusBar_OnValueChanged = function(self, value)
 		end 
 	end 
 	local min,max = self:GetMinMaxValues()
-	if value > 0 and max==1 then 
+	if((value > 0) and (max == 1)) then
 		self.text:SetText(format("%d%%",floor(value * 100)))
 		self:SetStatusBarColor(TAPPED_COLOR.r,TAPPED_COLOR.g,TAPPED_COLOR.b)
-	elseif value==0 or unit and UnitIsDeadOrGhost(unit) then 
+	elseif((value == 0) or (unit and UnitIsDeadOrGhost(unit))) then 
 		self.text:SetText(DEAD)
-	else 
+	else
 		self.text:SetText(TruncateString(value).." / "..TruncateString(max))
-	end 
+	end
 end 
 
 local _hook_GameTooltip_OnTooltipSetItem = function(self)
@@ -477,8 +489,12 @@ local _hook_GameTooltip_OnTooltipSetItem = function(self)
 		if left ~= "" or right ~= "" then 
 			self:AddLine(" ")
 			self:AddDoubleLine(left,right)
-		end 
-		self.itemCleared = true 
+		end
+		if(self.InjectedDouble[8]) then
+			self:AddLine(" ");
+			self:AddDoubleLine(unpack(self.InjectedDouble));
+		end
+		self.itemCleared = true
 	end
 end 
 
@@ -503,7 +519,7 @@ local _hook_GameTooltip_ShowStatusBar = function(self, ...)
 			bar.border=border 
 		end 
 		bar.styled=true 
-	end 
+	end
 end 
 
 local _hook_OnSetUnitAura = function(self, unit, index, filter)
@@ -612,7 +628,7 @@ local _hook_BNToastOnShow = function(self,anchor,parent,relative,x,y)
 end
 
 local _hook_OnTipCleared = function(self)
-	self.itemCleared = nil 
+	self.itemCleared = nil
 end
 
 local _hook_OnItemRef = function(link, text, button, chatFrame)
@@ -636,7 +652,7 @@ local Override_BGColor = function(self, r, g, b, a)
 	end
 end
 
-local Override_BorderColor = function(self, r, g, b, a) 
+local Override_BorderColor = function(self, r, g, b, a)
 	if(b ~= 0 or (a and a ~= 0)) then
 		self:SetBackdropBorderColor(0, 0, 0, 0)
 		self.SuperBorder:SetBackdropBorderColor(0, 0, 0)
@@ -662,12 +678,6 @@ local _hook_OnTipShow = function(self)
 	self:SetBackdropBorderColor(0, 0, 0, 0)
 
 	local mask = self.SuperBorder
-	mask:SetPoint("TOPLEFT", self, "TOPLEFT", 0, 0)
-	if(GameTooltipStatusBar:IsShown()) then
-		mask:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 0, mask.ToggleHeight)
-	else
-		mask:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 0, 0)
-	end
 
 	mask[1]:SetSize(widthScale,heightWidth)
 	mask[2]:SetSize(widthScale,heightWidth)
@@ -684,10 +694,17 @@ local _hook_OnTipShow = function(self)
 	})
 	mask:SetBackdropColor(0, 0, 0, 1)
 	mask:SetBackdropBorderColor(0, 0, 0, 1)
+
+	if(not GameTooltipStatusBar:IsShown()) then
+		mask:ClearAllPoints()
+		mask:SetPoint("TOPLEFT", self, "TOPLEFT", 0, 0)
+		mask:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 0, 0)
+	end
 end
 
 local _hook_OnTipHide = function(self)
 	self.SuperBorder:ClearMaskColors()
+	wipe(self.InjectedDouble)
 end
 
 local function ApplyTooltipSkins()
@@ -695,6 +712,9 @@ local function ApplyTooltipSkins()
 
 	for i, tooltip in pairs(tooltips) do
 		if(not tooltip) then return end
+		if(not tooltip.InjectedDouble) then 
+			tooltip.InjectedDouble = {}
+		end
 		if(not tooltip.SuperBorder) then 
 			local barOffset = 0
 			local alpha = 0.2

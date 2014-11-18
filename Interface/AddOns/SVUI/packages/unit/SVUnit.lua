@@ -603,10 +603,10 @@ function MOD:RefreshUnitLayout(frame, template)
 		health.colorOverlay = nil;
 		health.overlayAnimation = overlayAnimation
 
-		if(not GRID_MODE and frame.HealPrediction) then
+		if((not GRID_MODE) and frame.HealPrediction) then
 			frame.HealPrediction["frequentUpdates"] = health.frequentUpdates
 		end
-		if(not GRID_MODE and portraitOverlay and SV.db.SVUnit.forceHealthColor) then
+		if((not GRID_MODE) and portraitOverlay and SV.db.SVUnit.forceHealthColor) then
 			health.colorOverlay = true;
 		else
 			if(GRID_MODE or (db.colorOverride and db.colorOverride == "FORCE_ON")) then 

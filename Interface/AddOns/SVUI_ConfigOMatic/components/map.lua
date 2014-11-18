@@ -112,6 +112,13 @@ SV.Options.args.SVMap = {
 					type = "toggle",
 					name = "Custom Shape",
 					desc = "Toggle the use of either rectangular or square minimap.",
+				},
+				customIcons = {
+					order = 5,
+					type = "toggle",
+					name = "Custom Blip Icons",
+					desc = "Toggle the use of special map blips.",
+					set = function(a,b) MOD:ChangeDBVar(b,a[#a]); SV:StaticPopup_Show("RL_CLIENT") end
 				}
 			}
 		},

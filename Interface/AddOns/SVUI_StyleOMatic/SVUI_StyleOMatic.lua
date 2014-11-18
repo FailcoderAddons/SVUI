@@ -309,43 +309,39 @@ function PLUGIN:RegisterAddonDocklets()
 			self.Docklet.Dock1:SetWidth(width)
 		end
 
-		while(not self.Docklet.Dock1.FrameLink) do
-			if(self:DockletReady("Skada", dock1)) then
-				tipLeft = "Skada";
-				self:Docklet_Skada()
-			elseif(self:DockletReady("Omen", dock1)) then
-				tipLeft = "Omen";
-				self:Docklet_Omen(self.Docklet.Dock1)
-			elseif(self:DockletReady("Recount", dock1)) then
-				tipLeft = "Recount";
-				self:Docklet_Recount(self.Docklet.Dock1)
-			elseif(self:DockletReady("TinyDPS", dock1)) then
-				tipLeft = "TinyDPS";
-				self:Docklet_TinyDPS(self.Docklet.Dock1) 
-			elseif(self:DockletReady("alDamageMeter", dock1)) then
-				tipLeft = "alDamageMeter";
-				self:Docklet_alDamageMeter(self.Docklet.Dock1)
-			end
+		if(self:DockletReady("Skada", dock1)) then
+			tipLeft = "Skada";
+			self:Docklet_Skada()
+		elseif(self:DockletReady("Omen", dock1)) then
+			tipLeft = "Omen";
+			self:Docklet_Omen(self.Docklet.Dock1)
+		elseif(self:DockletReady("Recount", dock1)) then
+			tipLeft = "Recount";
+			self:Docklet_Recount(self.Docklet.Dock1)
+		elseif(self:DockletReady("TinyDPS", dock1)) then
+			tipLeft = "TinyDPS";
+			self:Docklet_TinyDPS(self.Docklet.Dock1) 
+		elseif(self:DockletReady("alDamageMeter", dock1)) then
+			tipLeft = "alDamageMeter";
+			self:Docklet_alDamageMeter(self.Docklet.Dock1)
 		end
 
 		if(enabled2) then
-			while(not self.Docklet.Dock2.FrameLink) do
-				if(self:DockletReady("Skada", dock2)) then
-					tipRight = "and Skada";
-					self:Docklet_Skada()
-				elseif(self:DockletReady("Omen", dock2)) then
-					tipRight = "and Omen";
-					self:Docklet_Omen(self.Docklet.Dock2)
-				elseif(self:DockletReady("Recount", dock2)) then
-					tipRight = "and Recount";
-					self:Docklet_Recount(self.Docklet.Dock2)
-				elseif(self:DockletReady("TinyDPS", dock2)) then
-					tipRight = "and TinyDPS";
-					self:Docklet_TinyDPS(self.Docklet.Dock2)
-				elseif(self:DockletReady("alDamageMeter", dock2)) then
-					tipRight = "and alDamageMeter";
-					self:Docklet_alDamageMeter(self.Docklet.Dock2)
-				end
+			if(self:DockletReady("Skada", dock2)) then
+				tipRight = "and Skada";
+				self:Docklet_Skada()
+			elseif(self:DockletReady("Omen", dock2)) then
+				tipRight = "and Omen";
+				self:Docklet_Omen(self.Docklet.Dock2)
+			elseif(self:DockletReady("Recount", dock2)) then
+				tipRight = "and Recount";
+				self:Docklet_Recount(self.Docklet.Dock2)
+			elseif(self:DockletReady("TinyDPS", dock2)) then
+				tipRight = "and TinyDPS";
+				self:Docklet_TinyDPS(self.Docklet.Dock2)
+			elseif(self:DockletReady("alDamageMeter", dock2)) then
+				tipRight = "and alDamageMeter";
+				self:Docklet_alDamageMeter(self.Docklet.Dock2)
 			end
 		end
 
@@ -406,7 +402,12 @@ end
 
 local function GetDockableAddons()
 	local test = PLUGIN.cache.Docks[1];
-	local t = {{text = "None", func = function() PLUGIN.cache.Docks[1] = "None"; PLUGIN:RegisterAddonDocklets() end}};
+
+	local t = {
+		{ title = "Docked Addon", divider = true },
+		{text = "Remove All", func = function() PLUGIN.cache.Docks[1] = "None"; PLUGIN:RegisterAddonDocklets() end}
+	};
+
 	for n,l in pairs(DockableAddons) do
 		if (not test or (test and not test:find(n))) then
 			if(n:find("Skada") and _G.Skada) then
@@ -530,7 +531,7 @@ function PLUGIN:Load()
 
 	self.Docklet = SV.Dock:NewDocklet("BottomRight", "SVUI_StyleOMaticDock", self.TitleID, [[Interface\AddOns\SVUI\assets\artwork\Icons\DOCK-ADDON]], AddonDockletToggle);
 	SV.Dock.BottomRight.Bar.Button.GetMenuList = GetDockableAddons;
-	self.Docklet.DockButton.GetMenuList = GetDockableAddons;
+	self.Docklet.DockButton.GetPreMenuList = GetDockableAddons;
 	self.Docklet.DockButton:SetAttribute("hasDropDown", true);
 
 	local dockWidth = self.Docklet:GetWidth()

@@ -55,6 +55,23 @@ local Button_OnLeave = function(self)
 	GameTooltip:Hide()
 end
 
+local ToolButton_OnEnter = function(self, ...)
+	SVUI_RaidToolDockButton:SetPanelColor("highlight")
+	SVUI_RaidToolDockButton.Icon:SetGradient(unpack(SV.Media.gradient.bizzaro))
+
+	GameTooltip:SetOwner(self, "ANCHOR_BOTTOMLEFT", 0, 4)
+	GameTooltip:ClearLines()
+	GameTooltip:AddDoubleLine("[Left-Click]", RAID_CONTROL, 0, 1, 0, 1, 1, 1)
+	GameTooltip:Show()
+end 
+
+local ToolButton_OnLeave = function(self, ...)
+	SVUI_RaidToolDockButton:SetPanelColor("default")
+	SVUI_RaidToolDockButton.Icon:SetGradient(unpack(SV.Media.gradient.icon))
+
+	GameTooltip:Hide()
+end
+
 local function NewToolButton(name, parent, template, width, height, point, relativeto, point2, xOfs, yOfs, textDisplay)
 	local button = CreateFrame("Button", name, parent, template)
 	button:RemoveTextures()
@@ -116,6 +133,9 @@ function MOD:LoadRaidLeaderTools()
 	local SVUI_RaidToolToggle = CreateFrame("Button", "SVUI_RaidToolToggle", self.RaidTool, "UIMenuButtonStretchTemplate, SecureHandlerClickTemplate")
 	SVUI_RaidToolToggle:SetAllPoints(self.RaidTool)
 	SVUI_RaidToolToggle:RemoveTextures()
+	SVUI_RaidToolToggle:SetNormalTexture("")
+	SVUI_RaidToolToggle:SetPushedTexture("")
+	SVUI_RaidToolToggle:SetHighlightTexture("")
 	SVUI_RaidToolToggle:SetFrameRef("SVUI_RaidToolMenu", SVUI_RaidToolMenu)
 	SVUI_RaidToolToggle:SetAttribute("_onclick", [=[
 		local raidUtil = self:GetFrameRef("SVUI_RaidToolMenu");
@@ -137,7 +157,8 @@ function MOD:LoadRaidLeaderTools()
 		closeButton:SetPoint("BOTTOM", raidUtil, "BOTTOM", 0, 2)
 	]=]);
 	SVUI_RaidToolToggle:SetScript("PostClick", function(self) self:RemoveTextures(); SVUI_RaidToolMenu.toggled = true end);
-
+	SVUI_RaidToolToggle:HookScript("OnEnter", ToolButton_OnEnter)
+	SVUI_RaidToolToggle:HookScript("OnLeave", ToolButton_OnLeave)
 	SV:AddToDisplayAudit(self.RaidTool);
 
 	--Close Button

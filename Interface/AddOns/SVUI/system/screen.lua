@@ -143,7 +143,7 @@ function SV.Screen:Update()
 
     if(IsMacClient()) then
         if(not self.MacDisplay) then
-            self.MacDisplay = SVLib:NewGlobal("Display");
+            self.MacDisplay = LibSuperVillain("Registry"):NewGlobal("Display");
             if(not self.MacDisplay.Y or (self.MacDisplay.Y and type(self.MacDisplay.Y) ~= "number")) then 
                 self.MacDisplay.Y = gxHeight;
             end

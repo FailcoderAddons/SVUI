@@ -340,6 +340,8 @@ local SlotUpdate = function(self, slotID)
 			slot:SetBackdropColor(0, 0, 0, 0.6)
 			slot:SetBackdropBorderColor(0, 0, 0, 1)
 		end
+	elseif(not texture) then
+		GameTooltip:Hide()
 	end
 	
 	if(bagType) then
@@ -348,11 +350,13 @@ local SlotUpdate = function(self, slotID)
 		slot:SetBackdropBorderColor(r, g, b, 1)
 	end
 
-	-- if(C_NewItems.IsNewItem(bag, slotID)) then 
-	-- 	ActionButton_ShowOverlayGlow(slot)
-	-- else 
-	-- 	ActionButton_HideOverlayGlow(slot)
-	-- end
+	if(C_NewItems.IsNewItem(bag, slotID)) then
+		C_NewItems.RemoveNewItem(bag, slotID)
+	end
+	
+	if(slot.NewItemTexture) then slot.NewItemTexture:Hide() end;
+	if(slot.flashAnim) then slot.flashAnim:Stop() end;
+    if(slot.newitemglowAnim) then slot.newitemglowAnim:Stop() end;
 
 	SetItemButtonTexture(slot, texture)
 	SetItemButtonCount(slot, count)
@@ -1729,7 +1733,7 @@ end
 
 local function _toggleBags(id)
 	if id and GetContainerNumSlots(id)==0 then return end 
-	if MOD.BagFrame:IsShown()then 
+	if MOD.BagFrame:IsShown() then 
 		_closeBags()
 	else 
 		_openBags()
@@ -1737,7 +1741,7 @@ local function _toggleBags(id)
 end
 
 local function _toggleBackpack()
-	if IsOptionFrameOpen()then return end 
+	if IsOptionFrameOpen() then return end 
 	if IsBagOpen(0) then 
 		_openBags()
 	else 

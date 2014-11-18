@@ -81,10 +81,10 @@ function PLUGIN:Docklet_Omen(parent)
   OmenTitle:SetPanelTemplate("Default")
   OmenTitle:SetPanelColor("class")
   OmenBarList:RemoveTextures()
-  OmenBarList.Panel = nil
-  OmenBarList:SetFixedPanelTemplate('Transparent')
+  OmenAnchor:SetFixedPanelTemplate('Transparent')
   OmenAnchor:ClearAllPoints()
   OmenAnchor:SetAllPoints(parent)
+  OmenAnchor:SetParent(parent)
 
   parent.Framelink = OmenAnchor
 end 

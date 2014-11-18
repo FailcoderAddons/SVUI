@@ -221,6 +221,7 @@ local PartyUnitUpdate = function(self)
     self.colors = oUF_Villain.colors;
     self:RegisterForClicks(SV.db.SVUnit.fastClickTarget and 'AnyDown' or 'AnyUp')
     MOD.RefreshUnitMedia(self, "party")
+
     if self.isChild then 
         local altDB = db.petsGroup;
         if self == _G[self.originalParent:GetName()..'Target'] then 
@@ -232,7 +233,7 @@ local PartyUnitUpdate = function(self)
         self.originalParent.childList[self] = true;
         if not InCombatLockdown()then 
             if altDB.enable then
-                local UNIT_WIDTH, UNIT_HEIGHT = MOD:GetActiveSize(altDB, "partychild") 
+                local UNIT_WIDTH, UNIT_HEIGHT = MOD:GetActiveSize(altDB) 
                 self:SetParent(self.originalParent)
                 self:Size(UNIT_WIDTH, UNIT_HEIGHT)
                 self:ClearAllPoints()
@@ -317,7 +318,7 @@ BuildTemplates["party"] = function(self, unit)
     MOD:SetActionPanel(self, "party")
     self.Health = MOD:CreateHealthBar(self, true)
 
-    if self.isChild then 
+    if self.isChild then
         self.originalParent = self:GetParent()
     else
         self.Power = MOD:CreatePowerBar(self, true)
@@ -517,9 +518,7 @@ UpdateTemplates["raidpet"] = function(self)
         RegisterStateDriver(groupFrame, "visibility", "[group:raid] show; hide")
         SV.Mentalo:Add(groupFrame, L["Raid Pet Frames"], nil, nil, nil, "ALL, RAID10, RAID25, RAID40")
         groupFrame.positioned = true;
-    end 
-
-    RaidPetVisibility(groupFrame)
+    end
 
     local index = 1;
     local attIndex = ("child%d"):format(index)
@@ -901,6 +900,8 @@ function MOD:SetGroupHeader(parentFrame, filter, layout, headerName, token)
     if(token == "raidpet") then
         template1 = "SVUI_UNITPET"
         template2 = "SecureGroupPetHeaderTemplate"
+    elseif(token == "party") then
+        template1 = "SVUI_UNITPET, SVUI_UNITTARGET"
     elseif(token == "tank") then
         filter = "MAINTANK"
         template1 = "SVUI_UNITTARGET"

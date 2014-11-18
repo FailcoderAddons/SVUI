@@ -169,11 +169,6 @@ local function PaperDoll_UpdateTabs()
 				for i = 1, tab:GetNumRegions()do 
 					local texture = select(i, tab:GetRegions())
 					texture:SetTexCoord(0.16, 0.86, 0.16, 0.86)
-					hooksecurefunc(texture, "SetTexCoord", function(f, v, w, x, y)
-						if v ~= 0.16001 then
-							 f:SetTexCoord(0.16001, 0.86, 0.16, 0.86)
-						end 
-					end)
 				end 
 			end 
 			tab:SetPanelTemplate("Default", true, 2)

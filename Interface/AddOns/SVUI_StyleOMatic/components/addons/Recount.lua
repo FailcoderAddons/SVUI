@@ -51,44 +51,45 @@ local function NoColor(a)
   end 
 end 
 
+local function StyleFrame(frame)
+  if(not frame) then return end
+  PLUGIN:ApplyFrameStyle(frame,"Transparent")
+  frame.Panel:SetAllPoints()
+  frame.Panel:SetPoint('TOPLEFT', frame, 'TOPLEFT', 0, -6)
+  frame.CloseButton:SetPoint('TOPRIGHT', frame, 'TOPRIGHT', -1, -9)
+  frame:SetBackdrop(nil)
+
+  frame.TitleBackground = CreateFrame('Frame', nil, frame)
+  frame.TitleBackground:SetFixedPanelTemplate("Default")
+  frame.TitleBackground:SetPanelColor("class")
+  frame.TitleBackground:SetPoint('TOP', frame, 'TOP', 0, -8)
+  frame.TitleBackground.timeLapse = 0
+  frame.TitleBackground:SetScript('OnUpdate', function(self,elapsed)
+    self.timeLapse = self.timeLapse + elapsed
+    if(self.timeLapse < 0.2) then 
+      return 
+    else
+      self.timeLapse = 0
+    end
+    self:SetSize(frame:GetWidth() - 4, 22) 
+  end)
+  frame.TitleBackground:SetFrameLevel(frame:GetFrameLevel())
+  frame.Title:SetPoint('TOPLEFT', frame, 'TOPLEFT', 6, -12)
+  NoColor(frame.CloseButton)
+  if frame.ConfigButton then NoColor(frame.ConfigButton) end
+  if frame.FileButton then NoColor(frame.FileButton) end
+  if frame.LeftButton then NoColor(frame.LeftButton) end
+  if frame.ResetButton then NoColor(frame.ResetButton) end
+  if frame.RightButton then NoColor(frame.RightButton) end
+  if frame.ReportButton then NoColor(frame.ReportButton) end
+  if frame.SummaryButton then NoColor(frame.SummaryButton) end
+end
+
 local function StyleRecount()
   assert(Recount, "AddOn Not Loaded")
   
   function Recount:ShowReset()
     PLUGIN:LoadAlert(L['Reset Recount?'], function(self) Recount:ResetData() self:GetParent():Hide() end)
-  end
-
-  local function StyleFrame(frame)
-    PLUGIN:ApplyFrameStyle(frame,"Transparent")
-    frame.Panel:SetAllPoints()
-    frame.Panel:SetPoint('TOPLEFT', frame, 'TOPLEFT', 0, -6)
-    frame.CloseButton:SetPoint('TOPRIGHT', frame, 'TOPRIGHT', -1, -9)
-    frame:SetBackdrop(nil)
-
-    frame.TitleBackground = CreateFrame('Frame', nil, frame)
-    frame.TitleBackground:SetFixedPanelTemplate("Default")
-    frame.TitleBackground:SetPanelColor("class")
-    frame.TitleBackground:SetPoint('TOP', frame, 'TOP', 0, -8)
-    frame.TitleBackground.timeLapse = 0
-    frame.TitleBackground:SetScript('OnUpdate', function(self,elapsed)
-      self.timeLapse = self.timeLapse + elapsed
-      if(self.timeLapse < 0.2) then 
-        return 
-      else
-        self.timeLapse = 0
-      end
-      self:SetSize(frame:GetWidth() - 4, 22) 
-    end)
-    frame.TitleBackground:SetFrameLevel(frame:GetFrameLevel())
-    frame.Title:SetPoint('TOPLEFT', frame, 'TOPLEFT', 6, -12)
-    NoColor(frame.CloseButton)
-    if frame.ConfigButton then NoColor(frame.ConfigButton) end
-    if frame.FileButton then NoColor(frame.FileButton) end
-    if frame.LeftButton then NoColor(frame.LeftButton) end
-    if frame.ResetButton then NoColor(frame.ResetButton) end
-    if frame.RightButton then NoColor(frame.RightButton) end
-    if frame.ReportButton then NoColor(frame.ReportButton) end
-    if frame.SummaryButton then NoColor(frame.SummaryButton) end
   end
 
   local RecountFrames = {
@@ -98,15 +99,11 @@ local function StyleRecount()
     Recount.DetailWindow,
   }
 
-  for _, frame in pairs(RecountFrames) do
-    if frame then 
-      StyleFrame(frame) 
-    end
-  end
+  for _, frame in pairs(RecountFrames) do StyleFrame(frame) end
 
   PLUGIN:ApplyScrollFrameStyle(Recount_MainWindow_ScrollBarScrollBar)
 
-  Recount_MainWindow:HookScript('OnShow', function(self) if InCombatLockdown() then return end if PLUGIN:ValidateDocklet("Recount") then PLUGIN.Docklet:Show() end end)
+  Recount.MainWindow:HookScript('OnShow', function(self) if InCombatLockdown() then return end if PLUGIN:ValidateDocklet("Recount") then PLUGIN.Docklet:Show() end end)
   Recount.MainWindow.FileButton:HookScript('OnClick', function(self) if LibDropdownFrame0 then PLUGIN:ApplyFrameStyle(LibDropdownFrame0) end end)
 
   hooksecurefunc(Recount, 'ShowScrollbarElements', function(self, name) Recount_MainWindow_ScrollBarScrollBar:Show() end)
@@ -126,21 +123,20 @@ PLUGIN:SaveAddonStyle("Recount", StyleRecount)
 
 function PLUGIN:Docklet_Recount(parent)
   if not Recount then return end 
-  local n=Recount.MainWindow.Panel;
-  if n and not n.Panel then 
-    n:Show()
-    n:SetFixedPanelTemplate('Transparent',true)
-  end 
-  Recount.db.profile.Locked=true;
-  Recount.db.profile.Scaling=1;
-  Recount.db.profile.ClampToScreen=true;
-  Recount.db.profile.FrameStrata='2-LOW'
+
+  Recount.db.profile.Locked = true;
+  Recount.db.profile.Scaling = 1;
+  Recount.db.profile.ClampToScreen = true;
+  Recount.db.profile.FrameStrata = '2-LOW'
   Recount.MainWindow:ClearAllPoints()
   Recount.MainWindow:SetAllPoints(parent)
+  Recount.MainWindow:SetParent(parent)
   Recount:SetStrataAndClamp()
   Recount:LockWindows(true)
   Recount:ResizeMainWindow()
   Recount_MainWindow_ScrollBar:Hide()
+
+  Recount.MainWindow:Show()
 
   parent.Framelink = Recount.MainWindow
 end 

@@ -3,6 +3,10 @@ local oUF = ns.oUF
 
 local Update = function(self, event)
 	local combat = self.Combat
+	local aggro = self.Aggro
+
+	if(aggro and aggro:IsShown()) then return end
+
 	if(combat.PreUpdate) then
 		combat:PreUpdate()
 	end

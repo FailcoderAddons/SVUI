@@ -875,12 +875,14 @@ local function NewLoadOnDemand(addonName, schema, header)
                     return nameString
                 end,
                 func = function()
-                    if(not IsAddOnLoaded(addonName)) then
+                    if(not IsAddOnLoaded(addonName)) then 
                         local loaded, reason = LoadAddOn(addonName)
                         PROFILE_SV.SAFEDATA[schema].enable = true
+                        EnableAddOn(addonName)
                         CoreObject:StaticPopup_Show("RL_CLIENT")
                     else
                         PROFILE_SV.SAFEDATA[schema].enable = false
+                        DisableAddOn(addonName)
                         CoreObject:StaticPopup_Show("RL_CLIENT")
                     end
                 end,
@@ -1246,6 +1248,8 @@ function lib:Launch()
                     local loaded, reason = LoadAddOn(name)
                 end
                 EnableAddOn(name)
+            else
+                DisableAddOn(name)
             end
         end
     end

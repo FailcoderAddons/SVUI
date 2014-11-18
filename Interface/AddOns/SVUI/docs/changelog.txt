@@ -1,0 +1,647 @@
+v5.2: MANY CHANGES!!!
+-------------------------------------
+Added/Redesigned
+-------------------------------------
+> Raid frames are now singular, meaning there will no longer be separate frames for sizes 10/15/20/25/40. In the config menu you will only see one category called "Raid".
+
+> Docks have undergone major changes to how they are built and function.
+    NOTE 1: Before, docklets and dock features were created in static positions (ie... chat tabs on the left, profession tools and henchmen on the right..etc) and the dock holders were essentially just anchored placeholders with little purpose other than a starting point for child elements. Now every aspect of each docking cluster is dynamic and interchangeable. 
+    NOTE 2: Utilizing the new dock system is restricted to internal code at this time. If you have questions please ask me and I will walk you through them.
+    NOTE 3: I have added an alt-click menu to each dock icon that allows you to re-order its position in it's current dock. 
+    NOTE 4: All movement changes are now being saved and retained per character.
+
+> Dock alerts (ie.. chat edit box and Laborer "End Mode" button) are attractive now ;)
+
+> Micro Menu bar has been relocated to the upper left corner of the screen, mouse over it to show (can be changed in settings)
+
+> Stats have been changed slightly
+    NOTE 1: The top stat bar is now anchored to the top center of the screen (was top left)
+    NOTE 2: The top stat bar is also NAKED by default (ie.. no stats showing/assigned). I felt like having too much on screen for new users was confusing.
+    NOTE 3: Backgrounds are disabled now by default (can still be changed in settings)
+    NOTE 4: Changed the default stat assignment for the bottom bar to improve asthetics. (Courtesy of Penguinsane)
+
+> Installer updated. Now when making aura layout selections you will see dummy aura icons and bars to help visualize the changes.
+
+> Slightly re-styled tooltips to make them less intrusive by removing the POW graphic from the bottom of the frame. Seemed like too much at times.
+
+> NEW: Round style for minimaps that use the "rotateMinimap" interface option.
+
+> REMOVED: WorldMap movement alpha settings. Blizzard has a built-in function for this now under your Interface options.
+
+-------------------------------------
+Fixes
+-------------------------------------
+> WorldMap issues with elements becoming unclickable are fixed
+> WorldMap tooltip issues are fixed
+> Bag slot coloring has been revised. Specialty bag colors will now take priority over rarity of the item.
+> Garrison map icon is properly anchored now
+> Auto-Quest features are working as they should
+> Nameplate issues should be resolved
+> In combat messages should no longer cause errors
+> Auctionhouse styles revised
+> Inventory coin icons are working
+> Inventory quest icons/borders are working
+> Added dock option to change dock button sizes
+> Character stats pane issue fixed
+> Raid leader tool bugs fixed (if you even noticed them)
+> Skada dock issues fixed
+
+v5.1.5
+-- Now raid frames are showing/hiding as they should. The issue was a bad condition within 15/20/25 frame sets. This fix has been fully tested and is working properly.
+-- Unit threat fixed for all unitframes
+v5.1.3
+-- Far left and right dock buttons now have right click menu to quick-set available meter docks
+-- Made some changes to nameplates to attempt to better acquire class colors
+-- Fixed several database functions to relieve issues with installations on new or recently "altered" characters
+-- Adjusted how various plugins are loaded, improving their behavior when user settings have been made.
+v5.1.29
+-- Changed the dock config name back to "Docks" for consistency (was "Screen Docks")
+-- Fully fixed hearthstone button thanks to lorientalas
+-- Chat tabs, frames and docks should now be fully functional while docked
+v5.1.2
+-- Added german support to hearthstone button
+-- Adjusted dock anchors and added ability to move the toolbars independently
+-- Fixed several errors from docklets
+-- Added support to nameplates for Cyrillic characters
+v5.1.15
+-- All fixed up and ready to go!
+v5.1
+-- Raid frames one more time
+-- Re-factored Docks now found under the options "Screen Docks"
+-- Many data fixes particularly for StyleOMatic
+-- Several bugs squashed
+v5.0.85
+-- Raid frames ...... one more time.
+-- Fixed Tracking device distance and coloring
+-- Fixed issue where fightomatic was yelling Kill On Sight at everyone
+v5.0.8
+-- Skada dock fixed (kinda)
+-- Raid frames revised the fuck again
+-- More fixes
+v5.0.71
+-- Fixed profile swapping
+-- Fixed aurabar error
+-- Adjusted a few more styles to correct odd borders
+-- Further repair to raid frames and group sizing
+-- Nameplate combo points are working again
+v5.0.69
+-- Fixed archaeology counters
+v5.0.68
+-- Adjusted warlock fury bar
+-- Fixed styleomatic saving
+-- adjusted character screen background border overlapping
+v5.0.65
+-- Removed the debug code that was causing errors, sorry about that
+V5.0.6
+-- fixed many missing backgrounds and textures.
+-- fixed an issue with saved chat history
+-- added an option to disable game menu models
+v5.0.52
+-- Fixed error from raid tool
+-- Adjusted borders on tooltips
+-- Partial fix for reagents bank slots, fully fixed reagents sorting
+-- Consolidated buffs should track all raid-wide buffs now
+v5.0.51
+-- Fixed PVP/raid frames
+-- Made some adjustments to comic popup animations
+-- Added class icons option to target frame
+-- new number textures for archaeology mode
+-- More internal fixes
+v5.0.5
+-- Fixed QuestFrame error
+-- Adjusted Cooldown coloring
+-- Added an option to keep default styled headers in the Quest dock (your welcome Penguinsane)
+-- More credits updated
+v5.0.45
+-- Fixed questframe errors
+-- Adjusted more quest frame styles
+v5.0.43
+-- Fixed worldmap errors and adjusted the worldmap styles
+-- Removed Skada dock support to prevent issues.
+v5.0.42
+-- Fixed action button range coloring
+-- More textures adjusted
+v5.0.41
+-- Raid frames fixed, for realz this time
+-- Got the quest dock styled a bit better now
+-- Adjusted options panel styles
+-- More default interface textures modified
+-- The core now has MUCH better fault tolerance to try to prevent UI failures on any error.
+v5.0.34
+-- Raid frames fixed (?)
+-- Adjusted auctionhouse, lfd, pvp and scenario styles
+v5.0.32
+-- 1st attempt to fix raid frames
+v5.0.2
+-- First round of fires extinguished
+v5.0.1
+-- (SPOILER ALERT) Vanity display when bringing up the game menu has been anchored differently to keep the image seamless.
+-- Added some newly modified Interface artwork, be sure to overwrite your Interface folder instead of simply dropping in the addon folders (if this is how you have been doing this)
+v5.0
+-- Yeah that just happened
+-- Revamped panel templates utilizing blizzard xml methods instead of live lua methods 
+-- Added some cool shit! Gonna have to find it for yourself
+v4.9.999
+-- Last minute things
+-- Reagents bank was missing an event to update properly when using "deposit all", fixed
+-- If you /rl during a PetBattle, the UI had been misbehaving and that has been driving me nuts for months. I finally just added safeguards against bad reloads during petbattles. 
+v4.9.99
+-- Fully adjusted to both live bag ID's AND 6.0 ID's (whats sad is that part of this fix will become irrelevant an 48 hours)
+-- More 6.0 creaminess: Barbershop styling (new face option), mount and pet fav icons, new bag icons, other small alterations finished
+-- Found a bug with custom actionbar paging and what happens when you "reset" it. Fixed now.
+Whew ...I'm tapped out tonight guys!
+v4.9.98
+-- Fixed lost bag ID's
+-- Added missing 6.0 elements (explain later)
+v4.9.95
+-- Forgot some changes, achievement list and tracking checkboxes are adjusted
+-- Fixed remaining bag/bank issues
+-- Castbar icons are no longer anchored to text and time, icons can be hidden without losing the info texts
+-- Mount error fixed
+-- Let's Ride, Reagents Bank, Toybox, Bag filtering and sorting ---- all ready for 6.0
+-- Talent frame skins ready for 6.0
+-- SVUI is ready for Tuesday, I have one more update bringing it to version 5 but just incase I can't get that out by patch day, you are all covered!
+v4.9.8
+-- Fixed guild bank error
+v4.9.7
+-- Bag sorting adjusted for live
+-- Fixed format error in reactions
+-- Fixed coords error in pvp styler
+v4.9.5
+-- Taintlog sweep and clean completed (only small unavoidable taints remain)
+-- Answeringservice issues fixed
+-- Border coloring on bag items fixed
+-- Bank item issue fixed
+-- Portrait background config error fixed
+v4.9
+-- Fixed bag slots
+-- Fixed shadow offsets
+-- More adjustments (undocumented on purpose) for WoD/6.0
+v4.8.99
+-- Revised code for bags/bank making it much more optimized.
+-- Fixed errors from WoD BETA Skada, "Align to Chat" options and unitframe tags issue.
+v4.8.9
+-- One fairly moderate change, I have relocated the "Save Chats" feature of LogOMatic over to ChatOMatic. It just made more sense to have it there.
+-- Restructured the files and folders inside of StyleOMatic to be a little bit more semantic.
+-- Profiles revised again and have been tested not only with copy/deleting but also spec swaping. Everything looks good now.
+-- Updated a few style elements such as editboxes to enhance their appearances
+-- Fixed bad loop in StyleOMatic/alerts
+-- Added more safeguards to Skada docklet code to try to prevent more errors from Skada itself.
+v4.8.1
+-- Cache cleaning was revised to prevent movable frame positions from being wiped out on login.
+-- Protected certain bag configs from malformed frames. This will prevent the error received when setting things like "Align-to-Chat".
+v4.8
+-- Skada memory leak fixed (I believe)
+-- Final cleanup to move into version 4.8 (1.2 versions from WoD)
+-- Fixed Dispel variable error in SVUnit
+-- Made some adjustments to Stats and libDataBroker. (alpha sorted alt-click menus and removed the embedded libdatabroker files)
+v4.7.6
+-- DUE TO THE FOLLOWING CHANGES YOU WILL HAVE TO DELETE ALL "SVUI" ADDON FOLDERS BEFORE INSTALLING!
+
+-- Plugins have been restructured and re-named...
+  ---- SVUI_ArtOfWar               is now   SVUI_FightOMatic
+  ---- SVUI_AnsweringService   is now   SVUI_ChatOMatic
+  ---- SVUI_Laborer                  is now   SVUI_CraftOMatic
+  ---- SVUI_TrackingDevice       is now   SVUI_TrackOMatic
+-- All plugins have had their data reset so any previous plugin configurations will revert back to the default upon installation. (NOTE: This does NOT include core settings, they are safe.)
+-- Plugins are no longer embedded in the core namespace, this will help to truly monitor and control their memory usage.
+-- Fixed bad plugin initialization in TrackOMatic, this was causing severe instability
+v4.7.2
+-- Fixed LibDataBroker error
+v4.7.1
+-- Too many fixes to list, just know that this is the cleanest my code has been for almost a year.
+v4.7.0
+-- shuffled some things around to try to silence AceLib conflicts
+-- Added a greatly improved garbagecollection cycle that shouldnt ever time-out.
+-- Changed some packages access to SV data, this saves on quite a bit of memory.
+v4.6.9
+-- Critical fix to unitframes (bad variable is devastating other addons)
+v4.6
+-- Adjusted the way that plugins load to avoid "missing function" errors (ie the SVUI_Laborer bug)
+-- Unitframe tag error fixed
+-- More removal of unused code, the core is looking so clean these days :)
+-- Part 2 of the Altoholic fix
+-- Gold stats are saving across characters again
+v4.5.93
+-- Changed screen settings from being set per-character to account-wide so that scaling will be consistent.
+-- FIXED CASTBAR SIZING DAIGAN!!!! Just make sure auto width is NOT enabled
+-- Found and fixed remaining "Reset Settings" issues in the configs.
+v4.5.9
+-- Fixed movable frames
+-- Fixed raid group memory leak
+-- Fixed font adjustment error
+-- Fixed libDataBroker error when selecting 3rd party data objects
+-- Fixed "Script ran too long" issue
+v4.5.8
+-- Fixed installer
+-- Fixed non-TinyWorldMap Full size bug
+-- Udated a few more scripts
+v4.5.7
+-- Fixed bad naming of LibDataBroker-1.1 which was causing many errors.
+-- Fixed all(?) config options that had been broken in 4.5.1
+-- Fixed SpellBinder issue that was preventing users from being able to delete a binding
+-- Fixed AnsweringService issue when receiving whispers
+-- New database library appears to be stable now
+v4.5.6
+-- Fixed Omen and Skada Issues
+v4.5.3
+-- Fixed 4.5 issues
+-- Fixed remaining 4.5 issues
+v4.5
+-- THIS VERSION WILL REQUIRE THAT YOU DELETE ALL SVUI ADDON FOLDERS BEFORE INSTALLING!!! Your WTF and Cache folders are safe however!
+-- Fixed SpellBinder issues
+-- Fixed memory leak from achievement errors and other errors
+-- Other major code changes and deprecated code removal (hence the need to delete old folders)
+v4.4.5
+-- Adjusted styles for all close buttons
+-- Adjusted auctionhouse dressup model
+-- Added secondary range-alpha slider for groups specifically
+-- Fixed error for druid eclipse bars
+v4.4.4
+-- Made some slight changes to AnsweringService to make it at least fairly obvious that people are talking to an addon...... dont want you guys to get reported on my behalf!
+-- Fixed bad loop in the calendar styler
+-- Made a change to LogOMatic disabling it when/if you are using Altoholic (too many duplicate data fields.)
+v4.4.3
+-- Click-2-Cast (SpellBinder) frames are fixed (all including raid/party should be enabled now), also fixed the global issue preventing the removal of bindings
+-- Few more core methods moved to libs (making things faster/leaner)
+v4.4.2
+-- THIS VERSION WILL REQUIRE THAT YOU DELETE ALL SVUI ADDON FOLDERS BEFORE INSTALLING!!! Your WTF and Cache folders are safe however!
+-- Moved all registry and localization code to custom libs. This fixed several small memory leaks
+-- Adjusted new spellbook and professions tab stylings
+-- Fixed pet battle pass button
+-- Adjusted Unitframe portraits, they were 1-2 pixels off from their edge
+v4.4.0
+-- This version is now compatible with WoD, if you are playing BETA then you can use either this version or my WoD Beta version of SVUI as they are basically the exact same.
+-- Added new textures to the Interface folder (Blizzard default overrides) for spellbook and professions. Please be sure to copy the entire Interface folder with this update
+-- Made more adjustments to various skins.
+v4.3.9
+-- Boss frame health should be updating properly now
+-- Adjusted taxi frame skins
+-- Fixed errors in setup file
+-- More code cleanup
+v4.3.5
+-- revised PetBattle UI (Looks SOOOOO much better now)
+-- revised Skada addon skin
+-- revised several other smaller stylings
+-- Fixed an issue with static popups causing many other (unseen) errors
+-- More code cleanup
+v4.3.4
+-- Emotes are now turned off by default but have config options to enable them under "General -> Fun Stuff".
+v4.3
+-- Fixed bank errors
+-- fixed SVUI_Cache errors
+-- Added more interim code for the WoD transition
+-- Removed the random emotes (that was testing code that was not supposed to be included)
+-- Fixed reactions.lua errors
+v4.2.9
+-- Stancebar shading/states are working and slightly improved
+-- Made many "Reactions" (automatic thanks and announcements) less annoying to your party/raid.
+-- Adjusted Gold/Silver/Copper money text inputs, the offsets were not quite right before.
+-- Due to tremendous issues with WeakAuras' internal coding, I am removing style support for now. This will relieve any crashing or other issues you were experiencing from using both SVUI and WeakAuras. I will review any changes made AFTER WoD is released and WA gets an update.
+v4.2.7
+-- Bag bar fixed
+-- Aura sorting/direction fixed
+-- load script errors fixed
+-- StyleOMatic configs fixed
+v4.2.6
+-- Buffs and Debuffs are now respecting configs for their sorting order and direction. This has apparently been broken for a LONG time and I was just made aware of it.
+-- 1 More update to the hidden features... LOL
+v4.2.5
+-- Tracking GPS elements REALLY work now, and the options are REALLY there in configs now.
+-- Adjusted some newer hidden features to not proc so often (just sayin)
+-- Fixed error in load script
+v4.2.3
+-- Full reassignment of variable names in the code. This was done for semantic reasons.
+-- Chat channels are now functioning as the should  when assigning them to different chat windows
+-- Removed some useless code that MAY have been causing a few memory leaks.
+-- GPS on group units is functioning again, all config settings were moved to the Plugins->Tracking Device category
+v4.2.2
+-- Mount list checkboxes are working again
+-- Added health TAG (Current - Max - Percent) by request
+-- Stat docks will now remain shown during petbattles and the petbattle bar has been re-anchored
+-- Grid mode settings now have their own config section underneath Unitframes
+-- Fixed remaining installer bugs
+v4.2.1
+-- Finished converting plugins to use the NEW LoadOnDemand mechanisms. This may not sound like much but it's going to change addons as we know them (or at least it SHOULD if devs pay enough attention)
+-- Fixed installer bugs and a few other slips from last update.
+-- Few more style updates, keeping things clean :)
+v4.2
+-- Prep work for transitioning to WoD is now in place
+-- MASSIVE improvements to stylings and frame handlers
+-- New plugin: SVUI_TrackingDevice -- this is essentially the GPS elements from unitframes but revamped and independant from the core. One drawback is that for the next few days the previous addition of tracking low health units will be disabled until I can get it functioning the way I want.
+-- Fixed Skada, WeakAuras and many other addon styles
+-- Many new internal methods implemented that will go unnoticed but just wanted you all to know that Im a damn genius!
+-- Memory usage has increased by 0.1~0.2 mb to accommodate for the new methods and to ensure stability.
+v4.084.3
+-- Grid mode revised and options added to config as well as installer
+-- Caught a few other small bugs, and squashed them
+-- Fixed bad skin on bonus loot roll alerts
+v4.084
+-- Fixed critical error in AnsweringService, this MAY have caused many other issues for users so please update ASAP
+-- Many improvements to frame skins
+-- Various internal bugs fixed.
+v4.083.3
+-- Restyled dropdown lists and insets, this repairs nearly all vanishing texts
+-- Experience Stat has been reformatted (Remaining bars was wrong)
+-- Druid and other login errors fixed
+-- Fixed eject button when using 2 and 3 seater mounts
+-- Adjusted castbar tradeskill behavior
+-- Upgrades to ArtOfWar: Now has 4 sections (scanner, radio, tools and info)
+    Scanner -> Enemy scanner
+    Radio -> Provides "Incoming!" announcements
+    Tools -> COMING SOON
+    Info -> While AOW is active, the pvp stats that  were previously shown in the     upper left of the screen will be migrated to this window for easier visual access.
+-- Adjusted several skins that were floating up and down in frame levels
+-- Adjusted auto-invite accept minions
+-- Adjusted chat shift-scrolling slightly
+-- AnsweringService will no longer ask "You Still There?" .... period!
+-- Fixed issue with Rogue combo point numbers not respecting config settings.
+v4.083
+-- updated all toc files, addons are using the same version number now.
+-- Fixed calendar bug
+-- Fixed StyleOMatic error
+-- GPS uses less memory now
+-- Fixed ArtOfWar overlapping bug
+v4.082i
+-- Now profiles can be auto-swapped by talent spec
+-- Fixed compatibility with Autoloot
+-- Adjusted GPS frames (now including low health proximity option)
+-- Fixed Rogue combo point error
+
+v4.082h
+-- Adjusted new tradeskill castbar features, fixed stopcasting bug
+v4.082g
+-- Adjusted crafting cast bar
+v4.082f
+-- Fixed cartography bug
+v4.082e
+-- New feature: castbar will now take multiple crafting stacks into account when setting its size/duration (That one was for Penguinsane)
+-- Fixed action bar background sizing
+-- Fixed a few bugs and some visuals in ArtOfWar
+-- Unit Frame GPS elements are changing so (for those who have used the feature) don't be surprised to find parts missing for the time being. Soon this will be a multi-purpose pinpoint system with uses spanning from general sillyness to allowing healers to find the closes wounded player to them. (By request ;))
+-- More internal fixes and stabilization.
+v4.082d
+-- Fixed frame.lua errors
+-- DPS and HPS stats are working great now
+v4.082c
+-- Unit frames/party/raid will now respect options to enable/disable them
+v4.082b
+-- Fixed configomatic skins
+-- Added Altoholic support
+v4.082
+-- 2nd fix for guild UI bug
+-- Updated toc files
+-- Revamped the taint handler so it's less annoying and more useful (will now auto-prompt you to reload your UI when a taint occurs. FYI: when ANY taint occurs you DO WANT to reload your UI)
+-- Last minute fix to ConfigOMatic using new StyleOMatic methods
+-- Patched the guildframe style bug
+-- Made many adjustments to StyleOMatic, these will remove A LOT of errors and all around weirdness from various parts of the UI (VEM support revised as well)
+-- Added addon styles for Bugsack and AdiBags
+-- Fixed Core-Abilities frame crashes
+-- Fixed ArtOfWar errors
+-- Laborer and ArtOfWar will now properly disable when set to do so
+-- Minimap will now properly disable when set to do so
+v4.08.1b
+-- Fixed guild stat text when "No Guild" should be displayed
+-- Fixed Shaman totems
+-- Revised fix for Healbot users
+v4.08.1
+-- Fixed /jenkins error
+-- Fixed druid and rogue combo point bugs
+-- Fixed profiles not saving/deleting bug
+-- Small cleanup
+-- Small fix for Healbot users
+v4.08
+-- NEW Plugin: Art of War (PVP enemy scanner and BG toolkit). Scans nearby for any hostile actions from enemy players. If any actions are taken, OR if you target an enemy, it will add their name/class/race to the docklet window. Will notify you if an enemy player has gone into stealth near you (Rogue or Druid). When you are killed by a scanned player, AOW will add their name to your "Mortal Enemies" listing (aka: Kill On Site) then if you ever come near or target that same person again AOW will be sure you know what to do.
+-- NEW Plugin: Answering Service (some of you may remember this). This is essentially the SVUI edition of Automatic Goblin Therapist (older addon since deleted so you may want to Google this one)
+-- Moved Laborer from the core packages to its own plugin "SVUI_Laborer"
+-- Installer menu will now automatically display raid frames when choosing style and layout so that you can preview the appearance. I will force party frames into this soon.
+-- Improved item level parsing
+-- Improved Consolidated Buff recognition (Will still only track ACTUAL consolidated buffs though)
+-- Fixed various 3rd party addon conflicts
+-- Cleaned up config menus for plugins
+-- Made several improvements to UI scaling (the Windowed/Alt-Tabbing crash is still unresolved)
+-- Removed a few redundancies slowing down UI loading
+-- Bindings in the KeyBindings system menu are now separated by core/plugin
+-- Fixed several location and range issues with the target GPS system
+-- Fixed VehicleSeatIndicator anchoring to its mover frame
+-- Fixed random lag issue
+-- Fixed spelling of "Kill On Sight"
+-- Fixed slow health updates
+-- Fixed config errors
+v4.07.8
+-- Fixed aurawatch
+-- added combat safety to laborer archy functions
+-- fixed fishing/cooking mode title bug
+-- adjusted DBM skins
+-- adjusted worldmap
+-- more bugs fixed
+-- new layouts in installer menu
+v4.07.72
+-- Unitframes respect options to disable them now
+-- Adjusted skada skinning to be more precise
+-- Added some new secret features LOL
+v4.07.7
+-- LOG-O-MATIC HAS RETURNED!!!!
+-- Added support to dock buttons for extra items (ie Grim Campfire over Cooking Fire if owned), also removed "shift-click" variant for a simple right-click extra usage
+-- Adjusted LFR/LFD checkboxes styling
+-- adjusted combat giant font to be more legible
+-- fixed tooltip typo in dock buttons
+v4.0764
+-- Added some features to chat. Icon indicating when you have scrolled away from the bottom and a whisper alert icon.
+-- Fixed fast scrolling in chat windows (hold shift while scrolling to jump to top or bottom)
+-- Added a few secret features (small things that you may or may not notice) surprises are always fun! :)
+-- Adjusted the styling of arena prep frames
+-- Fixed the bug causing docklets to disappear/close when opening the worldmap
+-- You can now toggle between normal and shortened gold text on statistics (its in the /sv menu under Statistics)
+v4.076
+-- Added more config options to help position bags and bank frames
+-- Fixed saved variables bug
+-- Adjusted the naming of several aura filters to make their use more clear
+-- Fixed issue with shift clicking (to block) unitframe auras
+-- Made some adjustments to default nameplate settings
+-- Adjusted many class resource animations, improved a few textures (all orbs and pally hammers)
+-- fixed profile-copy bug
+v4.075
+-- Further adjustment to filters and code trimming
+-- Aura Watch icons (little colored squares in raid frame corners) are working now
+-- Slightly altered dropdown frame skinning
+v4.074
+-- Fixed bad timers causing MANY issues including long loading times and many lag spikes
+v4.073
+-- More code slimmed down
+-- Fixed docks/rep and various other bugs
+v4.072
+-- Yet another update to tooltips. Now the new border colors will change for item tooltips to reflect quality color.
+-- Classbars now have their own mover frame, simply go into the config under Unitframes->Player->Classbar and check the "Detach from frame" box.
+-- Un-docked chat windows will now have a skinned background to improve visibility.
+-- Fixed a bad string in the installer file
+-- Removed the "Ace3" style from StyleOMatic. Rather than attempt to skin ALL ace config windows (which is NOT resource friendly), I decided to directly modify the lib itself. The config libraries will be replaced in the near future for a much lighter alternative.
+-- Removed the config option to change classbar width, this was added as an option but never implemented. Changed the option for classbar height to now be "Size" which is essentially what it has always been.
+-- Condensed some code to help further reduce loading times, the following were changed: Docks, Actionbars, Minimap, Unitframes.
+v4.066
+-- Tooltips adjusted and slightly modified again (pretty colors on units now and the border skins only show on unit tips)
+-- Fixed style issues with config menu
+-- Added styling support for AuctionLite
+-- New textures to replace default blizz tabs
+-- FIXED AURA FILTERS FOR TARGET FRAMES!!!!! (I just discovered what has been killing these for God knows how long)
+-- Stat panels along the bottom will now attempt to fit/size themselves between dock windows. This SHOULD help those who are using lower resolution monitors.
+v4.0652
+-- Patched tooltips (...again)
+-- Fixed bag search bug
+v4.065
+-- NEW: backgrounds for stats
+-- NEW: skin for encounter journal
+-- tooltips adjusted, mount buttons fixed.
+-- major changes to styleomatic and config
+v4.0641
+-- fixed german locale issue with SVUI_Config
+-- added better localization support to dock toolbar
+v4.064
+-- added new option to installer page 1. "Keep My Settings". No more having to overwrite with defaults whenever SVUI makes a big version change!
+-- Some new secret animations... see if you can spot them! (Mwahaha)
+-- fixed friendship bar issues
+-- fixed styleomatic system bug
+-- fixed archy progressbar mover loading
+-- adjusted some PVPUI skins that were loading incorrectly
+-- archaeology laborer events are more fine tuned
+v4.063
+-- tooltip visual update and fixed classbar options
+v4.062
+-- fixed bad initialization of filters for new installs
+-- fixed totem options, pvp window skinning and a stranded frame in the middle of the screen.
+-- top and bottom screen borders will now respect the color choice under (General->Media->Colors->Accent Color)
+v4.061
+-- Fixed aura bars
+-- fixed filter saving
+-- visual adjustment to aura bars
+-- Archaeology progress bar is now movable using "/sv move"
+v4.06
+-- NEW: added tooltip and nameplate artwork
+-- even more upgrades to unitframe code
+-- fixed dock fading bug
+-- removed several bad lines of code that could have been causing crashes
+-- quality checked/adjusted all xml templates
+-- Fixed looping bug in tooltips
+v4.056
+-- fixed aura filters and loot fonts
+v4.055
+-- Arena prep frames are now functioning
+-- Revised code in all unitframes to attempt to squeeze more performance out of them
+v4.054
+-- Fixed auraheader update violation
+v4.053
+-- When i fixed the font configs in 4.051 I inadvertently broke some others :( these are fixed
+v4.052
+-- corrected bad colorpickers in the config menu
+v4.051
+-- Last 2 remaining font configs (general unit and actionbar) are working as expected
+-- action button hotkey text is now properly abbreviated
+v4.05
+-- Ultra clean!
+-- Fixed druid resources issue
+-- Fixed party/raid/tank/assist font and coloring settings bug
+-- The "Hearth" dock button is a little more special now for Shaman/Monk/Druid/DeathKnight
+-- More visual improvements to various small details
+-- Copying profiles will now automatically reload the UI in order to ensure they get properly duplicated and ready for use.
+-- Resetting a profile will no longer cause the install screen to show again.
+-- Fixed some hemorrhaging elements used in PvP (just sayin...) 
+v4.046
+-- Caught Registry error with event handler frames
+v4.045
+-- Fixed keybind bug
+-- Adjusted bad references in unit code
+v4.043
+-- Added Doonga's fix for 4k monitors and multi-monitor support
+-- Made some visual quality improvements to Mentalo, castbars, stat menus, game menu skins, bag type slot coloring and arena frames.
+-- Fixed the "Break Stuff" button/feature, was not loading for milling, prospecting or disenchanting.
+-- Micro menu bar is movable again, also added new textures to the "Interface/BUTTONS" folder to further hide default blizzard textures.
+-- Stance bars can now use custom visibility tags! You are welcome Moondoggy
+-- Found and fixed an issue with Pet bar custom visibility
+-- Fixed a bad event handler when going into petbattles
+v4.042
+-- Fixed event handler used by the visibility class
+v4.041
+-- quick fixes to aura config, mirror timers bars, tooltip guild names and some minor things.
+v4.04
+-- Fixed aura filters
+-- Profile copying/deleting/importing now fully functional
+-- Fixed bug in bags when changing sizes
+v4.036
+-- Fixed profileKey bug in config
+v4.035
+-- Fixed more mac screen issues
+-- Fixed profile saving/loading
+v4.034
+-- Fixed mac client screen size variable issue
+v4.033
+-- Fixed profile copy functions
+-- Adjusted loothistory window skinning
+v4.032
+-- Fixed config failure due to version number changes
+-- Now using wowinterface.com git repo!
+-- Fixed issue with configs for target of target frames
+v4.031
+-- Adjusted aura filters a bit to compensate for recent changes
+-- Fixed all saving
+-- Fixed localization issues
+-- Fixed config panel issues
+-- Update to uniframe package (shaved another 1mb off game memory)
+v4.03
+-- Completely forgot to include frame positions in the profile saving process, my bad yo!
+-- Almost forgot filter changes, this caused an error but is fixed now.
+-- Completely repaired and finalized the new internal config system, this will remove all setting based bugs you may have encountered
+-- Found and removed issues that were causing memory leaks in both the Stats and Unit packages
+-- Fixed autoscaling, raid frame hiding (just re-iterating that fact) and a handful of other issues
+
+IMPORTANT------
+
+-- New profiles (WARNING: old settings WILL be erased due to changes in the core). Unlike previous versions as well as many other UI's available, SVUI will handle profiles on an as-needed basis. What this means is that if you want to be able to use the same profile from one character to the next then you will have to go into the settings "/sv" and then the "profiles" tab on the left. Once you are there you will need to "SAVE" that current characters profile (this will no longer be automatic as that pollutes the global variables file). After you have saved your profile, you can then log onto another character and select the saved profile from the "Copy" dropdown list. I HIGHLY RECOMMEND that once you are satisfied with and profile duplications you have done, you should then select the unneeded saved profile from the "Delete" dropdown to remove it. This does not affect any character that has already received a copy as the used copies are stored in another location.
+
+v4.02
+-- Almost all ace3 libs removed
+-- Fixed unitframe visibility issues
+-- fixed several crashes
+-- fixed notification bugs when repairing and etc...
+
+v4.01 (official)
+-- Fixed boss/arena frame mover bug
+-- Micro bar is now movable
+-- Fixed interrupt messages that were not belonging to the player
+-- Added configs for announcements
+-- Added "absorbs" option for unit health text
+-- Fixed "Lets Ride" mount list bug
+-- Fixed errors from dock buttons
+-- FIXED EVERYTHING!!!!!! EVEN MEMORY CRASH... (o_O)
+-- Fixed heirloom item bug causing massive errors
+-- Fixed bag bug causing bag and sort failures
+-- Fixed target GPS activation
+-- Fixed failing pet/party/raid health bars
+-- Fixed vanishing raid frames
+-- Fixed Laborer issue ignoring settings that prevent from dropping farm tools
+v4.01
+-- Fixed bugs in alerts, mounts, bags, auras, unitframes and docks
+-- Changed target status indicators (they are AWESOME now)
+-- Added ability to change castbar colors on a unit-by-unit basis (by request)
+-- More changes/fixes were completed and will be documented later
+-- Fixed issue with unitframe name and power text positioning
+-- Fixed casting color config bug
+-- Fixed combat-fade bug
+-- Adjusted more blizzard skins
+-- Fixed coloring issues on many buttons and frames
+v4.0 (preview)
+-- Highly optimized textures and their usage, effectively reducing memory usage by no less than 1mb
+-- Greatly improved the speed of all core functions, loading times are mush faster now.
+-- Overhaul of most frame templates, they are much more visually engaging imo
+-- Full re-design of the archaeology "Laborer" mode
+-- Mentalo has gotten a face-lift
+-- touch-ups on various info frames including the installer window
+-- Visual re-design of the GPS widget
+-- Visual enhancement of target status indicators ("Dead", "DC'ed", "Tapped" and "Rare")
+-- Adjusted default font-sizes for the following: cooldowns, stats (datatext) menus, tooltips, tabs, hotkey labels
+-- Added the "Help" option to the micro bar
+-- Included a rough copy of Elv's RaidUtility, this is merely a placeholder until the true SVUI version is complete
+-- Drastic improvements to the core API
+-- NEW dock tool: Hearthstone
+-- (no version change) Fixed a chat bug when receiving PM's
+-- (no version change) Partially fixed pet bar bug (still vanishes when changing settings, can be fixed by using "/rl")
+-- (no version change) Fixed all chat and petbar bugs

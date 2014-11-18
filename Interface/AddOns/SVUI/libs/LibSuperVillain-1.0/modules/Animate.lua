@@ -186,8 +186,8 @@ end
 
 --[[ HELPER FUNCTION ]]--
 
-local function SetNewAnimation(frame, animType, subType)
-    local anim = frame:CreateAnimation(animType, subType)
+local function SetNewAnimation(frame, animType)
+    local anim = frame:CreateAnimation(animType)
     anim.parent = frame.parent
     return anim
 end
@@ -223,12 +223,12 @@ local function AnimationTemplate(frame, animType, hideOnFinished, speed, special
         frame.anim.fadeOnFinished = true
         if not speed then speed = 0.33 end 
 
-        frame.anim[1] = SetNewAnimation(frame.anim, "Alpha", "FadeIn")
+        frame.anim[1] = SetNewAnimation(frame.anim, "Alpha")
         frame.anim[1]:SetChange(1)
         frame.anim[1]:SetOrder(2)
         frame.anim[1]:SetDuration(speed)
             
-        frame.anim[2] = SetNewAnimation(frame.anim, "Alpha", "FadeOut")
+        frame.anim[2] = SetNewAnimation(frame.anim, "Alpha")
         frame.anim[2]:SetChange(-1)
         frame.anim[2]:SetOrder(1)
         frame.anim[2]:SetDuration(speed)
