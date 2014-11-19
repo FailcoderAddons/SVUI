@@ -33,19 +33,32 @@ local SV = select(2, ...);
 
 SV.GameMenu = _G["SVUI_GameMenuFrame"];
 
+--[[
+141 - kneel loop
+138 - craft loop
+120 - half-crouch loop
+119 - stealth walk
+111 - attack ready
+55 - roar pose (paused)
+40 - falling loop
+203 - cannibalize
+225 - cower loop
+
+]]--
 local Sequences = {
 	--{65, 1000}, --shrug
-	{70, 1000}, --laugh
+	--{120, 1000}, --stealth
 	--{74, 1000}, --roar
-	--{82, 1000}, --flex
-	{5, 1000}, --run
-	{125, 1000}, --spell2
-	{125, 1000}, --spell2
+	--{203, 1000}, --cannibalize
+	--{119, 1000}, --stealth walk
+	--{125, 1000}, --spell2
+	--{225, 1000}, --cower
 	{26, 1000}, --attack
-	{26, 1000}, --attack
-	{26, 1000}, --attack
-	{26, 1000}, --attack
-	{5, 1000}, --run
+	{52, 1000}, --attack
+	--{138, 1000}, --craft
+	{111, 1000}, --attack ready
+	--{4, 1000}, --walk
+	--{5, 1000}, --run
 	{69, 1000}, --dance
 };
 
@@ -54,7 +67,7 @@ local function rng()
 end
 
 local Activate = function(self)
-	if(not SV.db.general.ego) then
+	if(not SV.db.general.gamemenu) then
 		self:Toggle()
 		return
 	end
@@ -63,7 +76,7 @@ local Activate = function(self)
 	local emote = Sequences[key][1]
 	self:SetAlpha(1)
 	self.ModelLeft:SetAnimation(emote)
-	self.ModelRight:SetAnimation(emote)
+	self.ModelRight:SetAnimation(69)
 end
 
 function SV.GameMenu:Initialize()
@@ -75,10 +88,11 @@ function SV.GameMenu:Initialize()
 	self.ModelLeft:SetPortraitZoom(0.05)
 	self.ModelLeft:SetPosition(0,0,-0.25)
 
-	self.ModelRight:SetUnit("player")
+	self.ModelRight:SetDisplayInfo(49084)
 	self.ModelRight:SetRotation(-1)
-	self.ModelRight:SetPortraitZoom(0.05)
-	self.ModelRight:SetPosition(0,0,-0.25)
+	self.ModelRight:SetCamDistanceScale(1.9)
+	self.ModelRight:SetFacing(6)
+	self.ModelRight:SetPosition(0,0,-0.3)
 
 	-- local splash = self:CreateTexture(nil, "OVERLAY")
 	-- splash:SetSize(600, 300)
@@ -90,7 +104,7 @@ function SV.GameMenu:Initialize()
 end
 
 function SV.GameMenu:Toggle()
-	if(SV.db.general.ego) then
+	if(SV.db.general.gamemenu) then
 		self:Show()
 		self:SetScript("OnShow", Activate)
 	else

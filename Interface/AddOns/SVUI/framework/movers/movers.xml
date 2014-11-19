@@ -224,10 +224,18 @@
             </Layer>
         </Layers>
         <Frames>
-            <Button name="$parentLockButton" inherits="OptionsButtonTemplate" text="Lock">
-                <Size x="96" y="24"/>
+            <Button name="$parentGridButton" inherits="OptionsButtonTemplate" text="Grid">
+                <Size x="48" y="24"/>
                 <Anchors>
                     <Anchor point="RIGHT" relativeTo="$parentBG">
+                        <Offset x="-4" y="0"/>
+                    </Anchor>
+                </Anchors>
+            </Button>
+            <Button name="$parentLockButton" inherits="OptionsButtonTemplate" text="Lock">
+                <Size x="48" y="24"/>
+                <Anchors>
+                    <Anchor point="RIGHT" relativeTo="$parentGraphButton" relativePoint="LEFT">
                         <Offset x="-4" y="0"/>
                     </Anchor>
                 </Anchors>
@@ -248,6 +256,7 @@
         </Scripts>
     </Frame>
 
+    <Script file="mover_graph.lua"/>
     <Script file="mover_mentalo.lua"/>
     <Script file="mover_blizzard.lua"/>
 </Ui>

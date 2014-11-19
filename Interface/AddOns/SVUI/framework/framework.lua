@@ -31,6 +31,8 @@ function SV:LoadFramework()
 	self.Dropdown:Initialize();
 	self.Dock:Initialize();
   self.Mentalo:Initialize();
+  self.Graph:Initialize();
 	self.Comix:Initialize();
 	self.GameMenu:Initialize();
+  self.AFK:Initialize();
 end

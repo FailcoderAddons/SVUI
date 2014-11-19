@@ -136,17 +136,16 @@ end
 
 local function GetActiveMissions()
 	local hasMission = false
-	GameTooltip:AddLine(" ", 1, 1, 1)
-	for key,data in pairs(C_Garrison.GetInProgressMissions()) do
-		local mission = ("%s - %s"):format(data.level, data.name);
 
+	GameTooltip:AddLine(" ", 1, 1, 1)
+	GameTooltip:AddLine("Active Missions", 1, 1, 0)
+	for key,data in pairs(C_Garrison.GetInProgressMissions()) do
+		local mission = ("%s|cff888888 - |r|cffFF5500%s|r"):format(data.level, data.name);
 		local remaining
-		if (data.start == -1) then
-			remaining = ("~%s %s"):format(data.timeLeft, getColoredString("("..SV:ParseSeconds(data.duration)..")", "lightgrey"))
-		elseif (data.start == 0 or timeLeft < 0) then
+		if (data.durationSeconds <= 0) then
 			remaining = L["Complete!"]
 		else
-			remaining = ("%s %s"):format(SV:ParseSeconds(timeLeft), getColoredString("("..SV:ParseSeconds(data.duration)..")", "lightgrey"))
+			remaining = ("%s %s"):format(data.timeLeft, getColoredString(" ("..SV:ParseSeconds(data.durationSeconds)..")", "lightgrey"))
 		end
 
 		GameTooltip:AddDoubleLine(mission, remaining, 0, 1, 0, 1, 1, 1)
@@ -154,12 +153,49 @@ local function GetActiveMissions()
 	end
 
 	if(not hasMission) then
-		GameTooltip:AddLine("No Active Missions", 1, 1, 1)
+		GameTooltip:AddLine("None", 1, 0, 0)
 	end
 
 	-- for key,garrisonMission in pairs(C_Garrison.GetCompleteMissions()) do
 		-- DO STUFF
 	-- end
+end
+
+local function GetBuildingData()
+	local hasBuildings = false
+	local now = time();
+
+	GameTooltip:AddLine(" ", 1, 1, 1)
+	GameTooltip:AddLine("Buildings", 1, 1, 0)
+
+	local buildings = C_Garrison.GetBuildings()
+	for i = 1, #buildings do
+		local buildingID = buildings[i].buildingID
+		local plotID = buildings[i].plotID
+
+		local id, name, texPrefix, icon, rank, isBuilding, timeStart, buildTime, canActivate, canUpgrade, isPrebuilt = C_Garrison.GetOwnedBuildingInfoAbbrev(plotID)
+
+		local building = ("%s|cff888888 - |r|cffFF5500%s|r"):format(rank, name);
+		local remaining
+
+		if(isBuilding) then
+			local timeLeft = buildTime - (now - timeStart);
+			if(canActivate or timeLeft < 0) then
+				remaining = L["Complete!"]
+			else
+				remaining = ("Building %s"):format(getColoredString("("..SV:ParseSeconds(timeLeft)..")", "lightgrey"))
+			end
+		else
+			local name, texture, shipmentCapacity, shipmentsReady, shipmentsTotal, creationTime, duration, timeleftString, itemName, itemIcon, itemQuality, itemID = C_Garrison.GetLandingPageShipmentInfo(buildingID)
+			remaining = ("Shipments Ready: %s of %s)"):format(getColoredString(shipmentsReady, "green"), getColoredString(shipmentsTotal, "lightgrey"))
+		end
+		GameTooltip:AddDoubleLine(building, remaining, 0, 1, 0, 1, 1, 1)
+		hasBuildings = true
+	end
+
+	if(not hasBuildings) then
+		GameTooltip:AddLine("None", 1, 0, 0)
+	end
 end
 
 local SetGarrisonTooltip = function(self)

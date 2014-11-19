@@ -24,8 +24,19 @@ local SV = _G.SVUI;
 local L = SV.L;
 local PLUGIN = select(2, ...);
 local Schema = PLUGIN.Schema;
-
-
+--[[ 
+########################################################## 
+HELPERS
+##########################################################
+]]--
+local GarrisonButtonList = {
+	"StartWorkOrderButton"
+};
+--[[ 
+########################################################## 
+STYLE
+##########################################################
+]]--
 local function LoadGarrisonStyle()
 	if PLUGIN.db.blizzard.enable ~= true then
 		return 
@@ -40,6 +51,29 @@ local function LoadGarrisonStyle()
 		for j = 1, child:GetNumChildren() do
 			local childC = select(j, child:GetChildren())
 			childC.Icon:SetTexCoord(0.1,0.9,0.1,0.9)
+		end
+	end
+
+	local display = GarrisonCapacitiveDisplayFrame
+	display:RemoveTextures(true)
+	GarrisonCapacitiveDisplayFrameInset:RemoveTextures(true)
+	display.CapacitiveDisplay:RemoveTextures(true)
+	display.CapacitiveDisplay:SetPanelTemplate('Transparent')
+	display.CapacitiveDisplay.ShipmentIconFrame:SetSlotTemplate(true, 2, 0, 0, true)
+	display.CapacitiveDisplay.ShipmentIconFrame.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+	display:SetPanelTemplate('Action')
+
+	local reagents = display.Reagents;
+    for i = 1, C_Garrison.GetNumShipmentReagents() do
+        reagents[i]:SetSlotTemplate(true, 2, 0, 0, true)
+		reagents[i].Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+    end
+
+	for i = 1, #GarrisonButtonList do
+		local button = GarrisonCapacitiveDisplayFrame[GarrisonButtonList[i]]
+		if(button) then
+			button:RemoveTextures(true)
+			button:SetButtonTemplate()
 		end
 	end
 end 

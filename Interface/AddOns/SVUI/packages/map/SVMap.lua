@@ -715,9 +715,9 @@ function MOD:Load()
 	Minimap:SetCorpsePOIArrowTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Minimap\\MINIMAP_CORPSE_ARROW")
 	Minimap:SetPOIArrowTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Minimap\\MINIMAP_GUIDE_ARROW")
 	if(SV.db.SVMap.customIcons) then
-		Minimap:SetBlipTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Minimap\\MINIMAP_ICONS")
+		Minimap:SetBlipTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Minimap\\MINIMAP-OBJECTICONS")
 	else
-		Minimap:SetBlipTexture("Interface\\Minimap\\OBJECTICONS")
+		Minimap:SetBlipTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Minimap\\DEFAULT-OBJECTICONS")
 	end
 	Minimap:SetClampedToScreen(false)
 

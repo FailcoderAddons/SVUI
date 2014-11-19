@@ -373,12 +373,19 @@ SV.Options.args.common = {
 									get = function(j)return SV.db.general.reactionEmote end,
 									set = function(j,value)SV.db.general.reactionEmote = value;SV:ToggleReactions()end
 								},
-								ego = {
-									order = 1,
+								gamemenu = {
+									order = 9,
 									type = 'toggle',
 									name = L["Awesome Game Menu"],
-									get = function(j)return SV.db.general.ego end,
-									set = function(j,value) SV.db.general.ego = value; SV.GameMenu:Toggle() end
+									get = function(j)return SV.db.general.gamemenu end,
+									set = function(j,value) SV.db.general.gamemenu = value; SV.GameMenu:Toggle() end
+								},
+								afk = {
+									order = 10,
+									type = 'toggle',
+									name = L["Awesome AFK Screen"],
+									get = function(j)return SV.db.general.afk end,
+									set = function(j,value) SV.db.general.afk = value; SV.AFK:Toggle() end
 								},
 							}
 						},

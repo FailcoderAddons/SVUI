@@ -640,12 +640,6 @@ function Mentalo:Add(frame, title, raised, snapOffset, dragStopFunc, movableGrou
 		self.Frames[moveName]["postdrag"] = dragStopFunc;
 		self.Frames[moveName]["snapoffset"] = snapOffset;
 		self.Frames[moveName]["point"] = CurrentPosition(frame)
-		self.Frames[moveName]["type"] = {}
-		local group = {split(", ", movableGroup)}
-		for i = 1, #group do 
-			local this = group[i]
-			self.Frames[moveName]["type"][this] = true 
-		end 
 	end
 
 	self:New(frame, moveName, title, raised, snapOffset, dragStopFunc)
@@ -712,7 +706,7 @@ function Mentalo:SetPositions()
 	end 
 end  
 
-function Mentalo:Toggle(isConfigMode, configType)
+function Mentalo:Toggle(isConfigMode)
 	if(InCombatLockdown()) then return end 
 	local enabled = false;
 	if(isConfigMode  ~= nil and isConfigMode  ~= "") then 
@@ -738,21 +732,13 @@ function Mentalo:Toggle(isConfigMode, configType)
 		enabled = true
 	end
 
-	if(not configType or (configType and type(configType)  ~= "string")) then 
-		configType = "ALL" 
-	end
-
 	for frameName, _ in pairs(self.Frames)do 
 		if(_G[frameName]) then 
 			local movable = _G[frameName] 
 			if(not enabled) then 
 				movable:Hide() 
 			else 
-				if self.Frames[frameName]["type"][configType]then 
-					movable:Show() 
-				else 
-					movable:Hide() 
-				end 
+				movable:Show() 
 			end 
 		end 
 	end
@@ -769,12 +755,21 @@ local XML_Mentalo_OnEvent = function(self)
 	end
 end 
 
+local XML_MentaloGridButton_OnClick = function(self)
+	local enabled = false
+	if(SV.Graph.Grid and SV.Graph.Grid:IsShown()) then
+		enabled = true
+	end
+
+	SV.Graph:Toggle(enabled)
+end
+
 local XML_MentaloLockButton_OnClick = function(self)
 	Mentalo:Toggle(true)
 	if IsAddOnLoaded(SV.ConfigID)then 
 		LibStub("AceConfigDialog-3.0"):Open(SV.NameID)
 	end 
-end 
+end
 
 local SVUI_MentaloPrecisionResetButton_OnClick = function(self)
 	if(not CurrentFrameTarget) then return end
@@ -825,6 +820,7 @@ function Mentalo:Initialize()
 	SVUI_Mentalo:RegisterEvent("PLAYER_REGEN_DISABLED")
 	SVUI_Mentalo:SetScript("OnEvent", XML_Mentalo_OnEvent)
 
+	SVUI_MentaloGridButton:SetScript("OnClick", XML_MentaloGridButton_OnClick)
 	SVUI_MentaloLockButton:SetScript("OnClick", XML_MentaloLockButton_OnClick)
 
 	SVUI_MentaloPrecision:SetPanelTemplate("Transparent")

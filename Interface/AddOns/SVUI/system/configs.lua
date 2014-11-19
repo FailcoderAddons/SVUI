@@ -60,14 +60,16 @@ SV.configs["general"] = {
     ["questWatch"] = true,
     ["questHeaders"] = true,
     ["woot"] = true, 
-    ["ego"] = true, 
+    ["gamemenu"] = true, 
+    ["afk"] = true, 
     ["pvpinterrupt"] = true, 
     ["lookwhaticando"] = false,
     ["reactionChat"] = false,
     ["reactionEmote"] = false,
     ["sharingiscaring"] = false, 
     ["arenadrink"] = true, 
-    ["stupidhat"] = true, 
+    ["stupidhat"] = true,
+    ["graphSize"] = 64, 
 }
 
 SV.configs["LAYOUT"] = {
@@ -682,6 +684,7 @@ SV.configs["SVTip"] = {
 
 SV.configs["SVTools"] = {
 	["enable"] = true, 
+	["garrison"] = true, 
 	["professions"] = true, 
 	["breakStuff"] = true,
 };

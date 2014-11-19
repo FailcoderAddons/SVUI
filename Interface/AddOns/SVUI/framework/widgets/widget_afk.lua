@@ -32,69 +32,75 @@ local SV = select(2, ...);
 
 SV.AFK = _G["SVUI_AFKFrame"];
 
-local Sequences = {
-	--{65, 1000}, --shrug
-	{70, 1000}, --laugh
-	--{74, 1000}, --roar
-	--{82, 1000}, --flex
-	{5, 1000}, --run
-	{125, 1000}, --spell2
-	{125, 1000}, --spell2
-	{26, 1000}, --attack
-	{26, 1000}, --attack
-	{26, 1000}, --attack
-	{26, 1000}, --attack
-	{4, 1000}, --walk
-	{5, 1000}, --run
-	{69, 1000}, --dance
-};
-
-local function rng()
-	return random(1, #Sequences)
-end
-
-local function WatchAFKTime()
-	local time = GetTime() - self.startTime
-	self.time:SetText(("%02d:%02d"):format(floor(time/60), time % 60))
-end
-
-function SV.AFK:Toggle(enabled)
+function SV.AFK:Activate(enabled)
+	if(InCombatLockdown()) then return end
 	if(enabled) then
-		MoveViewLeftStart(CAMERA_SPEED);
+		MoveViewLeftStart(0.05);
 		self:Show();
-		--UIParent:Hide();
+		UIParent:Hide();
 		self:SetAlpha(1);
-		self.Model:SetAnimation(4)
+		self.Model:SetAnimation(119)
+		DoEmote("READ")
 	else
-		--UIParent:Show();
+		UIParent:Show();
 		self:SetAlpha(0);
 		self:Hide();
 		MoveViewLeftStop();
 	end
 end
 
-local Activate = function(self)
-	if(not SV.db.general.afk) then
-		self:Toggle()
-		return
+local AFK_OnEvent = function(self, event)
+	if(event == "PLAYER_REGEN_DISABLED") then
+		self:RegisterEvent("PLAYER_REGEN_ENABLED", "OnEvent")
+		self:Activate(false)
+	else
+		if(UnitIsAFK("player")) then
+			self:Activate(true)
+		else
+			self:Activate(false)
+		end
 	end
-	self:SetAlpha(1)
-	self.Model:SetAnimation(4)
 end
 
 function SV.AFK:Initialize()
+	local classToken = select(2,UnitClass("player"))
+	local color = SVUI_CLASS_COLORS[classToken]
+	self.BG:SetVertexColor(color.r, color.g, color.b)
+	self.BG:ClearAllPoints()
+	self.BG:Size(500,600)
+	self.BG:Point("BOTTOMRIGHT", self, "BOTTOMRIGHT", 0, 0)
+
 	self:SetFrameLevel(0)
 	self:SetAllPoints(SV.Screen)
 
+	self.Model:ClearAllPoints()
+	self.Model:Size(600,600)
+	self.Model:Point("BOTTOMRIGHT", self, "BOTTOMRIGHT", 64, -64)
 	self.Model:SetUnit("player")
 	self.Model:SetCamDistanceScale(1.15)
 	self.Model:SetFacing(6)
 
-	-- local splash = self:CreateTexture(nil, "OVERLAY")
-	-- splash:SetSize(600, 300)
-	-- splash:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\SPLASH-BLACK")
-	-- splash:SetBlendMode("ADD")
-	-- splash:SetPoint("TOP", 0, 0)
+	local splash = self.Model:CreateTexture(nil, "OVERLAY")
+	splash:Size(256,256)
+	splash:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Template\\PLAYER-AFK")
+	splash:Point("TOPRIGHT", self, "TOPRIGHT", 0, -64)
 
-	self:SetScript("OnShow", Activate)
+	self:Hide()
+	if(SV.db.general.afk) then
+		self:RegisterEvent("PLAYER_FLAGS_CHANGED")
+		self:RegisterEvent("PLAYER_REGEN_DISABLED")
+		self:SetScript("OnEvent", AFK_OnEvent)
+	end
+end
+
+function SV.AFK:Toggle()
+	if(SV.db.general.afk) then
+		self:RegisterEvent("PLAYER_FLAGS_CHANGED")
+		self:RegisterEvent("PLAYER_REGEN_DISABLED")
+		self:SetScript("OnEvent", AFK_OnEvent)
+	else
+		self:UnregisterEvent("PLAYER_FLAGS_CHANGED")
+		self:UnregisterEvent("PLAYER_REGEN_DISABLED")
+		self:SetScript("OnEvent", nil)
+	end
 end
