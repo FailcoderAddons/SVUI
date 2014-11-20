@@ -470,30 +470,28 @@ local _hook_GameTooltipStatusBar_OnValueChanged = function(self, value)
 end 
 
 local _hook_GameTooltip_OnTooltipSetItem = function(self)
-	if not self.itemCleared then
+	local key,itemID = self:GetItem()
+	if(key and (not self.itemCleared)) then
 		self.SuperBorder:ClearMaskColors()
-		local key,itemID = self:GetItem()
-		if(key) then
-			local quality = select(3, GetItemInfo(key))
-			if(quality) then
-				local r,g,b = GetItemQualityColor(quality)
-				self.SuperBorder:SetToneColor(r,g,b)
-			end
+		
+		local quality = select(3, GetItemInfo(key))
+		if(quality) then
+			local r,g,b = GetItemQualityColor(quality)
+			self.SuperBorder:SetToneColor(r,g,b)
 		end
-		local left = "";
-		local right = "";
-		if itemID ~= nil and SV.db.SVTip.spellID then 
-			left = "|cFFCA3C3CSpell ID: |r"
-			right = ("|cFFCA3C3C%s|r %s"):format(ID,itemID):match(":(%w+)")
-		end 
-		if left ~= "" or right ~= "" then 
+
+		if itemID ~= nil and SV.db.SVTip.spellID then
 			self:AddLine(" ")
-			self:AddDoubleLine(left,right)
+			left = "|cFFCA3C3CSpell ID: |r"
+			local tipID = ("|cFFCA3C3C%s|r %s"):format(ID,itemID):match(":(%w+)")
+			self:AddDoubleLine("|cFFCA3C3CSpell ID: |r", tipID)
 		end
+
 		if(self.InjectedDouble[8]) then
 			self:AddLine(" ");
 			self:AddDoubleLine(unpack(self.InjectedDouble));
 		end
+
 		self.itemCleared = true
 	end
 end 

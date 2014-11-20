@@ -48,7 +48,6 @@ function Graph:Toggle(enabled)
 	if((not self.Grid) or (self.CellSize ~= SV.db.general.graphSize)) then
 		self:Generate()
 	end
-	print(enabled)
 	if(not enabled) then
         self.Grid:Hide()
 	else

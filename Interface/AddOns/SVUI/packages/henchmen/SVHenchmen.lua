@@ -780,7 +780,7 @@ function MOD:MERCHANT_SHOW()
 	local autoRepair = SV.db.SVHenchmen.autoRepair;
 	if IsShiftKeyDown() or autoRepair == "NONE" or not CanMerchantRepair() then return end 
 	local repairCost,canRepair=GetRepairAllCost()
-	local loan=GetGuildBankWithdrawMoney()
+	local loan = GetGuildBankWithdrawMoney()
 	if autoRepair == "GUILD" and (not CanGuildBankRepair() or (repairCost > loan)) then autoRepair = "PLAYER" end 
 	if repairCost > 0 then 
 		if canRepair then 

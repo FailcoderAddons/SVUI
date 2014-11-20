@@ -136,11 +136,6 @@ function SV.Comix:LaunchPopup()
 end 
 
 local Comix_OnEvent = function(self, event, ...)
-	if(not SV.db.general.comix) then 
-		self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-		self:SetScript("OnEvent", nil)
-		return
-	end
 	local subEvent = select(2,...)
 	local guid = select(4,...)
 	local ready = self:ReadyState()
@@ -156,8 +151,8 @@ local Comix_OnEvent = function(self, event, ...)
 	end  
 end
 
-function SV.Comix:Toggle(enabled)
-	if(not enabled) then 
+function SV.Comix:Toggle()
+	if(not SV.db.general.comix) then 
 		self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 		self:SetScript("OnEvent", nil)
 	else 
@@ -212,7 +207,7 @@ function SV.Comix:Initialize()
 
 	self:ReadyState(true)
 
-	if SV.db.general.comix then 
+	if(SV.db.general.comix) then 
 		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 		self:SetScript("OnEvent", Comix_OnEvent)
 	end

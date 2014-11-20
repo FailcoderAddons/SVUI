@@ -307,7 +307,7 @@ SV.Options.args.common = {
 									type = 'toggle',
 									name = L["Enable Comic Popups"],
 									get = function(j)return SV.db.general.comix end,
-									set = function(j,value) SV.db.general.comix = value; SV.Comix:Toggle(value) end
+									set = function(j,value) SV.db.general.comix = value; SV.Comix:Toggle() end
 								},
 								bigComix = {
 									order = 1,

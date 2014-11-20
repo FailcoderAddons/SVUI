@@ -8,4 +8,5 @@
   <Binding name="SVUI_RIDE" description="Lets Ride" category="ADDONS" runOnUp="false">
     SVUILetsRide()
   </Binding>
+  <ModifiedClick action="VENDORMARKITEM" default="ALT-BUTTON2"/>
 </Bindings>

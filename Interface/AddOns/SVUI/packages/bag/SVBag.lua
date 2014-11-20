@@ -63,6 +63,7 @@ local ICON_DEPOSIT = [[Interface\AddOns\SVUI\assets\artwork\Icons\BAGS-DEPOSIT]]
 local ICON_VENDOR = [[Interface\AddOns\SVUI\assets\artwork\Icons\BAGS-VENDOR]]
 local ICON_REAGENTS = [[Interface\AddOns\SVUI\assets\artwork\Icons\BAGS-REAGENTS]]
 local numBagFrame = NUM_BAG_FRAMES + 1;
+local VendorQueue = {};
 local gearSet, gearList = {}, {};
 local internalTimer;
 local RefProfessionColors = {
@@ -291,16 +292,22 @@ local SlotUpdate = function(self, slotID)
 
 	slot:Show()
 
+	local texture, count, locked, rarity = GetContainerItemInfo(bag, slotID);
+	local itemID = GetContainerItemID(bag, slotID);
+	local start, duration, enable = GetContainerItemCooldown(bag, slotID);
+	local itemLink = GetContainerItemLink(bag, slotID);
+
 	if(slot.JunkIcon) then
-		slot.JunkIcon:Hide()
+		if(itemID and VendorQueue[itemID]) then
+			slot.JunkIcon:Show()
+		else
+			slot.JunkIcon:Hide()
+		end
 	end
+
 	if(slot.questIcon) then
 		slot.questIcon:Hide();
 	end
-
-	local texture, count, locked, rarity = GetContainerItemInfo(bag, slotID);
-	local start, duration, enable = GetContainerItemCooldown(bag, slotID);
-	local itemLink = GetContainerItemLink(bag, slotID);
 
 	CooldownFrame_SetTimer(slot.cooldown, start, duration, enable);
 
@@ -340,8 +347,6 @@ local SlotUpdate = function(self, slotID)
 			slot:SetBackdropColor(0, 0, 0, 0.6)
 			slot:SetBackdropBorderColor(0, 0, 0, 1)
 		end
-	elseif(not texture) then
-		GameTooltip:Hide()
 	end
 	
 	if(bagType) then
@@ -444,7 +449,7 @@ local ContainerFrame_UpdateBags = function(self)
 	for bagID, bag in pairs(self.Bags) do
 		bag:RefreshSlots() 
 	end
-end 
+end
 
 local ContainerFrame_UpdateLayout = function(self)
 	if SV.db.SVBag.enable ~= true then return; end
@@ -821,54 +826,88 @@ function MOD:UpdateGoldText()
 	self.BagFrame.goldText:SetText(GetCoinTextureString(GetMoney(), 12))
 end 
 
-function MOD:VendorGrays(arg1, arg2, arg3)
-	if(not MerchantFrame or not MerchantFrame:IsShown()) and not arg1 and not arg3 then 
+function MOD:VendorGrays(destroy, silent, request)
+	if((not MerchantFrame or not MerchantFrame:IsShown()) and ((not destroy) and (not request))) then 
 		SV:AddonMessage(L["You must be at a vendor."])
 		return 
-	end 
-	local copper = 0;
-	local deleted = 0;
-	for i = 0, 4 do 
-		for silver = 1, GetContainerNumSlots(i) do 
-			local a2 = GetContainerItemLink(i, silver)
-			if a2 and select(11, GetItemInfo(a2)) then 
-				local a3 = select(11, GetItemInfo(a2)) * select(2, GetContainerItemInfo(i, silver))
-				if arg1 then 
-					if find(a2, "ff9d9d9d") then 
-						if not arg3 then 
-							PickupContainerItem(i, silver)
+	end
+
+	local totalValue = 0;
+	local canDelete = 0;
+
+	for bagID = 0, 4 do 
+		for slot = 1, GetContainerNumSlots(bagID) do 
+			local itemLink = GetContainerItemLink(bagID, slot)
+			local name, link, quality, iLevel, reqLevel, class, subclass, maxStack, equipSlot, texture, vendorPrice = GetItemInfo(itemLink)
+			if(itemLink and vendorPrice) then
+				local itemCount = select(2, GetContainerItemInfo(bagID, slot))
+				local sellPrice = vendorPrice * itemCount
+				local itemID = GetContainerItemID(bagID, slot);
+
+				if(destroy) then 
+					if(find(itemLink, "ff9d9d9d")) then 
+						if(not request) then 
+							PickupContainerItem(bagID, slot)
 							DeleteCursorItem()
 						end 
-						copper = copper + a3;
-						deleted = deleted + 1 
+						totalValue = totalValue + sellPrice;
+						canDelete = canDelete + 1 
+					elseif(itemID and VendorQueue[itemID]) then
+						if(not request) then
+							VendorQueue[itemID] = nil
+							PickupContainerItem(bagID, slot)
+							DeleteCursorItem()
+						end 
+						totalValue = totalValue + sellPrice;
+						canDelete = canDelete + 1 
 					end 
-				else 
-					if select(3, GetItemInfo(a2)) == 0 and a3 > 0 then 
-						if not arg3 then 
-							UseContainerItem(i, silver)
+				elseif(sellPrice > 0) then
+					if(quality == 0) then 
+						if(not request) then 
+							UseContainerItem(bagID, slot)
 							PickupMerchantItem()
 						end 
-						copper = copper + a3 
-					end 
-				end 
+						totalValue = totalValue + sellPrice
+					elseif(itemID and VendorQueue[itemID]) then
+						if(not request) then
+							VendorQueue[itemID] = nil
+							UseContainerItem(bagID, slot)
+							PickupMerchantItem()
+						end 
+						totalValue = totalValue + sellPrice
+					end
+				end
 			end 
 		end 
-	end 
-	if arg3 then return copper end
-	local strMsg
-	if copper > 0 and not arg1 then 
-		local gold, silver, copper = floor(copper / 10000) or 0, floor(copper%10000 / 100) or 0, copper%100;
-		strMsg = ("%s |cffffffff%s%s%s%s%s%s|r"):format(L["Vendored gray items for:"], gold, L["goldabbrev"], silver, L["silverabbrev"], copper, L["copperabbrev"])
-	elseif not arg1 and not arg2 then 
-		strMsg = L["No gray items to sell."]
-	elseif deleted > 0 then 
-		local gold, silver, copper = floor(copper / 10000) or 0, floor(copper%10000 / 100) or 0, copper%100;
-		local prefix = ("|cffffffff%s%s%s%s%s%s|r"):format(gold, L["goldabbrev"], silver, L["silverabbrev"], copper, L["copperabbrev"])
-		strMsg = (L["Deleted %d gray items. Total Worth: %s"]):format(deleted, prefix)
-	elseif not arg2 then
-		strMsg = L["No gray items to delete."]
 	end
-	SV:AddonMessage(strMsg)
+
+	if request then return totalValue end
+
+	if(not silent) then
+		if(totalValue > 0) then
+			local prefix, strMsg
+			local gold, silver, copper = floor(totalValue / 10000) or 0, floor(totalValue%10000 / 100) or 0, totalValue%100;
+
+			if(not destroy) then
+				strMsg = ("%s |cffffffff%s%s%s%s%s%s|r"):format(L["Vendored gray items for:"], gold, L["goldabbrev"], silver, L["silverabbrev"], copper, L["copperabbrev"])
+				SV:AddonMessage(strMsg)
+			else
+				if(canDelete > 0) then
+					prefix = ("|cffffffff%s%s%s%s%s%s|r"):format(gold, L["goldabbrev"], silver, L["silverabbrev"], copper, L["copperabbrev"])
+					strMsg = (L["Deleted %d gray items. Total Worth: %s"]):format(canDelete, prefix)
+					SV:AddonMessage(strMsg)
+				else
+					SV:AddonMessage(L["No gray items to delete."])
+				end
+			end
+		else
+			if(not destroy) then
+				SV:AddonMessage(L["No gray items to sell."])
+			else
+				SV:AddonMessage(L["No gray items to delete."])
+			end
+		end
+	end
 end 
 
 function MOD:ModifyBags()
@@ -1732,8 +1771,8 @@ local function _closeBags()
 end
 
 local function _toggleBags(id)
-	if id and GetContainerNumSlots(id)==0 then return end 
-	if MOD.BagFrame:IsShown() then 
+	if(id and (GetContainerNumSlots(id) == 0)) then return end 
+	if(MOD.BagFrame:IsShown()) then 
 		_closeBags()
 	else 
 		_openBags()
@@ -1747,6 +1786,23 @@ local function _toggleBackpack()
 	else 
 		_closeBags()
 	end 
+end
+
+local _hook_OnModifiedClick = function(self, button)
+    if (IsModifiedClick("VENDORMARKITEM")) then
+    	local slotID = self:GetID()
+    	local bagID = self:GetParent():GetID()
+    	local itemID = GetContainerItemID(bagID, slotID);
+    	if(itemID) then
+    		if(VendorQueue[itemID]) then
+    			if(self.JunkIcon) then self.JunkIcon:Hide() end
+    			VendorQueue[itemID] = nil
+	    	else
+	    		if(self.JunkIcon) then self.JunkIcon:Show() end
+	    		VendorQueue[itemID] = true
+	    	end
+    	end
+    end
 end
 
 function MOD:BANKFRAME_OPENED()
@@ -1904,6 +1960,7 @@ function MOD:Load()
 	hooksecurefunc("ToggleAllBags", _toggleBackpack)
 	hooksecurefunc("ToggleBackpack", _toggleBackpack)
 	hooksecurefunc("BackpackTokenFrame_Update", self.RefreshTokens)
+	hooksecurefunc("ContainerFrameItemButton_OnModifiedClick", _hook_OnModifiedClick)
 
 	self:RegisterEvent("BANKFRAME_OPENED")
 	self:RegisterEvent("BANKFRAME_CLOSED")
