@@ -153,7 +153,7 @@ local ModeCapture_PostClickHandler = function(self, button)
 		return 
 	end
 	ClearOverrideBindings(self)
-	self.Grip:Hide()
+	self.Handler:Hide()
 end
 
 local ModeCapture_EventHandler = function(self, event, ...)
@@ -170,10 +170,10 @@ local ModeCapture_EventHandler = function(self, event, ...)
 	end
 end
 
-local ModeHandler = CreateFrame("Frame")
-ModeHandler:SetPoint("LEFT", UIParent, "RIGHT", 10000, 0)
-local ModeCapture = CreateFrame("Button", "SVUI_ModeCaptureWindow", ModeHandler, "SecureActionButtonTemplate")
-ModeCapture.Grip = ModeHandler
+local Handler = CreateFrame("Frame")
+Handler:SetPoint("LEFT", UIParent, "RIGHT", 10000, 0)
+local ModeCapture = CreateFrame("Button", "SVUI_ModeCaptureWindow", Handler, "SecureActionButtonTemplate")
+ModeCapture.Handler = Handler
 ModeCapture:EnableMouse(true)
 ModeCapture:RegisterForClicks("RightButtonUp")
 ModeCapture:RegisterEvent("PLAYER_ENTERING_WORLD")

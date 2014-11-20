@@ -48,7 +48,7 @@ function Graph:Toggle(enabled)
 	if((not self.Grid) or (self.CellSize ~= SV.db.general.graphSize)) then
 		self:Generate()
 	end
-
+	print(enabled)
 	if(not enabled) then
         self.Grid:Hide()
 	else
@@ -74,7 +74,7 @@ function Graph:Generate()
 	for i = 0, cellSize do 
 		local tx = self.Grid:CreateTexture(nil, 'BACKGROUND') 
 		if(i == cellSize / 2) then 
-			tx:SetTexture(1, 0, 0, 0.8) 
+			tx:SetTexture(0, 1, 0, 0.8) 
 		else 
 			tx:SetTexture(0, 0, 0, 0.8) 
 		end 
@@ -86,7 +86,7 @@ function Graph:Generate()
 	
 	do
 		local tx = self.Grid:CreateTexture(nil, 'BACKGROUND') 
-		tx:SetTexture(1, 0, 0, 0.8)
+		tx:SetTexture(0, 1, 0, 0.8)
 		tx:SetPoint("TOPLEFT", self.Grid, "TOPLEFT", 0, -(height/2) + (size/2))
 		tx:SetPoint('BOTTOMRIGHT', self.Grid, 'TOPRIGHT', 0, -(height/2 + size/2))
 	end

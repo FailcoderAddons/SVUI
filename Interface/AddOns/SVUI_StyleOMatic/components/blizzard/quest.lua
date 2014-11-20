@@ -161,6 +161,7 @@ local function QuestFrameStyle()
 
 	QuestLogPopupDetailFrameScrollFrame:RemoveTextures()
 	QuestProgressScrollFrame:RemoveTextures()
+	
 	local width = QuestLogPopupDetailFrameScrollFrame:GetWidth()
 	QuestLogPopupDetailFrame.ShowMapButton:SetWidth(width)
 	QuestLogPopupDetailFrame.ShowMapButton:SetButtonTemplate()

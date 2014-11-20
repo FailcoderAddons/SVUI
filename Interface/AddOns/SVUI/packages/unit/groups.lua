@@ -657,7 +657,7 @@ UpdateTemplates["tank"] = function(self)
         self:ClearAllPoints()
         self:Point("BOTTOMLEFT", SV.Dock.TopLeft, "BOTTOMLEFT", 0, 0)
         SV.Mentalo:Add(self, L["Tank Frames"], nil, nil, nil, "ALL, RAID10, RAID25, RAID40")
-        self.Avatar.positionOverride = "TOPLEFT"
+        self.Grip.positionOverride = "TOPLEFT"
         self:SetAttribute("minHeight", self.dirtyHeight)
         self:SetAttribute("minWidth", self.dirtyWidth)
         self.positioned = true 
@@ -767,7 +767,7 @@ UpdateTemplates["assist"] = function(self)
         self:ClearAllPoints()
         self:Point("TOPLEFT", SV.Dock.TopLeft, "BOTTOMLEFT", 0, -10)
         SV.Mentalo:Add(self, L["Assist Frames"], nil, nil, nil, "ALL, RAID10, RAID25, RAID40")
-        self.Avatar.positionOverride = "TOPLEFT"
+        self.Grip.positionOverride = "TOPLEFT"
         self:SetAttribute("minHeight", self.dirtyHeight)
         self:SetAttribute("minWidth", self.dirtyWidth)
         self.positioned = true 
@@ -1146,7 +1146,7 @@ function MOD:SetGroupFrame(token, forceUpdate)
 
     groupFrame:SetVisibility()
 
-    if(forceUpdate or not groupFrame.Avatar) then 
+    if(forceUpdate or not groupFrame.Grip) then 
         groupFrame:Configure()
         if(not groupFrame.isForced and settings.visibility) then 
             RegisterStateDriver(groupFrame, "visibility", settings.visibility)

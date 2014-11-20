@@ -37,23 +37,25 @@ local GarrisonButtonList = {
 STYLE
 ##########################################################
 ]]--
+local _hook_ReagentUpdate = function(self)
+	local reagents = GarrisonCapacitiveDisplayFrame.CapacitiveDisplay.Reagents;
+    for i = 1, #reagents do
+    	if(reagents[i] and (not reagents[i].Panel)) then
+    		reagents[i]:RemoveTextures()
+        	reagents[i]:SetSlotTemplate(true, 2, 0, 0, true)
+        	if(reagents[i].Icon) then
+				reagents[i].Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+			end
+		end
+    end
+end
+
 local function LoadGarrisonStyle()
 	if PLUGIN.db.blizzard.enable ~= true then
 		return 
 	end
 
-	PLUGIN:ApplyScrollFrameStyle(GarrisonLandingPageListListScrollFrameScrollBar)
-	PLUGIN:ApplyCloseButtonStyle(GarrisonLandingPage.CloseButton)
-	GarrisonLandingPage.CloseButton:SetFrameStrata("HIGH")
-
-	for i = 1, GarrisonLandingPageListListScrollFrameScrollChild:GetNumChildren() do
-		local child = select(i, GarrisonLandingPageListListScrollFrameScrollChild:GetChildren())
-		for j = 1, child:GetNumChildren() do
-			local childC = select(j, child:GetChildren())
-			childC.Icon:SetTexCoord(0.1,0.9,0.1,0.9)
-		end
-	end
-
+	--print("Test")
 	local display = GarrisonCapacitiveDisplayFrame
 	display:RemoveTextures(true)
 	GarrisonCapacitiveDisplayFrameInset:RemoveTextures(true)
@@ -63,12 +65,21 @@ local function LoadGarrisonStyle()
 	display.CapacitiveDisplay.ShipmentIconFrame.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 	display:SetPanelTemplate('Action')
 
-	local reagents = display.Reagents;
-    for i = 1, C_Garrison.GetNumShipmentReagents() do
-        reagents[i]:SetSlotTemplate(true, 2, 0, 0, true)
-		reagents[i].Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+	--print("Test")
+	local reagents = display.CapacitiveDisplay.Reagents;
+    for i = 1, #reagents do
+    	if(reagents[i]) then
+    		reagents[i]:RemoveTextures()
+        	reagents[i]:SetSlotTemplate(true, 2, 0, 0, true)
+        	if(reagents[i].Icon) then
+				reagents[i].Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+			end
+		end
     end
 
+    hooksecurefunc("GarrisonCapacitiveDisplayFrame_Update", _hook_ReagentUpdate)
+
+ --    print("Test")
 	for i = 1, #GarrisonButtonList do
 		local button = GarrisonCapacitiveDisplayFrame[GarrisonButtonList[i]]
 		if(button) then
@@ -76,6 +87,25 @@ local function LoadGarrisonStyle()
 			button:SetButtonTemplate()
 		end
 	end
+
+	--print("Test")
+	PLUGIN:ApplyScrollFrameStyle(GarrisonLandingPageReportListListScrollFrameScrollBar)
+	PLUGIN:ApplyCloseButtonStyle(GarrisonLandingPage.CloseButton)
+	GarrisonLandingPage.CloseButton:SetFrameStrata("HIGH")
+
+	--print("Test")
+	for i = 1, GarrisonLandingPageReportListListScrollFrameScrollChild:GetNumChildren() do
+		local child = select(i, GarrisonLandingPageReportListListScrollFrameScrollChild:GetChildren())
+		for j = 1, child:GetNumChildren() do
+			local childC = select(j, child:GetChildren())
+			childC.Icon:SetTexCoord(0.1,0.9,0.1,0.9)
+		end
+	end
+
+	--print("Test")
+	PLUGIN:ApplyScrollFrameStyle(GarrisonLandingPageListScrollFrameScrollBar)
+
+	--print("Test Done")
 end 
 --[[ 
 ########################################################## 

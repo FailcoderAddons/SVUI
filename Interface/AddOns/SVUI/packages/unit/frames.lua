@@ -378,9 +378,9 @@ local UpdateTargetFrame = function(self)
             comboBar:SetParent(SV.Screen)
         end
 
-        if comboBar.Avatar then
-            comboBar.Avatar:SetScale(0.000001)
-            comboBar.Avatar:SetAlpha(0)
+        if comboBar.Grip then
+            comboBar.Grip:SetScale(0.000001)
+            comboBar.Grip:SetAlpha(0)
         end
         
         if USE_COMBOBAR and not self:IsElementEnabled("HyperCombo")then 

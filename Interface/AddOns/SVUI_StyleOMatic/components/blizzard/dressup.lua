@@ -32,7 +32,7 @@ local function DressUpStyle()
 		 return 
 	end
 
-	DressUpFrame:Size(600, 500)
+	DressUpFrame:Size(600, 700)
 	PLUGIN:ApplyWindowStyle(DressUpFrame, true, true)
 
 	DressUpModel:ClearAllPoints()

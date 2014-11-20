@@ -42,19 +42,52 @@ GET ADDON DATA
 local SV = select(2, ...)
 local L = SV.L;
 
-local Mentalo = {}
-
+local Mentalo = CreateFrame("Frame", nil)
 Mentalo.Frames = {}
+Mentalo.Blizzard = {}
 
-local MentaloUpdateHandler = CreateFrame("Frame", nil)
-
+local DraggableFrames = {
+	"AchievementFrame", "AuctionFrame", "ArchaeologyFrame",
+	"BattlefieldMinimap", "BarberShopFrame", "BlackMarketFrame",
+	"CalendarFrame", "CharacterFrame", "ClassTrainerFrame",
+	"DressUpFrame",
+	"EncounterJournal",
+	"FriendsFrame",
+	"GameMenuFrame", "GMSurveyFrame", "GossipFrame", "GuildFrame", "GuildBankFrame", "GuildRegistrarFrame",
+	"HelpFrame",
+	"InterfaceOptionsFrame",
+	"ItemUpgradeFrame",
+	"KeyBindingFrame",
+	"LFGDungeonReadyPopup",
+	"MacOptionsFrame", "MacroFrame", "MailFrame", "MerchantFrame",
+	"PlayerTalentFrame", "PetJournalParent", "PetStableFrame", "PVEFrame", "PVPFrame",
+	"QuestFrame", "QuestLogFrame",
+	"RaidBrowserFrame", "ReadyCheckFrame", "ReforgingFrame", "ReportCheatingDialog", "ReportPlayerNameDialog", "RolePollPopup",
+	"ScrollOfResurrectionSelectionFrame", "SpellBookFrame",
+	"TabardFrame", "TaxiFrame", "TimeManagerFrame", "TradeSkillFrame", "TradeFrame", "TransmogrifyFrame", "TutorialFrame",
+	"VideoOptionsFrame", "VoidStorageFrame",
+	--"WorldStateAlwaysUpFrame"
+};
+--[[
+  /$$$$$$   /$$     /$$           /$$                
+ /$$__  $$ | $$    |__/          | $$                
+| $$  \__//$$$$$$   /$$  /$$$$$$$| $$   /$$ /$$   /$$
+|  $$$$$$|_  $$_/  | $$ /$$_____/| $$  /$$/| $$  | $$
+ \____  $$ | $$    | $$| $$      | $$$$$$/ | $$  | $$
+ /$$  \ $$ | $$ /$$| $$| $$      | $$_  $$ | $$  | $$
+|  $$$$$$/ |  $$$$/| $$|  $$$$$$$| $$ \  $$|  $$$$$$$
+ \______/   \___/  |__/ \_______/|__/  \__/ \____  $$
+                                            /$$  | $$
+                                           |  $$$$$$/
+                                            \______/ 
+--]]
 local Sticky = {};
 Sticky.Frames = {};
 Sticky.Frames[1] = SV.Screen;
 Sticky.scripts = Sticky.scripts or {}
 Sticky.rangeX = 15
 Sticky.rangeY = 15
-Sticky.sticky = Sticky.sticky or {}
+Sticky.StuckTo = Sticky.StuckTo or {}
 
 local function SnapStickyFrame(frameA, frameB, left, top, right, bottom)
 	local sA, sB = frameA:GetEffectiveScale(), frameB:GetEffectiveScale()
@@ -142,16 +175,15 @@ function Sticky:GetStickyUpdate(frame, xoffset, yoffset, left, top, right, botto
 	return function()
 		local x, y = GetCursorPosition()
 		local s = frame:GetEffectiveScale()
-		local sticky = nil
 		x, y = x / s, y / s
 		frame:ClearAllPoints()
 		frame:SetPoint("CENTER", UIParent, "BOTTOMLEFT", x + xoffset, y + yoffset)
-		self.sticky[frame] = nil
+		self.StuckTo[frame] = nil
 		for i = 1, #Sticky.Frames do
 			local v = Sticky.Frames[i]
 			if(frame ~= v and frame ~= v:GetParent() and not IsShiftKeyDown() and v:IsVisible()) then
 				if SnapStickyFrame(frame, v, left, top, right, bottom) then
-					self.sticky[frame] = v
+					self.StuckTo[frame] = v
 					break
 				end
 			end
@@ -172,19 +204,24 @@ end
 function Sticky:StopMoving(frame)
 	frame:SetScript("OnUpdate", self.scripts[frame])
 	self.scripts[frame] = nil
-	if self.sticky[frame] then
-		local sticky = self.sticky[frame]
-		self.sticky[frame] = nil
-		return true, sticky
+	if self.StuckTo[frame] then
+		local frame2 = self.StuckTo[frame]
+		self.StuckTo[frame] = nil
+		return true, frame2
 	else
 		return false, nil
 	end
 end
---[[ 
-########################################################## 
-LOCAL VARS
-##########################################################
-]]--
+--[[
+ /$$      /$$                       /$$               /$$          
+| $$$    /$$$                      | $$              | $$          
+| $$$$  /$$$$  /$$$$$$  /$$$$$$$  /$$$$$$    /$$$$$$ | $$  /$$$$$$ 
+| $$ $$/$$ $$ /$$__  $$| $$__  $$|_  $$_/   |____  $$| $$ /$$__  $$
+| $$  $$$| $$| $$$$$$$$| $$  \ $$  | $$      /$$$$$$$| $$| $$  \ $$
+| $$\  $ | $$| $$_____/| $$  | $$  | $$ /$$ /$$__  $$| $$| $$  | $$
+| $$ \/  | $$|  $$$$$$$| $$  | $$  |  $$$$/|  $$$$$$$| $$|  $$$$$$/
+|__/     |__/ \_______/|__/  |__/   \___/   \_______/|__/ \______/ 
+--]]
 local CurrentFrameTarget, UpdateFrameTarget;
 --[[ 
 ########################################################## 
@@ -290,7 +327,6 @@ local function ResetAllAlphas()
 		end 
 	end 
 end
-
 --[[
  /$$$$$$$$/$$   /$$ /$$$$$$$$       /$$   /$$  /$$$$$$  /$$   /$$ /$$$$$$$ 
 |__  $$__/ $$  | $$| $$_____/      | $$  | $$ /$$__  $$| $$$ | $$| $$__  $$
@@ -301,7 +337,6 @@ end
    | $$  | $$  | $$| $$$$$$$$      | $$  | $$| $$  | $$| $$ \  $$| $$$$$$$/
    |__/  |__/  |__/|________/      |__/  |__/|__/  |__/|__/  \__/|_______/ 
 --]]
-
 local TheHand = CreateFrame("Frame", "SVUI_HandOfMentalo", SV.Screen)
 TheHand:SetFrameStrata("DIALOG")
 TheHand:SetFrameLevel(99)
@@ -353,6 +388,8 @@ end
 HANDLERS
 ##########################################################
 ]]--
+local MentaloUpdateHandler = CreateFrame("Frame", nil)
+
 local Movable_OnMouseUp = function(self)
 	CurrentFrameTarget = self;
 	local xOffset, yOffset, anchor = CalculateOffsets()
@@ -403,16 +440,16 @@ end
 local Movable_OnSizeChanged = function(self)
 	if InCombatLockdown()then return end 
 	if self.dirtyWidth and self.dirtyHeight then 
-		self.Avatar:Size(self.dirtyWidth, self.dirtyHeight)
+		self.Grip:Size(self.dirtyWidth, self.dirtyHeight)
 	else 
-		self.Avatar:Size(self:GetSize())
+		self.Grip:Size(self:GetSize())
 	end 
 end
 
 local Movable_OnDragStart = function(self)
 	if InCombatLockdown() then SV:AddonMessage(ERR_NOT_IN_COMBAT)return end 
 	if SV.db.general.stickyFrames then 
-		Sticky:StartMoving(self, self.snapOffset, self.snapOffset, self.snapOffset, self.snapOffset)
+		Sticky:StartMoving(self, self.snapOffset)
 	else 
 		self:StartMoving()
 	end 
@@ -480,9 +517,10 @@ local Movable_OnEnter = function(self)
 	if TheHand.UserHeld then return end
 	ResetAllAlphas()
 	self:SetAlpha(1)
-	self.text:SetTextColor(1, 1, 1)
+	self.text:SetTextColor(0, 1, 1)
+	self:SetBackdropBorderColor(0, 0.7, 1)
 	UpdateFrameTarget = self;
-	SVUI_Mentalo.Avatar:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Doodads\MENTALO-ON]])
+	SVUI_Mentalo.Portrait:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Doodads\MENTALO-ON]])
 	TheHand:SetPoint("CENTER", self, "TOP", 0, 0)
 	TheHand:Show()
 	if CurrentFrameTarget ~= self then 
@@ -493,8 +531,9 @@ end
 
 local Movable_OnLeave = function(self)
 	if TheHand.UserHeld then return end
-	self.text:SetTextColor(0.1, 0.8, 0.8)
-	SVUI_Mentalo.Avatar:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Doodads\MENTALO-OFF]])
+	self.text:SetTextColor(0.5, 0.5, 0.5)
+	self:SetBackdropBorderColor(0.5, 0.5, 0.5)
+	SVUI_Mentalo.Portrait:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Doodads\MENTALO-OFF]])
 	TheHand:Hide()
 	if(CurrentFrameTarget ~= self and not SVUI_MentaloPrecision:IsShown()) then
 		self:SetAlpha(0.4)
@@ -519,44 +558,31 @@ local Movable_OnMouseDown = function(self, arg)
 end
 
 local Movable_OnShow = function(self)
-	self:SetBackdropBorderColor(0.1, 0.8, 0.8)
+	self:SetBackdropBorderColor(0.5, 0.5, 0.5)
 end
 --[[ 
 ########################################################## 
 CONSTRUCTS
 ##########################################################
 ]]--
-function Mentalo:New(frame, moveName, title, raised, snap, dragStopFunc)
-	if(not frame) then return end
-	if self.Frames[moveName].Created then return end 
-	if raised == nil then raised = true end 
+function Mentalo:New(frame, moveName, title, snap, dragStopFunc)
+	if(not frame or (self.Frames[moveName] ~= nil)) then return end
 
 	local movable = CreateFrame("Button", moveName, SV.Screen)
 	movable:SetFrameLevel(frame:GetFrameLevel() + 1)
 	movable:SetClampedToScreen(true)
 	movable:SetWidth(frame:GetWidth())
 	movable:SetHeight(frame:GetHeight())
+	movable:SetFrameStrata("DIALOG")
 
 	movable.parent = frame;
 	movable.name = moveName;
 	movable.textString = title;
 	movable.postdrag = dragStopFunc;
-	movable.overlay = raised;
-	movable.snapOffset = snap or -2;
-
-	if raised == true then 
-		movable:SetFrameStrata("DIALOG")
-	else 
-		movable:SetFrameStrata("BACKGROUND")
-	end 
+	movable.snapOffset = snap or -2; 
 
 	local anchor1, anchorParent, anchor2, xPos, yPos = split("\031", CurrentPosition(frame))
-	if(SV.cache.Anchors and SV.cache.Anchors[moveName]) then 
-		if(type(SV.cache.Anchors[moveName]) == "table") then 
-			movable:SetPoint(SV.cache.Anchors[moveName]["p"], SV.Screen, SV.cache.Anchors[moveName]["p2"], SV.cache.Anchors[moveName]["p3"], SV.cache.Anchors[moveName]["p4"])
-			SV.cache.Anchors[moveName] = CurrentPosition(movable)
-			movable:ClearAllPoints()
-		end 
+	if(SV.cache.Anchors and SV.cache.Anchors[moveName] and (type(SV.cache.Anchors[moveName]) == "string")) then 
 		anchor1, anchorParent, anchor2, xPos, yPos = split("\031", SV.cache.Anchors[moveName])
 		movable:SetPoint(anchor1, anchorParent, anchor2, xPos, yPos)
 	else 
@@ -566,11 +592,8 @@ function Mentalo:New(frame, moveName, title, raised, snap, dragStopFunc)
 	movable:SetFixedPanelTemplate("Transparent")
 	movable:SetAlpha(0.4)
 
-	self.Frames[moveName].Avatar = movable;
-	Sticky.Frames[#Sticky.Frames + 1] = movable;
-
 	frame:SetScript("OnSizeChanged", Movable_OnSizeChanged)
-	frame.Avatar = movable;
+	frame.Grip = movable;
 	frame:ClearAllPoints()
 	frame:SetPoint(anchor1, movable, 0, 0)
 
@@ -579,7 +602,7 @@ function Mentalo:New(frame, moveName, title, raised, snap, dragStopFunc)
 	mtext:SetJustifyH("CENTER")
 	mtext:SetPoint("CENTER")
 	mtext:SetText(title or moveName)
-	mtext:SetTextColor(0.1, 0.8, 0.8)
+	mtext:SetTextColor(0.5, 0.5, 0.5)
 
 	movable:SetFontString(mtext)
 	movable.text = mtext;
@@ -596,7 +619,7 @@ function Mentalo:New(frame, moveName, title, raised, snap, dragStopFunc)
 	movable:SetMovable(true)
 	movable:Hide()
 
-	if dragStopFunc ~= nil and type(dragStopFunc) == "function" then 
+	if(dragStopFunc and (type(dragStopFunc) == "function")) then 
 		movable:RegisterEvent("PLAYER_ENTERING_WORLD")
 		movable:SetScript("OnEvent", function(this, event)
 			local point = Pinpoint(this)
@@ -605,105 +628,119 @@ function Mentalo:New(frame, moveName, title, raised, snap, dragStopFunc)
 		end)
 	end 
 
-	self.Frames[moveName].Created = true 
+	self.Frames[moveName] = {
+		text = title,
+		postdrag = dragStopFunc,
+		point = CurrentPosition(frame)
+	} 
+
+	Sticky.Frames[#Sticky.Frames + 1] = movable;
 end
 
-function Mentalo:HasMoved(frame)
-	if SV.cache.Anchors and SV.cache.Anchors[frame] then 
+function Mentalo:HasMoved(frameName)
+	if(SV.cache.Anchors and SV.cache.Anchors[frameName]) then 
 		return true 
 	else 
 		return false 
 	end 
 end 
 
-function Mentalo:SaveMovable(frame)
-	if(not _G[frame] or not SV.cache.Anchors) then return end 
-	SV.cache.Anchors[frame] = CurrentPosition(_G[frame])
+function Mentalo:SaveMovable(frameName)
+	if((not _G[frameName]) or (not SV.cache.Anchors)) then return end 
+	SV.cache.Anchors[frameName] = CurrentPosition(_G[frameName])
+end
+
+function Mentalo:ChangeSnapOffset(frameName, snapOffset)
+	if(not _G[frameName]) then return end 
+	_G[frameName].snapOffset = snapOffset or -2;
 end 
 
-function Mentalo:ChangeSnapOffset(frame, snapOffset)
-	if not _G[frame] or not self.Frames[frame] then return end 
-	self.Frames[frame].Avatar.snapOffset = snapOffset or -2;
-	self.Frames[frame]["snapoffset"] = snapOffset or -2 
-end 
-
-function Mentalo:Add(frame, title, raised, snapOffset, dragStopFunc, movableGroup, overrideName)
+function Mentalo:Add(frame, title, snapOffset, dragStopFunc, overrideName)
 	if(not frame or (not overrideName and not frame:GetName())) then return end
 	local frameName = overrideName or frame:GetName()
-	local moveName = ("%s_MOVE"):format(frameName)
-	if not movableGroup then movableGroup = "ALL, GENERAL" end 
-	if self.Frames[moveName] == nil then 
-		self.Frames[moveName] = {}
-		self.Frames[moveName]["parent"] = frame;
-		self.Frames[moveName]["text"] = title;
-		self.Frames[moveName]["overlay"] = raised;
-		self.Frames[moveName]["postdrag"] = dragStopFunc;
-		self.Frames[moveName]["snapoffset"] = snapOffset;
-		self.Frames[moveName]["point"] = CurrentPosition(frame)
-	end
-
-	self:New(frame, moveName, title, raised, snapOffset, dragStopFunc)
+	local moveName = ("%s_MOVE"):format(frameName) 
+	self:New(frame, moveName, title, snapOffset, dragStopFunc)
 end
 
 function Mentalo:Reset(request)
-	if request == "" or request == nil then 
-		for name, _ in pairs(self.Frames)do 
-			local frame = _G[name];
-			if self.Frames[name]["point"] then
-				local u, v, w, x, y = split("\031", self.Frames[name]["point"])
+	if(request == "" or request == nil) then 
+		for frameName, frameData in pairs(self.Frames) do 
+			local frame = _G[frameName];
+			if(frameData.point) then
+				local u, v, w, x, y = split("\031", frameData.point)
 				frame:ClearAllPoints()
 				frame:SetPoint(u, v, w, x, y)
-				for arg, func in pairs(self.Frames[name])do 
-					if arg == "postdrag" and type(func) == "function" then 
-						func(frame, Pinpoint(frame))
-					end 
+				if(frameData.postdrag and (type(frameData.postdrag) == "function")) then 
+					frameData.postdrag(frame, Pinpoint(frame))
 				end
+			end
+			if(SV.cache.Anchors and SV.cache.Anchors[frameName]) then 
+				SV.cache.Anchors[frameName] = nil 
 			end 
 		end
-		if(SV.cache.Anchors) then 
-			wipe(SV.cache.Anchors)
-		end 
+	elseif(request == "Blizzard") then 
+		for frameName, point in pairs(self.Blizzard) do 
+			local frame = _G[frameName];
+			if(point and (type(point) == "string")) then
+				local u, v, w, x, y = split("\031", point)
+				frame:ClearAllPoints()
+				frame:SetPoint(u, v, w, x, y)
+			end
+			if(SV.cache.Anchors and SV.cache.Anchors[frameName]) then 
+				SV.cache.Anchors[frameName] = nil 
+			end
+		end
 	else 
-		for name, _ in pairs(self.Frames)do
-			if self.Frames[name]["point"] then
-				for arg1, arg2 in pairs(self.Frames[name])do 
-					local mover;
-					if arg1 == "text" then 
-						if request == arg2 then 
-							local frame = _G[name]
-							local u, v, w, x, y = split("\031", self.Frames[name]["point"])
-							frame:ClearAllPoints()
-							frame:SetPoint(u, v, w, x, y)
-							if(SV.cache.Anchors and SV.cache.Anchors[name]) then 
-								SV.cache.Anchors[name] = nil 
-							end 
-							if (self.Frames[name]["postdrag"] ~= nil and type(self.Frames[name]["postdrag"]) == "function")then 
-								self.Frames[name]["postdrag"](frame, Pinpoint(frame))
-							end 
-						end 
-					end 
+		for frameName, frameData in pairs(self.Frames) do
+			if(frameData.point and (request == frameData.text)) then
+				local frame = _G[frameName]
+				local u, v, w, x, y = split("\031", frameData.point)
+				frame:ClearAllPoints()
+				frame:SetPoint(u, v, w, x, y) 
+				if (frameData.postdrag and (type(frameData.postdrag) == "function"))then 
+					frameData.postdrag(frame, Pinpoint(frame))
 				end
+				if(SV.cache.Anchors and SV.cache.Anchors[frameName]) then 
+					SV.cache.Anchors[frameName] = nil 
+				end
+				break
 			end
 		end 
 	end 
 end 
 
 function Mentalo:SetPositions()
-	for name, _ in pairs(self.Frames)do 
-		local frame = _G[name];
+	for frameName, frameData in pairs(self.Frames) do 
+		local frame = _G[frameName];
 		local anchor1, parent, anchor2, x, y;
 		if frame then
-			if (SV.cache.Anchors and SV.cache.Anchors[name] and type(SV.cache.Anchors[name]) == "string") then 
-				anchor1, parent, anchor2, x, y = split("\031", SV.cache.Anchors[name])
+			if (SV.cache.Anchors and SV.cache.Anchors[frameName] and (type(SV.cache.Anchors[frameName]) == "string")) then 
+				anchor1, parent, anchor2, x, y = split("\031", SV.cache.Anchors[frameName])
 				frame:ClearAllPoints()
 				frame:SetPoint(anchor1, parent, anchor2, x, y)
-			elseif self.Frames[name]["point"] then 
-				anchor1, parent, anchor2, x, y = split("\031", self.Frames[name]["point"])
+			elseif(frameData.point) then 
+				anchor1, parent, anchor2, x, y = split("\031", frameData.point)
 				frame:ClearAllPoints()
 				frame:SetPoint(anchor1, parent, anchor2, x, y)
 			end
 		end
-	end 
+	end
+
+	for frameName, point in pairs(self.Blizzard) do 
+		local frame = _G[frameName];
+		local anchor1, parent, anchor2, x, y;
+		if(frame) then
+			if (SV.cache.Anchors and SV.cache.Anchors[frameName] and (type(SV.cache.Anchors[frameName]) == "string")) then 
+				anchor1, parent, anchor2, x, y = split("\031", SV.cache.Anchors[frameName])
+				frame:ClearAllPoints()
+				frame:SetPoint(anchor1, parent, anchor2, x, y)
+			elseif(point and (type(point) == "string")) then
+				anchor1, parent, anchor2, x, y = split("\031", point)
+				frame:ClearAllPoints()
+				frame:SetPoint(anchor1, parent, anchor2, x, y)
+			end
+		end
+	end
 end  
 
 function Mentalo:Toggle(isConfigMode)
@@ -756,15 +793,16 @@ local XML_Mentalo_OnEvent = function(self)
 end 
 
 local XML_MentaloGridButton_OnClick = function(self)
-	local enabled = false
+	local enabled = true
 	if(SV.Graph.Grid and SV.Graph.Grid:IsShown()) then
-		enabled = true
+		enabled = false
 	end
 
 	SV.Graph:Toggle(enabled)
 end
 
 local XML_MentaloLockButton_OnClick = function(self)
+	SV.Graph:Toggle()
 	Mentalo:Toggle(true)
 	if IsAddOnLoaded(SV.ConfigID)then 
 		LibStub("AceConfigDialog-3.0"):Open(SV.NameID)
@@ -810,6 +848,84 @@ local XML_MentaloPrecisionInputY_EnterPressed = function(self)
 end
 --[[ 
 ########################################################## 
+DRAGGABLE HANDLERS
+##########################################################
+]]--
+local BlizzardFrame_OnUpdate = function(self)
+	local frameName = self:GetName();
+	if(InCombatLockdown() or (frameName == "GameMenuFrame") or (self.IsMoving)) then return end 
+	if(frameName == "QuestFrame") then
+		frameName = "GossipFrame"
+	end
+	if (SV.cache.Anchors and SV.cache.Anchors[frameName] and (type(SV.cache.Anchors[frameName]) == "string")) then 
+		local anchor1, parent, anchor2, x, y = split("\031", SV.cache.Anchors[frameName])
+		self:ClearAllPoints()
+		self:SetPoint(anchor1, parent, anchor2, x, y)
+	elseif(Mentalo.Blizzard[frameName] and (type(Mentalo.Blizzard[frameName]) == "string")) then 
+		local anchor1, parent, anchor2, x, y = split("\031", Mentalo.Blizzard[frameName])
+		self:ClearAllPoints()
+		self:SetPoint(anchor1, parent, anchor2, x, y)
+	end
+end
+
+local BlizzardFrame_OnDragStart = function(self)
+	if not self:IsMovable() then return end 
+	self:StartMoving()
+	self.IsMoving = true
+end
+
+local BlizzardFrame_OnDragStop = function(self)
+	if(not self:IsMovable()) then return end
+	local frameName = self:GetName();
+	self.IsMoving = false;
+	self:StopMovingOrSizing()
+	if(frameName == "GameMenuFrame") then return end 
+	local anchor1, parent, anchor2, x, y = self:GetPoint()
+	parent = self:GetParent():GetName()
+	self:ClearAllPoints()
+	self:SetPoint(anchor1, parent, anchor2, x, y)
+	if(frameName == "QuestFrame") then
+		frameName = "GossipFrame"
+	end
+	Mentalo:SaveMovable(frameName)
+end
+
+local MentaloMaster_OnEvent = function(self) 
+	for _, frameName in pairs(DraggableFrames) do
+		local frame = _G[frameName]
+		if(frame) then
+			if(frameName ~= "LossOfControlFrame" and (not self.Blizzard[frameName])) then 
+				frame:EnableMouse(true)
+
+				if(frameName == "LFGDungeonReadyPopup") then 
+					LFGDungeonReadyDialog:EnableMouse(false)
+				end
+
+				frame:SetMovable(true)
+				frame:RegisterForDrag("LeftButton")
+				frame:SetClampedToScreen(true)
+				frame:HookScript("OnUpdate", BlizzardFrame_OnUpdate)
+				frame:SetScript("OnDragStart", BlizzardFrame_OnDragStart)
+				frame:SetScript("OnDragStop", BlizzardFrame_OnDragStop)
+
+				self.Blizzard[frameName] = CurrentPosition(frame)
+			end
+		end 
+	end 
+end
+
+Mentalo:RegisterEvent("PLAYER_LOGIN")
+Mentalo:RegisterEvent("ADDON_LOADED")
+Mentalo:RegisterEvent("LFG_UPDATE")
+Mentalo:RegisterEvent("ROLE_POLL_BEGIN")
+Mentalo:RegisterEvent("READY_CHECK")
+Mentalo:RegisterEvent("UPDATE_WORLD_STATES")
+Mentalo:RegisterEvent("WORLD_STATE_TIMER_START")
+Mentalo:RegisterEvent("WORLD_STATE_UI_TIMER_UPDATE")
+
+Mentalo:SetScript("OnEvent", MentaloMaster_OnEvent)
+--[[ 
+########################################################## 
 Initialize
 ##########################################################
 ]]--
@@ -841,25 +957,24 @@ function Mentalo:Initialize()
 
 	SV.cache.Anchors = SV.cache.Anchors or {}
 
-	for name, _ in pairs(self.Frames)do 
-		local parent, text, overlay, snapoffset, postdrag;
-		for key, value in pairs(self.Frames[name])do 
-			if(key == "parent") then 
-				parent = value 
-			elseif(key == "text") then 
-				text = value 
-			elseif(key == "overlay") then 
-				overlay = value 
-			elseif(key == "snapoffset") then 
-				snapoffset = value 
-			elseif(key == "postdrag") then 
-				postdrag = value 
-			end 
-		end 
-		self:New(parent, name, text, overlay, snapoffset, postdrag)
-	end
-
 	self:SetPositions()
+
+	if(SV.db.general.multiMonitor) then
+		for panelName, panelData in pairs(_G["UIPanelWindows"]) do
+			if(self.Blizzard[panelName] and (not SV.cache.Anchors[frameName])) then
+				if(panelData.area and (panelData.area == 'left')) then
+					local frame = _G[panelName];
+					local parent = frame:GetParent():GetName()
+					if(parent and ((parent == UIParent) or (parent == SV.Screen))) then
+						frame:ClearAllPoints()
+						frame:SetPoint('CENTER', parent, 'CENTER', 0, 0)
+						SetUIPanelAttribute(frame, 'area', 'center')
+						self.Blizzard[frameName] = CurrentPosition(frame)
+					end
+				end
+			end
+		end
+	end
 end
 
 SV.Mentalo = Mentalo

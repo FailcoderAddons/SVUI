@@ -512,12 +512,12 @@ function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss)
 	local cbName = frame:GetName().."Castbar"
 	local castbarHolder = CreateFrame("Frame", cbName, castbar)
 
-	local grip = CreateFrame("Frame", nil, castbar)
-	grip:SetFrameStrata("HIGH")
+	local organizer = CreateFrame("Frame", nil, castbar)
+	organizer:SetFrameStrata("HIGH")
 
-	local iconHolder = CreateFrame("Frame", nil, grip)
+	local iconHolder = CreateFrame("Frame", nil, organizer)
 	iconHolder:SetFixedPanelTemplate("Inset", false)
-	grip.Icon = iconHolder
+	organizer.Icon = iconHolder
 
 	local buttonIcon = iconHolder:CreateTexture(nil, "BORDER")
 	buttonIcon:FillInner()
@@ -530,13 +530,13 @@ function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss)
 	shieldIcon:SetTexture("Interface\\Addons\\SVUI\\assets\\artwork\\Unitframe\\Castbar\\SHIELD")
 	castbar.Shield = shieldIcon;
 
-	castbar.Time = grip:CreateFontString(nil, "OVERLAY")
+	castbar.Time = organizer:CreateFontString(nil, "OVERLAY")
 	castbar.Time:SetDrawLayer("OVERLAY", 7)
 
-	castbar.Text = grip:CreateFontString(nil, "OVERLAY")
+	castbar.Text = organizer:CreateFontString(nil, "OVERLAY")
 	castbar.Text:SetDrawLayer("OVERLAY", 7)
 
-	castbar.Grip = grip
+	castbar.Organizer = organizer
 
 	
 	local bgFrame = CreateFrame("Frame", nil, castbar)

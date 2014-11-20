@@ -812,17 +812,17 @@ function MOD:RefreshUnitLayout(frame, template)
 			castbar.LatencyTexture:Hide()
 		end
 
-		if castbar.Grip then
-			castbar.Grip:Width(castHeight + 2)
-			castbar.Grip:Height(castHeight + 2)
+		if castbar.Organizer then
+			castbar.Organizer:Width(castHeight + 2)
+			castbar.Organizer:Height(castHeight + 2)
 		end
 
 		if castbar.Icon then
 			if db.castbar.icon then
-				castbar.Grip.Icon:SetAllPoints(castbar.Grip)
-				castbar.Grip.Icon:Show()
+				castbar.Organizer.Icon:SetAllPoints(castbar.Organizer)
+				castbar.Organizer.Icon:Show()
 			else
-				castbar.Grip.Icon:Hide() 
+				castbar.Organizer.Icon:Hide() 
 			end 
 		end
 		

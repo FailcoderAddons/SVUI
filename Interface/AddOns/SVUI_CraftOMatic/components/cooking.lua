@@ -210,7 +210,7 @@ function PLUGIN.Cooking:Bind()
 			PLUGIN.ModeAlert.HelpText = 'Double-Right-Click to open the cooking window.'
 		end
 		SetOverrideBindingClick(_G["SVUI_ModeCaptureWindow"], true, "BUTTON2", "SVUI_ModeCaptureWindow");
-		_G["SVUI_ModeCaptureWindow"].Grip:Show();
+		_G["SVUI_ModeCaptureWindow"].Handler:Show();
 	end
 end
 

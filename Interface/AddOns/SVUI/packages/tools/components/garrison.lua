@@ -69,6 +69,7 @@ local SV = select(2, ...)
 local L = SV.L
 
 local MOD = SV.SVTools;
+local GarrisonData = {};
 --[[ 
 ########################################################## 
 LOCALS
@@ -129,23 +130,49 @@ local function GarrisonButton_OnEvent(self, event, ...)
     end
 end
 
+function MOD:GARRISON_UPDATE()
+	C_Garrison.RequestLandingPageShipmentInfo()
+end
+
 local function getColoredString(text, color)
 	local hex = SV:HexColor(color)
 	return ("|cff%s%s|r"):format(hex, text)
 end
 
 local function GetActiveMissions()
+	wipe(GarrisonData)
 	local hasMission = false
 
 	GameTooltip:AddLine(" ", 1, 1, 1)
-	GameTooltip:AddLine("Active Missions", 1, 1, 0)
+	GameTooltip:AddLine("Active Missions", 1, 0.7, 0)
+
 	for key,data in pairs(C_Garrison.GetInProgressMissions()) do
-		local mission = ("%s|cff888888 - |r|cffFF5500%s|r"):format(data.level, data.name);
+		GarrisonData[data.missionID] = {
+			name = data.name,
+			level = data.level,
+			seconds = data.durationSeconds,
+			timeLeft = data.timeLeft,
+			completed = false,
+			isRare = data.isRare,
+			type = data.type,
+		}
+		hasMission = true
+	end
+
+	for key,data in pairs(C_Garrison.GetCompleteMissions()) do
+		if(GarrisonData[data.missionID]) then
+			GarrisonData[data.missionID].completed = true
+		end
+	end
+
+	for key,data in pairs(GarrisonData) do
+		local hex = data.isRare and "blue" or "green"
+		local mission = ("%s|cff888888 - |r%s"):format(getColoredString(data.level, "yellow"), getColoredString(data.name, hex));
 		local remaining
-		if (data.durationSeconds <= 0) then
+		if (data.completed) then
 			remaining = L["Complete!"]
 		else
-			remaining = ("%s %s"):format(data.timeLeft, getColoredString(" ("..SV:ParseSeconds(data.durationSeconds)..")", "lightgrey"))
+			remaining = ("%s %s"):format(data.timeLeft, getColoredString(" ("..SV:ParseSeconds(data.seconds)..")", "lightgrey"))
 		end
 
 		GameTooltip:AddDoubleLine(mission, remaining, 0, 1, 0, 1, 1, 1)
@@ -155,10 +182,6 @@ local function GetActiveMissions()
 	if(not hasMission) then
 		GameTooltip:AddLine("None", 1, 0, 0)
 	end
-
-	-- for key,garrisonMission in pairs(C_Garrison.GetCompleteMissions()) do
-		-- DO STUFF
-	-- end
 end
 
 local function GetBuildingData()
@@ -166,7 +189,7 @@ local function GetBuildingData()
 	local now = time();
 
 	GameTooltip:AddLine(" ", 1, 1, 1)
-	GameTooltip:AddLine("Buildings", 1, 1, 0)
+	GameTooltip:AddLine("Buildings", 1, 0.7, 0)
 
 	local buildings = C_Garrison.GetBuildings()
 	for i = 1, #buildings do
@@ -175,21 +198,31 @@ local function GetBuildingData()
 
 		local id, name, texPrefix, icon, rank, isBuilding, timeStart, buildTime, canActivate, canUpgrade, isPrebuilt = C_Garrison.GetOwnedBuildingInfoAbbrev(plotID)
 
-		local building = ("%s|cff888888 - |r|cffFF5500%s|r"):format(rank, name);
+		local building = '';
 		local remaining
 
 		if(isBuilding) then
+			building = ("|cffFFFF00%s|r|cff888888 - |r|cffFF5500%s|r"):format(rank, name);
 			local timeLeft = buildTime - (now - timeStart);
 			if(canActivate or timeLeft < 0) then
 				remaining = L["Complete!"]
 			else
 				remaining = ("Building %s"):format(getColoredString("("..SV:ParseSeconds(timeLeft)..")", "lightgrey"))
 			end
+			GameTooltip:AddDoubleLine(building, remaining, 0, 1, 0, 1, 1, 1)
 		else
 			local name, texture, shipmentCapacity, shipmentsReady, shipmentsTotal, creationTime, duration, timeleftString, itemName, itemIcon, itemQuality, itemID = C_Garrison.GetLandingPageShipmentInfo(buildingID)
-			remaining = ("Shipments Ready: %s of %s)"):format(getColoredString(shipmentsReady, "green"), getColoredString(shipmentsTotal, "lightgrey"))
+			if(shipmentsReady and shipmentsReady > 0) then
+				building = ("|cffFFFF00%s|r|cff888888 - |r|cffFF5500%s|r"):format(rank, name);
+				timeleftString = timeleftString or 'Unknown'
+				remaining = ("Ready: %s, Next: %s"):format(getColoredString(shipmentsReady, "green"), getColoredString(timeleftString, "lightgrey"))
+			elseif(timeleftString) then
+				building = ("|cffFFFF00%s|r|cff888888 - |r|cffFF5500%s|r"):format(rank, name);
+				remaining = ("Next: %s"):format(getColoredString(timeleftString, "lightgrey"))
+			end
+			GameTooltip:AddDoubleLine(building, remaining, 0, 1, 0, 1, 1, 1)
 		end
-		GameTooltip:AddDoubleLine(building, remaining, 0, 1, 0, 1, 1, 1)
+		
 		hasBuildings = true
 	end
 
@@ -210,6 +243,7 @@ local SetGarrisonTooltip = function(self)
 		GameTooltip:AddDoubleLine(L["Time Remaining"], remaining, 1, 1, 1, 0, 1, 1)
 	end
 	GetActiveMissions()
+	GetBuildingData()
 end
 
 local function LoadToolBarGarrison()
@@ -241,6 +275,7 @@ local function LoadToolBarGarrison()
 	GarrisonLandingPageMinimapButton:HookScript("OnEvent", GarrisonButton_OnEvent)
 
 	MOD.GarrisonLoaded = true
+	MOD:RegisterEvent("GARRISON_UPDATE");
 end
 --[[ 
 ########################################################## 

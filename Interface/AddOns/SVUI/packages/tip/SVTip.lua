@@ -596,8 +596,7 @@ local _hook_GameTooltip_SetDefaultAnchor = function(self, parent)
 			self:SetOwner(parent, "ANCHOR_NONE")
 		end 
 	end 
-	if not SV.Mentalo:HasMoved("SVUI_ToolTip_MOVE")then
-		self:ClearAllPoints()
+	if(not SV.Mentalo:HasMoved("SVUI_ToolTip_MOVE")) then
 		if(SV.SVBag.BagFrame and SV.SVBag.BagFrame:IsShown()) then
 			self:SetPoint("BOTTOMLEFT", SV.SVBag.BagFrame, "TOPLEFT", 0, 24)
 		elseif(SV.Dock.BottomRight:GetAlpha() == 1 and SV.Dock.BottomRight:IsShown()) then 
