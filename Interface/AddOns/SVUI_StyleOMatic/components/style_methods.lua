@@ -95,6 +95,18 @@ function PLUGIN:ApplyWindowStyle(this, action, fullStrip)
 	this:SetPanelTemplate(template)
 end
 
+function PLUGIN:ApplyAdjustedWindowStyle(this, action, fullStrip, padding, xOffset, yOffset)
+	if(not this or (this and this.Panel)) then return end
+	local template = action and "Action" or "Halftone"
+	local baselevel = this:GetFrameLevel()
+	if(baselevel < 1) then 
+		this:SetFrameLevel(1)
+	end
+	
+	this:RemoveTextures(fullStrip)
+	this:SetPanelTemplate(template, false, padding, xOffset, yOffset)
+end 
+
 function PLUGIN:ApplyWindowHolder(this, fullStrip)
 	if(not this or (this and this.Panel)) then return end
 	local baselevel = this:GetFrameLevel()
@@ -381,7 +393,7 @@ local Tab_OnLeave = function(self)
 	self.backdrop:SetBackdropBorderColor(0,0,0,1)
 end 
 
-function PLUGIN:ApplyTabStyle(this, addBackground)
+function PLUGIN:ApplyTabStyle(this, addBackground, xOffset, yOffset)
 	if(not this or (this and this.StyleHooked)) then return end 
 
 	local tab = this:GetName();
@@ -407,9 +419,12 @@ function PLUGIN:ApplyTabStyle(this, addBackground)
 			nTex:FillInner()
 		end
 
+		xOffset = xOffset or 1
+		yOffset = yOffset or 1
+
 		this.pushed = true;
 		this.backdrop = CreateFrame("Frame", nil, this)
-		this.backdrop:WrapOuter(this,1,1)
+		this.backdrop:WrapOuter(this, xOffset, yOffset)
 		this.backdrop:SetFrameLevel(0)
 		this.backdrop:SetBackdrop({
 			bgFile = [[Interface\BUTTONS\WHITE8X8]], 
@@ -430,8 +445,10 @@ function PLUGIN:ApplyTabStyle(this, addBackground)
 		local initialAnchor, anchorParent, relativeAnchor, xPosition, yPosition = this:GetPoint()
 		this:Point(initialAnchor, anchorParent, relativeAnchor, 1, yPosition)
 	else
+		xOffset = xOffset or 10
+		yOffset = yOffset or 3
 		this.backdrop = CreateFrame("Frame", nil, this)
-		this.backdrop:FillInner(this, 10, 3)
+		this.backdrop:FillInner(this, xOffset, yOffset)
 		this.backdrop:SetFixedPanelTemplate("Component", true)
 		this.backdrop:SetPanelColor("dark")
 

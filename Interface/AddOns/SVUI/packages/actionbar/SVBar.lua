@@ -1053,7 +1053,7 @@ CreateActionBars = function(self)
 		]])
 
 		self:RefreshBar(barID)
-		SV.Mentalo:Add(thisBar, L[barID], nil, nil, nil, "ALL, ACTIONBARS")
+		SV.Mentalo:Add(thisBar, L[barID])
 	end 
 end
 
@@ -1210,7 +1210,7 @@ do
 	  self:RegisterEvent("UPDATE_SHAPESHIFT_FORM", SetStanceBarButtons)
 	  self:RegisterEvent("ACTIONBAR_PAGE_CHANGED", SetStanceBarButtons)
 	  UpdateShapeshiftForms()
-	  SV.Mentalo:Add(stanceBar, L["Stance Bar"], nil, -3, nil, "ALL, ACTIONBARS")
+	  SV.Mentalo:Add(stanceBar, L["Stance Bar"], -3)
 	  self:RefreshBar("Stance")
 	  SetStanceBarButtons()
 	  self:UpdateBarBindings(false, true)
@@ -1339,7 +1339,7 @@ do
 		self:RegisterEvent("PLAYER_FARSIGHT_FOCUS_CHANGED", RefreshPet)
 		self:RegisterEvent("PET_BAR_UPDATE_COOLDOWN", PetActionBar_UpdateCooldowns)
 
-		SV.Mentalo:Add(petBar, L["Pet Bar"], nil, nil, nil, "ALL, ACTIONBARS")
+		SV.Mentalo:Add(petBar, L["Pet Bar"])
 	end 
 end
 
@@ -1453,7 +1453,7 @@ local CreateExtraBar = function(self)
 	DraenorZoneAbilityFrame:SetPoint('CENTER', specialBar, 'CENTER')
 	DraenorZoneAbilityFrame.ignoreFramePositionManager = true
 
-	SV.Mentalo:Add(specialBar, L["Boss Button"], nil, nil, nil, "ALL, ACTIONBAR")
+	SV.Mentalo:Add(specialBar, L["Boss Button"])
 end
 --[[ 
 ########################################################## 

@@ -776,7 +776,7 @@ REPAIR AUTOMATONS
 ##########################################################
 ]]--
 function MOD:MERCHANT_SHOW()
-	if SV.db.SVHenchmen.vendorGrays then SV.SVBag:VendorGrays(nil,true) end 
+	if SV.db.SVHenchmen.vendorGrays then SV.SVBag:VendorGrays(nil, true) end 
 	local autoRepair = SV.db.SVHenchmen.autoRepair;
 	if IsShiftKeyDown() or autoRepair == "NONE" or not CanMerchantRepair() then return end 
 	local repairCost,canRepair=GetRepairAllCost()

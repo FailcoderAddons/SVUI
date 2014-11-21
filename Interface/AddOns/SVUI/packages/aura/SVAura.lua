@@ -237,17 +237,19 @@ do
 			end 
 		elseif(attribute == "target-slot") then
 			local quality = GetInventoryItemQuality("player", auraIndex)
-			self.texture:SetTexture(GetInventoryItemTexture("player", auraIndex))
+			local tex = GetInventoryItemTexture("player", auraIndex)
+			self.texture:SetTexture(tex)
 			local offset = 2;
 			local enchantIndex = self:GetName():sub(-1)
 			if enchantIndex:match("2") then 
 				offset = 5 
-			end 
-			if quality then 
-				self:SetBackdropBorderColor(GetItemQualityColor(quality))
-			end 
+			end
+
 			local enchantInfo = select(offset, GetWeaponEnchantInfo())
-			if enchantInfo then 
+			if(enchantInfo) then
+				if quality then 
+					self:SetBackdropBorderColor(GetItemQualityColor(quality))
+				end 
 				self.offset = offset;
 				self:SetScript("OnUpdate", RefreshAuraTime)
 				self.nextUpdate = -1;
@@ -257,6 +259,7 @@ do
 				self.offset = nil;
 				self:SetScript("OnUpdate", nil)
 				self.time:SetText("")
+				self:SetAlpha(0)
 			end
 		end
 	end
@@ -528,9 +531,10 @@ function MOD:UpdateAuraHeader(auraHeader, auraType)
 			auraChild.count:ClearAllPoints()
 			auraChild.count:SetPoint("BOTTOMRIGHT", -1 + SV.db.SVAura.countOffsetH, SV.db.SVAura.countOffsetV)
 		end 
-		if (i > (db.maxWraps * db.wrapAfter) and auraChild:IsShown()) then 
+		if ((i > (db.maxWraps * db.wrapAfter)) and auraChild:IsShown()) then 
 			auraChild:Hide()
-		end 
+		end
+
 		i = i + 1;
 		auraChild = select(i, auraHeader:GetChildren())
 	end 

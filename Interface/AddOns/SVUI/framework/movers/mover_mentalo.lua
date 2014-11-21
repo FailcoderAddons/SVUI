@@ -54,6 +54,7 @@ local DraggableFrames = {
 	"EncounterJournal",
 	"FriendsFrame",
 	"GameMenuFrame", "GMSurveyFrame", "GossipFrame", "GuildFrame", "GuildBankFrame", "GuildRegistrarFrame",
+	"GarrisonLandingPage", "GarrisonMissionFrame", "GarrisonCapacitiveDisplayFrame",
 	"HelpFrame",
 	"InterfaceOptionsFrame",
 	"ItemUpgradeFrame",
@@ -265,6 +266,10 @@ end
 local function CurrentPosition(frame)
 	if not frame then return end 
 	local anchor1, parent, anchor2, x, y = frame:GetPoint()
+	anchor1 = anchor1 or "TOPLEFT"
+	anchor2 = anchor2 or "TOPLEFT"
+	x = x or 50
+	y = y or -50
 	local parentName
 	if not parent then 
 		parentName = "SVUIParent" 
@@ -568,6 +573,12 @@ CONSTRUCTS
 function Mentalo:New(frame, moveName, title, snap, dragStopFunc)
 	if(not frame or (self.Frames[moveName] ~= nil)) then return end
 
+	self.Frames[moveName] = {
+		text = title,
+		postdrag = dragStopFunc,
+		point = CurrentPosition(frame)
+	} 
+
 	local movable = CreateFrame("Button", moveName, SV.Screen)
 	movable:SetFrameLevel(frame:GetFrameLevel() + 1)
 	movable:SetClampedToScreen(true)
@@ -595,7 +606,7 @@ function Mentalo:New(frame, moveName, title, snap, dragStopFunc)
 	frame:SetScript("OnSizeChanged", Movable_OnSizeChanged)
 	frame.Grip = movable;
 	frame:ClearAllPoints()
-	frame:SetPoint(anchor1, movable, 0, 0)
+	frame:SetPoint(anchor1, movable, anchor1, 0, 0)
 
 	local mtext = movable:CreateFontString(nil, "OVERLAY")
 	mtext:FontManager()
@@ -627,12 +638,6 @@ function Mentalo:New(frame, moveName, title, snap, dragStopFunc)
 			this:UnregisterAllEvents()
 		end)
 	end 
-
-	self.Frames[moveName] = {
-		text = title,
-		postdrag = dragStopFunc,
-		point = CurrentPosition(frame)
-	} 
 
 	Sticky.Frames[#Sticky.Frames + 1] = movable;
 end

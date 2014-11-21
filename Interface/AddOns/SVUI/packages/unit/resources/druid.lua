@@ -271,7 +271,7 @@ function MOD:CreateClassBar(playerFrame)
 	classBarHolder:Point("TOPLEFT", playerFrame, "BOTTOMLEFT", 0, -2)
 	bar:SetPoint("TOPLEFT", classBarHolder, "TOPLEFT", 0, 0)
 	bar.Holder = classBarHolder
-	SV.Mentalo:Add(bar.Holder, L["Classbar"], nil, nil, nil, "ALL, SOLO")
+	SV.Mentalo:Add(bar.Holder, L["Classbar"])
 	
 	playerFrame.ClassBarRefresh = Reposition;
 	playerFrame.EclipseBar = bar

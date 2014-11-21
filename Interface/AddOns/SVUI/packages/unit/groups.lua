@@ -279,7 +279,7 @@ UpdateTemplates["party"] = function(self)
         groupFrame:ClearAllPoints()
         groupFrame:Point("BOTTOMLEFT", SV.Dock.BottomLeft, "TOPLEFT", 0, 80)
         RegisterStateDriver(groupFrame, "visibility", "[group:raid][nogroup] hide;show")
-        SV.Mentalo:Add(groupFrame, L['Party Frames'], nil, nil, nil, 'ALL,PARTY,ARENA');
+        SV.Mentalo:Add(groupFrame, L['Party Frames']);
         groupFrame.positioned = true;
     end
 
@@ -516,7 +516,7 @@ UpdateTemplates["raidpet"] = function(self)
         groupFrame:ClearAllPoints()
         groupFrame:Point("BOTTOMLEFT", SV.Screen, "BOTTOMLEFT", 4, 433)
         RegisterStateDriver(groupFrame, "visibility", "[group:raid] show; hide")
-        SV.Mentalo:Add(groupFrame, L["Raid Pet Frames"], nil, nil, nil, "ALL, RAID10, RAID25, RAID40")
+        SV.Mentalo:Add(groupFrame, L["Raid Pet Frames"])
         groupFrame.positioned = true;
     end
 
@@ -656,7 +656,7 @@ UpdateTemplates["tank"] = function(self)
     if not self.positioned then 
         self:ClearAllPoints()
         self:Point("BOTTOMLEFT", SV.Dock.TopLeft, "BOTTOMLEFT", 0, 0)
-        SV.Mentalo:Add(self, L["Tank Frames"], nil, nil, nil, "ALL, RAID10, RAID25, RAID40")
+        SV.Mentalo:Add(self, L["Tank Frames"])
         self.Grip.positionOverride = "TOPLEFT"
         self:SetAttribute("minHeight", self.dirtyHeight)
         self:SetAttribute("minWidth", self.dirtyWidth)
@@ -766,7 +766,7 @@ UpdateTemplates["assist"] = function(self)
     if not self.positioned then 
         self:ClearAllPoints()
         self:Point("TOPLEFT", SV.Dock.TopLeft, "BOTTOMLEFT", 0, -10)
-        SV.Mentalo:Add(self, L["Assist Frames"], nil, nil, nil, "ALL, RAID10, RAID25, RAID40")
+        SV.Mentalo:Add(self, L["Assist Frames"])
         self.Grip.positionOverride = "TOPLEFT"
         self:SetAttribute("minHeight", self.dirtyHeight)
         self:SetAttribute("minWidth", self.dirtyWidth)

@@ -1033,7 +1033,7 @@ function MOD:Load()
 	
 	TicketStatusFrame:ClearAllPoints()
 	TicketStatusFrame:SetPoint("TOPRIGHT", SV.Dock.TopLeft, "TOPRIGHT", 0, 0)
-	SV.Mentalo:Add(TicketStatusFrame, L["GM Ticket Frame"], nil, nil, nil, nil, "GM")
+	SV.Mentalo:Add(TicketStatusFrame, L["GM Ticket Frame"], nil, nil, "GM")
 	HelpOpenTicketButton:SetParent(Minimap)
 	HelpOpenTicketButton:ClearAllPoints()
 	HelpOpenTicketButton:SetPoint("TOPRIGHT", Minimap, "TOPRIGHT")
@@ -1064,7 +1064,7 @@ function MOD:Load()
 
 	SVUI_AlertFrame:SetParent(SV.Screen)
 	SVUI_AlertFrame:SetPoint("TOP", SV.Dock.TopCenter, "BOTTOM", 0, -115);
-	SV.Mentalo:Add(SVUI_AlertFrame, L["Loot / Alert Frames"], nil, nil, AlertFramePostMove_Hook)
+	SV.Mentalo:Add(SVUI_AlertFrame, L["Loot / Alert Frames"], nil, AlertFramePostMove_Hook)
 	NewHook('AlertFrame_FixAnchors', AlertFramePostMove_Hook)
 	NewHook('AlertFrame_SetLootAnchors', _hook_AlertFrame_SetLootAnchors)
 	NewHook('AlertFrame_SetLootWonAnchors', _hook_AlertFrame_SetLootWonAnchors)
@@ -1080,7 +1080,7 @@ function MOD:Load()
 	LootFrame:UnregisterAllEvents();
 	SVUI_LootFrame:SetFixedPanelTemplate('Transparent');
 	SVUI_LootFrame.title:SetFont(LSM:Fetch("font", "SVUI Number Font"),18,"OUTLINE")
-	SV.Mentalo:Add(SVUI_LootFrameHolder, L["Loot Frame"], nil, nil, nil, nil, "SVUI_LootFrame");
+	SV.Mentalo:Add(SVUI_LootFrameHolder, L["Loot Frame"], nil, nil, "SVUI_LootFrame");
 	SV:AddToDisplayAudit(SVUI_LootFrame);
 	SVUI_LootFrame:Hide();
 
@@ -1135,5 +1135,5 @@ function MOD:Load()
 
 	LossOfControlFrame:ClearAllPoints()
 	LossOfControlFrame:SetPoint("TOP", SV.Screen, "TOP", 0, -225)
-	SV.Mentalo:Add(LossOfControlFrame, L["Loss Control Icon"], nil, nil, nil, nil, "LoC")
+	SV.Mentalo:Add(LossOfControlFrame, L["Loss Control Icon"], nil, nil, "LoC")
 end

@@ -107,9 +107,15 @@ end
 
 local function GarrisonButton_OnEvent(self, event, ...)
     if (event == "GARRISON_HIDE_LANDING_PAGE") then
-        if(not InCombatLockdown()) then SVUI_Garrison:Hide() end;
+        if(not InCombatLockdown() and SVUI_Garrison:IsShown()) then
+        	SVUI_Garrison.Parent:SetWidth(SVUI_Garrison.Parent:GetWidth() - SVUI_Garrison:GetWidth())
+        	SVUI_Garrison:Hide()
+        end;
     elseif (event == "GARRISON_SHOW_LANDING_PAGE") then
-    	if(not InCombatLockdown()) then SVUI_Garrison:Show() end;
+    	if(not InCombatLockdown() and (not SVUI_Garrison:IsShown())) then
+    		SVUI_Garrison.Parent:SetWidth(SVUI_Garrison.Parent:GetWidth() + SVUI_Garrison:GetWidth())
+    		SVUI_Garrison:Show() 
+    	end;
     elseif ( event == "GARRISON_BUILDING_ACTIVATABLE" ) then
         SVUI_Garrison:StartAlert();
     elseif ( event == "GARRISON_BUILDING_ACTIVATED" or event == "GARRISON_ARCHITECT_OPENED") then
@@ -271,6 +277,11 @@ local function LoadToolBarGarrison()
 	GarrisonLandingPageMinimapButton:SetNormalTexture("")
 	GarrisonLandingPageMinimapButton:SetPushedTexture("")
 	GarrisonLandingPageMinimapButton:SetHighlightTexture("")
+
+	if(not GarrisonLandingPageMinimapButton:IsShown()) then
+		garrison.Parent:SetWidth(garrison.Parent:GetWidth() - garrison:GetWidth())
+		garrison:Hide()
+	end
 
 	GarrisonLandingPageMinimapButton:HookScript("OnEvent", GarrisonButton_OnEvent)
 

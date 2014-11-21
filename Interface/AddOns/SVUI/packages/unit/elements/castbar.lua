@@ -598,7 +598,7 @@ function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss)
 			SV.Animate:Sprite(hadouken[2],false,false,true)
 
 			castbar:Point("BOTTOMLEFT", castbarHolder, "BOTTOMLEFT", 1, 1)
-			grip:Point("LEFT", castbar, "RIGHT", 4, 0)
+			organizer:Point("LEFT", castbar, "RIGHT", 4, 0)
 
 			castbar.Time:Point("RIGHT", castbar, "LEFT", -4, 0)
 			castbar.Time:SetJustifyH("CENTER")
@@ -634,13 +634,13 @@ function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss)
 			SV.Animate:Sprite(hadouken[2],false,false,true)
 			
 			castbar:Point("BOTTOMRIGHT", castbarHolder, "BOTTOMRIGHT", -1, 1)
-			grip:Point("RIGHT", castbar, "LEFT", -4, 0)
+			organizer:Point("RIGHT", castbar, "LEFT", -4, 0)
 
 			castbar.Time:Point("LEFT", castbar, "RIGHT", 4, 0)
 			castbar.Time:SetJustifyH("CENTER")
 		end
 
-		-- castbar.Time:Point("CENTER", grip, "CENTER", 0, 0)
+		-- castbar.Time:Point("CENTER", organizer, "CENTER", 0, 0)
 		-- castbar.Time:SetJustifyH("CENTER")
 
 		castbar.Text:SetPoint("CENTER", castbar, "CENTER", 0, 0)
@@ -671,9 +671,9 @@ function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss)
 
 		if reversed then 
 			castbar:SetReverseFill(true)
-			grip:Point("LEFT", castbar, "RIGHT", 6, 0)
+			organizer:Point("LEFT", castbar, "RIGHT", 6, 0)
 		else
-			grip:Point("RIGHT", castbar, "LEFT", -6, 0)
+			organizer:Point("RIGHT", castbar, "LEFT", -6, 0)
 		end
 	end 
 
@@ -716,7 +716,7 @@ function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss)
 	castbar.SparkColor = oUF_Villain.colors.spark
 
 	if moverName then 
-		SV.Mentalo:Add(castbar.Holder, moverName, nil, -6, nil, "ALL, SOLO")
+		SV.Mentalo:Add(castbar.Holder, moverName, -6)
 	end 
 	
 	if useFader then

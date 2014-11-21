@@ -827,7 +827,7 @@ function MOD:UpdateGoldText()
 end 
 
 function MOD:VendorGrays(destroy, silent, request)
-	if((not MerchantFrame or not MerchantFrame:IsShown()) and ((not destroy) and (not request))) then 
+	if((not MerchantFrame or not MerchantFrame:IsShown()) and (not destroy) and (not request)) then 
 		SV:AddonMessage(L["You must be at a vendor."])
 		return 
 	end
@@ -838,43 +838,44 @@ function MOD:VendorGrays(destroy, silent, request)
 	for bagID = 0, 4 do 
 		for slot = 1, GetContainerNumSlots(bagID) do 
 			local itemLink = GetContainerItemLink(bagID, slot)
-			local name, link, quality, iLevel, reqLevel, class, subclass, maxStack, equipSlot, texture, vendorPrice = GetItemInfo(itemLink)
-			if(itemLink and vendorPrice) then
-				local itemCount = select(2, GetContainerItemInfo(bagID, slot))
-				local sellPrice = vendorPrice * itemCount
-				local itemID = GetContainerItemID(bagID, slot);
-
-				if(destroy) then 
-					if(find(itemLink, "ff9d9d9d")) then 
-						if(not request) then 
-							PickupContainerItem(bagID, slot)
-							DeleteCursorItem()
+			if(itemLink) then
+				local name, link, quality, iLevel, reqLevel, class, subclass, maxStack, equipSlot, texture, vendorPrice = GetItemInfo(itemLink)
+				if(vendorPrice) then
+					local itemCount = select(2, GetContainerItemInfo(bagID, slot))
+					local sellPrice = vendorPrice * itemCount
+					local itemID = GetContainerItemID(bagID, slot);
+					if(destroy) then 
+						if(find(itemLink, "ff9d9d9d")) then 
+							if(not request) then 
+								PickupContainerItem(bagID, slot)
+								DeleteCursorItem()
+							end 
+							totalValue = totalValue + sellPrice;
+							canDelete = canDelete + 1 
+						elseif(itemID and VendorQueue[itemID]) then
+							if(not request) then
+								VendorQueue[itemID] = nil
+								PickupContainerItem(bagID, slot)
+								DeleteCursorItem()
+							end 
+							totalValue = totalValue + sellPrice;
+							canDelete = canDelete + 1 
 						end 
-						totalValue = totalValue + sellPrice;
-						canDelete = canDelete + 1 
-					elseif(itemID and VendorQueue[itemID]) then
-						if(not request) then
-							VendorQueue[itemID] = nil
-							PickupContainerItem(bagID, slot)
-							DeleteCursorItem()
-						end 
-						totalValue = totalValue + sellPrice;
-						canDelete = canDelete + 1 
-					end 
-				elseif(sellPrice > 0) then
-					if(quality == 0) then 
-						if(not request) then 
-							UseContainerItem(bagID, slot)
-							PickupMerchantItem()
-						end 
-						totalValue = totalValue + sellPrice
-					elseif(itemID and VendorQueue[itemID]) then
-						if(not request) then
-							VendorQueue[itemID] = nil
-							UseContainerItem(bagID, slot)
-							PickupMerchantItem()
-						end 
-						totalValue = totalValue + sellPrice
+					elseif(sellPrice > 0) then
+						if(quality == 0) then 
+							if(not request) then 
+								UseContainerItem(bagID, slot)
+								PickupMerchantItem()
+							end 
+							totalValue = totalValue + sellPrice
+						elseif(itemID and VendorQueue[itemID]) then
+							if(not request) then
+								VendorQueue[itemID] = nil
+								UseContainerItem(bagID, slot)
+								PickupMerchantItem()
+							end 
+							totalValue = totalValue + sellPrice
+						end
 					end
 				end
 			end 
@@ -1789,7 +1790,8 @@ local function _toggleBackpack()
 end
 
 local _hook_OnModifiedClick = function(self, button)
-    if (IsModifiedClick("VENDORMARKITEM")) then
+	if(MerchantFrame and MerchantFrame:IsShown()) then return end;
+    if(IsAltKeyDown() and (button == "RightButton")) then
     	local slotID = self:GetID()
     	local bagID = self:GetParent():GetID()
     	local itemID = GetContainerItemID(bagID, slotID);

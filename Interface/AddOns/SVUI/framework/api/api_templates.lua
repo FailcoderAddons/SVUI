@@ -69,6 +69,7 @@ local XML_LOOKUP = {
     ["Inset"] = "SVUI_PanelTemplate_Inset",
     ["Comic"] = "SVUI_PanelTemplate_Comic",
     ["Model"] = "SVUI_PanelTemplate_Model",
+    ["ModelBorder"] = "SVUI_PanelTemplate_ModelBorder",
     ["Paper"] = "SVUI_PanelTemplate_Paper",
     ["Container"] = "SVUI_PanelTemplate_Container",
     ["Pattern"] = "SVUI_PanelTemplate_Pattern",
@@ -642,6 +643,7 @@ local function SetButtonTemplate(self, invisible, overridePadding, xOffset, yOff
         CreatePanelTemplate(self, "Transparent", underlay, true, padding, x, y, defaultColor)
         self:SetBackdropColor(0,0,0,0)
         self:SetBackdropBorderColor(0,0,0,0)
+        
         if(self.Panel.BorderLeft) then 
             self.Panel.BorderLeft:SetVertexColor(0,0,0,0)
             self.Panel.BorderRight:SetVertexColor(0,0,0,0)
