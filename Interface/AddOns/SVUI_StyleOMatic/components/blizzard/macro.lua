@@ -41,16 +41,7 @@ MACRO UI PLUGINR
 local function MacroUIStyle()
 	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.macro ~= true then return end
 
-	local MacroFrame = _G.MacroFrame;
-	local MacroFrameCloseButton = _G.MacroFrameCloseButton;
-	local MacroButtonScrollFrameScrollBar = _G.MacroButtonScrollFrameScrollBar;
-	local MacroFrameScrollFrameScrollBar = _G.MacroFrameScrollFrameScrollBar;
-	local MacroPopupScrollFrameScrollBar = _G.MacroPopupScrollFrameScrollBar;
-
-	local MacroPopupScrollFrame = _G.MacroPopupScrollFrame;
-	local MacroPopupFrame = _G.MacroPopupFrame;
-	local MacroFrameSelectedMacroButton = _G.MacroFrameSelectedMacroButton;
-	local MacroFrameSelectedMacroButtonIcon = _G.MacroFrameSelectedMacroButtonIcon;
+	PLUGIN:ApplyWindowStyle(MacroFrame, true)
 
 	PLUGIN:ApplyCloseButtonStyle(MacroFrameCloseButton)
 	PLUGIN:ApplyScrollFrameStyle(MacroButtonScrollFrameScrollBar)
@@ -59,11 +50,16 @@ local function MacroUIStyle()
 
 	MacroFrame:Width(360)
 
+	local parentStrata = MacroFrame:GetFrameStrata()
+	local parentLevel = MacroFrame:GetFrameLevel()
+
 	for i = 1, #MacroButtonList do
 		local button = _G[MacroButtonList[i]]
 		if(button) then
+			button:SetFrameStrata(parentStrata)
+			button:SetFrameLevel(parentLevel + 1)
 			button:RemoveTextures()
-			button:SetButtonTemplate()
+			button:SetButtonTemplate(false, 1, 1, 1)
 		end
 	end 
 
@@ -89,9 +85,6 @@ local function MacroUIStyle()
 		end
 	end 
 
-	MacroFrame:RemoveTextures()
-	MacroFrame:SetPanelTemplate("Action")
-	MacroFrame.Panel:SetPoint("BOTTOMRIGHT",MacroFrame,"BOTTOMRIGHT",0,-25)
 	MacroFrameText:SetFont(SV.Media.font.roboto, 10, "OUTLINE")
 	MacroFrameTextBackground:RemoveTextures()
 	MacroFrameTextBackground:SetBasicPanel()
@@ -103,60 +96,61 @@ local function MacroUIStyle()
 	MacroPopupScrollFrame:SetPanelTemplate("Pattern")
 	MacroPopupScrollFrame.Panel:Point("TOPLEFT", 51, 2)
 	MacroPopupScrollFrame.Panel:Point("BOTTOMRIGHT", -4, 4)
-	MacroButtonScrollFrame:SetBasicPanel()
 	MacroPopupEditBox:SetEditboxTemplate()
 	MacroPopupNameLeft:SetTexture(0,0,0,0)
 	MacroPopupNameMiddle:SetTexture(0,0,0,0)
 	MacroPopupNameRight:SetTexture(0,0,0,0)
 
 	MacroFrameInset:Die()
-	MacroEditButton:ClearAllPoints()
-	MacroEditButton:Point("BOTTOMLEFT", MacroFrameSelectedMacroButton, "BOTTOMRIGHT", 10, 0)
 
+	MacroButtonContainer:RemoveTextures()
 	PLUGIN:ApplyScrollFrameStyle(MacroButtonScrollFrame)
+	MacroButtonScrollFrame:SetFixedPanelTemplate("Inset")
 
 	MacroPopupFrame:HookScript("OnShow", function(c)
 		c:ClearAllPoints()
 		c:Point("TOPLEFT", MacroFrame, "TOPRIGHT", 5, -2)
 	end)
 
+	MacroFrameSelectedMacroButton:SetFrameStrata(parentStrata)
+	MacroFrameSelectedMacroButton:SetFrameLevel(parentLevel + 1)
 	MacroFrameSelectedMacroButton:RemoveTextures()
-	MacroFrameSelectedMacroButton:SetSlotTemplate()
+	MacroFrameSelectedMacroButton:SetSlotTemplate(true)
 	MacroFrameSelectedMacroButtonIcon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 	MacroFrameSelectedMacroButtonIcon:FillInner()
+
+	MacroEditButton:ClearAllPoints()
+	MacroEditButton:Point("BOTTOMLEFT", MacroFrameSelectedMacroButton.Panel, "BOTTOMRIGHT", 10, 0)
+
 	MacroFrameCharLimitText:ClearAllPoints()
 	MacroFrameCharLimitText:Point("BOTTOM", MacroFrameTextBackground, -25, -35)
 
-	for b = 1, MAX_ACCOUNT_MACROS do 
-		local d = _G["MacroButton"..b]
-		local e = _G["MacroButton"..b.."Icon"]
-		local f = _G["MacroPopupButton"..b]
-		local g = _G["MacroPopupButton"..b.."Icon"]
-		if d then
-			d:RemoveTextures()
-			d:SetButtonTemplate()
-			local level = d:GetFrameLevel()
-			if(level > 0) then 
-				d.Panel:SetFrameLevel(level - 1)
-			else 
-				d.Panel:SetFrameLevel(0)
+	for i = 1, MAX_ACCOUNT_MACROS do 
+		local button = _G["MacroButton"..i]
+		if(button) then
+			button:RemoveTextures()
+			button:SetSlotTemplate()
+
+			local icon = _G["MacroButton"..i.."Icon"]
+			if(icon) then
+				icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+				icon:FillInner()
+				icon:SetDrawLayer("OVERLAY")
 			end
-			d:SetBackdropColor(0, 0, 0, 0)
-		end 
-		if e then
-			e:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-			e:FillInner()
-			e:SetDrawLayer("OVERLAY")
-		end 
-		if f then
-			f:RemoveTextures()
-			f:SetButtonTemplate()
-			f:SetBackdropColor(0, 0, 0, 0)
-		end 
-		if g then
-			g:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-			g:FillInner()
-		end 
+
+			local popup = _G["MacroPopupButton"..i]
+			if(popup) then
+				popup:RemoveTextures()
+				popup:SetButtonTemplate()
+				popup:SetBackdropColor(0, 0, 0, 0)
+
+				local popupIcon = _G["MacroPopupButton"..i.."Icon"]
+				if(popupIcon) then
+					popupIcon:FillInner()
+					popupIcon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+				end
+			end 
+		end  
 	end 
 end 
 

@@ -55,6 +55,7 @@ local SV = select(2, ...)
 local L = SV.L
 
 local MOD = SV.SVTools;
+local ObjectiveTrackerFrame = _G.ObjectiveTrackerFrame
 --[[ 
 ########################################################## 
 LOCAL VARS
@@ -66,28 +67,17 @@ local ICON_FILE = [[Interface\AddOns\SVUI\assets\artwork\Icons\DOCK-QUESTS]];
 CORE FUNCTIONS
 ##########################################################
 ]]--
-function MOD:QUEST_AUTOCOMPLETE(event)
-	if(SV.Dock.BottomRight.Window and self.QuestWatch) then
-		if(not self.QuestWatch:IsShown()) then 
-			SV.Dock.BottomRight.Window.FrameLink = self.QuestWatch
+local ShowSubDocklet = function(self)
+	if(InCombatLockdown()) then return end
+	if(not ObjectiveTrackerFrame:IsShown()) then ObjectiveTrackerFrame:Show() end
+end
 
-			if not SV.Dock.BottomRight.Window:IsShown() then
-				SV.Dock.BottomRight.Window:Show()
-			end
-
-			SV.Dock.BottomRight.Bar:Refresh()
-			self.QuestWatch:Show()
-
-			if(self.QuestWatch.DockButton) then
-				self.QuestWatch.DockButton:Activate()
-			end
-		end
-	end
+local HideSubDocklet = function(self)
+	if(InCombatLockdown()) then return end
+	if(ObjectiveTrackerFrame:IsShown()) then ObjectiveTrackerFrame:Hide() end
 end
 
 function MOD:LoadQuestWatch()
-	local ObjectiveTrackerFrame = _G.ObjectiveTrackerFrame
-
 	if(not ObjectiveTrackerFrame) then return end
 
 	if(not SV.db.general.questWatch) then
@@ -99,7 +89,6 @@ function MOD:LoadQuestWatch()
 
 		ObjectiveTrackerFrame:ClearAllPoints()
 		ObjectiveTrackerFrame:SetClampedToScreen(false)
-		ObjectiveTrackerFrame:SetParent(self.QuestWatch)
 		ObjectiveTrackerFrame:SetAllPoints(self.QuestWatch)
 		ObjectiveTrackerFrame:SetFrameLevel(self.QuestWatch:GetFrameLevel()  +  1)
 		ObjectiveTrackerFrame.ClearAllPoints = SV.fubar;
@@ -133,12 +122,12 @@ function MOD:LoadQuestWatch()
 
 		local WIDTH, HEIGHT = self.QuestWatch:GetSize()
 
-		local listFrame = CreateFrame("ScrollFrame", nil, self.QuestWatch);
+		local listFrame = CreateFrame("ScrollFrame", "SVUI_QuestWatchFrameScrollFrame", self.QuestWatch);
 		listFrame:SetPoint("TOPLEFT", self.QuestWatch, -62, 0);
 		listFrame:SetPoint("BOTTOMRIGHT", self.QuestWatch, -31, 21);
 		listFrame:EnableMouseWheel(true);
 
-		local scrollFrame = CreateFrame("Slider", nil, listFrame);
+		local scrollFrame = CreateFrame("Slider", "SVUI_QuestWatchFrameScrollBar", listFrame);
 		scrollFrame:SetHeight(listFrame:GetHeight());
 		scrollFrame:SetWidth(18);
 		scrollFrame:SetPoint("TOPRIGHT", self.QuestWatch, "TOPRIGHT", -3, 0);
@@ -164,24 +153,23 @@ function MOD:LoadQuestWatch()
 			if value > 420 then 
 				value = 420
 			end 
-			self:SetVerticalScroll(value)
+			--self:SetVerticalScroll(value)
 			self.slider:SetValue(value)
 		end)
 		
 		ObjectiveTrackerFrame:ClearAllPoints()
 		ObjectiveTrackerFrame:SetClampedToScreen(false)
-		ObjectiveTrackerFrame:SetParent(listFrame)
 		ObjectiveTrackerFrame:SetHeight(500)
 		ObjectiveTrackerFrame:SetWidth(WIDTH)
 		ObjectiveTrackerFrame:SetPoint("TOPRIGHT", listFrame, "TOPRIGHT", -31, 0)
 		ObjectiveTrackerFrame:SetFrameLevel(listFrame:GetFrameLevel() + 1)
 
-		listFrame:SetScrollChild(ObjectiveTrackerFrame)
-
-		ObjectiveTrackerFrame.ClearAllPoints = SV.fubar;
-		ObjectiveTrackerFrame.SetAllPoints = SV.fubar;
-		ObjectiveTrackerFrame.SetPoint = SV.fubar;
-		ObjectiveTrackerFrame.SetWidth = SV.fubar;
+		hooksecurefunc(ObjectiveTrackerFrame, "SetPoint", function(self, a1, p, a2, x, y)
+			if(p ~= SVUI_QuestWatchFrameScrollFrame) then
+				self:SetPoint("TOPRIGHT", SVUI_QuestWatchFrameScrollFrame, "TOPRIGHT", -31, 0)
+			end
+		end)
+		--ObjectiveTrackerFrame.SetPoint = function() return end;
 
 		ObjectiveTrackerFrame.HeaderMenu.MinimizeButton:Hide()
 
@@ -189,7 +177,6 @@ function MOD:LoadQuestWatch()
 		ObjectiveTrackerFrame.BlocksFrame:SetPoint("TOPLEFT", ObjectiveTrackerFrame, "TOPLEFT", 87, 0)
 		ObjectiveTrackerFrame.BlocksFrame:SetPoint("BOTTOMLEFT", ObjectiveTrackerFrame, "BOTTOMLEFT", 87, 0)
 		ObjectiveTrackerFrame.BlocksFrame:SetWidth(WIDTH)
-		ObjectiveTrackerFrame.BlocksFrame.SetWidth = SV.fubar;
 
 		ObjectiveTrackerFrame.BlocksFrame.QuestHeader:SetWidth((WIDTH - 60))
 		ObjectiveTrackerFrame.BlocksFrame.AchievementHeader:SetWidth((WIDTH - 60))
@@ -211,6 +198,10 @@ function MOD:LoadQuestWatch()
 
 		self.QuestWatch.DockButton:MakeDefault();
 		self.QuestWatch:Show();
-		self:RegisterEvent("QUEST_AUTOCOMPLETE");
+		self.QuestWatch:SetScript('OnShow', ShowSubDocklet);
+		self.QuestWatch:SetScript('OnHide', HideSubDocklet);
+
+		listFrame:SetScrollChild(ObjectiveTrackerFrame)
+		SV.Timers:ExecuteTimer(function() SVUI_QuestWatchFrameScrollBar:SetValue(10) SVUI_QuestWatchFrameScrollBar:SetValue(0) end, 5)
 	end
 end

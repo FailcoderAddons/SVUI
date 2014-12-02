@@ -32,16 +32,13 @@ local SV = select(2, ...)
 local L = SV.L
 
 SV.Comix = CreateFrame("Frame");
-SV.Comix.Basic = _G["SVUI_ComixFrame1"]
-SV.Comix.Deluxe = _G["SVUI_ComixFrame2"]
-SV.Comix.Premium = _G["SVUI_ComixFrame3"]
 --[[ 
 ########################################################## 
 LOCAL VARS
 ##########################################################
 ]]--
 local animReady = true;
-local playerGUID;
+
 local COMIX_DATA = {
 	{
 		{0,0.25,0,0.25},
@@ -112,7 +109,7 @@ function SV.Comix:LaunchDeluxePopup()
 	local coords = COMIX_DATA[1][rng];
 	local step1_x = random(-100, 100);
 	if(step1_x > -30 and step1_x < 30) then step1_x = step1_x * 3 end 
-	local step1_y = random(-100, 100);
+	local step1_y = random(-30, 30);
 	if(step1_y > -30 and step1_y < 30) then step1_y = step1_y * 3 end 
 	local step2_x = step1_x * 0.5;
 	local step2_y = step1_y * 0.75;
@@ -128,9 +125,12 @@ function SV.Comix:LaunchPopup()
 	local coords = COMIX_DATA[1][rng];
 	local step1_x = random(-100, 100);
 	if(step1_x > -30 and step1_x < 30) then step1_x = step1_x * 3 end 
-	local step1_y = random(-100, 100);
-	if(step1_y > -30 and step1_y < 30) then step1_y = step1_y * 3 end 
+	local step1_y = random(-30, 30);
+	if(step1_y > -30 and step1_y < 30) then step1_y = step1_y * 3 end
+	local size = random(64,88)
+	self.Basic:Size(size,size)
 	self.Basic.tex:SetTexCoord(coords[1],coords[2],coords[3],coords[4])
+	self.Basic:ClearAllPoints()
 	self.Basic:Point("CENTER", SV.Screen, "CENTER", step1_x, step1_y)
 	self.Basic.anim:Play()
 end 
@@ -139,8 +139,7 @@ local Comix_OnEvent = function(self, event, ...)
 	local subEvent = select(2,...)
 	local guid = select(4,...)
 	local ready = self:ReadyState()
-	playerGUID = UnitGUID('player')
-	if subEvent == "PARTY_KILL" and guid == playerGUID and ready then 
+	if subEvent == "PARTY_KILL" and guid == UnitGUID('player') and ready then 
 		self:ReadyState(false)
 		local rng = random(1,15)
 		if rng < 8 then
@@ -173,11 +172,17 @@ local Comix_OnUpdate = function() SV.Comix:ReadyState(true) end
 local Toasty_OnUpdate = function(self) SV.Comix:ReadyState(true); self.parent:SetAlpha(0) end
 
 function SV.Comix:Initialize()
+	self.Basic = _G["SVUI_ComixFrame1"]
+	self.Deluxe = _G["SVUI_ComixFrame2"]
+	self.Premium = _G["SVUI_ComixFrame3"]
+
+	self.Basic:Size(64,64)
 	self.Basic.tex:SetTexCoord(0,0.25,0,0.25)
 	SV.Animate:Kapow(self.Basic, true)
 	self.Basic:SetAlpha(0)
 	self.Basic.anim[2]:SetScript("OnFinished", Comix_OnUpdate)
 
+	self.Deluxe:Size(88,88)
 	self.Deluxe.tex:SetTexCoord(0,0.25,0,0.25)
 	SV.Animate:RandomSlide(self.Deluxe, true)
 	self.Deluxe:SetAlpha(0)
@@ -207,8 +212,5 @@ function SV.Comix:Initialize()
 
 	self:ReadyState(true)
 
-	if(SV.db.general.comix) then 
-		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-		self:SetScript("OnEvent", Comix_OnEvent)
-	end
+	self:Toggle()
 end

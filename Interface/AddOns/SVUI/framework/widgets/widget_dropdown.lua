@@ -63,6 +63,7 @@ SV.Dropdown = _G["SVUI_DropdownFrame"];
 local DropdownButton_OnClick = function(self)
 	self.func(self.target)
 	self:GetParent():Hide()
+	ToggleFrame(SV.Dropdown);
 end
 
 local DropdownButton_OnEnter = function(self)

@@ -41,6 +41,7 @@ GET ADDON DATA
 local SV = select(2, ...)
 
 SV.Screen = _G["SVUIParent"];
+local BASE_MOD = 0.64;
 local SCREEN_MOD = 1;
 --[[ 
 ########################################################## 
@@ -118,12 +119,14 @@ function SV:UI_SCALE_CHANGED(event)
             self.Screen:SetSize(UIParent:GetSize());
         end
 
-        local change = abs((testScale1 * 100) - (testScale2 * 100))
-        if(change > 1) then
-            if(self.db.general.autoScale) then
-                self:StaticPopup_Show('FAILED_UISCALE')
-            else
-                self:StaticPopup_Show('RL_CLIENT')
+        if(event == 'UI_SCALE_CHANGED') then
+            local change = abs((testScale1 * 100) - (testScale2 * 100))
+            if(change > 1) then
+                if(self.db.general.autoScale) then
+                    self:StaticPopup_Show('FAILED_UISCALE')
+                else
+                    self:StaticPopup_Show('RL_CLIENT')
+                end
             end
         end
     end
@@ -160,10 +163,13 @@ function SV.Screen:Update()
     end
 
     local gxScale;
+    if(SV.db.general.scaleAdjust and type(SV.db.general.scaleAdjust) == "number") then
+        BASE_MOD = SV.db.general.scaleAdjust;
+    end
     if(SV.db.general.autoScale) then
-        gxScale = max(0.64, min(1.15, gxMod));
+        gxScale = max(BASE_MOD, min(1.15, gxMod));
     else
-        gxScale = max(0.64, min(1.15, GetCVar("uiScale") or UIParent:GetScale() or gxMod));
+        gxScale = max(BASE_MOD, min(1.15, GetCVar("uiScale") or UIParent:GetScale() or gxMod));
     end
 
     SCREEN_MOD = (gxMod / gxScale);

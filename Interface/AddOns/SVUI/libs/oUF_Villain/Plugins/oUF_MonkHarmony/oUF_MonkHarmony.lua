@@ -22,6 +22,7 @@ oUF.colors.MonkHarmony = {
 	[3] = {.37, .63, .35, 1},
 	[4] = {.27, .63, .33, 1},
 	[5] = {.17, .63, .33, 1},
+	[6] = {0, .63, .33, 1},
 }
 
 local function Update(self, event, unit)
@@ -50,10 +51,15 @@ local function Update(self, event, unit)
 	end
 	
 	if hb.numPoints ~= numPoints then
-		if numPoints == 4 then
-			hb[5]:Hide()
-		else
+		if numPoints == 6 then
 			hb[5]:Show()
+			hb[6]:Show()
+		elseif numPoints == 5 then
+			hb[5]:Show()
+			hb[6]:Hide()
+		else
+			hb[5]:Hide()
+			hb[6]:Hide()
 		end
 	end
 	
@@ -71,7 +77,7 @@ local function Enable(self, unit)
 		self:RegisterEvent("UNIT_DISPLAYPOWER", Update)
 		self:RegisterEvent("PLAYER_LEVEL_UP", Update)
 		
-		for i = 1, 5 do
+		for i = 1, 6 do
 			if not hb[i]:GetStatusBarTexture() then
 				hb[i]:SetStatusBarTexture([=[Interface\TargetingFrame\UI-StatusBar]=])
 			end
@@ -81,7 +87,7 @@ local function Enable(self, unit)
 			hb[i]:GetStatusBarTexture():SetHorizTile(false)
 		end
 		
-		hb.numPoints = 5
+		hb.numPoints = 6
 		
 		return true
 	end

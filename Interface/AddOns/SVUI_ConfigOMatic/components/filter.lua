@@ -49,15 +49,21 @@ local MOD = SV.SVUnit
 if(not MOD) then return end
 
 local _, ns = ...;
-local selectedSpell,filterType,filters;
-local nameMapping = {
-	["CC"] = "Control Type Auras",
-	["Shield"] = "Defensive Auras",
+local tempFilterTable = {};
+local watchedBuffs = {}
+
+local privateFilters = {
+	["CC"] = "Crowd Control Auras",
+	["Defense"] = "Defensive Auras",
+	["Custom"] = "Custom Filtering",
+}
+
+local publicFilters = {
 	["Player"] = "Player Only Auras",
 	["Blocked"] = "Blocked Auras",
-	["Allowed"] = "Always Allowed Auras",
-	["Strict"] = "Specific Auras",
-	["Raid"] = "Raid Buffs/Debuffs",
+	["Allowed"] = "Allowed Auras",
+	["Raid"] = "Raid Debuffs",
+	["AuraBars"] = "AuraBar Auras",
 	["BuffWatch"] = "(AuraWatch) Player Buffs",
 	["PetBuffWatch"] = "(AuraWatch) Pet Buffs",
 }
@@ -66,8 +72,24 @@ local NONE = _G.NONE;
 local GetSpellInfo = _G.GetSpellInfo;
 local collectgarbage = _G.collectgarbage;
 
-local function generateFilterOptions()
-	if filterType == 'AuraBar Colors' then 
+local function generateFilterOptions(filterType, selectedSpell)
+
+	local FILTER
+	if(SV.filters.Custom[filterType]) then 
+		FILTER = SV.filters.Custom[filterType] 
+	else
+		FILTER = SV.filters[filterType]
+	end
+
+	if((not filterType) or (filterType == "") or (not FILTER)) then
+		SV.Options.args.filters.args.filterGroup = nil;
+		SV.Options.args.filters.args.spellGroup = nil;
+		return 
+	end
+
+	local PROTECTED = publicFilters[filterType];
+	
+	if(filterType == 'AuraBars') then 
 
 		SV.Options.args.filters.args.filterGroup = {
 			type = "group",
@@ -86,10 +108,10 @@ local function generateFilterOptions()
 						if not SV.db.media.unitframes.spellcolor[arg] then 
 							SV.db.media.unitframes.spellcolor[arg] = false 
 						end 
-						generateFilterOptions()
 						MOD:SetUnitFrame("player")
 						MOD:SetUnitFrame("target")
 						MOD:SetUnitFrame("focus")
+						generateFilterOptions(filterType, arg)
 					end
 				},
 				removeSpell = {
@@ -105,12 +127,11 @@ local function generateFilterOptions()
 							SV:AddonMessage(L["You may not remove a spell from a default filter that is not customly added. Setting spell to false instead."])
 						else 
 							SV.db.media.unitframes.spellcolor[arg] = nil 
-						end 
-						selectedSpell = nil;
-						generateFilterOptions()
+						end
 						MOD:SetUnitFrame("player")
 						MOD:SetUnitFrame("target")
 						MOD:SetUnitFrame("focus")
+						generateFilterOptions(filterType)
 					end
 				},
 				selectSpell = {
@@ -118,18 +139,17 @@ local function generateFilterOptions()
 					type = "select",
 					order = 3,
 					guiInline = true,
-					get = function(e)return selectedSpell end,
+					get = function(e) return selectedSpell end,
 					set = function(e, arg)
-						selectedSpell = arg;
-						generateFilterOptions()
+						generateFilterOptions(filterType, arg)
 					end,
 					values = function()
-						local filters = {}
-						filters[""] = NONE;
+						wipe(tempFilterTable)
+						tempFilterTable[""] = NONE;
 						for g in pairs(SV.db.media.unitframes.spellcolor)do 
-							filters[g] = g 
+							tempFilterTable[g] = g 
 						end 
-						return filters 
+						return tempFilterTable 
 					end
 				}
 			}
@@ -183,14 +203,15 @@ local function generateFilterOptions()
 			}
 		}
 
-	elseif filterType == 'PetBuffWatch' then
+	elseif(filterType == 'PetBuffWatch') then
 
-		local watchedBuffs = {}
+		wipe(watchedBuffs)
 
-		if not SV.db.filter.PetBuffWatch then 
-			SV.db.filter.PetBuffWatch = {}
-		end 
-		for o,f in pairs(SV.db.filter.PetBuffWatch)do 
+		if not SV.filters.PetBuffWatch then 
+			SV.filters.PetBuffWatch = {}
+		end
+
+		for o,f in pairs(SV.filters.PetBuffWatch)do 
 			tinsert(watchedBuffs,f)
 		end 
 
@@ -213,10 +234,9 @@ local function generateFilterOptions()
 						elseif not GetSpellInfo(arg)then 
 							SV:AddonMessage(L["Not valid spell id"])
 						else 
-							tinsert(SV.db.filter.PetBuffWatch, {["enable"] = true, ["id"] = tonumber(arg), ["point"] = "TOPRIGHT", ["color"] = {["r"] = 1, ["g"] = 0, ["b"] = 0}, ["anyUnit"] = true})
-							generateFilterOptions()
+							tinsert(SV.filters.PetBuffWatch, {["enable"] = true, ["id"] = tonumber(arg), ["point"] = "TOPRIGHT", ["color"] = {["r"] = 1, ["g"] = 0, ["b"] = 0}, ["anyUnit"] = true})
 							MOD:SetUnitFrame("pet")
-							selectedSpell = nil 
+							generateFilterOptions(filterType, selectedSpell)
 						end 
 					end
 				}, 
@@ -233,13 +253,13 @@ local function generateFilterOptions()
 							SV:AddonMessage(L["Not valid spell id"])
 						else 
 							local p;
-							for q, r in pairs(SV.db.filter.PetBuffWatch)do 
+							for q, r in pairs(SV.filters.PetBuffWatch)do 
 								if r["id"] == tonumber(arg)then 
 									p = r;
-									if SV.db.filter.PetBuffWatch[q]then 
-										SV.db.filter.PetBuffWatch[q].enable = false;
+									if SV.filters.PetBuffWatch[q]then 
+										SV.filters.PetBuffWatch[q].enable = false;
 									else 
-										SV.db.filter.PetBuffWatch[q] = nil 
+										SV.filters.PetBuffWatch[q] = nil 
 									end 
 								end 
 							end 
@@ -249,9 +269,8 @@ local function generateFilterOptions()
 								generateFilterOptions()
 							end 
 						end 
-						selectedSpell = nil;
-						generateFilterOptions()
 						MOD:SetUnitFrame("pet")
+						generateFilterOptions(filterType, selectedSpell)
 					end
 				}, 
 				selectSpell = {
@@ -260,8 +279,8 @@ local function generateFilterOptions()
 					order = 3, 
 					values = function()
 						local v = {}
-						watchedBuffs = {}
-						for o, f in pairs(SV.db.filter.PetBuffWatch)do 
+						wipe(watchedBuffs)
+						for o, f in pairs(SV.filters.PetBuffWatch)do 
 							tinsert(watchedBuffs, f)
 						end 
 						for o, l in pairs(watchedBuffs)do 
@@ -273,14 +292,14 @@ local function generateFilterOptions()
 						return v 
 					end, 
 					get = function(e)return selectedSpell end, 
-					set = function(e, arg)selectedSpell = arg; generateFilterOptions()end
+					set = function(e, arg) generateFilterOptions(filterType, selectedSpell) end
 				}
 			}
 		}
 
 		local registeredSpell;
 
-		for t,l in pairs(SV.db.filter.PetBuffWatch)do 
+		for t,l in pairs(SV.filters.PetBuffWatch)do 
 			if l.id == selectedSpell then 
 				registeredSpell = t 
 			end 
@@ -291,9 +310,9 @@ local function generateFilterOptions()
 			SV.Options.args.filters.args.filterGroup.args[currentSpell] = {
 				name = currentSpell.." ("..selectedSpell..")", 
 				type = "group", 
-				get = function(e)return SV.db.filter.PetBuffWatch[registeredSpell][e[#e]] end, 
+				get = function(e)return SV.filters.PetBuffWatch[registeredSpell][e[#e]] end, 
 				set = function(e, arg)
-					SV.db.filter.PetBuffWatch[registeredSpell][e[#e]] = arg;
+					SV.filters.PetBuffWatch[registeredSpell][e[#e]] = arg;
 					MOD:SetUnitFrame("pet")
 				end, 
 				order = -10, 
@@ -331,11 +350,11 @@ local function generateFilterOptions()
 						type = "color", 
 						order = 4, 
 						get = function(e)
-							local abColor = SV.db.filter.PetBuffWatch[registeredSpell][e[#e]]
+							local abColor = SV.filters.PetBuffWatch[registeredSpell][e[#e]]
 							return abColor.r,  abColor.g,  abColor.b,  abColor.a 
 						end, 
 						set = function(e, i, j, k)
-							local abColor = SV.db.filter.PetBuffWatch[registeredSpell][e[#e]]
+							local abColor = SV.filters.PetBuffWatch[registeredSpell][e[#e]]
 							abColor.r,  abColor.g,  abColor.b = i, j, k;
 							MOD:SetUnitFrame("pet")
 						end
@@ -350,7 +369,7 @@ local function generateFilterOptions()
 						type = "color",
 						order = 6,
 						get = function(e)
-							local abColor = SV.db.filter.PetBuffWatch[registeredSpell][e[#e]]
+							local abColor = SV.filters.PetBuffWatch[registeredSpell][e[#e]]
 							if abColor then 
 								return abColor.r,abColor.g,abColor.b,abColor.a 
 							else 
@@ -358,7 +377,7 @@ local function generateFilterOptions()
 							end 
 						end,
 						set = function(e,i,j,k)
-							local abColor = SV.db.filter.PetBuffWatch[registeredSpell][e[#e]]
+							local abColor = SV.filters.PetBuffWatch[registeredSpell][e[#e]]
 							abColor.r,abColor.g,abColor.b = i,j,k;
 							MOD:SetUnitFrame("pet")
 						end
@@ -381,22 +400,18 @@ local function generateFilterOptions()
 						name = L["Show When Not Active"],
 						order = 8,
 						type = "toggle",
-						disabled = function()return SV.db.filter.PetBuffWatch[registeredSpell].style == "text"end
+						disabled = function()return SV.filters.PetBuffWatch[registeredSpell].style == "text"end
 					}
 				}
 			}
 		end 
 
-		watchedBuffs = nil;
+	elseif(filterType == 'BuffWatch') then
 
-	elseif filterType == 'BuffWatch' then
-
-		local watchedBuffs={}
-
-		if not SV.db.filter.BuffWatch then 
-			SV.db.filter.BuffWatch = {}
+		if not SV.filters.BuffWatch then 
+			SV.filters.BuffWatch = {}
 		end 
-		for o,f in pairs(SV.db.filter.BuffWatch) do 
+		for o,f in pairs(SV.filters.BuffWatch) do 
 			tinsert(watchedBuffs,f)
 		end 
 
@@ -414,19 +429,18 @@ local function generateFilterOptions()
 					type = "input", 
 					get = function(e)return""end, 
 					set = function(e, arg)
-						if not tonumber(arg)then 
+						if(not tonumber(arg)) then 
 							SV:AddonMessage(L["Value must be a number"])
-						elseif not GetSpellInfo(arg)then 
+						elseif(not GetSpellInfo(arg)) then 
 							SV:AddonMessage(L["Not valid spell id"])
 						else 
-							tinsert(SV.db.filter.BuffWatch, {["enable"] = true, ["id"] = tonumber(arg), ["point"] = "TOPRIGHT", ["color"] = {["r"] = 1, ["g"] = 0, ["b"] = 0}, ["anyUnit"] = false})
-							generateFilterOptions()
+							tinsert(SV.filters.BuffWatch, {["enable"] = true, ["id"] = tonumber(arg), ["point"] = "TOPRIGHT", ["color"] = {["r"] = 1, ["g"] = 0, ["b"] = 0}, ["anyUnit"] = false})
 							for t = 10, 40, 15 do 
 								MOD:UpdateGroupAuraWatch("raid"..t)
 							end 
 							MOD:UpdateGroupAuraWatch("party")
 							MOD:UpdateGroupAuraWatch("raidpet", true)
-							selectedSpell = nil 
+							generateFilterOptions(filterType)
 						end 
 					end
 				}, 
@@ -443,13 +457,13 @@ local function generateFilterOptions()
 							SV:AddonMessage(L["Not valid spell id"])
 						else 
 							local p;
-							for q, r in pairs(SV.db.filter.BuffWatch)do 
+							for q, r in pairs(SV.filters.BuffWatch)do 
 								if r["id"] == tonumber(arg)then 
 									p = r;
-									if SV.db.filter.BuffWatch[q]then 
-										SV.db.filter.BuffWatch[q].enable = false;
+									if SV.filters.BuffWatch[q]then 
+										SV.filters.BuffWatch[q].enable = false;
 									else 
-										SV.db.filter.BuffWatch[q] = nil 
+										SV.filters.BuffWatch[q] = nil 
 									end 
 								end 
 							end 
@@ -458,14 +472,13 @@ local function generateFilterOptions()
 							else 
 								generateFilterOptions()
 							end 
-						end 
-						selectedSpell = nil;
-						generateFilterOptions()
+						end
 						for t = 10, 40, 15 do 
 							MOD:UpdateGroupAuraWatch("raid"..t)
 						end 
 						MOD:UpdateGroupAuraWatch("party")
 						MOD:UpdateGroupAuraWatch("raidpet", true)
+						generateFilterOptions(filterType)
 					end
 				}, 
 				selectSpell = {
@@ -474,8 +487,8 @@ local function generateFilterOptions()
 					order = 3, 
 					values = function()
 						local v = {}
-						watchedBuffs = {}
-						for o, f in pairs(SV.db.filter.BuffWatch)do 
+						wipe(watchedBuffs)
+						for o, f in pairs(SV.filters.BuffWatch)do 
 							tinsert(watchedBuffs, f)
 						end 
 						for o, l in pairs(watchedBuffs)do 
@@ -486,24 +499,24 @@ local function generateFilterOptions()
 						end 
 						return v 
 					end, 
-					get = function(e)return selectedSpell end, 
-					set = function(e, arg)selectedSpell = arg;generateFilterOptions()end
+					get = function(e) return selectedSpell end, 
+					set = function(e, arg) generateFilterOptions(filterType, selectedSpell) end
 				}
 			}
 		}
 
 		local registeredSpell;
 
-		for t,l in pairs(SV.db.filter.BuffWatch)do if l.id==selectedSpell then registeredSpell=t end end 
+		for t,l in pairs(SV.filters.BuffWatch)do if l.id==selectedSpell then registeredSpell=t end end 
 
 		if selectedSpell and registeredSpell then 
 			local currentSpell=GetSpellInfo(selectedSpell)
 			SV.Options.args.filters.args.filterGroup.args[currentSpell] = {
 				name = currentSpell.." ("..selectedSpell..")", 
 				type = "group", 
-				get = function(e)return SV.db.filter.BuffWatch[registeredSpell][e[#e]]end, 
+				get = function(e)return SV.filters.BuffWatch[registeredSpell][e[#e]]end, 
 				set = function(e, arg)
-					SV.db.filter.BuffWatch[registeredSpell][e[#e]] = arg;
+					SV.filters.BuffWatch[registeredSpell][e[#e]] = arg;
 					for t = 10, 40, 15 do 
 						MOD:UpdateGroupAuraWatch("raid"..t)
 					end 
@@ -536,11 +549,11 @@ local function generateFilterOptions()
 						type = "color", 
 						order = 4, 
 						get = function(e)
-							local abColor = SV.db.filter.BuffWatch[registeredSpell][e[#e]]
+							local abColor = SV.filters.BuffWatch[registeredSpell][e[#e]]
 							return abColor.r,  abColor.g,  abColor.b,  abColor.a 
 						end, 
 						set = function(e, i, j, k)
-							local abColor = SV.db.filter.BuffWatch[registeredSpell][e[#e]]
+							local abColor = SV.filters.BuffWatch[registeredSpell][e[#e]]
 							abColor.r,  abColor.g,  abColor.b = i, j, k;
 							for t = 10, 40, 15 do 
 								MOD:UpdateGroupAuraWatch("raid"..t)
@@ -559,7 +572,7 @@ local function generateFilterOptions()
 						type = "color", 
 						order = 6, 
 						get = function(e)
-							local abColor = SV.db.filter.BuffWatch[registeredSpell][e[#e]]
+							local abColor = SV.filters.BuffWatch[registeredSpell][e[#e]]
 							if abColor then 
 								return abColor.r,  abColor.g,  abColor.b,  abColor.a 
 							else 
@@ -567,8 +580,8 @@ local function generateFilterOptions()
 							end 
 						end, 
 						set = function(e, i, j, k)
-							SV.db.filter.BuffWatch[registeredSpell][e[#e]] = SV.db.filter.BuffWatch[registeredSpell][e[#e]] or {}
-							local abColor = SV.db.filter.BuffWatch[registeredSpell][e[#e]]
+							SV.filters.BuffWatch[registeredSpell][e[#e]] = SV.filters.BuffWatch[registeredSpell][e[#e]] or {}
+							local abColor = SV.filters.BuffWatch[registeredSpell][e[#e]]
 							abColor.r,  abColor.g,  abColor.b = i, j, k;
 							for t = 10, 40, 15 do 
 								MOD:UpdateGroupAuraWatch("raid"..t)
@@ -595,18 +608,16 @@ local function generateFilterOptions()
 						name = L["Show When Not Active"], 
 						order = 8, 
 						type = "toggle", 
-						disabled = function()return SV.db.filter.BuffWatch[registeredSpell].style == "text" end
+						disabled = function()return SV.filters.BuffWatch[registeredSpell].style == "text" end
 					}
 				}
 			}
-		end 
-		watchedBuffs=nil 
-	else 
-		if not filterType or not SV.db.filter[filterType]then 
-			SV.Options.args.filters.args.filterGroup = nil;
-			SV.Options.args.filters.args.spellGroup = nil;
-			return 
-		end 
+		end
+
+		wipe(watchedBuffs)
+	
+	else  
+		
 		SV.Options.args.filters.args.filterGroup = {
 			type = "group",
 			name = filterType,
@@ -618,15 +629,15 @@ local function generateFilterOptions()
 					name = L["Add Spell"],
 					desc = L["Add a spell to the filter."],
 					type = "input",
-					get = function(e)return""end,
+					get = function(e) return "" end,
 					set = function(e, arg)
-						if not SV.db.filter[filterType][arg]then 
-							SV.db.filter[filterType][arg] = {
+						if(not FILTER[arg]) then 
+							FILTER[arg] = {
 								["enable"] = true,
 								["priority"] = 0
 							}
 						end 
-						generateFilterOptions()
+						generateFilterOptions(filterType, arg)
 						MOD:RefreshUnitFrames()
 					end
 				},
@@ -635,19 +646,17 @@ local function generateFilterOptions()
 					name = L["Remove Spell"],
 					desc = L["Remove a spell from the filter."],
 					type = "input",
-					get = function(e)return""end,
+					get = function(e)return "" end,
 					set = function(e, arg)
-						if SV.db.filter[filterType] then 
-							if SV.db.filter[filterType][arg] then 
-								SV.db.filter[filterType][arg].enable = false;
+						if(FILTER[arg]) then
+							if(FILTER[arg].isDefault) then
+								FILTER[arg].enable = false;
 								SV:AddonMessage(L["You may not remove a spell from a default filter that is not customly added. Setting spell to false instead."])
 							else 
-								SV.db.filter[filterType][arg] = nil 
-							end 
-						else 
-							SV.db.filter[filterType][arg] = nil 
-						end 
-						generateFilterOptions()
+								FILTER[arg] = nil 
+							end
+						end
+						generateFilterOptions(filterType)
 						MOD:RefreshUnitFrames()
 					end
 				},
@@ -656,25 +665,21 @@ local function generateFilterOptions()
 					type = "select",
 					order = 3,
 					guiInline = true,
-					get = function(e)return selectedSpell end,
-					set = function(e, arg)
-						selectedSpell = arg;
-						generateFilterOptions()
-					end,
+					get = function(e) return selectedSpell end,
+					set = function(e, arg) generateFilterOptions(filterType, arg) end,
 					values = function()
-						local filters = {}
-						local list = SV.db.filter[filterType]
-						filters[""] = NONE;
-						for g in pairs(list)do
-							filters[g] = g 
+						wipe(tempFilterTable)
+						tempFilterTable[""] = NONE;
+						for g in pairs(FILTER)do
+							tempFilterTable[g] = g 
 						end 
-						return filters 
+						return tempFilterTable 
 					end
 				}
 			}
 		}
 
-		if not selectedSpell or not SV.db.filter[filterType][selectedSpell] then 
+		if not selectedSpell or not FILTER[selectedSpell] then 
 			SV.Options.args.filters.args.spellGroup = nil;
 			return 
 		end 
@@ -692,11 +697,11 @@ local function generateFilterOptions()
 						if not selectedSpell then 
 							return false 
 						else 
-							return SV.db.filter[filterType][selectedSpell].enable 
+							return FILTER[selectedSpell].enable 
 						end 
 					end, 
 					set = function(e, arg)
-						SV.db.filter[filterType][selectedSpell].enable = arg;
+						FILTER[selectedSpell].enable = arg;
 						generateFilterOptions()
 						MOD:RefreshUnitFrames()
 					end
@@ -708,11 +713,11 @@ local function generateFilterOptions()
 						if not selectedSpell then 
 							return 0 
 						else 
-							return SV.db.filter[filterType][selectedSpell].priority 
+							return FILTER[selectedSpell].priority 
 						end 
 					end, 
 					set = function(e, arg)
-						SV.db.filter[filterType][selectedSpell].priority = arg;
+						FILTER[selectedSpell].priority = arg;
 						generateFilterOptions()
 						MOD:RefreshUnitFrames()
 					end, 
@@ -723,8 +728,10 @@ local function generateFilterOptions()
 				}
 			}
 		}
-	end 
+	end
+
 	MOD:RefreshUnitFrames()
+
 	collectgarbage("collect")
 end
 
@@ -736,61 +743,50 @@ SV.Options.args.filters = {
 		createFilter = {	
 			order = 1,
 			name = L["Create Filter"],
-			desc = L["Create a filter, once created a filter can be set inside the buffs/debuffs section of each unit."],
+			desc = L["Create a custom filter."],
 			type = "input",
-			get = function(e)return""end,
+			get = function(e) return "" end,
 			set = function(e, arg)
-				SV.db.filter[arg] = {}
-				SV.db.filter[arg]["spells"] = {}
+				SV.filters.Custom[arg] = {}
 			end
 		},
 		deleteFilter = {
 			type = "select",
 			order = 2,
 			name = L["Delete Filter"],
-			desc = L["Delete a created filter, you cannot delete pre-existing filters, only custom ones."],
-			get = function(e)return""end,
+			desc = L["Delete a custom filter."],
+			get = function(e) return "" end,
 			set = function(e, arg)
-				if SV.db.filter[arg] then 
-					SV:AddonMessage(L["You can't remove a pre-existing filter."])
-				else 
-					SV.db.filter[arg] = nil;
-					filterType = nil;
-					selectedSpell = nil;
-					SV.Options.args.filters.args.filterGroup = nil 
-				end 
+				SV.filters.Custom[arg] = nil;
+				SV.Options.args.filters.args.filterGroup = nil  
 			end,
 			values = function()
-				filters = {}
-				filters[""] = NONE;
-				for g in pairs(SV.db.filter) do 
-					filters[g] = nameMapping[g] or g
+				wipe(tempFilterTable)
+				tempFilterTable[""] = NONE;
+				for g in pairs(SV.filters.Custom) do 
+					tempFilterTable[g] = g
 				end 
-				return filters 
+				return tempFilterTable 
 			end
 		},
 		selectFilter = {
 			order = 3,
 			type = "select",
 			name = L["Select Filter"],
-			get = function(e)return filterType end,
-			set = function(e, arg)
-				if arg == "" then 
-					filterType = nil;
-					selectedSpell = nil 
-				else 
-					filterType = arg 
-				end  
-				generateFilterOptions() 
-			end,
+			get = function(e) return filterType end,
+			set = function(e, arg) generateFilterOptions(arg) end,
 			values = function()
-				filters = {}
-				filters[""] = NONE;
-				for g in pairs(SV.db.filter) do  
-					filters[g] = nameMapping[g] or g
+				wipe(tempFilterTable)
+				tempFilterTable[""] = NONE;
+				for g in pairs(SV.filters) do
+					if(publicFilters[g]) then 
+						tempFilterTable[g] = publicFilters[g]
+					end
 				end
-				filters["AuraBar Colors"] = "AuraBar Colors"
-				return filters 
+				for g in pairs(SV.filters.Custom) do 
+					tempFilterTable[g] = g
+				end
+				return tempFilterTable 
 			end
 		}
 	}
@@ -798,7 +794,7 @@ SV.Options.args.filters = {
 
 
 function ns:SetToFilterConfig(newFilter)
-	filterType = newFilter or "BuffWatch"
-	generateFilterOptions()
+	local filter = newFilter or "BuffWatch"
+	generateFilterOptions(filter)
 	_G.LibStub("AceConfigDialog-3.0"):SelectGroup(SV.NameID, "filters")
 end

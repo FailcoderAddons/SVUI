@@ -531,7 +531,7 @@ SV.Options.args.SVPlate = {
 							values = function()
 								filters = {}
 								filters[""] = _G.NONE;
-								for j in pairs(SV.db.filter) do 
+								for j in pairs(SV.filters.Custom) do 
 									filters[j] = j 
 								end 
 								return filters 

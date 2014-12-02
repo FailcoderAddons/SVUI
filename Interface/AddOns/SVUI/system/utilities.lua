@@ -55,6 +55,7 @@ MISC UTILITY FUNCTIONS
 ]]--
 local RefClassRoles, RefUnitRoles;
 local PlayerClass = select(2,UnitClass("player"));
+local PlayerName = UnitName("player");
 
 if(PlayerClass == "PRIEST") then
     RefClassRoles = {"C", "C", "C"}
@@ -89,6 +90,25 @@ elseif(PlayerClass == "MONK") then
 elseif(PlayerClass == "PALADIN") then
     RefClassRoles = {"C", "T", "M"}
     RefUnitRoles = {"HEALER", "TANK", "DAMAGER"}
+end
+
+function SV:DisbandRaidGroup()
+    if InCombatLockdown() then return end
+    if UnitInRaid("player") then
+        for i = 1, GetNumGroupMembers() do
+            local name, _, _, _, _, _, _, online = GetRaidRosterInfo(i)
+            if(online and (name ~= PlayerName)) then
+                UninviteUnit(name)
+            end
+        end
+    else
+        for i = MAX_PARTY_MEMBERS, 1, -1 do
+            if UnitExists("party"..i) then
+                UninviteUnit(UnitName("party"..i))
+            end
+        end
+    end
+    LeaveParty()
 end
 
 function SV:PlayerInfoUpdate()

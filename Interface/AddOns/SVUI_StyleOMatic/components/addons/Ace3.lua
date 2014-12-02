@@ -111,7 +111,7 @@ local function StyleAceGUI(event, addon)
 		if(widgetType == "MultiLineEditBox") then 
 			local widgetFrame = widget.frame;
 			PLUGIN:ApplyFixedFrameStyle(widgetFrame, "Default", true)
-			PLUGIN:ApplyFrameStyle(widget.scrollBG, "Transparent", true) 
+			PLUGIN:ApplyFrameStyle(widget.scrollBG, "Headline", true) 
 			Widget_ButtonStyle(widget.button)
 			PLUGIN:ApplyScrollFrameStyle(widget.scrollBar) 
 			widget.scrollBar:SetPoint("RIGHT", widgetFrame, "RIGHT", -4)
@@ -226,7 +226,7 @@ local function StyleAceGUI(event, addon)
 		elseif(ProxyType[widgetType]) then
 
 			if widget.treeframe then 
-				PLUGIN:ApplyFrameStyle(widget.treeframe, "Transparent", true)
+				PLUGIN:ApplyFrameStyle(widget.treeframe, "Transparent", false, true)
 				widgetParent:SetPoint("TOPLEFT", widget.treeframe, "TOPRIGHT", 1, 0)
 				local oldFunc = widget.CreateButton;
 				widget.CreateButton = function(self)
@@ -241,11 +241,11 @@ local function StyleAceGUI(event, addon)
 					newButton.toggleText:SetText("*")
 					return newButton 
 				end
-			else
-				PLUGIN:ApplyFrameStyle(widgetParent, "Default", true)
+			elseif(not widgetParent.Panel) then
+				PLUGIN:ApplyFrameStyle(widgetParent, "Headline", false, true)
 			end
 
-			if(widgetType == "TabGroup") then 
+			if(widgetType == "TabGroup") then
 				local oldFunc = widget.CreateTab;
 				widget.CreateTab = function(self, arg)
 					local newTab = oldFunc(self, arg)

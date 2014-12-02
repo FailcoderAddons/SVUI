@@ -110,12 +110,13 @@ local function AuctionStyle()
 	--ExactMatchCheckButton:SetCheckboxTemplate(true)
 	
 	SideDressUpFrame:RemoveTextures(true)
+	SideDressUpFrame:ClearAllPoints()
 	SideDressUpFrame:Size(300, 400)
 	SideDressUpFrame:SetPoint("LEFT", AuctionFrame, "RIGHT", 16, 0)
 	SideDressUpFrame.SetPoint = SV.fubar
 	SideDressUpModel:RemoveTextures(true)
 	SideDressUpModel:SetAllPoints(SideDressUpFrame)
-	SideDressUpModel:SetFixedPanelTemplate("Model")
+	SideDressUpModel:SetFixedPanelTemplate("ModelBorder")
 	SideDressUpModelResetButton:SetButtonTemplate()
 	SideDressUpModelResetButton:SetPoint("BOTTOM", SideDressUpModel, "BOTTOM", 0, 20)
 	PLUGIN:ApplyCloseButtonStyle(SideDressUpModelCloseButton)
@@ -213,6 +214,9 @@ local function AuctionStyle()
 		_G[field]:SetTextInsets(-1, -1, -2, -2)
 	end
 
+	BrowseMinLevel:ClearAllPoints()
+	BrowseMinLevel:Point("LEFT", BrowseName, "RIGHT", 8, 0)
+	BrowseMaxLevel:ClearAllPoints()
 	BrowseMaxLevel:Point("LEFT", BrowseMinLevel, "RIGHT", 8, 0)
 	AuctionsStackSizeEntry.Panel:SetAllPoints()
 	AuctionsNumStacksEntry.Panel:SetAllPoints()
@@ -222,7 +226,7 @@ local function AuctionStyle()
 		local buttonItem = _G["BrowseButton"..h.."Item"];
 		local buttonTex = _G["BrowseButton"..h.."ItemIconTexture"];
 
-		if(button) then 
+		if(button and (not button.Panel)) then 
 			button:RemoveTextures()
 			button:SetButtonTemplate(false, 1, 1, 1)
 			button.Panel:ClearAllPoints()
@@ -231,23 +235,19 @@ local function AuctionStyle()
 
 			if(buttonItem) then
 				buttonItem:RemoveTextures()
-				buttonItem:SetSlotTemplate(true, 2, 0, 0)
-				buttonTex:SetParent(buttonItem.Panel)
-				buttonTex:FillInner(buttonItem.Panel, 2, 2)
-				buttonItem:HookScript("OnUpdate", function()
-					buttonItem:GetNormalTexture():Die()
-				end)
-
-				if(buttonTex) then 
+				buttonItem:SetSlotTemplate(false, 2, 0, 0)
+				if(buttonTex) then
+					buttonTex:SetParent(buttonItem.Panel)
+					buttonTex:FillInner(buttonItem.Panel, 2, 2)
 					buttonTex:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 				end
 
 				local highLight = button:GetHighlightTexture()
-				_G["BrowseButton"..h.."Highlight"] = highLight
 				highLight:ClearAllPoints()
 				highLight:Point("TOPLEFT", buttonItem, "TOPRIGHT", 2, -2)
 				highLight:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", -2, 7)
 				button:GetPushedTexture():SetAllPoints(highLight)
+				_G["BrowseButton"..h.."Highlight"] = highLight
 			end 
 		end 
 	end 

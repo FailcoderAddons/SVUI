@@ -459,11 +459,12 @@ local function LoadSpellBinder()
 		button:RegisterForClicks("AnyDown")
 		button:SetAllPoints(parent)
 		button:SetScript("OnClick", SpellBindMask_OnClick)
-
-		button.shine = SpellBook_GetAutoCastShine()
-		button.shine:Show()
-		button.shine:SetParent(button)
-		button.shine:SetAllPoints()
+		if(not button.shine) then
+			button.shine = SpellBook_GetAutoCastShine()
+			button.shine:Show()
+			button.shine:SetParent(button)
+			button.shine:SetAllPoints()
+		end
 		AutoCastShine_AutoCastStart(button.shine)
 
 		button:Hide()

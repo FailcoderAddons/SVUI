@@ -73,7 +73,7 @@ LOCAL FUNCTIONS
 local LibAB = LibStub("LibActionButton-1.0");
 
 local function NewActionBar(barName)
-	local bar = CreateFrame("Frame", barName, SV.Screen, "SecureHandlerStateTemplate")
+	local bar = CreateFrame("Frame", barName, UIParent, "SecureHandlerStateTemplate")
 	bar.buttons = {}
 	bar.conditions = ""
 	bar.config = {
@@ -263,7 +263,7 @@ local function SaveActionButton(parent)
 	end
 	MOD:FixKeybindText(parent)
 	MOD.ButtonCache[parent] = true 
-	parent:SetSlotTemplate(true, 2, 0, 0, 0.75)
+	parent:SetSlotTemplate(true, 2, 0, 0, 0.75, true)
 	parent:SetCheckedTexture("")
 end 
 
@@ -633,7 +633,7 @@ do
 	local Button_OnEnter = function(self)
 		local parent = self:GetParent()
 		if parent and parent._fade then
-			if self.cd then
+			if(self.cd) then
 				self.cd:SetSwipeColor(0, 0, 0, 1)
 				self.cd:SetDrawBling(true)
 			end
@@ -645,7 +645,7 @@ do
 		local parent = self:GetParent()
 		GameTooltip:Hide()
 		if parent and parent._fade then
-			if self.cd then
+			if(self.cd) then
 				self.cd:SetSwipeColor(0, 0, 0, 0)
 				self.cd:SetDrawBling(false)
 			end
@@ -670,14 +670,23 @@ do
 
 			if(selfcast) then
 				button:SetAttribute("unit2", "player")
-			end 
+			end
 
-			if(not button._hookFade) then 
+			if(bar._fade) then
+				if button.cd then
+					button.cd:SetSwipeColor(0, 0, 0, 0)
+					button.cd:SetDrawBling(false)
+				end
+			else
+				if button.cd then
+					button.cd:SetSwipeColor(0, 0, 0, 1)
+					button.cd:SetDrawBling(true)
+				end
+			end
+
+			if(not button._hookFade) then
 				button:HookScript('OnEnter', Button_OnEnter)
 				button:HookScript('OnLeave', Button_OnLeave)
-				-- if(hideByScale) then
-				-- 	NewHook(button, "SetAlpha", function(self) print(self:GetName());print(self:GetAlpha()) end)
-				-- end
 				button._hookFade = true;
 			end 
 
@@ -1348,7 +1357,7 @@ CreateMicroBar = function(self)
 	local spacing =  SV.db.SVBar.Micro.buttonspacing or 1;
 	local barWidth = (buttonSize + spacing) * 13;
 	local barHeight = (buttonSize + 6);
-	local microBar = NewFrame('Frame','SVUI_MicroBar',SV.Screen)
+	local microBar = NewFrame('Frame', 'SVUI_MicroBar', UIParent)
 	microBar:Size(barWidth, barHeight)
 	microBar:SetFrameStrata("HIGH")
 	microBar:SetFrameLevel(0)
@@ -1417,7 +1426,7 @@ end
 
 local CreateExtraBar = function(self)
 	local specialBarSize = ExtraActionBarFrame:GetSize()
-	local specialBar = CreateFrame("Frame", "SVUI_SpecialAbility", SV.Screen)
+	local specialBar = CreateFrame("Frame", "SVUI_SpecialAbility", UIParent)
 	specialBar:Point("BOTTOM", SV.Screen, "BOTTOM", 0, (275 + specialBarSize))
 	specialBar:Size(specialBarSize)
 	ExtraActionBarFrame:SetParent(specialBar)
@@ -1448,10 +1457,10 @@ local CreateExtraBar = function(self)
 		ExtraActionBarFrame:Show()
 	end
 
-	DraenorZoneAbilityFrame:SetParent(specialBar)
+	--local size = DraenorZoneAbilityFrame:GetHeight()
 	DraenorZoneAbilityFrame:ClearAllPoints()
-	DraenorZoneAbilityFrame:SetPoint('CENTER', specialBar, 'CENTER')
-	DraenorZoneAbilityFrame.ignoreFramePositionManager = true
+	DraenorZoneAbilityFrame:SetSize(150, 125)
+	--DraenorZoneAbilityFrame:SetPoint('CENTER', specialBar, 'CENTER')
 
 	SV.Mentalo:Add(specialBar, L["Boss Button"])
 end
@@ -1461,12 +1470,17 @@ DEFAULT REMOVAL
 ##########################################################
 ]]--
 local function RemoveDefaults()
+	if(InCombatLockdown()) then
+		MOD:RegisterEvent("PLAYER_REGEN_ENABLED")
+		return 
+	end
 	local removalManager = CreateFrame("Frame")
 	removalManager:Hide()
 	MultiBarBottomLeft:SetParent(removalManager)
 	MultiBarBottomRight:SetParent(removalManager)
 	MultiBarLeft:SetParent(removalManager)
 	MultiBarRight:SetParent(removalManager)
+
 	for i = 1, 12 do
 		local ab = _G[("ActionButton%d"):format(i)]
 		ab:Hide()
@@ -1504,9 +1518,11 @@ local function RemoveDefaults()
 			ob:UnregisterAllEvents()
 			ob:SetAttribute("statehidden", true)
 		end 
-	end 
+	end
+
 	ActionBarController:UnregisterAllEvents()
 	ActionBarController:RegisterEvent("UPDATE_EXTRA_ACTIONBAR")
+
 	MainMenuBar:EnableMouse(false)
 	MainMenuBar:SetAlpha(0)
 	MainMenuExpBar:UnregisterAllEvents()
@@ -1559,15 +1575,21 @@ local function RemoveDefaults()
 	InterfaceOptionsActionBarsPanelPickupActionKeyDropDown:SetScale(0.00001)
 	InterfaceOptionsStatusTextPanelXP:SetAlpha(0)
 	InterfaceOptionsStatusTextPanelXP:SetScale(0.00001)
+
 	if PlayerTalentFrame then
 		PlayerTalentFrame:UnregisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
 	else
 		hooksecurefunc("TalentFrame_LoadUI", function() PlayerTalentFrame:UnregisterEvent("ACTIVE_TALENT_GROUP_CHANGED") end)
 	end
+
+	MOD.DefaultsRemoved = true
 end
 
 function MOD:PLAYER_REGEN_ENABLED()
 	self:UnregisterEvent("PLAYER_REGEN_ENABLED")
+	if(not MOD.DefaultsRemoved) then
+		RemoveDefaults()
+	end
 	self:RefreshActionBars()
 end
 --[[ 

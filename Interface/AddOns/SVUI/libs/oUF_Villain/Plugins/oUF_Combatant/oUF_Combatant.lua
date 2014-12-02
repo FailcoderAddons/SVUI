@@ -134,7 +134,7 @@ local Enable = function(self, unit)
 			self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", Update)
 			self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED", Update)
 			if not trinket.CD then
-				trinket.CD = CreateFrame("Cooldown", nil, trinket)
+				trinket.CD = CreateFrame("Cooldown", nil, trinket, "CooldownFrameTemplate")
 				trinket.CD:SetAllPoints(trinket)
 			end
 			

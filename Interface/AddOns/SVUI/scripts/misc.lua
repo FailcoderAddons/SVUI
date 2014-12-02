@@ -268,9 +268,9 @@ local function LoadDressupHelper()
 
 	--[[ CLOAK AND HELMET TOGGLES ]]--
 	helmet = CreateFrame('CheckButton', nil, CharacterModelFrame, "OptionsCheckButtonTemplate")
-	helmet:SetSize(24, 24)
-	helmet:RemoveTextures()
-	helmet:SetCheckboxTemplate(true)
+	helmet:SetSize(16, 16)
+	--helmet:RemoveTextures()
+	--helmet:SetCheckboxTemplate()
 	helmet.text = helmet:CreateFontString(nil, 'OVERLAY', "GameFontNormal")
 	helmet.text:SetPoint("LEFT", 24, 0)
 	helmet.TText = "Show/Hide Helmet"
@@ -279,9 +279,9 @@ local function LoadDressupHelper()
 	helmet:SetScript('OnUpdate', DressUpdateHandler)
 
 	cloak = CreateFrame('CheckButton', nil, CharacterModelFrame, "OptionsCheckButtonTemplate")
-	cloak:SetSize(24, 24)
-	cloak:RemoveTextures()
-	cloak:SetCheckboxTemplate(true)
+	cloak:SetSize(16, 16)
+	--cloak:RemoveTextures()
+	--cloak:SetCheckboxTemplate()
 	cloak.text = cloak:CreateFontString(nil, 'OVERLAY', "GameFontNormal")
 	cloak.text:SetPoint("LEFT", 24, 0)
 	cloak.TText = "Show/Hide Cloak"

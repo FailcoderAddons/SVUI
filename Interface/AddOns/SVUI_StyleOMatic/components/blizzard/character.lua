@@ -279,16 +279,12 @@ local function CharacterFrameStyle()
 	PLUGIN:ApplyPaginationStyle(CharacterFrameExpandButton)
 
 	hooksecurefunc('CharacterFrame_Collapse', function()
-		CharacterFrameExpandButton:SetNormalTexture(nil)
-		CharacterFrameExpandButton:SetPushedTexture(nil)
-		CharacterFrameExpandButton:SetDisabledTexture(nil)
+		CharacterFrameExpandButton:RemoveTextures()
 		SquareButton_SetIcon(CharacterFrameExpandButton, 'RIGHT')
 	end)
 
 	hooksecurefunc('CharacterFrame_Expand', function()
-		CharacterFrameExpandButton:SetNormalTexture(nil)
-		CharacterFrameExpandButton:SetPushedTexture(nil)
-		CharacterFrameExpandButton:SetDisabledTexture(nil)
+		CharacterFrameExpandButton:RemoveTextures()
 		SquareButton_SetIcon(CharacterFrameExpandButton, 'LEFT')
 	end)
 
@@ -314,10 +310,7 @@ local function CharacterFrameStyle()
 	PLUGIN:ApplyScrollFrameStyle(_G["PaperDollEquipmentManagerPaneScrollBar"], 5)
 
 	for _,gName in pairs(CharFrameList) do
-		local frame = _G[gName]
-		if(frame) then
-			frame:RemoveTextures(true)
-		end
+		if(_G[gName]) then _G[gName]:RemoveTextures(true) end
 	end 
 
 	CharacterModelFrameBackgroundTopLeft:SetTexture(0,0,0,0)

@@ -26,6 +26,7 @@ local select 	= _G.select;
 local tinsert 	= _G.tinsert;
 local table     = _G.table;
 local twipe     = table.wipe; 
+local tsort     = table.sort; 
 --[[ STRING METHODS ]]--
 local format, gsub = string.format, string.gsub;
 --[[ 
@@ -80,6 +81,7 @@ function MOD:CacheRepData()
 			tinsert(RepMenuList, {text = factionName, func = fn})
 		end
 	end
+	tsort(RepMenuList, function(a,b) return a.text < b.text end)
 end
 
 local function Reputation_OnEvent(self, ...)

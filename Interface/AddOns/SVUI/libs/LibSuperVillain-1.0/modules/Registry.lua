@@ -89,8 +89,10 @@ local GLOBAL_FILENAME       = CoreName.."_Global";
 local ERROR_FILENAME        = CoreName.."_Errors";
 local PROFILE_FILENAME      = CoreName.."_Profile";
 local CACHE_FILENAME        = CoreName.."_Cache";
+local FILTERS_FILENAME      = CoreName.."_Filters";
+local LAYOUTS_FILENAME      = CoreName.."_Layouts";
 local SOURCE_KEY            = 1;
-local GLOBAL_SV, PROFILE_SV, CACHE_SV, ERROR_CACHE, PLUGINS, MODULES;
+local GLOBAL_SV, PROFILE_SV, CACHE_SV, FILTER_SV, LAYOUT_SV, ERROR_CACHE, PLUGINS, MODULES;
 local PluginString = ""
 local AllowedIndexes, LoadOnDemand, ScriptQueue = {},{},{};
 
@@ -195,16 +197,13 @@ function string.link(this, prefix, text, color)
     return format("|H%s:%s|h%s|h", prefix, text, colorstring)
 end
 
-function string.explode(str, delim)
-   local res = {}
-   local pattern = format("([^%s]+)%s()", delim, delim)
-   local line, pos
-   while (true) do
-      line, pos = match(str, pattern, pos)
-      if line == nil then break end
-      tinsert(res, line)
-   end
-   return res
+function string.explode(this, delim)
+    local pattern = format("([^%s]+)", delim)
+    local res = {}
+    for line in this:gmatch(pattern) do
+        tinsert(res, line)
+    end
+    return res
 end
 
 --DATABASE LOCAL HELPERS
@@ -345,7 +344,7 @@ local function LiveProfileChange()
             --construct core dataset
             local db           = setmetatable({}, meta_transdata)
             db.data            = PROFILE_SV.STORED[SOURCE_KEY]
-            db.defaults        = CoreObject.configs
+            db.defaults        = CoreObject.defaults
             wipe(CoreObject.db)
             CoreObject.db      = db
 
@@ -393,17 +392,35 @@ function lib:CheckProfiles()
     return hasProfile
 end
 
-function lib:ImportDatabase(key)
+function lib:SaveCustomLayout(key)
+    if(not key) then return end
+
+    local export, saved
+
+    if(not LAYOUT_SV[key]) then LAYOUT_SV[key] = {} end;
+    export = rawget(CoreObject.db, "data");
+    saved = LAYOUT_SV[key];
+    tablecopy(saved, export.SVUnit);
+end
+
+function lib:ImportDatabase(key, noreload)
+    if(not key) then return end
+
     if(not GLOBAL_SV.profiles[key]) then GLOBAL_SV.profiles[key] = {} end;
     PROFILE_SV.STORED[SOURCE_KEY] = GLOBAL_SV.profiles[key]
 
     if(not GLOBAL_SV.cache[key]) then GLOBAL_SV.cache[key] = {} end;
     CACHE_SV.STORED[SOURCE_KEY] = GLOBAL_SV.cache[key]
 
-    ReloadUI()
+    PROFILE_SV.SAFEDATA.GlobalKey = key;
+    if(not noreload) then
+        ReloadUI()
+    end
 end
 
 function lib:ExportDatabase(key)
+    if(not key) then return end
+
     local export, saved
 
     if(not GLOBAL_SV.profiles[key]) then GLOBAL_SV.profiles[key] = {} end;
@@ -737,10 +754,11 @@ function lib:LoadQueuedPlugins()
             if(obj and enabled and (not obj.initialized)) then
                 local halt = false
 
-                if(files.PROFILE and _G[files.PROFILE]) then
+                if(files.PROFILE) then
+                    if not _G[files.PROFILE] then _G[files.PROFILE] = {} end
                     local db = setmetatable({}, meta_transdata)
                     db.data = _G[files.PROFILE]
-                    db.defaults = obj.configs
+                    db.defaults = obj.defaults
                     obj.db = db
                 end
 
@@ -813,9 +831,9 @@ function lib:NewPlugin(addonName, addonObject, pfile, gfile, cfile)
     addonObject.UnregisterUpdate    = unregisterUpdate
 
     addonObject.public              = addonObject.public or {}
-    addonObject.configs             = addonObject.configs or {}
+    addonObject.defaults            = addonObject.defaults or {}
     addonObject.cache               = addonObject.cache or {}
-    addonObject.db                  = tablesplice(addonObject.configs, {})
+    addonObject.db                  = tablesplice(addonObject.defaults, {})
 
     if(IsAddOnLoaded(addonName) and not lod) then
         CoreObject.Options.args.plugins.args.pluginOptions.args[schema] = {
@@ -893,17 +911,38 @@ end
 
 --LIBRARY EVENT HANDLING
 
-local Library_OnEvent = function(self, event, arg, ...)
-    if(event == "PLAYER_LOGOUT") then
-        local sv = rawget(CoreObject.db, "data")
-        local src = rawget(CoreObject.db, "defaults")
-        for k,v in pairs(sv) do
-            if(not src[k]) then
-                sv[k] = nil
-            elseif(src[k] ~= nil and (not LoadOnDemand[k])) then
-                removedefaults(sv[k], src[k])
+local function CleanupData(data, checkLOD)
+    local sv = rawget(data, "data")
+    local src = rawget(data, "defaults")
+    for k,v in pairs(sv) do
+        if(not src[k]) then
+            sv[k] = nil
+        else
+            if(src[k] ~= nil) then 
+                if((not checkLOD) or (checkLOD and (not LoadOnDemand[k]))) then
+                    removedefaults(sv[k], src[k])
+                end
             end
         end
+    end
+end
+
+local Library_OnEvent = function(self, event, arg, ...)
+    if(event == "PLAYER_LOGOUT") then
+        local key = PROFILE_SV.SAFEDATA.GlobalKey
+        if(key) then
+            local export, saved
+            if(not GLOBAL_SV.profiles[key]) then GLOBAL_SV.profiles[key] = {} end;
+            export = rawget(CoreObject.db, "data");
+            saved = GLOBAL_SV.profiles[key];
+            tablecopy(saved, export);
+            if not GLOBAL_SV.cache[key] then GLOBAL_SV.cache[key] = {} end
+            export = rawget(CoreObject.cache, "data")
+            saved = GLOBAL_SV.cache[key]
+            tablecopy(saved, export);
+        end
+        CleanupData(CoreObject.db, true)
+        CleanupData(CoreObject.filters)
     elseif(event == "ADDON_LOADED") then
         if(arg == CoreName) then
             if(not CoreObject.___loaded and CoreObject.PreLoad) then
@@ -1024,7 +1063,27 @@ local Core_ResetData = function(self, sub, sub2, sub3)
     tablecopy(sv, src)
 end
 
-function lib:NewCore(gfile, efile, pfile, cfile)
+local Core_ResetFilter = function(self, key)
+    local data = self.filters
+    local sv = rawget(data, "data")
+    local src = rawget(data, "defaults")
+    local targetData
+    if(key and sv[key]) then
+        targetData = sv[key]
+    else
+        targetData = sv
+    end
+    if(targetData) then
+        for k,v in pairs(targetData) do
+            targetData[k] = nil
+        end
+    else
+        sv = {}
+    end
+    tablecopy(sv, src)
+end
+
+function lib:NewCore(gfile, efile, pfile, cfile, ffile, lfile)
     --meta assurance
     local mt = {};
     local old = getmetatable(CoreObject);
@@ -1039,6 +1098,8 @@ function lib:NewCore(gfile, efile, pfile, cfile)
     ERROR_FILENAME = efile or ERROR_FILENAME
     PROFILE_FILENAME = pfile or PROFILE_FILENAME
     CACHE_FILENAME  = cfile or CACHE_FILENAME
+    FILTERS_FILENAME = ffile or FILTERS_FILENAME
+    LAYOUTS_FILENAME = lfile or LAYOUTS_FILENAME
 
     --events
     if(not self.EventManager.Initialized) then
@@ -1068,7 +1129,21 @@ function lib:NewCore(gfile, efile, pfile, cfile)
     CoreObject.NewPackage           = Core_NewPackage
     CoreObject.NewSubClass          = Core_NewSubClass
     CoreObject.ResetData            = Core_ResetData
-    CoreObject.db                   = tablesplice(CoreObject.configs, {})
+    CoreObject.ResetFilter          = Core_ResetFilter
+
+    if(not CoreObject.defaults) then 
+        CoreObject.defaults = {} 
+    end
+    CoreObject.db                   = tablesplice(CoreObject.defaults, {})
+
+    if(not CoreObject.filterdefaults) then 
+        CoreObject.filterdefaults = {} 
+    end
+    CoreObject.filters              = tablesplice(CoreObject.filterdefaults, {})
+
+    if(not CoreObject.customlayouts) then 
+        CoreObject.customlayouts = {} 
+    end
 
     --set global
     _G[CoreName] = CoreObject;
@@ -1115,6 +1190,10 @@ function lib:Initialize()
     end
 
     ERROR_CACHE.TODAY = datestamp
+
+    --CUSTOM LAYOUTS
+    if not _G[LAYOUTS_FILENAME] then _G[LAYOUTS_FILENAME] = {} end
+    LAYOUT_SV = _G[LAYOUTS_FILENAME]
 
     --CACHE SAVED VARIABLES
     if not _G[CACHE_FILENAME] then _G[CACHE_FILENAME] = {} end
@@ -1204,11 +1283,30 @@ function lib:Initialize()
         end
     end
 
+    local key = PROFILE_SV.SAFEDATA.GlobalKey
+    if(key) then
+        if(not GLOBAL_SV.profiles[key]) then GLOBAL_SV.profiles[key] = {} end;
+        PROFILE_SV.STORED[SOURCE_KEY] = GLOBAL_SV.profiles[key];
+
+        if(not GLOBAL_SV.cache[key]) then GLOBAL_SV.cache[key] = {} end;
+        CACHE_SV.STORED[SOURCE_KEY] = GLOBAL_SV.cache[key];
+    end
+
+    --FILTER SAVED VARIABLES
+    if not _G[FILTERS_FILENAME] then _G[FILTERS_FILENAME] = {} end
+
+    FILTER_SV = _G[FILTERS_FILENAME]
+
     --construct core dataset
     local db           = setmetatable({}, meta_transdata)
     db.data            = PROFILE_SV.STORED[SOURCE_KEY]
-    db.defaults        = CoreObject.configs
+    db.defaults        = CoreObject.defaults
     CoreObject.db      = db
+
+    local filters      = setmetatable({}, meta_transdata)
+    filters.data       = FILTER_SV
+    filters.defaults   = CoreObject.filterdefaults
+    CoreObject.filters = filters
 
     local cache        = setmetatable({}, meta_database)
     cache.data         = CACHE_SV.STORED[SOURCE_KEY]

@@ -66,40 +66,61 @@ local QuestRewardScrollFrame_OnShow = function(self)
 	end
 end
 
-local function StyleQuestRewards()
-	if(not MAX_NUM_ITEMS) then return end;
+local function StyleReward(item)
+	if(item and (not item.Panel)) then
+		item:RemoveTextures()
+		item:SetSlotTemplate(true, 2, 0, 0, 0.5)
 
-	for i = 1, MAX_NUM_ITEMS do
-		local name = ("QuestInfoRewardsFrameQuestInfoItem%d"):format(i)
-		local item = _G[name]
-		if(item) then
-			if(item:IsShown()) then
-				local initialAnchor, anchorParent, relativeAnchor, xPosition, yPosition = item:GetPoint()
-				if(initialAnchor) then
-					if(i == 1) then
-						item:SetPoint(initialAnchor, anchorParent, relativeAnchor, 0, yPosition)
-					elseif(relativeAnchor == "BOTTOMLEFT") then 
-						item:SetPoint(initialAnchor, anchorParent, relativeAnchor, 0, -4)
-					else
-						item:SetPoint(initialAnchor, anchorParent, relativeAnchor, 4, 0)
-					end
-				end
+		local name = item:GetName()
+		if(name) then
+			local tex = _G[name.."IconTexture"]
+			local icon
+			if(tex) then
+				icon = tex:GetTexture()
 			end
-			if(not item.Panel) then
-				item:Width(item:GetWidth() - 4)
-				item:SetFrameLevel(item:GetFrameLevel() + 1)
-				PLUGIN:ApplyItemButtonStyle(item, false, true)
-				local tex = _G[name.."IconTexture"]
-				if(tex) then
-					tex:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-					tex:SetDrawLayer("OVERLAY",1)
-					tex:SetPoint("TOPLEFT", 2, -2)
-					tex:Size(tex:GetWidth() - 2, tex:GetHeight() - 2)
-					tex:SetParent(item.Panel)
-				end
+			if(tex and icon) then
+				local size = item:GetHeight() - 4
+				tex:SetTexture(icon)
+				tex:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+				tex:ClearAllPoints()
+				tex:SetPoint("TOPLEFT", item, "TOPLEFT", 2, -2)
+				tex:SetSize(size, size)
 			end
 		end
-	end 
+	end
+end
+
+local function StyleDisplayReward(item)
+	if(item and (not item.Panel)) then
+		local oldIcon
+		if(item.Icon) then
+			oldIcon = item.Icon:GetTexture()
+		end
+		item:RemoveTextures()
+		item:SetSlotTemplate(true, 2, 0, 0, 0.5)
+
+		if(oldIcon) then
+			item.Icon:SetTexture(oldIcon)
+			item.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+		end
+	end
+end
+
+local function StyleQuestRewards()
+	local rewardsFrame = QuestInfoFrame.rewardsFrame
+	if(not rewardsFrame) then return end
+	local parentName = rewardsFrame:GetName()
+	for i = 1, 10 do
+		local name = ("%s%d"):format(parentName,i)
+		StyleReward(_G[name])
+	end
+	if(rewardsFrame:GetName() == 'MapQuestInfoRewardsFrame') then
+		StyleDisplayReward(rewardsFrame.XPFrame)
+		StyleDisplayReward(rewardsFrame.RewardSpell)
+		StyleDisplayReward(rewardsFrame.MoneyFrame)
+		StyleDisplayReward(rewardsFrame.SkillPointFrame)
+		StyleDisplayReward(rewardsFrame.PlayerTitleFrame)
+	end
 end
 
 local Hook_QuestInfoItem_OnClick = function(self)
@@ -186,7 +207,15 @@ local function QuestFrameStyle()
 	QuestGreetingScrollFrame:RemoveTextures()
 	PLUGIN:ApplyScrollFrameStyle(QuestGreetingScrollFrameScrollBar)
 
-	StyleQuestRewards()
+	for i = 1, 10 do
+		local name = ("QuestInfoRewardsFrameQuestInfoItem%d"):format(i)
+		StyleReward(_G[name])
+	end
+
+	for i = 1, 10 do
+		local name = ("MapQuestInfoRewardsFrameQuestInfoItem%d"):format(i)
+		StyleReward(_G[name])
+	end
 
 	QuestInfoSkillPointFrame:RemoveTextures()
 	QuestInfoSkillPointFrame:Width(QuestInfoSkillPointFrame:GetWidth() - 4)

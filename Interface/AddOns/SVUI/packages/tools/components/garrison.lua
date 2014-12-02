@@ -136,10 +136,6 @@ local function GarrisonButton_OnEvent(self, event, ...)
     end
 end
 
-function MOD:GARRISON_UPDATE()
-	C_Garrison.RequestLandingPageShipmentInfo()
-end
-
 local function getColoredString(text, color)
 	local hex = SV:HexColor(color)
 	return ("|cff%s%s|r"):format(hex, text)
@@ -238,18 +234,25 @@ local function GetBuildingData()
 end
 
 local SetGarrisonTooltip = function(self)
+	if(not InCombatLockdown()) then C_Garrison.RequestLandingPageShipmentInfo() end
+	local name, amount, tex, week, weekmax, maxed, discovered = GetCurrencyInfo(824)
+	local texStr = ("\124T%s:12\124t %d"):format(tex, amount)
+	GameTooltip:AddDoubleLine(name, texStr, 0.23, 0.88, 0.27, 1, 1, 1)
+
 	local text1 = self:GetAttribute("tipText")
 	local text2 = self:GetAttribute("tipExtraText")
+	GameTooltip:AddLine(" ", 1, 1, 1)
 	GameTooltip:AddDoubleLine("[Left-Click]", text1, 0, 1, 0, 1, 1, 1)
 	if InCombatLockdown() then return end
 	if(text2) then
 		local remaining = GetDockCooldown(110560)
-		GameTooltip:AddLine(" ", 1, 1, 1)
 		GameTooltip:AddDoubleLine("[Right Click]", text2, 0, 1, 0, 1, 1, 1)
 		GameTooltip:AddDoubleLine(L["Time Remaining"], remaining, 1, 1, 1, 0, 1, 1)
 	end
+
 	GetActiveMissions()
 	GetBuildingData()
+	SVUI_Garrison:StopAlert();
 end
 
 local function LoadToolBarGarrison()
@@ -260,7 +263,7 @@ local function LoadToolBarGarrison()
 		return 
 	end
 
-	local garrison = SV.Dock:SetDockButton("TopLeft", L["Garrison"], GARRISON_ICON, nil, "SVUI_Garrison", SetGarrisonTooltip, "SecureActionButtonTemplate")
+	local garrison = SV.Dock:SetDockButton("TopLeft", L["Garrison Landing Page"], GARRISON_ICON, nil, "SVUI_Garrison", SetGarrisonTooltip, "SecureActionButtonTemplate")
 	garrison:SetAttribute("type1", "click")
 	garrison:SetAttribute("clickbutton", GarrisonLandingPageMinimapButton)
 
@@ -283,10 +286,20 @@ local function LoadToolBarGarrison()
 		garrison:Hide()
 	end
 
-	GarrisonLandingPageMinimapButton:HookScript("OnEvent", GarrisonButton_OnEvent)
+	garrison:RegisterEvent("GARRISON_HIDE_LANDING_PAGE");
+	garrison:RegisterEvent("GARRISON_SHOW_LANDING_PAGE");
+	garrison:RegisterEvent("GARRISON_BUILDING_ACTIVATABLE");
+	garrison:RegisterEvent("GARRISON_BUILDING_ACTIVATED");
+	garrison:RegisterEvent("GARRISON_ARCHITECT_OPENED");
+	garrison:RegisterEvent("GARRISON_MISSION_FINISHED");
+	garrison:RegisterEvent("GARRISON_MISSION_NPC_OPENED");
+	garrison:RegisterEvent("GARRISON_INVASION_AVAILABLE");
+	garrison:RegisterEvent("GARRISON_INVASION_UNAVAILABLE");
+	garrison:RegisterEvent("SHIPMENT_UPDATE");
+
+	garrison:SetScript("OnEvent", GarrisonButton_OnEvent)
 
 	MOD.GarrisonLoaded = true
-	MOD:RegisterEvent("GARRISON_UPDATE");
 end
 --[[ 
 ########################################################## 
@@ -299,6 +312,6 @@ function MOD:UpdateGarrisonTool()
 end 
 
 function MOD:LoadGarrisonTool()
-	if((not SV.db.SVTools.garrison) or self.GarrisonLoaded) then return end
+	if((not SV.db.SVTools.garrison) or self.GarrisonLoaded or (not GarrisonLandingPageMinimapButton)) then return end
 	SV.Timers:ExecuteTimer(LoadToolBarGarrison, 5)
 end

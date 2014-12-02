@@ -151,6 +151,8 @@ local function AchievementStyle()
 		return 
 	end
 
+	AchievementFrameHeader:EnableMouse(false)
+
 	for _, gName in pairs(AchievementFrameList) do 
 		local frame = _G[gName]
 		if(frame) then

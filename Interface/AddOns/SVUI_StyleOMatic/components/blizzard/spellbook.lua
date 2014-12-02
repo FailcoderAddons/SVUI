@@ -29,13 +29,6 @@ local Schema = PLUGIN.Schema;
 FRAME LISTS
 ##########################################################
 ]]--
-local bookFrames = {
-	"SpellBookFrame",
-	"SpellBookFrameInset",
-	"SpellBookSpellIconsFrame", 
-	"SpellBookSideTabsFrame", 
-	"SpellBookPageNavigationFrame"
-}
 local proButtons = {
 	"PrimaryProfession1SpellButtonTop", 
 	"PrimaryProfession1SpellButtonBottom", 
@@ -72,30 +65,32 @@ local proBars = {
 HELPERS
 ##########################################################
 ]]--
-local function Tab_OnEnter(this)
-	this.backdrop:SetBackdropColor(0.1, 0.8, 0.8)
-	this.backdrop:SetBackdropBorderColor(0.1, 0.8, 0.8)
+local Tab_OnEnter = function(self)
+	self.backdrop:SetBackdropColor(0.1, 0.8, 0.8)
+	self.backdrop:SetBackdropBorderColor(0.1, 0.8, 0.8)
 end
 
-local function Tab_OnLeave(this)
-	this.backdrop:SetBackdropColor(0,0,0,1)
-	this.backdrop:SetBackdropBorderColor(0,0,0,1)
+local Tab_OnLeave = function(self)
+	self.backdrop:SetBackdropColor(0,0,0,1)
+	self.backdrop:SetBackdropBorderColor(0,0,0,1)
 end
 
-local function ChangeTabHelper(this)
-	this:RemoveTextures()
-	local nTex = this:GetNormalTexture()
+local function ChangeTabHelper(tab)
+	if(tab.backdrop) then return end
+
+	local nTex = tab:GetNormalTexture()
+	tab:RemoveTextures()
 	if(nTex) then
 		nTex:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 		nTex:FillInner()
 	end
 
-	this.pushed = true;
+	tab.pushed = true;
 
-	this.backdrop = CreateFrame("Frame", nil, this)
-	this.backdrop:WrapOuter(this,1,1)
-	this.backdrop:SetFrameLevel(0)
-	this.backdrop:SetBackdrop({
+	tab.backdrop = CreateFrame("Frame", nil, tab)
+	tab.backdrop:WrapOuter(tab,1,1)
+	tab.backdrop:SetFrameLevel(0)
+	tab.backdrop:SetBackdrop({
 		bgFile = [[Interface\BUTTONS\WHITE8X8]], 
         tile = false, 
         tileSize = 0,
@@ -108,120 +103,98 @@ local function ChangeTabHelper(this)
             bottom = 0
         }
     });
-    this.backdrop:SetBackdropColor(0,0,0,1)
-	this.backdrop:SetBackdropBorderColor(0,0,0,1)
-	this:SetScript("OnEnter", Tab_OnEnter)
-	this:SetScript("OnLeave", Tab_OnLeave)
+    tab.backdrop:SetBackdropColor(0,0,0,1)
+	tab.backdrop:SetBackdropBorderColor(0,0,0,1)
+	tab:SetScript("OnEnter", Tab_OnEnter)
+	tab:SetScript("OnLeave", Tab_OnLeave)
 
-	local a,b,c,d,e = this:GetPoint()
-	this:Point(a,b,c,1,e)
+	local a1, p, a2, x, y = tab:GetPoint()
+	tab:Point(a1, p, a2, 1, y)
 end 
 
 local function GetSpecTabHelper(index)
 	local tab = SpellBookCoreAbilitiesFrame.SpecTabs[index]
 	if(not tab) then return end
 	ChangeTabHelper(tab)
-	if index > 1 then 
-		local o, Y, Z, h, s = tab:GetPoint()
+	if(index > 1) then 
+		local a1, p, a2, x, y = tab:GetPoint()
 		tab:ClearAllPoints()
-		tab:SetPoint(o, Y, Z, 0, s)
+		tab:SetPoint(a1, p, a2, 0, y)
 	end 
-end 
+end  
 
-local function SkillTabUpdateHelper()
-	for j = 1, MAX_SKILLLINE_TABS do 
-		local S = _G["SpellBookSkillLineTab"..j]
-		local h, h, h, h, a0 = GetSpellTabInfo(j)
-		if a0 then
-			S:GetNormalTexture():FillInner()
-			S:GetNormalTexture():SetTexCoord(0.1, 0.9, 0.1, 0.9)
-		end 
-	end 
-end 
+local function AbilityButtonHelper(index)
+	local button = SpellBookCoreAbilitiesFrame.Abilities[index]
 
-local function AbilityButtonHelper(j)
-	local i = SpellBookCoreAbilitiesFrame.Abilities[j]
-	if i.styled then return end 
-		local x = i.iconTexture;
-		if not InCombatLockdown() then
-			if not i.properFrameLevel then 
-			 	i.properFrameLevel = i:GetFrameLevel() + 1 
-			end 
-			i:SetFrameLevel(i.properFrameLevel)
-		end 
-		if not i.styled then
-		for j = 1, i:GetNumRegions()do 
-			local N = select(j, i:GetRegions())
-			if N:GetObjectType() == "Texture"then
-				if N:GetTexture() ~= "Interface\\Buttons\\ActionBarFlyoutButton" then 
-				 	N:SetTexture(0,0,0,0)
-				end 
-			end 
-		end 
-		if i.highlightTexture then 
-			hooksecurefunc(i.highlightTexture, "SetTexture", function(k, P, Q, R)
-				if P == [[Interface\Buttons\ButtonHilight-Square]] then
-					 i.highlightTexture:SetTexture(1, 1, 1, 0.3)
-				end 
-			end)
-		end 
-		i.styled = true
+	if(button and (not button.Panel)) then
+		local icon = button.iconTexture;
 
-		if x then
-			x:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-			x:ClearAllPoints()
-			x:SetAllPoints()
-			if not i.Panel then
-				 i:SetPanelTemplate("Inset", false, 3, 3, 3)
+		if(not InCombatLockdown()) then
+			if not button.properFrameLevel then 
+			 	button.properFrameLevel = button:GetFrameLevel() + 1 
 			end 
+			button:SetFrameLevel(button.properFrameLevel)
 		end
 
-		if(i.Name) then i.Name:SetFontObject(NumberFont_Outline_Large) i.Name:SetTextColor(1,1,0) end
-		if(i.InfoText) then i.InfoText:SetFontObject(NumberFont_Shadow_Small) i.InfoText:SetTextColor(0.9,0.9,0.9) end
-	end  
-	i.styled = true 
+		button:RemoveTextures()
+		button:SetPanelTemplate("Slot", true, 2, 0, 0)
+
+		if(button.iconTexture) then
+			button.iconTexture:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+			button.iconTexture:ClearAllPoints()
+			button.iconTexture:FillInner(button, 1, 1) 
+		end
+
+		if(button.Name) then 
+			button.Name:SetFontObject(NumberFont_Outline_Large) 
+			button.Name:SetTextColor(1,1,0) 
+		end
+
+		if(button.InfoText) then 
+			button.InfoText:SetFontObject(NumberFont_Shadow_Small) 
+			button.InfoText:SetTextColor(0.9,0.9,0.9) 
+		end
+	end
 end 
 
-local function ButtonUpdateHelper(self, strip)
-	for j=1, SPELLS_PER_PAGE do
-		local name = "SpellButton"..j
-		local i = _G[name]
-		local x = _G[name.."IconTexture"]
-		local spellString = _G[name.."SpellName"];
-    	local subSpellString = _G[name.."SubSpellName"];
-		if not InCombatLockdown() then
-			 i:SetFrameLevel(SpellBookFrame:GetFrameLevel() + 5)
-		end 
-		if strip then
-			for j = 1, i:GetNumRegions()do 
-				local N = select(j, i:GetRegions())
-				if N:GetObjectType() == "Texture"then
-					if N ~= i.FlyoutArrow then 
-						N:SetTexture(0,0,0,0)
-					end 
-				end 
+local function ButtonUpdateHelper()
+	for i=1, SPELLS_PER_PAGE do
+		local name = "SpellButton"..i;
+		local button = _G[name];
+
+		if(button and (not button.Panel)) then
+			local icon = _G[name.."IconTexture"]
+			local spellString = _G[name.."SpellName"];
+	    	local subSpellString = _G[name.."SubSpellName"];
+	    	--local highlight = _G[name.."Highlight"];
+
+			if(not InCombatLockdown()) then
+				 button:SetFrameLevel(SpellBookFrame:GetFrameLevel() + 5)
 			end 
-		end 
-		if _G[name.."Highlight"] then
-			_G[name.."Highlight"]:SetTexture(1, 1, 1, 0.3)
-			_G[name.."Highlight"]:ClearAllPoints()
-			_G[name.."Highlight"]:SetAllPoints(x)
-		end 
-		if i.shine then
-			i.shine:ClearAllPoints()
-			i.shine:SetPoint('TOPLEFT', i, 'TOPLEFT', -3, 3)
-			i.shine:SetPoint('BOTTOMRIGHT', i, 'BOTTOMRIGHT', 3, -3)
-		end 
-		if x then
-			x:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-			x:ClearAllPoints()
-			x:SetAllPoints()
-			if not i.Panel then
-				i:SetPanelTemplate("Slot")
-			end 
+
+			button:RemoveTextures() 
+			button:SetPanelTemplate("Slot", true, 2, 0, 0)
+
+			if(icon) then
+				icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+				icon:ClearAllPoints()
+				icon:FillInner(button, 1, 1)
+			end
+
+			if(spellString) then 
+				spellString:SetFontObject(NumberFontNormal) 
+				spellString:SetTextColor(1,1,0) 
+			end
+
+			if(subSpellString) then 
+				subSpellString:SetFontObject(NumberFont_Shadow_Small) 
+				subSpellString:SetTextColor(0.9,0.9,0.9) 
+			end
+
+			if(button.FlyoutArrow) then
+				button.FlyoutArrow:SetTexture([[Interface\Buttons\ActionBarFlyoutButton]])
+			end
 		end
-		if(spellString) then spellString:SetFontObject(NumberFontNormal) spellString:SetTextColor(1,1,0) end
-		if(subSpellString) then subSpellString:SetFontObject(NumberFont_Shadow_Small) subSpellString:SetTextColor(0.9,0.9,0.9) end
 	end 
 end 
 --[[ 
@@ -235,56 +208,63 @@ local function SpellBookStyle()
 	PLUGIN:ApplyWindowStyle(SpellBookFrame)
 	PLUGIN:ApplyCloseButtonStyle(SpellBookFrameCloseButton)
 
-	for _, gName in pairs(bookFrames) do
-		local frame = _G[gName]
-		if(frame) then
-			frame:RemoveTextures()
-		end
+	if(SpellBookFrameInset) then 
+		SpellBookFrameInset:RemoveTextures()
+		SpellBookFrameInset:SetFixedPanelTemplate("Blackout")
 	end
+	if(SpellBookSpellIconsFrame) then SpellBookSpellIconsFrame:RemoveTextures() end
+	if(SpellBookSideTabsFrame) then SpellBookSideTabsFrame:RemoveTextures() end
+	if(SpellBookPageNavigationFrame) then SpellBookPageNavigationFrame:RemoveTextures() end
+	if(SpellBookPage1) then SpellBookPage1:SetDrawLayer('BORDER', 3) end
+	if(SpellBookPage2) then SpellBookPage2:SetDrawLayer('BORDER', 3) end
 
-	-- SpellBookFrameInset:ClearAllPoints()
-	-- SpellBookFrameInset:Point("TOPLEFT", SpellBookFrame, "TOPLEFT", 20, -46)
-	-- SpellBookFrameInset:Point("BOTTOMRIGHT", SpellBookFrame, "BOTTOMRIGHT", -20, 20)
-	SpellBookFrameInset:SetFixedPanelTemplate("Blackout")
-	
-	_G["SpellBookFrameTutorialButton"]:Die()
-
-	for i = 1, 2 do
-		local frame = _G[("SpellBookPage%d"):format(i)]
-		if(frame) then
-			frame:SetDrawLayer('BORDER', 3)
-		end
-	end
+	SpellBookFrameTutorialButton:Die()
 
 	PLUGIN:ApplyPaginationStyle(SpellBookPrevPageButton)
 	PLUGIN:ApplyPaginationStyle(SpellBookNextPageButton)
 
-	ButtonUpdateHelper(nil, true)
+	ButtonUpdateHelper()
 
 	hooksecurefunc("SpellButton_UpdateButton", ButtonUpdateHelper)
 	hooksecurefunc("SpellBook_GetCoreAbilityButton", AbilityButtonHelper)
 
 	for i = 1, MAX_SKILLLINE_TABS do
-		local tabName = ("SpellBookSkillLineTab%d"):format(i)
+		local tabName = "SpellBookSkillLineTab" .. i
 		local tab = _G[tabName]
-		local tabFlash = _G[("%sFlash"):format(tabName)]
-		if(tabFlash) then tabFlash:Die() end
-		if(tab) then ChangeTabHelper(tab) end
+		if(tab) then 
+			if(_G[tabName .. "Flash"]) then _G[tabName .. "Flash"]:Die() end
+			ChangeTabHelper(tab) 
+		end
 	end
 
 	hooksecurefunc('SpellBook_GetCoreAbilitySpecTab', GetSpecTabHelper)
-	hooksecurefunc("SpellBookFrame_UpdateSkillLineTabs", SkillTabUpdateHelper)
 
 	for _, gName in pairs(proFrames)do
 		local frame = _G[gName]
-		local frameMissing = _G[("%sMissing"):format(gName)]
-		if(frame and frame.missingText) then frame.missingText:SetTextColor(0, 0, 0) end
-		if(frameMissing) then frameMissing:SetTextColor(1, 1, 0) end
-    	--frame.skillName
-    	if(frame.missingHeader) then frame.missingHeader:SetFontObject(NumberFont_Outline_Large) frame.missingHeader:SetTextColor(1,1,0) end
-    	if(frame.missingText) then frame.missingText:SetFontObject(NumberFont_Shadow_Small) frame.missingText:SetTextColor(0.9,0.9,0.9) end
-    	if(frame.rank) then frame.rank:SetFontObject(NumberFontNormal) frame.rank:SetTextColor(0.9,0.9,0.9) end
-    	if(frame.professionName) then frame.professionName:SetFontObject(NumberFont_Outline_Large) frame.professionName:SetTextColor(1,1,0) end
+		if(frame) then
+			if(_G[gName .. "Missing"]) then 
+				_G[gName .. "Missing"]:SetTextColor(1, 1, 0) 
+			end
+			if(frame.missingText) then 
+				frame.missingText:SetTextColor(0, 0, 0) 
+			end
+	    	if(frame.missingHeader) then 
+	    		frame.missingHeader:SetFontObject(NumberFont_Outline_Large) 
+	    		frame.missingHeader:SetTextColor(1,1,0) 
+	    	end
+	    	if(frame.missingText) then 
+	    		frame.missingText:SetFontObject(NumberFont_Shadow_Small) 
+	    		frame.missingText:SetTextColor(0.9,0.9,0.9) 
+	    	end
+	    	if(frame.rank) then 
+	    		frame.rank:SetFontObject(NumberFontNormal) 
+	    		frame.rank:SetTextColor(0.9,0.9,0.9) 
+	    	end
+	    	if(frame.professionName) then 
+	    		frame.professionName:SetFontObject(NumberFont_Outline_Large) 
+	    		frame.professionName:SetTextColor(1,1,0) 
+	    	end
+	    end
 	end
 
 	for _, gName in pairs(proButtons)do
@@ -319,15 +299,23 @@ local function SpellBookStyle()
 		end
 	end
 
-	for i = 1, 5 do
-		local frame = _G[("SpellBookFrameTabButton%d"):format(i)]
-		if(frame) then
-			PLUGIN:ApplyTabStyle(frame)
-		end
+	if(SpellBookFrameTabButton1) then 
+		PLUGIN:ApplyTabStyle(SpellBookFrameTabButton1)
+		SpellBookFrameTabButton1:ClearAllPoints()
+		SpellBookFrameTabButton1:SetPoint('TOPLEFT', SpellBookFrame, 'BOTTOMLEFT', 0, 2)
 	end
-
-	SpellBookFrameTabButton1:ClearAllPoints()
-	SpellBookFrameTabButton1:SetPoint('TOPLEFT', SpellBookFrame, 'BOTTOMLEFT', 0, 2)
+	if(SpellBookFrameTabButton2) then 
+		PLUGIN:ApplyTabStyle(SpellBookFrameTabButton2) 
+	end
+	if(SpellBookFrameTabButton3) then 
+		PLUGIN:ApplyTabStyle(SpellBookFrameTabButton3) 
+	end
+	if(SpellBookFrameTabButton4) then 
+		PLUGIN:ApplyTabStyle(SpellBookFrameTabButton4) 
+	end
+	if(SpellBookFrameTabButton5) then 
+		PLUGIN:ApplyTabStyle(SpellBookFrameTabButton5) 
+	end
 end 
 --[[ 
 ########################################################## 

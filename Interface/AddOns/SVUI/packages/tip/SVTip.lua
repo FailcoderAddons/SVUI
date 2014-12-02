@@ -85,7 +85,10 @@ local tooltips = {
 	WorldMapCompareTooltip3, DropDownList1MenuBackdrop, 
 	DropDownList2MenuBackdrop, DropDownList3MenuBackdrop, BNToastFrame,
 	PetBattlePrimaryAbilityTooltip, PetBattlePrimaryUnitTooltip,
-	BattlePetTooltip, FloatingBattlePetTooltip, FloatingPetBattleAbilityTooltip
+	BattlePetTooltip, FloatingBattlePetTooltip, FloatingPetBattleAbilityTooltip,
+	GarrisonMissionMechanicTooltip, GarrisonFollowerTooltip,
+	GarrisonMissionMechanicFollowerCounterTooltip, GarrisonFollowerAbilityTooltip,
+	BuildingLevelTooltip
 }
 
 local classification = {
@@ -470,7 +473,7 @@ local _hook_GameTooltipStatusBar_OnValueChanged = function(self, value)
 end 
 
 local _hook_GameTooltip_OnTooltipSetItem = function(self)
-	local key,itemID = self:GetItem()
+	local key,itemLink = self:GetItem()
 	if(key and (not self.itemCleared)) then
 		self.SuperBorder:ClearMaskColors()
 		
@@ -480,11 +483,11 @@ local _hook_GameTooltip_OnTooltipSetItem = function(self)
 			self.SuperBorder:SetToneColor(r,g,b)
 		end
 
-		if itemID ~= nil and SV.db.SVTip.spellID then
+		if itemLink ~= nil and SV.db.SVTip.spellID then
 			self:AddLine(" ")
 			left = "|cFFCA3C3CSpell ID: |r"
-			local tipID = ("|cFFCA3C3C%s|r %s"):format(ID,itemID):match(":(%w+)")
-			self:AddDoubleLine("|cFFCA3C3CSpell ID: |r", tipID)
+			local itemID = ("|cFFCA3C3C%s|r %s"):format(left, itemLink):match(":(%w+)")
+			self:AddDoubleLine("|cFFCA3C3CSpell ID: |r", itemID)
 		end
 
 		if(self.InjectedDouble[8]) then

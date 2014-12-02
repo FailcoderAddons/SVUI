@@ -223,7 +223,7 @@ local function PetBattleStyle()
 			frame.IconBackdrop = CreateFrame("Frame", nil, frame)
 			frame.IconBackdrop:SetFrameLevel(0)
 			frame.IconBackdrop:SetAllPoints(frame.Icon)
-			frame.IconBackdrop:SetSlotTemplate(true, 1, 0, 0, true);
+			frame.IconBackdrop:SetSlotTemplate(true, 1, 0, 0, 0.5);
 
 			frame.IconBackdrop.Panel:SetFixedPanelTemplate("Blackout")
 
@@ -303,7 +303,7 @@ local function PetBattleStyle()
 			frame.IconBackdrop = CreateFrame("Frame", nil, frame)
 			frame.IconBackdrop:SetFrameLevel(0)
 			frame.IconBackdrop:SetAllPoints(frame)
-			frame.IconBackdrop:SetSlotTemplate(true, 1, 0, 0, true);
+			frame.IconBackdrop:SetSlotTemplate(true, 1, 0, 0, 0.5);
 
 			frame.IconBackdrop.Panel:SetFixedPanelTemplate("Blackout")
 

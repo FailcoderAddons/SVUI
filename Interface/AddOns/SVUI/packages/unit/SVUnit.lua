@@ -307,9 +307,9 @@ function MOD:RefreshUnitFrames()
 	if raidDebuffs then
 		raidDebuffs:ResetDebuffData()
 		if groupType == "party" or groupType == "raid" then
-		  raidDebuffs:RegisterDebuffs(SV.db.filter["Raid"])
+		  raidDebuffs:RegisterDebuffs(SV.filters["Raid"])
 		else
-		  raidDebuffs:RegisterDebuffs(SV.db.filter["CC"])
+		  raidDebuffs:RegisterDebuffs(SV.filters["CC"])
 		end 
 	end
 

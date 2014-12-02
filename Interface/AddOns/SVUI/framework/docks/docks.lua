@@ -113,12 +113,16 @@ _G.HideSuperDocks = function(self, button)
 		if SV.cache.Docks.IsFaded then 
 			SV.cache.Docks.IsFaded = nil;
 			SV:SecureFadeIn(Dock.BottomLeft, 0.2, Dock.BottomLeft:GetAlpha(), 1)
+			SV:SecureFadeIn(Dock.BottomLeft.Bar, 0.2, Dock.BottomLeft.Bar:GetAlpha(), 1)
 			SV:SecureFadeIn(Dock.BottomRight, 0.2, Dock.BottomRight:GetAlpha(), 1)
+			SV:SecureFadeIn(Dock.BottomRight.Bar, 0.2, Dock.BottomRight.Bar:GetAlpha(), 1)
 			SVLib:Trigger("DOCKS_FADE_IN");
 		else 
 			SV.cache.Docks.IsFaded = true;
 			SV:SecureFadeOut(Dock.BottomLeft, 0.2, Dock.BottomLeft:GetAlpha(), 0, true)
+			SV:SecureFadeOut(Dock.BottomLeft.Bar, 0.2, Dock.BottomLeft.Bar:GetAlpha(), 0, true)
 			SV:SecureFadeOut(Dock.BottomRight, 0.2, Dock.BottomRight:GetAlpha(), 0, true)
+			SV:SecureFadeOut(Dock.BottomRight.Bar, 0.2, Dock.BottomRight.Bar:GetAlpha(), 0, true)
 			SVLib:Trigger("DOCKS_FADE_OUT");
 		end
 	end
@@ -128,16 +132,20 @@ function Dock:EnterFade()
 	if SV.cache.Docks.IsFaded then
 		self.BottomLeft:Show()
 		SV:SecureFadeIn(self.BottomLeft, 0.2, self.BottomLeft:GetAlpha(), 1)
+		SV:SecureFadeIn(self.BottomLeft.Bar, 0.2, self.BottomLeft.Bar:GetAlpha(), 1)
 		self.BottomRight:Show()
 		SV:SecureFadeIn(self.BottomRight, 0.2, self.BottomRight:GetAlpha(), 1)
+		SV:SecureFadeIn(self.BottomRight.Bar, 0.2, self.BottomRight.Bar:GetAlpha(), 1)
 		SVLib:Trigger("DOCKS_FADE_IN");
 	end
 end 
 
 function Dock:ExitFade()
 	if SV.cache.Docks.IsFaded then
-		SV:SecureFadeOut(self.BottomLeft, 0.2, self.BottomLeft:GetAlpha(), 0, true)
-		SV:SecureFadeOut(self.BottomRight, 0.2, self.BottomRight:GetAlpha(), 0, true)
+		SV:SecureFadeOut(self.BottomLeft, 2, self.BottomLeft:GetAlpha(), 0, true)
+		SV:SecureFadeOut(self.BottomLeft.Bar, 2, self.BottomLeft.Bar:GetAlpha(), 0, true)
+		SV:SecureFadeOut(self.BottomRight, 2, self.BottomRight:GetAlpha(), 0, true)
+		SV:SecureFadeOut(self.BottomRight.Bar, 2, self.BottomRight.Bar:GetAlpha(), 0, true)
 		SVLib:Trigger("DOCKS_FADE_OUT");
 	end
 end

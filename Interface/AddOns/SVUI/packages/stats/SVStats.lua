@@ -215,17 +215,21 @@ function MOD:NewAnchor(parent, maxCount, tipAnchor, isTop, customTemplate, isVer
 		strata = "MEDIUM"
 	end
 
-	MOD.Anchors[parent:GetName()] = parent;
+	local parentName = parent:GetName();
+
+	MOD.Anchors[parentName] = parent;
 	parent.holders = {};
 	parent.vertical = isVertical;
 	parent.numPoints = maxCount;
 	parent.anchor = tipAnchor;
 	parent.useIndex = activeIndex
 
+	local statName = parentName .. 'StatSlot';
+
 	for i = 1, maxCount do 
 		local position = positionIndex[activeIndex][i]
 		if not parent.holders[position] then
-			parent.holders[position] = CreateFrame("Button", "DataText"..i, parent)
+			parent.holders[position] = CreateFrame("Button", statName..i, parent)
 			parent.holders[position]:RegisterForClicks("AnyUp")
 			parent.holders[position].barframe = CreateFrame("Frame", nil, parent.holders[position])
 			if(SV.db.SVStats.showBackground) then
@@ -284,8 +288,11 @@ function MOD:NewAnchor(parent, maxCount, tipAnchor, isTop, customTemplate, isVer
 				parent.holders[position].text:SetJustifyH("CENTER")
 				parent.holders[position].text:SetJustifyV("MIDDLE")
 			end
-		end 
+		end
+		parent.holders[position].SlotKey = statName..i;
+		parent.holders[position].TokenKey = 738;
 		parent.holders[position].MenuList = {};
+		parent.holders[position].TokenList = {};
 		parent.holders[position]:Point(GrabPlot(parent, i, maxCount))
 	end 
 	parent:SetScript("OnSizeChanged", UpdateAnchor)
@@ -352,35 +359,43 @@ do
 
 	local function _load(parent, name, config)
 		parent.StatParent = name
+
+		if config["init_handler"]then 
+			config["init_handler"](parent)
+		end
+
 		if config["events"]then 
 			for _, event in pairs(config["events"])do 
 				parent:RegisterEvent(event)
 			end 
 		end 
+
 		if config["event_handler"]then 
 			parent:SetScript("OnEvent", config["event_handler"])
 			config["event_handler"](parent, "SVUI_FORCE_RUN")
 		end 
+
 		if config["update_handler"]then 
 			parent:SetScript("OnUpdate", config["update_handler"])
 			config["update_handler"](parent, 20000)
 		end 
+
 		if config["click_handler"]then
 			parent.onClick = config["click_handler"]
 		end
 		parent:SetScript("OnClick", Parent_OnClick)
+
 		if config["focus_handler"]then 
 			parent:SetScript("OnEnter", config["focus_handler"])
 		end 
+
 		if config["blur_handler"]then 
 			parent:SetScript("OnLeave", config["blur_handler"])
 		else 
 			parent:SetScript("OnLeave", Stat_OnLeave)
 		end
+
 		parent:Show()
-		if config["init_handler"]then 
-			config["init_handler"](parent)
-		end
 	end
 
 	local BG_OnUpdate = function(self)
@@ -571,12 +586,13 @@ function MOD:Load()
 
 	self.Accountant = LibSuperVillain("Registry"):NewGlobal("Accountant")
 
-	self.Accountant = self.Accountant or {};
 	self.Accountant[playerRealm] = self.Accountant[playerRealm] or {};
 	self.Accountant[playerRealm]["gold"] = self.Accountant[playerRealm]["gold"] or {};
 	self.Accountant[playerRealm]["gold"][playerName] = self.Accountant[playerRealm]["gold"][playerName] or 0;
 	self.Accountant[playerRealm]["tokens"] = self.Accountant[playerRealm]["tokens"] or {};
-	self.Accountant[playerRealm]["tokens"][playerName] = self.Accountant[playerRealm]["tokens"][playerName] or 738;
+	if(not self.Accountant[playerRealm]["tokens"][playerName] or (self.Accountant[playerRealm]["tokens"][playerName] and type(self.Accountant[playerRealm]["tokens"][playerName]) ~= "table")) then
+		self.Accountant[playerRealm]["tokens"][playerName] = {};
+	end
 
 	self:NewAnchor(SV.Dock.BottomCenter.Left, 3, "ANCHOR_CURSOR")
 	self:NewAnchor(SV.Dock.BottomCenter.Right, 3, "ANCHOR_CURSOR")
@@ -585,7 +601,6 @@ function MOD:Load()
 
 	self:LoadServerGold()
 	self:CacheRepData()
-	self:CacheTokenData()
 	
 	self.tooltip:SetParent(SV.Screen)
 	self.tooltip:SetFrameStrata("DIALOG")

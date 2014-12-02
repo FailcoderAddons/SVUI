@@ -146,7 +146,9 @@ local function SetCastTicks(bar,count,mod)
 end 
 
 local Fader_OnEvent = function(self, event, arg)
-	if arg ~= "player" then return end 
+	if arg ~= "player" then return end
+	local isTradeskill = self:GetParent().recipecount
+	if(isTradeskill and isTradeskill > 0) then return end;
 	if event == "UNIT_SPELLCAST_START" then 
 		self.fails = nil;
 		self.isokey = nil;
@@ -206,8 +208,8 @@ local Fader_OnEvent = function(self, event, arg)
 	end 
 end
 
-local function SetCastbarFading(frame, castbar, texture)
-	local fader = CreateFrame("Frame", nil, frame)
+local function SetCastbarFading(castbar, texture)
+	local fader = CreateFrame("Frame", nil, castbar)
 	fader:SetFrameLevel(2)
 	fader:FillInner(castbar)
 	fader:SetBackdrop({bgFile = texture})
@@ -221,7 +223,7 @@ local function SetCastbarFading(frame, castbar, texture)
 	fader:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP")
 	fader:RegisterEvent("UNIT_SPELLCAST_FAILED")
 	fader:RegisterEvent("UNIT_SPELLCAST_FAILED_QUIET")
-	fader.mask = CreateFrame("Frame", nil, frame)
+	fader.mask = CreateFrame("Frame", nil, castbar)
 	fader.mask:SetBackdrop({bgFile = texture})
 	fader.mask:FillInner(castbar)
 	fader.mask:SetFrameLevel(2)
@@ -720,7 +722,7 @@ function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss)
 	end 
 	
 	if useFader then
-		SetCastbarFading(frame, castbar, SV.Media.bar.lazer)
+		SetCastbarFading(castbar, SV.Media.bar.lazer)
 	end 
 
 	castbar.TimeFormat = "REMAINING"

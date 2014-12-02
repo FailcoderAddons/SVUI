@@ -24,317 +24,477 @@ local PLUGIN = select(2, ...);
 local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
+OVERRIDES AND HOOKS
+##########################################################
+]]--
+local RING_TEXTURE = [[Interface\AddOns\SVUI\assets\artwork\Unitframe\FOLLOWER-RING]]
+local LVL_TEXTURE = [[Interface\AddOns\SVUI\assets\artwork\Unitframe\FOLLOWER-LEVEL]]
+
+local AlphaBlock = function() return end
+
+local _hook_DisableBackground = function(self)
+    self:DisableDrawLayer("BACKGROUND")
+end;
+
+local _hook_DisableBorder = function(self)
+    self:DisableDrawLayer("BORDER")
+end;
+
+local _hook_DisableBoth = function(self)
+	self:DisableDrawLayer("BACKGROUND")
+    self:DisableDrawLayer("BORDER")
+end;
+
+local _hook_DisableOverlay = function(self)
+    self:DisableDrawLayer("OVERLAY")
+end;
+
+local _hook_BackdropColor = function(self,...) 
+    if(self.AlertPanel) then
+        self.AlertPanel:AlertColor(...)
+    end
+end 
+--[[ 
+########################################################## 
 HELPERS
 ##########################################################
 ]]--
-local AlphaBlock = function() return end
+local function StyleAlertIcon(frame, icon)
+	if((not frame) or (not icon)) then return end
+
+	icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+
+	if(not frame.IconSlot) then 
+		frame.IconSlot = CreateFrame("Frame", nil, frame)
+		frame.IconSlot:WrapOuter(icon)
+		frame.IconSlot:SetSlotTemplate()
+		icon:SetParent(frame.IconSlot)
+	end
+end
+--/script LOOT_WON_ALERT_FRAMES[1]:Show()
+local function StyleLootFrame(frame)
+	if(not frame) then return end
+
+	if(not frame.Panel) then
+		frame:SetAlpha(1)
+		frame.SetAlpha = AlphaBlock
+		PLUGIN:ApplyItemAlertStyle(frame)
+
+		if(frame.Background) then frame.Background:Die() end
+		if(frame.BGAtlas) then frame.BGAtlas:Die() end
+		if(frame.IconBorder) then frame.IconBorder:Die() end
+		if(frame.SpecIcon) then frame.SpecIcon:Die() end
+		if(frame.SpecRing) then frame.SpecRing:Die() end
+	end
+
+	if(frame.Icon and (not frame.IconSlot)) then
+		frame.Icon:ClearAllPoints()
+		frame.Icon:SetPoint("CENTER", frame.AlertPanel.icon, "CENTER", 0, 0)
+		StyleAlertIcon(frame, frame.Icon)
+	end
+
+	if(frame.Label) then
+		frame.Label:ClearAllPoints()
+		frame.Label:SetPoint("TOPLEFT", frame.Icon, "TOPRIGHT", 57, 5)
+	end
+	if(frame.ItemName) then
+		frame.ItemName:ClearAllPoints()
+		frame.ItemName:SetPoint("TOPLEFT", frame.Icon, "TOPRIGHT", 60, -16)
+	end
+	if(frame.Amount) then
+		frame.Amount:ClearAllPoints()
+		frame.Amount:SetPoint("TOPLEFT", frame.Icon, "TOPRIGHT", 60, -16)
+	end
+end
+
+local function StyleUpgradeFrame(frame)
+	if(not frame) then return end
+
+	if(not frame.Panel) then
+		frame:SetAlpha(1)
+		frame.SetAlpha = AlphaBlock
+		PLUGIN:ApplyItemAlertStyle(frame)
+
+		frame.Background:Die()
+		frame.BorderGlow:Die()
+		frame.BaseQualityBorder:Die()
+		frame.UpgradeQualityBorder:Die()
+
+		frame:DisableDrawLayer("OVERLAY")
+		frame:HookScript("OnShow", _hook_DisableOverlay)
+	end
+
+	if(frame.Icon and (not frame.IconSlot)) then
+		frame.Icon:ClearAllPoints()
+		frame.Icon:SetPoint("CENTER", frame.AlertPanel.icon, "CENTER", 0, 0)
+		StyleAlertIcon(frame, frame.Icon)
+	end
+end
+
+local function AchievementStyle()
+	for i = 1, MAX_ACHIEVEMENT_ALERTS do
+		local frameName = "AchievementAlertFrame"..i
+		local frame = _G[frameName]
+		if(frame and (not frame.Panel)) then 
+			frame:SetAlpha(1)
+			frame.SetAlpha = AlphaBlock
+			
+			PLUGIN:ApplyItemAlertStyle(frame)
+
+			local icon = _G[frameName.."IconTexture"];
+			icon:ClearAllPoints()
+			icon:SetPoint("CENTER", frame.AlertPanel.icon, "CENTER", 0, 0)
+
+			_G[frameName.."Unlocked"]:SetTextColor(1, 1, 1);
+			_G[frameName.."Name"]:SetTextColor(1, 1, 0);
+
+			StyleAlertIcon(frame, icon)
+
+			if(_G[frameName .. 'Glow']) then _G[frameName .. 'Glow']:Die() end
+			if(_G[frameName .. 'Shine']) then _G[frameName .. 'Shine']:Die() end
+			if(_G[frameName .. 'Background']) then _G[frameName .. 'Background']:SetTexture(0,0,0,0) end
+			if(_G[frameName .. 'IconOverlay']) then _G[frameName .. 'IconOverlay']:Die() end				
+			if(_G[frameName .. 'GuildBanner']) then _G[frameName .. 'GuildBanner']:Die() end
+			if(_G[frameName .. 'GuildBorder']) then _G[frameName .. 'GuildBorder']:Die() end
+			if(_G[frameName .. 'OldAchievement']) then _G[frameName .. 'OldAchievement']:Die() end
+		end 
+	end 
+end
+
+local function DungeonCompletionStyle()
+	local frameName = "DungeonCompletionAlertFrame1"
+	local frame = _G[frameName]
+	if(frame and (not frame.Panel)) then 
+		frame:SetAlpha(1)
+		frame.SetAlpha = AlphaBlock
+
+		PLUGIN:ApplyItemAlertStyle(frame)
+
+		local icon = frame.dungeonTexture;
+		if(icon) then
+			icon:SetDrawLayer("OVERLAY")
+			icon:ClearAllPoints()
+			icon:SetPoint("CENTER", frame.AlertPanel.icon, "CENTER", 0, 0)
+			StyleAlertIcon(frame, icon)
+		end
+
+		if(_G[frameName .. 'GlowFrame']) then 
+			if(_G[frameName .. 'GlowFrame'].glow) then _G[frameName .. 'GlowFrame'].glow:Die() end
+			_G[frameName .. 'GlowFrame']:Die() 
+		end
+		if(_G[frameName .. 'Shine']) then _G[frameName .. 'Shine']:Die() end
+
+		frame:DisableDrawLayer("BORDER")
+		frame:HookScript("OnShow", _hook_DisableBorder)
+	end 
+end
+
+local function GuildChallengeStyle()
+    local frameName = "GuildChallengeAlertFrame"
+	local frame = _G[frameName];
+	if(frame and (not frame.Panel)) then 
+		frame:SetAlpha(1)
+		frame.SetAlpha = AlphaBlock
+		
+		PLUGIN:ApplyItemAlertStyle(frame)
+
+		local icon = _G[frameName .. 'EmblemIcon'];
+		if(icon) then
+			icon:ClearAllPoints()
+			icon:SetPoint("CENTER", frame.AlertPanel.icon, "CENTER", 0, 0)
+			StyleAlertIcon(frame, icon)
+			SetLargeGuildTabardTextures("player", icon, nil, nil) 
+		end 
+
+		if(_G[frameName .. 'Glow']) then _G[frameName .. 'Glow']:Die() end
+		if(_G[frameName .. 'Shine']) then _G[frameName .. 'Shine']:Die() end
+
+		frame:DisableDrawLayer("BACKGROUND")
+		frame:DisableDrawLayer("BORDER")
+		frame:HookScript("OnShow", _hook_DisableBoth)
+	end 
+end
+
+local function ChallengeModeStyle()
+	local frameName = "ChallengeModeAlertFrame1"
+	local frame = _G[frameName];
+	if(frame and (not frame.Panel)) then 
+		frame:SetAlpha(1)
+		frame.SetAlpha = AlphaBlock
+		
+		PLUGIN:ApplyItemAlertStyle(frame)
+
+		local icon = _G[frameName .. 'DungeonTexture'];
+		if(icon) then
+			icon:ClearAllPoints()
+			icon:SetPoint("CENTER", frame.AlertPanel.icon, "CENTER", 0, 0)
+			StyleAlertIcon(frame, icon) 
+		end
+
+		if(_G[frameName .. 'GlowFrame']) then 
+			if(_G[frameName .. 'GlowFrame'].glow) then _G[frameName .. 'GlowFrame'].glow:Die() end
+			_G[frameName .. 'GlowFrame']:Die() 
+		end
+		if(_G[frameName .. 'Shine']) then _G[frameName .. 'Shine']:Die() end
+		if(_G[frameName .. 'Border']) then _G[frameName .. 'Border']:Die() end
+
+		frame:DisableDrawLayer("BACKGROUND")
+		frame:HookScript("OnShow", _hook_DisableBackground)
+	end 
+end
+
+local function ScenarioStyle()
+	local frameName = "ScenarioAlertFrame1"
+	local frame = _G[frameName];
+	if(frame and (not frame.Panel)) then 
+		frame:SetAlpha(1)
+		frame.SetAlpha = AlphaBlock
+		
+		PLUGIN:ApplyItemAlertStyle(frame)
+
+		local icon = _G[frameName .. 'DungeonTexture'];
+		if(icon) then
+			icon:ClearAllPoints()
+			icon:SetPoint("CENTER", frame.AlertPanel.icon, "CENTER", 0, 0)
+			StyleAlertIcon(frame, icon) 
+		end
+
+		if(_G[frameName .. 'GlowFrame']) then 
+			if(_G[frameName .. 'GlowFrame'].glow) then _G[frameName .. 'GlowFrame'].glow:Die() end
+			_G[frameName .. 'GlowFrame']:Die() 
+		end
+		if(_G[frameName .. 'Shine']) then _G[frameName .. 'Shine']:Die() end
+
+		frame:DisableDrawLayer("BORDER")
+		frame:HookScript("OnShow", _hook_DisableBorder)
+	end 
+end
+
+local function CriteriaStyle()
+	for i = 1, MAX_ACHIEVEMENT_ALERTS do 
+		local frameName = "CriteriaAlertFrame"..i
+		local frame = _G[frameName]
+		if(frame and (not frame.Panel)) then 
+			frame:SetAlpha(1)
+			frame.SetAlpha = AlphaBlock
+			
+			PLUGIN:ApplyItemAlertStyle(frame)
+
+			local icon = _G[frameName .. 'IconTexture'];
+			if(icon) then
+				icon:ClearAllPoints()
+				icon:SetPoint("CENTER", frame.AlertPanel.icon, "CENTER", 0, 0)
+				StyleAlertIcon(frame, icon) 
+			end
+
+			if(_G[frameName .. 'Glow']) then _G[frameName .. 'Glow']:Die() end
+			if(_G[frameName .. 'Shine']) then _G[frameName .. 'Shine']:Die() end
+			if(_G[frameName .. 'Background']) then _G[frameName .. 'Background']:SetTexture(0,0,0,0) end
+			if(_G[frameName .. 'IconOverlay']) then _G[frameName .. 'IconOverlay']:Die() end				
+			if(_G[frameName .. 'IconBling']) then _G[frameName .. 'IconBling']:Die() end
+		end 
+	end 
+end
 --[[ 
 ########################################################## 
-ALERTFRAME PLUGINR
+ALERTFRAME STYLES
 ##########################################################
 ]]--
 local function AlertStyle()
-	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.alertframes ~= true then return end 
+	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.alertframes ~= true then return end
 
+	--[[ SVUI ]]--
 	for i = 1, 4 do
-		local alert = _G["SVUI_SystemAlert"..i];
-		if(alert) then
-			for b = 1, 3 do
-				alert.buttons[b]:SetButtonTemplate()
-			end 
-			alert:RemoveTextures()
-			PLUGIN:ApplyAlertStyle(alert)
-			alert.input:SetEditboxTemplate()
-			alert.input.Panel:Point("TOPLEFT", -2, -4)
-			alert.input.Panel:Point("BOTTOMRIGHT", 2, 4)
-			alert.gold:SetEditboxTemplate()
-			alert.silver:SetEditboxTemplate()
-			alert.copper:SetEditboxTemplate()
+		frame = _G["SVUI_SystemAlert"..i];
+		if(frame) then
+			frame:RemoveTextures()
+
+			PLUGIN:ApplyAlertStyle(frame)
+
+			frame.buttons[1]:SetButtonTemplate()
+			frame.buttons[2]:SetButtonTemplate()
+			frame.buttons[3]:SetButtonTemplate()
+
+			frame.gold:SetEditboxTemplate()
+			frame.silver:SetEditboxTemplate()
+			frame.copper:SetEditboxTemplate()
+
+			frame.input:SetEditboxTemplate()
+			frame.input.Panel:Point("TOPLEFT", -2, -4)
+			frame.input.Panel:Point("BOTTOMRIGHT", 2, 4)
 		end
 	end
 
-	hooksecurefunc("AlertFrame_SetAchievementAnchors", function()
-		for i = 1, MAX_ACHIEVEMENT_ALERTS do 
-			local frame = _G["AchievementAlertFrame"..i]
-			if frame then 
-				frame:SetAlpha(1)
-				frame.SetAlpha = AlphaBlock
-				if not frame.Panel then 
-					frame:SetBasicPanel()
-					frame.Panel:Point("TOPLEFT", _G[frame:GetName().."Background"], "TOPLEFT", -2, -6)
-					frame.Panel:Point("BOTTOMRIGHT", _G[frame:GetName().."Background"], "BOTTOMRIGHT", -2, 6)
-				end 
-				_G["AchievementAlertFrame"..i.."Background"]:SetTexture(0,0,0,0)
-				_G["AchievementAlertFrame"..i.."OldAchievement"]:Die()
-				_G["AchievementAlertFrame"..i.."Glow"]:Die()
-				_G["AchievementAlertFrame"..i.."Shine"]:Die()
-				_G["AchievementAlertFrame"..i.."GuildBanner"]:Die()
-				_G["AchievementAlertFrame"..i.."GuildBorder"]:Die()
-				_G["AchievementAlertFrame"..i.."Unlocked"]:FontManager(nil, 12)
-				_G["AchievementAlertFrame"..i.."Unlocked"]:SetTextColor(1, 1, 1)
-				_G["AchievementAlertFrame"..i.."Name"]:FontManager(nil, 12)
-				_G["AchievementAlertFrame"..i.."IconTexture"]:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-				_G["AchievementAlertFrame"..i.."IconOverlay"]:Die()
-				_G["AchievementAlertFrame"..i.."IconTexture"]:ClearAllPoints()
-				_G["AchievementAlertFrame"..i.."IconTexture"]:Point("LEFT", frame, 7, 0)
-				if not _G["AchievementAlertFrame"..i.."IconTexture"].b then 
-					_G["AchievementAlertFrame"..i.."IconTexture"].b = CreateFrame("Frame", nil, _G["AchievementAlertFrame"..i])
-					_G["AchievementAlertFrame"..i.."IconTexture"].b:SetFixedPanelTemplate("Default")
-					_G["AchievementAlertFrame"..i.."IconTexture"].b:WrapOuter(_G["AchievementAlertFrame"..i.."IconTexture"])
-					_G["AchievementAlertFrame"..i.."IconTexture"]:SetParent(_G["AchievementAlertFrame"..i.."IconTexture"].b)
-				end 
-			end 
-		end 
-	end)
-
-	hooksecurefunc("AlertFrame_SetDungeonCompletionAnchors", function()
-		for i = 1, DUNGEON_COMPLETION_MAX_REWARDS do 
-			local frame = _G["DungeonCompletionAlertFrame"..i]
-			if frame then 
-				frame:SetAlpha(1)
-				
-				if(not frame.AlphaHooked) then 
-					frame.SetAlpha = AlphaBlock
-					frame.AlphaHooked = true
-				end
-
-				if(not frame.Panel) then 
-					frame:SetBasicPanel()
-					frame.Panel:Point("TOPLEFT", frame, "TOPLEFT", -2, -6)
-					frame.Panel:Point("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -2, 6)
-				end
-
-				frame.shine:Die()
-				frame.glowFrame:Die()
-				frame.glowFrame.glow:Die()
-				frame.raidArt:Die()
-				frame.dungeonArt1:Die()
-				frame.dungeonArt2:Die()
-				frame.dungeonArt3:Die()
-				frame.dungeonArt4:Die()
-				frame.heroicIcon:Die()
-				frame.dungeonTexture:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-				frame.dungeonTexture:SetDrawLayer("OVERLAY")
-				frame.dungeonTexture:ClearAllPoints()
-				frame.dungeonTexture:Point("LEFT", frame, 7, 0)
-
-				if not frame.dungeonTexture.b then 
-					frame.dungeonTexture.b = CreateFrame("Frame", nil, frame)
-					frame.dungeonTexture.b:SetFixedPanelTemplate("Default")
-					frame.dungeonTexture.b:WrapOuter(frame.dungeonTexture)
-					frame.dungeonTexture:SetParent(frame.dungeonTexture.b)
-				end 
-			end 
-		end 
-	end)
-
-	hooksecurefunc("AlertFrame_SetGuildChallengeAnchors", function()
-		local frame = GuildChallengeAlertFrame;
-		if frame then 
-			frame:SetAlpha(1)
-			
-			if(not frame.AlphaHooked) then 
-				frame.SetAlpha = AlphaBlock
-				frame.AlphaHooked = true
-			end
-
-			if(not frame.Panel) then 
-				frame:SetBasicPanel()
-				frame.Panel:Point("TOPLEFT", frame, "TOPLEFT", -2, -6)
-				frame.Panel:Point("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -2, 6)
-			end
-
-			local j = select(2, frame:GetRegions())
-			if j:GetObjectType() == "Texture"then 
-				if j:GetTexture() == "Interface\\GuildFrame\\GuildChallenges"then j:Die()end 
-			end
-
-			GuildChallengeAlertFrameGlow:Die()
-			GuildChallengeAlertFrameShine:Die()
-			GuildChallengeAlertFrameEmblemBorder:Die()
-			if not GuildChallengeAlertFrameEmblemIcon.b then 
-				GuildChallengeAlertFrameEmblemIcon.b = CreateFrame("Frame", nil, frame)
-				GuildChallengeAlertFrameEmblemIcon.b:SetFixedPanelTemplate("Default")
-				GuildChallengeAlertFrameEmblemIcon.b:Point("TOPLEFT", GuildChallengeAlertFrameEmblemIcon, "TOPLEFT", -3, 3)
-				GuildChallengeAlertFrameEmblemIcon.b:Point("BOTTOMRIGHT", GuildChallengeAlertFrameEmblemIcon, "BOTTOMRIGHT", 3, -2)
-				GuildChallengeAlertFrameEmblemIcon:SetParent(GuildChallengeAlertFrameEmblemIcon.b)
-			end 
-			SetLargeGuildTabardTextures("player", GuildChallengeAlertFrameEmblemIcon, nil, nil)
-		end 
-	end)
-
-	hooksecurefunc("AlertFrame_SetChallengeModeAnchors", function()
-		local frame = ChallengeModeAlertFrame1;
-		if frame then 
-			frame:SetAlpha(1)
-			frame.SetAlpha = AlphaBlock
-			if not frame.Panel then 
-				frame:SetBasicPanel()
-				frame.Panel:Point("TOPLEFT", frame, "TOPLEFT", 19, -6)
-				frame.Panel:Point("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -22, 6)
-			end 
-			for i = 1, frame:GetNumRegions()do 
-				local j = select(i, frame:GetRegions())
-				if j:GetObjectType() == "Texture"then 
-					if j:GetTexture() == "Interface\\Challenges\\challenges-main" then j:Die() end 
-				end 
-			end 
-			ChallengeModeAlertFrame1Shine:Die()
-			ChallengeModeAlertFrame1GlowFrame:Die()
-			ChallengeModeAlertFrame1GlowFrame.glow:Die()
-			ChallengeModeAlertFrame1Border:Die()
-			ChallengeModeAlertFrame1DungeonTexture:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-			ChallengeModeAlertFrame1DungeonTexture:ClearAllPoints()
-			ChallengeModeAlertFrame1DungeonTexture:Point("LEFT", frame.Panel, 9, 0)
-			if not ChallengeModeAlertFrame1DungeonTexture.b then 
-				ChallengeModeAlertFrame1DungeonTexture.b = CreateFrame("Frame", nil, frame)
-				ChallengeModeAlertFrame1DungeonTexture.b:SetFixedPanelTemplate("Default")
-				ChallengeModeAlertFrame1DungeonTexture.b:WrapOuter(ChallengeModeAlertFrame1DungeonTexture)
-				ChallengeModeAlertFrame1DungeonTexture:SetParent(ChallengeModeAlertFrame1DungeonTexture.b)
-			end 
-		end 
-	end)
-
-	hooksecurefunc("AlertFrame_SetScenarioAnchors", function()
-		local frame = ScenarioAlertFrame1;
-		if frame then 
-			frame:SetAlpha(1)
-			frame.SetAlpha = AlphaBlock
-			if not frame.Panel then 
-				frame:SetBasicPanel()
-				frame.Panel:Point("TOPLEFT", frame, "TOPLEFT", 4, 4)
-				frame.Panel:Point("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -7, 6)
-			end 
-			for i = 1, frame:GetNumRegions()do 
-				local j = select(i, frame:GetRegions())
-				if j:GetObjectType() == "Texture"then 
-					if j:GetTexture() == "Interface\\Scenarios\\ScenariosParts" then j:Die() end 
-				end 
-			end 
-			ScenarioAlertFrame1Shine:Die()
-			ScenarioAlertFrame1GlowFrame:Die()
-			ScenarioAlertFrame1GlowFrame.glow:Die()
-			ScenarioAlertFrame1DungeonTexture:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-			ScenarioAlertFrame1DungeonTexture:ClearAllPoints()
-			ScenarioAlertFrame1DungeonTexture:Point("LEFT", frame.Panel, 9, 0)
-			if not ScenarioAlertFrame1DungeonTexture.b then 
-				ScenarioAlertFrame1DungeonTexture.b = CreateFrame("Frame", nil, frame)
-				ScenarioAlertFrame1DungeonTexture.b:SetFixedPanelTemplate("Default")
-				ScenarioAlertFrame1DungeonTexture.b:WrapOuter(ScenarioAlertFrame1DungeonTexture)
-				ScenarioAlertFrame1DungeonTexture:SetParent(ScenarioAlertFrame1DungeonTexture.b)
-			end 
-		end 
-	end)
-
-	hooksecurefunc("AlertFrame_SetCriteriaAnchors", function()
-		for i = 1, MAX_ACHIEVEMENT_ALERTS do 
-			local frame = _G["CriteriaAlertFrame"..i]
-			if frame then 
-				frame:SetAlpha(1)
-				frame.SetAlpha = AlphaBlock
-				if not frame.Panel then 
-					frame:SetBasicPanel()
-					frame.Panel:Point("TOPLEFT", frame, "TOPLEFT", -2, -6)
-					frame.Panel:Point("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -2, 6)
-				end 
-				_G["CriteriaAlertFrame"..i.."Unlocked"]:SetTextColor(1, 1, 1)
-				_G["CriteriaAlertFrame"..i.."Name"]:SetTextColor(1, 1, 0)
-				_G["CriteriaAlertFrame"..i.."Background"]:Die()
-				_G["CriteriaAlertFrame"..i.."Glow"]:Die()
-				_G["CriteriaAlertFrame"..i.."Shine"]:Die()
-				_G["CriteriaAlertFrame"..i.."IconBling"]:Die()
-				_G["CriteriaAlertFrame"..i.."IconOverlay"]:Die()
-				if not _G["CriteriaAlertFrame"..i.."IconTexture"].b then 
-					_G["CriteriaAlertFrame"..i.."IconTexture"].b = CreateFrame("Frame", nil, frame)
-					_G["CriteriaAlertFrame"..i.."IconTexture"].b:SetFixedPanelTemplate("Default")
-					_G["CriteriaAlertFrame"..i.."IconTexture"].b:Point("TOPLEFT", _G["CriteriaAlertFrame"..i.."IconTexture"], "TOPLEFT", -3, 3)
-					_G["CriteriaAlertFrame"..i.."IconTexture"].b:Point("BOTTOMRIGHT", _G["CriteriaAlertFrame"..i.."IconTexture"], "BOTTOMRIGHT", 3, -2)
-					_G["CriteriaAlertFrame"..i.."IconTexture"]:SetParent(_G["CriteriaAlertFrame"..i.."IconTexture"].b)
-				end 
-				_G["CriteriaAlertFrame"..i.."IconTexture"]:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-			end 
-		end 
-	end)
-
-	hooksecurefunc("AlertFrame_SetLootWonAnchors", function()
+	--[[ LOOT WON ]]--
+	do
 		for i = 1, #LOOT_WON_ALERT_FRAMES do 
-			local frame = LOOT_WON_ALERT_FRAMES[i]
-			if frame then 
-				frame:SetAlpha(1)
-				frame.SetAlpha = AlphaBlock
-				frame.Background:Die()
-				frame.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-				frame.IconBorder:Die()
-				frame.glow:Die()
-				frame.shine:Die()
-				if not frame.Icon.b then 
-					frame.Icon.b = CreateFrame("Frame", nil, frame)
-					frame.Icon.b:SetPanelTemplate("Transparent")
-					frame.Icon.b:WrapOuter(frame.Icon)
-					frame.Icon:SetParent(frame.Icon.b)
-				end 
-				if not frame.Panel then 
-					frame:SetBasicPanel()
-					frame.Panel:SetPoint("TOPLEFT", frame.Icon.b, "TOPLEFT", -4, 4)
-					frame.Panel:SetPoint("BOTTOMRIGHT", frame.Icon.b, "BOTTOMRIGHT", 180, -4)
-				end 
+			StyleLootFrame(LOOT_WON_ALERT_FRAMES[i])
+		end
+		StyleLootFrame(BonusRollLootWonFrame)
+		hooksecurefunc("AlertFrame_SetLootWonAnchors", function()
+			for i = 1, #LOOT_WON_ALERT_FRAMES do 
+				local frame = LOOT_WON_ALERT_FRAMES[i]
+				if(frame) then StyleLootFrame(frame) end
 			end 
-		end 
-	end)
+		end)
+		hooksecurefunc("LootWonAlertFrame_SetUp", function(self, itemLink, ...)
+		    local itemName, itemHyperLink, itemRarity, itemTexture;
+		    if (self.isCurrency) then
+		        itemName, _, itemTexture, _, _, _, _, itemRarity = GetCurrencyInfo(itemLink);
+		        itemHyperLink = itemLink;       
+		    else
+		        itemName, itemHyperLink, itemRarity, _, _, _, _, _, _, itemTexture = GetItemInfo(itemLink);
+		    end
+	    	if(itemRarity) then
+		    	local color = ITEM_QUALITY_COLORS[itemRarity];
+		    	if(not self.IconSlot) then return end;
+				self.IconSlot:SetBackdropColor(color.r, color.g, color.b); 
+				self:AlertColor(color.r, color.g, color.b)
+			end
+		end)
+	end
 
-	hooksecurefunc("AlertFrame_SetMoneyWonAnchors", function()
+	--[[ MONEY WON ]]--
+	do
 		for i = 1, #MONEY_WON_ALERT_FRAMES do 
-			local frame = MONEY_WON_ALERT_FRAMES[i]
-			if frame then 
+			StyleLootFrame(MONEY_WON_ALERT_FRAMES[i])
+		end
+		StyleLootFrame(BonusRollMoneyWonFrame)
+		hooksecurefunc("AlertFrame_SetMoneyWonAnchors", function()
+			for i = 1, #MONEY_WON_ALERT_FRAMES do 
+				local frame = MONEY_WON_ALERT_FRAMES[i]
+				if(frame) then StyleLootFrame(frame) end
+			end 
+		end)
+	end
+
+	--[[ LOOT UPGRADE ]]--
+	do
+		for i = 1, #LOOT_UPGRADE_ALERT_FRAMES do 
+			StyleUpgradeFrame(LOOT_UPGRADE_ALERT_FRAMES[i])
+		end
+		hooksecurefunc("AlertFrame_SetLootUpgradeFrameAnchors", function()
+			for i = 1, #LOOT_UPGRADE_ALERT_FRAMES do 
+				local frame = LOOT_UPGRADE_ALERT_FRAMES[i]
+				if(frame) then StyleUpgradeFrame(frame) end 
+			end 
+		end)
+		hooksecurefunc("LootUpgradeFrame_SetUp", function(self, itemLink, ...)
+		    local itemName, itemHyperLink, itemRarity, _, _, _, _, _, _, itemTexture = GetItemInfo(itemLink);
+		    if(itemRarity) then
+		    	local color = ITEM_QUALITY_COLORS[itemRarity];
+		    	if(not self.IconSlot) then return end;
+				self.IconSlot:SetBackdropColor(color.r, color.g, color.b); 
+				self:AlertColor(color.r, color.g, color.b)
+			end
+		end)
+	end
+
+	--[[ ACHIEVEMENT ]]--
+	AchievementStyle()
+	hooksecurefunc("AlertFrame_SetAchievementAnchors", AchievementStyle)
+
+	--[[ DUNGEON ]]--
+	DungeonCompletionStyle()
+	hooksecurefunc("AlertFrame_SetDungeonCompletionAnchors", DungeonCompletionStyle)
+
+	--[[ GUILD CHALLENGE ]]--
+	GuildChallengeStyle()
+	hooksecurefunc("AlertFrame_SetGuildChallengeAnchors", GuildChallengeStyle)
+
+	--[[ CHALLENGE MODE ]]--
+	ChallengeModeStyle()
+	hooksecurefunc("AlertFrame_SetChallengeModeAnchors", ChallengeModeStyle)
+
+	--[[ SCENARIO ]]--
+	ScenarioStyle()
+	hooksecurefunc("AlertFrame_SetScenarioAnchors", ScenarioStyle)
+
+	--[[ CRITERIA ]]--
+	CriteriaStyle()
+	hooksecurefunc("AlertFrame_SetCriteriaAnchors", CriteriaStyle)
+
+	--[[ GARRISON ]]--
+	do
+		local frameName, frame;
+
+		--Garrison Mission
+	    frameName = "GarrisonMissionAlertFrame"
+	    frame = _G[frameName]
+	    if(frame and (not frame.Panel)) then 
+			frame:SetAlpha(1)
+			frame.SetAlpha = AlphaBlock
+			frame:DisableDrawLayer("BACKGROUND")
+
+			PLUGIN:ApplyItemAlertStyle(frame)
+			frame.IconBG:ClearAllPoints()
+			frame.IconBG:SetPoint("CENTER", frame.AlertPanel.icon, "CENTER", 0, 0)
+			frame.IconBG:SetTexture('')
+			frame.MissionType:ClearAllPoints()
+			frame.MissionType:SetPoint("CENTER", frame.AlertPanel.icon, "CENTER", 0, 0)
+			frame.Title:SetTextColor(1, 1, 1)
+
+			if(_G[frameName .. 'Glow']) then _G[frameName .. 'Glow']:Die() end
+			if(_G[frameName .. 'Shine']) then _G[frameName .. 'Shine']:Die() end
+
+			frame:HookScript("OnShow", _hook_DisableBackground)
+		end
+
+		--Garrison Building
+		frameName = "GarrisonBuildingAlertFrame"
+	    frame = _G[frameName]
+	    if(frame and (not frame.Panel)) then 
+			frame:SetAlpha(1)
+			frame.SetAlpha = AlphaBlock
+			frame:DisableDrawLayer("BACKGROUND")
+
+			PLUGIN:ApplyItemAlertStyle(frame)
+			frame.Icon:ClearAllPoints()
+			frame.Icon:SetPoint("CENTER", frame.AlertPanel.icon, "CENTER", 0, 0)
+			frame.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+			frame.Title:SetTextColor(1, 1, 1)
+
+			if(_G[frameName .. 'Glow']) then _G[frameName .. 'Glow']:Die() end
+			if(_G[frameName .. 'Shine']) then _G[frameName .. 'Shine']:Die() end
+
+			frame:HookScript("OnShow", _hook_DisableBackground)
+		end
+
+		--Garrison Follower
+		frameName = "GarrisonFollowerAlertFrame"
+	    frame = _G[frameName]
+	    if(frame) then
+	    	if(not frame.Panel) then 
 				frame:SetAlpha(1)
 				frame.SetAlpha = AlphaBlock
-				frame.Background:Die()
-				frame.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-				frame.IconBorder:Die()
-				if not frame.Icon.b then 
-					frame.Icon.b = CreateFrame("Frame", nil, frame)
-					frame.Icon.b:SetFixedPanelTemplate("Default")
-					frame.Icon.b:WrapOuter(frame.Icon)
-					frame.Icon:SetParent(frame.Icon.b)
-				end 
-				if not frame.Panel then 
-					frame:SetBasicPanel()
-					frame.Panel:SetPoint("TOPLEFT", frame.Icon.b, "TOPLEFT", -4, 4)
-					frame.Panel:SetPoint("BOTTOMRIGHT", frame.Icon.b, "BOTTOMRIGHT", 180, -4)
-				end 
-			end 
-		end 
-	end)
+				frame:DisableDrawLayer("BACKGROUND")
 
-	local frame = BonusRollMoneyWonFrame;
-	frame:SetAlpha(1)
-	frame.SetAlpha = AlphaBlock
-	frame.Background:Die()
-	frame.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-	frame.IconBorder:Die()
-	frame.Icon.b = CreateFrame("Frame", nil, frame)
-	frame.Icon.b:SetFixedPanelTemplate("Default")
-	frame.Icon.b:WrapOuter(frame.Icon)
-	frame.Icon:SetParent(frame.Icon.b)
-	frame:SetBasicPanel()
-	frame.Panel:SetPoint("TOPLEFT", frame.Icon.b, "TOPLEFT", -4, 4)
-	frame.Panel:SetPoint("BOTTOMRIGHT", frame.Icon.b, "BOTTOMRIGHT", 180, -4)
+				PLUGIN:ApplyItemAlertStyle(frame)
+				frame.Title:SetTextColor(1, 1, 1)
 
-	local frame = BonusRollLootWonFrame;
-	frame:SetAlpha(1)
-	frame.SetAlpha = AlphaBlock
-	frame.Background:Die()
-	frame.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-	frame.IconBorder:Die()
-	frame.glow:Die()
-	frame.shine:Die()
-	frame.Icon.b = CreateFrame("Frame", nil, frame)
-	frame.Icon.b:SetFixedPanelTemplate("Default")
-	frame.Icon.b:WrapOuter(frame.Icon)
-	frame.Icon:SetParent(frame.Icon.b)
-	frame:SetBasicPanel()
-	frame.Panel:SetPoint("TOPLEFT", frame.Icon.b, "TOPLEFT", -4, 4)
-	frame.Panel:SetPoint("BOTTOMRIGHT", frame.Icon.b, "BOTTOMRIGHT", 180, -4)
+				if(_G[frameName .. 'Glow']) then _G[frameName .. 'Glow']:Die() end
+				if(_G[frameName .. 'Shine']) then _G[frameName .. 'Shine']:Die() end
+
+				frame:HookScript("OnShow", _hook_DisableBackground)
+			end
+
+			if(frame.PortraitFrame) then
+				frame.PortraitFrame.PortraitRing:SetTexture(RING_TEXTURE)
+				frame.PortraitFrame.PortraitRingQuality:SetTexture('')
+				frame.PortraitFrame.LevelBorder:SetTexture('')
+
+				if(not frame.PortraitFrame.LevelCallout) then
+					frame.PortraitFrame.LevelCallout = frame.PortraitFrame:CreateTexture(nil, 'BORDER')
+					frame.PortraitFrame.LevelCallout:SetAllPoints(frame.PortraitFrame)
+					frame.PortraitFrame.LevelCallout:SetTexture(LVL_TEXTURE)
+					frame.PortraitFrame.LevelBorder:SetDrawLayer('OVERLAY')
+				end
+
+				frame.PortraitFrame:ClearAllPoints()
+				frame.PortraitFrame:SetPoint("CENTER", frame.AlertPanel.icon, "CENTER", 0, 0)
+			end
+		end
+	end
 end 
 --[[ 
 ########################################################## 
@@ -342,3 +502,6 @@ PLUGIN LOADING
 ##########################################################
 ]]--
 PLUGIN:SaveCustomStyle(AlertStyle)
+-- /script GarrisonMissionAlertFrame:Show()
+-- /script GarrisonBuildingAlertFrame:Show()
+-- /script GarrisonFollowerAlertFrame:Show()

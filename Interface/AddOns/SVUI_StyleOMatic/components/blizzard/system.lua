@@ -419,7 +419,6 @@ local function SystemPanelQue()
 	local MacOptionsFrame = _G.MacOptionsFrame;
 	local GuildInviteFrame = _G.GuildInviteFrame;
 	local BattleTagInviteFrame = _G.BattleTagInviteFrame;
-	local SideDressUpFrame = _G.SideDressUpFrame;
 
 	QueueStatusFrame:RemoveTextures()
 
@@ -720,9 +719,6 @@ local function SystemPanelQue()
 	ReportPlayerNameDialogReportButton:SetButtonTemplate()
 	ReportPlayerNameDialogCancelButton:SetButtonTemplate()	
 	PLUGIN:ApplyCloseButtonStyle(SideDressUpModelCloseButton)
-	SideDressUpFrame:RemoveTextures()
-	SideDressUpFrame.BGTopLeft:Hide()
-	SideDressUpFrame.BGBottomLeft:Hide()
 	SideDressUpModelResetButton:SetButtonTemplate()
 end
 --[[ 

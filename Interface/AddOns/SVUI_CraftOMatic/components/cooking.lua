@@ -42,7 +42,7 @@ local Schema = PLUGIN.Schema;
 LOCAL VARS
 ##########################################################
 ]]--
-local cookingSpell, campFire, skillRank, skillModifier, DockButton;
+local cookingSpell, campFire, skillRank, skillModifier, DockButton, usePierre;
 --[[ 
 ########################################################## 
 LOCAL FUNCTIONS
@@ -85,7 +85,28 @@ end
 local function SendModeMessage(...)
 	if not CombatText_AddMessage then return end 
 	CombatText_AddMessage(...)
-end 
+end
+
+local function FindPierre()
+	local summonedPetGUID = C_PetJournal.GetSummonedPetGUID()
+	if usePierre then
+		if((not summonedPetGUID) or (summonedPetGUID and (summonedPetGUID ~= usePierre))) then
+			C_PetJournal.SummonPetByGUID(usePierre)
+		end
+	else
+		local numPets, numOwned = C_PetJournal.GetNumPets()
+		for index = 1, numOwned, 1 do
+			local petID, _, _, _, _, _, _, _, _, _, companionID = C_PetJournal.GetPetInfoByIndex(index)
+			if(companionID == 70082) then
+				usePierre = petID
+				if((not summonedPetGUID) or (summonedPetGUID and (summonedPetGUID ~= usePierre))) then
+					C_PetJournal.SummonPetByGUID(usePierre)
+				end
+				break
+			end
+		end
+	end
+end
 --[[ 
 ########################################################## 
 CORE NAMESPACE
@@ -178,11 +199,14 @@ function PLUGIN.Cooking:Enable()
 	PlaySoundFile("Sound\\Spells\\Tradeskills\\CookingPrepareA.wav")
 	PLUGIN.ModeAlert:SetBackdropColor(0.25, 0.52, 0.1)
 
+	FindPierre()
+
 	if(not IsSpellKnown(818)) then
 		PLUGIN:ModeLootLoader("Cooking", "WTF is Cooking?", "You have no clue how to cook! \nEven toast is a mystery to you. \nGo find a trainer and learn \nhow to do this simple job.");
 	else
 		local msg = GetTitleAndSkill();
-		if cookingSpell and GetSpellCooldown(campFire) > 0 then
+		--70082
+		if(usePierre or (cookingSpell and (GetSpellCooldown(campFire) > 0))) then
 			PLUGIN:ModeLootLoader("Cooking", msg, "Double-Right-Click anywhere on the screen \nto open your cookbook.");
 			_G["SVUI_ModeCaptureWindow"]:SetAttribute("type", "spell")
 			_G["SVUI_ModeCaptureWindow"]:SetAttribute('spell', cookingSpell)
@@ -227,5 +251,6 @@ LOADER
 ##########################################################
 ]]--
 function PLUGIN:LoadCookingMode()
+	usePierre = FindPierre()
 	self.Cooking:Update()
 end

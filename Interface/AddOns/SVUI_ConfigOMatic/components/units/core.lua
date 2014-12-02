@@ -252,250 +252,6 @@ function ns:SetCastbarConfigGroup(updateFunction, unitName, count)
 	return configTable 
 end 
 
-function ns:SetAuraConfigGroup(custom, auraType, unused, updateFunction, unitName, count)
-	local configTable = {
-		order = auraType == "buffs" and 600 or 700, 
-		type = "group", 
-		name = auraType == "buffs" and L["Buffs"] or L["Debuffs"],
-		get = function(key)
-			return SV.db.SVUnit[unitName][auraType][key[#key]]
-		end,
-		set = function(key, value)
-			MOD:ChangeDBVar(value, key[#key], unitName, auraType)
-			updateFunction(MOD, unitName, count)
-		end,  
-		args = {
-			enable = {
-				type = "toggle", 
-				order = 1, 
-				name = L["Enable"]
-			},
-			commonGroup = {
-				order = 2, 
-				guiInline = true, 
-				type = "group", 
-				name = L["Base Settings"], 
-				args = {
-					verticalGrowth = {type = "select", order = 1, name = L["Vertical Growth"], desc = L["The vertical direction that the auras will position themselves"], values = {UP = "UP", DOWN = "DOWN"}},
-					horizontalGrowth = {type = "select", order = 2, name = L["Horizontal Growth"], desc = L["The horizontal direction that the auras will position themselves"], values = {LEFT = "LEFT", RIGHT = "RIGHT"}},
-					perrow = {type = "range", order = 3, width = "full", name = L["Per Row"], min = 1, max = 20, step = 1}, 
-					numrows = {type = "range", order = 4, width = "full", name = L["Num Rows"], min = 1, max = 4, step = 1}, 
-					sizeOverride = {type = "range", order = 5, width = "full", name = L["Size Override"], desc = L["If not set to 0 then override the size of the aura icon to this."], min = 0, max = 60, step = 1}, 
-				}
-			},
-			positionGroup = {
-				order = 3, 
-				guiInline = true, 
-				type = "group", 
-				name = L["Position Settings"], 
-				args = {
-					xOffset = {order = 1, type = "range", name = L["xOffset"], width = "full", min = -60, max = 60, step = 1}, 
-					yOffset = {order = 2, type = "range", name = L["yOffset"], width = "full", min = -60, max = 60, step = 1},
-					anchorPoint = {type = "select", order = 3, name = L["Anchor Point"], desc = L["What point to anchor to the frame you set to attach to."], values = SV.PointIndexes}, 
-				}
-			},		
-			filters = {name = L["Filters"], guiInline = true, type = "group", order = 500, args = {}}
-		}
-	}
-	if auraType == "buffs"then 
-		configTable.args.positionGroup.args.attachTo = {type = "select", order = 7, name = L["Attach To"], desc = L["What to attach the buff anchor frame to."], values = {["FRAME"] = L["Frame"], ["DEBUFFS"] = L["Debuffs"]}}
-	else 
-		configTable.args.positionGroup.args.attachTo = {type = "select", order = 7, name = L["Attach To"], desc = L["What to attach the buff anchor frame to."], values = {["FRAME"] = L["Frame"], ["BUFFS"] = L["Buffs"]}}
-	end 
-	if custom then 
-		configTable.args.filters.args.filterPlayer = {order = 10, type = "toggle", name = L["Only Show Your Auras"], desc = L["Don't display auras that are not yours."]}
-		configTable.args.filters.args.filterBlocked = {order = 11, type = "toggle", name = L["Force Blocked List"], desc = L["Don't display any auras found on the Blocked filter."]}
-		configTable.args.filters.args.filterAllowed = {order = 12, type = "toggle", name = L["Force Allowed List"], desc = L["If no other filter options are being used then it will block anything not on the Allowed filter."]}
-		configTable.args.filters.args.filterInfinite = {order = 13, type = "toggle", name = L["Block Auras Without Duration"], desc = L["Don't display auras that have no duration."]}
-		configTable.args.filters.args.filterDispellable = {order = 13, type = "toggle", name = L["Block Non-Dispellable Auras"], desc = L["Don't display auras that cannot be purged or dispelled by your class."]}
-		if auraType == "buffs"then 
-			configTable.args.filters.args.filterRaid = {order = 14, type = "toggle", name = L["Block Raid Buffs"], desc = L["Don't display raid buffs."]}
-		end 
-		configTable.args.filters.args.useFilter = {
-			order = 15, 
-			name = L["Additional Filter"], 
-			desc = L["Select an additional filter to use."], 
-			type = "select", 
-			values = function()
-				filterList = {}
-				filterList[""] = NONE;
-				for n in pairs(SV.db.filter) do 
-					filterList[n] = n 
-				end 
-				return filterList 
-			end
-		}
-	
-	else 
-		configTable.args.filters.args.filterPlayer = {
-			order = 10,
-			guiInline = true,
-			type = "group",
-			name = L["Only Show Your Auras"],
-			args = {
-				friendly = {
-					order = 2,
-					type = "toggle",
-					name = L["Friendly"],
-					desc = L["If the unit is friendly to you."].." "..L["Don't display auras that are not yours."],
-					get = function(l)return SV.db.SVUnit[unitName][auraType].filterPlayer.friendly end,
-					set = function(l, m)
-					SV.db.SVUnit[unitName][auraType].filterPlayer.friendly = m;
-						updateFunction(MOD, unitName, count)
-					end
-				},
-				enemy = {
-					order = 3,
-					type = "toggle",
-					name = L["Enemy"],
-					desc = L["If the unit is an enemy to you."].." "..L["Don't display auras that are not yours."],
-					get = function(l)return SV.db.SVUnit[unitName][auraType].filterPlayer.enemy end,
-					set = function(l, m)
-						SV.db.SVUnit[unitName][auraType].filterPlayer.enemy = m;
-						updateFunction(MOD, unitName, count)
-					end
-				}
-			}
-		}
-		configTable.args.filters.args.filterBlocked = {
-			order = 11, 
-			guiInline = true, 
-			type = "group", 
-			name = L["Force Blocked List"], 
-			args = {
-				friendly = {
-					order = 2, 
-					type = "toggle", 
-					name = L["Friendly"], 
-					desc = L["If the unit is friendly to you."].." "..L["Don't display any auras found on the Blocked filter."], 
-					get = function(l)return SV.db.SVUnit[unitName][auraType].filterBlocked.friendly end, 
-					set = function(l, m)SV.db.SVUnit[unitName][auraType].filterBlocked.friendly = m;updateFunction(MOD, unitName, count)end
-				}, 
-				enemy = {
-					order = 3, 
-					type = "toggle", 
-					name = L["Enemy"], 
-					desc = L["If the unit is an enemy to you."].." "..L["Don't display any auras found on the Blocked filter."], 
-					get = function(l)return SV.db.SVUnit[unitName][auraType].filterBlocked.enemy end, 
-					set = function(l, m)SV.db.SVUnit[unitName][auraType].filterBlocked.enemy = m;updateFunction(MOD, unitName, count)end
-				}
-			}
-		}
-		configTable.args.filters.args.filterAllowed = {
-			order = 12, 
-			guiInline = true, 
-			type = "group", 
-			name = L["Force Allowed List"], 
-			args = {
-				friendly = {
-					order = 2, 
-					type = "toggle", 
-					name = L["Friendly"], 
-					desc = L["If the unit is friendly to you."].." "..L["If no other filter options are being used then it will block anything not on the Allowed filter."], 
-					get = function(l)return SV.db.SVUnit[unitName][auraType].filterAllowed.friendly end, 
-					set = function(l, m)SV.db.SVUnit[unitName][auraType].filterAllowed.friendly = m;updateFunction(MOD, unitName, count)end
-				}, 
-				enemy = {
-					order = 3, 
-					type = "toggle", 
-					name = L["Enemy"], 
-					desc = L["If the unit is an enemy to you."].." "..L["If no other filter options are being used then it will block anything not on the Allowed filter."], 
-					get = function(l)return SV.db.SVUnit[unitName][auraType].filterAllowed.enemy end, 
-					set = function(l, m)SV.db.SVUnit[unitName][auraType].filterAllowed.enemy = m;updateFunction(MOD, unitName, count)end
-				}
-			}
-		}
-		configTable.args.filters.args.filterInfinite = {
-			order = 13, 
-			guiInline = true, 
-			type = "group", 
-			name = L["Block Auras Without Duration"], 
-			args = {
-				friendly = {
-					order = 2, 
-					type = "toggle", 
-					name = L["Friendly"], 
-					desc = L["If the unit is friendly to you."].." "..L["Don't display auras that have no duration."], 
-					get = function(l)return SV.db.SVUnit[unitName][auraType].filterInfinite.friendly end, 
-					set = function(l, m)SV.db.SVUnit[unitName][auraType].filterInfinite.friendly = m;updateFunction(MOD, unitName, count)end
-				}, 
-				enemy = {
-					order = 3, 
-					type = "toggle", 
-					name = L["Enemy"], 
-					desc = L["If the unit is an enemy to you."].." "..L["Don't display auras that have no duration."], 
-					get = function(l)return SV.db.SVUnit[unitName][auraType].filterInfinite.enemy end, 
-					set = function(l, m)SV.db.SVUnit[unitName][auraType].filterInfinite.enemy = m;updateFunction(MOD, unitName, count)end
-				}
-			}
-		}
-		configTable.args.filters.args.filterDispellable = {
-			order = 13, 
-			guiInline = true, 
-			type = "group",
-			name = L["Block Non-Dispellable Auras"], 
-			args = {
-				friendly = {
-					order = 2, 
-					type = "toggle", 
-					name = L["Friendly"], 
-					desc = L["If the unit is friendly to you."].." "..L["Don't display auras that cannot be purged or dispelled by your class."], 
-					get = function(l)return SV.db.SVUnit[unitName][auraType].filterDispellable.friendly end, 
-					set = function(l, m)SV.db.SVUnit[unitName][auraType].filterDispellable.friendly = m;updateFunction(MOD, unitName, count)end
-					}, 
-				enemy = {
-					order = 3, 
-					type = "toggle", 
-					name = L["Enemy"], 
-					desc = L["If the unit is an enemy to you."].." "..L["Don't display auras that cannot be purged or dispelled by your class."], 
-					get = function(l)return SV.db.SVUnit[unitName][auraType].filterDispellable.enemy end, 
-					set = function(l, m)SV.db.SVUnit[unitName][auraType].filterDispellable.enemy = m;updateFunction(MOD, unitName, count)end
-				}
-			}
-		}
-		if(auraType == "buffs") then 
-			configTable.args.filters.args.filterRaid = {
-				order = 14, 
-				guiInline = true, 
-				type = "group", 
-				name = L["Block Raid Buffs"], 
-				args = {
-					friendly = {
-						order = 2, 
-						type = "toggle", 
-						name = L["Friendly"], 
-						desc = L["If the unit is friendly to you."].." "..L["Don't display raid (consolidated) buffs."], 
-						get = function(l)return SV.db.SVUnit[unitName][auraType].filterRaid.friendly end, 
-						set = function(l, m)SV.db.SVUnit[unitName][auraType].filterRaid.friendly = m;updateFunction(MOD, unitName, count)end
-					}, 
-					enemy = {
-						order = 3, 
-						type = "toggle", 
-						name = L["Enemy"], desc = L["If the unit is an enemy to you."].." "..L["Don't display raid (consolidated) buffs."], 
-						get = function(l)return SV.db.SVUnit[unitName][auraType].filterRaid.enemy end, 
-						set = function(l, m)SV.db.SVUnit[unitName][auraType].filterRaid.enemy = m;updateFunction(MOD, unitName, count)end
-					}
-				}
-			}
-		end 
-		configTable.args.filters.args.useFilter = {
-			order = 15, 
-			name = L["Additional Filter"], 
-			desc = L["Select an additional filter to use."], 
-			type = "select", 
-			values = function()
-				filterList = {}
-				filterList[""] = NONE;
-				for n in pairs(SV.db.filter) do 
-					filterList[n] = n 
-				end 
-				return filterList 
-			end
-		}
-	end 
-	return configTable 
-end 
-
 function ns:SetMiscConfigGroup(partyRaid, updateFunction, unitName, count)
 	local miscGroup = {
 		order = 99, 
@@ -1202,10 +958,278 @@ function ns:SetIconConfigGroup(updateFunction, unitName, count)
 	end
 
 	return k 
+end
+
+local function setAuraFilteringOptions(configTable, unitName, auraType, isPlayer)
+	if isPlayer then
+		configTable.filterGroup1 = {
+			order = 10, 
+			guiInline = true, 
+			type = "group", 
+			name = L["Filter Options"], 
+			args = {
+				filterAllowed = {
+					order = 1, 
+					type = "toggle", 
+					name = L["Force Allowed List"], 
+					desc = L["Don't display any auras not found on the Allowed filter."],
+					get = function(key) return SV.db.SVUnit[unitName][auraType][key[#key]] end,
+					set = function(key, value) SV.db.SVUnit[unitName][auraType][key[#key]] = value; end,
+				},
+				filterPlayer = {
+					order = 2, 
+					type = "toggle", 
+					name = L["Only Show Your Auras"], 
+					desc = L["Don't display auras that are not yours."],
+					get = function(key) return SV.db.SVUnit[unitName][auraType][key[#key]] end,
+					set = function(key, value) SV.db.SVUnit[unitName][auraType][key[#key]] = value; end,
+				},
+				filterDispellable = {
+					order = 3, 
+					type = "toggle", 
+					name = L["Block Non-Dispellable Auras"], 
+					desc = L["Don't display auras that cannot be purged or dispelled by your class."],
+					get = function(key) return SV.db.SVUnit[unitName][auraType][key[#key]] end,
+					set = function(key, value) SV.db.SVUnit[unitName][auraType][key[#key]] = value; end,
+				},
+				filterInfinite = {
+					order = 4, 
+					type = "toggle", 
+					name = L["Block Auras Without Duration"], 
+					desc = L["Don't display auras that have no duration."]
+				},
+				filterRaid = {
+					order = 5, 
+					type = "toggle", 
+					name = L["Block Raid Buffs"], 
+					desc = L["Don't display raid buffs."]
+				},
+				useFilter = {
+					order = 6, 
+					name = L["Custom Filter"], 
+					desc = L["Select a custom filter to include."], 
+					type = "select", 
+					values = function()
+						filterList = {}
+						filterList[""] = NONE;
+						for n in pairs(SV.filters.Custom) do 
+							filterList[n] = n 
+						end 
+						return filterList 
+					end
+				}
+			}
+		}
+	else
+		configTable.filterGroup1 = {
+			order = 10, 
+			guiInline = true, 
+			type = "group", 
+			name = L["Filter Options"], 
+			args = {
+				filterAllowed = {
+					order = 1, 
+					guiInline = true, 
+					type = "group", 
+					name = L["Force Allowed List"], 
+					args = {
+						friendly = {
+							order = 1, 
+							type = "toggle", 
+							name = L["Friendly"], 
+							desc = L["If the unit is friendly to you."].." "..L["Don't display any auras not found on the Allowed filter."], 
+							get = function(l)return SV.db.SVUnit[unitName][auraType].filterAllowed.friendly end, 
+							set = function(l, m)SV.db.SVUnit[unitName][auraType].filterAllowed.friendly = m; updateFunction(MOD, unitName) end,
+						}, 
+						enemy = {
+							order = 2, 
+							type = "toggle", 
+							name = L["Enemy"], 
+							desc = L["If the unit is an enemy to you."].." "..L["Don't display any auras not found on the Allowed filter."], 
+							get = function(l)return SV.db.SVUnit[unitName][auraType].filterAllowed.enemy end, 
+							set = function(l, m)SV.db.SVUnit[unitName][auraType].filterAllowed.enemy = m; updateFunction(MOD, unitName) end,
+						}
+					},
+				},
+				filterPlayer = {
+					order = 2, 
+					guiInline = true, 
+					type = "group", 
+					name = L["Only Show Your Auras"], 
+					args = {
+						friendly = {
+							order = 1, 
+							type = "toggle", 
+							name = L["Friendly"], 
+							desc = L["If the unit is friendly to you."].." "..L["Don't display auras that are not yours."], 
+							get = function(l)return SV.db.SVUnit[unitName][auraType].filterPlayer.friendly end, 
+							set = function(l, m)SV.db.SVUnit[unitName][auraType].filterPlayer.friendly = m; updateFunction(MOD, unitName) end,
+						}, 
+						enemy = {
+							order = 2, 
+							type = "toggle", 
+							name = L["Enemy"], desc = L["If the unit is an enemy to you."].." "..L["Don't display auras that are not yours."], 
+							get = function(l)return SV.db.SVUnit[unitName][auraType].filterPlayer.enemy end, 
+							set = function(l, m)SV.db.SVUnit[unitName][auraType].filterPlayer.enemy = m; updateFunction(MOD, unitName) end,
+						}
+					},
+				},
+				filterDispellable = {
+					order = 3, 
+					guiInline = true, 
+					type = "group", 
+					name = L["Block Non-Dispellable Auras"], 
+					args = {
+						friendly = {
+							order = 1, 
+							type = "toggle", 
+							name = L["Friendly"], 
+							desc = L["If the unit is friendly to you."].." "..L["Don't display auras that cannot be purged or dispelled by your class."], 
+							get = function(l)return SV.db.SVUnit[unitName][auraType].filterDispellable.friendly end, 
+							set = function(l, m)SV.db.SVUnit[unitName][auraType].filterDispellable.friendly = m; updateFunction(MOD, unitName) end,
+						}, 
+						enemy = {
+							order = 2, 
+							type = "toggle", 
+							name = L["Enemy"], desc = L["If the unit is an enemy to you."].." "..L["Don't display auras that cannot be purged or dispelled by your class."], 
+							get = function(l)return SV.db.SVUnit[unitName][auraType].filterDispellable.enemy end, 
+							set = function(l, m)SV.db.SVUnit[unitName][auraType].filterDispellable.enemy = m; updateFunction(MOD, unitName) end,
+						}
+					},
+				},
+				filterInfinite = {
+					order = 4, 
+					guiInline = true, 
+					type = "group", 
+					name = L["Block Auras Without Duration"], 
+					args = {
+						friendly = {
+							order = 1, 
+							type = "toggle", 
+							name = L["Friendly"], desc = L["If the unit is friendly to you."].." "..L["Don't display auras that have no duration."], 
+							get = function(l)return SV.db.SVUnit[unitName][auraType].filterInfinite.friendly end, 
+							set = function(l, m)SV.db.SVUnit[unitName][auraType].filterInfinite.friendly = m; updateFunction(MOD, unitName)end
+						}, 
+						enemy = {
+							order = 2, 
+							type = "toggle", 
+							name = L["Enemy"], desc = L["If the unit is an enemy to you."].." "..L["Don't display auras that have no duration."], 
+							get = function(l)return SV.db.SVUnit[unitName][auraType].filterInfinite.enemy end, 
+							set = function(l, m)SV.db.SVUnit[unitName][auraType].filterInfinite.enemy = m; updateFunction(MOD, unitName)end
+						}
+					}
+				},
+				filterRaid = {
+					order = 5, 
+					guiInline = true, 
+					type = "group", 
+					name = L["Block Raid Buffs"], 
+					args = {
+						friendly = {
+							order = 1, 
+							type = "toggle", 
+							name = L["Friendly"], desc = L["If the unit is friendly to you."].." "..L["Don't display raid buffs."], 
+							get = function(l)return SV.db.SVUnit[unitName][auraType].filterRaid.friendly end, 
+							set = function(l, m)SV.db.SVUnit[unitName][auraType].filterRaid.friendly = m;updateFunction(MOD, unitName)end
+						}, 
+						enemy = {
+							order = 2, 
+							type = "toggle", 
+							name = L["Enemy"], desc = L["If the unit is an enemy to you."].." "..L["Don't display raid buffs."], 
+							get = function(l)return SV.db.SVUnit[unitName][auraType].filterRaid.enemy end, 
+							set = function(l, m)SV.db.SVUnit[unitName][auraType].filterRaid.enemy = m;updateFunction(MOD, unitName)end
+						}
+					}
+				},
+				useFilter = {
+					order = 6, 
+					name = L["Custom Filter"], 
+					desc = L["Select a custom filter to include."], 
+					type = "select", 
+					values = function()
+						filterList = {}
+						filterList[""] = NONE;
+						for n in pairs(SV.filters.Custom) do 
+							filterList[n] = n 
+						end 
+						return filterList 
+					end
+				}
+			}
+		}
+	end
+end
+
+function ns:SetAuraConfigGroup(isPlayer, auraType, unused, updateFunction, unitName, count)
+	local configTable = {
+		order = auraType == "buffs" and 600 or 700, 
+		type = "group", 
+		name = auraType == "buffs" and L["Buffs"] or L["Debuffs"],
+		get = function(key)
+			return SV.db.SVUnit[unitName][auraType][key[#key]]
+		end,
+		set = function(key, value)
+			MOD:ChangeDBVar(value, key[#key], unitName, auraType)
+			updateFunction(MOD, unitName, count)
+		end,  
+		args = {
+			enable = {
+				type = "toggle", 
+				order = 1, 
+				name = L["Enable"]
+			},
+			commonGroup = {
+				order = 2, 
+				guiInline = true, 
+				type = "group", 
+				name = L["Base Settings"], 
+				args = {
+					verticalGrowth = {type = "select", order = 1, name = L["Vertical Growth"], desc = L["The vertical direction that the auras will position themselves"], values = {UP = "UP", DOWN = "DOWN"}},
+					horizontalGrowth = {type = "select", order = 2, name = L["Horizontal Growth"], desc = L["The horizontal direction that the auras will position themselves"], values = {LEFT = "LEFT", RIGHT = "RIGHT"}},
+					perrow = {type = "range", order = 3, width = "full", name = L["Per Row"], min = 1, max = 20, step = 1}, 
+					numrows = {type = "range", order = 4, width = "full", name = L["Num Rows"], min = 1, max = 4, step = 1}, 
+					sizeOverride = {type = "range", order = 5, width = "full", name = L["Size Override"], desc = L["If not set to 0 then override the size of the aura icon to this."], min = 0, max = 60, step = 1}, 
+				}
+			},
+			positionGroup = {
+				order = 3, 
+				guiInline = true, 
+				type = "group", 
+				name = L["Position Settings"], 
+				args = {
+					xOffset = {order = 1, type = "range", name = L["xOffset"], width = "full", min = -60, max = 60, step = 1}, 
+					yOffset = {order = 2, type = "range", name = L["yOffset"], width = "full", min = -60, max = 60, step = 1},
+					anchorPoint = {type = "select", order = 3, name = L["Anchor Point"], desc = L["What point to anchor to the frame you set to attach to."], values = SV.PointIndexes}, 
+				}
+			}
+		}
+	}
+
+	if auraType == "buffs"then 
+		configTable.args.positionGroup.args.attachTo = {
+			type = "select", 
+			order = 7, 
+			name = L["Attach To"], 
+			desc = L["What to attach the buff anchor frame to."], 
+			values = {["FRAME"] = L["Frame"], ["DEBUFFS"] = L["Debuffs"]}
+		}
+	else 
+		configTable.args.positionGroup.args.attachTo = {
+			type = "select", 
+			order = 7, 
+			name = L["Attach To"], 
+			desc = L["What to attach the buff anchor frame to."], 
+			values = {["FRAME"] = L["Frame"], ["BUFFS"] = L["Buffs"]}
+		}
+	end
+
+	setAuraFilteringOptions(configTable.args, unitName, auraType, isPlayer)
+ 
+	return configTable 
 end 
 
-function ns:SetAurabarConfigGroup(custom, updateFunction, unitName)
-	local k = {
+function ns:SetAurabarConfigGroup(isPlayer, updateFunction, unitName)
+	local configTable = {
 		order = 1100, 
 		type = "group", 
 		name = L["Aura Bars"],
@@ -1232,12 +1256,12 @@ function ns:SetAurabarConfigGroup(custom, updateFunction, unitName)
 					configureButton1 = {
 						order = 1, 
 						name = L["Coloring"], 
-						type = "execute", func = function()ACD:SelectGroup(SV.NameID, "SVUnit", "common", "allColorsGroup", "auraBars")end
+						type = "execute", func = function() ACD:SelectGroup(SV.NameID, "SVUnit", "common", "allColorsGroup", "auraBars") end
 					}, 
 					configureButton2 = {
 						order = 2, 
 						name = L["Coloring (Specific)"], 
-						type = "execute", func = function()ns:SetToFilterConfig("AuraBar Colors")end
+						type = "execute", func = function() ns:SetToFilterConfig("AuraBars") end
 					}, 
 					anchorPoint = {
 						type = "select", 
@@ -1273,213 +1297,28 @@ function ns:SetAurabarConfigGroup(custom, updateFunction, unitName)
 				args = {
 					sort = {
 						type = "select", 
-						order = 7, 
+						order = 1, 
 						name = L["Sort Method"], 
 						values = {["TIME_REMAINING"] = L["Time Remaining"], ["TIME_REMAINING_REVERSE"] = L["Time Remaining Reverse"], ["TIME_DURATION"] = L["Duration"], ["TIME_DURATION_REVERSE"] = L["Duration Reverse"], ["NAME"] = NAME, ["NONE"] = NONE}
-					}, 
-					filters = {
-						name = L["Filters"], 
-						guiInline = true, 
-						type = "group", 
-						order = 500, 
-						args = {}
-					}, 
+					},
 					friendlyAuraType = {
 						type = "select", 
-						order = 16, 
+						order = 2, 
 						name = L["Friendly Aura Type"], desc = L["Set the type of auras to show when a unit is friendly."], values = {["HARMFUL"] = L["Debuffs"], ["HELPFUL"] = L["Buffs"]}
 					}, 
 					enemyAuraType = {
 						type = "select", 
-						order = 17, 
+						order = 3, 
 						name = L["Enemy Aura Type"], desc = L["Set the type of auras to show when a unit is a foe."], values = {["HARMFUL"] = L["Debuffs"], ["HELPFUL"] = L["Buffs"]}
 					}
 				}
 			}
 		}
 	};
-	if custom then 
-		k.args.filterGroup.args.filters.args.filterPlayer = {
-			order = 10, 
-			type = "toggle", 
-			name = L["Only Show Your Auras"], desc = L["Don't display auras that are not yours."]
-		}
-		k.args.filterGroup.args.filters.args.filterBlocked = {
-			order = 11, 
-			type = "toggle", 
-			name = L["Force Blocked List"], desc = L["Don't display any auras found on the Blocked filter."]
-		}
-		k.args.filterGroup.args.filters.args.filterAllowed = {
-			order = 12, 
-			type = "toggle", 
-			name = L["Force Allowed List"], desc = L["If no other filter options are being used then it will block anything not on the Allowed filter, otherwise it will simply add auras on the whitelist in addition to any other filter settings."]
-		}
-		k.args.filterGroup.args.filters.args.filterInfinite = {
-			order = 13, 
-			type = "toggle", 
-			name = L["Block Auras Without Duration"], desc = L["Don't display auras that have no duration."]
-		}
-		k.args.filterGroup.args.filters.args.filterDispellable = {
-			order = 13, 
-			type = "toggle", 
-			name = L["Block Non-Dispellable Auras"], desc = L["Don't display auras that cannot be purged or dispelled by your class."]
-		}
-		k.args.filterGroup.args.filters.args.filterRaid = {
-			order = 14, 
-			type = "toggle", 
-			name = L["Block Raid Buffs"], desc = L["Don't display raid buffs such as Blessing of Kings or Mark of the Wild."]
-		}
-		k.args.filterGroup.args.filters.args.useFilter = {
-			order = 15, 
-			name = L["Additional Filter"], 
-			desc = L["Select an additional filter to use. If the selected filter is a whitelist and no other filters are being used (with the exception of Only Show Your Auras) then it will block anything not on the whitelist, otherwise it will simply add auras on the whitelist in addition to any other filter settings."], 
-			type = "select", 
-			values = function()
-				filterList = {}
-				filterList[""] = NONE;
-				for n in pairs(SV.db.filter) do 
-					filterList[n] = n 
-				end 
-				return filterList 
-			end
-		}
-	else 
-		k.args.filterGroup.args.filters.args.filterPlayer = {
-			order = 10, guiInline = true, 
-			type = "group", 
-			name = L["Only Show Your Auras"], 
-			args = {
-				friendly = {
-					order = 2, 
-					type = "toggle", 
-					name = L["Friendly"], desc = L["If the unit is friendly to you."].." "..L["Don't display auras that are not yours."], 
-					get = function(l)return SV.db.SVUnit[unitName]["aurabar"].filterPlayer.friendly end, 
-					set = function(l, m)SV.db.SVUnit[unitName]["aurabar"].filterPlayer.friendly = m;updateFunction(MOD, unitName)end
-				}, 
-				enemy = {
-					order = 3, 
-					type = "toggle", 
-					name = L["Enemy"], desc = L["If the unit is an enemy to you."].." "..L["Don't display auras that are not yours."], 
-					get = function(l)return SV.db.SVUnit[unitName]["aurabar"].filterPlayer.enemy end, 
-					set = function(l, m)SV.db.SVUnit[unitName]["aurabar"].filterPlayer.enemy = m;updateFunction(MOD, unitName)end
-				}
-			}
-		}
-		k.args.filterGroup.args.filters.args.filterBlocked = {
-			order = 11, guiInline = true, 
-			type = "group", 
-			name = L["Force Blocked List"], 
-			args = {
-				friendly = {
-					order = 2, 
-					type = "toggle", 
-					name = L["Friendly"], desc = L["If the unit is friendly to you."].." "..L["Don't display any auras found on the Blocked filter."], 
-					get = function(l)return SV.db.SVUnit[unitName]["aurabar"].filterBlocked.friendly end, 
-					set = function(l, m)SV.db.SVUnit[unitName]["aurabar"].filterBlocked.friendly = m;updateFunction(MOD, unitName)end
-				}, 
-				enemy = {
-					order = 3, 
-					type = "toggle", 
-					name = L["Enemy"], desc = L["If the unit is an enemy to you."].." "..L["Don't display any auras found on the Blocked filter."], 
-					get = function(l)return SV.db.SVUnit[unitName]["aurabar"].filterBlocked.enemy end, 
-					set = function(l, m)SV.db.SVUnit[unitName]["aurabar"].filterBlocked.enemy = m;updateFunction(MOD, unitName)end
-				}
-			}
-		}
-		k.args.filterGroup.args.filters.args.filterAllowed = {
-			order = 12, guiInline = true, 
-			type = "group", 
-			name = L["Force Allowed List"], 
-			args = {
-				friendly = {
-					order = 2, 
-					type = "toggle", 
-					name = L["Friendly"], desc = L["If the unit is friendly to you."].." "..L["If no other filter options are being used then it will block anything not on the Allowed filter, otherwise it will simply add auras on the whitelist in addition to any other filter settings."], 
-					get = function(l)return SV.db.SVUnit[unitName]["aurabar"].filterAllowed.friendly end, 
-					set = function(l, m)SV.db.SVUnit[unitName]["aurabar"].filterAllowed.friendly = m;updateFunction(MOD, unitName)end
-				}, 
-				enemy = {
-					order = 3, 
-					type = "toggle", 
-					name = L["Enemy"], desc = L["If the unit is an enemy to you."].." "..L["If no other filter options are being used then it will block anything not on the Allowed filter, otherwise it will simply add auras on the whitelist in addition to any other filter settings."], 
-					get = function(l)return SV.db.SVUnit[unitName]["aurabar"].filterAllowed.enemy end, 
-					set = function(l, m)SV.db.SVUnit[unitName]["aurabar"].filterAllowed.enemy = m;updateFunction(MOD, unitName)end
-				}
-			}
-		}
-		k.args.filterGroup.args.filters.args.filterInfinite = {
-			order = 13, guiInline = true, 
-			type = "group", 
-			name = L["Block Auras Without Duration"], 
-			args = {
-				friendly = {
-					order = 2, 
-					type = "toggle", 
-					name = L["Friendly"], desc = L["If the unit is friendly to you."].." "..L["Don't display auras that have no duration."], 
-					get = function(l)return SV.db.SVUnit[unitName]["aurabar"].filterInfinite.friendly end, 
-					set = function(l, m)SV.db.SVUnit[unitName]["aurabar"].filterInfinite.friendly = m;updateFunction(MOD, unitName)end
-				}, 
-				enemy = {
-					order = 3, 
-					type = "toggle", 
-					name = L["Enemy"], desc = L["If the unit is an enemy to you."].." "..L["Don't display auras that have no duration."], 
-					get = function(l)return SV.db.SVUnit[unitName]["aurabar"].filterInfinite.enemy end, 
-					set = function(l, m)SV.db.SVUnit[unitName]["aurabar"].filterInfinite.enemy = m;updateFunction(MOD, unitName)end
-				}
-			}
-		}
-		k.args.filterGroup.args.filters.args.filterDispellable = {
-			order = 13, guiInline = true, 
-			type = "group", 
-			name = L["Block Non-Dispellable Auras"], 
-			args = {
-				friendly = {
-				order = 2, 
-				type = "toggle", 
-				name = L["Friendly"], desc = L["If the unit is friendly to you."].." "..L["Don't display auras that cannot be purged or dispelled by your class."], 
-				get = function(l)return SV.db.SVUnit[unitName]["aurabar"].filterDispellable.friendly end, 
-				set = function(l, m)SV.db.SVUnit[unitName]["aurabar"].filterDispellable.friendly = m;updateFunction(MOD, unitName)end}, enemy = {
-				order = 3, 
-				type = "toggle", 
-				name = L["Enemy"], desc = L["If the unit is an enemy to you."].." "..L["Don't display auras that cannot be purged or dispelled by your class."], 
-				get = function(l)return SV.db.SVUnit[unitName]["aurabar"].filterDispellable.enemy end, 
-				set = function(l, m)SV.db.SVUnit[unitName]["aurabar"].filterDispellable.enemy = m;updateFunction(MOD, unitName)end}
-			}
-		}
-		k.args.filterGroup.args.filters.args.filterRaid = {
-			order = 14, guiInline = true, 
-			type = "group", 
-			name = L["Block Raid Buffs"], 
-			args = {
-				friendly = {
-				order = 2, 
-				type = "toggle", 
-				name = L["Friendly"], desc = L["If the unit is friendly to you."].." "..L["Don't display raid buffs such as Blessing of Kings or Mark of the Wild."], 
-				get = function(l)return SV.db.SVUnit[unitName]["aurabar"].filterRaid.friendly end, 
-				set = function(l, m)SV.db.SVUnit[unitName]["aurabar"].filterRaid.friendly = m;updateFunction(MOD, unitName)end}, enemy = {
-				order = 3, 
-				type = "toggle", 
-				name = L["Enemy"], desc = L["If the unit is an enemy to you."].." "..L["Don't display raid buffs such as Blessing of Kings or Mark of the Wild."], 
-				get = function(l)return SV.db.SVUnit[unitName]["aurabar"].filterRaid.enemy end, 
-				set = function(l, m)SV.db.SVUnit[unitName]["aurabar"].filterRaid.enemy = m;updateFunction(MOD, unitName)end}
-			}
-		}
-		k.args.filterGroup.args.filters.args.useFilter = {
-			order = 15, 
-			name = L["Additional Filter"], 
-			desc = L["Select an additional filter to use. If the selected filter is a whitelist and no other filters are being used (with the exception of Only Show Your Auras) then it will block anything not on the whitelist, otherwise it will simply add auras on the whitelist in addition to any other filter settings."], 
-			type = "select", 
-			values = function()
-				filterList = {}
-				filterList[""] = NONE;
-				for n in pairs(SV.db.filter) do 
-					filterList[n] = n 
-				end 
-				return filterList 
-			end
-		}
-	end 
-	return k 
+
+	setAuraFilteringOptions(configTable.args.filterGroup.args, unitName, "aurabar", isPlayer)
+
+	return configTable 
 end 
 
 SV.Options.args.SVUnit = {

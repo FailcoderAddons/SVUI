@@ -51,17 +51,18 @@ LOCAL VARS
 ]]--
 local CreateFrame = _G.CreateFrame;
 local hooksecurefunc = _G.hooksecurefunc;
-local iconTex = [[Interface\BUTTONS\WHITE8X8]]
-local borderTex = [[Interface\Addons\SVUI\assets\artwork\Template\ROUND]]
-local ICON_BAGS = [[Interface\AddOns\SVUI\assets\artwork\Icons\BAGS-BAGS]]
-local ICON_SORT = [[Interface\AddOns\SVUI\assets\artwork\Icons\BAGS-SORT]]
-local ICON_STACK = [[Interface\AddOns\SVUI\assets\artwork\Icons\BAGS-STACK]]
-local ICON_TRANSFER = [[Interface\AddOns\SVUI\assets\artwork\Icons\BAGS-TRANSFER]]
-local ICON_PURCHASE = [[Interface\AddOns\SVUI\assets\artwork\Icons\BAGS-PURCHASE]]
-local ICON_CLEANUP = [[Interface\AddOns\SVUI\assets\artwork\Icons\BAGS-CLEANUP]]
-local ICON_DEPOSIT = [[Interface\AddOns\SVUI\assets\artwork\Icons\BAGS-DEPOSIT]]
-local ICON_VENDOR = [[Interface\AddOns\SVUI\assets\artwork\Icons\BAGS-VENDOR]]
-local ICON_REAGENTS = [[Interface\AddOns\SVUI\assets\artwork\Icons\BAGS-REAGENTS]]
+local BLANK_TEXTURE = [[Interface\BUTTONS\WHITE8X8]];
+local BASIC_TEXTURE = [[Interface\AddOns\SVUI\assets\artwork\Bars\DEFAULT]];
+local BORDER_TEXTURE = [[Interface\Addons\SVUI\assets\artwork\Template\ROUND]];
+local ICON_BAGS = [[Interface\AddOns\SVUI\assets\artwork\Icons\BAGS-BAGS]];
+local ICON_SORT = [[Interface\AddOns\SVUI\assets\artwork\Icons\BAGS-SORT]];
+local ICON_STACK = [[Interface\AddOns\SVUI\assets\artwork\Icons\BAGS-STACK]];
+local ICON_TRANSFER = [[Interface\AddOns\SVUI\assets\artwork\Icons\BAGS-TRANSFER]];
+local ICON_PURCHASE = [[Interface\AddOns\SVUI\assets\artwork\Icons\BAGS-PURCHASE]];
+local ICON_CLEANUP = [[Interface\AddOns\SVUI\assets\artwork\Icons\BAGS-CLEANUP]];
+local ICON_DEPOSIT = [[Interface\AddOns\SVUI\assets\artwork\Icons\BAGS-DEPOSIT]];
+local ICON_VENDOR = [[Interface\AddOns\SVUI\assets\artwork\Icons\BAGS-VENDOR]];
+local ICON_REAGENTS = [[Interface\AddOns\SVUI\assets\artwork\Icons\BAGS-REAGENTS]];
 local numBagFrame = NUM_BAG_FRAMES + 1;
 local VendorQueue = {};
 local gearSet, gearList = {}, {};
@@ -95,18 +96,17 @@ local function FormatCurrency(amount)
 	end
 end 
 
-local function StyleBagToolButton(button)
+local function StyleBagToolButton(button, iconTex)
 	if button.styled then return end 
 
 	local outer = button:CreateTexture(nil, "OVERLAY")
 	outer:WrapOuter(button, 6, 6)
-	outer:SetTexture(borderTex)
+	outer:SetTexture(BORDER_TEXTURE)
 	outer:SetGradient("VERTICAL", 0.4, 0.47, 0.5, 0.3, 0.33, 0.35)
 
-	if button.SetNormalTexture then 
-		iconTex = button:GetNormalTexture()
-		iconTex:SetGradient("VERTICAL", 0.5, 0.53, 0.55, 0.8, 0.8, 1)
-	end 
+	button:SetNormalTexture(iconTex)
+	iconTex = button:GetNormalTexture()
+	iconTex:SetGradient("VERTICAL", 0.5, 0.53, 0.55, 0.8, 0.8, 1)
 	
 	local icon = button:CreateTexture(nil, "OVERLAY")
 	icon:WrapOuter(button, 6, 6)
@@ -115,13 +115,13 @@ local function StyleBagToolButton(button)
 
 	local hover = button:CreateTexture(nil, "HIGHLIGHT")
 	hover:WrapOuter(button, 6, 6)
-	hover:SetTexture(borderTex)
+	hover:SetTexture(BORDER_TEXTURE)
 	hover:SetGradient(unpack(SV.Media.gradient.yellow))
 
 	if button.SetPushedTexture then 
 		local pushed = button:CreateTexture(nil, "BORDER")
 		pushed:WrapOuter(button, 6, 6)
-		pushed:SetTexture(borderTex)
+		pushed:SetTexture(BORDER_TEXTURE)
 		pushed:SetGradient(unpack(SV.Media.gradient.highlight))
 		button:SetPushedTexture(pushed)
 	end 
@@ -129,7 +129,7 @@ local function StyleBagToolButton(button)
 	if button.SetCheckedTexture then 
 		local checked = button:CreateTexture(nil, "BORDER")
 		checked:WrapOuter(button, 6, 6)
-		checked:SetTexture(borderTex)
+		checked:SetTexture(BORDER_TEXTURE)
 		checked:SetGradient(unpack(SV.Media.gradient.green))
 		button:SetCheckedTexture(checked)
 	end 
@@ -137,7 +137,7 @@ local function StyleBagToolButton(button)
 	if button.SetDisabledTexture then 
 		local disabled = button:CreateTexture(nil, "BORDER")
 		disabled:WrapOuter(button, 6, 6)
-		disabled:SetTexture(borderTex)
+		disabled:SetTexture(BORDER_TEXTURE)
 		disabled:SetGradient(unpack(SV.Media.gradient.default))
 		button:SetDisabledTexture(disabled)
 	end 
@@ -285,29 +285,51 @@ end
 
 local SlotUpdate = function(self, slotID)
 	if(not self[slotID]) then return end
-	--print(self[slotID]:GetName())
 	local bag = self:GetID();
 	local slot = self[slotID];
 	local bagType = self.bagFamily;
 
 	slot:Show()
 
-	local texture, count, locked, rarity = GetContainerItemInfo(bag, slotID);
-	local itemID = GetContainerItemID(bag, slotID);
+	local texture, count, locked = GetContainerItemInfo(bag, slotID);
 	local start, duration, enable = GetContainerItemCooldown(bag, slotID);
-	local itemLink = GetContainerItemLink(bag, slotID);
+	local isQuestItem, questId, isActiveQuest = GetContainerItemQuestInfo(bag, slotID);
 
-	if(slot.JunkIcon) then
-		if(itemID and VendorQueue[itemID]) then
-			slot.JunkIcon:Show()
-		else
-			slot.JunkIcon:Hide()
+	local itemID = GetContainerItemID(bag, slotID);
+	if(itemID and VendorQueue[itemID]) then
+		slot.JunkIcon:Show()
+	else
+		slot.JunkIcon:Hide()
+	end
+
+	local r,g,b = 0,0,0
+
+	if(questId and (not isActiveQuest)) then
+		r,g,b = 1,0.3,0.3
+		slot.questIcon:Show();
+	elseif(questId or isQuestItem) then
+		r,g,b = 1,0.3,0.3
+		slot.questIcon:Hide();
+	elseif(bagType) then
+		r,g,b = bagType[1],bagType[2],bagType[3]
+		slot.questIcon:Hide();
+	else
+		slot.questIcon:Hide();
+		local itemLink = GetContainerItemLink(bag, slotID);
+		if(itemLink) then
+			local rarity = select(3, GetItemInfo(itemLink));
+			if(rarity) then
+				if(rarity > 1) then 
+					r,g,b = GetItemQualityColor(rarity)
+				elseif(rarity == 0) then
+					slot.JunkIcon:Show()
+				end
+			end
 		end
 	end
 
-	if(slot.questIcon) then
-		slot.questIcon:Hide();
-	end
+	slot:SetBackdropColor(r,g,b,0.6)
+	slot:SetBackdropBorderColor(r,g,b,1)
 
 	CooldownFrame_SetTimer(slot.cooldown, start, duration, enable);
 
@@ -315,44 +337,6 @@ local SlotUpdate = function(self, slotID)
 		SetItemButtonTextureVertexColor(slot, 0.4, 0.4, 0.4)
 	else 
 		SetItemButtonTextureVertexColor(slot, 1, 1, 1)
-	end
-
-	slot:SetBackdropColor(0, 0, 0, 0.6)
-	slot:SetBackdropBorderColor(0, 0, 0, 1)
-	
-	if(itemLink) then
-		local rarity = select(3, GetItemInfo(itemLink))
-		local isQuestItem, questId, isActiveQuest = GetContainerItemQuestInfo(bag, slotID);
-
-		if(questId and not isActive) then
-			slot:SetBackdropBorderColor(1.0, 0.3, 0.3);
-			if(slot.questIcon) then
-				slot.questIcon:Show();
-			end
-		elseif(questId or isQuestItem) then
-			slot:SetBackdropBorderColor(1.0, 0.3, 0.3);
-		elseif(rarity) then
-			if(rarity > 1) then 
-				local r, g, b = GetItemQualityColor(rarity)
-				slot:SetBackdropColor(r, g, b, 0.6)
-				slot:SetBackdropBorderColor(r, g, b, 1)
-			elseif(rarity == 0) then 
-				if(slot.JunkIcon) then
-					slot.JunkIcon:Show()
-				end
-				slot:SetBackdropColor(0, 0, 0, 0.6)
-				slot:SetBackdropBorderColor(0, 0, 0, 1)
-			end
-		else
-			slot:SetBackdropColor(0, 0, 0, 0.6)
-			slot:SetBackdropBorderColor(0, 0, 0, 1)
-		end
-	end
-	
-	if(bagType) then
-		local r, g, b = bagType[1], bagType[2], bagType[3];
-		slot:SetBackdropColor(r, g, b, 0.6)
-		slot:SetBackdropBorderColor(r, g, b, 1)
 	end
 
 	if(C_NewItems.IsNewItem(bag, slotID)) then
@@ -524,12 +508,13 @@ local ContainerFrame_UpdateLayout = function(self)
 				bagSlot:SetPushedTexture("")
 				bagSlot:SetScript("OnClick", nil)
 				bagSlot:RemoveTextures()
-				bagSlot:SetSlotTemplate(true, 2, 0, 0, true);
+				bagSlot:SetSlotTemplate(true, 2, 0, 0, 0.5);
 
-				local texName = ("%sIconTexture"):format(globalName)
-				bagSlot.iconTexture = _G[texName];
-				bagSlot.iconTexture:FillInner()
-				bagSlot.iconTexture:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+				if(not bagSlot.icon) then
+					bagSlot.icon = bagSlot:CreateTexture(nil, "BORDER");
+				end
+				bagSlot.icon:FillInner()
+				bagSlot.icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 
 				hooksecurefunc(bagSlot, "UpdateTooltip", BagMenu_OnEnter)
 				bagSlot:HookScript("OnLeave", BagMenu_OnLeave)
@@ -592,15 +577,12 @@ local ContainerFrame_UpdateLayout = function(self)
 			end
 
 			bag.numSlots = numSlots;
+			bag.bagFamily = false;
 
 			local btype = select(2, GetContainerNumFreeSlots(bagID));
-			local r, g, b;
 			if RefProfessionColors[btype] then
-				r, g, b = unpack(RefProfessionColors[btype]);
+				local r, g, b = unpack(RefProfessionColors[btype]);
 				bag.bagFamily = {r, g, b};
-			else
-				r, g, b = 0,0,0
-				bag.bagFamily = false;
 			end
 
 			for i = 1, MAX_CONTAINER_ITEMS do 
@@ -626,25 +608,27 @@ local ContainerFrame_UpdateLayout = function(self)
 					slot:SetSlotTemplate(true, 2, 0, 0, 0.45);
 					slot.Panel.Shadow:SetAttribute("shadowAlpha", 0.9)
 					
-					if(slot.NewItemTexture) then 
-						slot.NewItemTexture:SetTexture(nil);
-						slot.NewItemTexture:Hide()
+					if(not slot.NewItemTexture) then
+						slot.NewItemTexture = slot:CreateTexture(nil, "OVERLAY", 1);
 					end
+					slot.NewItemTexture:FillInner(slot);
+					slot.NewItemTexture:SetTexture(0,0,0,0);
+					slot.NewItemTexture:Hide()
 
-					if(slot.JunkIcon) then 
-						slot.JunkIcon:SetTexture([[Interface\BUTTONS\UI-GroupLoot-Coin-Up]]);
-						slot.JunkIcon:Point("TOPLEFT", slot, "TOPLEFT", -4, 4);
+					if(not slot.JunkIcon) then 
+						slot.JunkIcon = slot:CreateTexture(nil, "OVERLAY");
+						slot.JunkIcon:Size(16,16);
 					end
+					slot.JunkIcon:SetTexture([[Interface\BUTTONS\UI-GroupLoot-Coin-Up]]);
+					slot.JunkIcon:Point("TOPLEFT", slot, "TOPLEFT", -4, 4);
 
-					slot.iconTexture = _G[iconName];
-					slot.iconTexture:FillInner(slot);
-					slot.iconTexture:SetTexCoord(0.1, 0.9, 0.1, 0.9);
-
-					if(_G[questIcon]) then
-						slot.questIcon = _G[questIcon]
-					else
-						slot.questIcon = slot:CreateTexture(nil, "OVERLAY")
+					if(not slot.icon) then
+						slot.icon = slot:CreateTexture(nil, "BORDER");
 					end
+					slot.icon:FillInner(slot);
+					slot.icon:SetTexCoord(0.1, 0.9, 0.1, 0.9);
+
+					slot.questIcon = _G[questIcon] or slot:CreateTexture(nil, "OVERLAY")
 					slot.questIcon:SetTexture(TEXTURE_ITEM_QUEST_BANG);
 					slot.questIcon:FillInner(slot);
 					slot.questIcon:SetTexCoord(0.1, 0.9, 0.1, 0.9);
@@ -658,11 +642,6 @@ local ContainerFrame_UpdateLayout = function(self)
 
 				slot:SetID(slotID);
 				slot:Size(buttonSize);
-
-				slot:SetBackdropColor(r, g, b, 0.6)
-				slot:SetBackdropBorderColor(r, g, b, 1)
-
-				bag:SlotUpdate(slotID);
 
 				if slot:GetPoint() then 
 					slot:ClearAllPoints();
@@ -680,8 +659,13 @@ local ContainerFrame_UpdateLayout = function(self)
 					lastRowButton = slot;
 				end
 
-				lastButton = slot;	
-			end 
+				lastButton = slot;
+
+				slot:SetBackdropColor(1,0.3,0.3,0.6)
+				slot:SetBackdropBorderColor(1,0.3,0.3,1)
+
+				bag:SlotUpdate(slotID);
+			end
 		else
 			if(menu[i] and menu[i].GetInventorySlot) then 
 				BankFrameItemButton_Update(menu[i])
@@ -749,26 +733,34 @@ local ReagentFrame_UpdateLayout = function(self)
 		if not bag[slotID] then
 			local slotName = ("%sSlot%d"):format(bagName, slotID)
 			local iconName = ("%sIconTexture"):format(slotName)
+			local questIcon = ("%sIconQuestTexture"):format(slotName)
 			local cdName = ("%sCooldown"):format(slotName)
 
 			slot = CreateFrame("CheckButton", slotName, bag, "ReagentBankItemButtonGenericTemplate");
 			slot:SetNormalTexture(nil);
 			slot:SetCheckedTexture(nil);
 			slot:RemoveTextures()
-			slot:SetSlotTemplate(true, 2, 0, 0, true);
-			
-			if(slot.NewItemTexture) then 
-				slot.NewItemTexture:Hide()
-			end
+			slot:SetSlotTemplate(true, 2, 0, 0, 0.5);
 
-			if(slot.JunkIcon) then 
-				slot.JunkIcon:SetTexture([[Interface\BUTTONS\UI-GroupLoot-Coin-Up]]);
-				slot.JunkIcon:Point("TOPLEFT", slot, "TOPLEFT", -4, 4);
-			end 
+			slot.NewItemTexture = slot:CreateTexture(nil, "OVERLAY", 1);
+			slot.NewItemTexture:FillInner(slot);
+			slot.NewItemTexture:SetTexture(0,0,0,0);
+			slot.NewItemTexture:Hide()
 
-			slot.iconTexture = _G[iconName];
-			slot.iconTexture:FillInner(slot);
-			slot.iconTexture:SetTexCoord(0.1, 0.9, 0.1, 0.9);
+			slot.JunkIcon = slot:CreateTexture(nil, "OVERLAY");
+			slot.JunkIcon:Size(16,16);
+			slot.JunkIcon:SetTexture(0,0,0,0);
+			slot.JunkIcon:Point("TOPLEFT", slot, "TOPLEFT", -4, 4);
+
+			slot.icon = _G[iconName] or slot:CreateTexture(nil, "BORDER");
+			slot.icon:FillInner(slot);
+			slot.icon:SetTexCoord(0.1, 0.9, 0.1, 0.9);
+
+			slot.questIcon = _G[questIcon] or slot:CreateTexture(nil, "OVERLAY")
+			slot.questIcon:SetTexture(TEXTURE_ITEM_QUEST_BANG);
+			slot.questIcon:FillInner(slot);
+			slot.questIcon:SetTexCoord(0.1, 0.9, 0.1, 0.9);
+
 			slot.cooldown = _G[cdName];
 
 			bag[slotID] = slot
@@ -778,7 +770,6 @@ local ReagentFrame_UpdateLayout = function(self)
 
 		slot:SetID(slotID);
 		slot:Size(buttonSize);
-		bag:SlotUpdate(slotID);
 
 		if slot:GetPoint() then 
 			slot:ClearAllPoints();
@@ -799,7 +790,9 @@ local ReagentFrame_UpdateLayout = function(self)
 		lastButton = slot;
 
 		BankFrameItemButton_Update(slot);
-		BankFrameItemButton_UpdateLocked(slot)
+		BankFrameItemButton_UpdateLocked(slot);
+
+		bag:SlotUpdate(slotID);
 	end
 
 	self:Size(containerWidth, containerHeight);
@@ -1149,7 +1142,6 @@ do
 			if(bagID and slotID and self.Bags[bagID]) then
 				self.Bags[bagID]:SlotUpdate(slotID)
 			end
-			self:RefreshBags()
 		elseif(event == "BAG_UPDATE" or event == "EQUIPMENT_SETS_CHANGED") then
 			BuildEquipmentMap()
 			for id, bag in pairs(self.Bags) do 
@@ -1404,8 +1396,7 @@ do
 		frame.sortButton = CreateFrame("Button", nil, frame)
 		frame.sortButton:Point("TOP", frame, "TOP", 0, -10)
 		frame.sortButton:Size(25, 25)
-		frame.sortButton:SetNormalTexture(ICON_CLEANUP)
-		StyleBagToolButton(frame.sortButton)
+		StyleBagToolButton(frame.sortButton, ICON_CLEANUP)
 		frame.sortButton.ttText = L["Sort Bags"]
 		frame.sortButton.altText = L["Filtered Cleanup"]
 		frame.sortButton:SetScript("OnEnter", Tooltip_Show)
@@ -1416,8 +1407,7 @@ do
 		frame.stackButton = CreateFrame("Button", nil, frame)
 		frame.stackButton:Point("LEFT", frame.sortButton, "RIGHT", 10, 0)
 		frame.stackButton:Size(25, 25)
-		frame.stackButton:SetNormalTexture(ICON_STACK)
-		StyleBagToolButton(frame.stackButton)
+		StyleBagToolButton(frame.stackButton, ICON_STACK)
 		frame.stackButton.ttText = L["Stack Items"]
 		frame.stackButton:SetScript("OnEnter", Tooltip_Show)
 		frame.stackButton:SetScript("OnLeave", Tooltip_Hide)
@@ -1427,8 +1417,7 @@ do
 		frame.vendorButton = CreateFrame("Button", nil, frame)
 		frame.vendorButton:Point("RIGHT", frame.sortButton, "LEFT", -10, 0)
 		frame.vendorButton:Size(25, 25)
-		frame.vendorButton:SetNormalTexture(ICON_VENDOR)
-		StyleBagToolButton(frame.vendorButton)
+		StyleBagToolButton(frame.vendorButton, ICON_VENDOR)
 		frame.vendorButton.ttText = L["Vendor Grays"]
 		frame.vendorButton.ttText2 = L["Hold Shift:"]
 		frame.vendorButton.ttText2desc = L["Delete Grays"]
@@ -1439,8 +1428,7 @@ do
 		frame.bagsButton = CreateFrame("Button", nil, frame)
 		frame.bagsButton:Point("RIGHT", frame.vendorButton, "LEFT", -10, 0)
 		frame.bagsButton:Size(25, 25)
-		frame.bagsButton:SetNormalTexture(ICON_BAGS)
-		StyleBagToolButton(frame.bagsButton)
+		StyleBagToolButton(frame.bagsButton, ICON_BAGS)
 		frame.bagsButton.ttText = L["Toggle Bags"]
 		frame.bagsButton:SetScript("OnEnter", Tooltip_Show)
 		frame.bagsButton:SetScript("OnLeave", Tooltip_Hide)
@@ -1456,8 +1444,7 @@ do
 		frame.transferButton = CreateFrame("Button", nil, frame)
 		frame.transferButton:Point("LEFT", frame.stackButton, "RIGHT", 10, 0)
 		frame.transferButton:Size(25, 25)
-		frame.transferButton:SetNormalTexture(ICON_TRANSFER)
-		StyleBagToolButton(frame.transferButton)
+		StyleBagToolButton(frame.transferButton, ICON_TRANSFER)
 		frame.transferButton.ttText = L["Stack Bags to Bank"]
 		frame.transferButton:SetScript("OnEnter", Tooltip_Show)
 		frame.transferButton:SetScript("OnLeave", Tooltip_Hide)
@@ -1555,8 +1542,7 @@ do
 		frame.sortButton = CreateFrame("Button", nil, frame)
 		frame.sortButton:Point("TOPRIGHT", frame, "TOP", 0, -10)
 		frame.sortButton:Size(25, 25)
-		frame.sortButton:SetNormalTexture(ICON_CLEANUP)
-		StyleBagToolButton(frame.sortButton)
+		StyleBagToolButton(frame.sortButton, ICON_CLEANUP)
 		frame.sortButton.ttText = L["Sort Bank"]
 		frame.sortButton.altText = L["Filtered Cleanup"]
 		frame.sortButton:SetScript("OnEnter", Tooltip_Show)
@@ -1565,8 +1551,7 @@ do
 		frame.stackButton = CreateFrame("Button", nil, frame)
 		frame.stackButton:Point("LEFT", frame.sortButton, "RIGHT", 10, 0)
 		frame.stackButton:Size(25, 25)
-		frame.stackButton:SetNormalTexture(ICON_STACK)
-		StyleBagToolButton(frame.stackButton)
+		StyleBagToolButton(frame.stackButton, ICON_STACK)
 		frame.stackButton.ttText = L["Stack Items"]
 		frame.stackButton:SetScript("OnEnter", Tooltip_Show)
 		frame.stackButton:SetScript("OnLeave", Tooltip_Hide)
@@ -1585,8 +1570,7 @@ do
 			frame.transferButton = CreateFrame("Button", nil, frame)
 			frame.transferButton:Point("LEFT", frame.stackButton, "RIGHT", 10, 0)
 			frame.transferButton:Size(25, 25)
-			frame.transferButton:SetNormalTexture(ICON_TRANSFER)
-			StyleBagToolButton(frame.transferButton)
+			StyleBagToolButton(frame.transferButton, ICON_TRANSFER)
 			frame.transferButton.ttText = L["Stack Bank to Bags"]
 			frame.transferButton:SetScript("OnEnter", Tooltip_Show)
 			frame.transferButton:SetScript("OnLeave", Tooltip_Hide)
@@ -1594,13 +1578,11 @@ do
 			frame.transferButton:SetScript("OnClick", Transfer_OnClick)
 			
 			tinsert(UISpecialFrames, bagName)
-			tinsert(self.BagFrames, frame)
 
 			frame.bagsButton = CreateFrame("Button", nil, frame)
 			frame.bagsButton:Point("RIGHT", frame.sortButton, "LEFT", -10, 0)
 			frame.bagsButton:Size(25, 25)
-			frame.bagsButton:SetNormalTexture(ICON_BAGS)
-			StyleBagToolButton(frame.bagsButton)
+			StyleBagToolButton(frame.bagsButton, ICON_BAGS)
 			frame.bagsButton.ttText = L["Toggle Bags"]
 			frame.bagsButton:SetScript("OnEnter", Tooltip_Show)
 			frame.bagsButton:SetScript("OnLeave", Tooltip_Hide)
@@ -1622,8 +1604,7 @@ do
 			frame.purchaseBagButton:Size(25, 25)
 			frame.purchaseBagButton:Point("RIGHT", frame.bagsButton, "LEFT", -10, 0)
 			frame.purchaseBagButton:SetFrameLevel(frame.purchaseBagButton:GetFrameLevel()+2)
-			frame.purchaseBagButton:SetNormalTexture(ICON_PURCHASE)
-			StyleBagToolButton(frame.purchaseBagButton)
+			StyleBagToolButton(frame.purchaseBagButton, ICON_PURCHASE)
 			frame.purchaseBagButton.ttText = L["Purchase"]
 			frame.purchaseBagButton:SetScript("OnEnter", Tooltip_Show)
 			frame.purchaseBagButton:SetScript("OnLeave", Tooltip_Hide)
@@ -1642,8 +1623,7 @@ do
 			frame.swapButton = CreateFrame("Button", nil, frame)
 			frame.swapButton:Point("TOPRIGHT", frame, "TOPRIGHT", -40, -10)
 			frame.swapButton:Size(25, 25)
-			frame.swapButton:SetNormalTexture(active_icon)
-			StyleBagToolButton(frame.swapButton)
+			StyleBagToolButton(frame.swapButton, active_icon)
 			frame.swapButton.ttText = L["Toggle Reagents Bank"]
 			frame.swapButton:SetScript("OnEnter", function(self)
 				GameTooltip:SetOwner(self:GetParent(),"ANCHOR_TOP",0,4)
@@ -1680,8 +1660,7 @@ do
 			frame.transferButton = CreateFrame("Button", nil, frame)
 			frame.transferButton:Point("LEFT", frame.stackButton, "RIGHT", 10, 0)
 			frame.transferButton:Size(25, 25)
-			frame.transferButton:SetNormalTexture(ICON_DEPOSIT)
-			StyleBagToolButton(frame.transferButton)
+			StyleBagToolButton(frame.transferButton, ICON_DEPOSIT)
 			frame.transferButton.ttText = L["Deposit All Reagents"]
 			frame.transferButton:SetScript("OnEnter", Tooltip_Show)
 			frame.transferButton:SetScript("OnLeave", Tooltip_Hide)
@@ -1690,6 +1669,8 @@ do
 			frame:SetPoint("BOTTOMLEFT", self.BankFrame, "BOTTOMRIGHT", 2, 0)
 			self.ReagentFrame = frame
 		end
+
+		tinsert(self.BagFrames, frame)
 	end
 end
 
@@ -1816,7 +1797,6 @@ function MOD:BANKFRAME_OPENED()
 	if(not self.ReagentFrame) then 
 		self:MakeBankOrReagent(true)
 	end
-	self.ReagentFrame:UpdateLayout()
 	
 	if(self.ReagentFrame) then 
 		self.ReagentFrame:UpdateLayout()
@@ -1974,6 +1954,4 @@ function MOD:Load()
 	self:RegisterEvent("PLAYERBANKBAGSLOTS_CHANGED")
 
 	StackSplitFrame:SetFrameStrata("DIALOG")
-
-	self.BagFrame:RefreshBags()
 end 

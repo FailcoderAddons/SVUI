@@ -950,7 +950,7 @@ LibSuperVillain("Registry"):NewCallback("DOCKS_FADE_IN", "DockFadeInChat", DockF
 
 local function DockFadeOutChat()
 	local activeChatFrame = FCFDock_GetSelectedWindow(GENERAL_CHAT_DOCK)
-	SV:SecureFadeOut(activeChatFrame, 0.2, activeChatFrame:GetAlpha(), 0, true)
+	SV:SecureFadeOut(activeChatFrame, 2, activeChatFrame:GetAlpha(), 0, true)
 end
 LibSuperVillain("Registry"):NewCallback("DOCKS_FADE_OUT", "DockFadeOutChat", DockFadeOutChat);
 

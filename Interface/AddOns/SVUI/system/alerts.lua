@@ -177,7 +177,7 @@ SV.SystemAlert["DISBAND_RAID"] = {
 	text = L["Are you sure you want to disband the group?"],
 	button1 = ACCEPT,
 	button2 = CANCEL,
-	OnAccept = function() SV.SVOverride:DisbandRaidGroup() end,
+	OnAccept = function() SV:DisbandRaidGroup() end,
 	timeout = 0,
 	whileDead = 1,
 };
@@ -186,6 +186,22 @@ SV.SystemAlert["RESETMOVERS_CHECK"] = {
 	button1 = ACCEPT, 
 	button2 = CANCEL, 
 	OnAccept = function(a)SV:ResetUI(true)end, 
+	timeout = 0, 
+	whileDead = 1
+};
+SV.SystemAlert["RESETMENTALO_CHECK"] = {
+	text = L["Are you sure you want to all SVUI frames to their original positions?"], 
+	button1 = ACCEPT, 
+	button2 = CANCEL, 
+	OnAccept = function(a)SV.Mentalo:Reset()end, 
+	timeout = 0, 
+	whileDead = 1
+};
+SV.SystemAlert["RESETBLIZZARD_CHECK"] = {
+	text = L["Are you sure you want to all draggable Blizzard frames to their original positions? This will reload your UI."], 
+	button1 = ACCEPT, 
+	button2 = CANCEL, 
+	OnAccept = function(a)SV.Mentalo:Reset("Blizzard")end, 
 	timeout = 0, 
 	whileDead = 1
 };

@@ -276,14 +276,16 @@ end
 COOLDOWN HELPER
 ##########################################################
 ]]--
-local function CreateCooldown(button)
+local function CreateCooldown(button, muted)
     local cooldown = button:GetName() and _G[button:GetName().."Cooldown"]
     if(cooldown) then
         if(not SV.db.general or (SV.db.general and (not SV.db.general.cooldown))) then return end
         cooldown:ClearAllPoints()
         cooldown:FillInner()
-        cooldown:SetSwipeColor(0, 0, 0, 1)
-        cooldown:SetHideCountdownNumbers(true)
+        cooldown:SetDrawEdge(false)
+        if(not muted) then
+            cooldown:SetSwipeColor(0, 0, 0, 1)
+        end
 
         if(not cooldown.HookedCooldown) then
             hooksecurefunc(cooldown, "SetCooldown", _hook_Cooldown_SetCooldown)
@@ -375,7 +377,9 @@ local function CreatePanelTemplate(frame, templateName, underlay, noupdate, padd
             hooksecurefunc(frame.Panel, "SetBackdropBorderColor", HookPanelBorderColor)
             hooksecurefunc(frame, "SetBackdropBorderColor", HookBackdropBorderColor)
             if(underlay) then
-                hooksecurefunc(frame, "SetBackdrop", HookBackdrop)
+                frame:SetBackdrop(nil)
+                frame.SetBackdrop = frame.Panel.SetBackdrop
+                --hooksecurefunc(frame, "SetBackdrop", HookBackdrop)
                 hooksecurefunc(frame, "SetBackdropColor", HookBackdropColor)
             end
             frame.BackdropNeedsUpdate = true
@@ -408,7 +412,7 @@ local function CreatePanelTemplate(frame, templateName, underlay, noupdate, padd
     end
 end
 
-local function CreateButtonPanel(frame, noChecked, brightChecked)
+local function CreateButtonPanel(frame, noChecked, brightChecked, mutedCooldown)
     
     if(frame.Left) then 
         frame.Left:SetAlpha(0)
@@ -473,7 +477,7 @@ local function CreateButtonPanel(frame, noChecked, brightChecked)
         frame:SetCheckedTexture(frame.checked)
     end
 
-    CreateCooldown(frame)
+    CreateCooldown(frame, mutedCooldown)
 end 
 --[[ 
 ########################################################## 
@@ -531,7 +535,7 @@ local function SetBasicPanel(self, topX, topY, bottomX, bottomY, hasShadow)
                 bottom = 1, 
             }, 
         })
-        self.Panel:SetBackdropColor(0,0,0,0.65)
+        self.Panel:SetBackdropColor(0,0,0,0.5)
         self.Panel:SetBackdropBorderColor(0,0,0)
     end
 
@@ -546,9 +550,10 @@ local function SetBasicPanel(self, topX, topY, bottomX, bottomY, hasShadow)
         if(adjustment < 0) then adjustment = 0 end
 
         self.Panel:SetFrameLevel(adjustment)
-
         hooksecurefunc(self, "SetFrameLevel", HookFrameLevel)
-        hooksecurefunc(self, "SetBackdrop", HookBackdrop)
+
+        self:SetBackdrop(nil)
+        self.SetBackdrop = self.Panel.SetBackdrop
         hooksecurefunc(self, "SetBackdropColor", HookBackdropColor)
         hooksecurefunc(self, "SetBackdropBorderColor", HookBackdropBorderColor)
     end
@@ -712,17 +717,34 @@ local function SetButtonTemplate(self, invisible, overridePadding, xOffset, yOff
     CreateCooldown(self) 
 end 
 
-local function SetSlotTemplate(self, underlay, padding, x, y, shadowAlpha)
+local function SetSlotTemplate(self, underlay, padding, x, y, shadowAlpha, mutedCooldown)
     if(not self or (self and self.Panel)) then return end
     padding = padding or 1
     CreatePanelTemplate(self, "Slot", underlay, true, padding, x, y)
-    CreateButtonPanel(self, true)
+    CreateButtonPanel(self, true, nil, mutedCooldown)
     if(shadowAlpha) then
         self.Panel.Shadow:SetAttribute("shadowAlpha", shadowAlpha)
     end
 end 
 
-local function SetCheckboxTemplate(self, underlay, x, y)
+local function SetCheckboxTemplate(self, shrink, x, y)
+    if(not self or (self and self.Panel)) then return end
+
+    local width, height = self:GetSize()
+    if(shrink) then
+        x = x or -7
+        y = y or -7
+    end
+
+    width = width + (x or 0)
+    height = height + (y or 0)
+
+    self:SetSize(width, height)
+
+    CreatePanelTemplate(self, "Inset", true, true, 1, x, y)
+end
+
+local function SetColorCheckboxTemplate(self, underlay, x, y)
     if(not self or (self and self.Panel)) then return end
 
     if(underlay) then
@@ -794,9 +816,8 @@ local ShowAlertFlash = function(self)
 end
 
 local HideAlertFlash = function(self)
-    local r,g,b = unpack(SV.Media.color.default);
-    self:ColorBorder(1,0.9,0,nil,true)
     SV.Animate:StopFlash(self.__border)
+    self:ColorBorder(1,0.9,0, nil, true)
 end
 
 local function SetFramedButtonTemplate(self, template, borderSize)
@@ -960,6 +981,7 @@ local function AppendMethods(OBJECT)
     if not OBJECT.SetButtonTemplate then META.SetButtonTemplate = SetButtonTemplate end
     if not OBJECT.SetSlotTemplate then META.SetSlotTemplate = SetSlotTemplate end
     if not OBJECT.SetCheckboxTemplate then META.SetCheckboxTemplate = SetCheckboxTemplate end
+    if not OBJECT.SetColorCheckboxTemplate then META.SetColorCheckboxTemplate = SetColorCheckboxTemplate end
     if not OBJECT.SetEditboxTemplate then META.SetEditboxTemplate = SetEditboxTemplate end
     if not OBJECT.SetFramedButtonTemplate then META.SetFramedButtonTemplate = SetFramedButtonTemplate end
 end

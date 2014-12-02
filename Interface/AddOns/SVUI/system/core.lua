@@ -35,6 +35,7 @@ local getmetatable  = _G.getmetatable;
 local setmetatable  = _G.setmetatable;
 --STRING
 local string        = _G.string;
+local split         = string.split;
 local upper         = string.upper;
 local format        = string.format;
 local find          = string.find;
@@ -121,6 +122,27 @@ local function _sendmessage(msg, prefix)
         print(outbound)
     else
         print(msg)
+    end
+end
+
+
+local function _needsupdate(value, lowest)
+    local minimumVersion = 5;
+    --print(table.dump(self.safedata))
+    local version = value or '0.0';
+    local vt = version:explode(".")
+    local MAJOR,MINOR,PATCH = unpack(vt)
+    if(MAJOR) then
+        if(type(MAJOR) == "string") then
+            MAJOR = tonumber(MAJOR)
+        end
+        if(type(MAJOR) == "number" and MAJOR < lowest) then
+            return true
+        else
+            return false
+        end
+    else
+        return true
     end
 end
 
@@ -212,7 +234,7 @@ end
 
 -- We have to send the names of our three SavedVariables files since the WoW API
 -- has no method for parsing them in LUA.
-local SVUI = SVLib:NewCore("SVUI_Global", "SVUI_Errors", "SVUI_Profile", "SVUI_Cache")
+local SVUI = SVLib:NewCore("SVUI_Global", "SVUI_Errors", "SVUI_Profile", "SVUI_Cache", "SVUI_Filters", "SVUI_Layouts")
 
 SVUI.ConfigID           = "SVUI_ConfigOMatic";
 SVUI.class              = playerClass;
@@ -364,7 +386,7 @@ function SVUI:ToggleConfig()
         if state ~= "MISSING" and state ~= "DISABLED" then 
             LoadAddOn(self.ConfigID)
             local config_version = GetAddOnMetadata(self.ConfigID, "Version")
-            if(tonumber(config_version) < 4) then 
+            if(_needsupdate(config_version, 5)) then 
                 self:StaticPopup_Show("CLIENT_UPDATE_REQUEST")
             end 
         else
@@ -379,26 +401,9 @@ function SVUI:ToggleConfig()
     GameTooltip:Hide()
 end 
 
-function SVUI:TaintHandler(taint, sourceName, sourceFunc)
-    if GetCVarBool('scriptErrors') ~= 1 then return end
-    local errorString = ("Error Captured: %s->%s->{%s}"):format(taint, sourceName or "Unknown", sourceFunc or "Unknown")
-    self:AddonMessage(errorString)
-    self:StaticPopup_Show("TAINT_RL")
-end
-
 function SVUI:VersionCheck()
-    local minimumVersion = 5.0;
-    --print(table.dump(self.safedata))
-    local installedVersion = self.safedata.install_version;
-    if(installedVersion) then
-        if(type(installedVersion) == "string") then
-            installedVersion = tonumber(installedVersion)
-        end
-        if(type(installedVersion) == "number" and installedVersion < minimumVersion) then
-            --_removedeprecated()  -- No current deprecated entries to remove
-            self.Setup:Install(true)
-        end
-    else
+    local version = self.safedata.install_version;
+    if(_needsupdate(version, 5)) then
         self.Setup:Install(true)
     end
 end

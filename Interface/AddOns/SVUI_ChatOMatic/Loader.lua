@@ -27,7 +27,7 @@ local AddonName, AddonObject = ...
 
 assert(LibSuperVillain, AddonName .. " requires LibSuperVillain")
 
-AddonObject.configs = {
+AddonObject.defaults = {
     ["saveChats"] = false,
     ["service"] = true,
     ["autoAnswer"] = false, 

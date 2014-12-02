@@ -27,7 +27,7 @@ local AddonName, AddonObject = ...
 
 assert(LibSuperVillain, AddonName .. " requires LibSuperVillain")
 
-AddonObject.configs = {
+AddonObject.defaults = {
     ["size"] = 75, 
     ["fontSize"] = 12,
     ["groups"] = true,

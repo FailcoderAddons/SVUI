@@ -2,5 +2,5 @@
 	<Script file="misc.lua"/>
     <Script file="mounts.lua"/>
     <Script file="reactions.lua"/>
-    <Script file="spellbind.lua"/>
+    <!-- <Script file="spellbind.lua"/> -->
 </Ui>

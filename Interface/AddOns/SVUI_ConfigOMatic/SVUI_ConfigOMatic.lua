@@ -144,7 +144,7 @@ SV.Options.args.primary = {
 			guiInline = true, 
 			args = {
 				Install = {
-					order = 3, 
+					order = 1, 
 					width = "full", 
 					type = "execute", 
 					name = L["Install"], 
@@ -152,7 +152,7 @@ SV.Options.args.primary = {
 					func = function() SV.Setup:Install() SV:ToggleConfig() end
 				},
 				ToggleAnchors = {
-					order = 4, 
+					order = 2, 
 					width = "full", 
 					type = "execute", 
 					name = L["Move Frames"], 
@@ -160,15 +160,23 @@ SV.Options.args.primary = {
 					func = function() SV.Mentalo:Toggle() end
 				},
 				ResetAllMovers = {
-					order = 5, 
+					order = 3, 
 					width = "full", 
 					type = "execute", 
-					name = L["Reset Anchors"], 
-					desc = L["Reset all frames to their original positions."], 
-					func = function() SV.Mentalo:Reset() end
+					name = L["Reset SVUI Anchors"], 
+					desc = L["Reset all SVUI frames to their original positions."], 
+					func = function() SV:StaticPopup_Show("RESETMENTALO_CHECK") end
+				},
+				ResetDraggables = {
+					order = 4, 
+					width = "full", 
+					type = "execute", 
+					name = L["Reset Blizzard Anchors"], 
+					desc = L["Reset all draggable Blizzard frames to their original positions."], 
+					func = function() SV:StaticPopup_Show("RESETBLIZZARD_CHECK") end
 				},
 				toggleKeybind = {
-					order = 6, 
+					order = 5, 
 					width = "full", 
 					type = "execute", 
 					name = L["Keybind Mode"], 
@@ -180,14 +188,6 @@ SV.Options.args.primary = {
 					disabled = function() return not SV.db.SVBar.enable end
 				}
 			}, 
-		}, 
-		quickGroup2 = {
-			order = 4, 
-			name = "", 
-			type = "group", 
-			width = "full", 
-			guiInline = true, 
-			args = {}, 
 		}, 	
 	}
 };
@@ -233,20 +233,24 @@ SV.Options.args.common = {
 									get = function(j)return SV.db.general.multiMonitor end,
 									set = function(j,value)SV.db.general.multiMonitor = value;SV:StaticPopup_Show("RL_CLIENT")end
 								},
-								hideErrorFrame = {
-									order = 3,
-									name = L["Hide Error Text"],
-									desc = L["Hides the red error text at the top of the screen while in combat."],
-									type = "toggle",
-									get = function(j)return SV.db.general.hideErrorFrame end,
-									set = function(j,value)SV.db.general.hideErrorFrame = value;SV:StaticPopup_Show("RL_CLIENT")end
-								},
 								LoginMessage = {
-									order = 4,
+									order = 3,
 									type = 'toggle',
 									name = L['Login Message'],
 									get = function(j)return SV.db.general.loginmessage end,
 									set = function(j,value)SV.db.general.loginmessage = value end
+								},
+								scaleAdjust = {
+									order = 4,
+									name = L["Base Scale"],
+									desc = L["You can use this to adjust the base value applied to auto-scaling."],
+									type = "range",
+									width = "full",
+									min = 0.64,
+									max = 1,
+									step = 0.01,
+									get = function(j)return SV.db.general.scaleAdjust end,
+									set = function(j,value) SV.db.general.scaleAdjust = value; SV:StaticPopup_Show("RL_CLIENT") end
 								},
 							}
 						},
@@ -840,11 +844,55 @@ SV.Options.args.common = {
 							}
 						}
 					}
-				} 
+				},
+				errors = {
+					order = 4, 
+					type = "group", 
+					name = L["Error Handling"], 
+					args = {
+						filterErrors = {
+							order = 1,
+							name = L["Filter Errors"],
+							desc = L["Choose specific errors from the list below to hide/ignore"],
+							type = "toggle",
+							get = function(j)return SV.db.SVOverride.filterErrors end,
+							set = function(j,value)SV.db.SVOverride.filterErrors = value; SV:StaticPopup_Show("RL_CLIENT") end
+						},
+						hideErrorFrame = {
+							order = 2,
+							name = L["Hide Error Text"],
+							desc = L["Hides the red error text at the top of the screen while in combat."],
+							type = "toggle",
+							get = function(j)return SV.db.SVOverride.hideErrorFrame end,
+							set = function(j,value)SV.db.SVOverride.hideErrorFrame = value; SV:StaticPopup_Show("RL_CLIENT") end
+						},
+						filterGroup = {
+							order = 3, 
+							type = "group", 
+							guiInline = true, 
+							name = L["Filters"],
+							args = {}
+						},		
+					}
+				}, 
 			}, 
 		}, 
 	}
 };
+
+if(SV.db.SVOverride.errorFilters) then
+	local listIndex = 1
+	for errorName, state in pairs(SV.db.SVOverride.errorFilters) do
+		SV.Options.args.common.args.commonGroup.args.errors.args.filterGroup.args[errorName] = {
+			order = listIndex,
+			type = 'toggle',
+			name = errorName,
+			get = function(key) return SV.db.SVOverride.errorFilters[errorName]; end,
+			set = function(key,value) SV.db.SVOverride.errorFilters[errorName] = value; end
+		}
+		listIndex = listIndex + 1
+	end
+end
 
 SV.Options.args.credits = {
 	type = "group", 

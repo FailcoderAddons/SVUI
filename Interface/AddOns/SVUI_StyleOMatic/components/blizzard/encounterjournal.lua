@@ -106,6 +106,17 @@ local function Outline(frame, noHighlight)
     frame.Outlined = true
 end
 
+local function _hook_EncounterJournal_DisplayEncounter()
+    local parent = EncounterJournalEncounterFrameInfoOverviewScrollFrameScrollChild;
+    if (parent.Bullets and #parent.Bullets > 0) then
+      print(#parent.Bullets)
+        for i = 1, #parent.Bullets do
+            local bullet = parent.Bullets[1];
+            bullet.Text:SetTextColor(1,1,1)
+        end
+    end
+end
+
 local function EncounterJournalStyle()
 	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.encounterjournal ~= true then
 		 return 
@@ -127,6 +138,18 @@ local function EncounterJournalStyle()
   EncounterJournalInstanceSelectRaidTab:RemoveTextures(true)
   ChangeTabHelper(EncounterJournalEncounterFrameInfoOverviewTab)
   ChangeTabHelper(EncounterJournalEncounterFrameInfoLootTab, 0, -10)
+
+  EncounterJournalEncounterFrameInfoOverviewScrollFrame:RemoveTextures()
+  EncounterJournalEncounterFrameInfoOverviewScrollFrameScrollChildTitle:SetTextColor(1,1,0)
+  EncounterJournalEncounterFrameInfoOverviewScrollFrameScrollChildLoreDescription:SetTextColor(1,1,1)
+  EncounterJournalEncounterFrameInfoOverviewScrollFrameScrollChild.overviewDescription.Text:SetTextColor(1,1,1)
+  local bulletParent = EncounterJournalEncounterFrameInfoOverviewScrollFrameScrollChild;
+  if (bulletParent.Bullets and #bulletParent.Bullets > 0) then
+      for i = 1, #bulletParent.Bullets do
+          local bullet = bulletParent.Bullets[1];
+          bullet.Text:SetTextColor(1,1,1)
+      end
+  end
 
   EncounterJournalSearchResults:RemoveTextures(true)
 
@@ -181,6 +204,8 @@ local function EncounterJournalStyle()
       index = index + 1;
       instanceButton = frame["instance"..index]
   end
+
+  --hooksecurefunc("EncounterJournal_DisplayEncounter", _hook_EncounterJournal_DisplayEncounter)
 
   hooksecurefunc("EncounterJournal_ListInstances", function()
     local frame = EncounterJournal.instanceSelect.scroll.child

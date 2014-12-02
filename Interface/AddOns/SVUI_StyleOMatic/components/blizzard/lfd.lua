@@ -44,6 +44,22 @@ local LFDFrameList = {
 
 };
 
+local function StyleMoneyRewards(frameName)
+  local frame = _G[frameName]
+  local icon = _G[frameName .. "IconTexture"]
+  if(not frame.Panel and icon) then
+      local size = frame:GetHeight() - 6
+      local texture = icon:GetTexture()
+      frame:RemoveTextures()
+      frame:SetFixedPanelTemplate('Blackout', true, 3)
+      icon:SetTexture(texture)
+      icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+      icon:ClearAllPoints()
+      icon:SetPoint("TOPLEFT", frame, "TOPLEFT", 3, -3)
+      icon:SetSize(size, size)
+  end
+end
+
 local Incentive_OnShow = function(button)
   local parent = button:GetParent()
   local check = parent.checkButton or parent.CheckButton
@@ -113,10 +129,10 @@ local ScenarioQueueRandom_OnUpdate = function()
       end 
     end 
   end
-  LFDQueueFrameRandomScrollFrameChildFrameMoneyReward:RemoveTextures()
-  RaidFinderQueueFrameScrollFrameChildFrameMoneyReward:RemoveTextures()
-  ScenarioQueueFrameRandomScrollFrameChildFrameMoneyReward:RemoveTextures()
-end 
+  StyleMoneyRewards("LFDQueueFrameRandomScrollFrameChildFrameMoneyReward")
+  StyleMoneyRewards("RaidFinderQueueFrameScrollFrameChildFrameMoneyReward")
+  StyleMoneyRewards("ScenarioQueueFrameRandomScrollFrameChildFrameMoneyReward")
+end
 --[[ 
 ########################################################## 
 LFD PLUGINR
@@ -193,10 +209,6 @@ local function LFDFrameStyle()
   for _,name in pairs(LFDFrameList) do
     local frame = _G[name];
     if frame then
-      local check = frame.checkButton or frame.CheckButton
-      check:RemoveTextures()
-      check:SetCheckboxTemplate(true, -4, -4)
-      check:SetFrameLevel(check:GetFrameLevel() + 50)
       frame:DisableDrawLayer("BACKGROUND")
       frame:DisableDrawLayer("OVERLAY")
     end
@@ -273,16 +285,6 @@ local function LFDFrameStyle()
   LFDQueueFrameSpecificListScrollFrame:RemoveTextures()
   LFDQueueFrameFindGroupButton:SetButtonTemplate()
   hooksecurefunc("LFDQueueFrameRandom_UpdateFrame", LFDQueueRandom_OnUpdate)
-
-  hooksecurefunc("ScenarioQueueFrameSpecific_Update", function()
-    for i = 1, NUM_SCENARIO_CHOICE_BUTTONS do 
-      local box = _G["ScenarioQueueFrameSpecificButton"..i.."EnableButton"]
-      if(box and (not box.Panel)) then
-        box:RemoveTextures()
-        box:SetCheckboxTemplate(true, -2, -3)
-      end
-    end 
-  end)
   
   PLUGIN:ApplyDropdownStyle(LFDQueueFrameTypeDropDown)
 
@@ -324,7 +326,9 @@ local function LFDFrameStyle()
     end 
   end
 
-  RaidFinderQueueFrameScrollFrameChildFrameMoneyReward:RemoveTextures()
+  StyleMoneyRewards("LFDQueueFrameRandomScrollFrameChildFrameMoneyReward")
+  StyleMoneyRewards("RaidFinderQueueFrameScrollFrameChildFrameMoneyReward")
+  StyleMoneyRewards("ScenarioQueueFrameRandomScrollFrameChildFrameMoneyReward")
 
 
   ScenarioFinderFrameInset:DisableDrawLayer("BORDER")
@@ -374,11 +378,6 @@ local function LFDFrameStyle()
              o:SetTexture(0,0,0,0)
           end 
         end)
-        hooksecurefunc(C:GetCheckedTexture(), "SetTexture", function(o, D)
-          if D ~= nil then
-             o:SetTexture(0,0,0,0)
-          end 
-        end)
       end 
       for u = 1, 7 do 
         local C = _G['LFRBrowseFrameColumnHeader'..u]
@@ -410,23 +409,29 @@ local function LFDFrameStyle()
   ScenarioQueueFrameRandomScrollFrame:SetBasicPanel()
   RaidFinderQueueFrameScrollFrame:SetBasicPanel()
 
-  for u = 1, NUM_LFD_CHOICE_BUTTONS do
-    local box = _G["LFDQueueFrameSpecificListButton"..u.."EnableButton"]
-    if(box and (not box.Panel)) then
-      box:RemoveTextures()
-      box:SetCheckboxTemplate(true, -2, -3)
-      box:SetFrameLevel(box:GetFrameLevel() + 50)
-    end
-  end
+  -- for u = 1, NUM_LFD_CHOICE_BUTTONS do
+  --   local box = _G["LFDQueueFrameSpecificListButton"..u.."EnableButton"]
+  --   if(box and (not box.Panel)) then
+  --     box:RemoveTextures()
+  --     box:SetCheckboxTemplate(true, -2, -3)
+  --     box:SetFrameLevel(box:GetFrameLevel() + 50)
+  --   end
+  -- end
 
-  for u = 1, NUM_LFR_CHOICE_BUTTONS do 
-    local box = _G["LFRQueueFrameSpecificListButton"..u.."EnableButton"]
-    if(box and (not box.Panel)) then
-      box:RemoveTextures()
-      box:SetCheckboxTemplate(true, -2, -3)
-      box:SetFrameLevel(box:GetFrameLevel() + 50)
-    end
-  end
+  -- for u = 1, NUM_LFR_CHOICE_BUTTONS do 
+  --   local box = _G["LFRQueueFrameSpecificListButton"..u.."EnableButton"]
+  --   if(box and (not box.Panel)) then
+  --     box:RemoveTextures()
+  --     box:SetCheckboxTemplate(true, -2, -3)
+  --     box:SetFrameLevel(box:GetFrameLevel() + 50)
+  --   end
+  -- end
+
+  LFGListFrame.CategorySelection:RemoveTextures()
+  LFGListFrame.CategorySelection.StartGroupButton:RemoveTextures()
+  LFGListFrame.CategorySelection.StartGroupButton:SetButtonTemplate()
+  LFGListFrame.CategorySelection.FindGroupButton:RemoveTextures()
+  LFGListFrame.CategorySelection.FindGroupButton:SetButtonTemplate()
 end
 --[[ 
 ########################################################## 

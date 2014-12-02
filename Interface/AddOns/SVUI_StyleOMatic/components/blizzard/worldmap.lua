@@ -73,47 +73,34 @@ local function StripQuestMapFrame()
   WorldMapFrameNavBarOverlay:RemoveTextures(true)
   QuestMapFrame:RemoveTextures(true)
   QuestMapFrame.DetailsFrame:RemoveTextures(true)
-
-  QuestMapFrame.DetailsFrame:SetPanelTemplate("Paper")
-
+  QuestScrollFrame:RemoveTextures(true)
+  QuestScrollFrame.ViewAll:RemoveTextures(true)
+  
   QuestMapFrame.DetailsFrame.CompleteQuestFrame:RemoveTextures(true)
   QuestMapFrame.DetailsFrame.CompleteQuestFrame.CompleteButton:RemoveTextures(true)
-  QuestMapFrame.DetailsFrame.CompleteQuestFrame.CompleteButton:SetButtonTemplate()
-
   QuestMapFrame.DetailsFrame.BackButton:RemoveTextures(true)
-  QuestMapFrame.DetailsFrame.BackButton:SetButtonTemplate()
-
   QuestMapFrame.DetailsFrame.AbandonButton:RemoveTextures(true)
-  QuestMapFrame.DetailsFrame.AbandonButton:SetButtonTemplate()
-
   QuestMapFrame.DetailsFrame.ShareButton:RemoveTextures(true)
-  QuestMapFrame.DetailsFrame.ShareButton:SetButtonTemplate()
-
   QuestMapFrame.DetailsFrame.TrackButton:RemoveTextures(true)
-  QuestMapFrame.DetailsFrame.TrackButton:SetButtonTemplate()
-
   QuestMapFrame.DetailsFrame.RewardsFrame:RemoveTextures(true)
+
+  QuestMapFrame.DetailsFrame:SetPanelTemplate("Paper")
+  QuestMapFrame.DetailsFrame.CompleteQuestFrame.CompleteButton:SetButtonTemplate()
+  QuestMapFrame.DetailsFrame.BackButton:SetButtonTemplate()
+  QuestMapFrame.DetailsFrame.AbandonButton:SetButtonTemplate()
+  QuestMapFrame.DetailsFrame.ShareButton:SetButtonTemplate()
+  QuestMapFrame.DetailsFrame.TrackButton:SetButtonTemplate()
   QuestMapFrame.DetailsFrame.RewardsFrame:SetPanelTemplate("Paper")
   QuestMapFrame.DetailsFrame.RewardsFrame:SetPanelColor("dark")
 
-  QuestScrollFrame:RemoveTextures(true)
   QuestScrollFrame:SetFixedPanelTemplate("Paper")
   QuestScrollFrame:SetPanelColor("special")
 
-  QuestScrollFrame.ViewAll:RemoveTextures(true)
   QuestScrollFrame.ViewAll:SetButtonTemplate()
-
-  local w,h = WorldMapFrame.UIElementsFrame:GetSize()
-  local underlay = CreateFrame("Frame", nil, WorldMapFrame)
-  underlay:Size(w,h)
-  underlay:SetAllPoints(WorldMapFrame.UIElementsFrame)
-  underlay:SetPanelTemplate("Blackout")
-
-  WorldMapFrame.UIElementsFrame:SetParent(underlay)
 
   local detailWidth = QuestMapFrame.DetailsFrame.RewardsFrame:GetWidth()
   QuestMapFrame.DetailsFrame:ClearAllPoints()
-  QuestMapFrame.DetailsFrame:SetPoint("TOPLEFT", underlay, "TOPRIGHT", 2, 0)
+  QuestMapFrame.DetailsFrame:SetPoint("TOPLEFT", WorldMapDetailFrame, "TOPRIGHT", 2, 0)
   QuestMapFrame.DetailsFrame:SetWidth(detailWidth)
 
   WorldMapFrameNavBar:ClearAllPoints()
@@ -181,6 +168,8 @@ local function WorldMapStyle()
   PLUGIN:ApplyDropdownStyle(WorldMapShowDropDown)
 
   StripQuestMapFrame()
+
+  --WorldMapFrame.UIElementsFrame:SetPanelTemplate("Blackout")
 
   WorldMapFrame:HookScript("OnShow", WorldMap_OnShow)
   hooksecurefunc("WorldMap_ToggleSizeUp", WorldMap_OnShow)

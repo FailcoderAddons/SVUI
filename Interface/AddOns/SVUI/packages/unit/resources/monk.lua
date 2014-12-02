@@ -121,10 +121,11 @@ local CHI_DATA = {
 	[2] = {0.5,1,0,0.5},
 	[3] = {0,0.5,0.5,1},
 	[4] = {0.5,1,0.5,1},
-	[5] = {0.5,1,0,0.5}
+	[5] = {0.5,1,0,0.5},
+	[6] = {0,0.5,0.5,1},
 };
 function MOD:CreateClassBar(playerFrame)
-	local max = 5
+	local max = 6
 	local bar = CreateFrame("Frame",nil,playerFrame)
 	bar:SetFrameLevel(playerFrame.InfoPanel:GetFrameLevel() + 30)
 	for i=1, max do

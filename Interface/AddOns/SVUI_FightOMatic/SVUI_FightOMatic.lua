@@ -617,7 +617,7 @@ local function GetSourceType(guid)
 	return srcType
 end
 
-function PLUGIN:COMBAT_LOG_EVENT_UNFILTERED(event, timestamp, event, _, srcGUID, srcName, srcFlags, sourceRaidFlags, dstGUID, dstName, dstFlags, destRaidFlags, _, spellName)
+function PLUGIN:COMBAT_LOG_EVENT_UNFILTERED(_, timestamp, event, _, srcGUID, srcName, srcFlags, sourceRaidFlags, dstGUID, dstName, dstFlags, destRaidFlags, _, spellName)
 	if not srcFlags then return end
 	local flagParse = band(srcFlags, COMBATLOG_OBJECT_REACTION_HOSTILE)
 	local flagged = flagParse == COMBATLOG_OBJECT_REACTION_HOSTILE

@@ -837,11 +837,6 @@ function MOD:Load()
 	Minimap:SetScript("OnMouseWheel", MiniMap_MouseWheel)	
 	Minimap:SetScript("OnMouseUp", MiniMap_MouseUp)
 
-	local info = UIPanelWindows["PetJournalParent"];
-	for name, value in pairs(info) do
-		PetJournalParent:SetAttribute("UIPanelLayout-"..name, value);
-	end	
-	PetJournalParent:SetAttribute("UIPanelLayout-defined", true);
 	SV.Mentalo:Add(mapHolder, L["Minimap"]) 
 
 	if(SV.db.SVMap.tinyWorldMap) then

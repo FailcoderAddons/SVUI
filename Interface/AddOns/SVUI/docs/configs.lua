@@ -28,7 +28,7 @@ S U P E R - V I L L A I N - U I   By: Munglunch                              #
     The "configs" property is the default (also the backup) of ALL usable database entries.
     When the addon core is initialized, a "db" property is created using a copy of "configs".
 
-    When configs are set under their own index (ie.. SV.configs["Shiznit"]) AND a module (package, plugin ...etc) 
+    When configs are set under their own index (ie.. SV.defaults["Shiznit"]) AND a module (package, plugin ...etc) 
     has a schema (see NOTE) of the same name, then that index is used to set 
     the module's own "db" property using a pointer reference linking to the core database location.
 
@@ -42,9 +42,9 @@ S U P E R - V I L L A I N - U I   By: Munglunch                              #
 
 ]]--
 
--- SV and SV.configs will have already been defined
+-- SV and SV.defaults will have already been defined
 local Schema = "SumFukinPackage"
-SV.configs[Schema] = { SumFukinValue = true }
+SV.defaults[Schema] = { SumFukinValue = true }
 
 --[[
 
@@ -57,7 +57,7 @@ SV.configs[Schema] = { SumFukinValue = true }
 
 local SV = _G["SVUI"]
 local Schema = _G["SumFukinPlugin"].Schema -- Get the already assigned schema name
-SV.configs[Schema] = { SumFukinValue = true }
+SV.defaults[Schema] = { SumFukinValue = true }
 
 --[[
 

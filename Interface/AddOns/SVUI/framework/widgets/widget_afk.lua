@@ -73,6 +73,11 @@ function SV.AFK:Initialize()
 	self:SetFrameLevel(0)
 	self:SetAllPoints(SV.Screen)
 
+	local narr = self.Model:CreateTexture(nil, "OVERLAY")
+	narr:Size(300, 150)
+	narr:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Template\\AFK-NARRATIVE")
+	narr:Point("TOPLEFT", SV.Screen, "TOPLEFT", 15, -15)
+
 	self.Model:ClearAllPoints()
 	self.Model:Size(600,600)
 	self.Model:Point("BOTTOMRIGHT", self, "BOTTOMRIGHT", 64, -64)
@@ -81,9 +86,9 @@ function SV.AFK:Initialize()
 	self.Model:SetFacing(6)
 
 	local splash = self.Model:CreateTexture(nil, "OVERLAY")
-	splash:Size(256,256)
+	splash:Size(350, 175)
 	splash:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Template\\PLAYER-AFK")
-	splash:Point("TOPRIGHT", self, "TOPRIGHT", 0, -64)
+	splash:Point("BOTTOMRIGHT", self.Model, "CENTER", -75, 75)
 
 	self:Hide()
 	if(SV.db.general.afk) then

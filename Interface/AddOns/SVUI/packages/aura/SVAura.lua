@@ -103,6 +103,9 @@ local AURA_ICONS = {
 	[[Interface\Addons\SVUI\assets\artwork\Icons\AURA-MULTISTRIKE]],
 	[[Interface\Addons\SVUI\assets\artwork\Icons\AURA-VERSATILITY]]
 };
+
+local BASIC_TEXTURE = [[Interface\AddOns\SVUI\assets\artwork\Bars\DEFAULT]];
+
 -- local RefHyperBuffs = {
 -- 	[1]={1126,115921,20217},
 -- 	[2]={21562,109773,469},
@@ -208,7 +211,7 @@ do
 			if name then 
 				if val > 0 and expires then 
 					local timeLeft = expires - GetTime()
-					if not self.timeLeft then 
+					if(not self.timeLeft) then 
 						self.timeLeft = timeLeft;
 						self:SetScript("OnUpdate", RefreshAuraTime)
 					else 
@@ -241,15 +244,16 @@ do
 			self.texture:SetTexture(tex)
 			local offset = 2;
 			local enchantIndex = self:GetName():sub(-1)
-			if enchantIndex:match("2") then 
+			if(enchantIndex:match("2")) then 
 				offset = 5 
 			end
 
+			if(quality) then 
+				self:SetBackdropBorderColor(GetItemQualityColor(quality))
+			end
+
 			local enchantInfo = select(offset, GetWeaponEnchantInfo())
-			if(enchantInfo) then
-				if quality then 
-					self:SetBackdropBorderColor(GetItemQualityColor(quality))
-				end 
+			if(enchantInfo) then 
 				self.offset = offset;
 				self:SetScript("OnUpdate", RefreshAuraTime)
 				self.nextUpdate = -1;
@@ -265,48 +269,43 @@ do
 	end
 
 	function MOD:CreateIcon(aura)
-		if(not aura.Skinned) then 
-			if aura.SetNormalTexture then aura:SetNormalTexture("") end
-			if aura.SetHighlightTexture then aura:SetHighlightTexture("") end
-			if aura.SetPushedTexture then aura:SetPushedTexture("") end
-			if aura.SetDisabledTexture then aura:SetDisabledTexture("") end
-			aura:SetBackdrop({
-				bgFile = [[Interface\BUTTONS\WHITE8X8]], 
-				tile = false, 
-				tileSize = 0, 
-				edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
-				edgeSize = 2, 
-				insets = {
-					left = 0, 
-					right = 0, 
-					top = 0, 
-					bottom = 0
-				}
-			 })
-		 	aura:SetBackdropColor(0, 0, 0)
-		 	aura:SetBackdropBorderColor(0, 0, 0)
-		 	local cd = aura:GetName() and _G[aura:GetName().."Cooldown"]
-			if cd then 
-				cd:ClearAllPoints()
-				cd:FillInner(aura, 0, 0)
-			end 
-			aura.Skinned = true
-		end
-		
 		local font = LSM:Fetch("font", SV.db.SVAura.font)
+
+		aura:SetBackdrop({
+			bgFile = [[Interface\BUTTONS\WHITE8X8]], 
+			tile = false, 
+			tileSize = 0, 
+			edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
+			edgeSize = 2, 
+			insets = {
+				left = 0, 
+				right = 0, 
+				top = 0, 
+				bottom = 0
+			}
+		 })
+	 	aura:SetBackdropColor(0, 0, 0)
+	 	aura:SetBackdropBorderColor(0, 0, 0)
+		
 		aura.texture = aura:CreateTexture(nil, "BORDER")
 		aura.texture:FillInner(aura, 2, 2)
 		aura.texture:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+
 		aura.count = aura:CreateFontString(nil, "ARTWORK")
 		aura.count:SetPoint("BOTTOMRIGHT", (-1 + SV.db.SVAura.countOffsetH), (1 + SV.db.SVAura.countOffsetV))
 		aura.count:FontManager(font, SV.db.SVAura.fontSize, SV.db.SVAura.fontOutline)
+
 		aura.time = aura:CreateFontString(nil, "ARTWORK")
 		aura.time:SetPoint("TOP", aura, "BOTTOM", 1 + SV.db.SVAura.timeOffsetH, 0 + SV.db.SVAura.timeOffsetV)
 		aura.time:FontManager(font, SV.db.SVAura.fontSize, SV.db.SVAura.fontOutline)
+
 		aura.highlight = aura:CreateTexture(nil, "HIGHLIGHT")
-		aura.highlight:SetTexture(0, 0, 0, 0.45)
-		aura.highlight:FillInner()
+		aura.highlight:SetTexture(BASIC_TEXTURE)
+		aura.highlight:SetVertexColor(1, 1, 1, 0.45)
+		aura.highlight:FillInner(aura, 2, 2)
+
 		SV.Animate:Flash(aura)
+
 		aura:SetScript("OnAttributeChanged", Aura_OnAttributeChanged)
 	end 
 end 
@@ -487,14 +486,14 @@ function MOD:UpdateAuraHeader(auraHeader, auraType)
 	local showBy = db.showBy
 	local font = LSM:Fetch("font", SV.db.SVAura.font)
 
-	if auraType == "buffs" then 
+	if(auraType == "buffs") then 
 		auraHeader:SetAttribute("consolidateTo", SV.db.SVAura.hyperBuffs.enable == true and 1 or 0)
 		auraHeader:SetAttribute("weaponTemplate", ("SVUI_AuraTemplate%d"):format(db.size))
 	end
 
 	auraHeader:SetAttribute("separateOwn", db.isolate)
 	auraHeader:SetAttribute("sortMethod", db.sortMethod)
-	auraHeader:SetAttribute("sortDir", db.sortDir)
+	auraHeader:SetAttribute("sortDirection", db.sortDir)
 	auraHeader:SetAttribute("maxWraps", db.maxWraps)
 	auraHeader:SetAttribute("wrapAfter", db.wrapAfter)
 

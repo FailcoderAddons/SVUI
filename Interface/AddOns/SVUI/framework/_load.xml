@@ -1,5 +1,4 @@
 ﻿<Ui xmlns="http://www.blizzard.com/wow/ui/">
-	<Include file="screen\screen.xml"/>
     <Include file="api\api.xml"/>
     <Include file="widgets\widgets.xml"/>
     <Include file="movers\movers.xml"/>

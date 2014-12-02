@@ -285,7 +285,7 @@ local function PetJournalStyle()
 	MountJournalFilterButton:SetButtonTemplate()
 
 	MountJournal.SummonRandomFavoriteButton:RemoveTextures()
-	MountJournal.SummonRandomFavoriteButton:SetSlotTemplate(true, 2, 0, 0, true)
+	MountJournal.SummonRandomFavoriteButton:SetSlotTemplate(true, 2, 0, 0, 0.5)
 	MountJournal.SummonRandomFavoriteButton.texture:SetTexture([[Interface\ICONS\ACHIEVEMENT_GUILDPERK_MOUNTUP]])
 	MountJournal.SummonRandomFavoriteButton.texture:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 

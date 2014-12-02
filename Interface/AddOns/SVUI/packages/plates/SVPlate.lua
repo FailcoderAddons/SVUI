@@ -58,7 +58,6 @@ local MOD = SV:NewPackage("SVPlate", L["NamePlates"]);
 LOCALIZED GLOBALS
 ##########################################################
 ]]--
-local SVUI_CLASS_COLORS = _G.SVUI_CLASS_COLORS
 local RAID_CLASS_COLORS = _G.RAID_CLASS_COLORS
 --[[ 
 ########################################################## 
@@ -69,7 +68,8 @@ local numChildren = -1;
 local PlateRegistry, VisiblePlates = {}, {};
 local WorldFrameUpdateHook, UpdatePlateElements, PlateForge;
 local BLIZZ_PLATE, SVUI_PLATE, PLATE_REF, PLATE_ARGS, PLATE_AURAS, PLATE_AURAICONS, PLATE_GRIP, PLATE_REALNAME;
-local CURRENT_TARGET_NAME, TARGET_CHECKS;
+local CURRENT_TARGET_NAME;
+local TARGET_CHECKS = 0;
 local PLATE_TOP = [[Interface\Addons\SVUI\assets\artwork\Template\Plate\PLATE-TOP]]
 local PLATE_BOTTOM = [[Interface\Addons\SVUI\assets\artwork\Template\Plate\PLATE-BOTTOM]]
 local PLATE_RIGHT = [[Interface\Addons\SVUI\assets\artwork\Template\Plate\PLATE-RIGHT]]
@@ -459,25 +459,15 @@ local function SetAuraInstance(guid, spellID, expiration, stacks, caster, durati
 	if (caster == UnitGUID('player')) then
 		filter = nil;
 	end
-	if AuraFilterName and AuraFilter then
+	if(AuraFilter and AuraFilterName) then
 		local name = GetSpellInfo(spellID)
-		if AuraFilterName == 'Blocked' then
-			if AuraFilter[name] and AuraFilter[name].enable then
-				filter = true;
-			end
-			elseif AuraFilterName == 'Strict' then
-				if AuraFilter[name].spellID and not AuraFilter[name].spellID == spellID then
-					filter = true;
-				end
-			else
-				if AuraFilter[name] and AuraFilter[name].enable then
-					filter = nil;
-				end
-			end
+		if(AuraFilter[name] and AuraFilter[name].enable and ((AuraFilterName ~= 'Blocked') and (AuraFilterName ~= 'Allowed'))) then
+			filter = nil;
 		end
-		if(not filter and (guid and spellID and caster and texture)) then
-			local auraID = spellID..(tostring(caster or "UNKNOWN_CASTER"))
-			UnitPlateAuras[guid] = UnitPlateAuras[guid] or {}
+	end
+	if(not filter and (guid and spellID and caster and texture)) then
+		local auraID = spellID..(tostring(caster or "UNKNOWN_CASTER"))
+		UnitPlateAuras[guid] = UnitPlateAuras[guid] or {}
 			UnitPlateAuras[guid][auraID] = {
 			spellID = spellID,
 			expiration = expiration or 0,
@@ -559,24 +549,6 @@ local function SaveDuration(spellID, duration)
 	if spellID then CachedAuraDurations[spellID] = duration end
 end
 
-local function CleanUnitPlateAurass()
-	local currentTime = GetTime()
-	for guid, instanceList in pairs(UnitPlateAuras) do
-		local auracount = 0
-		for auraID, instanceID in pairs(instanceList) do
-			local expiration = Aura_Expiration[instanceID]
-			if expiration and expiration < currentTime then
-				UnitPlateAuras[guid][auraID] = nil
-			else
-				auracount = auracount + 1
-			end
-		end
-		if auracount == 0 then
-			UnitPlateAuras[guid] = nil
-		end
-	end
-end
-
 function MOD:UpdateAuras(plate)
 	if plate.setting.tiny then return end 
 	local guid = plate.guid
@@ -636,116 +608,6 @@ function MOD:UpdateAurasByUnitID(unitid)
 end
 --[[ 
 ########################################################## 
-PLATE UPDATE HANDLERS
-##########################################################
-]]--
-do
-	local function IsNamePlate(frame)
-		local frameName = frame:GetName()
-		if frameName and frameName:find('^NamePlate%d') then
-			local textObj = select(2, frame:GetChildren())
-			if textObj then
-				local textRegions = textObj:GetRegions()
-				return (textRegions and textRegions:GetObjectType() == 'FontString')
-			end
-		end
-	end
-
-	local function SetPlateAlpha(plate, frame)
-		if plate:GetAlpha() < 1 then
-			frame:SetAlpha(NPBaseAlpha)
-		else
-			frame:SetAlpha(1)
-		end
-	end
-
-	local function UpdatePlateUnit()
-		local plateName = PLATE_REF.nametext
-
-		if BLIZZ_PLATE:GetAlpha() == 1 and CURRENT_TARGET_NAME and (CURRENT_TARGET_NAME == plateName) then
-			BLIZZ_PLATE.guid = UnitGUID("target")
-			PLATE_ARGS.unit = "target"
-			SVUI_PLATE:SetFrameLevel(2)
-			SVUI_PLATE.highlight:Hide()
-			if(NPUsePointer) then
-				NPGlow:SetParent(SVUI_PLATE)
-				NPGlow:WrapOuter(SVUI_PLATE.health,2,2)
-				NPGlow:SetFrameLevel(0)
-				NPGlow:SetFrameStrata("BACKGROUND")
-				NPGlow:Show()
-			end
-			if((TARGET_CHECKS > -1) or PLATE_ARGS.allowed) then
-				TARGET_CHECKS = TARGET_CHECKS + 1
-				if TARGET_CHECKS > 0 then
-					TARGET_CHECKS = -1
-				end
-				MOD:UpdateAurasByUnitID('target')
-				if MOD.UseCombo then
-					UpdateComboPoints()
-				end
-				PLATE_ARGS.allowed = nil
-			end
-		elseif PLATE_REF.highlight:IsShown() and UnitExists("mouseover") and (UnitName("mouseover") == plateName) then
-			if(PLATE_ARGS.unit ~= "mouseover" or PLATE_ARGS.allowed) then
-				SVUI_PLATE:SetFrameLevel(1)
-				SVUI_PLATE.highlight:Show()			
-				MOD:UpdateAurasByUnitID('mouseover')
-				if MOD.UseCombo then
-					UpdateComboPoints()
-				end
-				PLATE_ARGS.allowed = nil
-			end
-			BLIZZ_PLATE.guid = UnitGUID("mouseover")
-			PLATE_ARGS.unit = "mouseover"		
-		else
-			SVUI_PLATE:SetFrameLevel(0)
-			SVUI_PLATE.highlight:Hide()
-			PLATE_ARGS.unit = nil
-		end
-		CheckRaidIcon()
-		UpdatePlateElements(BLIZZ_PLATE,SVUI_PLATE)
-	end
-
-	function WorldFrameUpdateHook(self, elapsed)
-		NPGrip:Hide()
-		for plate, _ in pairs(VisiblePlates) do
-			local frame = plate.frame
-			if(plate:IsShown()) then
-				local x,y = plate:GetCenter()
-				frame:SetPoint("CENTER", self, "BOTTOMLEFT", floor(x), floor(y))
-				SetPlateAlpha(plate, frame)
-			else
-				frame:Hide()
-			end
-		end
-		NPGrip:Show()
-
-		if(self.elapsed and self.elapsed > 0.2) then
-
-			for plate, _ in pairs(VisiblePlates) do
-				local frame = plate.frame
-				if(plate:IsShown() and frame:IsShown() and ProxyThisPlate(plate)) then
-					UpdatePlateUnit()
-				end
-			end
-			self.elapsed = 0
-		else
-			self.elapsed = (self.elapsed or 0) + elapsed
-		end
-		local curChildren = self:GetNumChildren()
-		if(numChildren ~= curChildren) then
-			for i = 1, curChildren do
-				local frame = select(i, self:GetChildren())
-				if(not PlateRegistry[frame] and IsNamePlate(frame)) then
-					PlateForge(frame)
-				end
-			end
-			numChildren = curChildren
-		end
-	end
-end
---[[ 
-########################################################## 
 PLATE COLORING
 ##########################################################
 ]]--
@@ -768,11 +630,10 @@ do
 	end
 
 	local function GetPlateReaction(plate)
-		local class, classToken, _
 		if plate.guid ~= nil then
-			class, classToken, _, _, _, _, _ = GetPlayerInfoByGUID(plate.guid)
-			if RAID_CLASS_COLORS[class] then
-				return class
+			local class, classToken, _, _, _, _, _ = GetPlayerInfoByGUID(plate.guid)
+			if RAID_CLASS_COLORS[classToken] then
+				return classToken
 			end
 		end
 
@@ -780,15 +641,17 @@ do
 		local r = floor(oldR * 100 + .5) * 0.01;
 		local g = floor(oldG * 100 + .5) * 0.01;
 		local b = floor(oldB * 100 + .5) * 0.01;
-		for class, _ in pairs(RAID_CLASS_COLORS) do
+		--print(plate.health:GetStatusBarColor())
+		for classToken, _ in pairs(RAID_CLASS_COLORS) do
 			local bb = b
-			if class == 'MONK' then
+			if classToken == 'MONK' then
 				bb = bb - 0.01
 			end
-			if RAID_CLASS_COLORS[class].r == r and RAID_CLASS_COLORS[class].g == g and RAID_CLASS_COLORS[class].b == bb then
-				return class
+			if RAID_CLASS_COLORS[classToken].r == r and RAID_CLASS_COLORS[classToken].g == g and RAID_CLASS_COLORS[classToken].b == bb then
+				return classToken
 			end
 		end
+
 		if (r + b + b) == 1.59 then
 			return 'TAPPED_NPC'
 		elseif g + b == 0 then
@@ -866,18 +729,23 @@ do
 			latestColor = NPReactNPCGood
 		elseif unitType == "FRIENDLY_PLAYER" then
 			latestColor = NPReactPlayerGood
-		else
-			latestColor = NPReactEnemy
 		end
 
-		frame.health:SetStatusBarColor(unpack(latestColor))
-		--frame.health.eliteborder.bottom:SetVertexColor(unpack(latestColor))
-		--frame.health.eliteborder.right:SetVertexColor(unpack(latestColor))
-		--frame.health.eliteborder.left:SetVertexColor(unpack(latestColor))
-		
-		if(NPUsePointer and NPPointerMatch and plate.setting.unit == "target") then
-			NPGlow:SetBackdropBorderColor(unpack(latestColor))
+		local r,g,b
+		if(latestColor) then
+			r,g,b = unpack(latestColor)
+		else
+			r,g,b = plate.health:GetStatusBarColor()
 		end
+
+		frame.health:SetStatusBarColor(r,g,b)
+		if(NPUsePointer and NPPointerMatch and plate.setting.unit == "target") then
+			NPGlow:SetBackdropBorderColor(r,g,b)
+		end
+		--frame.health.eliteborder.bottom:SetVertexColor(r,g,b)
+		--frame.health.eliteborder.right:SetVertexColor(r,g,b)
+		--frame.health.eliteborder.left:SetVertexColor(r,g,b)
+
 		if(not plate.setting.scaled and not plate.setting.tiny and frame.health:GetWidth() ~= (HBWidth * scale)) then
 			frame.health:SetSize(HBWidth * scale, HBHeight * scale)
 			plate.cast.icon:SetSize(CBHeight + (HBHeight * scale) + 5, CBHeight + (HBHeight * scale) + 5)
@@ -887,34 +755,147 @@ do
 	function UpdatePlateElements(plate, frame)
 		ColorizeAndScale(plate, frame)
 		local region = select(4, plate:GetRegions())
-		if region and region:GetObjectType() == 'FontString' then
+		if(region and region:GetObjectType() == 'FontString') then
 			plate.ref.level = region
 		end
-		if plate.ref.level:IsShown() then
+
+		if(plate.ref.level:IsShown()) then
 			local level = plate.ref.level:GetObjectType() == 'FontString' and tonumber(plate.ref.level:GetText()) or nil
 			local elite, boss, mylevel = plate.ref.eliteicon:IsShown(), plate.ref.skullicon:IsShown(), UnitLevel("player")
 			frame.health.eliteborder:Hide()
-			if boss then
+			if(boss) then
 				frame.level:SetText("??")
 				frame.level:SetTextColor(0.8, 0.05, 0)
 				frame.health.eliteborder:Show()
-			elseif level then
+			elseif(level) then
 				frame.level:SetText(level..(elite and "+" or ""))
 				frame.level:SetTextColor(plate.ref.level:GetTextColor())
 				if(elite) then frame.health.eliteborder:Show() end
 			end
-		elseif plate.ref.skullicon:IsShown() and frame.level:GetText() ~= '??' then
+		elseif(plate.ref.skullicon:IsShown() and frame.level:GetText() ~= '??') then
 			frame.level:SetText("??")
 			frame.level:SetTextColor(0.8, 0.05, 0)
 		end
+
 		if plate.setting.tiny then
 			frame.level:SetText("")
 			frame.level:Hide()
-		elseif not frame.level:IsShown() then
+		elseif(not frame.level:IsShown()) then
 			frame.level:Show()
 		end
-		if frame.name.SetText then
+
+		if(frame.name.SetText) then
 			frame.name:SetText(plate.name:GetText())
+		end
+	end
+end
+--[[ 
+########################################################## 
+PLATE UPDATE HANDLERS
+##########################################################
+]]--
+do
+	local function IsNamePlate(frame)
+		local frameName = frame:GetName()
+		if frameName and frameName:find('^NamePlate%d') then
+			local textObj = select(2, frame:GetChildren())
+			if textObj then
+				local textRegions = textObj:GetRegions()
+				return (textRegions and textRegions:GetObjectType() == 'FontString')
+			end
+		end
+	end
+
+	local function SetPlateAlpha(plate, frame)
+		if plate:GetAlpha() < 1 then
+			frame:SetAlpha(NPBaseAlpha)
+		else
+			frame:SetAlpha(1)
+		end
+	end
+
+	local function UpdatePlateUnit()
+		local plateName = PLATE_REF.nametext
+
+		if BLIZZ_PLATE:GetAlpha() == 1 and CURRENT_TARGET_NAME and (CURRENT_TARGET_NAME == plateName) then
+			BLIZZ_PLATE.guid = UnitGUID("target")
+			PLATE_ARGS.unit = "target"
+			SVUI_PLATE:SetFrameLevel(2)
+			SVUI_PLATE.highlight:Hide()
+			if(NPUsePointer) then
+				NPGlow:SetParent(SVUI_PLATE)
+				NPGlow:WrapOuter(SVUI_PLATE.health,2,2)
+				NPGlow:SetFrameLevel(0)
+				NPGlow:SetFrameStrata("BACKGROUND")
+				NPGlow:Show()
+			end
+			if((TARGET_CHECKS > 0) or PLATE_ARGS.allowed) then
+				TARGET_CHECKS = TARGET_CHECKS + 1
+				if(TARGET_CHECKS == 2) then
+					TARGET_CHECKS = 0
+				end
+				MOD:UpdateAurasByUnitID('target')
+				if MOD.UseCombo then
+					UpdateComboPoints()
+				end
+				PLATE_ARGS.allowed = nil
+			end
+		elseif PLATE_REF.highlight:IsShown() and UnitExists("mouseover") and (UnitName("mouseover") == plateName) then
+			if(PLATE_ARGS.unit ~= "mouseover" or PLATE_ARGS.allowed) then
+				SVUI_PLATE:SetFrameLevel(1)
+				SVUI_PLATE.highlight:Show()			
+				MOD:UpdateAurasByUnitID('mouseover')
+				if MOD.UseCombo then
+					UpdateComboPoints()
+				end
+				PLATE_ARGS.allowed = nil
+			end
+			BLIZZ_PLATE.guid = UnitGUID("mouseover")
+			PLATE_ARGS.unit = "mouseover"		
+		else
+			SVUI_PLATE:SetFrameLevel(0)
+			SVUI_PLATE.highlight:Hide()
+			PLATE_ARGS.unit = nil
+		end
+		CheckRaidIcon()
+		UpdatePlateElements(BLIZZ_PLATE,SVUI_PLATE)
+	end
+
+	function WorldFrameUpdateHook(self, elapsed)
+		NPGrip:Hide()
+		for plate, _ in pairs(VisiblePlates) do
+			local frame = plate.frame
+			if(plate:IsShown()) then
+				local x,y = plate:GetCenter()
+				frame:SetPoint("CENTER", self, "BOTTOMLEFT", floor(x), floor(y))
+				SetPlateAlpha(plate, frame)
+			else
+				frame:Hide()
+			end
+		end
+		NPGrip:Show()
+
+		if(self.elapsed and self.elapsed > 0.2) then
+
+			for plate, _ in pairs(VisiblePlates) do
+				local frame = plate.frame
+				if(plate:IsShown() and frame:IsShown() and ProxyThisPlate(plate)) then
+					UpdatePlateUnit()
+				end
+			end
+			self.elapsed = 0
+		else
+			self.elapsed = (self.elapsed or 0) + elapsed
+		end
+		local curChildren = self:GetNumChildren()
+		if(numChildren ~= curChildren) then
+			for i = 1, curChildren do
+				local frame = select(i, self:GetChildren())
+				if(not PlateRegistry[frame] and IsNamePlate(frame)) then
+					PlateForge(frame)
+				end
+			end
+			numChildren = curChildren
 		end
 	end
 end
@@ -1324,6 +1305,8 @@ do
 		plate.ref = ref;
 		plate.setting = {};
 
+		UpdateThisPlate(plate)
+
 		plate:HookScript("OnShow", ShowThisPlate)
 		plate:HookScript("OnHide", HideThisPlate)
 		plate:HookScript("OnSizeChanged", function(self, width, height)
@@ -1337,8 +1320,6 @@ do
 		cast:HookScript("OnValueChanged", CastBarValueChanged)
 
 		VisiblePlates[plate] = true
-
-		UpdateThisPlate(plate)
 
 		if not cast:IsShown() then
 			frame.cast:Hide()
@@ -1414,12 +1395,13 @@ end
 
 function MOD:PLAYER_TARGET_CHANGED()
 	if(UnitExists("target")) then
-		CURRENT_TARGET_NAME = UnitName("target")
-		WorldFrame.elapsed = 0.1
-		TARGET_CHECKS = 0
+		CURRENT_TARGET_NAME = UnitName("target");
+		TARGET_CHECKS = 1;
+		WorldFrame.elapsed = 0.1;
 	else
-		NPGlow:Hide()
-		CURRENT_TARGET_NAME = nil
+		NPGlow:Hide();
+		CURRENT_TARGET_NAME = nil;
+		TARGET_CHECKS = 0;
 	end
 end
 
@@ -1541,7 +1523,7 @@ function MOD:UpdateLocals()
 	AuraFOutline = db.auras.fontOutline;
 	AuraMaxCount = db.auras.numAuras;
 	AuraFilterName = db.auras.additionalFilter
-	AuraFilter = SV.db.filter[AuraFilterName]
+	AuraFilter = SV.filters[AuraFilterName]
 
 	if (db.comboPoints and (SV.class == 'ROGUE' or SV.class == 'DRUID')) then
 		self.UseCombo = true

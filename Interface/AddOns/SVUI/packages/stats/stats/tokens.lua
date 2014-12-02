@@ -43,8 +43,6 @@ local playerName = UnitName("player");
 local playerRealm = GetRealmName();
 
 local TokenEvents = {'PLAYER_ENTERING_WORLD','PLAYER_MONEY','CURRENCY_DISPLAY_UPDATE'};
-local TokenMenuList = {};
-local TokenParent;
 
 local function TokenInquiry(id, weekly, capped)
   local name, amount, tex, week, weekmax, maxed, discovered = GetCurrencyInfo(id)
@@ -79,74 +77,75 @@ local function TokenInquiry(id, weekly, capped)
 end
 
 local function TokensEventHandler(self, event,...)
-    if not IsLoggedIn() or not self then return end 
-    local id = MOD.Accountant[playerRealm]["tokens"][playerName];
+    if(not IsLoggedIn() or (not self)) then return end
+    local id = self.TokenKey or 738;
     local _, current, tex = GetCurrencyInfo(id)
     local currentText = ("\124T%s:12\124t %s"):format(tex, current);
     self.text:SetText(currentText)
 end 
 
-local function AddToTokenMenu(id)
+local function AddToTokenMenu(parent, id)
 	local name, _, tex, _, _, _, _ = GetCurrencyInfo(id)
 	local itemName = "\124T"..tex..":12\124t "..name;
 	local fn = function() 
-		MOD.Accountant[playerRealm]["tokens"][playerName] = id;
-		TokensEventHandler(TokenParent)
+		MOD.Accountant[playerRealm]["tokens"][playerName][parent.SlotKey] = id;
+    parent.TokenKey = id
+		TokensEventHandler(parent)
 	end  
-	tinsert(TokenMenuList, {text = itemName, func = fn});
+	tinsert(parent.TokenList, {text = itemName, func = fn});
 end
 
-function MOD:CacheTokenData()
-    twipe(TokenMenuList)
+local function CacheTokenData(self)
+    twipe(self.TokenList)
     local prof1, prof2, archaeology, _, cooking = GetProfessions()
     if archaeology then
-        AddToTokenMenu(398)
-        AddToTokenMenu(384)
-        AddToTokenMenu(393)
-        AddToTokenMenu(677)
-        AddToTokenMenu(400)
-        AddToTokenMenu(394)
-        AddToTokenMenu(397)
-        AddToTokenMenu(676)
-        AddToTokenMenu(401)
-        AddToTokenMenu(385)
-        AddToTokenMenu(399)
-        AddToTokenMenu(821)
-        AddToTokenMenu(829)
-        AddToTokenMenu(944)
+        AddToTokenMenu(self, 398)
+        AddToTokenMenu(self, 384)
+        AddToTokenMenu(self, 393)
+        AddToTokenMenu(self, 677)
+        AddToTokenMenu(self, 400)
+        AddToTokenMenu(self, 394)
+        AddToTokenMenu(self, 397)
+        AddToTokenMenu(self, 676)
+        AddToTokenMenu(self, 401)
+        AddToTokenMenu(self, 385)
+        AddToTokenMenu(self, 399)
+        AddToTokenMenu(self, 821)
+        AddToTokenMenu(self, 829)
+        AddToTokenMenu(self, 944)
     end
     if cooking then
-        AddToTokenMenu(81)
-        AddToTokenMenu(402)
+        AddToTokenMenu(self, 81)
+        AddToTokenMenu(self, 402)
     end
     if(prof1 == 9 or prof2 == 9) then
-        AddToTokenMenu(61)
-        AddToTokenMenu(361)
-        AddToTokenMenu(698)
+        AddToTokenMenu(self, 61)
+        AddToTokenMenu(self, 361)
+        AddToTokenMenu(self, 698)
 
-        AddToTokenMenu(910)
-        AddToTokenMenu(999)
-        AddToTokenMenu(1020)
-        AddToTokenMenu(1008)
-        AddToTokenMenu(1017)
+        AddToTokenMenu(self, 910)
+        AddToTokenMenu(self, 999)
+        AddToTokenMenu(self, 1020)
+        AddToTokenMenu(self, 1008)
+        AddToTokenMenu(self, 1017)
     end
-    AddToTokenMenu(697, false, true)
-    AddToTokenMenu(738)
-    AddToTokenMenu(615)
-    AddToTokenMenu(614)
-    AddToTokenMenu(395, false, true)
-    AddToTokenMenu(396, false, true)
-    AddToTokenMenu(390, true)
-    AddToTokenMenu(392, false, true)
-    AddToTokenMenu(391)
-    AddToTokenMenu(241)
-    AddToTokenMenu(416)
-    AddToTokenMenu(515)
-    AddToTokenMenu(776)
-    AddToTokenMenu(777)
-    AddToTokenMenu(789)
-    AddToTokenMenu(823)
-    AddToTokenMenu(824)
+    AddToTokenMenu(self, 697, false, true)
+    AddToTokenMenu(self, 738)
+    AddToTokenMenu(self, 615)
+    AddToTokenMenu(self, 614)
+    AddToTokenMenu(self, 395, false, true)
+    AddToTokenMenu(self, 396, false, true)
+    AddToTokenMenu(self, 390, true)
+    AddToTokenMenu(self, 392, false, true)
+    AddToTokenMenu(self, 391)
+    AddToTokenMenu(self, 241)
+    AddToTokenMenu(self, 416)
+    AddToTokenMenu(self, 515)
+    AddToTokenMenu(self, 776)
+    AddToTokenMenu(self, 777)
+    AddToTokenMenu(self, 789)
+    AddToTokenMenu(self, 823)
+    AddToTokenMenu(self, 824)
 end
 
 local function Tokens_OnEnter(self)
@@ -218,14 +217,20 @@ local function Tokens_OnEnter(self)
 		TokenInquiry(399)
 	end
 	MOD.tooltip:AddLine(" ")
-  	MOD.tooltip:AddDoubleLine("[Shift + Click]", "Change Watched Token", 0,1,0, 0.5,1,0.5)
+  MOD.tooltip:AddDoubleLine("[Shift + Click]", "Change Watched Token", 0,1,0, 0.5,1,0.5)
 	MOD:ShowTip(true)
 end 
 
 local function Tokens_OnClick(self, button)
-	TokenParent = self;
-  MOD:CacheTokenData()
-	SV.Dropdown:Open(self, TokenMenuList) 
-end 
+  CacheTokenData(self);
+	SV.Dropdown:Open(self, self.TokenList) 
+end
 
-MOD:Extend('Tokens', TokenEvents, TokensEventHandler, nil,  Tokens_OnClick,  Tokens_OnEnter)
+local function Tokens_OnInit(self)
+  local key = self.SlotKey
+  MOD.Accountant[playerRealm]["tokens"][playerName][key] = MOD.Accountant[playerRealm]["tokens"][playerName][key] or 738;
+  self.TokenKey = MOD.Accountant[playerRealm]["tokens"][playerName][key]
+  CacheTokenData(self);
+end
+
+MOD:Extend('Tokens', TokenEvents, TokensEventHandler, nil,  Tokens_OnClick,  Tokens_OnEnter, nil, Tokens_OnInit)

@@ -9,7 +9,7 @@
     <Include file="unit\SVUnit.xml"/>
     <Script file="chat\SVChat.lua"/>
     <Include file="bag\SVBag.xml"/>
-    <Script file="override\SVOverride.lua"/>
+    <Include file="override\SVOverride.xml"/>
     <Script file="gear\SVGear.lua"/>
     <Script file="henchmen\SVHenchmen.lua"/>
     <Include file="tools\SVTools.xml"/>

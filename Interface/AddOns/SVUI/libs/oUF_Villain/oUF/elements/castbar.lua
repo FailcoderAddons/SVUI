@@ -236,7 +236,9 @@ local UNIT_SPELLCAST_STOP = function(self, event, unit, spellname, _, castid)
 		castbar:SetValue(0)
 	end
 
-	castbar:Hide()
+	if((not castbar.recipecount) or (castbar.recipecount and castbar.recipecount < 2)) then
+		castbar:Hide()
+	end
 
 	if(castbar.PostCastStop) then
 		return castbar:PostCastStop(unit, spellname, castid)

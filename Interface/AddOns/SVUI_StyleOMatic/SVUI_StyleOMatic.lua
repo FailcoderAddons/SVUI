@@ -133,8 +133,8 @@ function PLUGIN:SaveAddonStyle(addon, fn, force, passive, ...)
 			self:DefineEventFunction(event, addon)
 		end  
 	end
-	if(self.configs.addons and self.configs.addons[addon] == nil) then
-		self.configs.addons[addon] = true
+	if(self.defaults.addons and self.defaults.addons[addon] == nil) then
+		self.defaults.addons[addon] = true
 	end
 
 	if force then

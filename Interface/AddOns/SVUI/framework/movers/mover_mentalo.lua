@@ -50,10 +50,10 @@ local DraggableFrames = {
 	"AchievementFrame", "AuctionFrame", "ArchaeologyFrame",
 	"BattlefieldMinimap", "BarberShopFrame", "BlackMarketFrame",
 	"CalendarFrame", "CharacterFrame", "ClassTrainerFrame",
-	"DressUpFrame",
+	"DressUpFrame", "DraenorZoneAbilityFrame",
 	"EncounterJournal",
 	"FriendsFrame",
-	"GameMenuFrame", "GMSurveyFrame", "GossipFrame", "GuildFrame", "GuildBankFrame", "GuildRegistrarFrame",
+	"GMSurveyFrame", "GossipFrame", "GuildFrame", "GuildBankFrame", "GuildRegistrarFrame",
 	"GarrisonLandingPage", "GarrisonMissionFrame", "GarrisonCapacitiveDisplayFrame",
 	"HelpFrame",
 	"InterfaceOptionsFrame",
@@ -68,6 +68,24 @@ local DraggableFrames = {
 	"TabardFrame", "TaxiFrame", "TimeManagerFrame", "TradeSkillFrame", "TradeFrame", "TransmogrifyFrame", "TutorialFrame",
 	"VideoOptionsFrame", "VoidStorageFrame",
 	--"WorldStateAlwaysUpFrame"
+};
+
+local CenteredFrames = {
+	["BattlefieldMinimap"] = {"TOP", "TOP", 0, -80},
+	["CalendarFrame"] = {"TOP", "TOP", 0, -80},
+	["GameMenuFrame"] = {"TOP", "TOP", 0, -80}, 
+	["GMSurveyFrame"] = {"TOP", "TOP", 0, -80},
+	["GarrisonLandingPage"] = {"TOP", "TOP", 0, -80}, 
+	["GarrisonMissionFrame"] = {"TOP", "TOP", 0, -80},
+	["HelpFrame"] = {"TOP", "TOP", 0, -80},
+	["InterfaceOptionsFrame"] = {"TOP", "TOP", 0, -80},
+	["KeyBindingFrame"] = {"TOP", "TOP", 0, -80},
+	["LFGDungeonReadyPopup"] = {"TOP", "TOP", 0, -80},
+	["MacOptionsFrame"] = {"TOP", "TOP", 0, -80},
+	["ReadyCheckFrame"] = {"TOP", "TOP", 0, -80}, 
+	["RolePollPopup"] = {"TOP", "TOP", 0, -80},
+	["TutorialFrame"] = {"TOP", "TOP", 0, -80},
+	["VideoOptionsFrame"] = {"TOP", "TOP", 0, -80},
 };
 --[[
   /$$$$$$   /$$     /$$           /$$                
@@ -266,10 +284,15 @@ end
 local function CurrentPosition(frame)
 	if not frame then return end 
 	local anchor1, parent, anchor2, x, y = frame:GetPoint()
-	anchor1 = anchor1 or "TOPLEFT"
-	anchor2 = anchor2 or "TOPLEFT"
-	x = x or 50
-	y = y or -50
+	if((not anchor1) or (not anchor2) or (not x) or (not y)) then
+		local frameName = frame:GetName()
+		if(CenteredFrames[frameName]) then
+			anchor1, anchor2, x, y = unpack(CenteredFrames[frameName])
+		else
+			anchor1, anchor2, x, y = "TOPLEFT", "TOPLEFT", 160, -80
+		end
+	end
+	
 	local parentName
 	if not parent then 
 		parentName = "SVUIParent" 
@@ -683,18 +706,13 @@ function Mentalo:Reset(request)
 				SV.cache.Anchors[frameName] = nil 
 			end 
 		end
-	elseif(request == "Blizzard") then 
+	elseif(request == "Blizzard") then
 		for frameName, point in pairs(self.Blizzard) do 
-			local frame = _G[frameName];
-			if(point and (type(point) == "string")) then
-				local u, v, w, x, y = split("\031", point)
-				frame:ClearAllPoints()
-				frame:SetPoint(u, v, w, x, y)
-			end
 			if(SV.cache.Anchors and SV.cache.Anchors[frameName]) then 
 				SV.cache.Anchors[frameName] = nil 
 			end
 		end
+		ReloadUI()
 	else 
 		for frameName, frameData in pairs(self.Frames) do
 			if(frameData.point and (request == frameData.text)) then
@@ -858,7 +876,7 @@ DRAGGABLE HANDLERS
 ]]--
 local BlizzardFrame_OnUpdate = function(self)
 	local frameName = self:GetName();
-	if(InCombatLockdown() or (frameName == "GameMenuFrame") or (self.IsMoving)) then return end 
+	if(InCombatLockdown() or (self.IsMoving)) then return end 
 	if(frameName == "QuestFrame") then
 		frameName = "GossipFrame"
 	end
@@ -866,10 +884,13 @@ local BlizzardFrame_OnUpdate = function(self)
 		local anchor1, parent, anchor2, x, y = split("\031", SV.cache.Anchors[frameName])
 		self:ClearAllPoints()
 		self:SetPoint(anchor1, parent, anchor2, x, y)
-	elseif(Mentalo.Blizzard[frameName] and (type(Mentalo.Blizzard[frameName]) == "string")) then 
-		local anchor1, parent, anchor2, x, y = split("\031", Mentalo.Blizzard[frameName])
-		self:ClearAllPoints()
-		self:SetPoint(anchor1, parent, anchor2, x, y)
+	else
+		local defaultPoint = Mentalo.Blizzard[frameName]
+		if(defaultPoint and (type(defaultPoint) == "string")) then 
+			local anchor1, parent, anchor2, x, y = split("\031", defaultPoint)
+			self:ClearAllPoints()
+			self:SetPoint(anchor1, parent, anchor2, x, y)
+		end
 	end
 end
 
@@ -884,7 +905,6 @@ local BlizzardFrame_OnDragStop = function(self)
 	local frameName = self:GetName();
 	self.IsMoving = false;
 	self:StopMovingOrSizing()
-	if(frameName == "GameMenuFrame") then return end 
 	local anchor1, parent, anchor2, x, y = self:GetPoint()
 	parent = self:GetParent():GetName()
 	self:ClearAllPoints()
@@ -895,11 +915,14 @@ local BlizzardFrame_OnDragStop = function(self)
 	Mentalo:SaveMovable(frameName)
 end
 
-local MentaloMaster_OnEvent = function(self) 
+local UIPanelsAdjusted = {};
+
+local MentaloDraggablesUpdate = function(self, event, ...)
+	if(InCombatLockdown()) then return end
 	for _, frameName in pairs(DraggableFrames) do
-		local frame = _G[frameName]
-		if(frame) then
-			if(frameName ~= "LossOfControlFrame" and (not self.Blizzard[frameName])) then 
+		if((not self.Blizzard[frameName]) or (self.Blizzard[frameName] and (self.Blizzard[frameName] == "TBD"))) then 
+			local frame = _G[frameName]
+			if(frame) then
 				frame:EnableMouse(true)
 
 				if(frameName == "LFGDungeonReadyPopup") then 
@@ -913,22 +936,19 @@ local MentaloMaster_OnEvent = function(self)
 				frame:SetScript("OnDragStart", BlizzardFrame_OnDragStart)
 				frame:SetScript("OnDragStop", BlizzardFrame_OnDragStop)
 
+				if(self.CenterEverything and (not UIPanelsAdjusted[panelName])) then
+					frame:ClearAllPoints()
+					frame:SetPoint('TOP', SV.Screen, 'TOP', 0, -180)
+					UIPanelsAdjusted[frameName] = true
+				end
+
 				self.Blizzard[frameName] = CurrentPosition(frame)
-			end
-		end 
-	end 
+			else
+				self.Blizzard[frameName] = "TBD"
+			end 
+		end
+	end
 end
-
-Mentalo:RegisterEvent("PLAYER_LOGIN")
-Mentalo:RegisterEvent("ADDON_LOADED")
-Mentalo:RegisterEvent("LFG_UPDATE")
-Mentalo:RegisterEvent("ROLE_POLL_BEGIN")
-Mentalo:RegisterEvent("READY_CHECK")
-Mentalo:RegisterEvent("UPDATE_WORLD_STATES")
-Mentalo:RegisterEvent("WORLD_STATE_TIMER_START")
-Mentalo:RegisterEvent("WORLD_STATE_UI_TIMER_UPDATE")
-
-Mentalo:SetScript("OnEvent", MentaloMaster_OnEvent)
 --[[ 
 ########################################################## 
 Initialize
@@ -961,25 +981,27 @@ function Mentalo:Initialize()
 	SVUI_MentaloPrecisionRightButton:SetButtonTemplate()
 
 	SV.cache.Anchors = SV.cache.Anchors or {}
+	self.CenterEverything = SV.db.general.multiMonitor
+
+	MentaloDraggablesUpdate(self)
 
 	self:SetPositions()
 
-	if(SV.db.general.multiMonitor) then
-		for panelName, panelData in pairs(_G["UIPanelWindows"]) do
-			if(self.Blizzard[panelName] and (not SV.cache.Anchors[frameName])) then
-				if(panelData.area and (panelData.area == 'left')) then
-					local frame = _G[panelName];
-					local parent = frame:GetParent():GetName()
-					if(parent and ((parent == UIParent) or (parent == SV.Screen))) then
-						frame:ClearAllPoints()
-						frame:SetPoint('CENTER', parent, 'CENTER', 0, 0)
-						SetUIPanelAttribute(frame, 'area', 'center')
-						self.Blizzard[frameName] = CurrentPosition(frame)
-					end
-				end
-			end
-		end
-	end
+	Mentalo:RegisterEvent("ADDON_LOADED")
+	Mentalo:RegisterEvent("LFG_UPDATE")
+	Mentalo:RegisterEvent("ROLE_POLL_BEGIN")
+	Mentalo:RegisterEvent("READY_CHECK")
+	Mentalo:RegisterEvent("UPDATE_WORLD_STATES")
+	Mentalo:RegisterEvent("WORLD_STATE_TIMER_START")
+	Mentalo:RegisterEvent("WORLD_STATE_UI_TIMER_UPDATE")
+	Mentalo:SetScript("OnEvent", MentaloDraggablesUpdate)
+
+	--PET JOURNAL TAINT FIX (STILL NEEDED?)
+	-- local info = UIPanelWindows["PetJournalParent"];
+	-- for name, value in pairs(info) do
+	-- 	PetJournalParent:SetAttribute("UIPanelLayout-"..name, value);
+	-- end	
+	-- PetJournalParent:SetAttribute("UIPanelLayout-defined", true);
 end
 
 SV.Mentalo = Mentalo
