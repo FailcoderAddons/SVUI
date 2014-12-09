@@ -96,7 +96,7 @@ function MOD:ReLoad()
 end 
 
 function MOD:Load()
-	self:LoadQuestWatch()
+	--self:LoadQuestWatch()
 	self:LoadProfessionTools()
 	self:LoadGarrisonTool()
 	self:LoadRaidLeaderTools()

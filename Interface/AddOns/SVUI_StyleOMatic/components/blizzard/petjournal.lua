@@ -28,6 +28,8 @@ HELPERS
 ##########################################################
 ]]--
 local FAV_ICON = [[Interface\Addons\SVUI\assets\artwork\Icons\GENERIC-STAR]]
+local NORMAL_COLOR = {r = 1, g = 1, b = 1}
+local SELECTED_COLOR = {r = 1, g = 1, b = 0}
 
 local function PetJournal_UpdateMounts()
 	for b = 1, #MountJournal.ListScrollFrame.buttons do 
@@ -66,27 +68,23 @@ local function PetJournal_UpdatePets()
 		local w, x, y, z, level, favorite, A, B, C, D, E, F, G, H, I = C_PetJournal.GetPetInfoByIndex(v, isWild)
 		if w ~= nil then 
 			local J, K, L, M, N = C_PetJournal.GetPetStats(w)
-			if d.selectedTexture:IsShown() then
-				e:SetTextColor(1, 1, 0)
+			local color = NORMAL_COLOR
+			if(N) then 
+				color = ITEM_QUALITY_COLORS[N-1]
+			end
+			d:SetBackdropBorderColor(0,0,0,1)
+			if(d.selectedTexture:IsShown() and d.Panel) then
+				d:SetBackdropBorderColor(1,1,0,1)
+				if d.IconShadow then
+					d.IconShadow:SetBackdropBorderColor(1,1,0)
+				end
 			else
-				e:SetTextColor(1, 1, 1)
-			end 
-			if N then 
-				local color = ITEM_QUALITY_COLORS[N-1]
-				if d.Panel then
-					d:SetBackdropBorderColor(color.r, color.g, color.b)
-				end 
 				if d.IconShadow then
 					d.IconShadow:SetBackdropBorderColor(color.r, color.g, color.b)
-				end 
-			else
-				if d.Panel then
-					d:SetBackdropBorderColor(1, 1, 0, 0.5)
-				end 
-				if d.IconShadow then
-					d.IconShadow:SetBackdropBorderColor(1, 1, 0, 0.5)
-				end 
-			end 
+				end
+			end
+
+			e:SetTextColor(color.r, color.g, color.b)
 		end
 	end 
 end 

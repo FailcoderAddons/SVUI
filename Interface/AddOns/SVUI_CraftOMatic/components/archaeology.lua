@@ -56,10 +56,12 @@ local GetContainerItemInfo = GetContainerItemInfo
 local GetContainerItemID = GetContainerItemID
 local ModeLogsFrame; 
 
+local ArchRaces = GetNumArchaeologyRaces()
+
 local COUNT_TEX = [[Interface\AddOns\SVUI\assets\artwork\icons\NUMBER-]]
 
 local refArtifacts = {};
-for i = 1, 12 do
+for i = 1, ArchRaces do
 	refArtifacts[i] = {}
 end
 local ArchCrafting = CreateFrame("Frame", "SVUI_ArchCrafting", UIParent)
@@ -117,7 +119,7 @@ local function UpdateArtifactBars(index)
 		bar["race"]:SetTextColor(1, 0.8, 0)
 		bar["progress"]:SetTextColor(1, 1, 1)
 		if cache["numKeysockets"] then
-			keystoneBonus = min(cache["numKeystones"], cache["numKeysockets"]) * 12
+			keystoneBonus = min(cache["numKeystones"], cache["numKeysockets"]) * ArchRaces
 		end
 		local actual = min(cache["progress"], cache["total"])
 		local potential = cache["total"]
@@ -157,7 +159,7 @@ end
 
 local function UpdateArtifactCache()
 	local found, raceName, raceItemID, cache, _;
-	for index = 1, 12 do
+	for index = 1, ArchRaces do
 		found = GetNumArtifactsByRace(index)
 		raceName, _, raceItemID = GetArchaeologyRaceInfo(index)
 		cache = refArtifacts[index]
@@ -190,7 +192,7 @@ local function UpdateArtifactCache()
 						if cache["numKeystones"] < cache["numKeysockets"] then
 							cache["numKeystones"] = cache["numKeystones"] + count
 						end
-						if min(cache["numKeystones"], cache["numKeysockets"]) * 12 + cache["progress"] >= cache["total"] then
+						if min(cache["numKeystones"], cache["numKeysockets"]) * ArchRaces + cache["progress"] >= cache["total"] then
 							cache["canSolve"] = true
 						end
 					end
@@ -438,31 +440,35 @@ function PLUGIN:LoadArchaeologyMode()
 	ArchCrafting:SetFrameStrata("MEDIUM")
 	ArchCrafting:FillInner(ModeLogsFrame)
 
-	local BAR_WIDTH = (ArchCrafting:GetWidth() * 0.5) - 4
-	local BAR_HEIGHT = (ArchCrafting:GetHeight() / 6) - 4
+	local BAR_WIDTH = (ArchCrafting:GetWidth() * 0.33) - 4
+	local BAR_HEIGHT = (ArchCrafting:GetHeight() / 5) - 4
 
-	for i = 1, 12 do
+	for i = 1, ArchRaces do
 		local bar = CreateFrame("StatusBar", nil, ArchCrafting)
 		local solve = CreateFrame("Button", nil, bar, "SecureHandlerClickTemplate")
-		local yOffset;
+		local yOffset,xOffset = 0,0;
 
 		bar:SetPanelTemplate("Bar")
 		bar:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]])
 		bar:SetSize(BAR_WIDTH,BAR_HEIGHT)
-		if(i > 6) then
-			yOffset = ((i - 7) * (BAR_HEIGHT + 4)) + 4
-			bar:SetPoint("TOPRIGHT", ArchCrafting, "TOPRIGHT", -2, -yOffset)
+		if(i > 10) then
+			xOffset = (BAR_WIDTH * 2) + 6
+			yOffset = ((i - 11) * (BAR_HEIGHT + 4)) + 4
+		elseif(i > 5) then
+			xOffset = BAR_WIDTH + 4
+			yOffset = ((i - 6) * (BAR_HEIGHT + 4)) + 4
 		else
+			xOffset = 2
 			yOffset = ((i - 1) * (BAR_HEIGHT + 4)) + 4;
-			bar:SetPoint("TOPLEFT", ArchCrafting, "TOPLEFT", 2, -yOffset)
 		end
+		bar:SetPoint("TOPLEFT", ArchCrafting, "TOPLEFT", xOffset, -yOffset)
 		bar:SetStatusBarColor(0.2, 0.2, 0.8, 0.5)
 		
 		-- Race Text
 		local race = bar:CreateFontString()
-		race:SetFontObject(NumberFont_Outline_Large)
+		race:SetFontObject(NumberFont_Outline_Med)
 		race:SetText(RACE)
-		race:SetPoint("TOPLEFT", bar, "TOPLEFT", 1, -1)
+		race:SetPoint("TOPLEFT", bar, "TOPLEFT", 2, -4)
 		race:SetTextColor(1,0.8,0)
 
 		-- Progress Text

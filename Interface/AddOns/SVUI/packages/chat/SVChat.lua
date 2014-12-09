@@ -357,6 +357,7 @@ do
 	local TabsList = {};
 	local TabSafety = {};
 	local refreshLocked = false;
+	local doskey = false;
 
 	local SVUI_OnHyperlinkShow = function(self, link, ...)
 		if(link:sub(1, 3) == "url") then
@@ -435,6 +436,20 @@ do
 	    end
 	end
 
+	local EditBox_OnKeyUp = function(self, button)
+		if(not button) then return end
+		if(doskey) then
+			if(button == KEY_LEFT) then 
+				self:SetCursorPosition(0)
+			elseif(button == KEY_RIGHT) then
+				self:SetCursorPosition(self:GetNumLetters())
+			end
+			doskey = false
+		elseif((button == KEY_UP) or (button == KEY_DOWN)) then
+			doskey = true
+		end
+	end
+
 	local EditBox_OnEditFocusGained = function(self)
 		self:Show()
 		if not MOD.Dock.Parent:IsShown()then 
@@ -453,46 +468,53 @@ do
 		end 
 		self:Hide()
 		MOD.Dock.Parent.Alert:Deactivate()
+		doskey = false
 	end
 
 	local EditBox_OnTextChanged = function(self)
 		local text = self:GetText()
-		if InCombatLockdown()then 
+		if(InCombatLockdown()) then 
 			local max = 5;
-			if len(text) > max then 
+			if(len(text) > max) then 
 				local testText = true;
 				for i = 1, max, 1 do 
-					if sub(text, 0 - i, 0 - i)  ~= sub(text, -1 - i, -1 - i) then 
+					if(sub(text, 0 - i, 0 - i) ~= sub(text, -1 - i, -1 - i)) then 
 						testText = false;
 						break 
 					end 
 				end 
-				if testText then 
+				if(testText) then 
 					self:Hide()
 					return 
 				end 
 			end 
-		end 
-		if text:len() < 5 then 
-			if text:sub(1, 4) == "/tt " then 
+		end
+
+		if(text:len() < 5) then 
+			if(text:sub(1, 4) == "/tt ") then 
 				local name, realm = UnitName("target")
-				if name then 
+				if(name) then 
 					name = gsub(name, " ", "")
-				end 
-				if name and not UnitIsSameServer("player", "target") then 
-					name = name.."-"..gsub(realm, " ", "")
-				end 
-				ChatFrame_SendTell(name or L["Invalid Target"], ChatFrame1)
+					if(name and (not UnitIsSameServer("player", "target"))) then 
+						name = name.."-"..gsub(realm, " ", "")
+					end
+				else
+					name = L["Invalid Target"]
+				end  
+				ChatFrame_SendTell(name, ChatFrame1)
 			end 
-			if text:sub(1, 4) == "/gr " then 
+			if(text:sub(1, 4) == "/gr ") then 
 				self:SetText(MOD:GetGroupDistribution()..text:sub(5))
 				ChatEdit_ParseText(self, 0)
+				doskey = false
 			end 
-		end 
+		end
+
 		local result, ct = text:gsub("|Kf(%S+)|k(%S+)%s(%S+)|k", "%2 %3")
-		if ct > 0 then 
+		if(ct > 0) then 
 			result = result:gsub("|", "")
 			self:SetText(result)
+			doskey = false
 		end 
 	end
 
@@ -662,16 +684,18 @@ do
 			editBox:HookScript("OnEditFocusGained", EditBox_OnEditFocusGained)
 			editBox:HookScript("OnEditFocusLost", EditBox_OnEditFocusLost)
 			editBox:HookScript("OnTextChanged", EditBox_OnTextChanged)
+			editBox:HookScript("OnKeyUp", EditBox_OnKeyUp)
 			-------------------------------------------
 			chat:SetTimeVisible(100)	
 			chat:SetFading(CHAT_FADING)
 			chat:SetScript("OnHyperlinkClick", SVUI_OnHyperlinkShow)
 
-			local alertSize = (MOD.Dock.Bar:GetHeight()) * 2;
+			local alertSize = MOD.Dock.Bar:GetHeight();
+			local alertOffset = alertSize * 0.25
 			local alert = CreateFrame("Frame", nil, tab)
 			alert:SetSize(alertSize, alertSize)
 			alert:SetFrameStrata("DIALOG")
-			alert:SetPoint("CENTER", tab, "TOP", 0, 0)
+			alert:SetPoint("TOPRIGHT", tab, "TOPRIGHT", alertOffset, alertOffset)
 			local alticon = alert:CreateTexture(nil, "OVERLAY")
 			alticon:SetAllPoints(alert)
 			alticon:SetTexture(WHISPER_ALERT)

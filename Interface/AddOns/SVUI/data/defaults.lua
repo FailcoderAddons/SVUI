@@ -54,6 +54,7 @@ SV.defaults["general"] = {
     ["cooldown"] = true, 
     ["autoScale"] = true,
     ["multiMonitor"] = false,
+    ["saveDraggable"] = false,
     ["taintLog"] = false, 
     ["stickyFrames"] = true, 
     ["loginmessage"] = true, 
@@ -90,8 +91,8 @@ SV.defaults["media"] = {
         ["default"] = "SVUI System Font", 
         ["name"] = NAMEFONT, 
         ["number"] = "SVUI Number Font", 
-        ["combat"] = "SVUI Combat Font", 
-        ["giant"] = "SVUI Action Font", 
+        ["combat"] = "SVUI Number Font", 
+        ["giant"] = "SVUI System Font", 
         ["size"] = 10, 
         ["unicodeSize"] = 12, 
     }, 
@@ -569,6 +570,7 @@ SV.defaults["SVOverride"] = {
 		[ERR_ATTACK_MOUNTED] = true,
 		[ERR_ATTACK_PACIFIED] = false,
 		[ERR_ATTACK_STUNNED] = false,
+		[ERR_ATTACK_NO_ACTIONS] = false,
 		[ERR_AUTOFOLLOW_TOO_FAR] = false,
 		[ERR_BADATTACKFACING] = false,
 		[ERR_BADATTACKPOS] = false,
@@ -603,6 +605,8 @@ SV.defaults["SVOverride"] = {
 		[SPELL_FAILED_NO_COMBO_POINTS] = true,
 		[SPELL_FAILED_SPELL_IN_PROGRESS] = true,
 		[SPELL_FAILED_TARGET_AURASTATE] = true,
+		[SPELL_FAILED_TOO_CLOSE] = false,
+		[SPELL_FAILED_UNIT_NOT_INFRONT] = false,
 	}
 };
 
@@ -626,7 +630,7 @@ SV.defaults["SVPlate"] = {
 	["healthBar"] = {
 		["lowThreshold"] = 0.4, 
 		["width"] = 108, 
-		["height"] = 9, 
+		["height"] = 10, 
 		["text"] = {
 			["enable"] = false, 
 			["format"] = "CURRENT", 
@@ -636,9 +640,14 @@ SV.defaults["SVPlate"] = {
 		}, 
 	}, 
 	["castBar"] = {
-		["height"] = 6, 
+		["height"] = 8, 
 		["color"] = {1, 0.81, 0}, 
-		["noInterrupt"] = {0.78, 0.25, 0.25}, 
+		["noInterrupt"] = {1, 0.25, 0.25}, 
+		["text"] = {
+			["enable"] = false, 
+			["xOffset"] = 2, 
+			["yOffset"] = 0, 
+		}, 
 	}, 
 	["raidHealIcon"] = {
 		["xOffset"] =  -4, 
@@ -670,6 +679,11 @@ SV.defaults["SVPlate"] = {
 		["enemy"] = {0.78, 0.25, 0.25}, 
 	}, 
 };
+
+SV.defaults["SVQuest"] = {
+    ["enable"] = true, 
+    ["rowHeight"] = 24,
+}
 
 SV.defaults["SVStats"] = {
 	["enable"] = true, 
@@ -707,6 +721,7 @@ SV.defaults["SVStats"] = {
 
 SV.defaults["SVTip"] = {
 	["enable"] = true, 
+	["comicStyle"] = true,
 	["cursorAnchor"] = false, 
 	["targetInfo"] = true, 
 	["playerTitles"] = true, 
@@ -735,7 +750,8 @@ SV.defaults["SVTools"] = {
 };
 
 SV.defaults["SVUnit"] = {
-	["enable"] = true, 
+	["enable"] = true,
+	["comicStyle"] = true,
 	["disableBlizzard"] = true, 
 	["smoothbars"] = false, 
 	["statusbar"] = "SVUI BasicBar", 
@@ -857,16 +873,16 @@ SV.defaults["SVUnit"] = {
 		}, 
 		["buffs"] = 
 		{
-			["enable"] = false, 
+			["enable"] = true, 
 			["perrow"] = 8, 
 			["numrows"] = 1, 
-			["attachTo"] = "DEBUFFS", 
+			["attachTo"] = "FRAME", 
 			["anchorPoint"] = "TOPLEFT", 
 			["verticalGrowth"] = "UP", 
 			["horizontalGrowth"] = "RIGHT", 
 			["filterPlayer"] = true, 
 			["filterRaid"] = true, 
-			["filterAllowed"] = false, 
+			["filterAll"] = false, 
 			["filterInfinite"] = true, 
 			["filterDispellable"] = false, 
 			["useFilter"] = "", 
@@ -879,12 +895,12 @@ SV.defaults["SVUnit"] = {
 			["enable"] = true, 
 			["perrow"] = 8, 
 			["numrows"] = 1, 
-			["attachTo"] = "FRAME", 
+			["attachTo"] = "BUFFS", 
 			["anchorPoint"] = "TOPLEFT", 
 			["verticalGrowth"] = "UP", 
 			["horizontalGrowth"] = "RIGHT", 
 			["filterPlayer"] = false, 
-			["filterAllowed"] = false, 
+			["filterAll"] = false, 
 			["filterInfinite"] = false, 
 			["filterDispellable"] = false, 
 			["useFilter"] = "", 
@@ -899,7 +915,7 @@ SV.defaults["SVUnit"] = {
 			["attachTo"] = "DEBUFFS", 
 			["filterPlayer"] = true, 
 			["filterRaid"] = true, 
-			["filterAllowed"] = false, 
+			["filterAll"] = false, 
 			["filterInfinite"] = true, 
 			["filterDispellable"] = false, 
 			["useFilter"] = "", 
@@ -969,7 +985,6 @@ SV.defaults["SVUnit"] = {
 		["threatEnabled"] = true, 
 		["rangeCheck"] = true, 
 		["predict"] = false, 
-		["smartAuraDisplay"] = "DISABLED", 
 		["middleClickFocus"] = true,
 		["formatting"] = {
 			["power_colored"] = true, 
@@ -1049,7 +1064,7 @@ SV.defaults["SVUnit"] = {
 				friendly = false, 
 				enemy = false, 
 			},
-			["filterAllowed"] = 
+			["filterAll"] = 
 			{
 				friendly = false, 
 				enemy = false, 
@@ -1083,7 +1098,7 @@ SV.defaults["SVUnit"] = {
 				friendly = false, 
 				enemy = true, 
 			},
-			["filterAllowed"] = 
+			["filterAll"] = 
 			{
 				friendly = false, 
 				enemy = false, 
@@ -1113,7 +1128,7 @@ SV.defaults["SVUnit"] = {
 				friendly = true, 
 				enemy = true, 
 			}, 
-			["filterAllowed"] = 
+			["filterAll"] = 
 			{
 				friendly = false, 
 				enemy = false, 
@@ -1264,7 +1279,7 @@ SV.defaults["SVUnit"] = {
 				friendly = true, 
 				enemy = false, 
 			}, 
-			["filterAllowed"] = 
+			["filterAll"] = 
 			{
 				friendly = false, 
 				enemy = false, 
@@ -1298,7 +1313,7 @@ SV.defaults["SVUnit"] = {
 				friendly = false, 
 				enemy = true, 
 			},
-			["filterAllowed"] = 
+			["filterAll"] = 
 			{
 				friendly = false, 
 				enemy = false, 
@@ -1337,7 +1352,6 @@ SV.defaults["SVUnit"] = {
 		["width"] = 170, 
 		["height"] = 30, 
 		["predict"] = false, 
-		["smartAuraDisplay"] = "DISABLED", 
 		["formatting"] = {
 			["power_colored"] = true, 
 			["power_type"] = "none", 
@@ -1386,15 +1400,15 @@ SV.defaults["SVUnit"] = {
 			["font"] = "SVUI Narrator Font", 
 			["fontSize"] = 14, 
 			["fontOutline"] = "OUTLINE", 
-		}, 
+		},
 		["buffs"] = 
 		{
-			["enable"] = false, 
+			["enable"] = true, 
 			["perrow"] = 7, 
 			["numrows"] = 1, 
 			["attachTo"] = "FRAME", 
-			["anchorPoint"] = "BOTTOMRIGHT", 
-			["verticalGrowth"] = "DOWN", 
+			["anchorPoint"] = "TOPRIGHT", 
+			["verticalGrowth"] = "UP", 
 			["horizontalGrowth"] = "LEFT", 
 			["filterPlayer"] = 
 			{
@@ -1406,7 +1420,7 @@ SV.defaults["SVUnit"] = {
 				friendly = true, 
 				enemy = false, 
 			},
-			["filterAllowed"] = 
+			["filterAll"] = 
 			{
 				friendly = false, 
 				enemy = false, 
@@ -1423,7 +1437,7 @@ SV.defaults["SVUnit"] = {
 			}, 
 			["useFilter"] = "", 
 			["xOffset"] = 0, 
-			["yOffset"] = -8, 
+			["yOffset"] = 4, 
 			["sizeOverride"] = 0, 
 		}, 
 		["debuffs"] = 
@@ -1432,7 +1446,7 @@ SV.defaults["SVUnit"] = {
 			["perrow"] = 5, 
 			["numrows"] = 1, 
 			["attachTo"] = "FRAME", 
-			["anchorPoint"] = "TOPRIGHT", 
+			["anchorPoint"] = "LEFT", 
 			["verticalGrowth"] = "UP", 
 			["horizontalGrowth"] = "LEFT", 
 			["filterPlayer"] = 
@@ -1440,7 +1454,7 @@ SV.defaults["SVUnit"] = {
 				friendly = false, 
 				enemy = true, 
 			},
-			["filterAllowed"] = 
+			["filterAll"] = 
 			{
 				friendly = false, 
 				enemy = false, 
@@ -1456,16 +1470,16 @@ SV.defaults["SVUnit"] = {
 				enemy = false, 
 			}, 
 			["useFilter"] = "", 
-			["xOffset"] = 0, 
-			["yOffset"] = 8, 
+			["xOffset"] = -4, 
+			["yOffset"] = 0, 
 			["sizeOverride"] = 0, 
 		}, 
 		["castbar"] = 
 		{
 			["enable"] = true, 
 			["width"] = 170, 
-			["height"] = 18, 
-			["icon"] = true, 
+			["height"] = 10,
+			["icon"] = false,
 			["matchFrameWidth"] = true,
 			["format"] = "REMAINING", 
 			["spark"] = true, 
@@ -1483,7 +1497,7 @@ SV.defaults["SVUnit"] = {
 				friendly = false, 
 				enemy = true, 
 			},
-			["filterAllowed"] = 
+			["filterAll"] = 
 			{
 				friendly = false, 
 				enemy = false, 
@@ -1522,7 +1536,7 @@ SV.defaults["SVUnit"] = {
 		}, 
 	}, 
 	["focustarget"] = {
-		["enable"] = false, 
+		["enable"] = true, 
 		["rangeCheck"] = true, 
 		["threatEnabled"] = false, 
 		["width"] = 150, 
@@ -1575,16 +1589,16 @@ SV.defaults["SVUnit"] = {
 			["font"] = "SVUI Narrator Font", 
 			["fontSize"] = 14, 
 			["fontOutline"] = "OUTLINE", 
-		}, 
+		},
 		["buffs"] = 
 		{
-			["enable"] = false, 
+			["enable"] = true, 
 			["perrow"] = 7, 
 			["numrows"] = 1, 
 			["attachTo"] = "FRAME", 
-			["anchorPoint"] = "BOTTOMLEFT", 
-			["verticalGrowth"] = "DOWN", 
-			["horizontalGrowth"] = "RIGHT", 
+			["anchorPoint"] = "TOPRIGHT", 
+			["verticalGrowth"] = "UP", 
+			["horizontalGrowth"] = "LEFT", 
 			["filterPlayer"] = 
 			{
 				friendly = true, 
@@ -1595,7 +1609,7 @@ SV.defaults["SVUnit"] = {
 				friendly = true, 
 				enemy = false, 
 			},
-			["filterAllowed"] = 
+			["filterAll"] = 
 			{
 				friendly = false, 
 				enemy = false, 
@@ -1612,24 +1626,24 @@ SV.defaults["SVUnit"] = {
 			}, 
 			["useFilter"] = "", 
 			["xOffset"] = 0, 
-			["yOffset"] = -8, 
+			["yOffset"] = 4, 
 			["sizeOverride"] = 0, 
 		}, 
 		["debuffs"] = 
 		{
-			["enable"] = false, 
+			["enable"] = true, 
 			["perrow"] = 5, 
 			["numrows"] = 1, 
 			["attachTo"] = "FRAME", 
-			["anchorPoint"] = "TOPLEFT", 
+			["anchorPoint"] = "LEFT", 
 			["verticalGrowth"] = "UP", 
-			["horizontalGrowth"] = "RIGHT", 
+			["horizontalGrowth"] = "LEFT", 
 			["filterPlayer"] = 
 			{
 				friendly = false, 
 				enemy = true, 
 			},
-			["filterAllowed"] = 
+			["filterAll"] = 
 			{
 				friendly = false, 
 				enemy = false, 
@@ -1645,8 +1659,8 @@ SV.defaults["SVUnit"] = {
 				enemy = false, 
 			}, 
 			["useFilter"] = "", 
-			["xOffset"] = 0, 
-			["yOffset"] = 8, 
+			["xOffset"] = -4, 
+			["yOffset"] = 0, 
 			["sizeOverride"] = 0, 
 		}, 
 		["icons"] = 
@@ -1737,7 +1751,7 @@ SV.defaults["SVUnit"] = {
 			["horizontalGrowth"] = "LEFT", 
 			["filterPlayer"] = true, 
 			["filterRaid"] = true,
-			["filterAllowed"] = true, 
+			["filterAll"] = true, 
 			["filterInfinite"] = true, 
 			["filterDispellable"] = false, 
 			["useFilter"] = "", 
@@ -1755,7 +1769,7 @@ SV.defaults["SVUnit"] = {
 			["verticalGrowth"] = "DOWN", 
 			["horizontalGrowth"] = "RIGHT", 
 			["filterPlayer"] = false,
-			["filterAllowed"] = false, 
+			["filterAll"] = false, 
 			["filterInfinite"] = false, 
 			["filterDispellable"] = false, 
 			["useFilter"] = "", 
@@ -1856,7 +1870,7 @@ SV.defaults["SVUnit"] = {
 				friendly = true, 
 				enemy = false, 
 			},
-			["filterAllowed"] = 
+			["filterAll"] = 
 			{
 				friendly = false, 
 				enemy = false, 
@@ -1890,7 +1904,7 @@ SV.defaults["SVUnit"] = {
 				friendly = false, 
 				enemy = true, 
 			}, 
-			["filterAllowed"] = 
+			["filterAll"] = 
 			{
 				friendly = false, 
 				enemy = false, 
@@ -1986,7 +2000,7 @@ SV.defaults["SVUnit"] = {
 			["horizontalGrowth"] = "LEFT", 
 			["filterPlayer"] = false, 
 			["filterRaid"] = false, 
-			["filterAllowed"] = false, 
+			["filterAll"] = false, 
 			["filterInfinite"] = false, 
 			["filterDispellable"] = false, 
 			["useFilter"] = "", 
@@ -2004,7 +2018,7 @@ SV.defaults["SVUnit"] = {
 			["verticalGrowth"] = "UP", 
 			["horizontalGrowth"] = "LEFT", 
 			["filterPlayer"] = true, 
-			["filterAllowed"] = false, 
+			["filterAll"] = false, 
 			["filterInfinite"] = false, 
 			["filterDispellable"] = false, 
 			["useFilter"] = "", 
@@ -2122,7 +2136,7 @@ SV.defaults["SVUnit"] = {
 				friendly = false, 
 				enemy = false, 
 			}, 
-			["filterAllowed"] = 
+			["filterAll"] = 
 			{
 				friendly = false, 
 				enemy = false, 
@@ -2156,7 +2170,7 @@ SV.defaults["SVUnit"] = {
 				friendly = false, 
 				enemy = false, 
 			}, 
-			["filterAllowed"] = 
+			["filterAll"] = 
 			{
 				friendly = false, 
 				enemy = false, 
@@ -2284,7 +2298,7 @@ SV.defaults["SVUnit"] = {
 			["horizontalGrowth"] = "RIGHT", 
 			["filterPlayer"] = true, 
 			["filterRaid"] = true, 
-			["filterAllowed"] = false, 
+			["filterAll"] = false, 
 			["filterInfinite"] = true, 
 			["filterDispellable"] = false, 
 			["useFilter"] = "", 
@@ -2302,7 +2316,7 @@ SV.defaults["SVUnit"] = {
 			["verticalGrowth"] = "DOWN", 
 			["horizontalGrowth"] = "RIGHT", 
 			["filterPlayer"] = false, 
-			["filterAllowed"] = false, 
+			["filterAll"] = false, 
 			["filterInfinite"] = false, 
 			["filterDispellable"] = false, 
 			["useFilter"] = "", 
@@ -2458,7 +2472,7 @@ SV.defaults["SVUnit"] = {
 			["horizontalGrowth"] = "RIGHT", 
 			["filterPlayer"] = true, 
 			["filterRaid"] = true, 
-			["filterAllowed"] = false, 
+			["filterAll"] = false, 
 			["filterInfinite"] = true, 
 			["filterDispellable"] = false, 
 			["useFilter"] = "", 
@@ -2476,7 +2490,7 @@ SV.defaults["SVUnit"] = {
 			["verticalGrowth"] = "UP", 
 			["horizontalGrowth"] = "RIGHT", 
 			["filterPlayer"] = false, 
-			["filterAllowed"] = false, 
+			["filterAll"] = false, 
 			["filterInfinite"] = false, 
 			["filterDispellable"] = false, 
 			["useFilter"] = "", 
@@ -2594,7 +2608,7 @@ SV.defaults["SVUnit"] = {
 			["horizontalGrowth"] = "RIGHT", 
 			["filterPlayer"] = true, 
 			["filterRaid"] = true,
-			["filterAllowed"] = false, 
+			["filterAll"] = false, 
 			["filterInfinite"] = true, 
 			["filterDispellable"] = false, 
 			["useFilter"] = "", 
@@ -2612,7 +2626,7 @@ SV.defaults["SVUnit"] = {
 			["verticalGrowth"] = "UP", 
 			["horizontalGrowth"] = "RIGHT", 
 			["filterPlayer"] = false, 
-			["filterAllowed"] = false, 
+			["filterAll"] = false, 
 			["filterInfinite"] = false, 
 			["filterDispellable"] = false, 
 			["useFilter"] = "", 

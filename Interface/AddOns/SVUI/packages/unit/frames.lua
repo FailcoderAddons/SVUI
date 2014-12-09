@@ -375,7 +375,7 @@ local UpdateTargetFrame = function(self)
         if db.combobar.autoHide then 
             comboBar:SetParent(self)
         else 
-            comboBar:SetParent(SV.Screen)
+            comboBar:SetParent(UIParent)
         end
 
         if comboBar.Grip then
@@ -420,8 +420,6 @@ CONSTRUCTORS["target"] = function(self, unit)
     self.Debuffs = MOD:CreateDebuffs(self, key)
     self.AuraBars = MOD:CreateAuraBarHeader(self, key)
     self.Afflicted = MOD:CreateAfflicted(self)
-    tinsert(self.__elements, MOD.SmartAuraDisplay)
-    self:RegisterEvent("PLAYER_TARGET_CHANGED", MOD.SmartAuraDisplay)
     self.RaidIcon = MOD:CreateRaidIcon(self)
     local isSmall = SV.db.SVUnit[key].combobar.smallIcons
     if(SV.class == "ROGUE") then
@@ -629,8 +627,6 @@ CONSTRUCTORS["focus"] = function(self, unit)
     self.Buffs = MOD:CreateBuffs(self, key)
     self.Debuffs = MOD:CreateDebuffs(self, key)
     self.AuraBars = MOD:CreateAuraBarHeader(self, key)
-    tinsert(self.__elements, MOD.SmartAuraDisplay)
-    self:RegisterEvent("PLAYER_FOCUS_CHANGED", MOD.SmartAuraDisplay)
 
     self.RaidIcon = MOD:CreateRaidIcon(self)
     self.Range = { insideAlpha = 1, outsideAlpha = 1 }
@@ -1067,3 +1063,6 @@ function MOD:SetEnemyFrame(key, maxCount)
         end
     end
 end
+
+-- tinsert(self.__elements, ELEMENT_FUNCTION)
+-- self:RegisterEvent(ELEMENT_EVENT, ELEMENT_FUNCTION)

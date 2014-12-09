@@ -72,28 +72,21 @@ SV.Options.args.SVUnit.args.focus = {
 									name = L["Show Auras"], 
 									func = function()local U = SVUI_Focus;if U.forceShowAuras then U.forceShowAuras = nil else U.forceShowAuras = true end MOD:SetUnitFrame("focus")end
 								},
-								smartAuraDisplay = {
-									type = "select", 
-									name = L["Smart Auras"], 
-									desc = L["When set the Buffs and Debuffs will toggle being displayed depending on if the unit is friendly or an enemy. This will not effect the aurabars package."], 
-									order = 2, 
-									values = {["DISABLED"] = L["Disabled"], ["SHOW_DEBUFFS_ON_FRIENDLIES"] = L["Friendlies: Show Debuffs"], ["SHOW_BUFFS_ON_FRIENDLIES"] = L["Friendlies: Show Buffs"]}
-								},
 								rangeCheck = {
-									order = 3, 
+									order = 2, 
 									name = L["Range Check"], 
 									desc = L["Check if you are in range to cast spells on this specific unit."], 
 									type = "toggle"
 								}, 
 								predict = {
-									order = 4, 
+									order = 3, 
 									name = L["Heal Prediction"], 
 									desc = L["Show a incomming heal prediction bar on the unitframe. Also display a slightly different colored bar for incoming overheals."], 
 									type = "toggle"
 								}, 
 								hideonnpc = {
 									type = "toggle", 
-									order = 5, 
+									order = 4, 
 									name = L["Text Toggle On NPC"], 
 									desc = L["Power text will be hidden on NPC targets, in addition the name text will be repositioned to the power texts anchor point."], 
 									get = function(l)return SV.db.SVUnit["focus"]["power"].hideonnpc end, 
@@ -101,7 +94,7 @@ SV.Options.args.SVUnit.args.focus = {
 								},  
 								threatEnabled = {
 									type = "toggle", 
-									order = 6, 
+									order = 5, 
 									name = L["Show Threat"]
 								}
 							}

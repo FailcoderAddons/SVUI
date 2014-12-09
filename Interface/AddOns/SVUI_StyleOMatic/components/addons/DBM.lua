@@ -22,6 +22,7 @@ local unpack 	= _G.unpack;
 local select 	= _G.select;
 local pairs 	= _G.pairs;
 local string 	= _G.string;
+local gsub 		= string.gsub;
 --[[ STRING METHODS ]]--
 local format = string.format;
 --[[ 
@@ -50,62 +51,79 @@ local function StyleBars(self)
 				local icon2 = _G[frame:GetName()..'BarIcon2']
 				local name = _G[frame:GetName()..'BarName']
 				local timer = _G[frame:GetName()..'BarTimer']
+
 				if not icon1.overlay then
 					icon1.overlay = CreateFrame('Frame', '$parentIcon1Overlay', tbar)
-					icon1.overlay:Size(22)
+					icon1.overlay:Size(28)
 					icon1.overlay:SetPanelTemplate("Button")
 					icon1.overlay:SetFrameLevel(0)
-					icon1.overlay:Point('BOTTOMRIGHT', frame, 'BOTTOMLEFT', -2, 0)
+					icon1.overlay:Point('BOTTOMRIGHT', frame, 'BOTTOMLEFT', -4, 0)
 				end
+
 				if not icon2.overlay then
 					icon2.overlay = CreateFrame('Frame', '$parentIcon2Overlay', tbar)
-					icon2.overlay:Size(22)
+					icon2.overlay:Size(28)
 					icon2.overlay:SetPanelTemplate("Button")
 					icon2.overlay:SetFrameLevel(0)
-					icon2.overlay:Point('BOTTOMLEFT', frame, 'BOTTOMRIGHT', 2, 0)
+					icon2.overlay:Point('BOTTOMLEFT', frame, 'BOTTOMRIGHT', 4, 0)
 				end
+
 				if bar.color then
 					tbar:SetStatusBarColor(bar.color.r, bar.color.g, bar.color.b)
 				else
 					tbar:SetStatusBarColor(bar.owner.options.StartColorR, bar.owner.options.StartColorG, bar.owner.options.StartColorB)
 				end
+
+				local sharedWidth = bar.owner.options.Width
+				local sharedScale = bar.owner.options.Scale
 				if bar.enlarged then
-					frame:SetWidth(bar.owner.options.HugeWidth)
-					tbar:SetWidth(bar.owner.options.HugeWidth)
-					frame:SetScale(bar.owner.options.HugeScale)
-				else
-					frame:SetWidth(bar.owner.options.Width)
-					tbar:SetWidth(bar.owner.options.Width)
-					frame:SetScale(bar.owner.options.Scale)
+					sharedWidth = bar.owner.options.HugeWidth
+					sharedScale = bar.owner.options.HugeScale
 				end
+
+				frame:SetWidth(sharedWidth)
+				frame:SetHeight(28)
+				frame:SetScale(sharedScale)
+
 				spark:SetAlpha(0)
 				spark:SetTexture(0,0,0,0)
+
 				icon1:SetTexCoord(0.1,0.9,0.1,0.9)
 				icon1:ClearAllPoints()
 				icon1:SetAllPoints(icon1.overlay)
+
 				icon2:SetTexCoord(0.1,0.9,0.1,0.9)
 				icon2:ClearAllPoints()
 				icon2:SetAllPoints(icon2.overlay)
+
 				texture:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]])
-				tbar:SetAllPoints(frame)
-				frame:SetPanelTemplate("Bar")
+				tbar:SetWidth(sharedWidth)
+				tbar:SetHeight(10)
+				tbar:Point('BOTTOMLEFT', frame, 'BOTTOMLEFT', 0, 0)
+				tbar:SetPanelTemplate("Bar")
+
 				name:ClearAllPoints()
-				name:SetWidth(165)
 				name:SetHeight(8)
+				name:SetWidth(sharedWidth)
 				name:SetJustifyH('LEFT')
 				name:SetShadowColor(0, 0, 0, 0)
+				name:Point('TOPLEFT', frame, 'TOPLEFT', 0, 0)
+				name:SetFont(SV.Media.font.roboto, 12, 'OUTLINE')
+				name:SetTextColor(bar.owner.options.TextColorR, bar.owner.options.TextColorG, bar.owner.options.TextColorB)
+
 				timer:ClearAllPoints()
 				timer:SetJustifyH('RIGHT')
 				timer:SetShadowColor(0, 0, 0, 0)
-				frame:SetHeight(22)
-				name:Point('LEFT', frame, 'LEFT', 4, 0)
-				timer:Point('RIGHT', frame, 'RIGHT', -4, 0)
-				name:FontManager(SV.Media.font.default, 12, 'OUTLINE')
-				timer:FontManager(SV.Media.font.default, 12, 'OUTLINE')
-				name:SetTextColor(bar.owner.options.TextColorR, bar.owner.options.TextColorG, bar.owner.options.TextColorB)
+				timer:Point('TOPRIGHT', frame, 'TOPRIGHT', 0, 0)
+				timer:SetFont(SV.Media.font.roboto, 12, 'OUTLINE')
 				timer:SetTextColor(bar.owner.options.TextColorR, bar.owner.options.TextColorG, bar.owner.options.TextColorB)
+
 				if bar.owner.options.IconLeft then icon1:Show() icon1.overlay:Show() else icon1:Hide() icon1.overlay:Hide() end
 				if bar.owner.options.IconRight then icon2:Show() icon2.overlay:Show() else icon2:Hide() icon2.overlay:Hide() end
+
+				bar.owner.options.BarYOffset = 8
+				bar.owner.options.HugeBarYOffset = 8
+
 				tbar:SetAlpha(1)
 				frame:SetAlpha(1)
 				texture:SetAlpha(1)
@@ -177,36 +195,49 @@ local StyleBoss = function()
 	end
 end
 
+local RangeSet, InfoSet, HooksSet, NoticeSet;
 local function StyleDBM(event, addon)
 	assert(DBM, "AddOn Not Loaded")
 	
-	hooksecurefunc(DBT, 'CreateBar', StyleBars)
-	hooksecurefunc(DBM.BossHealth, 'Show', StyleBossTitle)
-	hooksecurefunc(DBM.BossHealth, 'AddBoss', StyleBoss)
-	hooksecurefunc(DBM.BossHealth, 'UpdateSettings', StyleBoss)
+	if(DBT and (DBM.BossHealth) and (not HooksSet)) then
+		hooksecurefunc(DBT, 'CreateBar', StyleBars)
+		hooksecurefunc(DBM.BossHealth, 'Show', StyleBossTitle)
+		hooksecurefunc(DBM.BossHealth, 'AddBoss', StyleBoss)
+		hooksecurefunc(DBM.BossHealth, 'UpdateSettings', StyleBoss)
+		HooksSet = true
+	end
 
-	if not DBM_SavedOptions['DontShowRangeFrame'] then
+	if((not RangeSet) and DBMRangeCheck and (not DBM_SavedOptions['DontShowRangeFrame'])) then
 		DBM.RangeCheck:Show()
 		DBM.RangeCheck:Hide()
 		DBMRangeCheck:HookScript('OnShow', function(self) self:SetFixedPanelTemplate('Transparent') end)
 		DBMRangeCheckRadar:SetFixedPanelTemplate('Transparent')
+		RangeSet = true
 	end
 
-	if not DBM_SavedOptions['DontShowInfoFrame'] then
+	if((not InfoSet) and DBMInfoFrame and (not DBM_SavedOptions['DontShowInfoFrame'])) then
 		DBM.InfoFrame:Show(5, 'test')
 		DBM.InfoFrame:Hide()
 		DBMInfoFrame:HookScript('OnShow', function(self) self:SetFixedPanelTemplate('Transparent') end)
+		InfoSet = true
 	end
 
-	local RaidNotice_AddMessage_ = RaidNotice_AddMessage
-	RaidNotice_AddMessage = function(noticeFrame, textString, colorInfo)
-		if textString:find(' |T') then
-			textString = gsub(textString,'(:12:12)',':18:18:0:0:64:64:5:59:5:59')
+	if(RaidNotice_AddMessage and (not NoticeSet)) then
+		local RaidNotice_AddMessage_ = RaidNotice_AddMessage
+		RaidNotice_AddMessage = function(noticeFrame, textString, colorInfo)
+			if textString:find(' |T') then
+				textString = gsub(textString,'(:12:12)',':18:18:0:0:64:64:5:59:5:59')
+			end
+			return RaidNotice_AddMessage_(noticeFrame, textString, colorInfo)
 		end
-		return RaidNotice_AddMessage_(noticeFrame, textString, colorInfo)
+		NoticeSet = true
 	end
 
-	PLUGIN:SafeEventRemoval("DBM", event)
+	if(RangeSet and InfoSet and HooksSet and NoticeSet) then
+		PLUGIN:SafeEventRemoval("DBM", event)
+		PLUGIN:SafeEventRemoval("DBM-GUI", event)
+	end
 end
 
 PLUGIN:SaveAddonStyle("DBM", StyleDBM, false, true)
+--PLUGIN:SaveAddonStyle("DBM-GUI", StyleDBM, false, true)

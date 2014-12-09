@@ -233,7 +233,7 @@ local function PaperDollEquipmentManagerPane_OnShow()
 		GearManagerDialogPopup:Point("LEFT", PaperDollFrame, "RIGHT", 4, 0)
 		GearManagerDialogPopupScrollFrame:RemoveTextures()
 		GearManagerDialogPopupEditBox:RemoveTextures()
-		GearManagerDialogPopupEditBox:SetBasicPanel()
+		GearManagerDialogPopupEditBox:SetPanelTemplate('Inset')
 		GearManagerDialogPopupOkay:SetButtonTemplate()
 		GearManagerDialogPopupCancel:SetButtonTemplate()
 
@@ -313,6 +313,15 @@ local function CharacterFrameStyle()
 		if(_G[gName]) then _G[gName]:RemoveTextures(true) end
 	end 
 
+	CharacterFrameInsetRight:SetPanelTemplate('Inset')
+
+	for i=1, 6 do
+		local pane = _G["CharacterStatsPaneCategory"..i]
+		if(pane) then
+			pane:RemoveTextures()
+		end
+	end
+
 	CharacterModelFrameBackgroundTopLeft:SetTexture(0,0,0,0)
 	CharacterModelFrameBackgroundTopRight:SetTexture(0,0,0,0)
 	CharacterModelFrameBackgroundBotLeft:SetTexture(0,0,0,0)
@@ -321,11 +330,11 @@ local function CharacterFrameStyle()
 	CharacterModelFrame:SetFixedPanelTemplate("Model")
 	CharacterFrameExpandButton:SetFrameLevel(CharacterModelFrame:GetFrameLevel() + 5)
 
-	PaperDollTitlesPane:SetBasicPanel()
+	PaperDollTitlesPane:SetPanelTemplate('Inset')
 
 	PaperDollTitlesPane:HookScript("OnShow", PaperDollTitlesPane_OnShow)
 
-	PaperDollEquipmentManagerPane:SetBasicPanel()
+	PaperDollEquipmentManagerPane:SetPanelTemplate('Inset')
 	PaperDollEquipmentManagerPaneEquipSet:SetButtonTemplate()
 	PaperDollEquipmentManagerPaneSaveSet:SetButtonTemplate()
 	PaperDollEquipmentManagerPaneEquipSet:Width(PaperDollEquipmentManagerPaneEquipSet:GetWidth()-8)
@@ -344,13 +353,14 @@ local function CharacterFrameStyle()
 
 	ReputationFrame:RemoveTextures(true)
 	ReputationListScrollFrame:RemoveTextures()
+	ReputationListScrollFrame:SetPanelTemplate("Inset")
 	ReputationDetailFrame:RemoveTextures()
 	ReputationDetailFrame:SetPanelTemplate("Inset", true)
 	ReputationDetailFrame:Point("TOPLEFT", ReputationFrame, "TOPRIGHT", 4, -28)
 	ReputationFrame:HookScript("OnShow", Reputation_OnShow)
 	hooksecurefunc("ExpandFactionHeader", Reputation_OnShow)
 	hooksecurefunc("CollapseFactionHeader", Reputation_OnShow)
-	TokenFrameContainer:SetBasicPanel()
+	TokenFrameContainer:SetPanelTemplate('Inset')
 
 	TokenFrame:HookScript("OnShow", function()
 		for i = 1, GetCurrencyListSize() do 

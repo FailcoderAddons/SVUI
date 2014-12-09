@@ -135,7 +135,7 @@ end
 
 local function OnEnter(self)
 	enteredFrame = true;
-	local cpuProfiling = GetCVar("scriptProfile") == "1"
+	local cpuProfiling = false --GetCVar("scriptProfile") == "1"
 	MOD:Tip(self)
 
 	UpdateMemory()	

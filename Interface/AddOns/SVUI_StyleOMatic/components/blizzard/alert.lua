@@ -76,8 +76,6 @@ local function StyleLootFrame(frame)
 	if(not frame) then return end
 
 	if(not frame.Panel) then
-		frame:SetAlpha(1)
-		frame.SetAlpha = AlphaBlock
 		PLUGIN:ApplyItemAlertStyle(frame)
 
 		if(frame.Background) then frame.Background:Die() end
@@ -111,8 +109,6 @@ local function StyleUpgradeFrame(frame)
 	if(not frame) then return end
 
 	if(not frame.Panel) then
-		frame:SetAlpha(1)
-		frame.SetAlpha = AlphaBlock
 		PLUGIN:ApplyItemAlertStyle(frame)
 
 		frame.Background:Die()
@@ -135,9 +131,7 @@ local function AchievementStyle()
 	for i = 1, MAX_ACHIEVEMENT_ALERTS do
 		local frameName = "AchievementAlertFrame"..i
 		local frame = _G[frameName]
-		if(frame and (not frame.Panel)) then 
-			frame:SetAlpha(1)
-			frame.SetAlpha = AlphaBlock
+		if(frame and (not frame.Panel)) then
 			
 			PLUGIN:ApplyItemAlertStyle(frame)
 
@@ -165,8 +159,6 @@ local function DungeonCompletionStyle()
 	local frameName = "DungeonCompletionAlertFrame1"
 	local frame = _G[frameName]
 	if(frame and (not frame.Panel)) then 
-		frame:SetAlpha(1)
-		frame.SetAlpha = AlphaBlock
 
 		PLUGIN:ApplyItemAlertStyle(frame)
 
@@ -193,8 +185,6 @@ local function GuildChallengeStyle()
     local frameName = "GuildChallengeAlertFrame"
 	local frame = _G[frameName];
 	if(frame and (not frame.Panel)) then 
-		frame:SetAlpha(1)
-		frame.SetAlpha = AlphaBlock
 		
 		PLUGIN:ApplyItemAlertStyle(frame)
 
@@ -219,8 +209,6 @@ local function ChallengeModeStyle()
 	local frameName = "ChallengeModeAlertFrame1"
 	local frame = _G[frameName];
 	if(frame and (not frame.Panel)) then 
-		frame:SetAlpha(1)
-		frame.SetAlpha = AlphaBlock
 		
 		PLUGIN:ApplyItemAlertStyle(frame)
 
@@ -247,8 +235,6 @@ local function ScenarioStyle()
 	local frameName = "ScenarioAlertFrame1"
 	local frame = _G[frameName];
 	if(frame and (not frame.Panel)) then 
-		frame:SetAlpha(1)
-		frame.SetAlpha = AlphaBlock
 		
 		PLUGIN:ApplyItemAlertStyle(frame)
 
@@ -274,9 +260,7 @@ local function CriteriaStyle()
 	for i = 1, MAX_ACHIEVEMENT_ALERTS do 
 		local frameName = "CriteriaAlertFrame"..i
 		local frame = _G[frameName]
-		if(frame and (not frame.Panel)) then 
-			frame:SetAlpha(1)
-			frame.SetAlpha = AlphaBlock
+		if(frame and (not frame.Panel)) then
 			
 			PLUGIN:ApplyItemAlertStyle(frame)
 
@@ -422,8 +406,6 @@ local function AlertStyle()
 	    frameName = "GarrisonMissionAlertFrame"
 	    frame = _G[frameName]
 	    if(frame and (not frame.Panel)) then 
-			frame:SetAlpha(1)
-			frame.SetAlpha = AlphaBlock
 			frame:DisableDrawLayer("BACKGROUND")
 
 			PLUGIN:ApplyItemAlertStyle(frame)
@@ -444,8 +426,6 @@ local function AlertStyle()
 		frameName = "GarrisonBuildingAlertFrame"
 	    frame = _G[frameName]
 	    if(frame and (not frame.Panel)) then 
-			frame:SetAlpha(1)
-			frame.SetAlpha = AlphaBlock
 			frame:DisableDrawLayer("BACKGROUND")
 
 			PLUGIN:ApplyItemAlertStyle(frame)
@@ -465,8 +445,6 @@ local function AlertStyle()
 	    frame = _G[frameName]
 	    if(frame) then
 	    	if(not frame.Panel) then 
-				frame:SetAlpha(1)
-				frame.SetAlpha = AlphaBlock
 				frame:DisableDrawLayer("BACKGROUND")
 
 				PLUGIN:ApplyItemAlertStyle(frame)

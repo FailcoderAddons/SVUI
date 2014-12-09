@@ -51,15 +51,16 @@ local _G = getfenv(0);
 local GameTooltip, GameTooltipStatusBar = _G["GameTooltip"], _G["GameTooltipStatusBar"];
 local playerGUID = UnitGUID("player");
 local targetList, inspectCache = {}, {};
-local NIL_COLOR = { r = 1, g = 1, b = 1 };
+
+local NIL_COLOR = { r = 0, g = 0, b = 0 };
 local TAPPED_COLOR = { r = .6, g = .6, b = .6 };
 local SKULL_ICON = "|TInterface\\TARGETINGFRAME\\UI-TargetingFrame-Skull.blp:16:16|t";
 local TAMABLE_INDICATOR = "|cffFFFF00Tamable|r";
-local TT_BG = [[Interface\Addons\SVUI\assets\artwork\Template\Tooltip\TOOLTIP]]
-local TT_TOP = [[Interface\Addons\SVUI\assets\artwork\Template\Tooltip\TT-TOP]]
-local TT_BOTTOM = [[Interface\Addons\SVUI\assets\artwork\Template\Tooltip\TT-BOTTOM]]
-local TT_RIGHT = [[Interface\Addons\SVUI\assets\artwork\Template\Tooltip\TT-RIGHT]]
-local TT_LEFT = [[Interface\Addons\SVUI\assets\artwork\Template\Tooltip\TT-LEFT]]
+local TT_BG = [[Interface\DialogFrame\UI-DialogBox-Background-Dark]];
+local TT_TOP = [[Interface\Addons\SVUI\assets\artwork\Template\Tooltip\TT-TOP]];
+local TT_BOTTOM = [[Interface\Addons\SVUI\assets\artwork\Template\Tooltip\TT-BOTTOM]];
+local TT_RIGHT = [[Interface\Addons\SVUI\assets\artwork\Template\Tooltip\TT-RIGHT]];
+local TT_LEFT = [[Interface\Addons\SVUI\assets\artwork\Template\Tooltip\TT-LEFT]];
 
 local TAMABLE_FAMILIES = {
 	["Basilisk"] = true, 	 ["Bat"] = true, 		  ["Bear"] = true, 		   ["Beetle"] = true, 
@@ -74,7 +75,7 @@ local TAMABLE_FAMILIES = {
 	["Silithid"] = true, 	 ["Spider"] = true, 	  ["Sporebat"] = true, 	   ["Tallstrider"] = true, 
 	["Turtle"] = true,		 ["Warp Stalker"] = true, ["Wasp"] = true, 		   ["Water strider"] = true, 
 	["Wind Serpent"] = true, ["Wolf"] = true, 		  ["Worm"] = true
-}
+};
 
 local tooltips = {
 	GameTooltip, ItemRefTooltip, ItemRefShoppingTooltip1, 
@@ -85,18 +86,46 @@ local tooltips = {
 	WorldMapCompareTooltip3, DropDownList1MenuBackdrop, 
 	DropDownList2MenuBackdrop, DropDownList3MenuBackdrop, BNToastFrame,
 	PetBattlePrimaryAbilityTooltip, PetBattlePrimaryUnitTooltip,
-	BattlePetTooltip, FloatingBattlePetTooltip, FloatingPetBattleAbilityTooltip,
+	BattlePetTooltip, FloatingBattlePetTooltip, FloatingPetBattleAbilityTooltip, FloatingGarrisonFollowerTooltip,
 	GarrisonMissionMechanicTooltip, GarrisonFollowerTooltip,
 	GarrisonMissionMechanicFollowerCounterTooltip, GarrisonFollowerAbilityTooltip,
-	BuildingLevelTooltip
-}
+	--StoreTooltip, 
+	BrowserSettingsTooltip, 
+	QueueStatusFrame
+};
 
 local classification = {
 	worldboss = format("|cffAF5050%s|r", BOSS), 
 	rareelite = format("|cffAF5050+%s|r", ITEM_QUALITY3_DESC), 
 	elite = "|cffAF5050+|r", 
 	rare = format("|cffAF5050%s|r", ITEM_QUALITY3_DESC)
-}
+};
+--[[ 
+########################################################## 
+LOCAL UPVALUES
+##########################################################
+]]--
+local COMIC_TIPS = true;
+local SPELL_IDS = false;
+local ON_CURSOR = false;
+local TARGET_INFO = true;
+local PLAYER_INFO = true;
+local INSPECT_INFO = false;
+local GUILD_INFO = true;
+local VISIBILITY_UNITS = "NONE";
+local VISIBILITY_COMBAT = false;
+local BAR_TEXT = true;
+local BAR_HEIGHT = 10;
+local BAR_FONT = "Roboto";
+local BAR_FONTSIZE = 10;
+
+local VisibilityTest = {
+	NONE = function() return false end,
+	ALL = function() return true end,
+	SHIFT = function() return (not IsShiftKeyDown()) end,
+	CTRL = function() return (not IsControlKeyDown()) end,
+	ALT = function() return (not IsAltKeyDown()) end,
+};
 --[[ 
 ########################################################## 
 LOCAL FUNCTIONS
@@ -173,7 +202,21 @@ end
 CORE FUNCTIONS
 ##########################################################
 ]]--
-local SetMaskBorder = function(self, r, g, b)
+local SetMaskBorderColor = function(self, r, g, b, hasStatusBar)
+	if(COMIC_TIPS) then
+		local a = self.ToggleAlpha
+		if(hasStatusBar) then
+			self[1]:SetVertexColor(r, g, b, a)
+			--self[2]:SetVertexColor(r, g, b, a)
+			self[3]:SetVertexColor(0, 0, 0, 0)
+			self[4]:SetVertexColor(0, 0, 0, 0)
+		else
+			self[1]:SetVertexColor(0, 0, 0, 0)
+			--self[2]:SetVertexColor(0, 0, 0, 0)
+			self[3]:SetVertexColor(r, g, b, a)
+			self[4]:SetVertexColor(r, g, b, a)
+		end
+	end
 	r,g,b = (r * 0.5),(g * 0.5),(b * 0.5)
 	self[5]:SetTexture(r, g, b)
 	self[6]:SetTexture(r, g, b)
@@ -181,25 +224,18 @@ local SetMaskBorder = function(self, r, g, b)
 	self[8]:SetTexture(r, g, b)
 end
 
-local SetBurstColor = function(self, r, g, b)
-	local a = self.ToggleAlpha
-	self[1]:SetVertexColor(r, g, b, a)
-	--self[2]:SetVertexColor(r, g, b, a)
-	self[3]:SetVertexColor(0, 0, 0, 0)
-	self[4]:SetVertexColor(0, 0, 0, 0)
-	self:SetMaskBorder(r, g, b)
-end
-
-local SetToneColor = function(self, r, g, b)
-	local a = self.ToggleAlpha
-	self[1]:SetVertexColor(0, 0, 0, 0)
-	--self[2]:SetVertexColor(0, 0, 0, 0)
-	self[3]:SetVertexColor(r, g, b, a)
-	self[4]:SetVertexColor(r, g, b, a)
-	self:SetMaskBorder(r, g, b)
-end
-
 local ClearMaskColors = function(self)
+	self:SetBackdrop({
+		bgFile = TT_BG, 
+		edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
+		tile = true, 
+		tileSize = 128,
+		edgeSize = 1,
+		insets = {left = 1, right = 1, top = 1, bottom = 1}
+	})
+	self:SetBackdropColor(0, 0, 0, 1)
+	self:SetBackdropBorderColor(0, 0, 0, 1)
+
 	self[1]:SetVertexColor(0, 0, 0, 0)
 	--self[2]:SetVertexColor(0, 0, 0, 0)
 	self[3]:SetVertexColor(0, 0, 0, 0)
@@ -275,31 +311,66 @@ local function tiplevel(this, start)
 	end 
 end
 
+local function tipbackground(this)
+	this:SetBackdrop({
+		bgFile = TT_BG, 
+		edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
+		tile = true, 
+		tileSize = 128,
+		edgeSize = 1,
+		insets = {left = 1, right = 1, top = 1, bottom = 1}
+	})
+	this:SetBackdropColor(0, 0, 0, 0)
+	this:SetBackdropBorderColor(0, 0, 0, 0)
+	if(this.SuperBorder) then
+		--this.SuperBorder:ClearMaskColors()
+		if(not GameTooltipStatusBar:IsShown()) then
+			this.SuperBorder:ClearAllPoints()
+			this.SuperBorder:SetPoint("TOPLEFT", this, "TOPLEFT", 0, 0)
+			this.SuperBorder:SetPoint("BOTTOMRIGHT", this, "BOTTOMRIGHT", 0, 0)
+		end
+	end
+end
+
+local function tipupdate(this, color, hasStatusBar)
+	if(hasStatusBar) then
+		local barColor = color or TAPPED_COLOR
+		GameTooltipStatusBar:SetStatusBarColor(barColor.r, barColor.g, barColor.b)
+	end
+	if(this.SuperBorder) then
+		local mask = this.SuperBorder
+		local borderColor = color or NIL_COLOR
+		local yOffset = (hasStatusBar) and mask.ToggleHeight or 0;
+		mask:ClearMaskColors()
+		mask:ClearAllPoints()
+		mask:SetPoint("TOPLEFT", this, "TOPLEFT", 0, 0)
+		mask:SetPoint("BOTTOMRIGHT", this, "BOTTOMRIGHT", 0, yOffset)
+		mask:SetMaskBorderColor(borderColor.r, borderColor.g, borderColor.b, hasStatusBar)
+	end
+end
+
 local _hook_GameTooltip_OnTooltipSetUnit = function(self)
-	local mask = self.SuperBorder
-	mask:ClearMaskColors()
-	mask:ClearAllPoints()
-	mask:SetPoint("TOPLEFT", self, "TOPLEFT", 0, 0)
+	tipbackground(self)
 
 	local unit = select(2, self:GetUnit())
 	-- local TamablePet;
-	if self:GetOwner()  ~= UIParent and SV.db.SVTip.visibility.unitFrames  ~= "NONE" then 
-		local vis = SV.db.SVTip.visibility.unitFrames;
-		if vis == "ALL" or not (vis == "SHIFT" and IsShiftKeyDown() or vis == "CTRL" and IsControlKeyDown() or vis == "ALT" and IsAltKeyDown()) then 
+	if(self:GetOwner() ~= UIParent) then 
+		if(VisibilityTest[VISIBILITY_UNITS] and VisibilityTest[VISIBILITY_UNITS]()) then 
 			self:Hide()
 			return 
 		end 
-	end 
+	end
 	if not unit then 
 		local mFocus = GetMouseFocus()
 		if mFocus and mFocus:GetAttribute("unit") then 
 			unit = mFocus:GetAttribute("unit")
 		end 
 		if not unit or not UnitExists(unit) then return end 
-	end 
+	end
+
 	tipcleaner(self)
 	local unitLevel = UnitLevel(unit)
-	local colors, qColor, totColor;
+	local colors, burst, qColor, totColor;
 	local lvlLine;
 	local isShiftKeyDown = IsShiftKeyDown()
 
@@ -310,12 +381,9 @@ local _hook_GameTooltip_OnTooltipSetUnit = function(self)
 		local pvpName = UnitPVPName(unit)
 		local realmRelation = UnitRealmRelationship(unit)
 		colors = RAID_CLASS_COLORS[classToken]
+		burst = SVUI_CLASS_COLORS[classToken]
 
-		local burst = SVUI_CLASS_COLORS[classToken]
-
-		self.SuperBorder:SetBurstColor(burst.r, burst.g, burst.b)
-
-		if SV.db.SVTip.playerTitles and pvpName then 
+		if(PLAYER_INFO and pvpName) then 
 			unitName = pvpName 
 		end 
 		if unitRealm and unitRealm ~= "" then 
@@ -341,7 +409,7 @@ local _hook_GameTooltip_OnTooltipSetUnit = function(self)
 				guildName = guildName.."-"..guildRealm
 			end
 
-			if guildRankName and SV.db.SVTip.guildRanks then 
+			if(guildRankName and GUILD_INFO) then 
 				GameTooltipTextLeft2:SetText(("<|cff00ff10%s|r> [|cff00ff10%s|r]"):format(guildName, guildRankName))
 			else 
 				GameTooltipTextLeft2:SetText(("<|cff00ff10%s|r>"):format(guildName))
@@ -361,7 +429,7 @@ local _hook_GameTooltip_OnTooltipSetUnit = function(self)
 			lvlLine:SetFormattedText("|cff%02x%02x%02x%s|r %s |c%s%s|r", qColor.r * 255, qColor.g * 255, qColor.b * 255, unitLevel > 0 and unitLevel or SKULL_ICON, race or "", colors.colorStr, className)
 		end 
 
-		if(not IsAddOnLoaded("HealBot") and (SV.db.SVTip.inspectInfo or isShiftKeyDown)) then 
+		if(not IsAddOnLoaded("HealBot") and (INSPECT_INFO or isShiftKeyDown)) then 
 			ShowInspectInfo(self, unit, unitLevel, colors.r, colors.g, colors.b, 0)
 		end
 	else
@@ -369,8 +437,8 @@ local _hook_GameTooltip_OnTooltipSetUnit = function(self)
 			colors = TAPPED_COLOR
 		else 
 			colors = FACTION_BAR_COLORS[UnitReaction(unit, "player")]
-		end 
-		if(colors) then self.SuperBorder:SetToneColor(colors.r, colors.g, colors.b) end
+		end
+
 		lvlLine = tiplevel(self, 2)
 
 		if(lvlLine) then
@@ -412,7 +480,7 @@ local _hook_GameTooltip_OnTooltipSetUnit = function(self)
 	-- if(TamablePet) then
 	-- 	self:AddLine(TAMABLE_INDICATOR)
 	-- end
-	if SV.db.SVTip.targetInfo then
+	if(TARGET_INFO) then
 		local unitTarget = unit.."target"
 		if(unit ~= "player" and UnitExists(unitTarget)) then 
 			if UnitIsPlayer(unitTarget) and not UnitHasVehicleUI(unitTarget) then 
@@ -438,21 +506,11 @@ local _hook_GameTooltip_OnTooltipSetUnit = function(self)
 		end 
 	end
 
-	if colors then
-		GameTooltipStatusBar:SetStatusBarColor(colors.r, colors.g, colors.b)
-	else 
-		GameTooltipStatusBar:SetStatusBarColor(0.6, 0.6, 0.6)
-	end
-	
-	if(GameTooltipStatusBar:IsShown()) then
-		mask:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 0, mask.ToggleHeight)
-	else
-		mask:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 0, 0)
-	end
+	tipupdate(self, colors, GameTooltipStatusBar:IsShown())
 end 
 
 local _hook_GameTooltipStatusBar_OnValueChanged = function(self, value)
-	if not value or not SV.db.SVTip.healthBar.text or not self.text then return end
+	if((not value) or (not BAR_TEXT) or (not self.text)) then return end
 	local tooltip = self:GetParent()
 	local unit = select(2, tooltip:GetUnit())
 	if not unit then 
@@ -473,17 +531,17 @@ local _hook_GameTooltipStatusBar_OnValueChanged = function(self, value)
 end 
 
 local _hook_GameTooltip_OnTooltipSetItem = function(self)
+	tipbackground(self)
+	
 	local key,itemLink = self:GetItem()
 	if(key and (not self.itemCleared)) then
-		self.SuperBorder:ClearMaskColors()
-		
 		local quality = select(3, GetItemInfo(key))
 		if(quality) then
 			local r,g,b = GetItemQualityColor(quality)
-			self.SuperBorder:SetToneColor(r,g,b)
+			self.SuperBorder:SetMaskBorderColor(r,g,b)
 		end
 
-		if itemLink ~= nil and SV.db.SVTip.spellID then
+		if(SPELL_IDS and (itemLink ~= nil)) then
 			self:AddLine(" ")
 			left = "|cFFCA3C3CSpell ID: |r"
 			local itemID = ("|cFFCA3C3C%s|r %s"):format(left, itemLink):match(":(%w+)")
@@ -524,42 +582,46 @@ local _hook_GameTooltip_ShowStatusBar = function(self, ...)
 end 
 
 local _hook_OnSetUnitAura = function(self, unit, index, filter)
+	tipbackground(self)
+	--self.SuperBorder:ClearMaskColors()
+	if(not SPELL_IDS) then return; end
 	local _, _, _, _, _, _, _, caster, _, _, spellID = UnitAura(unit, index, filter)
-	if spellID and SV.db.SVTip.spellID then 
-		self.SuperBorder:ClearMaskColors()
+	if(spellID) then 
+		--self.SuperBorder:ClearMaskColors()
 		if caster then 
 			local name = UnitName(caster)
 			local _, class = UnitClass(caster)
 			local color = RAID_CLASS_COLORS[class]
 			if color then
-				self.SuperBorder:SetMaskBorder(color.r, color.g, color.b)
+				self.SuperBorder:SetMaskBorderColor(color.r, color.g, color.b)
 				self:AddDoubleLine(("|cFFCA3C3C%s|r %d"):format(ID, spellID), format("|c%s%s|r", color.colorStr, name))
 			end
 		else 
 			self:AddLine(("|cFFCA3C3C%s|r %d"):format(ID, spellID))
 		end 
 		self:Show()
-	end 
+	end
 end 
 
 local _hook_OnSetHyperUnitAura = function(self, unit, index, filter)
+	tipbackground(self)
+	--self.SuperBorder:ClearMaskColors()
 	if unit ~= "player" then return end
 	local auraName, _, _, _, _, _, _, caster, _, shouldConsolidate, spellID = UnitAura(unit, index, filter)
 	if shouldConsolidate then
-		self.SuperBorder:ClearMaskColors()
 		if caster then 
 			local name = UnitName(caster)
 			local _, class = UnitClass(caster)
 			local color = RAID_CLASS_COLORS[class]
 			if color then
-				self.SuperBorder:SetMaskBorder(color.r, color.g, color.b)
+				self.SuperBorder:SetMaskBorderColor(color.r, color.g, color.b)
 				self:AddDoubleLine(("|cFFCA3C3C%s|r"):format(auraName), format("|c%s%s|r", color.colorStr, name))
 			end
 		else 
 			self:AddLine(("|cFFCA3C3C%s|r"):format(auraName))
 		end 
 		self:Show()
-	end 
+	end
 end 
 
 local _hook_GameTooltip_OnTooltipSetSpell = function(self)
@@ -576,21 +638,21 @@ local _hook_GameTooltip_OnTooltipSetSpell = function(self)
 		end 
 	end 
 	if not check then
+		tipbackground(self)
 		self.SuperBorder:ClearMaskColors() 
 		self:AddLine(text)
 		self:Show()
-	end 
+	end
 end 
 
 local _hook_GameTooltip_SetDefaultAnchor = function(self, parent)
-	if SV.db.SVTip.enable ~= true then return end
 	if(self:GetAnchorType() ~= "ANCHOR_NONE") then return end 
-	if InCombatLockdown() and SV.db.SVTip.visibility.combat then 
+	if(InCombatLockdown() and VISIBILITY_COMBAT) then 
 		self:Hide()
 		return 
 	end 
 	if parent then 
-		if(SV.db.SVTip.cursorAnchor) then 
+		if(ON_CURSOR) then 
 			self:SetOwner(parent, "ANCHOR_CURSOR")
 			return 
 		else 
@@ -631,6 +693,8 @@ local _hook_BNToastOnShow = function(self,anchor,parent,relative,x,y)
 end
 
 local _hook_OnTipCleared = function(self)
+	tipbackground(self)
+	self.SuperBorder:ClearMaskColors()
 	self.itemCleared = nil
 end
 
@@ -659,56 +723,32 @@ local Override_BorderColor = function(self, r, g, b, a)
 	if(b ~= 0 or (a and a ~= 0)) then
 		self:SetBackdropBorderColor(0, 0, 0, 0)
 		self.SuperBorder:SetBackdropBorderColor(0, 0, 0)
-		self.SuperBorder:SetToneColor(r, g, b)
+		self.SuperBorder:SetMaskBorderColor(r, g, b)
 	end 
 end
 
 local _hook_OnTipShow = function(self)
-	local width,height = self:GetSize()
-	local heightScale = min(64, height)
-	local widthScale = min(128, width)
-	local heightWidth = widthScale * 0.35
-
-	self:SetBackdrop({
-		bgFile = TT_BG, 
-		edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
-		tile = true, 
-		tileSize = 128,
-		edgeSize = 1,
-		insets = {left = 1, right = 1, top = 1, bottom = 1}
-	})
-	self:SetBackdropColor(0, 0, 0, 0)
-	self:SetBackdropBorderColor(0, 0, 0, 0)
-
-	local mask = self.SuperBorder
-
-	mask[1]:SetSize(widthScale,heightWidth)
-	mask[2]:SetSize(widthScale,heightWidth)
-	mask[3]:SetSize(heightScale,heightScale)
-	mask[4]:SetSize(heightScale,heightScale)
-
-	mask:SetBackdrop({
-		bgFile = TT_BG, 
-		edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
-		tile = true, 
-		tileSize = 128,
-		edgeSize = 1,
-		insets = {left = 1, right = 1, top = 1, bottom = 1}
-	})
-	mask:SetBackdropColor(0, 0, 0, 1)
-	mask:SetBackdropBorderColor(0, 0, 0, 1)
-
-	if(not GameTooltipStatusBar:IsShown()) then
-		mask:ClearAllPoints()
-		mask:SetPoint("TOPLEFT", self, "TOPLEFT", 0, 0)
-		mask:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 0, 0)
-	end
+	tipbackground(self)
 end
 
 local _hook_OnTipHide = function(self)
+	tipbackground(self)
 	self.SuperBorder:ClearMaskColors()
 	wipe(self.InjectedDouble)
 end
+
+local _hook_OnSizeChanged = function(self)
+	if((not COMIC_TIPS) or (not self.SuperBorder)) then return; end
+	local height = self:GetHeight() or 32
+	local heightScale = min(64, height)
+	local width = self:GetWidth() or 64
+	local widthScale = min(128, width)
+	self.SuperBorder[1]:SetSize(widthScale,(widthScale * 0.35))
+	self.SuperBorder[2]:SetSize(widthScale,(widthScale * 0.35))
+	self.SuperBorder[3]:SetSize(heightScale,heightScale)
+	self.SuperBorder[4]:SetSize(heightScale,heightScale)
+end
+
 
 local function ApplyTooltipSkins()
 	local barHeight = GameTooltipStatusBar:GetHeight()
@@ -804,9 +844,8 @@ local function ApplyTooltipSkins()
 			mask:SetBackdropColor(0, 0, 0, 1)
 			mask:SetBackdropBorderColor(0, 0, 0)
 
-			mask.SetMaskBorder = SetMaskBorder
-			mask.SetBurstColor = SetBurstColor
-			mask.SetToneColor = SetToneColor
+			mask.SetMaskBorderColor = SetMaskBorderColor
+			mask.SetMaskBurstColor = SetMaskBurstColor
 			mask.ClearMaskColors = ClearMaskColors
 
 			tooltip.SuperBorder = mask
@@ -863,17 +902,33 @@ local function ApplyTooltipSkins()
 			tooltip:SetBackdropColor(0, 0, 0, 0)
 			tooltip:SetBackdropBorderColor(0, 0, 0, 0)
 
-			tooltip.SetBackdrop = Override_BG
 			NewHook(tooltip, "SetBackdropColor", Override_BGColor)
 			NewHook(tooltip, "SetBackdropBorderColor", Override_BorderColor)
 			tooltip:HookScript("OnShow", _hook_OnTipShow)
 			tooltip:HookScript("OnHide", _hook_OnTipHide)
+			tooltip:HookScript("OnSizeChanged", _hook_OnSizeChanged)
 		end
 		tremove(tooltips, i)	
 	end
 	if(not tooltips[1]) then
 		MOD.AllSkinned = true
 	end
+end
+
+function MOD:UpdateLocals()
+	COMIC_TIPS = SV.db.SVTip.comicStyle;
+	VISIBILITY_COMBAT = SV.db.SVTip.visibility.combat;
+	BAR_HEIGHT = SV.db.SVTip.healthBar.height;
+	BAR_FONT = SV.db.SVTip.healthBar.font;
+	BAR_FONTSIZE = SV.db.SVTip.healthBar.fontSize;
+	SPELL_IDS = SV.db.SVTip.spellID;
+	ON_CURSOR = SV.db.SVTip.cursorAnchor;
+	BAR_TEXT = SV.db.SVTip.healthBar.text;
+	TARGET_INFO = SV.db.SVTip.targetInfo;
+	PLAYER_INFO = SV.db.SVTip.playerTitles;
+	INSPECT_INFO = SV.db.SVTip.inspectInfo;
+	GUILD_INFO = SV.db.SVTip.guildRanks;
+	VISIBILITY_UNITS = SV.db.SVTip.visibility.unitFrames;
 end
 
 function MOD:ReLoad()
@@ -883,21 +938,21 @@ function MOD:ReLoad()
 end
 
 function MOD:Load()
-	BNToastFrame:ClearAllPoints()
-	BNToastFrame:Point("BOTTOMRIGHT", SV.Dock.BottomLeft, "TOPRIGHT", 0, 20)
-	SV.Mentalo:Add(BNToastFrame, L["BattleNet Frame"], nil, nil, "BattleNetToasts")
-	NewHook(BNToastFrame, "SetPoint", _hook_BNToastOnShow)
-	if not SV.db.SVTip.enable then return end
+	self:UpdateLocals()
 
-	local anchor = CreateFrame("Frame", "SVUI_ToolTip", SV.Screen)
+	local anchor = CreateFrame("Frame", "SVUI_ToolTip", UIParent)
 	anchor:Point("BOTTOMLEFT", SV.Dock.BottomRight, "TOPLEFT", 0, 24)
 	anchor:Size(130, 20)
 	anchor:SetFrameLevel(anchor:GetFrameLevel()  +  50)
 	SV.Mentalo:Add(anchor, L["Tooltip"])
 
-	local barHeight = SV.db.SVTip.healthBar.height
-	GameTooltipStatusBar:SetHeight(barHeight)
+	GameTooltipStatusBar:SetHeight(BAR_HEIGHT)
 	GameTooltipStatusBar:SetStatusBarTexture(SV.Media.bar.default)
+
+	BNToastFrame:ClearAllPoints()
+	BNToastFrame:Point("BOTTOMRIGHT", SV.Dock.BottomLeft, "TOPRIGHT", 0, 20)
+	SV.Mentalo:Add(BNToastFrame, L["BattleNet Frame"], nil, nil, "BattleNetToasts")
+	NewHook(BNToastFrame, "SetPoint", _hook_BNToastOnShow)
 
 	ApplyTooltipSkins()
 	
@@ -906,7 +961,7 @@ function MOD:Load()
 	GameTooltipStatusBar:SetPoint("BOTTOMRIGHT", GameTooltip.SuperBorder, "BOTTOMRIGHT", -3, 3)
 	GameTooltipStatusBar.text = GameTooltipStatusBar:CreateFontString(nil, "OVERLAY")
 	GameTooltipStatusBar.text:Point("CENTER", GameTooltipStatusBar, "CENTER", 0, 0)
-	GameTooltipStatusBar.text:FontManager(LSM:Fetch("font", SV.db.SVTip.healthBar.font), SV.db.SVTip.healthBar.fontSize, "OUTLINE")
+	GameTooltipStatusBar.text:FontManager(LSM:Fetch("font", BAR_FONT), BAR_FONTSIZE, "OUTLINE")
 
 
 	if not GameTooltipStatusBar.border then 
@@ -928,7 +983,7 @@ function MOD:Load()
 	NewHook(GameTooltip, "SetUnitDebuff", _hook_OnSetUnitAura)
 	NewHook(GameTooltip, "SetUnitConsolidatedBuff", _hook_OnSetHyperUnitAura)
 
-	if SV.db.SVTip.spellID then
+	if(SPELL_IDS) then
 		NewHook("SetItemRef", _hook_OnItemRef)
 		GameTooltip:HookScript("OnTooltipSetSpell", _hook_GameTooltip_OnTooltipSetSpell)
 	end

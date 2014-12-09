@@ -732,8 +732,8 @@ local function SetCheckboxTemplate(self, shrink, x, y)
 
     local width, height = self:GetSize()
     if(shrink) then
-        x = x or -7
-        y = y or -7
+        x = x or -2
+        y = y or -2
     end
 
     width = width + (x or 0)
@@ -742,6 +742,33 @@ local function SetCheckboxTemplate(self, shrink, x, y)
     self:SetSize(width, height)
 
     CreatePanelTemplate(self, "Inset", true, true, 1, x, y)
+
+    if(self.SetNormalTexture) then 
+        self:SetNormalTexture("")
+    end  
+
+    if(self.SetPushedTexture) then
+        self:SetPushedTexture("")
+    end
+
+    if(self.SetHighlightTexture) then
+        if(not self.hover) then
+            local hover = self:CreateTexture(nil, "OVERLAY")
+            hover:FillInner(self.Panel)
+            self.hover = hover;
+        end
+        local color = SV.Media.color.highlight
+        self.hover:SetTexture(color[1], color[2], color[3], 0.5)
+        self:SetHighlightTexture(self.hover)  
+    end
+
+    if(self.SetCheckedTexture) then
+        self:SetCheckedTexture([[Interface\Buttons\UI-CheckBox-Check]])
+    end
+
+    if(self.SetDisabledCheckedTexture) then
+        self:SetDisabledCheckedTexture([[Interface\Buttons\UI-CheckBox-Check-Disabled]])
+    end
 end
 
 local function SetColorCheckboxTemplate(self, underlay, x, y)
@@ -757,7 +784,7 @@ local function SetColorCheckboxTemplate(self, underlay, x, y)
 
     hooksecurefunc(self, "SetChecked", function(self,checked)
         local r,g,b = 0,0,0
-        if(checked == 1 or checked == true) then
+        if(checked) then
             r,g,b = self:GetCheckedTexture():GetVertexColor()
         end
         self:SetBackdropBorderColor(r,g,b) 

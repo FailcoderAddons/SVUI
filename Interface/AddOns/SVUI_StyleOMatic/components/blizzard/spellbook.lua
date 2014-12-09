@@ -210,13 +210,18 @@ local function SpellBookStyle()
 
 	if(SpellBookFrameInset) then 
 		SpellBookFrameInset:RemoveTextures()
-		SpellBookFrameInset:SetFixedPanelTemplate("Blackout")
+		SpellBookFrameInset:SetFixedPanelTemplate("Inset", true, 6)
 	end
 	if(SpellBookSpellIconsFrame) then SpellBookSpellIconsFrame:RemoveTextures() end
 	if(SpellBookSideTabsFrame) then SpellBookSideTabsFrame:RemoveTextures() end
 	if(SpellBookPageNavigationFrame) then SpellBookPageNavigationFrame:RemoveTextures() end
-	if(SpellBookPage1) then SpellBookPage1:SetDrawLayer('BORDER', 3) end
-	if(SpellBookPage2) then SpellBookPage2:SetDrawLayer('BORDER', 3) end
+
+	for i = 1, 3 do
+		local page = _G["SpellBookPage" .. i]
+		if(page) then
+			page:SetDrawLayer('BACKGROUND')
+		end
+	end
 
 	SpellBookFrameTutorialButton:Die()
 
@@ -246,7 +251,7 @@ local function SpellBookStyle()
 				_G[gName .. "Missing"]:SetTextColor(1, 1, 0) 
 			end
 			if(frame.missingText) then 
-				frame.missingText:SetTextColor(0, 0, 0) 
+				frame.missingText:SetTextColor(1, 0, 0) 
 			end
 	    	if(frame.missingHeader) then 
 	    		frame.missingHeader:SetFontObject(NumberFont_Outline_Large) 

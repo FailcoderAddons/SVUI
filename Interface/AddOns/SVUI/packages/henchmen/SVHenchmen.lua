@@ -426,8 +426,8 @@ local function CreateHenchmenSubOptions(buttonIndex,optionIndex)
 end 
 
 local function CreateHenchmenFrame()
-	HenchmenFrame:SetParent(SV.Screen)
-	HenchmenFrame:SetPoint("CENTER",UIParent,"CENTER",0,0)
+	HenchmenFrame:SetParent(UIParent)
+	HenchmenFrame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
 	HenchmenFrame:SetWidth(500)
 	HenchmenFrame:SetHeight(500)
 	HenchmenFrame:SetFrameStrata("DIALOG")
@@ -443,7 +443,7 @@ local function CreateHenchmenFrame()
 
 	HenchmenFrame:Hide()
 
-	local HenchmenCalloutFrame = CreateFrame("Frame","HenchmenCalloutFrame",SV.Screen)
+	local HenchmenCalloutFrame = CreateFrame("Frame", "HenchmenCalloutFrame", UIParent)
 	HenchmenCalloutFrame:SetPoint("BOTTOM",UIParent,"BOTTOM",100,150)
 	HenchmenCalloutFrame:SetWidth(256)
 	HenchmenCalloutFrame:SetHeight(128)
@@ -455,7 +455,7 @@ local function CreateHenchmenFrame()
 	HenchmenCalloutFramePic:SetAllPoints(HenchmenCalloutFrame)
 	HenchmenCalloutFrame:Hide()
 
-	local HenchmenFrameBG = CreateFrame("Frame","HenchmenFrameBG",SV.Screen)
+	local HenchmenFrameBG = CreateFrame("Frame", "HenchmenFrameBG", UIParent)
 	HenchmenFrameBG:SetAllPoints(WorldFrame)
 	HenchmenFrameBG:SetBackdrop({bgFile = [[Interface\BUTTONS\WHITE8X8]]})
 	HenchmenFrameBG:SetBackdropColor(0,0,0,0.9)

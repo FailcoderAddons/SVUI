@@ -324,12 +324,12 @@ function SV:RefreshSystemFonts()
   SetFont("FriendsFont_Large", STANDARD_TEXT_FONT, fontsize)
   SetFont("FriendsFont_UserText", STANDARD_TEXT_FONT, fontsize)
 
-  SetFont("GameFont_Gigantic", GIANT_TEXT_FONT, 200, "THICKOUTLINE", 32)
-  SetFont("SystemFont_Shadow_Huge1", GIANT_TEXT_FONT, 200, "OUTLINE")
-  SetFont("SystemFont_OutlineThick_Huge2", GIANT_TEXT_FONT, 200, "THICKOUTLINE")
+  SetFont("GameFont_Gigantic", GIANT_TEXT_FONT, 32, "THICKOUTLINE", 32)
+  SetFont("SystemFont_Shadow_Huge1", GIANT_TEXT_FONT, 32, "OUTLINE")
+  SetFont("SystemFont_OutlineThick_Huge2", GIANT_TEXT_FONT, 32, "THICKOUTLINE")
 
-  SetFont("SystemFont_Shadow_Huge3", DAMAGE_TEXT_FONT, 200, "THICKOUTLINE")
-  SetFont("CombatTextFont", DAMAGE_TEXT_FONT, 200, "THICKOUTLINE")
+  SetFont("SystemFont_Shadow_Huge3", DAMAGE_TEXT_FONT, 32, "THICKOUTLINE")
+  SetFont("CombatTextFont", DAMAGE_TEXT_FONT, 32, "THICKOUTLINE")
 
   local UNICODE_FONT = self.Media.font.roboto;
 
@@ -393,12 +393,12 @@ function SV:RefreshAllSystemMedia()
   SetFont("FriendsFont_Large", STANDARD_TEXT_FONT, fontsize)
   SetFont("FriendsFont_UserText", STANDARD_TEXT_FONT, fontsize)
 
-  SetFont("GameFont_Gigantic", GIANT_TEXT_FONT, 200, "THICKOUTLINE", 32)
-  SetFont("SystemFont_Shadow_Huge1", GIANT_TEXT_FONT, 200, "OUTLINE")
-  SetFont("SystemFont_OutlineThick_Huge2", GIANT_TEXT_FONT, 200, "THICKOUTLINE")
+  SetFont("GameFont_Gigantic", GIANT_TEXT_FONT, 32, "THICKOUTLINE", 32)
+  SetFont("SystemFont_Shadow_Huge1", GIANT_TEXT_FONT, 32, "OUTLINE")
+  SetFont("SystemFont_OutlineThick_Huge2", GIANT_TEXT_FONT, 32, "THICKOUTLINE")
 
-  SetFont("SystemFont_Shadow_Huge3", DAMAGE_TEXT_FONT, 200, "THICKOUTLINE")
-  SetFont("CombatTextFont", DAMAGE_TEXT_FONT, 200, "THICKOUTLINE")
+  SetFont("SystemFont_Shadow_Huge3", DAMAGE_TEXT_FONT, 32, "THICKOUTLINE")
+  SetFont("CombatTextFont", DAMAGE_TEXT_FONT, 32, "THICKOUTLINE")
 
   local UNICODE_FONT = self.Media.font.roboto;
 

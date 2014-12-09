@@ -66,7 +66,6 @@ local MOD = SV.SVUnit
 
 if(not MOD) then return end 
 
-local CustomAuraFilter,CustomBarFilter;
 local AURA_FONT = [[Interface\AddOns\SVUI\assets\fonts\Display.ttf]];
 local AURA_FONTSIZE = 11;
 local AURA_OUTLINE = "OUTLINE";
@@ -92,6 +91,8 @@ local textCounterOffsets = {
 	["TOP"] = {"RIGHT", "LEFT", 2, 0}, 
 	["BOTTOM"] = {"RIGHT", "LEFT", 2, 0}, 
 }
+
+local CanSteal = (SV.class == "MAGE") 
 --[[ 
 ########################################################## 
 LOCAL FUNCTIONS
@@ -329,172 +330,186 @@ local ColorizeAuraBars = function(self)
 	end 
 end
 
---[[ AURA FILTERING ]]--
+--[[ PLAYER AURA FILTERING ]]--
 
-do
-	local function _test(setting, helpful)
-		local friend, enemy = false, false
-		if type(setting) == "boolean" then 
-			friend = setting;
-		  	enemy = setting
-		elseif setting and type(setting) ~= "string" then 
-			friend = setting.friendly;
-		  	enemy = setting.enemy
-		end 
-		if (friend and helpful) or (enemy and not helpful) then 
-		  return true;
-		end
-	  	return false 
-	end 
-
-	CustomAuraFilter = function(self, unit, icon, name, _, _, _, debuffType, duration, _, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossAura)
-		local db = SV.db.SVUnit[self.___key]
-		local auraType = self.type;
-		if(not auraType) then return true end 
-		if((not db) or (db and not db[auraType])) then 
-			return false;
-		end
-		local auraDB = db[auraType]
-		local isPlayer = caster == "player" or caster == "vehicle"
-		local filtered = true
-		local fromPlayer = true;
-		local pass = false;
-		local friendly = UnitIsFriend("player", unit) == 1 and true or false;
-		local isDefensive = false;
-
-		icon.isPlayer = isPlayer;
-		icon.owner = caster;
-		icon.name = name;
-		icon.priority = 0;
-
-		if(SV.filters.Blocked[name] and SV.filters.Blocked[name].enable) then
-			filtered = false;
-		else
-			if(_test(auraDB.filterAllowed, friendly)) then 
-				local whiteListSpell = SV.filters.Allowed[name]
-				if(whiteListSpell and whiteListSpell.enable) then 
-					filtered = true;
-					icon.priority = whiteListSpell.priority;
-				end 
-				pass = true
-			end
-
-			if(_test(auraDB.filterPlayer, friendly)) then
-				if isPlayer then
-					filtered = true
-				else
-					filtered = false
-				end
-				fromPlayer = filtered;
-				pass = true 
-			end
-
-			if(_test(auraDB.filterDispellable, friendly)) then 
-				if (auraType == "buffs" and not isStealable) or (auraType == "debuffs" and debuffType and not MOD.Dispellable[debuffType]) or debuffType == nil then 
-					filtered = false 
-				end 
-				pass = true 
-			end
-
-			if(_test(auraDB.filterRaid, friendly)) then 
-				if shouldConsolidate == 1 then filtered = false end 
-				pass = true 
-			end
-
-			if(_test(auraDB.filterInfinite, friendly)) then 
-				if((duration == 0) or (not duration)) then 
-					filtered = false 
-				end 
-				pass = true 
-			end
-
-			local active = auraDB.useFilter
-
-			if(active and SV.filters[active]) then
-				local spellDB = SV.filters[active];
-				if(spellDB[name] and spellDB[name].enable and fromPlayer) then 
-					filtered = true;
-					icon.priority = spellDB[name].priority;
-				else
-					filtered = pass 
-				end 
-			end 
-		end
-
-		if SV.filters.Defense[name] and SV.filters.Defense[name].enable then 
-			icon.priority = SV.filters.Defense[name].priority;
-		end
-
-		return filtered 
+local PlayerAuraFilter = function(self, unit, icon, auraName, _, _, _, debuffType, duration, _, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossAura)
+	local db = SV.db.SVUnit[self.___key]
+	local auraType = self.type;
+	if(not auraType) then return true end 
+	if((not db) or (db and not db[auraType])) then 
+		return false;
 	end
+	local auraDB = db[auraType];
+	local isPlayer = caster == "player" or caster == "vehicle";
+	local isEnemy = UnitIsEnemy("player", unit);
 
-	CustomBarFilter = function(self, unit, name, _, _, _, debuffType, duration, _, caster, isStealable, shouldConsolidate, spellID)
-		local db = SV.db.SVUnit[self.___key]
-		if((not db) or (db and not db.aurabar)) then 
-			return false;
-		end
-		local auraDB = db.aurabar
-		local isPlayer = caster == "player" or caster == "vehicle"
-		local filtered = true
-		local fromPlayer = true
-		local pass = false;
-		local friendly = UnitIsFriend("player", unit) == 1 and true or false;
+	icon.isPlayer = isPlayer;
+	icon.owner = caster;
+	icon.name = auraName;
 
-		if(SV.filters.Blocked[name] and SV.filters.Blocked[name].enable) then
-			filtered = false;
-		else
-			if(_test(auraDB.filterAllowed, friendly)) then 
-				local whiteListSpell = SV.filters.Allowed[name]
-				if(whiteListSpell and whiteListSpell.enable) then 
-					filtered = true;
-				end 
-				pass = true
-			end
-
-			if(_test(auraDB.filterPlayer, friendly)) then
-				if isPlayer then
-					filtered = true
-				else
-					filtered = false
-				end
-				fromPlayer = filtered;
-				pass = true 
-			end
-
-			if(_test(auraDB.filterDispellable, friendly)) then 
-				if (auraType == "buffs" and not isStealable) or (auraType == "debuffs" and debuffType and not MOD.Dispellable[debuffType]) or debuffType == nil then 
-					filtered = false 
-				end 
-				pass = true 
-			end
-
-			if(_test(auraDB.filterRaid, friendly)) then 
-				if shouldConsolidate == 1 then filtered = false end 
-				pass = true 
-			end
-
-			if(_test(auraDB.filterInfinite, friendly)) then 
-				if((duration == 0) or (not duration)) then 
-					filtered = false 
-				end 
-				pass = true 
-			end
-
-			local active = auraDB.useFilter
-
-			if(active and SV.filters[active]) then
-				local spellDB = SV.filters[active];
-				if(spellDB[name] and spellDB[name].enable and fromPlayer) then 
-					filtered = true;
-				else
-					filtered = pass 
-				end 
-			end 
+	if(SV.filters.Blocked[auraName] and SV.filters.Blocked[auraName].enable) then
+		return false
+	else
+		if(auraDB.filterPlayer and (not isPlayer)) then
+			return false
 		end
 
-		return filtered 
+		if(auraDB.filterDispellable and (debuffType and not MOD.Dispellable[debuffType])) then 
+			return false
+		end
+
+		if(auraDB.filterRaid and shouldConsolidate) then 
+			return false 
+		end
+
+		if(auraDB.filterInfinite and ((not duration) or (duration and duration == 0))) then 
+			return false 
+		end
+
+		local active = auraDB.useFilter
+		if(active and SV.filters[active]) then
+			local spellDB = SV.filters[active];
+			if(spellDB[auraName] and spellDB[auraName].enable) then
+				return false
+			end  
+		end
 	end
+  	return true
 end
+
+local PlayerBarFilter = function(self, unit, auraName, _, _, _, debuffType, duration, _, caster, isStealable, shouldConsolidate, spellID)
+	local db = SV.db.SVUnit[self.___key]
+	if((not db) or (db and not db.aurabar)) then 
+		return false;
+	end
+	local auraDB = db.aurabar;
+	local isPlayer = caster == "player" or caster == "vehicle";
+	local isEnemy = UnitIsEnemy("player", unit);
+
+	if(SV.filters.Blocked[auraName] and SV.filters.Blocked[auraName].enable) then
+		return false
+	else
+		if(auraDB.filterPlayer and (not isPlayer)) then
+			return false
+		end
+
+		if(auraDB.filterDispellable and (debuffType and not MOD.Dispellable[debuffType])) then 
+			return false
+		end
+
+		if(auraDB.filterRaid and shouldConsolidate) then 
+			return false 
+		end
+
+		if(auraDB.filterInfinite and ((not duration) or (duration and duration == 0))) then 
+			return false 
+		end
+
+		local active = auraDB.useFilter
+		if(active and SV.filters[active]) then
+			local spellDB = SV.filters[active];
+			if(spellDB[auraName] and spellDB[auraName].enable) then
+				return false
+			end  
+		end
+	end
+  	return true
+end
+
+--[[ NON-PLAYER AURA FILTERING ]]--
+
+local function filter_test(setting, harmful)
+	if((not setting) or (setting and type(setting) ~= "table")) then 
+		return false;
+	end
+	if((setting.enemy and harmful) or (setting.friendly and (not harmful))) then 
+	  return true;
+	end
+  	return false 
+end
+
+local CommonAuraFilter = function(self, unit, icon, auraName, _, _, _, debuffType, duration, _, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossAura)
+	local db = SV.db.SVUnit[self.___key]
+	local auraType = self.type;
+	if(not auraType) then return true end 
+	if((not db) or (db and not db[auraType])) then 
+		return false;
+	end
+	local auraDB = db[auraType]
+	local isPlayer = caster == "player" or caster == "vehicle"
+	local isEnemy = UnitIsEnemy("player", unit);
+
+	icon.isPlayer = isPlayer;
+	icon.owner = caster;
+	icon.name = auraName;
+
+	if(filter_test(auraDB.filterAll, isEnemy)) then
+		return false
+	elseif(SV.filters.Blocked[auraName] and SV.filters.Blocked[auraName].enable) then
+		return false
+	else
+		if(filter_test(auraDB.filterPlayer, isEnemy) and (not isPlayer)) then
+			return false
+		end
+		if(filter_test(auraDB.filterDispellable, isEnemy)) then
+			if((CanSteal and (auraType == 'buffs' and isStealable)) or (debuffType and (not MOD.Dispellable[debuffType])) or (not debuffType)) then
+				return false
+			end
+		end
+		if(filter_test(auraDB.filterRaid, isEnemy) and shouldConsolidate) then 
+			return false 
+		end
+		if(filter_test(auraDB.filterInfinite, isEnemy) and ((not duration) or (duration and duration == 0))) then 
+			return false 
+		end
+		local active = auraDB.useFilter
+		if(active and SV.filters[active]) then
+			local spellDB = SV.filters[active];
+			if(spellDB[auraName] and spellDB[auraName].enable) then
+				return false
+			end  
+		end
+	end
+  	return true 
+end
+
+local CommonBarFilter = function(self, unit, auraName, _, _, _, debuffType, duration, _, caster, isStealable, shouldConsolidate, spellID)
+	local db = SV.db.SVUnit[self.___key]
+	if((not db) or (db and not db.aurabar)) then 
+		return false;
+	end
+	local auraDB = db.aurabar;
+	local isPlayer = caster == "player" or caster == "vehicle";
+	local isEnemy = UnitIsEnemy("player", unit);
+
+	if(filter_test(auraDB.filterAll, isEnemy)) then
+		return false
+	elseif(SV.filters.Blocked[auraName] and SV.filters.Blocked[auraName].enable) then
+		return false
+	else
+		if(filter_test(auraDB.filterPlayer, isEnemy) and (not isPlayer)) then
+			return false
+		end
+		if(filter_test(auraDB.filterDispellable, isEnemy) and (debuffType and not MOD.Dispellable[debuffType])) then 
+			return false
+		end
+		if(filter_test(auraDB.filterRaid, isEnemy) and shouldConsolidate) then 
+			return false 
+		end
+		if(filter_test(auraDB.filterInfinite, isEnemy) and ((not duration) or (duration and duration == 0))) then 
+			return false 
+		end
+		local active = auraDB.useFilter
+		if(active and SV.filters[active]) then
+			local spellDB = SV.filters[active];
+			if(spellDB[auraName] and spellDB[auraName].enable) then
+				return false
+			end  
+		end
+	end
+  	return true 
+end
+
 --[[ 
 ########################################################## 
 BUILD FUNCTION
@@ -506,7 +521,11 @@ function MOD:CreateBuffs(frame, unit)
 	aura.spacing = 2;
 	aura.CreateIcon = CreateAuraIcon;
 	aura.PostUpdateIcon = PostUpdateAuraIcon;
-	aura.CustomFilter = CustomAuraFilter;
+	if(unit == "player") then
+		aura.CustomFilter = PlayerAuraFilter;
+	else
+		aura.CustomFilter = CommonAuraFilter;
+	end
 	aura:SetFrameLevel(10)
 	aura.type = "buffs"
 	aura.textFont = LSM:Fetch("font", SV.db.SVUnit.auraFont)
@@ -521,7 +540,11 @@ function MOD:CreateDebuffs(frame, unit)
 	aura.spacing = 2;
 	aura.CreateIcon = CreateAuraIcon;
 	aura.PostUpdateIcon = PostUpdateAuraIcon;
-	aura.CustomFilter = CustomAuraFilter;
+	if(unit == "player") then
+		aura.CustomFilter = PlayerAuraFilter;
+	else
+		aura.CustomFilter = CommonAuraFilter;
+	end
 	aura.type = "debuffs"
 	aura:SetFrameLevel(10)
 	aura.textFont = LSM:Fetch("font", SV.db.SVUnit.auraFont)
@@ -541,14 +564,18 @@ function MOD:CreateAuraWatch(frame, unit)
 	return aWatch
 end
 
-function MOD:CreateAuraBarHeader(frame, unitName)
+function MOD:CreateAuraBarHeader(frame, unit)
 	local auraBarParent = CreateFrame("Frame", nil, frame)
 	auraBarParent.parent = frame;
 	auraBarParent.PostCreateBar = PostCreateAuraBars;
 	auraBarParent.gap = 2;
 	auraBarParent.spacing = 1;
 	auraBarParent.spark = true;
-	auraBarParent.filter = CustomBarFilter;
+	if(unit == "player") then
+		auraBarParent.filter = PlayerBarFilter;
+	else
+		auraBarParent.filter = CommonBarFilter;
+	end
 	auraBarParent.PostUpdate = ColorizeAuraBars;
 	auraBarParent.barTexture = LSM:Fetch("statusbar", SV.db.SVUnit.auraBarStatusbar)
 	auraBarParent.timeFont = LSM:Fetch("font", "Roboto")
@@ -556,54 +583,6 @@ function MOD:CreateAuraBarHeader(frame, unitName)
 	auraBarParent.textSize = SV.db.SVUnit.auraFontSize
 	auraBarParent.textOutline = SV.db.SVUnit.auraFontOutline
 	return auraBarParent 
-end
-
-function MOD:SmartAuraDisplay()
-	local unit = self.unit;
-	local db = SV.db.SVUnit[unit];
-	if not db or not db.smartAuraDisplay or db.smartAuraDisplay == 'DISABLED' or not UnitExists(unit) then return end 
-	local buffs = self.Buffs;
-	local debuffs = self.Debuffs;
-	local bars = self.AuraBars;
-	local friendly = UnitIsFriend('player',unit) == 1 and true or false;
-	
-	if friendly then 
-		if db.smartAuraDisplay == 'SHOW_DEBUFFS_ON_FRIENDLIES' then 
-			buffs:Hide()
-			debuffs:Show()
-		else 
-			buffs:Show()
-			debuffs:Hide()
-		end 
-	else
-		if db.smartAuraDisplay == 'SHOW_DEBUFFS_ON_FRIENDLIES' then 
-			buffs:Show()
-			debuffs:Hide()
-		else 
-			buffs:Hide()
-			debuffs:Show()
-		end 
-	end 
-
-	if buffs:IsShown() then
-		buffs:ClearAllPoints()
-		SV:SetReversePoint(buffs, db.buffs.anchorPoint, self, db.buffs.xOffset, db.buffs.yOffset)
-		if db.aurabar.attachTo ~= 'FRAME' then 
-			bars:ClearAllPoints()
-			bars:SetPoint('BOTTOMLEFT', buffs, 'TOPLEFT', 0, 1)
-			bars:SetPoint('BOTTOMRIGHT', buffs, 'TOPRIGHT', 0, 1)
-		end 
-	end 
-
-	if debuffs:IsShown() then
-		debuffs:ClearAllPoints()
-		SV:SetReversePoint(debuffs, db.debuffs.anchorPoint, self, db.debuffs.xOffset, db.debuffs.yOffset)
-		if db.aurabar.attachTo ~= 'FRAME' then 
-			bars:ClearAllPoints()
-			bars:SetPoint('BOTTOMLEFT', debuffs, 'TOPLEFT', 0, 1)
-			bars:SetPoint('BOTTOMRIGHT', debuffs, 'TOPRIGHT', 0, 1)
-		end 
-	end 
 end 
 --[[ 
 ########################################################## 

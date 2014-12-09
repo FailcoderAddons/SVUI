@@ -29,20 +29,23 @@ local Update = function(self, event, unit)
 	local r,g,b = 0,0,0;
 	local category = UnitClassification(unit)
 
-	if(category == "elite") then 
-		r,g,b = 1,0.75,0,0.7;
-		showSpecial = true
-	elseif(category == "rare" or category == "rareelite") then
-		r,g,b = 0.59,0.79,1,0.7;
-		showSpecial = true
-	end
 	if(UnitIsDeadOrGhost(unit)) then
-		r,g,b = 0,0,0
+		r,g,b = 0.15,0.1,0.2;
+	else
+		if(category == "elite") then 
+			r,g,b = 1,0.75,0;
+			showSpecial = true
+		elseif(category == "rare" or category == "rareelite") then
+			r,g,b = 0.59,0.79,1;
+			showSpecial = true
+		end
 	end
+
 	border[1]:SetTexture(r,g,b)
 	border[2]:SetTexture(r,g,b)
 	border[3]:SetTexture(r,g,b)
 	border[4]:SetTexture(r,g,b)
+
 	if(special) then
 		if(showSpecial) then
 			special[1]:SetVertexColor(r,g,b)

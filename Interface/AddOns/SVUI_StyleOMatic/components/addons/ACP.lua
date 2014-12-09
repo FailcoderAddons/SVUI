@@ -80,7 +80,9 @@ local function StyleACP()
 		k.timeLapse = 0
 		k:SetScript("OnUpdate",cbResize)
 	end 
-	for c=1,20 do _G["ACP_AddonListEntry"..c.."Enabled"]:SetCheckboxTemplate(true)end 
+	for c=1,20 do 
+		_G["ACP_AddonListEntry"..c.."Enabled"]:SetCheckboxTemplate(true)
+	end 
 	ACP_AddonList_NoRecurse:SetCheckboxTemplate(true)
 	PLUGIN:ApplyScrollFrameStyle(ACP_AddonList_ScrollFrameScrollBar)
 	PLUGIN:ApplyDropdownStyle(ACP_AddonListSortDropDown)

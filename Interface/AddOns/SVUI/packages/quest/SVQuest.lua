@@ -48,264 +48,684 @@ local LSM = LibStub("LibSharedMedia-3.0")
 local MOD = SV:NewPackage("SVQuest", L['Questing']);
 --[[ 
 ########################################################## 
-EXTRA QUEST ITEM BUTTON
+LOCALS
 ##########################################################
 ]]--
-local Button = CreateFrame('Button', (...), UIParent, 'SecureActionButtonTemplate, SecureHandlerStateTemplate, SecureHandlerAttributeTemplate')
-RegisterStateDriver(Button, 'visible', '[extrabar] hide; show')
-Button:SetAttribute('_onattributechanged', [[
-	if(name == 'item') then
-		if(value and not self:IsShown() and not HasExtraActionBar()) then
-			self:Show()
-		elseif(not value) then
-			self:Hide()
-			self:ClearBindings()
-		end
-	elseif(name == 'state-visible') then
-		if(value == 'show') then
-			self:CallMethod('Update')
-		else
-			self:Hide()
-			self:ClearBindings()
-		end
-	end
+local ROW_WIDTH = 300;
+local ROW_HEIGHT = 24;
+local INNER_HEIGHT = ROW_HEIGHT - 4;
+local LARGE_ROW_HEIGHT = ROW_HEIGHT * 2;
+local LARGE_INNER_HEIGHT = LARGE_ROW_HEIGHT - 4;
 
-	if(self:IsShown() and (name == 'item' or name == 'binding')) then
-		self:ClearBindings()
+local OBJ_ICON_ACTIVE = [[Interface\COMMON\Indicator-Yellow]];
+local OBJ_ICON_COMPLETE = [[Interface\COMMON\Indicator-Green]];
+local OBJ_ICON_INCOMPLETE = [[Interface\COMMON\Indicator-Gray]];
+local LINE_QUEST_ICON = [[Interface\LFGFRAME\LFGICON-QUEST]]
 
-		local key = GetBindingKey('EXTRAACTIONBUTTON1')
-		if(key) then
-			self:SetBindingClick(1, key, self, 'LeftButton')
-		end
-	end
-]])
-
-local function UpdateCooldown(self)
-	if(self:IsShown()) then
-		local start, duration, enable = GetItemCooldown(self.itemID)
-		if(duration > 0) then
-			self.Cooldown:SetCooldown(start, duration)
-			self.Cooldown:Show()
-		else
-			self.Cooldown:Hide()
-		end
-	end
-end
-
-Button:RegisterEvent('PLAYER_LOGIN')
-Button:SetScript('OnEvent', function(self, event)
-	if(event == 'BAG_UPDATE_COOLDOWN') then
-		UpdateCooldown(self)
-	elseif(event == 'PLAYER_REGEN_ENABLED') then
-		self:SetAttribute('item', self.attribute)
-		self:UnregisterEvent(event)
-		UpdateCooldown(self)
-	elseif(event == 'UPDATE_BINDINGS') then
-		if(self:IsShown()) then
-			self:SetItem()
-			self:SetAttribute('binding', GetTime())
-		end
-	elseif(event == 'PLAYER_LOGIN') then
-		self:SetPoint('CENTER', ExtraActionButton1)
-		self:SetSize(ExtraActionButton1:GetSize())
-		self:SetScale(ExtraActionButton1:GetScale())
-		self:SetHighlightTexture([[Interface\Buttons\ButtonHilight-Square]])
-		self:SetPushedTexture([[Interface\Buttons\CheckButtonHilight]])
-		self:GetPushedTexture():SetBlendMode('ADD')
-		self:SetScript('OnLeave', GameTooltip_Hide)
-		self:SetAttribute('type', 'item')
-		self.updateTimer = 0
-		self.rangeTimer = 0
-		self:Hide()
-
-		local Icon = self:CreateTexture('$parentIcon', 'BACKGROUND')
-		Icon:SetAllPoints()
-		self.Icon = Icon
-
-		local HotKey = self:CreateFontString('$parentHotKey', nil, 'NumberFontNormal')
-		HotKey:SetPoint('BOTTOMRIGHT', -5, 5)
-		self.HotKey = HotKey
-
-		local Cooldown = CreateFrame('Cooldown', '$parentCooldown', self, 'CooldownFrameTemplate')
-		Cooldown:ClearAllPoints()
-		Cooldown:SetPoint('TOPRIGHT', -2, -3)
-		Cooldown:SetPoint('BOTTOMLEFT', 2, 1)
-		Cooldown:Hide()
-		self.Cooldown = Cooldown
-
-		local Artwork = self:CreateTexture('$parentArtwork', 'OVERLAY')
-		Artwork:SetPoint('CENTER', -2, 0)
-		Artwork:SetSize(256, 128)
-		Artwork:SetTexture([[Interface\ExtraButton\Default]])
-		self.Artwork = Artwork
-
-		self:RegisterEvent('UPDATE_BINDINGS')
-		self:RegisterEvent('UPDATE_EXTRA_ACTIONBAR')
-		self:RegisterEvent('BAG_UPDATE_COOLDOWN')
-		self:RegisterEvent('BAG_UPDATE_DELAYED')
-		self:RegisterEvent('WORLD_MAP_UPDATE')
-		self:RegisterEvent('QUEST_LOG_UPDATE')
-		self:RegisterEvent('QUEST_POI_UPDATE')
-	else
-		self:Update()
-	end
-end)
-
-Button:SetScript('OnEnter', function(self)
-	GameTooltip:SetOwner(self, 'ANCHOR_LEFT')
-	GameTooltip:SetHyperlink(self.itemLink)
-end)
-
--- BUG: IsItemInRange() is broken versus friendly npcs (and possibly others)
-Button:SetScript('OnUpdate', function(self, elapsed)
-	if(self.rangeTimer > TOOLTIP_UPDATE_TIME) then
-		local HotKey = self.HotKey
-		local inRange = IsItemInRange(self.itemLink, 'target')
-		if(HotKey:GetText() == RANGE_INDICATOR) then
-			if(inRange == false) then
-				HotKey:SetTextColor(1, 0.1, 0.1)
-				HotKey:Show()
-			elseif(inRange) then
-				HotKey:SetTextColor(1, 1, 1)
-				HotKey:Show()
-			else
-				HotKey:Hide()
-			end
-		else
-			if(inRange == false) then
-				HotKey:SetTextColor(1, 0.1, 0.1)
-			else
-				HotKey:SetTextColor(1, 1, 1)
-			end
-		end
-
-		self.rangeTimer = 0
-	else
-		self.rangeTimer = self.rangeTimer + elapsed
-	end
-
-	if(self.updateTimer > 5) then
-		self:Update()
-		self.updateTimer = 0
-	else
-		self.updateTimer = self.updateTimer + elapsed
-	end
-end)
-
-local zoneWide = {
+local ClosestQuestName, ClosestQuestLink, ClosestQuestTexture;
+local QuestInZone = {
 	[14108] = 541,
 	[13998] = 11,
-	[25798] = 61, -- quest is bugged, has no zone
-	[25799] = 61, -- quest is bugged, has no zone
+	[25798] = 61,
+	[25799] = 61,
 	[25112] = 161,
 	[25111] = 161,
 	[24735] = 201,
-}
+};
 
-local blacklist = {
-	[113191] = true,
-	[110799] = true,
-	[109164] = true,
-}
+local ShowSubDocklet = function(self)
+	if(InCombatLockdown()) then return end
+	if(not ObjectiveTrackerFrame:IsShown()) then ObjectiveTrackerFrame:Show() end
+end
 
-function Button:SetItem(itemLink, texture)
-	if(itemLink) then
-		if(itemLink == self.itemLink and self:IsShown()) then
-			return
-		end
+local HideSubDocklet = function(self)
+	if(InCombatLockdown()) then return end
+	if(ObjectiveTrackerFrame:IsShown()) then ObjectiveTrackerFrame:Hide() end
+end
 
-		self.Icon:SetTexture(texture)
-		self.itemID, self.itemName = string.match(itemLink, '|Hitem:(.-):.-|h%[(.+)%]|h')
-		self.itemLink = itemLink
-
-		if(blacklist[self.itemID]) then
-			return
-		end
-	end
-
-	local HotKey = self.HotKey
-	local key = GetBindingKey('EXTRAACTIONBUTTON1')
-	if(key) then
-		HotKey:SetText(GetBindingText(key, 1))
-		HotKey:Show()
-	elseif(ItemHasRange(self.itemLink)) then
-		HotKey:SetText(RANGE_INDICATOR)
-		HotKey:Show()
+local function GetTimerTextColor(duration, elapsed)
+	local yellowPercent = .66
+	local redPercent = .33
+	
+	local percentageLeft = 1 - ( elapsed / duration )
+	if(percentageLeft > yellowPercent) then
+		return 1, 1, 1;
+	elseif(percentageLeft > redPercent) then
+		local blueOffset = (percentageLeft - redPercent) / (yellowPercent - redPercent);
+		return 1, 1, blueOffset;
 	else
-		HotKey:Hide()
-	end
-
-	if(InCombatLockdown()) then
-		self.attribute = self.itemName
-		self:RegisterEvent('PLAYER_REGEN_ENABLED')
-	else
-		self:SetAttribute('item', self.itemName)
-		UpdateCooldown(self)
+		local greenOffset = percentageLeft / redPercent;
+		return 1, greenOffset, 0;
 	end
 end
 
-function Button:RemoveItem()
-	if(InCombatLockdown()) then
-		self.attribute = nil
-		self:RegisterEvent('PLAYER_REGEN_ENABLED')
-	else
-		self:SetAttribute('item', nil)
+local function CheckAndHideHeader(moduleHeader)
+	if(moduleHeader and not moduleHeader.added and moduleHeader:IsShown()) then
+		moduleHeader:Hide();
+		if(moduleHeader.animating) then
+			moduleHeader.animating = nil;
+			moduleHeader.HeaderOpenAnim:Stop();
+		end
 	end
 end
+--[[ 
+########################################################## 
+SCRIPT HANDLERS
+##########################################################
+]]--
+local ViewButton_OnClick = function(self)
+	local questID = self:GetID();
+	if(questID and (questID ~= 0)) then
+		QuestMapFrame_OpenToQuestDetails(questID);
+	end
+end
+--[[ 
+########################################################## 
+HELPERS
+##########################################################
+]]--
+local function AddTrackingRow(parent, lineNumber)
+	local lastRowNumber = lineNumber - 1;
+	local previousFrame = parent.Rows[lastRowNumber]
+	local anchorFrame, anchorOffset_1, anchorOffset_2;
+	if(previousFrame and previousFrame.Objectives) then
+		anchorFrame = previousFrame.Objectives;
+		anchorOffset_1 = -2;
+		anchorOffset_2 = 2;
+	else
+		anchorFrame = parent.Header;
+		anchorOffset_1 = 0;
+		anchorOffset_2 = 0;
+	end
 
-local ticker
-function Button:Update()
-	local numItems = 0
-	local shortestDistance = 62500 -- 250 yards²
-	local closestQuestLink, closestQuestTexture
+	local newLine = CreateFrame("Frame", nil, parent)
+	newLine:SetPoint("TOPLEFT", anchorFrame, "BOTTOMLEFT", 0, -2);
+	newLine:SetPoint("TOPRIGHT", anchorFrame, "BOTTOMRIGHT", 0, -2);
+	newLine:SetHeight(ROW_HEIGHT);
 
-	for index = 1, GetNumQuestWatches() do
-		local questID, _, questIndex, _, _, isComplete = GetQuestWatchInfo(index)
-		if(questID and QuestHasPOIInfo(questID)) then
-			local link, texture, _, showCompleted = GetQuestLogSpecialItemInfo(questIndex)
-			if(link) then
-				local areaID = zoneWide[questID]
-				if(areaID and areaID == GetCurrentMapAreaID()) then
-					closestQuestLink = link
-					closestQuestTexture = texture
-				elseif(not isComplete or (isComplete and showCompleted)) then
-					local distanceSq, onContinent = GetDistanceSqToQuest(questIndex)
-					if(onContinent and distanceSq < shortestDistance) then
-						shortestDistance = distanceSq
-						closestQuestLink = link
-						closestQuestTexture = texture
+	newLine.Badge = CreateFrame("Frame", nil, newLine)
+	newLine.Badge:SetPoint("TOPLEFT", newLine, "TOPLEFT", 2, -2);
+	newLine.Badge:SetPoint("BOTTOMLEFT", newLine, "BOTTOMLEFT", 2, 2);
+	newLine.Badge:SetWidth(INNER_HEIGHT);
+	newLine.Badge:SetPanelTemplate("Headline")
+
+	newLine.Badge.Icon = newLine.Badge:CreateTexture(nil,"OVERLAY")
+	newLine.Badge.Icon:SetAllPoints(newLine.Badge);
+	newLine.Badge.Icon:SetTexture(LINE_QUEST_ICON)
+	newLine.Badge.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+
+	newLine.Header = CreateFrame("Frame", nil, newLine)
+	newLine.Header:SetPoint("TOPLEFT", newLine.Badge, "TOPRIGHT", 2, 0);
+	newLine.Header:SetPoint("TOPRIGHT", newLine, "TOPRIGHT", -2, 0);
+	newLine.Header:SetHeight(INNER_HEIGHT);
+	newLine.Header:SetPanelTemplate("Headline")
+
+	newLine.Header.Level = newLine.Header:CreateFontString(nil,"OVERLAY")
+	newLine.Header.Level:SetFont(SV.Media.font.roboto, 10, "NONE")
+	newLine.Header.Level:SetShadowOffset(-1,-1)
+	newLine.Header.Level:SetShadowColor(0,0,0,0.5)
+	newLine.Header.Level:SetJustifyH('CENTER')
+	newLine.Header.Level:SetJustifyV('MIDDLE')
+	newLine.Header.Level:SetText('')
+	newLine.Header.Level:SetPoint("TOPLEFT", newLine.Header, "TOPLEFT", 4, 0);
+	newLine.Header.Level:SetPoint("BOTTOMLEFT", newLine.Header, "BOTTOMLEFT", 4, 0);
+	--newLine.Header.Level:SetWidth(INNER_HEIGHT);
+
+	newLine.Header.Text = newLine.Header:CreateFontString(nil,"OVERLAY")
+	newLine.Header.Text:SetFont(SV.Media.font.roboto, 14, "NONE")
+	newLine.Header.Text:SetTextColor(1,1,0)
+	newLine.Header.Text:SetShadowOffset(-1,-1)
+	newLine.Header.Text:SetShadowColor(0,0,0,0.5)
+	newLine.Header.Text:SetJustifyH('LEFT')
+	newLine.Header.Text:SetJustifyV('MIDDLE')
+	newLine.Header.Text:SetText('')
+	newLine.Header.Text:SetPoint("TOPLEFT", newLine.Header.Level, "TOPRIGHT", 4, 0);
+	newLine.Header.Text:SetPoint("BOTTOMRIGHT", newLine.Header, "BOTTOMRIGHT", 0, 0);
+
+	newLine.Button = CreateFrame("Button", nil, newLine.Header)
+	newLine.Button:SetAllPoints(newLine.Header);
+	newLine.Button:SetButtonTemplate(true)
+	newLine.Button:SetID(0)
+	newLine.Button:SetScript("OnClick", ViewButton_OnClick)
+
+	newLine.Objectives = CreateFrame("Frame", nil, newLine)
+	newLine.Objectives:SetPoint("TOPLEFT", newLine, "BOTTOMLEFT", 0, 0);
+	newLine.Objectives:SetPoint("TOPRIGHT", newLine, "BOTTOMRIGHT", 0, 0);
+	newLine.Objectives:SetHeight(1);
+
+	newLine.Objectives.Rows = {}
+
+	return newLine;
+end
+
+local function AddRowObjective(parent, lineNumber)
+	local lastRowNumber = lineNumber - 1;
+	local previousFrame = parent.Rows[lastRowNumber]
+	local yOffset = (lineNumber * (ROW_HEIGHT)) - ROW_HEIGHT
+
+	local objective = CreateFrame("Frame", nil, parent)
+	objective:SetPoint("TOPLEFT", parent, "TOPLEFT", 0, -yOffset);
+	objective:SetPoint("TOPRIGHT", parent, "TOPRIGHT", 0, -yOffset);
+	objective:SetHeight(INNER_HEIGHT);
+	--objective:SetPanelTemplate()
+
+	objective.Icon = objective:CreateTexture(nil,"OVERLAY")
+	objective.Icon:SetPoint("TOPLEFT", objective, "TOPLEFT", 4, -2);
+	objective.Icon:SetPoint("BOTTOMLEFT", objective, "BOTTOMLEFT", 4, 2);
+	objective.Icon:SetWidth(INNER_HEIGHT - 4);
+	objective.Icon:SetTexture(OBJ_ICON_INCOMPLETE)
+
+	objective.Text = objective:CreateFontString(nil,"OVERLAY")
+	objective.Text:SetPoint("TOPLEFT", objective, "TOPLEFT", INNER_HEIGHT + 6, -2);
+	objective.Text:SetPoint("TOPRIGHT", objective, "TOPRIGHT", 0, -2);
+	objective.Text:SetHeight(INNER_HEIGHT - 2)
+	objective.Text:SetFont(SV.Media.font.roboto, 12, "NONE")
+	objective.Text:SetTextColor(1,1,1)
+	objective.Text:SetShadowOffset(-1,-1)
+	objective.Text:SetShadowColor(0,0,0,0.5)
+	objective.Text:SetJustifyH('LEFT')
+	objective.Text:SetJustifyV('MIDDLE')
+	objective.Text:SetText('')
+
+	return objective;
+end
+--[[ 
+########################################################## 
+TRACKER FUNCTIONS
+##########################################################
+]]--
+local UpdateQuestRows = function(self, event, ...)
+	local shortestDistance = 62500;
+	local liveLines = GetNumQuestWatches();
+	local nextLine = 1;
+	local totalObjectives = 0;
+	local closestQuest, closestLink, closestTexture;
+
+	if(liveLines > 0) then
+		for i = 1, liveLines do
+			local questID, _, questLogIndex, numObjectives, requiredMoney, isComplete, startEvent, isAutoComplete, failureTime, timeElapsed, questType, isTask, isStory, isOnMap, hasLocalPOI = GetQuestWatchInfo(i);
+			if(questID) then
+				local title, level, suggestedGroup = GetQuestLogTitle(questLogIndex)
+				if(QuestHasPOIInfo(questID)) then
+					local link, texture, _, showCompleted = GetQuestLogSpecialItemInfo(questLogIndex)
+					if(link) then
+						local areaID = QuestInZone[questID]
+						if(areaID and areaID == GetCurrentMapAreaID()) then
+							closestQuest = title
+							closestLink = link
+							closestTexture = texture
+						elseif(not isComplete or (isComplete and showCompleted)) then
+							local distanceSq, onContinent = GetDistanceSqToQuest(questLogIndex)
+							if(onContinent and distanceSq < shortestDistance) then
+								shortestDistance = distanceSq
+								closestQuest = title
+								closestLink = link
+								closestTexture = texture
+							end
+						end
 					end
 				end
 
-				numItems = numItems + 1
+				local entry = self.Rows[nextLine];
+
+				if(not entry) then
+					self.Rows[nextLine] = AddTrackingRow(self, nextLine)
+					entry = self.Rows[nextLine]
+				end
+
+				nextLine = nextLine + 1;
+				local color = GetQuestDifficultyColor(level)
+				entry.Header.Level:SetTextColor(color.r, color.g, color.b)
+				entry.Header.Level:SetText(level)
+				entry.Header.Text:SetText(title)
+				entry.Button:SetID(questID)
+				entry:Show()
+
+				local objectives = entry.Objectives;
+				local numLineObjectives = #objectives.Rows;
+				local nextObjective = 1;
+				local objectiveHeight = 1;
+
+				if(numObjectives > 0) then
+					for o = 1, numObjectives do
+						local objectiveText, objectiveType, objectiveFinished = GetQuestObjectiveInfo(questID, o);
+						if(objectiveText) then
+							local objective = objectives.Rows[o]
+							if(not objective) then
+								objectives.Rows[o] = AddRowObjective(objectives, o)
+								objective = objectives.Rows[o]
+							end
+
+							objective.Text:SetText(objectiveText)
+							objective:Show()
+
+							if(objectiveFinished) then
+								objective.Text:SetTextColor(0.1,0.9,0.1)
+								objective.Icon:SetTexture(OBJ_ICON_COMPLETE)
+							else
+								objective.Text:SetTextColor(1,1,1)
+								objective.Icon:SetTexture(OBJ_ICON_INCOMPLETE)
+							end
+							nextObjective = nextObjective + 1;
+							totalObjectives = totalObjectives + 1;
+						end
+					end
+
+					objectiveHeight = (INNER_HEIGHT + 2) * numObjectives + 2;
+				end
+
+				objectives:SetHeight(objectiveHeight);
+
+				for x = nextObjective, numLineObjectives do
+					local objective = objectives.Rows[x]
+					if(objective) then
+						objective.Text:SetText('')
+						objective.Icon:SetTexture(OBJ_ICON_INCOMPLETE)
+						if(objective:IsShown()) then
+							objective:Hide()
+						end
+					end
+				end
+			end
+		end
+
+		local numLines = #self.Rows;
+		for x = nextLine, numLines do
+			local entry = self.Rows[x]
+			if(entry) then
+				entry.Header.Level:SetText('')
+				--entry.Badge.Icon:SetTexture(0,0,0,0)
+				entry.Header.Text:SetText('')
+				entry.Button:SetID(0)
+				if(entry:IsShown()) then
+					entry:Hide()
+				end
 			end
 		end
 	end
 
-	if(closestQuestLink and not HasExtraActionBar()) then
-		self:SetItem(closestQuestLink, closestQuestTexture)
-	elseif(self:IsShown()) then
-		self:RemoveItem()
+	local newHeight = (liveLines * (ROW_HEIGHT + 2)) + (totalObjectives * (INNER_HEIGHT + 2)) + (ROW_HEIGHT + (liveLines * 2));
+	self:SetHeight(newHeight);
+
+	ClosestQuestName = closestQuest;
+	ClosestQuestLink = closestLink;
+	ClosestQuestTexture = closestTexture;
+end
+
+local UpdateAchievementRows = function(self, event, ...)
+	local trackedAchievements = { GetTrackedAchievements() };
+	local liveLines = #trackedAchievements;
+	local totalObjectives = 0;
+	local nextLine = 1;
+	local newHeight = 1;
+
+	if(liveLines > 0) then
+		for i = 1, liveLines do
+			local achievementID = trackedAchievements[i];
+			local _, achievementName, _, completed, _, _, _, description, _, icon, _, _, wasEarnedByMe = GetAchievementInfo(achievementID);
+			if(not wasEarnedByMe) then
+				local entry = self.Rows[nextLine];
+				if(not entry) then
+					self.Rows[nextLine] = AddTrackingRow(self, nextLine)
+					entry = self.Rows[nextLine]
+				end
+
+				entry.Header.Level:SetText('')
+				entry.Badge.Icon:SetTexture(icon)
+				entry.Header.Text:SetText(achievementName)
+				--entry.Button:Hide()
+				entry.Button:SetID(0)
+				entry:Show()
+
+				local numObjectives = GetAchievementNumCriteria(achievementID);
+
+				if(numObjectives > 0) then
+					local numShownCriteria = 0;
+					local objectives = entry.Objectives;
+					local numLineObjectives = #objectives.Rows;
+					local nextObjective = 1;
+
+					for o = 1, numObjectives do
+						local objectiveText, objectiveType, objectiveFinished, quantity, totalQuantity, _, flags, assetID, quantityString, criteriaID, eligible, duration, elapsed = GetAchievementCriteriaInfo(achievementID, o);
+						if(not ((not objectiveFinished) and (numShownCriteria > 5))) then
+							if(numShownCriteria == 5 and numObjectives > (5 + 1)) then
+								numShownCriteria = numShownCriteria + 1;
+							else
+								if(description and bit.band(flags, EVALUATION_TREE_FLAG_PROGRESS_BAR) == EVALUATION_TREE_FLAG_PROGRESS_BAR) then
+									if(string.find(strlower(quantityString), "interface\\moneyframe")) then
+										objectiveText = quantityString.."\n"..description;
+									else
+										objectiveText = string.gsub(quantityString, " / ", "/").." "..description;
+									end
+								else
+									if(objectiveType == CRITERIA_TYPE_ACHIEVEMENT and assetID) then
+										_, objectiveText = GetAchievementInfo(assetID);
+									end
+								end
+								numShownCriteria = numShownCriteria + 1;					
+							end
+
+							local objective = objectives.Rows[o];
+							if(not objective) then
+								objectives.Rows[o] = AddRowObjective(objectives, o)
+								objective = objectives.Rows[o]
+							end
+							objective.Text:SetText(objectiveText)
+							objective:Show()
+							if(objectiveFinished) then
+								objective.Text:SetTextColor(0.1,0.9,0.1)
+								objective.Icon:SetTexture(OBJ_ICON_COMPLETE)
+							else
+								objective.Text:SetTextColor(1,1,1)
+								objective.Icon:SetTexture(OBJ_ICON_INCOMPLETE)
+							end
+
+							if(duration and elapsed and elapsed < duration) then
+								-- MAKE BAR
+							elseif(objective.TimerBar) then
+								-- UPDATE BAR
+							end
+
+							nextObjective = nextObjective + 1;
+
+							totalObjectives = totalObjectives + 1;
+						end
+
+						for x = nextObjective, numLineObjectives do
+							local objective = objectives.Rows[x]
+							if(objective) then
+								objective.Text:SetText('')
+								objective.Icon:SetTexture(OBJ_ICON_INCOMPLETE)
+								if(objective:IsShown()) then
+									objective:Hide()
+								end
+							end
+						end
+
+						local objectiveHeight = (INNER_HEIGHT + 2) * numObjectives;
+						objectives:SetHeight(objectiveHeight);
+
+						nextLine = nextLine + 1;
+					end
+
+				end
+			end
+		end
+
+		local numLines = #self.Rows;
+
+		for x = nextLine, numLines do
+			local entry = self.Rows[x]
+			if(entry) then
+				entry.Header.Level:SetText('')
+				entry.Header.Text:SetText('')
+				entry.Button:SetID(0)
+				if(entry:IsShown()) then
+					entry:Hide()
+				end
+			end
+		end
 	end
 
-	if(numItems > 0 and not ticker) then
-		ticker = C_Timer.NewTicker(30, function() -- might want to lower this
-			Button:Update()
-		end)
-	elseif(numItems == 0 and ticker) then
-		ticker:Cancel()
-		ticker = nil
+	local newHeight = (liveLines * (ROW_HEIGHT + 2)) + (totalObjectives * (INNER_HEIGHT + 2)) + (ROW_HEIGHT + (liveLines * 2));
+	self:SetHeight(newHeight);
+end
+
+local UpdateQuestProximity = function()
+	local shortestDistance = 62500;
+	local liveLines = GetNumQuestWatches();
+	local closestQuest, closestLink, closestTexture;
+
+	if(liveLines > 0) then
+		for i = 1, liveLines do
+			local questID, _, questLogIndex, numObjectives, requiredMoney, isComplete, startEvent, isAutoComplete, failureTime, timeElapsed, questType, isTask, isStory, isOnMap, hasLocalPOI = GetQuestWatchInfo(i);
+			if(questID) then
+				local title, level, suggestedGroup = GetQuestLogTitle(questLogIndex)
+				if(QuestHasPOIInfo(questID)) then
+					local link, texture, _, showCompleted = GetQuestLogSpecialItemInfo(questLogIndex)
+					if(link) then
+						local areaID = QuestInZone[questID]
+						if(areaID and areaID == GetCurrentMapAreaID()) then
+							closestQuest = title
+							closestLink = link
+							closestTexture = texture
+						elseif(not isComplete or (isComplete and showCompleted)) then
+							local distanceSq, onContinent = GetDistanceSqToQuest(questLogIndex)
+							if(onContinent and distanceSq < shortestDistance) then
+								shortestDistance = distanceSq
+								closestQuest = title
+								closestLink = link
+								closestTexture = texture
+							end
+						end
+					end
+				end
+			end
+		end
 	end
+
+	ClosestQuestName = closestQuest;
+	ClosestQuestLink = closestLink;
+	ClosestQuestTexture = closestTexture;
+end
+
+local UpdateActiveQuest = function()
+	if(ClosestQuestName) then
+		MOD.Active.Header.Text:SetText(ClosestQuestName)
+		if(ClosestQuestLink) then
+			MOD.Active.Button:SetItem(ClosestQuestLink, ClosestQuestTexture)
+		elseif(MOD.Active.Button:IsShown()) then
+			MOD.Active.Button:RemoveItem()
+		end
+
+		MOD.Active:SetHeight(LARGE_ROW_HEIGHT)
+	else
+		MOD.Active.Header.Text:SetText('')
+		MOD.Active:SetHeight(1)
+	end
+end
+
+local UpdateScrollSize = function()
+	local h1 = MOD.Active:GetHeight()
+	local h2 = MOD.Quests:GetHeight()
+	local h3 = MOD.Achievements:GetHeight()
+	local NEWHEIGHT = h1 + h2 + h3 + 6;
+	local scrollHeight = NEWHEIGHT - 80;
+
+	SVUI_QuestWatchFrameScrollFrame.MaxVal = scrollHeight;
+	SVUI_QuestWatchFrameScrollBar:SetMinMaxValues(1, scrollHeight);
+	SVUI_QuestWatchFrameScrollFrameScrollChild:SetHeight(NEWHEIGHT)
+end
+--[[ 
+########################################################## 
+EVENT HANDLERS
+##########################################################
+]]--
+local UpdateObjectives = function(self, event, ...)
+	MOD.Quests:UpdateRows(event, ...)
+	UpdateActiveQuest()
+	UpdateScrollSize()
+end
+
+local UpdateAchievements = function(self, event, ...)
+	MOD.Achievements:UpdateRows(event, ...)
+	UpdateScrollSize()
+end
+
+local UpdateProximity = function(self, event, ...)
+	UpdateQuestProximity()
+	UpdateActiveQuest()
+	UpdateScrollSize()
 end
 --[[ 
 ########################################################## 
 CORE FUNCTIONS
 ##########################################################
 ]]--
+function MOD:UpdateLocals()
+	ROW_WIDTH = SVUI_QuestWatchFrameScrollFrame:GetWidth();
+	ROW_HEIGHT = SV.db.SVQuest.rowHeight;
+	INNER_HEIGHT = ROW_HEIGHT - 4;
+	LARGE_ROW_HEIGHT = ROW_HEIGHT * 2;
+	LARGE_INNER_HEIGHT = LARGE_ROW_HEIGHT - 4;
+end
+
 function MOD:ReLoad()
 	-- DO STUFF
 end 
 
 function MOD:Load()
-	-- DO STUFF
+	self.Tracker = SV.Dock:NewDocklet("BottomRight", "SVUI_QuestTracker", "Quest Tracker", [[Interface\AddOns\SVUI\assets\artwork\Icons\DOCK-QUESTS]])
+
+	local listFrame = CreateFrame("ScrollFrame", "SVUI_QuestWatchFrameScrollFrame", self.Tracker);
+	listFrame:SetPoint("TOPLEFT", self.Tracker, 4, 0);
+	listFrame:SetPoint("BOTTOMRIGHT", self.Tracker, -26, 2);
+	listFrame:EnableMouseWheel(true);
+
+	self:UpdateLocals();
+
+	local scrollFrame = CreateFrame("Slider", "SVUI_QuestWatchFrameScrollBar", listFrame);
+	scrollFrame:SetHeight(listFrame:GetHeight());
+	scrollFrame:SetWidth(18);
+	scrollFrame:SetPoint("TOPRIGHT", self.Tracker, "TOPRIGHT", -3, 0);
+	scrollFrame:SetBackdrop({bgFile = bgTex, edgeFile = bdTex, edgeSize = 4, insets = {left = 3, right = 3, top = 3, bottom = 3}});
+	scrollFrame:SetFrameLevel(6)
+	scrollFrame:SetFixedPanelTemplate("Transparent", true);
+	scrollFrame:SetThumbTexture("Interface\\Buttons\\UI-ScrollBar-Knob");
+	scrollFrame:SetOrientation("VERTICAL");
+	scrollFrame:SetValueStep(5);
+	listFrame.MaxVal = 420;
+	scrollFrame:SetMinMaxValues(1, 420);
+	scrollFrame:SetValue(1);
+
+	local scrollChild = CreateFrame("Frame", "SVUI_QuestWatchFrameScrollFrameScrollChild", UIParent)
+	scrollChild:SetWidth(ROW_WIDTH);
+	scrollChild:SetClampedToScreen(false)
+	scrollChild:SetHeight(500)
+	scrollChild:SetPoint("TOPRIGHT", listFrame, "TOPRIGHT", -2, 0)
+	scrollChild:SetFrameLevel(listFrame:GetFrameLevel() + 1)
+
+	listFrame:SetScrollChild(scrollChild)
+	listFrame.slider = scrollFrame;
+	listFrame:SetScript("OnMouseWheel", function(self, delta)
+		local scroll = self:GetVerticalScroll();
+		local value = (scroll - (20  *  delta));
+		if value < -1 then 
+			value = 0
+		end 
+		if value > self.MaxVal then 
+			value = self.MaxVal
+		end 
+		self:SetVerticalScroll(value)
+		self.slider:SetValue(value)
+	end)
+
+	local active = CreateFrame("Frame", nil, scrollChild)
+	active:SetPoint("TOPLEFT", scrollChild, "TOPLEFT", 0, 0);
+	active:SetPoint("TOPRIGHT", scrollChild, "TOPRIGHT", 0, 0);
+	active:SetHeight(LARGE_ROW_HEIGHT);
+
+	local quests = CreateFrame("Frame", nil, scrollChild)
+	quests:SetWidth(ROW_WIDTH);
+	quests:SetHeight(ROW_HEIGHT);
+	quests:SetPoint("TOPLEFT", active, "BOTTOMLEFT", 0, 0);
+	quests:SetPoint("TOPRIGHT", active, "BOTTOMRIGHT", 0, 0);
+	--quests:SetPanelTemplate();
+
+	quests.Header = CreateFrame("Frame", nil, quests)
+	quests.Header:SetPoint("TOPLEFT", quests, "TOPLEFT", 2, -2);
+	quests.Header:SetPoint("TOPRIGHT", quests, "TOPRIGHT", -2, -2);
+	quests.Header:SetHeight(INNER_HEIGHT);
+	quests.Header:SetPanelTemplate("Inset");
+	quests.Header.Text = quests.Header:CreateFontString(nil,"OVERLAY")
+	quests.Header.Text:SetFont(SV.Media.font.roboto, 16, "OUTLINE")
+	quests.Header.Text:SetJustifyH('CENTER')
+	quests.Header.Text:SetJustifyV('MIDDLE')
+	quests.Header.Text:SetTextColor(1,0.6,0.1)
+	quests.Header.Text:SetShadowOffset(-1,-1)
+	quests.Header.Text:SetShadowColor(0,0,0,0.5)
+	quests.Header.Text:SetText(TRACKER_HEADER_QUESTS)
+	quests.Header.Text:SetAllPoints(quests.Header)
+	quests.Rows = {};
+	quests.UpdateRows = UpdateQuestRows;
+
+    local achievements = CreateFrame("Frame", nil, scrollChild)
+    achievements:SetWidth(ROW_WIDTH);
+	achievements:SetHeight(ROW_HEIGHT);
+	achievements:SetPoint("TOP", quests, "BOTTOM", 0, 0);
+
+	achievements.Header = CreateFrame("Frame", nil, achievements)
+	achievements.Header:SetPoint("TOPLEFT", achievements, "TOPLEFT", 2, -2);
+	achievements.Header:SetPoint("TOPRIGHT", achievements, "TOPRIGHT", -2, -2);
+	achievements.Header:SetHeight(INNER_HEIGHT);
+	achievements.Header:SetPanelTemplate("Inset");
+	achievements.Header.Text = achievements.Header:CreateFontString(nil,"OVERLAY")
+	achievements.Header.Text:SetFont(SV.Media.font.roboto, 16, "OUTLINE")
+	achievements.Header.Text:SetJustifyH('CENTER')
+	achievements.Header.Text:SetJustifyV('MIDDLE')
+	achievements.Header.Text:SetTextColor(1,0.6,0.1)
+	achievements.Header.Text:SetShadowOffset(-1,-1)
+	achievements.Header.Text:SetShadowColor(0,0,0,0.5)
+	achievements.Header.Text:SetText(TRACKER_HEADER_ACHIEVEMENTS)
+	achievements.Header.Text:SetAllPoints(achievements.Header)
+	achievements.Rows = {};
+	achievements.UpdateRows = UpdateAchievementRows;
+
+	self.Quests = quests;
+	self.Achievements = achievements;
+
+	active.Badge = CreateFrame("Frame", nil, active);
+	active.Badge:SetPoint("TOPLEFT", active, "TOPLEFT", 2, -2);
+	active.Badge:SetPoint("BOTTOMLEFT", active, "BOTTOMLEFT", 2, 2);
+	active.Badge:SetWidth(LARGE_INNER_HEIGHT);
+
+	--active.Button = self:CreateQuestItemButton()
+	--active.Button:SetAllPoints(active.Badge)
+
+	active.Header = CreateFrame("Frame", nil, active)
+	active.Header:SetPoint("TOPLEFT", active, "TOPLEFT", 46, -2);
+	active.Header:SetPoint("BOTTOMLEFT", active, "BOTTOMLEFT", 46, 2);
+	active.Header:SetPoint("TOPRIGHT", active, "TOPRIGHT", -2, -2);
+	active.Header:SetPoint("BOTTOMRIGHT", active, "BOTTOMRIGHT", -2, 2);
+	active.Header:SetPanelTemplate("Headline");
+
+	active.Header.Text = active.Header:CreateFontString(nil,"OVERLAY")
+	active.Header.Text:SetFont(SV.Media.font.names, 20, "OUTLINE")
+	active.Header.Text:SetJustifyH('LEFT')
+	active.Header.Text:SetJustifyV('MIDDLE')
+	active.Header.Text:SetTextColor(1,0.6,0.1)
+	active.Header.Text:SetShadowOffset(-1,-1)
+	active.Header.Text:SetShadowColor(0,0,0,0.5)
+	active.Header.Text:SetText('')
+	active.Header.Text:SetAllPoints(active.Header)
+	active:SetHeight(1);
+
+	self.Active = active;
+
+	self.Tracker.DockButton:MakeDefault();
+	self.Tracker:Show();
+
+	self:RegisterEvent("QUEST_LOG_UPDATE", UpdateObjectives);
+	self:RegisterEvent("QUEST_WATCH_LIST_CHANGED", UpdateObjectives);
+	--self:RegisterEvent("QUEST_AUTOCOMPLETE", UpdateObjectives);
+	self:RegisterEvent("QUEST_ACCEPTED", UpdateObjectives);	
+	--self:RegisterEvent("SUPER_TRACKED_QUEST_CHANGED", UpdateObjectives);
+	self:RegisterEvent("SCENARIO_UPDATE", UpdateObjectives);
+	self:RegisterEvent("SCENARIO_CRITERIA_UPDATE", UpdateObjectives);
+	self:RegisterEvent("QUEST_POI_UPDATE", UpdateObjectives);
+	self:RegisterEvent("VARIABLES_LOADED", UpdateObjectives);
+	self:RegisterEvent("QUEST_TURNED_IN", UpdateObjectives);
+	--self:RegisterEvent("PLAYER_MONEY", UpdateObjectives);
+
+	self:RegisterEvent("TRACKED_ACHIEVEMENT_UPDATE", UpdateAchievements);
+	self:RegisterEvent("TRACKED_ACHIEVEMENT_LIST_CHANGED", UpdateAchievements);
+
+	self:RegisterEvent("ZONE_CHANGED_NEW_AREA", UpdateProximity);
+	self:RegisterEvent("ZONE_CHANGED", UpdateProximity);
+
+	UpdateObjectives(self)
+	UpdateAchievements(self)
+
+	--ObjectiveTrackerFrame:HookScript("OnEvent", UpdateObjectives)
+	ObjectiveTrackerFrame:SetParent(SV.Hidden)
 end

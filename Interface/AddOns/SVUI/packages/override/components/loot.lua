@@ -336,7 +336,7 @@ end
 
 local function CreateRollFrame()
 	UpdateLootUpvalues()
-	local rollFrame = CreateFrame("Frame",nil,SV.Screen)
+	local rollFrame = CreateFrame("Frame", nil, UIParent)
 	rollFrame:Size(LOOT_WIDTH,LOOT_HEIGHT)
 	rollFrame:SetFixedPanelTemplate('Default')
 	rollFrame:SetScript("OnEvent",LootRoll_OnEvent)

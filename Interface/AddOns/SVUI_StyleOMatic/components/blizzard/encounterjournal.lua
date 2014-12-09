@@ -42,17 +42,14 @@ local function Tab_OnLeave(this)
 end
 
 local function ChangeTabHelper(this, xOffset, yOffset)
-  this:GetNormalTexture():SetTexCoord(0.1, 0.9, 0.1, 0.9)
-  this:GetNormalTexture():FillInner()
+  this:SetNormalTexture([[Interface\Addons\SVUI\assets\artwork\Template\EMPTY]])
+  this:SetPushedTexture([[Interface\Addons\SVUI\assets\artwork\Template\EMPTY]])
+  this:SetDisabledTexture([[Interface\Addons\SVUI\assets\artwork\Template\EMPTY]])
+  this:SetHighlightTexture([[Interface\Addons\SVUI\assets\artwork\Template\EMPTY]])
+
   this.backdrop = CreateFrame("Frame", nil, this)
   this.backdrop:FillInner(this)
-
-  local level = this:GetFrameLevel()
-  if(level > 0) then 
-    this.backdrop:SetFrameLevel(level - 1)
-  else 
-    this.backdrop:SetFrameLevel(0)
-  end
+  this.backdrop:SetFrameLevel(0)
 
   this.backdrop:SetPanelTemplate("Component", true)
   this.backdrop:SetPanelColor("dark")
@@ -60,7 +57,8 @@ local function ChangeTabHelper(this, xOffset, yOffset)
   this:HookScript("OnLeave",Tab_OnLeave)
 
   local initialAnchor, anchorParent, relativeAnchor, xPosition, yPosition = this:GetPoint()
-  this:Point(initialAnchor, anchorParent, relativeAnchor, xOffset or 7, yOffset or yPosition)
+  this:ClearAllPoints()
+  this:Point(initialAnchor, anchorParent, relativeAnchor, xOffset or 0, yOffset or 0)
 end
 
 local function Outline(frame, noHighlight)
@@ -136,8 +134,10 @@ local function EncounterJournalStyle()
   EncounterJournalEncounterFrameInfoBossesScrollFrame:RemoveTextures(true)
   EncounterJournalInstanceSelectDungeonTab:RemoveTextures(true)
   EncounterJournalInstanceSelectRaidTab:RemoveTextures(true)
-  ChangeTabHelper(EncounterJournalEncounterFrameInfoOverviewTab)
+  ChangeTabHelper(EncounterJournalEncounterFrameInfoOverviewTab, 10)
   ChangeTabHelper(EncounterJournalEncounterFrameInfoLootTab, 0, -10)
+  ChangeTabHelper(EncounterJournalEncounterFrameInfoBossTab, 0, -10)
+  ChangeTabHelper(EncounterJournalEncounterFrameInfoModelTab, 0, -20)
 
   EncounterJournalEncounterFrameInfoOverviewScrollFrame:RemoveTextures()
   EncounterJournalEncounterFrameInfoOverviewScrollFrameScrollChildTitle:SetTextColor(1,1,0)
@@ -228,7 +228,7 @@ local function EncounterJournalStyle()
           used.button:SetButtonTemplate()
       end
       used.description:SetTextColor(1, 1, 1)
-      used.button.portrait.icon:Hide()
+      --used.button.portrait.icon:Hide()
     end
   end)
     

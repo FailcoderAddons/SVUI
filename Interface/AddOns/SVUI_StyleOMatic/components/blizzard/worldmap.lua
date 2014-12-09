@@ -100,7 +100,7 @@ local function StripQuestMapFrame()
 
   local detailWidth = QuestMapFrame.DetailsFrame.RewardsFrame:GetWidth()
   QuestMapFrame.DetailsFrame:ClearAllPoints()
-  QuestMapFrame.DetailsFrame:SetPoint("TOPLEFT", WorldMapDetailFrame, "TOPRIGHT", 2, 0)
+  QuestMapFrame.DetailsFrame:SetPoint("BOTTOMRIGHT", QuestMapFrame, "BOTTOMRIGHT", 2, 0)
   QuestMapFrame.DetailsFrame:SetWidth(detailWidth)
 
   WorldMapFrameNavBar:ClearAllPoints()

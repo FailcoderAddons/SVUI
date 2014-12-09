@@ -39,7 +39,7 @@ RECOUNT
 ##########################################################
 ]]--
 local function NoColor(a)
-  for p=1,a:GetNumRegions()do 
+  for p = 1,a:GetNumRegions()do 
     local q=select(p,a:GetRegions())
     if q:GetObjectType()=='Texture'then 
       q:SetDesaturated(true)
@@ -60,8 +60,8 @@ local function StyleFrame(frame)
   frame:SetBackdrop(nil)
 
   frame.TitleBackground = CreateFrame('Frame', nil, frame)
-  frame.TitleBackground:SetFixedPanelTemplate("Default")
-  frame.TitleBackground:SetPanelColor("class")
+  frame.TitleBackground:SetFixedPanelTemplate("Transparent")
+  --frame.TitleBackground:SetPanelColor("class")
   frame.TitleBackground:SetPoint('TOP', frame, 'TOP', 0, -8)
   frame.TitleBackground.timeLapse = 0
   frame.TitleBackground:SetScript('OnUpdate', function(self,elapsed)
@@ -129,7 +129,8 @@ function PLUGIN:Docklet_Recount(parent)
   Recount.db.profile.ClampToScreen = true;
   Recount.db.profile.FrameStrata = '2-LOW'
   Recount.MainWindow:ClearAllPoints()
-  Recount.MainWindow:SetAllPoints(parent)
+  Recount.MainWindow:SetPoint("TOPLEFT", parent, "TOPLEFT", 0, 7)
+  Recount.MainWindow:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", 0, 0)
   Recount.MainWindow:SetParent(parent)
   Recount:SetStrataAndClamp()
   Recount:LockWindows(true)

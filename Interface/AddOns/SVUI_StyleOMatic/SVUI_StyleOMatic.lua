@@ -60,7 +60,7 @@ PLUGIN.CustomQueue = {};
 PLUGIN.EventListeners = {};
 PLUGIN.OnLoadAddons = {};
 PLUGIN.StyledAddons = {};
-PLUGIN.Debugging = false
+PLUGIN.Debugging = false;
 --[[ 
 ########################################################## 
 CORE FUNCTIONS
@@ -221,7 +221,7 @@ function PLUGIN:PLAYER_ENTERING_WORLD(event, ...)
 				set = function(key,value) PLUGIN:ChangeDBVar(value, key[#key], "addons"); SV:StaticPopup_Show("RL_CLIENT") end,
 				disabled = function()
 					if addonName then
-						 return not IsAddOnLoaded(addonName)
+						 return not PLUGIN.StyledAddons[addonName]
 					else
 						 return false 
 					end 
@@ -281,7 +281,7 @@ end
 
 function PLUGIN:DockletReady(addon, dock)
 	if((not addon) or (not dock)) then return false end
-	if(dock:find(addon)) then
+	if(dock:find(addon) and IsAddOnLoaded(addon)) then
 		return true 
 	end
 	return false
@@ -290,59 +290,75 @@ end
 function PLUGIN:RegisterAddonDocklets()
 	local dock1,dock2,enabled1,enabled2 = self:FetchDocklets();
   	local tipLeft, tipRight = "", "";
+  	local activated = false;
 
   	self.Docklet.Dock1.FrameLink = nil;
   	self.Docklet.Dock2.FrameLink = nil;
 
   	if(enabled1) then
-		local width = self.Docklet:GetWidth();
-		self.Docklet:Enable();
-
+  		local width = self.Docklet:GetWidth();
 		if(enabled2) then
-			self.Docklet.Dock1:Show()
 			self.Docklet.Dock1:SetWidth(width * 0.5)
-			self.Docklet.Dock2:Show()
 			self.Docklet.Dock2:SetWidth(width * 0.5)
 		else
-			self.Docklet.Dock1:Show()
-			self.Docklet.Dock2:Hide()
 			self.Docklet.Dock1:SetWidth(width)
 		end
 
 		if(self:DockletReady("Skada", dock1)) then
 			tipLeft = "Skada";
 			self:Docklet_Skada()
+			activated = true
 		elseif(self:DockletReady("Omen", dock1)) then
 			tipLeft = "Omen";
 			self:Docklet_Omen(self.Docklet.Dock1)
+			activated = true
 		elseif(self:DockletReady("Recount", dock1)) then
 			tipLeft = "Recount";
 			self:Docklet_Recount(self.Docklet.Dock1)
+			activated = true
 		elseif(self:DockletReady("TinyDPS", dock1)) then
 			tipLeft = "TinyDPS";
 			self:Docklet_TinyDPS(self.Docklet.Dock1) 
+			activated = true
 		elseif(self:DockletReady("alDamageMeter", dock1)) then
 			tipLeft = "alDamageMeter";
 			self:Docklet_alDamageMeter(self.Docklet.Dock1)
+			activated = true
 		end
 
 		if(enabled2) then
 			if(self:DockletReady("Skada", dock2)) then
-				tipRight = "and Skada";
+				tipRight = " and Skada";
 				self:Docklet_Skada()
+				activated = true
 			elseif(self:DockletReady("Omen", dock2)) then
-				tipRight = "and Omen";
+				tipRight = " and Omen";
 				self:Docklet_Omen(self.Docklet.Dock2)
+				activated = true
 			elseif(self:DockletReady("Recount", dock2)) then
-				tipRight = "and Recount";
+				tipRight = " and Recount";
 				self:Docklet_Recount(self.Docklet.Dock2)
+				activated = true
 			elseif(self:DockletReady("TinyDPS", dock2)) then
-				tipRight = "and TinyDPS";
+				tipRight = " and TinyDPS";
 				self:Docklet_TinyDPS(self.Docklet.Dock2)
+				activated = true
 			elseif(self:DockletReady("alDamageMeter", dock2)) then
-				tipRight = "and alDamageMeter";
+				tipRight = " and alDamageMeter";
 				self:Docklet_alDamageMeter(self.Docklet.Dock2)
+				activated = true
 			end
+		end
+	end
+
+	if(activated) then
+		self.Docklet:Enable();
+		if(enabled2) then
+			self.Docklet.Dock1:Show()
+			self.Docklet.Dock2:Show()
+		else
+			self.Docklet.Dock1:Show()
+			self.Docklet.Dock2:Hide()
 		end
 
 		self.Docklet.DockButton:SetAttribute("tipText", ("%s%s"):format(tipLeft, tipRight));
@@ -537,8 +553,8 @@ function PLUGIN:Load()
 	local dockWidth = self.Docklet:GetWidth()
 
 	self.Docklet.Dock1 = CreateFrame("Frame", "SVUI_StyleOMaticDockAddon1", self.Docklet);
-	self.Docklet.Dock1:SetPoint('TOPLEFT', self.Docklet, 'TOPLEFT', 0, 0);
-	self.Docklet.Dock1:SetPoint('BOTTOMLEFT', self.Docklet, 'BOTTOMLEFT', 0, 0);
+	self.Docklet.Dock1:SetPoint('TOPLEFT', self.Docklet, 'TOPLEFT', -4, 0);
+	self.Docklet.Dock1:SetPoint('BOTTOMLEFT', self.Docklet, 'BOTTOMLEFT', -4, -4);
 	self.Docklet.Dock1:SetWidth(dockWidth);
 	self.Docklet.Dock1:SetScript('OnShow', ShowSubDocklet);
 	self.Docklet.Dock1:SetScript('OnHide', HideSubDocklet);

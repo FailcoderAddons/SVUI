@@ -126,9 +126,6 @@ local _purgatory = CreateFrame("Frame", nil)
 _purgatory:Hide()
 
 local function Die(self)
-    if(self.SetAtlas) then 
-        self.SetAtlas = function() return end 
-    end
     if(self.UnregisterAllEvents) then 
         self:UnregisterAllEvents()
         self:SetParent(_purgatory)
@@ -157,9 +154,6 @@ local function RemoveTextures(self, option)
                         region.Show = region.Hide 
                     end 
                     region:Hide()
-                    if(region.SetAtlas) then
-                        region.SetAtlas = function() return end
-                    end
                 elseif(type(option) == "string" and ((layer == option) or (texture ~= option))) then
                     region:SetTexture(0,0,0,0)
                 end

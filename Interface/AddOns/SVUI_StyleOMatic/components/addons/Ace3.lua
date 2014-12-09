@@ -268,4 +268,5 @@ end
 PLUGIN LOADING
 ##########################################################
 ]]--
-PLUGIN:SaveAddonStyle("SVUI_ConfigOMatic", StyleAceGUI, nil, true)
+--PLUGIN:SaveAddonStyle("SVUI_ConfigOMatic", StyleAceGUI, nil, true)
+PLUGIN:SaveAddonStyle("AceGUI", StyleAceGUI, nil, true)

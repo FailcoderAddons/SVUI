@@ -225,13 +225,13 @@ local function TalentFrameStyle()
 
 	local C = _G["PlayerTalentFrameSpecializationSpellScrollFrameScrollChild"]
 	C.ring:Hide()
-	C:SetFixedPanelTemplate("Transparent")
+	C:SetFixedPanelTemplate("Inset")
 	C.Panel:WrapOuter(C.specIcon)
 	C.specIcon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 
 	local D = _G["PlayerTalentFramePetSpecializationSpellScrollFrameScrollChild"]
 	D.ring:Hide()
-	D:SetFixedPanelTemplate("Transparent")
+	D:SetFixedPanelTemplate("Inset")
 	D.Panel:WrapOuter(D.specIcon)
 	D.specIcon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 
@@ -255,7 +255,7 @@ local function TalentFrameStyle()
 			if not L.restyled then
 				L.restyled = true;L:Size(30, 30)
 				L.ring:Hide()
-				L:SetFixedPanelTemplate("Transparent")
+				L:SetFixedPanelTemplate("Inset")
 				L.icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 				L.icon:FillInner()
 			end 

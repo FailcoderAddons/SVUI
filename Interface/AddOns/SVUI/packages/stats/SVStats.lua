@@ -602,7 +602,7 @@ function MOD:Load()
 	self:LoadServerGold()
 	self:CacheRepData()
 	
-	self.tooltip:SetParent(SV.Screen)
+	-- self.tooltip:SetParent(SV.Screen)
 	self.tooltip:SetFrameStrata("DIALOG")
 	self.tooltip:HookScript("OnShow", _hook_TooltipOnShow)
 

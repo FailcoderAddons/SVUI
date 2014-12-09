@@ -130,7 +130,7 @@ function MOD:LoadRaidLeaderTools()
 	self.RaidTool.Menu.toggled = false;
 	self.RaidTool.Menu:SetFrameStrata("HIGH");
 
-	local SVUI_RaidToolToggle = CreateFrame("Button", "SVUI_RaidToolToggle", self.RaidTool, "UIMenuButtonStretchTemplate, SecureHandlerClickTemplate")
+	local SVUI_RaidToolToggle = CreateFrame("Button", "SVUI_RaidToolToggle", self.RaidTool, "SecureHandlerClickTemplate")
 	SVUI_RaidToolToggle:SetAllPoints(self.RaidTool)
 	SVUI_RaidToolToggle:RemoveTextures()
 	SVUI_RaidToolToggle:SetNormalTexture("")

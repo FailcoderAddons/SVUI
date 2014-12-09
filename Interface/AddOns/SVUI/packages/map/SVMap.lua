@@ -351,7 +351,7 @@ local function SetLargeWorldMap()
 	if InCombatLockdown() then return end
 
 	if SV.db.SVMap.tinyWorldMap == true then
-		WorldMapFrame:SetParent(SV.Screen)
+		-- WorldMapFrame:SetParent(SV.Screen)
 		WorldMapFrame:EnableMouse(false)
 		WorldMapFrame:EnableKeyboard(false)
 		WorldMapFrame:SetScale(1)
@@ -722,7 +722,7 @@ function MOD:Load()
 	Minimap:SetClampedToScreen(false)
 
 	local mapHolder = SVUI_MinimapFrame
-	mapHolder:SetParent(SV.Screen);
+	-- mapHolder:SetParent(SV.Screen);
 	mapHolder:SetFrameStrata("BACKGROUND")
 	mapHolder:Point("TOPRIGHT", SV.Screen, "TOPRIGHT", -10, -10)
 	mapHolder:Size(MM_WIDTH, MM_HEIGHT)
@@ -841,7 +841,7 @@ function MOD:Load()
 
 	if(SV.db.SVMap.tinyWorldMap) then
 		setfenv(WorldMapFrame_OnShow, setmetatable({ UpdateMicroButtons = SV.fubar }, { __index = _G }))
-		WorldMapFrame:SetParent(SV.Screen)
+		-- WorldMapFrame:SetParent(SV.Screen)
 		WorldMapFrame:HookScript('OnShow', _hook_WorldMapFrame_OnShow)
 		WorldMapFrame:HookScript('OnHide', _hook_WorldMapFrame_OnHide)
 	end

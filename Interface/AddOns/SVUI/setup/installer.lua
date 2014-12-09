@@ -52,7 +52,7 @@ LOCAL VARS
 local CURRENT_PAGE, MAX_PAGE, XOFF = 0, 9, (GetScreenWidth() * 0.025)
 local okToResetMOVE = false
 local mungs = false;
-local user_music_vol;
+local user_music_vol = GetCVar("Sound_MusicVolume") or 0;
 local musicIsPlaying;
 local PageData, OnClickData
 local SVUI_CLASS_COLORS = _G.SVUI_CLASS_COLORS
@@ -446,7 +446,7 @@ function SV.Setup:ColorTheme(style, preserve)
 		SV:ResetData("media")
 	end
 
-	local presets = self:CopyPreset("media", style)
+	self:CopyPreset("media", style)
 	--print(table.dump(SV.db))
 	SV.db.LAYOUT.mediastyle = style;
 
@@ -478,7 +478,7 @@ function SV.Setup:UnitframeLayout(style, preserve)
 		end
 	end
 
-	local presets = self:CopyPreset("units", style)
+	self:CopyPreset("units", style)
 	SV.db.LAYOUT.unitstyle = style
 
 	if(SV.db.LAYOUT.mediastyle == "default") then 
@@ -505,7 +505,7 @@ end
 function SV.Setup:GroupframeLayout(style, preserve)
 	style = style or "default";
 
-	local presets = self:CopyPreset("layouts", style)
+	self:CopyPreset("layouts", style)
 	SV.db.LAYOUT.groupstyle = style
 
 	if(not mungs) then
@@ -527,7 +527,7 @@ function SV.Setup:BarLayout(style, preserve)
 		end
 	end 
 
-	local presets = self:CopyPreset("bars", style)
+	self:CopyPreset("bars", style)
 	SV.db.LAYOUT.barstyle = style;
 
 	if(not mungs) then
@@ -552,7 +552,7 @@ end
 
 function SV.Setup:Auralayout(style, preserve)
 	style = style or "default";
-	local presets = self:CopyPreset("auras", style)
+	self:CopyPreset("auras", style)
 
 	SV.db.LAYOUT.aurastyle = style;
 
@@ -564,7 +564,17 @@ function SV.Setup:Auralayout(style, preserve)
 			SV:SavedPopup()
 		end
 	end
-end 
+end
+
+function SV.Setup:CustomLayout(style)
+	if((not style) or (not SV.CustomLayouts)) then return end;
+	if(self:CopyCustom(style)) then
+		SV.db.LAYOUT.custom = style
+		SVLib:RefreshModule('SVBar')
+		SVLib:RefreshModule('SVAura')
+		SVLib:RefreshModule('SVUnit')
+	end
+end
 
 function SV.Setup:EZDefault()
 	mungs = true;
@@ -577,14 +587,14 @@ function SV.Setup:EZDefault()
 	self:Auralayout("default", true);
 	SVLib:SaveSafeData("install_version", SV.Version)
 	StopMusic()
-	SetCVar("Sound_MusicVolume", user_music_vol)
+	SetCVar("Sound_MusicVolume", user_music_vol or 0)
 	ReloadUI()
 end
 
 function SV.Setup:Complete()
 	SVLib:SaveSafeData("install_version", SV.Version)
 	StopMusic()
-	SetCVar("Sound_MusicVolume", user_music_vol)
+	SetCVar("Sound_MusicVolume", user_music_vol or 0)
 	okToResetMOVE = false;
 	ReloadUI()
 end
@@ -788,10 +798,6 @@ function SV.Setup:Reset()
 end 
 
 function SV.Setup:Install(autoLoaded)
-	if(not user_music_vol) then
-		user_music_vol = GetCVar("Sound_MusicVolume") 
-	end
-
 	local old = SVLib:GetSafeData()
     local media = old.mediastyle or ""
     local bars = old.barstyle or ""
@@ -1151,7 +1157,7 @@ function SV.Setup:Install(autoLoaded)
 
 	SVUI_InstallerFrame:SetScript("OnHide", function()
 		StopMusic()
-		SetCVar("Sound_MusicVolume", user_music_vol)
+		SetCVar("Sound_MusicVolume", user_music_vol or 0)
 		musicIsPlaying = nil;
 		ShowLayout()
 		ShowAuras()

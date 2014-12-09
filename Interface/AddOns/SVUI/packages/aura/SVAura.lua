@@ -580,7 +580,7 @@ function MOD:Load()
 		InterfaceOptionsFrameCategoriesButton12:SetScale(0.0001)
 	end
 
-	local auras = CreateFrame("Frame", "SVUI_AurasAnchor", SV.Screen)
+	local auras = CreateFrame("Frame", "SVUI_AurasAnchor", UIParent)
 	auras:SetSize(CB_WIDTH, CB_HEIGHT)
 	auras:Point("TOPRIGHT", Minimap, "TOPLEFT", -8, 0)
 	SV:AddToDisplayAudit(auras)
@@ -590,7 +590,7 @@ function MOD:Load()
 	self.DebuffFrame = CreateAuraHeader("HARMFUL")
 	self.DebuffFrame:SetPoint( "BOTTOMRIGHT", auras, "BOTTOMLEFT", -8, 0)
 
-	SVUI_ConsolidatedBuffs:SetParent(SV.Screen)
+	-- SVUI_ConsolidatedBuffs:SetParent(SV.Screen)
 	SVUI_ConsolidatedBuffs:SetAllPoints(auras)
 	SVUI_ConsolidatedBuffs:SetFrameStrata("BACKGROUND")
 	SV:AddToDisplayAudit(SVUI_ConsolidatedBuffs)

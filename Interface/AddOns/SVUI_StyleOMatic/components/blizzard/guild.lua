@@ -566,9 +566,8 @@ local function GuildFrameStyle()
 	GuildMemberNoteBackground:SetBasicPanel()
 	GuildMemberOfficerNoteBackground:SetBasicPanel()
 
-	GuildMemberRankDropdown:SetFrameLevel(GuildMemberRankDropdown:GetFrameLevel()+5)
 	PLUGIN:ApplyDropdownStyle(GuildMemberRankDropdown, 182)
-	GuildMemberRankDropdown.Panel:SetBackdropColor(0,0,0,1)
+	GuildMemberDetailRankText:Hide()
 	GuildNewsFrame:RemoveTextures()
 	GuildNewsContainer:SetBasicPanel(-2, 2, 0, -2)
 

@@ -490,7 +490,7 @@ end
 local function CreateTotemBar()
 	if(not SV.db.totems.enable) then return; end
 	local xOffset = SV.db.Dock.dockLeftWidth + 12
-	TotemBar = CreateFrame("Frame", "SVUI_TotemBar", SV.Screen)
+	TotemBar = CreateFrame("Frame", "SVUI_TotemBar", UIParent)
 	TotemBar:SetPoint("BOTTOMLEFT", SV.Screen, "BOTTOMLEFT", xOffset, 40)
 	for i = 1, MAX_TOTEMS do
 		local id = priorities[i]
@@ -640,7 +640,7 @@ end
 local function LoadThreatBar()
 	if(SV.db.general.threatbar == true) then
 		local anchor = _G.SVUI_Target
-		local ThreatBar = CreateFrame('StatusBar', 'SVUI_ThreatBar', SV.Screen);
+		local ThreatBar = CreateFrame('StatusBar', 'SVUI_ThreatBar', UIParent);
 		ThreatBar:SetStatusBarTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Doodads\\THREAT-BAR")
 		ThreatBar:SetSize(50, 100)
 		ThreatBar:SetFrameStrata('MEDIUM')

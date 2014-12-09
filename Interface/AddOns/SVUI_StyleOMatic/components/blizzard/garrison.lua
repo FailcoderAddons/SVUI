@@ -31,6 +31,7 @@ HELPERS
 ]]--
 local RING_TEXTURE = [[Interface\AddOns\SVUI\assets\artwork\Unitframe\FOLLOWER-RING]]
 local LVL_TEXTURE = [[Interface\AddOns\SVUI\assets\artwork\Unitframe\FOLLOWER-LEVEL]]
+local DEFAULT_COLOR = {r = 0.25, g = 0.25, b = 0.25};
 --[[ 
 ########################################################## 
 STYLE
@@ -44,7 +45,39 @@ local function AddFadeBanner(frame)
 	bg:SetGradientAlpha("VERTICAL", 0, 0, 0, 0, 0, 0, 0, 0.9)
 end
 
-local function StyleFollowerPortrait(frame)
+local function StyleItemIcon(item)
+	if((not item) or (not item.Icon)) then return end
+	item.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+	if(not item.IconSlot) then 
+		item.IconSlot = CreateFrame("Frame", nil, item)
+		item.IconSlot:WrapOuter(item.Icon)
+		item.IconSlot:SetSlotTemplate()
+		item.Icon:SetParent(item.IconSlot)
+	end
+end
+
+local function StyleListItem(item)
+	if(not item) then return; end
+    if(item.Icon and (not item.Panel)) then
+    	local size = item:GetHeight() - 8
+    	local texture = item.Icon:GetTexture()
+		item:RemoveTextures()
+    	item:SetSlotTemplate()
+    	item.Icon:SetTexture(texture)
+		item.Icon:ClearAllPoints()
+		item.Icon:SetPoint("TOPLEFT", item, "TOPLEFT", 4, -4)
+		item.Icon:SetSize(size, size)
+		item.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+		if(not item.IconSlot) then 
+			item.IconSlot = CreateFrame("Frame", nil, item)
+			item.IconSlot:WrapOuter(item.Icon)
+			item.IconSlot:SetSlotTemplate()
+			item.Icon:SetParent(item.IconSlot)
+		end
+    end
+end
+
+local function StyleFollowerPortrait(frame, color)
 	frame.PortraitRing:SetTexture(RING_TEXTURE)
 	frame.PortraitRingQuality:SetTexture('')
 	frame.LevelBorder:SetTexture('')
@@ -53,6 +86,9 @@ local function StyleFollowerPortrait(frame)
 		frame.LevelCallout:SetAllPoints(frame)
 		frame.LevelCallout:SetTexture(LVL_TEXTURE)
 		frame.LevelBorder:SetDrawLayer('OVERLAY')
+	end
+	if(color) then
+		frame.PortraitRing:SetVertexColor(color.r, color.g, color.b)
 	end
 end
 
@@ -67,6 +103,18 @@ local _hook_ReagentUpdate = function(self)
 			end
 		end
     end
+end
+
+local _hook_GarrisonBuildingListUpdate = function()
+	local list = GarrisonBuildingFrame.BuildingList;
+	for i=1, GARRISON_NUM_BUILDING_SIZES do
+		local tab = list["Tab"..i];
+		if(tab and tab.buildings) then
+			for i=1, #tab.buildings do
+				StyleListItem(list.Buttons[i])
+			end
+		end
+	end
 end
 
 local _hook_GarrisonFollowerListUpdate = function(self)
@@ -86,30 +134,37 @@ local _hook_GarrisonFollowerListUpdate = function(self)
 	        if(not button.Panel) then
 	            button:RemoveTextures()
 	            button:SetPanelTemplate('Blackout', true, 1, 0, 0)
-	            if(button.PortraitFrame) then
-	            	StyleFollowerPortrait(button.PortraitFrame)
-				end
 				if(button.XPBar) then
 					button.XPBar:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Bars\DEFAULT]])
 					button.XPBar:SetGradient('HORIZONTAL', 0.5, 0, 1, 1, 0, 1)
 				end
 	        end
 	        if(button.PortraitFrame) then
-		        if (follower.isCollected) then
-	            	local color = ITEM_QUALITY_COLORS[follower.quality];
-					button.PortraitFrame.PortraitRing:SetVertexColor(color.r, color.g, color.b)
-				else
-					button.PortraitFrame.PortraitRing:SetVertexColor(0.25, 0.25, 0.25)
+	        	local color
+		        if(follower.isCollected) then
+	            	color = ITEM_QUALITY_COLORS[follower.quality]
+	            else
+	            	color = DEFAULT_COLOR
 				end
+				StyleFollowerPortrait(button.PortraitFrame, color)
 			end
 	    end
     end
 end
 
-local _hook_GarrisonMissionFrame_SetFollowerPortrait = function(portraitFrame, followerInfo)
+local _hook_GarrisonFollowerTooltipTemplate_SetGarrisonFollower = function(tooltip, data)
+	local color = ITEM_QUALITY_COLORS[data.quality];
+	StyleFollowerPortrait(tooltip.Portrait, color)
+end
+
+local _hook_GarrisonBuildingInfoBoxFollowerPortrait = function(owned, hasFollowerSlot, infoBox, isBuilding, canActivate, ID)
+	local portraitFrame = infoBox.FollowerPortrait;
 	StyleFollowerPortrait(portraitFrame)
+end
+
+local _hook_GarrisonMissionFrame_SetFollowerPortrait = function(portraitFrame, followerInfo)
 	local color = ITEM_QUALITY_COLORS[followerInfo.quality];
-	portraitFrame.PortraitRing:SetVertexColor(color.r, color.g, color.b)
+	StyleFollowerPortrait(portraitFrame, color)
 end
 
 local _hook_GarrisonMissionComplete_SetFollowerLevel = function(followerFrame, level, quality)
@@ -134,24 +189,10 @@ local _hook_GarrisonFollowerPage_ShowFollower = function(self, followerID)
     end
 end
 
-local _hook_GarrisonMissionFrame_SetItemRewardDetails = function(self)
-    if(self.Icon and (not self.Panel)) then
-    	local size = self:GetHeight() - 4
-    	local texture = self.Icon:GetTexture()
-		self:RemoveTextures()
-    	self:SetSlotTemplate(true, 2, 0, 0, 0.5)
-    	self.Icon:SetTexture(texture)
-		self.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-		self.Icon:ClearAllPoints()
-		self.Icon:SetPoint("TOPLEFT", self, "TOPLEFT", 2, -2)
-		self.Icon:SetSize(size, size)
-    end
-end
-
 local function StyleRewardButtons(rewardButtons)
     for i = 1, #rewardButtons do
         local frame = rewardButtons[i];
-        _hook_GarrisonMissionFrame_SetItemRewardDetails(frame);
+        StyleListItem(frame);
     end
 end
 
@@ -188,14 +229,39 @@ local function LoadGarrisonStyle()
 	end
 
 	PLUGIN:ApplyWindowStyle(GarrisonMissionFrame, true)
+	PLUGIN:ApplyWindowStyle(GarrisonBuildingFrame, true)
+	PLUGIN:ApplyWindowStyle(GarrisonLandingPage, true)
+
 	PLUGIN:ApplyTabStyle(GarrisonMissionFrameTab1)
 	PLUGIN:ApplyTabStyle(GarrisonMissionFrameTab2)
 
-	StyleUpdateRewards(GarrisonMissionFrame)
+	GarrisonBuildingFrameFollowers:RemoveTextures()
+	GarrisonBuildingFrameFollowers:SetPanelTemplate('Inset', true, 1, -5, -5)
+	GarrisonBuildingFrameFollowers:ClearAllPoints()
+	GarrisonBuildingFrameFollowers:SetPoint("LEFT", GarrisonBuildingFrame, "LEFT", 10, 0)
+	GarrisonBuildingFrame.BuildingList:RemoveTextures()
+	GarrisonBuildingFrame.BuildingList:SetFixedPanelTemplate('Inset')
+	GarrisonBuildingFrame.TownHallBox:RemoveTextures()
+	GarrisonBuildingFrame.TownHallBox:SetFixedPanelTemplate('Inset')
+	GarrisonBuildingFrame.InfoBox:RemoveTextures()
+	GarrisonBuildingFrame.InfoBox:SetFixedPanelTemplate('Inset')
+	--PLUGIN:ApplyTabStyle(GarrisonBuildingFrame.BuildingList.Tab1)
+	GarrisonBuildingFrame.BuildingList.Tab1:GetNormalTexture().SetAtlas = function() return end
+	GarrisonBuildingFrame.BuildingList.Tab1:RemoveTextures(true)
+	GarrisonBuildingFrame.BuildingList.Tab1:SetButtonTemplate(false, 1, -4, -10)
+	--PLUGIN:ApplyTabStyle(GarrisonBuildingFrame.BuildingList.Tab2)
+	GarrisonBuildingFrame.BuildingList.Tab2:GetNormalTexture().SetAtlas = function() return end
+	GarrisonBuildingFrame.BuildingList.Tab2:RemoveTextures(true)
+	GarrisonBuildingFrame.BuildingList.Tab2:SetButtonTemplate(false, 1, -4, -10)
+	--PLUGIN:ApplyTabStyle(GarrisonBuildingFrame.BuildingList.Tab3)
+	GarrisonBuildingFrame.BuildingList.Tab3:GetNormalTexture().SetAtlas = function() return end
+	GarrisonBuildingFrame.BuildingList.Tab3:RemoveTextures(true)
+	GarrisonBuildingFrame.BuildingList.Tab3:SetButtonTemplate(false, 1, -4, -10)
+	GarrisonBuildingFrame.BuildingList.MaterialFrame:RemoveTextures()
+	GarrisonBuildingFrame.BuildingList.MaterialFrame:SetPanelTemplate("Inset", true, 1, -5, -7)
+	GarrisonBuildingFrameTutorialButton:Die()
 
-	GarrisonLandingPage:RemoveTextures()
-	GarrisonLandingPage:SetPanelTemplate("Paper")
-	GarrisonLandingPage:SetPanelColor("tan")
+	StyleUpdateRewards(GarrisonMissionFrame)
 
 	GarrisonLandingPage.FollowerTab:RemoveTextures()
 	GarrisonLandingPage.FollowerTab.AbilitiesFrame:RemoveTextures()
@@ -210,6 +276,7 @@ local function LoadGarrisonStyle()
 
 	PLUGIN:ApplyTabStyle(GarrisonLandingPageTab1, nil, 10, 4)
 	PLUGIN:ApplyTabStyle(GarrisonLandingPageTab2, nil, 10, 4)
+
 	local a1, p, a2, x, y = GarrisonLandingPageTab1:GetPoint()
 	GarrisonLandingPageTab1:SetPoint(a1, p, a2, x, (y - 15))
 
@@ -246,6 +313,11 @@ local function LoadGarrisonStyle()
 
 	GarrisonMissionFrame.FollowerTab:RemoveTextures()
 	GarrisonMissionFrame.FollowerTab:SetFixedPanelTemplate("ModelBorder")
+
+	GarrisonMissionFrame.FollowerTab.ItemWeapon:RemoveTextures()
+	StyleListItem(GarrisonMissionFrame.FollowerTab.ItemWeapon)
+	GarrisonMissionFrame.FollowerTab.ItemArmor:RemoveTextures()
+	StyleListItem(GarrisonMissionFrame.FollowerTab.ItemArmor)
 
 	GarrisonMissionFrame.MissionTab:RemoveTextures()
 	GarrisonMissionFrame.MissionTab.MissionPage:RemoveTextures()
@@ -324,7 +396,11 @@ local function LoadGarrisonStyle()
     hooksecurefunc("GarrisonMissionFrame_SetFollowerPortrait", _hook_GarrisonMissionFrame_SetFollowerPortrait)
     hooksecurefunc("GarrisonMissionComplete_SetFollowerLevel", _hook_GarrisonMissionComplete_SetFollowerLevel)
     hooksecurefunc("GarrisonFollowerPage_ShowFollower", _hook_GarrisonFollowerPage_ShowFollower)
-    hooksecurefunc("GarrisonMissionFrame_SetItemRewardDetails", _hook_GarrisonMissionFrame_SetItemRewardDetails)
+    hooksecurefunc("GarrisonMissionFrame_SetItemRewardDetails", StyleListItem)
+    hooksecurefunc("GarrisonBuildingTab_Select", _hook_GarrisonBuildingListUpdate)
+    hooksecurefunc("GarrisonBuildingList_SelectTab", _hook_GarrisonBuildingListUpdate)
+    hooksecurefunc("GarrisonBuildingInfoBox_ShowFollowerPortrait", _hook_GarrisonBuildingInfoBoxFollowerPortrait)
+    hooksecurefunc("GarrisonFollowerTooltipTemplate_SetGarrisonFollower", _hook_GarrisonFollowerTooltipTemplate_SetGarrisonFollower)
 
  	--print("Test")
 	if(GarrisonCapacitiveDisplayFrame.StartWorkOrderButton) then

@@ -176,7 +176,7 @@ local function AchievementStyle()
 	PLUGIN:ApplyWindowStyle(AchievementFrame)
 
 	AchievementFrameSummaryAchievements:RemoveTextures(true)
-	AchievementFrameSummaryAchievements:SetBasicPanel()
+	AchievementFrameSummaryAchievements:SetPanelTemplate('Inset')
 	AchievementFrameHeaderTitle:ClearAllPoints()
 	AchievementFrameHeaderTitle:Point("TOPLEFT", AchievementFrame.Panel, "TOPLEFT", -30, -8)
 	AchievementFrameHeaderPoints:ClearAllPoints()
@@ -303,7 +303,7 @@ local function AchievementStyle()
 				track:ClearAllPoints()
 				track:Point("BOTTOMLEFT", 1, 1)
 				track:RemoveTextures()
-				track:SetCheckboxTemplate(true, -3, -3)
+				track:SetCheckboxTemplate(true)
 				track.ListParent = button
 			end
 		end

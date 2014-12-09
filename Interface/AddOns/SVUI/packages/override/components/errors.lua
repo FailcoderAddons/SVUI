@@ -33,21 +33,49 @@ LOCAL VARS
 ##########################################################
 ]]--
 local UIErrorsFrame = _G.UIErrorsFrame;
+local ERR_FILTERS = {};
 --[[ 
 ########################################################## 
 EVENTS
 ##########################################################
 ]]--
 function MOD:UI_ERROR_MESSAGE(event, msg)
-	if((not msg) or SV.db.SVOverride.errorFilters[msg]) then return end
+	if((not msg) or ERR_FILTERS[msg]) then return end
 	UIErrorsFrame:AddMessage(msg, 1.0, 0.1, 0.1, 1.0);
 end
 
 local ErrorFrameHandler = function(self, event)
 	if(event == 'PLAYER_REGEN_DISABLED') then
+		MOD:UnregisterEvent('UI_ERROR_MESSAGE')
+	else
+		MOD:RegisterEvent('UI_ERROR_MESSAGE')
+	end
+end
+
+function MOD:CacheFilters()
+	for k, v in pairs(SV.db.SVOverride.errorFilters) do
+		ERR_FILTERS[k] = v
+	end
+	if(ERR_FILTERS[INTERRUPTED]) then
+		ERR_FILTERS[SPELL_FAILED_INTERRUPTED] = true
+		ERR_FILTERS[SPELL_FAILED_INTERRUPTED_COMBAT] = true
+	end
+end
+
+function MOD:UpdateErrorFilters()
+	if(SV.db.SVOverride.filterErrors) then
+		self:CacheFilters()
 		UIErrorsFrame:UnregisterEvent('UI_ERROR_MESSAGE')
+		self:RegisterEvent('UI_ERROR_MESSAGE')
+		if(SV.db.SVOverride.hideErrorFrame) then
+			self:RegisterEvent('PLAYER_REGEN_DISABLED', ErrorFrameHandler)
+			self:RegisterEvent('PLAYER_REGEN_ENABLED', ErrorFrameHandler)
+		end
 	else
 		UIErrorsFrame:RegisterEvent('UI_ERROR_MESSAGE')
+		self:UnregisterEvent('UI_ERROR_MESSAGE')
+		self:UnregisterEvent('PLAYER_REGEN_DISABLED')
+		self:UnregisterEvent('PLAYER_REGEN_ENABLED')
 	end
 end
 --[[ 
@@ -57,10 +85,12 @@ PACKAGE CALL
 ]]--
 function MOD:SetErrorFilters()
 	if(SV.db.SVOverride.filterErrors) then
+		self:CacheFilters()
 		UIErrorsFrame:UnregisterEvent('UI_ERROR_MESSAGE')
 		self:RegisterEvent('UI_ERROR_MESSAGE')
-	elseif(SV.db.SVOverride.hideErrorFrame) then
-		self:RegisterEvent('PLAYER_REGEN_DISABLED', ErrorFrameHandler)
-		self:RegisterEvent('PLAYER_REGEN_ENABLED', ErrorFrameHandler)
+		if(SV.db.SVOverride.hideErrorFrame) then
+			self:RegisterEvent('PLAYER_REGEN_DISABLED', ErrorFrameHandler)
+			self:RegisterEvent('PLAYER_REGEN_ENABLED', ErrorFrameHandler)
+		end
 	end
 end

@@ -1457,11 +1457,6 @@ local CreateExtraBar = function(self)
 		ExtraActionBarFrame:Show()
 	end
 
-	--local size = DraenorZoneAbilityFrame:GetHeight()
-	DraenorZoneAbilityFrame:ClearAllPoints()
-	DraenorZoneAbilityFrame:SetSize(150, 125)
-	--DraenorZoneAbilityFrame:SetPoint('CENTER', specialBar, 'CENTER')
-
 	SV.Mentalo:Add(specialBar, L["Boss Button"])
 end
 --[[ 

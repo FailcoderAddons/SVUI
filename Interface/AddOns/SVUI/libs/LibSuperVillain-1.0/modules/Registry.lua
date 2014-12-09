@@ -208,14 +208,6 @@ end
 
 --DATABASE LOCAL HELPERS
 
-local function SanitizeStorage(data)
-    for k,v in pairs(data) do
-        if(k == "STORED" or k == "SAFEDATA" or k == "LAYOUT") then
-            data[k] = nil
-        end
-    end
-end
-
 local function copydefaults(d, s)
     if(type(s) ~= "table") then return end
     if(type(d) ~= "table") then return end
@@ -249,15 +241,16 @@ local function tablecopy(d, s, debug)
     end
 end
 
-local function tablesplice(targetTable, mergeTable)
+local function tablesplice(mergeTable, targetTable)
     if type(targetTable) ~= "table" then targetTable = {} end
 
     if type(mergeTable) == 'table' then 
         for key,val in pairs(mergeTable) do 
             if type(val) == "table" then 
-                val = tablesplice(targetTable[key], val)
-            end 
-            targetTable[key] = val 
+                targetTable[key] = tablesplice(val, targetTable[key])
+            else
+                targetTable[key] = val
+            end  
         end 
     end 
     return targetTable 
@@ -294,6 +287,60 @@ local function removedefaults(db, src, nometa)
             if db[k] == v then
                 db[k] = nil
             end
+        end
+    end
+end
+
+local function sanitizeType1(db, src, output)
+    if((type(src) == "table")) then
+        if(type(db) == "table") then
+            for k,v in pairs(db) do
+                if(not src[k]) then
+                    db[k] = nil
+                else
+                    if(src[k] ~= nil) then 
+                        removedefaults(db[k], src[k])
+                    end
+                end
+            end
+        else
+            db = {}
+        end
+    end
+    if(output) then
+        return db
+    end
+end
+
+local function sanitizeType2(db, src)
+    if((type(db) ~= "table") or (type(src) ~= "table")) then return end
+    for k,v in pairs(db) do
+        if(not src[k]) then
+            db[k] = nil
+        else
+            if(src[k] ~= nil) then 
+                if(not LoadOnDemand[k]) then
+                    removedefaults(db[k], src[k])
+                end
+            end
+        end
+    end
+end
+
+local function CleanupData(data, checkLOD)
+    local sv = rawget(data, "data")
+    local src = rawget(data, "defaults")
+    if(checkLOD) then
+        sanitizeType2(sv, src)
+    else
+        sanitizeType1(sv, src)
+    end
+end
+
+local function SanitizeStorage(data)
+    for k,v in pairs(data) do
+        if(k == "STORED" or k == "SAFEDATA" or k == "LAYOUT") then
+            data[k] = nil
         end
     end
 end
@@ -392,15 +439,8 @@ function lib:CheckProfiles()
     return hasProfile
 end
 
-function lib:SaveCustomLayout(key)
-    if(not key) then return end
-
-    local export, saved
-
-    if(not LAYOUT_SV[key]) then LAYOUT_SV[key] = {} end;
-    export = rawget(CoreObject.db, "data");
-    saved = LAYOUT_SV[key];
-    tablecopy(saved, export.SVUnit);
+function lib:CurrentProfile()
+    return PROFILE_SV.SAFEDATA.GlobalKey
 end
 
 function lib:ImportDatabase(key, noreload)
@@ -441,6 +481,44 @@ function lib:ExportDatabase(key)
     for k,v in pairs(GLOBAL_SV.cache) do
         GLOBAL_SV.profileKeys[k] = k
     end
+end
+
+function lib:SaveLayoutData(key, schema)
+    if(not key) then return end
+    if(not LAYOUT_SV[key]) then LAYOUT_SV[key] = {} end;
+
+    local sv = rawget(data, "data");
+    local src = rawget(data, "defaults");
+    local copy_db = tablesplice(sv[schema], {})
+    local copy_src = tablesplice(src[schema], {})
+
+    LAYOUT_SV[key][schema] = sanitizeType1(copy_db, copy_src, true);
+end
+
+function lib:GetLayoutList()
+    local list = {}
+    for k,v in pairs(LAYOUT_SV) do
+        list[k] = k
+    end
+    return list
+end
+
+function lib:GetLayoutData(key)
+    if((not key) or (not LAYOUT_SV[key])) then return end
+    return LAYOUT_SV[key]
+end
+
+function lib:CheckLayoutData()
+    local hasData = false
+    local list = LAYOUT_SV or {}
+    for key,_ in pairs(list) do
+        hasData = true
+    end
+    return hasData
+end
+
+function lib:RemoveLayout(key)
+    if(LAYOUT_SV[key]) then LAYOUT_SV[key] = nil end
 end
 
 function lib:WipeDatabase()
@@ -911,22 +989,6 @@ end
 
 --LIBRARY EVENT HANDLING
 
-local function CleanupData(data, checkLOD)
-    local sv = rawget(data, "data")
-    local src = rawget(data, "defaults")
-    for k,v in pairs(sv) do
-        if(not src[k]) then
-            sv[k] = nil
-        else
-            if(src[k] ~= nil) then 
-                if((not checkLOD) or (checkLOD and (not LoadOnDemand[k]))) then
-                    removedefaults(sv[k], src[k])
-                end
-            end
-        end
-    end
-end
-
 local Library_OnEvent = function(self, event, arg, ...)
     if(event == "PLAYER_LOGOUT") then
         local key = PROFILE_SV.SAFEDATA.GlobalKey
@@ -1194,6 +1256,10 @@ function lib:Initialize()
     --CUSTOM LAYOUTS
     if not _G[LAYOUTS_FILENAME] then _G[LAYOUTS_FILENAME] = {} end
     LAYOUT_SV = _G[LAYOUTS_FILENAME]
+
+    if(self:CheckLayoutData()) then
+        CoreObject.CustomLayouts = true
+    end
 
     --CACHE SAVED VARIABLES
     if not _G[CACHE_FILENAME] then _G[CACHE_FILENAME] = {} end

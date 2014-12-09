@@ -158,7 +158,7 @@ local RefreshDockWindows = function(self)
 	-- print(table.dump(self.Data.Windows))
 	for name,window in pairs(self.Data.Windows) do
 		if(window) then
-			if(not InCombatLockdown() or (InCombatLockdown() and (window.IsProtected and not window:IsProtected()))) then
+			if((window.IsProtected and not window:IsProtected()) or (not InCombatLockdown())) then
 				if(window.DockButton) then
 					window.DockButton:Deactivate()
 				end
@@ -175,7 +175,7 @@ end
 local RefreshDockButtons = function(self)
 	for name,docklet in pairs(Dock.Registration) do
 		if(docklet) then
-			if(not InCombatLockdown() or (InCombatLockdown() and (docklet.IsProtected and not docklet:IsProtected()))) then
+			if((docklet.IsProtected and not docklet:IsProtected()) or (not InCombatLockdown())) then
 				if(docklet.DockButton) then
 					docklet.DockButton:Deactivate()
 				end
@@ -195,7 +195,10 @@ local GetDefault = function(self)
 		if window and _G[window] then
 			self:Refresh()
 			self.Parent.Window.FrameLink = _G[window]
-			self.Parent.Window:Show()
+			if(not self.Parent.Window:IsShown() and (not InCombatLockdown())) then
+				self.Parent.Window:Show()
+			end
+			if(InCombatLockdown() and (_G[window].IsProtected and _G[window]:IsProtected())) then return end
 			_G[window]:Show()
 			button:Activate()
 		end
@@ -210,7 +213,10 @@ local OldDefault = function(self)
 		if window and _G[window] then
 			self:Refresh()
 			self.Parent.Window.FrameLink = _G[window]
-			self.Parent.Window:Show()
+			if(not self.Parent.Window:IsShown() and (not InCombatLockdown())) then
+				self.Parent.Window:Show()
+			end
+			if(InCombatLockdown() and (_G[window].IsProtected and _G[window]:IsProtected())) then return end
 			_G[window]:Show()
 			button:Activate()
 		end
@@ -219,13 +225,14 @@ end
 
 local ToggleDockletWindow = function(self, button)
 	local frame  = button.FrameLink
-	if(frame and frame.Show) then
+	if(frame and frame.Show and (not frame:IsShown())) then
 		self.Parent.Window.FrameLink = frame
 
-		if(not self.Parent.Window:IsShown()) then
+		if(not self.Parent.Window:IsShown() and (not InCombatLockdown())) then
 			self.Parent.Window:Show()
 		end
 		self:Cycle()
+		if(InCombatLockdown() and (frame.IsProtected and frame:IsProtected())) then return end 
 		frame:Show()
 		button:Activate()
 	else
@@ -341,8 +348,8 @@ local DockletButton_OnLeave = function(self, ...)
 end
 
 local DockletButton_OnClick = function(self, button)
-	if InCombatLockdown() then return end
-	if(IsAltKeyDown() and self:GetAttribute("hasDropDown") and self.GetMenuList) then
+	--if InCombatLockdown() then return end
+	if(IsAltKeyDown() and (not InCombatLockdown()) and self:GetAttribute("hasDropDown") and self.GetMenuList) then
 		local list = self:GetMenuList()
 		SV.Dropdown:Open(self, list);
 	else
@@ -512,7 +519,7 @@ local RefreshBarLayout = function(self)
 		if(nextButton) then
 			offset = (safeIndex - 1) * (size + 6) + 6
 			nextButton:ClearAllPoints();
-			nextButton:Size(size, size);
+			nextButton:SetSize(size, size);
 			nextButton:SetPoint(anchor, self.ToolBar, anchor, (offset * mod), 0);
 			if(not nextButton:IsShown()) then
 				nextButton:Show();
@@ -643,7 +650,7 @@ local CreateBasicToolButton = function(self, displayName, texture, onclick, glob
 	local button = _G[globalName .. "DockletButton"] or CreateFrame("Button", globalName, self.ToolBar, template)
 
 	button:ClearAllPoints()
-	button:Size(size, size)
+	button:SetSize(size, size)
 	button:SetFramedButtonTemplate()
 	button.Icon:SetTexture(dockIcon)
 	button:SetAttribute("tipText", displayName)
@@ -818,7 +825,7 @@ function Dock:NewDocklet(location, globalName, readableName, texture, onclick)
 
 	local newParent = self[location];
 	if(not newParent) then return end
-	local frame = CreateFrame("Frame", globalName, UIParent, "SVUI_DockletWindowTemplate");
+	local frame = _G[globalName] or CreateFrame("Frame", globalName, UIParent, "SVUI_DockletWindowTemplate");
 	frame:SetParent(newParent.Window);
 	frame:SetSize(newParent.Window:GetSize());
 	frame:SetAllPoints(newParent.Window);
@@ -871,7 +878,7 @@ function Dock:NewAdvancedDocklet(location, globalName)
 	local spacing = SV.db.Dock.buttonSpacing;
 
 	frame.Bar = CreateFrame("Frame", nil, newParent);
-	frame.Bar:Size(1, height);
+	frame.Bar:SetSize(1, height);
 	frame.Bar:Point(barAnchor, newParent.Bar.ToolBar, barReverse, (spacing * mod), 0)
 	SV.Mentalo:Add(frame.Bar, globalName .. " Dock Bar");
 
@@ -939,27 +946,27 @@ function Dock:Refresh()
 			local width, height = self:GetDimensions(location);
 			local dock = self[location];
 
-			dock.Bar:Size(width, buttonsize)
+			dock.Bar:SetSize(width, buttonsize)
 		    dock.Bar.ToolBar:SetHeight(buttonsize)
-		    dock:Size(width, height)
-		    dock.Alert:Size(width, 1)
-		    dock.Window:Size(width, height)
+		    dock:SetSize(width, height)
+		    dock.Alert:SetSize(width, 1)
+		    dock.Window:SetSize(width, height)
 
 		    if(dock.Bar.Button) then
-		    	dock.Bar.Button:Size(buttonsize, buttonsize)
+		    	dock.Bar.Button:SetSize(buttonsize, buttonsize)
 		    end
 
 		    dock.Bar:Update()
 		end
 	end
 
-	self.BottomCenter:Size(centerWidth, centerHeight)
-	self.BottomCenter.Left:Size((centerWidth * 0.5), centerHeight)
-	self.BottomCenter.Right:Size((centerWidth * 0.5), centerHeight)
+	self.BottomCenter:SetSize(centerWidth, centerHeight)
+	self.BottomCenter.Left:SetSize((centerWidth * 0.5), centerHeight)
+	self.BottomCenter.Right:SetSize((centerWidth * 0.5), centerHeight)
 
-	self.TopCenter:Size(centerWidth, centerHeight)
-	self.TopCenter.Left:Size((centerWidth * 0.5), centerHeight)
-	self.TopCenter.Right:Size((centerWidth * 0.5), centerHeight)
+	self.TopCenter:SetSize(centerWidth, centerHeight)
+	self.TopCenter.Left:SetSize((centerWidth * 0.5), centerHeight)
+	self.TopCenter.Right:SetSize((centerWidth * 0.5), centerHeight)
 
 	self:BottomBorderVisibility();
 	self:TopBorderVisibility();
@@ -993,7 +1000,7 @@ function Dock:Initialize()
 
 	-- [[ TOP AND BOTTOM BORDERS ]] --
 
-	self.Border.Top = CreateFrame("Frame", "SVUITopBorder", SV.Screen)
+	self.Border.Top = CreateFrame("Frame", "SVUITopBorder", UIParent)
 	self.Border.Top:Point("TOPLEFT", SV.Screen, "TOPLEFT", -1, 1)
 	self.Border.Top:Point("TOPRIGHT", SV.Screen, "TOPRIGHT", 1, 1)
 	self.Border.Top:Height(14)
@@ -1015,7 +1022,7 @@ function Dock:Initialize()
 	end)
 	self:TopBorderVisibility()
 
-	self.Border.Bottom = CreateFrame("Frame", "SVUIBottomBorder", SV.Screen)
+	self.Border.Bottom = CreateFrame("Frame", "SVUIBottomBorder", UIParent)
 	self.Border.Bottom:Point("BOTTOMLEFT", SV.Screen, "BOTTOMLEFT", -1, -1)
 	self.Border.Bottom:Point("BOTTOMRIGHT", SV.Screen, "BOTTOMRIGHT", 1, -1)
 	self.Border.Bottom:Height(14)
@@ -1050,7 +1057,7 @@ function Dock:Initialize()
 
 		dock.Bar:SetParent(SV.Screen)
 		dock.Bar:ClearAllPoints()
-		dock.Bar:Size(width, buttonsize)
+		dock.Bar:SetSize(width, buttonsize)
 		dock.Bar:SetPoint(anchor, SV.Screen, anchor, (2 * mod), (2 * vertMod))
 
 		if(not SV.cache.Docks.Order[location]) then 
@@ -1062,29 +1069,29 @@ function Dock:Initialize()
 		dock.Bar.ToolBar:ClearAllPoints()
 
 		if(dock.Bar.Button) then
-	    	dock.Bar.Button:Size(buttonsize, buttonsize)
+	    	dock.Bar.Button:SetSize(buttonsize, buttonsize)
 	    	dock.Bar.Button:SetFramedButtonTemplate()
-	    	dock.Bar.ToolBar:Size(1, buttonsize)
+	    	dock.Bar.ToolBar:SetSize(1, buttonsize)
 	    	dock.Bar.ToolBar:Point(barAnchor, dock.Bar.Button, barReverse, (spacing * mod), 0)
 	    	InitDockButton(dock.Bar.Button)
 	    else
-	    	dock.Bar.ToolBar:Size(1, buttonsize)
+	    	dock.Bar.ToolBar:SetSize(1, buttonsize)
 	    	dock.Bar.ToolBar:Point(barAnchor, dock.Bar, barAnchor, 0, 0)
 	    end
 
 	    dock:SetParent(SV.Screen)
 	    dock:ClearAllPoints()
 	    dock:SetPoint(anchor, dock.Bar, reverse, 0, (12 * vertMod))
-	    dock:Size(width, height)
+	    dock:SetSize(width, height)
 	    dock:SetAttribute("buttonSize", buttonsize)
 	    dock:SetAttribute("spacingSize", spacing)
 
 	    dock.Alert:ClearAllPoints()
-	    dock.Alert:Size(width, 1)
+	    dock.Alert:SetSize(width, 1)
 	    dock.Alert:SetPoint(anchor, dock, anchor, 0, 0)
 
 	    dock.Window:ClearAllPoints()
-	    dock.Window:Size(width, height)
+	    dock.Window:SetSize(width, height)
 	    dock.Window:SetPoint(anchor, dock.Alert, reverse, 0, (4 * vertMod))
 
 	    SV.Mentalo:Add(dock.Bar, location .. " Dock ToolBar");

@@ -134,8 +134,11 @@ local HBHeight = 9;
 local NPIcons = 14;
 
 local CBColor = {0.1,0.81,0}
-local CBNoInterrupt = {0.78,0.25,0.25}
+local CBNoInterrupt = {1,0.25,0.25}
 local CBHeight = 6;
+local CBText = true;
+local CBXoffset = 0;
+local CBYoffset = 0;
 
 local AuraFont = [[Interface\AddOns\SVUI\assets\fonts\Roboto.ttf]];
 local AuraFSize = 10;
@@ -1096,10 +1099,10 @@ do
 		if not PLATE_ARGS.scaled and not PLATE_ARGS.tiny then
 			SVUI_PLATE.health:SetSize(HBWidth, HBHeight)
 		end
-		SVUI_PLATE.health:SetStatusBarTexture(SV.Media.bar.textured)
+		SVUI_PLATE.health:SetStatusBarTexture(SV.Media.bar.default)
 		SVUI_PLATE.health.text:FontManager(SV.Media.font.roboto, 8, "OUTLINE")
-		SVUI_PLATE.cast:SetSize(HBWidth, (CBHeight + 20))
-		SVUI_PLATE.cast:SetStatusBarTexture(SV.Media.bar.lazer)
+		SVUI_PLATE.cast:SetSize(HBWidth, CBHeight)
+		SVUI_PLATE.cast:SetStatusBarTexture(SV.Media.bar.gradient)
 		SVUI_PLATE.cast.text:SetFont(SV.Media.font.roboto, 8, "OUTLINE")
 		plate.cast.text:SetFont(SV.Media.font.roboto, 8, "OUTLINE")
 		plate.cast.icon:Size((CBHeight + HBHeight) + 5)
@@ -1176,8 +1179,8 @@ do
 		cast.icon:SetTexCoord( 0, 0, 0, 0 )
 		cast.icon:SetWidth(.001)
 		cast.shadow:SetTexture(0,0,0,0)
-		cast.shadow:Hide()
-		cast.text:Hide()
+		--cast.shadow:Hide()
+		--cast.text:Hide()
 
 		local frameName = "SVUI_PlateHolder"..numChildren
 		local holder = CreateFrame("Frame", frameName, NPGrip)
@@ -1241,21 +1244,21 @@ do
 		--[[ CAST BAR ]]--
 
 		frame.cast = CreateFrame("StatusBar", nil, frame)
-		frame.cast:SetPoint('TOPLEFT', frame.health, 'BOTTOMLEFT', 0, 5)	
-		frame.cast:SetPoint('TOPRIGHT', frame.health, 'BOTTOMRIGHT', 0, 5)
-
+		frame.cast:SetPoint('TOPLEFT', frame.health, 'BOTTOMLEFT', 0, -8)	
+		frame.cast:SetPoint('TOPRIGHT', frame.health, 'BOTTOMRIGHT', 0, -8)
 		frame.cast:SetFrameStrata("BACKGROUND")
+		frame.cast:SetPanelTemplate('Bar')
 		frame.cast:SetFrameLevel(0)
 
 		frame.cast.text = frame.cast:CreateFontString(nil, 'OVERLAY')
-		frame.cast.text:SetPoint("TOPRIGHT", frame.cast, "BOTTOMRIGHT", 6, -2)
-		frame.cast.text:SetJustifyH("RIGHT")
+		frame.cast.text:SetPoint("RIGHT", frame.cast, "LEFT", -4, CBYoffset)
+		frame.cast.text:SetJustifyH("LEFT")
 
 		cast.text:SetParent(frame.cast)
 		cast.text:ClearAllPoints()
-		cast.text:SetPoint("TOPLEFT", frame.cast, "BOTTOMLEFT", 0, -2)
-		cast.text:SetPoint("TOPRIGHT", frame.cast.text, "TOPLEFT", 0, -2)
+		cast.text:SetPoint("LEFT", frame.cast, "LEFT", CBXoffset, CBYoffset)
 		cast.text:SetJustifyH("LEFT")
+
 		cast.icon:SetParent(frame.cast)
 		cast.icon:SetTexCoord(.07, .93, .07, .93)
 		cast.icon:SetDrawLayer("OVERLAY")
@@ -1497,6 +1500,9 @@ function MOD:UpdateLocals()
 	CBColor = {db.castBar.color[1], db.castBar.color[2], db.castBar.color[3]}
 	CBNoInterrupt = {db.castBar.noInterrupt[1], db.castBar.noInterrupt[2], db.castBar.noInterrupt[3]}
 	CBHeight = db.castBar.height;
+	CBText = db.castBar.text.enable;
+	CBXoffset = db.castBar.text.xOffset;
+	CBYoffset = db.castBar.text.yOffset;
 
 	NPUsePointer = db.pointer.enable;
 	NPPointerMatch = db.pointer.colorMatchHealthBar;

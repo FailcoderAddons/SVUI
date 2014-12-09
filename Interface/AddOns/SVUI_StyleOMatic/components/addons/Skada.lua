@@ -43,12 +43,12 @@ local function skada_panel_loader(dock, window)
   local width,height = dock:GetSize()
 
   window.db.barspacing = 1;
-  window.db.barwidth = width - 4;
-  window.db.background.height = height - (window.db.enabletitle and window.db.title.height or 0) - 1;
+  window.db.barwidth = width - 10;
+  window.db.background.height = height - (window.db.enabletitle and window.db.title.height or 0) - 12;
   window.db.spark = false;
   window.db.barslocked = true;
   window.bargroup:ClearAllPoints()
-  window.bargroup:SetAllPoints(dock)
+  window.bargroup:FillInner(dock, 3, 3)
   window.bargroup:SetFrameStrata('LOW')
 
   local bgroup = window.bargroup.backdrop;
@@ -111,15 +111,20 @@ local function StyleSkada()
 
     if(window.db.enabletitle) then
       panelAnchor = skada.button
-      skada.button:SetHeight(18)
-      skada.button:SetButtonTemplate()
-      skada.button:GetFontString():SetFont(SVUI.Media.font.names, 15, "OUTLINE")
+      skada.button:Height(22)
+      skada.button:RemoveTextures()
+      skada.button:SetPanelTemplate("Transparent")
+      --skada.button:SetPanelColor("class")
+      local titleFont = skada.button:GetFontString()
+      titleFont:SetFont(SVUI.Media.font.names, 13, "NONE")
+      titleFont:SetShadowColor(0, 0, 0, 1)
+      titleFont:SetShadowOffset(1, -1)
     end
 
     skada:SetPanelTemplate("Transparent")
     skada.Panel:ClearAllPoints()
-    skada.Panel:SetPoint('TOPLEFT', panelAnchor, 'TOPLEFT', -2, 2)
-    skada.Panel:SetPoint('BOTTOMRIGHT', skada, 'BOTTOMRIGHT', 2, -2)
+    skada.Panel:SetPoint('TOPLEFT', panelAnchor, 'TOPLEFT', -3, 3)
+    skada.Panel:SetPoint('BOTTOMRIGHT', skada, 'BOTTOMRIGHT', 3, -3)
   end)
 
   hooksecurefunc(Skada, 'CreateWindow', function()

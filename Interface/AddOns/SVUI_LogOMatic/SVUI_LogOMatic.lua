@@ -67,65 +67,20 @@ PLUGIN.HasAltInventory = false;
 LOCAL FUNCTIONS
 ##########################################################
 ]]--
-local RefreshLoggedSlot = function(self, slotID, save)
-	if(not self[slotID]) then return end
-	--print(self[slotID]:GetName())
-	local bag = self:GetID();
-	local slot = self[slotID];
-	local bagType = self.bagFamily;
-
-	slot:Show()
-
-	local texture, count, locked, rarity = GetContainerItemInfo(bag, slotID);
-	local start, duration, enable = GetContainerItemCooldown(bag, slotID);
-	local itemLink = GetContainerItemLink(bag, slotID);
-
-	CooldownFrame_SetTimer(slot.cooldown, start, duration, enable);
-
-	if(duration > 0 and enable == 0) then 
-		SetItemButtonTextureVertexColor(slot, 0.4, 0.4, 0.4)
-	else 
-		SetItemButtonTextureVertexColor(slot, 1, 1, 1)
-	end
-
-	if(bagType) then
-		local r, g, b = bagType[1], bagType[2], bagType[3];
-		slot:SetBackdropColor(r, g, b, 0.5)
-		slot:SetBackdropBorderColor(r, g, b, 1)
-	elseif(itemLink) then
-		local key, _, rarity, _, _, class, subclass, maxStack = GetItemInfo(itemLink)
-		if(rarity and rarity > 1) then 
-			local r, g, b = GetItemQualityColor(rarity)
-			slot:SetBackdropBorderColor(r, g, b)
-		else 
-			slot:SetBackdropBorderColor(0, 0, 0)
-		end
-
-		if(key and save) then
-			local id = GetContainerItemID(bag,slotID)
-			if id ~= 6948 then PLUGIN.myStash[bag][key] = GetItemCount(id,true) end
-		end
-	else 
-		slot:SetBackdropBorderColor(0, 0, 0)
-	end
-
-	if(C_NewItems.IsNewItem(bag, slotID)) then 
-		ActionButton_ShowOverlayGlow(slot)
-	else 
-		ActionButton_HideOverlayGlow(slot)
-	end
-
-	SetItemButtonTexture(slot, texture)
-	SetItemButtonCount(slot, count)
-	SetItemButtonDesaturated(slot, locked, 0.5, 0.5, 0.5)
-end
-
 local RefreshLoggedSlots = function(self, bagID, save)
 	local id = bagID or self:GetID()
 	if(not id or (not self.SlotUpdate)) then return end
 	local maxcount = GetContainerNumSlots(id)
-	for i = 1, maxcount do
-		RefreshLoggedSlot(self, i, save)
+	for slotID = 1, maxcount do
+		self:SlotUpdate(slotID) 
+		local itemLink = GetContainerItemLink(bagID, slotID);
+		if(itemLink) then
+			local key = GetItemInfo(itemLink)
+			if(key) then
+				local id = GetContainerItemID(bagID, slotID)
+				if id ~= 6948 then PLUGIN.myStash[bagID][key] = GetItemCount(id,true) end
+			end
+		end
 	end
 end 
 

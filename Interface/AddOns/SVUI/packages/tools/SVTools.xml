@@ -1,6 +1,6 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/">	
 	<Script file='SVTools.lua'/>
-	<Script file="components\questwatch.lua"/>
+	<!-- <Script file="components\questwatch.lua"/> -->
 	<Script file="components\profession.lua"/>
 	<Script file="components\garrison.lua"/>
 	<Script file="components\raidleader.lua"/>

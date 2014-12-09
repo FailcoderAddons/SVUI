@@ -177,18 +177,18 @@ local function LFDFrameStyle()
   LFGDungeonReadyDialogRoleIconTexture:SetTexture("Interface\\LFGFrame\\UI-LFG-ICONS-ROLEBACKGROUNDS")
   LFGDungeonReadyDialogRoleIconTexture:SetAlpha(0.5)
 
-  hooksecurefunc("LFGDungeonReadyPopup_Update", function()
-    local b, c, d, e, f, g, h, i, j, k, l, m = GetLFGProposal()
-    if LFGDungeonReadyDialogRoleIcon:IsShown() then
-      if h == "DAMAGER" then 
-        LFGDungeonReadyDialogRoleIconTexture:SetTexCoord(LFDQueueFrameRoleButtonDPS.background:GetTexCoord())
-      elseif h == "TANK" then 
-        LFGDungeonReadyDialogRoleIconTexture:SetTexCoord(LFDQueueFrameRoleButtonTank.background:GetTexCoord())
-      elseif h == "HEALER" then 
-        LFGDungeonReadyDialogRoleIconTexture:SetTexCoord(LFDQueueFrameRoleButtonHealer.background:GetTexCoord())
-      end 
-    end 
-  end)
+  -- hooksecurefunc("LFGDungeonReadyPopup_Update", function()
+  --   local proposalExists, id, typeID, subtypeID, name, texture, role, hasResponded, totalEncounters, completedEncounters, numMembers, isLeader, isHoliday, proposalCategory = GetLFGProposal();
+  --   if LFGDungeonReadyDialogRoleIcon:IsShown() then
+  --     if(role == "DAMAGER") then 
+  --       LFGDungeonReadyDialogRoleIconTexture:SetTexCoord(LFDQueueFrameRoleButtonDPS.background:GetTexCoord())
+  --     elseif(role == "TANK") then 
+  --       LFGDungeonReadyDialogRoleIconTexture:SetTexCoord(LFDQueueFrameRoleButtonTank.background:GetTexCoord())
+  --     elseif(role == "HEALER") then 
+  --       LFGDungeonReadyDialogRoleIconTexture:SetTexCoord(LFDQueueFrameRoleButtonHealer.background:GetTexCoord())
+  --     end 
+  --   end 
+  -- end)
 
   LFDQueueFrameRoleButtonTankIncentiveIcon:SetAlpha(0)
   LFDQueueFrameRoleButtonHealerIncentiveIcon:SetAlpha(0)
@@ -208,7 +208,7 @@ local function LFDFrameStyle()
 
   for _,name in pairs(LFDFrameList) do
     local frame = _G[name];
-    if frame then
+    if(frame) then
       frame:DisableDrawLayer("BACKGROUND")
       frame:DisableDrawLayer("OVERLAY")
     end
@@ -228,7 +228,7 @@ local function LFDFrameStyle()
   hooksecurefunc('LFG_DisableRoleButton', function(self)
     local check = self.checkButton or self.CheckButton
     if(check) then
-      if check:GetChecked() then
+      if(check:GetChecked()) then
          check:SetAlpha(1)
       else
          check:SetAlpha(0)

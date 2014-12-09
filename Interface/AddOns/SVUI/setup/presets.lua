@@ -180,7 +180,6 @@ local function LoadPresetData()
 					}
 				},
 				["target"] = {
-					["smartAuraDisplay"] = "DISABLED",
 					["buffs"] = {
 						enable = true,
 						attachTo = "FRAME",
@@ -200,7 +199,6 @@ local function LoadPresetData()
 					}
 				},
 				["focus"] = {
-					["smartAuraDisplay"] = "DISABLED",
 					["buffs"] = {
 						enable = false,
 						attachTo = "FRAME",
@@ -241,7 +239,6 @@ local function LoadPresetData()
 					}
 				},
 				["target"] = {
-					["smartAuraDisplay"] = "DISABLED",
 					["buffs"] = {
 						enable = true,
 						attachTo = "FRAME",
@@ -261,7 +258,6 @@ local function LoadPresetData()
 					}
 				},
 				["focus"] = {
-					["smartAuraDisplay"] = "DISABLED",
 					["buffs"] = {
 						enable = false,
 						attachTo = "FRAME",
@@ -297,7 +293,6 @@ local function LoadPresetData()
 					}
 				},
 				["target"] = {
-					["smartAuraDisplay"] = "SHOW_DEBUFFS_ON_FRIENDLIES",
 					["buffs"] = {
 						enable = false,
 						attachTo = "FRAME"
@@ -312,7 +307,6 @@ local function LoadPresetData()
 					}
 				},
 				["focus"] = {
-					["smartAuraDisplay"] = "SHOW_DEBUFFS_ON_FRIENDLIES",
 					["buffs"] = {
 						enable = false,
 						attachTo = "FRAME"
@@ -349,7 +343,6 @@ local function LoadPresetData()
 					}
 				},
 				["target"] = {
-					["smartAuraDisplay"] = "SHOW_DEBUFFS_ON_FRIENDLIES",
 					["buffs"] = {
 						enable = true,
 						attachTo = "FRAME",
@@ -370,7 +363,6 @@ local function LoadPresetData()
 					}
 				},
 				["focus"] = {
-					["smartAuraDisplay"] = "SHOW_DEBUFFS_ON_FRIENDLIES",
 					["buffs"] = {
 						enable = true,
 						attachTo = "FRAME",
@@ -961,14 +953,6 @@ local function LoadPresetData()
 			},
 		}
 	};
-
-	if(SV.UserPresets) then
-		for key, data in pairs(SV.UserPresets) do
-			for category, presets in pairs(data) do
-				PRESET_DATA[key][category] = presets
-			end
-		end
-	end
 end
 
 local function LoadPageData()
@@ -1218,4 +1202,18 @@ function SV.Setup:CopyOnClick(index)
 	if(CLICK_DIALOG and CLICK_DIALOG[index]) then
 		return CLICK_DIALOG[index]
 	end
+end
+
+function SV.Setup:CopyCustom(name)
+	if(name and SV.CustomLayouts) then
+		local layout = SVLib:GetLayoutData(name)
+		for schema, presets in pairs(layout) do
+			local data = SV.db[schema]
+			if(data) then
+		    	_copyPresets(data, presets)
+		    end
+		end
+		return true
+	end
+	return false
 end

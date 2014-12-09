@@ -77,43 +77,46 @@ local HideSubDocklet = function(self)
 	if(ObjectiveTrackerFrame:IsShown()) then ObjectiveTrackerFrame:Hide() end
 end
 
+local UpdateDocklet = function()
+	local cur = SVUI_QuestWatchFrameScrollBar:GetValue()
+	if(not InCombatLockdown()) then 
+		ObjectiveTrackerFrame:ClearAllPoints()
+		ObjectiveTrackerFrame:SetAllPoints(SVUI_QuestWatchFrameScrollFrame)
+	end
+	SVUI_QuestWatchFrameScrollBar:SetValue(0)
+	SVUI_QuestWatchFrameScrollBar:SetValue(cur)
+end
+
 function MOD:LoadQuestWatch()
 	if(not ObjectiveTrackerFrame) then return end
-
 	if(not SV.db.general.questWatch) then
 		ObjectiveTrackerFrame:RemoveTextures(true)
-
-		self.QuestWatch = CreateFrame("Frame", "SVUI_QuestWatchFrame", UIParent);
-		self.QuestWatch:SetSize(200, ObjectiveTrackerFrame:GetHeight());
-		self.QuestWatch:SetPoint("TOPRIGHT", UIParent, "RIGHT", -200, 100);
-
-		ObjectiveTrackerFrame:ClearAllPoints()
-		ObjectiveTrackerFrame:SetClampedToScreen(false)
-		ObjectiveTrackerFrame:SetAllPoints(self.QuestWatch)
-		ObjectiveTrackerFrame:SetFrameLevel(self.QuestWatch:GetFrameLevel()  +  1)
-		ObjectiveTrackerFrame.ClearAllPoints = SV.fubar;
-		ObjectiveTrackerFrame.SetPoint = SV.fubar;
-		ObjectiveTrackerFrame.SetAllPoints = SV.fubar;
-
 		ObjectiveTrackerFrame.BlocksFrame:RemoveTextures(true)
 		ObjectiveTrackerFrame.HeaderMenu:RemoveTextures(true)
 		ObjectiveTrackerFrame.BlockDropDown:RemoveTextures(true)
 
 		if(SV.db.general.questHeaders) then
 			ObjectiveTrackerFrame.BlocksFrame.QuestHeader:RemoveTextures(true)
-			ObjectiveTrackerFrame.BlocksFrame.QuestHeader:SetFixedPanelTemplate("Headline", true)
+			ObjectiveTrackerFrame.BlocksFrame.QuestHeader:SetPanelTemplate("Headline", true)
 	  		ObjectiveTrackerFrame.BlocksFrame.QuestHeader:SetBackdropColor(0, 0, 0, 0.5)
+	  		ObjectiveTrackerFrame.BlocksFrame.QuestHeader.Panel:ClearAllPoints()
+	  		ObjectiveTrackerFrame.BlocksFrame.QuestHeader.Panel:SetPoint("TOPLEFT", ObjectiveTrackerFrame.BlocksFrame.QuestHeader, "TOPLEFT", -2, -2)
+			ObjectiveTrackerFrame.BlocksFrame.QuestHeader.Panel:SetPoint("BOTTOMRIGHT", ObjectiveTrackerFrame.BlocksFrame.QuestHeader, "BOTTOMRIGHT", 12, 2)
 
 			ObjectiveTrackerFrame.BlocksFrame.AchievementHeader:RemoveTextures(true)
-			ObjectiveTrackerFrame.BlocksFrame.AchievementHeader:SetFixedPanelTemplate("Headline", true)
+			ObjectiveTrackerFrame.BlocksFrame.AchievementHeader:SetPanelTemplate("Headline", true)
 	  		ObjectiveTrackerFrame.BlocksFrame.AchievementHeader:SetBackdropColor(0, 0, 0, 0.5)
+	  		ObjectiveTrackerFrame.BlocksFrame.AchievementHeader.Panel:ClearAllPoints()
+	  		ObjectiveTrackerFrame.BlocksFrame.AchievementHeader.Panel:SetPoint("TOPLEFT", ObjectiveTrackerFrame.BlocksFrame.AchievementHeader, "TOPLEFT", -2, -2)
+			ObjectiveTrackerFrame.BlocksFrame.AchievementHeader.Panel:SetPoint("BOTTOMRIGHT", ObjectiveTrackerFrame.BlocksFrame.AchievementHeader, "BOTTOMRIGHT", 12, 2)
 
 			ObjectiveTrackerFrame.BlocksFrame.ScenarioHeader:RemoveTextures(true)
-			ObjectiveTrackerFrame.BlocksFrame.ScenarioHeader:SetFixedPanelTemplate("Headline", true)
+			ObjectiveTrackerFrame.BlocksFrame.ScenarioHeader:SetPanelTemplate("Headline", true)
 	  		ObjectiveTrackerFrame.BlocksFrame.ScenarioHeader:SetBackdropColor(0, 0, 0, 0.5)
+	  		ObjectiveTrackerFrame.BlocksFrame.ScenarioHeader.Panel:ClearAllPoints()
+	  		ObjectiveTrackerFrame.BlocksFrame.ScenarioHeader.Panel:SetPoint("TOPLEFT", ObjectiveTrackerFrame.BlocksFrame.ScenarioHeader, "TOPLEFT", -2, -2)
+			ObjectiveTrackerFrame.BlocksFrame.ScenarioHeader.Panel:SetPoint("BOTTOMRIGHT", ObjectiveTrackerFrame.BlocksFrame.ScenarioHeader, "BOTTOMRIGHT", 12, 2)
 	  	end
-
-		SV.Mentalo:Add(self.QuestWatch, "Quest Watch");
 	else
 		local bgTex = [[Interface\BUTTONS\WHITE8X8]]
 		local bdTex = SV.Media.bar.glow
@@ -137,7 +140,7 @@ function MOD:LoadQuestWatch()
 		scrollFrame:SetThumbTexture("Interface\\Buttons\\UI-ScrollBar-Knob");
 		scrollFrame:SetOrientation("VERTICAL");
 		scrollFrame:SetValueStep(5);
-		scrollFrame:SetMinMaxValues(1, 420);
+		scrollFrame:SetMinMaxValues(1, 1420);
 		scrollFrame:SetValue(1);
 		scrollFrame:SetScript("OnValueChanged", function(self, argValue)
 			listFrame:SetVerticalScroll(argValue)
@@ -159,16 +162,19 @@ function MOD:LoadQuestWatch()
 		
 		ObjectiveTrackerFrame:ClearAllPoints()
 		ObjectiveTrackerFrame:SetClampedToScreen(false)
-		ObjectiveTrackerFrame:SetHeight(500)
+		ObjectiveTrackerFrame:SetHeight(1500)
 		ObjectiveTrackerFrame:SetWidth(WIDTH)
-		ObjectiveTrackerFrame:SetPoint("TOPRIGHT", listFrame, "TOPRIGHT", -31, 0)
+		ObjectiveTrackerFrame:SetPoint("TOPRIGHT", listFrame, "TOPRIGHT", -2, 0)
 		ObjectiveTrackerFrame:SetFrameLevel(listFrame:GetFrameLevel() + 1)
 
-		hooksecurefunc(ObjectiveTrackerFrame, "SetPoint", function(self, a1, p, a2, x, y)
-			if(p ~= SVUI_QuestWatchFrameScrollFrame) then
-				self:SetPoint("TOPRIGHT", SVUI_QuestWatchFrameScrollFrame, "TOPRIGHT", -31, 0)
-			end
-		end)
+		ObjectiveTrackerFrame:HookScript("OnEvent", UpdateDocklet)
+		hooksecurefunc(ObjectiveTrackerFrame, "SetPoint", UpdateDocklet)
+
+		-- hooksecurefunc(ObjectiveTrackerFrame, "SetPoint", function(self, a1, p, a2, x, y)
+		-- 	if(p ~= SVUI_QuestWatchFrameScrollFrame) then
+		-- 		self:SetPoint("TOPRIGHT", SVUI_QuestWatchFrameScrollFrame, "TOPRIGHT", -2, 0)
+		-- 	end
+		-- end)
 		--ObjectiveTrackerFrame.SetPoint = function() return end;
 
 		ObjectiveTrackerFrame.HeaderMenu.MinimizeButton:Hide()
@@ -202,6 +208,6 @@ function MOD:LoadQuestWatch()
 		self.QuestWatch:SetScript('OnHide', HideSubDocklet);
 
 		listFrame:SetScrollChild(ObjectiveTrackerFrame)
-		SV.Timers:ExecuteTimer(function() SVUI_QuestWatchFrameScrollBar:SetValue(10) SVUI_QuestWatchFrameScrollBar:SetValue(0) end, 5)
+		SV.Timers:ExecuteTimer(UpdateDocklet, 3)
 	end
 end

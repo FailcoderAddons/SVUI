@@ -66,6 +66,15 @@ if(not MOD) then return end
 LOCALS
 ##########################################################
 ]]--
+local _hook_ActionPanel_OnSizeChanged = function(self)
+	local width,height = self:GetSize()
+	local widthScale = min(128, width)
+	local heightScale = widthScale * 0.25
+
+	self.special[1]:SetSize(widthScale, heightScale)
+	self.special[2]:SetSize(widthScale, heightScale)
+	self.special[3]:SetSize(height * 0.5, height)
+end
 -- local MISSING_MODEL_FILE = [[Spells\Blackmagic_precast_base.m2]];
 -- local MISSING_MODEL_FILE = [[Spells\Crow_baked.m2]];
 -- local MISSING_MODEL_FILE = [[Spells\monsterlure01.m2]];
@@ -181,8 +190,10 @@ local UpdateThreat = function(self, event, unit)
 	if(status and status > 0) then
 		r, g, b = GetThreatStatusColor(status)
 		threat:SetBackdropBorderColor(r, g, b)
+		threat:Show()
 	else
 		threat:SetBackdropBorderColor(0, 0, 0, 0.5)
+		threat:Hide()
 	end
 end
 
@@ -199,6 +210,7 @@ local UpdatePlayerThreat = function(self, event, unit)
 			self.Combat:Hide()
 			aggro:Show()
 		end
+		threat:Show()
 	else
 		threat:SetBackdropBorderColor(0, 0, 0, 0.5)
 		if(aggro:IsShown()) then
@@ -207,23 +219,25 @@ local UpdatePlayerThreat = function(self, event, unit)
 				self.Combat:Show()
 			end
 		end
+		threat:Hide()
 	end 
 end
 
 local function CreateThreat(frame, unit)
 	if(not frame.ActionPanel) then return; end
 	local threat = CreateFrame("Frame", nil, frame.ActionPanel)
-    threat:Point("TOPLEFT", frame.ActionPanel, "TOPLEFT", -3, 3)
-    threat:Point("BOTTOMRIGHT", frame.ActionPanel, "BOTTOMRIGHT", 3, -3)
+    threat:SetPoint("TOPLEFT", frame.ActionPanel, "TOPLEFT", -3, 3)
+    threat:SetPoint("BOTTOMRIGHT", frame.ActionPanel, "BOTTOMRIGHT", 3, -3)
     threat:SetBackdrop({
         edgeFile = [[Interface\AddOns\SVUI\assets\artwork\Template\GLOW]],
         edgeSize = 3,
-        insets = {
-            left = 2,
-            right = 2,
-            top = 2,
-            bottom = 2
-        }
+        insets = 
+        {
+            left = 2, 
+            right = 2, 
+            top = 2, 
+            bottom = 2, 
+        },
     });
     threat:SetBackdropBorderColor(0,0,0,0.5)
 
@@ -257,6 +271,25 @@ local function CreateActionPanel(frame, offset)
     local panel = CreateFrame('Frame', nil, frame)
     panel:Point('TOPLEFT', frame, 'TOPLEFT', -1, 1)
     panel:Point('BOTTOMRIGHT', frame, 'BOTTOMRIGHT', 1, -1)
+    panel:SetBackdrop({
+        bgFile = [[Interface\BUTTONS\WHITE8X8]], 
+        tile = false, 
+        tileSize = 0, 
+        edgeFile = [[Interface\AddOns\SVUI\assets\artwork\Template\GLOW]],
+        edgeSize = 3,
+        insets = 
+        {
+            left = 0, 
+            right = 0, 
+            top = 0, 
+            bottom = 0, 
+        }, 
+    })
+    panel:SetBackdropColor(0,0,0)
+    panel:SetBackdropBorderColor(0,0,0,0.5)
+
+    panel:SetFrameStrata("BACKGROUND")
+    panel:SetFrameLevel(0)
 
     --[[ UNDERLAY BORDER ]]--
     local borderLeft = panel:CreateTexture(nil, "BORDER")
@@ -309,25 +342,6 @@ local function CreateActionPanel(frame, offset)
 	panel.border[4]:SetPoint("BOTTOMLEFT")
 	panel.border[4]:SetWidth(2)
 
-    panel:SetBackdrop({
-        bgFile = [[Interface\BUTTONS\WHITE8X8]], 
-        edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
-        tile = false, 
-        tileSize = 0, 
-        edgeSize = 1, 
-        insets = 
-        {
-            left = 0, 
-            right = 0, 
-            top = 0, 
-            bottom = 0, 
-        }, 
-    })
-    panel:SetBackdropColor(0,0,0)
-    panel:SetBackdropBorderColor(0,0,0)
-
-    panel:SetFrameStrata("BACKGROUND")
-    panel:SetFrameLevel(0)
     return panel
 end
 
@@ -375,33 +389,37 @@ function MOD:SetActionPanel(frame, unit, noHealthText, noPowerText, noMiscText)
 
 		if(unit == "target") then
 			frame.ActionPanel:SetFrameLevel(1)
-			frame.ActionPanel.special = CreateFrame("Frame", nil, frame.ActionPanel)
-			frame.ActionPanel.special:SetAllPoints(frame)
-			frame.ActionPanel.special:SetFrameStrata("BACKGROUND")
-			frame.ActionPanel.special:SetFrameLevel(0)
-			frame.ActionPanel.special[1] = frame.ActionPanel.special:CreateTexture(nil, "OVERLAY", nil, 1)
-			frame.ActionPanel.special[1]:SetPoint("BOTTOMLEFT", frame.ActionPanel.special, "TOPLEFT", 0, 0)
-			frame.ActionPanel.special[1]:SetPoint("BOTTOMRIGHT", frame.ActionPanel.special, "TOPRIGHT", 0, 0)
-			frame.ActionPanel.special[1]:SetHeight(frame.ActionPanel:GetWidth() * 0.15)
-			frame.ActionPanel.special[1]:SetTexture(ELITE_TOP)
-			frame.ActionPanel.special[1]:SetVertexColor(1, 0.75, 0)
-			frame.ActionPanel.special[1]:SetBlendMode("BLEND")
-			frame.ActionPanel.special[2] = frame.ActionPanel.special:CreateTexture(nil, "OVERLAY", nil, 1)
-			frame.ActionPanel.special[2]:SetPoint("TOPLEFT", frame.ActionPanel.special, "BOTTOMLEFT", 0, 0)
-			frame.ActionPanel.special[2]:SetPoint("TOPRIGHT", frame.ActionPanel.special, "BOTTOMRIGHT", 0, 0)
-			frame.ActionPanel.special[2]:SetHeight(frame.ActionPanel:GetWidth() * 0.15)
-			frame.ActionPanel.special[2]:SetTexture(ELITE_BOTTOM)
-			frame.ActionPanel.special[2]:SetVertexColor(1, 0.75, 0)
-			frame.ActionPanel.special[2]:SetBlendMode("BLEND")
-			frame.ActionPanel.special[3] = frame.ActionPanel.special:CreateTexture(nil, "OVERLAY", nil, 1)
-			frame.ActionPanel.special[3]:SetPoint("TOPLEFT", frame.ActionPanel.special, "TOPRIGHT", 0, 0)
-			frame.ActionPanel.special[3]:SetPoint("BOTTOMLEFT", frame.ActionPanel.special, "BOTTOMRIGHT", 0, 0)
-			frame.ActionPanel.special[3]:SetWidth(frame.ActionPanel:GetHeight() * 2.25)
-			frame.ActionPanel.special[3]:SetTexture(ELITE_RIGHT)
-			frame.ActionPanel.special[3]:SetVertexColor(1, 0.75, 0)
-			frame.ActionPanel.special[3]:SetBlendMode("BLEND")
-			frame.ActionPanel.special:SetAlpha(0.7)
-			frame.ActionPanel.special:Hide()
+			if(SV.db.SVUnit.comicStyle) then
+				frame.ActionPanel.special = CreateFrame("Frame", nil, frame.ActionPanel)
+				frame.ActionPanel.special:SetAllPoints(frame)
+				frame.ActionPanel.special:SetFrameStrata("BACKGROUND")
+				frame.ActionPanel.special:SetFrameLevel(0)
+				frame.ActionPanel.special[1] = frame.ActionPanel.special:CreateTexture(nil, "OVERLAY", nil, 1)
+				frame.ActionPanel.special[1]:SetPoint("BOTTOMRIGHT", frame.ActionPanel.special, "TOPRIGHT", 0, 0)
+				frame.ActionPanel.special[1]:SetWidth(frame.ActionPanel:GetWidth())
+				frame.ActionPanel.special[1]:SetHeight(frame.ActionPanel:GetWidth() * 0.25)
+				frame.ActionPanel.special[1]:SetTexture(ELITE_TOP)
+				frame.ActionPanel.special[1]:SetVertexColor(1, 0.75, 0)
+				frame.ActionPanel.special[1]:SetBlendMode("BLEND")
+				frame.ActionPanel.special[2] = frame.ActionPanel.special:CreateTexture(nil, "OVERLAY", nil, 1)
+				frame.ActionPanel.special[2]:SetPoint("TOPRIGHT", frame.ActionPanel.special, "BOTTOMRIGHT", 0, 0)
+				frame.ActionPanel.special[2]:SetWidth(frame.ActionPanel:GetWidth())
+				frame.ActionPanel.special[2]:SetHeight(frame.ActionPanel:GetWidth() * 0.25)
+				frame.ActionPanel.special[2]:SetTexture(ELITE_BOTTOM)
+				frame.ActionPanel.special[2]:SetVertexColor(1, 0.75, 0)
+				frame.ActionPanel.special[2]:SetBlendMode("BLEND")
+				frame.ActionPanel.special[3] = frame.ActionPanel.special:CreateTexture(nil, "OVERLAY", nil, 1)
+				frame.ActionPanel.special[3]:SetPoint("LEFT", frame.ActionPanel.special, "RIGHT", 0, 0)
+				frame.ActionPanel.special[3]:SetHeight(frame.ActionPanel:GetHeight())
+				frame.ActionPanel.special[3]:SetWidth(frame.ActionPanel:GetHeight() * 0.5)
+				frame.ActionPanel.special[3]:SetTexture(ELITE_RIGHT)
+				frame.ActionPanel.special[3]:SetVertexColor(1, 0.75, 0)
+				frame.ActionPanel.special[3]:SetBlendMode("BLEND")
+				frame.ActionPanel.special:SetAlpha(0.7)
+				frame.ActionPanel.special:Hide()
+
+				frame.ActionPanel:SetScript("OnSizeChanged", _hook_ActionPanel_OnSizeChanged)
+			end
 
 			frame.ActionPanel.class = CreateFrame("Frame", nil, frame.InfoPanel)
 			frame.ActionPanel.class:Size(18)

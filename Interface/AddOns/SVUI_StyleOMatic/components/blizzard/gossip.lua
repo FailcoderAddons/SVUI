@@ -65,9 +65,17 @@ local function GossipStyle()
 	_G["GossipFrameGreetingGoodbyeButton"]:RemoveTextures()
 	_G["GossipFrameGreetingGoodbyeButton"]:SetButtonTemplate()
 	PLUGIN:ApplyCloseButtonStyle(GossipFrameCloseButton, GossipFrame.Panel)
+
 	NPCFriendshipStatusBar:RemoveTextures()
 	NPCFriendshipStatusBar:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]])
-	NPCFriendshipStatusBar:SetPanelTemplate("Default")
+	NPCFriendshipStatusBar:SetPanelTemplate("Bar")
+
+	NPCFriendshipStatusBar:ClearAllPoints()
+	NPCFriendshipStatusBar:SetPoint("TOPLEFT", GossipFrame, "TOPLEFT", 58, -34)
+
+	NPCFriendshipStatusBar.icon:Size(32,32)
+	NPCFriendshipStatusBar.icon:ClearAllPoints()
+	NPCFriendshipStatusBar.icon:SetPoint("RIGHT", NPCFriendshipStatusBar, "LEFT", 0, -2)
 end 
 --[[ 
 ########################################################## 

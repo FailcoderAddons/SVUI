@@ -184,16 +184,16 @@ local function BuildEquipmentMap()
 	for t, u in pairs(gearList)do
 		twipe(u);
 	end 
-	local set, player, bank, bags, index, bag, loc, _;
+	local set, player, bank, bags, slotIndex, bagIndex, loc, _;
 	for i = 1, GetNumEquipmentSets() do
 		set = GetEquipmentSetInfo(i);
 		gearSet = GetEquipmentSetLocations(set);
 		if(gearSet) then
 			for key, location in pairs(gearSet)do
 				if(type(location) ~= "string") then
-					player, bank, bags, _, index, bag = EquipmentManager_UnpackLocation(location);
-					if((bank or bags) and (index and bag)) then
-						loc = format("%d_%d", bag, index);
+					player, bank, bags, _, slotIndex, bagIndex = EquipmentManager_UnpackLocation(location);
+					if((bank or bags) and (slotIndex and bagIndex)) then
+						loc = format("%d_%d", bagIndex, slotIndex);
 						gearList[loc] = (gearList[loc] or {});
 						tinsert(gearList[loc], set);
 					end
@@ -201,6 +201,31 @@ local function BuildEquipmentMap()
 			end
 		end
 	end
+end
+
+local function UpdateEquipmentInfo(bagObj, bagIndex, slotIndex)
+	if(not bagObj) then return; end
+	local slot = bagObj[slotIndex]
+	if(not slot) then return; end
+	if(not slot.equipmentinfo) then 
+		slot.equipmentinfo = slot:CreateFontString(nil,"OVERLAY")
+		slot.equipmentinfo:FontManager(SV.Media.font.roboto, 10, "OUTLINE")
+		slot.equipmentinfo:SetAllPoints(slot)
+		slot.equipmentinfo:SetWordWrap(true)
+		slot.equipmentinfo:SetJustifyH('LEFT')
+		slot.equipmentinfo:SetJustifyV('BOTTOM')
+	end 
+	if(slot.equipmentinfo) then 
+		slot.equipmentinfo:SetAllPoints(slot)
+		local loc = format("%d_%d", bagIndex, slotIndex)
+		local level = 0;
+		if(gearList[loc]) then
+			level = #gearList[loc] < 4 and #gearList[loc] or 3;
+			formatAndSave(level, slot.equipmentinfo, gearList[loc])
+		else
+			formatAndSave(level, slot.equipmentinfo, nil)
+		end 
+	end 
 end
 
 local DD_OnClick = function(self)
@@ -303,13 +328,15 @@ local SlotUpdate = function(self, slotID)
 	end
 
 	local r,g,b = 0,0,0
-
+	slot.HasQuestItem = nil
 	if(questId and (not isActiveQuest)) then
 		r,g,b = 1,0.3,0.3
 		slot.questIcon:Show();
+		slot.HasQuestItem = true;
 	elseif(questId or isQuestItem) then
 		r,g,b = 1,0.3,0.3
 		slot.questIcon:Hide();
+		slot.HasQuestItem = true;
 	elseif(bagType) then
 		r,g,b = bagType[1],bagType[2],bagType[3]
 		slot.questIcon:Hide();
@@ -632,6 +659,9 @@ local ContainerFrame_UpdateLayout = function(self)
 					slot.questIcon:SetTexture(TEXTURE_ITEM_QUEST_BANG);
 					slot.questIcon:FillInner(slot);
 					slot.questIcon:SetTexCoord(0.1, 0.9, 0.1, 0.9);
+					
+					hooksecurefunc(slot, "SetBackdropColor", function(self, r, g, b, a) if(self.HasQuestItem and (r ~= 1)) then self:SetBackdropColor(1,0.3,0.3,a) end end)
+					hooksecurefunc(slot, "SetBackdropBorderColor", function(self, r, g, b, a) if(self.HasQuestItem and (r ~= 1)) then self:SetBackdropBorderColor(1,0.3,0.3,a) end end)
 
 					slot.cooldown = _G[cdName];
 
@@ -660,9 +690,6 @@ local ContainerFrame_UpdateLayout = function(self)
 				end
 
 				lastButton = slot;
-
-				slot:SetBackdropColor(1,0.3,0.3,0.6)
-				slot:SetBackdropBorderColor(1,0.3,0.3,1)
 
 				bag:SlotUpdate(slotID);
 			end
@@ -1063,32 +1090,56 @@ do
 end
 --[[ 
 ########################################################## 
+BAG EVENTS
+##########################################################
+]]--
+local Container_OnEvent = function(self, event, ...)
+	if(event == "ITEM_LOCK_CHANGED") then
+		local bagID, slotID = ...
+		if(bagID and slotID and self.Bags[bagID]) then
+			self.Bags[bagID]:SlotUpdate(slotID)
+		end
+	elseif(event == "BAG_UPDATE") then
+		for _, id in ipairs(self.BagIDs) do
+			local numSlots = GetContainerNumSlots(id)
+			if (not self.Bags[id] and numSlots ~= 0) or (self.Bags[id] and (numSlots ~= self.Bags[id].numSlots)) then
+				self:UpdateLayout();
+				return;
+			end
+		end
+		local bagID = ...
+		if(bagID and self.Bags[bagID]) then
+			self.Bags[bagID]:RefreshSlots()
+		end
+	elseif(event == "BAG_UPDATE_COOLDOWN") then 
+		self:RefreshCooldowns()
+	elseif(event == "EQUIPMENT_SETS_CHANGED") then
+		BuildEquipmentMap()
+		for id, bag in pairs(self.Bags) do 
+			local numSlots = GetContainerNumSlots(id)
+			if(SV.db.SVGear.misc.setoverlay) then
+				for i = 1, numSlots do
+					UpdateEquipmentInfo(bag, id, i) 
+				end
+			end
+		end
+	elseif(event == "PLAYERBANKSLOTS_CHANGED") then
+		self:RefreshBags()
+	elseif(event == "PLAYERREAGENTBANKSLOTS_CHANGED") then 
+		local slotID = ...
+		local container = _G["SVUI_ReagentContainerFrame"]
+		if(slotID and container) then
+			local bagID = container.BagID
+			container.Bags[bagID]:SlotUpdate(slotID)
+		end
+	end 
+end 
+--[[ 
+########################################################## 
 BAG CONTAINER CREATION
 ##########################################################
 ]]--
-do
-	local function UpdateEquipmentInfo(slot, bag, index)
-		if not slot.equipmentinfo then 
-			slot.equipmentinfo = slot:CreateFontString(nil,"OVERLAY")
-			slot.equipmentinfo:FontManager(SV.Media.font.roboto, 10, "OUTLINE")
-			slot.equipmentinfo:SetAllPoints(slot)
-			slot.equipmentinfo:SetWordWrap(true)
-			slot.equipmentinfo:SetJustifyH('LEFT')
-			slot.equipmentinfo:SetJustifyV('BOTTOM')
-		end 
-		if slot.equipmentinfo then 
-			slot.equipmentinfo:SetAllPoints(slot)
-			local loc = format("%d_%d", bag, index)
-			local level = 0;
-			if gearList[loc] then
-				level = #gearList[loc] < 4 and #gearList[loc] or 3;
-				formatAndSave(level, slot.equipmentinfo, gearList[loc])
-			else
-				formatAndSave(level, slot.equipmentinfo, nil)
-			end 
-		end 
-	end 
-
+do 
 	local Search_OnKeyPressed = function(self)
 		self:GetParent().detail:Show()
 		self:ClearFocus()
@@ -1133,46 +1184,6 @@ do
 				container.editBox:SetText(SEARCH)
 				container.editBox:HighlightText()
 			end 
-		end 
-	end 
-
-	local Container_OnEvent = function(self, event, ...)
-		if(event == "ITEM_LOCK_CHANGED") then
-			local bagID, slotID = ...
-			if(bagID and slotID and self.Bags[bagID]) then
-				self.Bags[bagID]:SlotUpdate(slotID)
-			end
-		elseif(event == "BAG_UPDATE" or event == "EQUIPMENT_SETS_CHANGED") then
-			BuildEquipmentMap()
-			for id, bag in pairs(self.Bags) do 
-				local numSlots = GetContainerNumSlots(id)
-				if(numSlots ~= bag.numSlots) then 
-					self:UpdateLayout()
-					return 
-				end
-				if(SV.db.SVGear.misc.setoverlay) then
-					for i = 1, numSlots do
-						if bag[i] then 
-							UpdateEquipmentInfo(bag[i], id, i) 
-						end
-					end
-				end
-			end
-			local bagID = ...
-			if(bagID and self.Bags[bagID]) then
-				self.Bags[bagID]:RefreshSlots()
-			end
-		elseif(event == "BAG_UPDATE_COOLDOWN") then 
-			self:RefreshCooldowns()
-		elseif(event == "PLAYERBANKSLOTS_CHANGED") then 
-			self:RefreshBags()
-		elseif(event == "PLAYERREAGENTBANKSLOTS_CHANGED") then 
-			local slotID = ...
-			local container = _G["SVUI_ReagentContainerFrame"]
-			if(slotID and container) then
-				local bagID = container.BagID
-				container.Bags[bagID]:SlotUpdate(slotID)
-			end
 		end 
 	end 
 
@@ -1247,9 +1258,7 @@ do
 				local numSlots = GetContainerNumSlots(id)
 				if(SV.db.SVGear.misc.setoverlay) then
 					for i=1,numSlots do
-						if bag[i] then 
-							UpdateEquipmentInfo(bag[i], id, i) 
-						end
+						UpdateEquipmentInfo(bag, id, i) 
 					end
 				else
 					for i=1,numSlots do
@@ -1265,9 +1274,7 @@ do
 				local numSlots = GetContainerNumSlots(id)
 				if(SV.db.SVGear.misc.setoverlay) then
 					for i=1,numSlots do
-						if bag and bag[i] then 
-							UpdateEquipmentInfo(bag[i], id, i) 
-						end
+						UpdateEquipmentInfo(bag, id, i) 
 					end
 				else
 					for i=1,numSlots do
@@ -1283,9 +1290,7 @@ do
 				local numSlots = GetContainerNumSlots(id)
 				if(SV.db.SVGear.misc.setoverlay) then
 					for i=1,numSlots do
-						if bag and bag[i] then 
-							UpdateEquipmentInfo(bag[i], id, i) 
-						end
+						UpdateEquipmentInfo(bag, id, i) 
 					end
 				else
 					for i=1,numSlots do
@@ -1302,7 +1307,7 @@ do
 		local bagName = "SVUI_ContainerFrame"
 		local uisCount = #UISpecialFrames + 1;
 		local bagsCount = #self.BagFrames + 1;
-		local frame = CreateFrame("Button", "SVUI_ContainerFrame", SV.Screen)
+		local frame = CreateFrame("Button", "SVUI_ContainerFrame", UIParent)
 
 		frame:SetPanelTemplate("Container")
 		frame:SetFrameStrata("HIGH")
@@ -1340,6 +1345,9 @@ do
 		frame.Bags = {}
 		frame.closeButton = CreateFrame("Button", "SVUI_ContainerFrameCloseButton", frame, "UIPanelCloseButton")
 		frame.closeButton:Point("TOPRIGHT", -4, -4)
+		frame.closeButton:SetScript("PostClick", function() 
+			if(not InCombatLockdown()) then CloseBag(0) end 
+		end)
 
 		frame.holderFrame = CreateFrame("Frame", nil, frame)
 		frame.holderFrame:Point("TOP", frame, "TOP", 0, -frame.topOffset)
@@ -1519,7 +1527,7 @@ do
 		frame.topOffset = 60;
 
 		if(isReagent) then
-			frame.BagIDs = {}
+			frame.BagIDs = {REAGENTBANK_CONTAINER}
 		else
 			frame.BagIDs = {-1, 5, 6, 7, 8, 9, 10, 11}
 		end
@@ -1528,6 +1536,9 @@ do
 
 		frame.closeButton = CreateFrame("Button", bagName.."CloseButton", frame, "UIPanelCloseButton")
 		frame.closeButton:Point("TOPRIGHT", -4, -4)
+		frame.closeButton:SetScript("PostClick", function() 
+			if(not InCombatLockdown()) then CloseBag(0) end 
+		end)
 
 		frame.holderFrame = CreateFrame("Frame", nil, frame)
 		frame.holderFrame:Point("TOP", frame, "TOP", 0, -frame.topOffset)
@@ -1856,7 +1867,7 @@ function MOD:Load()
 	self:ModifyBags()
 	self.BagFrame:UpdateLayout()
 
-	BagFilters:SetParent(SV.Screen)
+	-- BagFilters:SetParent(SV.Screen)
 	BagFilters:SetPanelTemplate("Default")
 	BagFilters.buttons = {}
 	BagFilters:SetFrameStrata("DIALOG")

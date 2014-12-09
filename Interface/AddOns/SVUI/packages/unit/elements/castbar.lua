@@ -557,7 +557,7 @@ function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss)
 		bgFrame:FillInner(castbar, -2, 10)
 		bgFrame:SetFrameLevel(bgFrame:GetFrameLevel() - 1)
 
-	  castbar.LatencyTexture:SetTexture(SV.Media.bar.lazer)
+	  	castbar.LatencyTexture:SetTexture(SV.Media.bar.lazer)
 		castbar.noupdate = true;
 		castbar.pewpew = true
 		hadouken.iscustom = true;

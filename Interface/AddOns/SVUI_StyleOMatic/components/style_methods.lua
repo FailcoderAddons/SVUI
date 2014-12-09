@@ -589,8 +589,8 @@ function PLUGIN:ApplyDropdownStyle(this, width)
 		local bg = CreateFrame("Frame", nil, this)
 		bg:Point("TOPLEFT", this, "TOPLEFT", 18, -2)
 		bg:Point("BOTTOMRIGHT", ddButton, "BOTTOMRIGHT", 2, -2)
-		bg:SetBasicPanel()
-		bg:SetBackdropBorderColor(0.2,0.2,0.2)
+		bg:SetPanelTemplate("Blackout")
+		bg:SetBackdropBorderColor(0,0,0)
 		this.Panel = bg
 	end
 
@@ -740,14 +740,14 @@ function PLUGIN:ApplyItemAlertStyle(frame, noicon)
     alertpanel:SetFrameLevel(lvl - 1)
 
     --[[ FRAME BG ]]--
-    alertpanel.bg = alertpanel:CreateTexture(nil, "BACKGROUND")
+    alertpanel.bg = alertpanel:CreateTexture(nil, "BACKGROUND", nil, -5)
     alertpanel.bg:SetAllPoints()
     alertpanel.bg:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Template\Alert\ALERT-FULL]])
     alertpanel.bg:SetGradient('VERTICAL', 0, 0, 0, .37, .32, .29)
 
     if(not noicon) then
 	    --[[ ICON BG ]]--
-	    alertpanel.icon = alertpanel:CreateTexture(nil, "BACKGROUND", nil, 2)
+	    alertpanel.icon = alertpanel:CreateTexture(nil, "BACKGROUND", nil, -2)
 	    alertpanel.icon:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Template\Alert\ALERT-ICON-BORDER]])
 	    alertpanel.icon:SetGradient('VERTICAL', 1, 0.35, 0, 1, 1, 0)
 	    alertpanel.icon:SetPoint("LEFT", alertpanel, "LEFT", -45, 20)

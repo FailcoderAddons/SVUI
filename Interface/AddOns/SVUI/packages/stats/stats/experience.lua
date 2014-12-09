@@ -19,7 +19,6 @@ STATS:Extend EXAMPLE USAGE: MOD:Extend(newStat,eventList,onEvents,update,click,f
 LOCALIZED LUA FUNCTIONS
 ##########################################################
 ]]--
-if (UnitLevel("player") == GetMaxPlayerLevel()) then return end;
 --[[ GLOBALS ]]--
 local _G = _G;
 local unpack 	= _G.unpack;
@@ -86,11 +85,11 @@ local function Experience_OnEvent(self, ...)
 end 
 
 local function ExperienceBar_OnEvent(self, ...)
-	if (UnitLevel("player") == GetMaxPlayerLevel())then
-		self:Hide()
-		MOD:UnSet(self)
-		return
-	end
+	-- if (UnitLevel("player") == GetMaxPlayerLevel())then
+	-- 	self:Hide()
+	-- 	MOD:UnSet(self)
+	-- 	return
+	-- end
 	if (not self.barframe:IsShown())then
 		self.barframe:Show()
 		self.barframe.icon.texture:SetTexture("Interface\\Addons\\SVUI\\assets\\artwork\\Icons\\STAT-XP")
@@ -139,5 +138,5 @@ local function ExperienceBar_OnLoad(self)
 	end
 end 
 
-MOD:Extend("Experience", StatEvents, Experience_OnEvent, nil, nil, Experience_OnEnter, nil, ExperienceBar_OnLoad)
-MOD:Extend("Experience Bar", StatEvents, ExperienceBar_OnEvent, nil, nil, Experience_OnEnter, nil, ExperienceBar_OnLoad)
+MOD:Extend("Experience", StatEvents, Experience_OnEvent, nil, nil, Experience_OnEnter)
+MOD:Extend("Experience Bar", StatEvents, ExperienceBar_OnEvent, nil, nil, Experience_OnEnter)

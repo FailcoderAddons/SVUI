@@ -106,7 +106,7 @@ local function MirrorBarRegistry(barType)
 	if RegisteredMirrorBars[barType] then
 		return RegisteredMirrorBars[barType]
 	end 
-	local bar = CreateFrame('StatusBar', nil, SV.Screen)
+	local bar = CreateFrame('StatusBar', nil, UIParent)
 	bar:SetPanelTemplate("Bar", false, 3, 3, 3)
 	bar:SetScript("OnUpdate", MirrorBar_OnUpdate)
 	local r, g, b = unpack(mirrorTypeColor[barType])

@@ -223,7 +223,7 @@ SV.Options.args.common = {
 									desc = L["Automatically scale the User Interface based on your screen resolution"],
 									type = "toggle",
 									get = function(j)return SV.db.general.autoScale end,
-									set = function(j,value)SV.db.general.autoScale = value;SV:StaticPopup_Show("RL_CLIENT")end
+									set = function(j,value)SV.db.general.autoScale = value; SV:StaticPopup_Show("RL_CLIENT") end
 								},
 								multiMonitor = {
 									order = 2,
@@ -231,17 +231,25 @@ SV.Options.args.common = {
 									desc = L["Adjust UI dimensions to accomodate for multiple monitor setups"],
 									type = "toggle",
 									get = function(j)return SV.db.general.multiMonitor end,
-									set = function(j,value)SV.db.general.multiMonitor = value;SV:StaticPopup_Show("RL_CLIENT")end
+									set = function(j,value)SV.db.general.multiMonitor = value; SV:StaticPopup_Show("RL_CLIENT") end
+								},
+								saveDraggable = {
+									order = 3,
+									name = L["Save Draggable"],
+									desc = L["Save the positions of draggable frames when they are moved. NOTE: THIS WILL OVERRIDE BLIZZARD FRAME SNAPPING!"],
+									type = "toggle",
+									get = function(j)return SV.db.general.saveDraggable end,
+									set = function(j,value)SV.db.general.saveDraggable = value; SV:StaticPopup_Show("RL_CLIENT") end
 								},
 								LoginMessage = {
-									order = 3,
+									order = 4,
 									type = 'toggle',
 									name = L['Login Message'],
 									get = function(j)return SV.db.general.loginmessage end,
 									set = function(j,value)SV.db.general.loginmessage = value end
 								},
 								scaleAdjust = {
-									order = 4,
+									order = 5,
 									name = L["Base Scale"],
 									desc = L["You can use this to adjust the base value applied to auto-scaling."],
 									type = "range",
@@ -580,7 +588,7 @@ SV.Options.args.common = {
 									desc = L["Set/Override the global UI font. |cff00FF00NOTE:|r |cff00FF99This WILL NOT affect configurable fonts.|r"],
 									values = AceGUIWidgetLSMlists.font,
 									get = function(j)return SV.db.media.fonts[j[#j]]end,
-									set = function(j,value)SV.db.media.fonts[j[#j]] = value;SV:RefreshSystemFonts()end
+									set = function(j,value)SV.db.media.fonts[j[#j]] = value;SV:RefreshSystemFonts();SV:StaticPopup_Show("RL_CLIENT")end
 								},
 								name = {
 									type = "select",
@@ -590,7 +598,7 @@ SV.Options.args.common = {
 									desc = L["Set/Override the global name font. |cff00FF00NOTE:|r |cff00FF99This WILL NOT affect styled nameplates or unitframes.|r"],
 									values = AceGUIWidgetLSMlists.font,
 									get = function(j)return SV.db.media.fonts[j[#j]]end,
-									set = function(j,value)SV.db.media.fonts[j[#j]] = value;SV:RefreshSystemFonts()end
+									set = function(j,value)SV.db.media.fonts[j[#j]] = value;SV:RefreshSystemFonts();SV:StaticPopup_Show("RL_CLIENT")end
 								},
 								combat = {
 									type = "select",
@@ -600,7 +608,7 @@ SV.Options.args.common = {
 									desc = L["Set/Override the font that combat text will use. |cffFF0000NOTE:|r |cffFF9900This requires a game restart or re-log for this change to take effect.|r"],
 									values = AceGUIWidgetLSMlists.font,
 									get = function(j)return SV.db.media.fonts[j[#j]]end,
-									set = function(j,value)SV.db.media.fonts[j[#j]] = value;SV:RefreshSystemFonts()SV:StaticPopup_Show("RL_CLIENT")end
+									set = function(j,value)SV.db.media.fonts[j[#j]] = value;SV:RefreshSystemFonts();SV:StaticPopup_Show("RL_CLIENT")end
 								},
 								number = {
 									type = "select",
@@ -610,8 +618,18 @@ SV.Options.args.common = {
 									desc = L["Set/Override the global font used for numbers. |cff00FF00NOTE:|r |cff00FF99This WILL NOT affect all numbers.|r"],
 									values = AceGUIWidgetLSMlists.font,
 									get = function(j)return SV.db.media.fonts[j[#j]]end,
-									set = function(j,value)SV.db.media.fonts[j[#j]] = value;SV:RefreshSystemFonts()end
-								},					
+									set = function(j,value)SV.db.media.fonts[j[#j]] = value;SV:RefreshSystemFonts();SV:StaticPopup_Show("RL_CLIENT")end
+								},
+								giant = {
+									type = "select",
+									dialogControl = 'LSM30_Font',
+									order = 9,
+									name = L["Alert Font"],
+									desc = L["Set/Override the global font used for alerts and warnings."],
+									values = AceGUIWidgetLSMlists.font,
+									get = function(j)return SV.db.media.fonts[j[#j]]end,
+									set = function(j,value)SV.db.media.fonts[j[#j]] = value;SV:RefreshSystemFonts();SV:StaticPopup_Show("RL_CLIENT")end
+								},				
 							}
 						}, 
 						colors = {
@@ -855,22 +873,24 @@ SV.Options.args.common = {
 							name = L["Filter Errors"],
 							desc = L["Choose specific errors from the list below to hide/ignore"],
 							type = "toggle",
-							get = function(j)return SV.db.SVOverride.filterErrors end,
-							set = function(j,value)SV.db.SVOverride.filterErrors = value; SV:StaticPopup_Show("RL_CLIENT") end
+							get = function(key)return SV.db.SVOverride.filterErrors end,
+							set = function(key,value)SV.db.SVOverride.filterErrors = value; SV.SVOverride:UpdateErrorFilters() end
 						},
 						hideErrorFrame = {
 							order = 2,
-							name = L["Hide Error Text"],
-							desc = L["Hides the red error text at the top of the screen while in combat."],
+							name = L["Combat Hide All"],
+							desc = L["Hides all errors regardless of filtering while in combat."],
 							type = "toggle",
-							get = function(j)return SV.db.SVOverride.hideErrorFrame end,
-							set = function(j,value)SV.db.SVOverride.hideErrorFrame = value; SV:StaticPopup_Show("RL_CLIENT") end
+							disabled = function() return not SV.db.SVOverride.filterErrors end,
+							get = function(key) return SV.db.SVOverride.hideErrorFrame end,
+							set = function(key,value)SV.db.SVOverride.hideErrorFrame = value; SV.SVOverride:UpdateErrorFilters() end
 						},
 						filterGroup = {
 							order = 3, 
 							type = "group", 
 							guiInline = true, 
 							name = L["Filters"],
+							disabled = function() return not SV.db.SVOverride.filterErrors end,
 							args = {}
 						},		
 					}
@@ -887,8 +907,9 @@ if(SV.db.SVOverride.errorFilters) then
 			order = listIndex,
 			type = 'toggle',
 			name = errorName,
+			width = 'full',
 			get = function(key) return SV.db.SVOverride.errorFilters[errorName]; end,
-			set = function(key,value) SV.db.SVOverride.errorFilters[errorName] = value; end
+			set = function(key,value) SV.db.SVOverride.errorFilters[errorName] = value; SV.SVOverride:UpdateErrorFilters() end
 		}
 		listIndex = listIndex + 1
 	end
