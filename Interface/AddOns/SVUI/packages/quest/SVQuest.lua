@@ -471,6 +471,67 @@ local UpdateAchievementRows = function(self, event, ...)
 	self:SetHeight(newHeight);
 end
 
+local UpdateScenarioRows = function(self, event, ...)
+	local newHeight = 1;
+	local nextLine = 1;
+	local scenarioName, currentStage, numStages, flags, _, _, _, xp, money = C_Scenario.GetInfo();
+	if(scenarioName) then
+		local stageName, stageDescription, numCriteria = C_Scenario.GetStepInfo();
+		local inChallengeMode = bit.band(flags, SCENARIO_FLAG_CHALLENGE_MODE) == SCENARIO_FLAG_CHALLENGE_MODE;
+		local inProvingGrounds = bit.band(flags, SCENARIO_FLAG_PROVING_GROUNDS) == SCENARIO_FLAG_PROVING_GROUNDS;
+		local dungeonDisplay = bit.band(flags, SCENARIO_FLAG_USE_DUNGEON_DISPLAY) == SCENARIO_FLAG_USE_DUNGEON_DISPLAY;
+		local scenariocompleted = currentStage > numStages;
+		if(not scenariocompleted) then
+			-- do the criteria
+			self.Header.Text:SetText(scenarioName)
+			for criteriaIndex = 1, numCriteria do
+				local criteriaString, criteriaType, completed, quantity, totalQuantity, flags, assetID, quantityString, criteriaID, duration, elapsed = C_Scenario.GetCriteriaInfo(criteriaIndex);
+				criteriaString = string.format("%d/%d %s", quantity, totalQuantity, criteriaString);
+
+				local objective = self.Objectives.Rows[criteriaIndex];
+				if(not objective) then
+					self.Objectives.Rows[criteriaIndex] = AddRowObjective(self.Objectives, criteriaIndex)
+					objective = self.Objectives.Rows[criteriaIndex]
+				end
+				objective.Text:SetText(criteriaString)
+				objective:Show()
+
+				if(completed) then
+					objective.Text:SetTextColor(0.1,0.9,0.1)
+					objective.Icon:SetTexture(OBJ_ICON_COMPLETE)
+				else
+					objective.Text:SetTextColor(1,1,1)
+					objective.Icon:SetTexture(OBJ_ICON_INCOMPLETE)
+				end
+				-- if(duration > 0 and elapsed <= duration ) then
+					-- DO STUFF	
+				-- else
+					-- DO STUFF	
+				-- end
+				nextLine = nextLine + 1;
+			end
+
+			newHeight = ((ROW_HEIGHT + 2) + (numCriteria * (INNER_HEIGHT + 2)));
+		end
+	else
+		self.Header.Text:SetText('')
+	end
+
+	local numLines = #self.Objectives.Rows;
+	for x = nextLine, numLines do
+		local objective = self.Objectives.Rows[x]
+		if(objective) then
+			objective.Text:SetText('')
+			objective.Icon:SetTexture(OBJ_ICON_INCOMPLETE)
+			if(objective:IsShown()) then
+				objective:Hide()
+			end
+		end
+	end
+
+	self:SetHeight(newHeight);
+end
+
 local UpdateQuestProximity = function()
 	local shortestDistance = 62500;
 	local liveLines = GetNumQuestWatches();
@@ -513,15 +574,12 @@ local UpdateActiveQuest = function()
 	if(ClosestQuestName) then
 		MOD.Active.Header.Text:SetText(ClosestQuestName)
 		if(ClosestQuestLink) then
-			MOD.Active.Button:SetItem(ClosestQuestLink, ClosestQuestTexture)
-		elseif(MOD.Active.Button:IsShown()) then
-			MOD.Active.Button:RemoveItem()
+			MOD.QuestItem:SetItem(ClosestQuestLink, ClosestQuestTexture)
+		elseif(MOD.QuestItem:IsShown()) then
+			MOD.QuestItem:RemoveItem()
 		end
-
-		MOD.Active:SetHeight(LARGE_ROW_HEIGHT)
 	else
 		MOD.Active.Header.Text:SetText('')
-		MOD.Active:SetHeight(1)
 	end
 end
 
@@ -529,20 +587,29 @@ local UpdateScrollSize = function()
 	local h1 = MOD.Active:GetHeight()
 	local h2 = MOD.Quests:GetHeight()
 	local h3 = MOD.Achievements:GetHeight()
-	local NEWHEIGHT = h1 + h2 + h3 + 6;
+	local h4 = MOD.Scenario:GetHeight()
+	local NEWHEIGHT = h1 + h2 + h3 + h4 + 6;
 	local scrollHeight = NEWHEIGHT - 80;
 
 	SVUI_QuestWatchFrameScrollFrame.MaxVal = scrollHeight;
 	SVUI_QuestWatchFrameScrollBar:SetMinMaxValues(1, scrollHeight);
-	SVUI_QuestWatchFrameScrollFrameScrollChild:SetHeight(NEWHEIGHT)
+	SVUI_QuestWatchFrameScrollBar:SetHeight(SVUI_QuestWatchFrameScrollFrame:GetHeight());
+	SVUI_QuestWatchFrameScrollFrameScrollChild:SetHeight(NEWHEIGHT);
 end
 --[[ 
 ########################################################## 
 EVENT HANDLERS
 ##########################################################
 ]]--
+local UpdateScenarios = function(self, event, ...)
+	MOD.Scenario:UpdateRows(event, ...)
+	UpdateActiveQuest()
+	UpdateScrollSize()
+end
+
 local UpdateObjectives = function(self, event, ...)
 	MOD.Quests:UpdateRows(event, ...)
+	MOD.Scenario:UpdateRows(event, ...)
 	UpdateActiveQuest()
 	UpdateScrollSize()
 end
@@ -575,26 +642,31 @@ function MOD:ReLoad()
 end 
 
 function MOD:Load()
-	self.Tracker = SV.Dock:NewDocklet("BottomRight", "SVUI_QuestTracker", "Quest Tracker", [[Interface\AddOns\SVUI\assets\artwork\Icons\DOCK-QUESTS]])
+	self.Tracker = SV.Dock:NewDocklet("BottomRight", "SVUI_QuestTracker", "Quest Tracker", [[Interface\AddOns\SVUI\assets\artwork\Icons\DOCK-QUESTS]]);
+
+	local active = CreateFrame("Frame", nil, self.Tracker)
+	active:SetPoint("TOPLEFT", self.Tracker, "TOPLEFT", 0, 0);
+	active:SetPoint("TOPRIGHT", self.Tracker, "TOPRIGHT", 0, 0);
+	active:SetHeight(LARGE_ROW_HEIGHT);
 
 	local listFrame = CreateFrame("ScrollFrame", "SVUI_QuestWatchFrameScrollFrame", self.Tracker);
-	listFrame:SetPoint("TOPLEFT", self.Tracker, 4, 0);
-	listFrame:SetPoint("BOTTOMRIGHT", self.Tracker, -26, 2);
+	listFrame:SetPoint("TOPLEFT", active, "BOTTOMLEFT", 4, -2);
+	listFrame:SetPoint("BOTTOMRIGHT", self.Tracker, "BOTTOMRIGHT", -30, 2);
 	listFrame:EnableMouseWheel(true);
+	listFrame.MaxVal = 420;
 
 	self:UpdateLocals();
 
 	local scrollFrame = CreateFrame("Slider", "SVUI_QuestWatchFrameScrollBar", listFrame);
 	scrollFrame:SetHeight(listFrame:GetHeight());
 	scrollFrame:SetWidth(18);
-	scrollFrame:SetPoint("TOPRIGHT", self.Tracker, "TOPRIGHT", -3, 0);
+	scrollFrame:SetPoint("TOPRIGHT", active, "BOTTOMRIGHT", 0, -2);
 	scrollFrame:SetBackdrop({bgFile = bgTex, edgeFile = bdTex, edgeSize = 4, insets = {left = 3, right = 3, top = 3, bottom = 3}});
 	scrollFrame:SetFrameLevel(6)
 	scrollFrame:SetFixedPanelTemplate("Transparent", true);
 	scrollFrame:SetThumbTexture("Interface\\Buttons\\UI-ScrollBar-Knob");
 	scrollFrame:SetOrientation("VERTICAL");
 	scrollFrame:SetValueStep(5);
-	listFrame.MaxVal = 420;
 	scrollFrame:SetMinMaxValues(1, 420);
 	scrollFrame:SetValue(1);
 
@@ -620,16 +692,39 @@ function MOD:Load()
 		self.slider:SetValue(value)
 	end)
 
-	local active = CreateFrame("Frame", nil, scrollChild)
-	active:SetPoint("TOPLEFT", scrollChild, "TOPLEFT", 0, 0);
-	active:SetPoint("TOPRIGHT", scrollChild, "TOPRIGHT", 0, 0);
-	active:SetHeight(LARGE_ROW_HEIGHT);
+	local scenario = CreateFrame("Frame", nil, scrollChild)
+    scenario:SetWidth(ROW_WIDTH);
+	scenario:SetHeight(1);
+	scenario:SetPoint("TOPLEFT", scrollChild, "TOPLEFT", 0, 0);
+	scenario:SetPoint("TOPRIGHT", scrollChild, "TOPRIGHT", 0, 0);
+
+	scenario.Header = CreateFrame("Frame", nil, scenario)
+	scenario.Header:SetPoint("TOPLEFT", scenario, "TOPLEFT", 2, -2);
+	scenario.Header:SetPoint("TOPRIGHT", scenario, "TOPRIGHT", -2, -2);
+	scenario.Header:SetHeight(INNER_HEIGHT);
+	scenario.Header:SetPanelTemplate("Inset");
+	scenario.Header.Text = scenario.Header:CreateFontString(nil,"OVERLAY")
+	scenario.Header.Text:SetFont(SV.Media.font.roboto, 16, "OUTLINE")
+	scenario.Header.Text:SetJustifyH('CENTER')
+	scenario.Header.Text:SetJustifyV('MIDDLE')
+	scenario.Header.Text:SetTextColor(1,0.6,0.1)
+	scenario.Header.Text:SetShadowOffset(-1,-1)
+	scenario.Header.Text:SetShadowColor(0,0,0,0.5)
+	scenario.Header.Text:SetText(TRACKER_HEADER_SCENARIOS)
+	scenario.Header.Text:SetAllPoints(scenario.Header)
+
+	scenario.Objectives = CreateFrame("Frame", nil, scenario)
+	scenario.Objectives:SetPoint("TOPLEFT", scenario.Header, "BOTTOMLEFT", 0, 0);
+	scenario.Objectives:SetPoint("TOPRIGHT", scenario.Header, "BOTTOMRIGHT", 0, 0);
+	scenario.Objectives:SetHeight(1);
+
+	scenario.Objectives.Rows = {}
+	scenario.UpdateRows = UpdateScenarioRows;
 
 	local quests = CreateFrame("Frame", nil, scrollChild)
 	quests:SetWidth(ROW_WIDTH);
 	quests:SetHeight(ROW_HEIGHT);
-	quests:SetPoint("TOPLEFT", active, "BOTTOMLEFT", 0, 0);
-	quests:SetPoint("TOPRIGHT", active, "BOTTOMRIGHT", 0, 0);
+	quests:SetPoint("TOP", scenario, "BOTTOM", 0, 0);
 	--quests:SetPanelTemplate();
 
 	quests.Header = CreateFrame("Frame", nil, quests)
@@ -672,15 +767,13 @@ function MOD:Load()
 	achievements.UpdateRows = UpdateAchievementRows;
 
 	self.Quests = quests;
+	self.Scenario = scenario;
 	self.Achievements = achievements;
 
 	active.Badge = CreateFrame("Frame", nil, active);
 	active.Badge:SetPoint("TOPLEFT", active, "TOPLEFT", 2, -2);
 	active.Badge:SetPoint("BOTTOMLEFT", active, "BOTTOMLEFT", 2, 2);
 	active.Badge:SetWidth(LARGE_INNER_HEIGHT);
-
-	--active.Button = self:CreateQuestItemButton()
-	--active.Button:SetAllPoints(active.Badge)
 
 	active.Header = CreateFrame("Frame", nil, active)
 	active.Header:SetPoint("TOPLEFT", active, "TOPLEFT", 46, -2);
@@ -702,6 +795,11 @@ function MOD:Load()
 
 	self.Active = active;
 
+	self.QuestItem = self:CreateQuestItemButton()
+	self.QuestItem:SetAllPoints(active.Badge)
+	self.QuestItem:HookScript("OnShow", function() MOD.Active:SetHeight(LARGE_ROW_HEIGHT); end)
+	self.QuestItem:HookScript("OnHide", function() MOD.Active:SetHeight(1); end)
+
 	self.Tracker.DockButton:MakeDefault();
 	self.Tracker:Show();
 
@@ -710,10 +808,9 @@ function MOD:Load()
 	--self:RegisterEvent("QUEST_AUTOCOMPLETE", UpdateObjectives);
 	self:RegisterEvent("QUEST_ACCEPTED", UpdateObjectives);	
 	--self:RegisterEvent("SUPER_TRACKED_QUEST_CHANGED", UpdateObjectives);
-	self:RegisterEvent("SCENARIO_UPDATE", UpdateObjectives);
-	self:RegisterEvent("SCENARIO_CRITERIA_UPDATE", UpdateObjectives);
+	self:RegisterEvent("SCENARIO_UPDATE", UpdateScenarios);
+	self:RegisterEvent("SCENARIO_CRITERIA_UPDATE", UpdateScenarios);
 	self:RegisterEvent("QUEST_POI_UPDATE", UpdateObjectives);
-	self:RegisterEvent("VARIABLES_LOADED", UpdateObjectives);
 	self:RegisterEvent("QUEST_TURNED_IN", UpdateObjectives);
 	--self:RegisterEvent("PLAYER_MONEY", UpdateObjectives);
 

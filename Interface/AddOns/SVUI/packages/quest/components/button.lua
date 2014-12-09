@@ -96,8 +96,10 @@ local QuestButton_OnEvent = function(self, event)
 end
 
 local QuestButton_OnEnter = function(self)
-	GameTooltip:SetOwner(self, 'ANCHOR_LEFT')
-	GameTooltip:SetHyperlink(self.itemLink)
+	if(self.itemID) then
+		GameTooltip:SetOwner(self, 'ANCHOR_LEFT')
+		GameTooltip:SetHyperlink(self.itemLink)
+	end
 end
 
 local QuestButton_OnUpdate = function(self, elapsed)
@@ -193,7 +195,7 @@ PACKAGE CALL
 ##########################################################
 ]]--
 function MOD:CreateQuestItemButton()
-	local Button = CreateFrame('Button', "SVUI_QuestAutoButton", self.Tracker, 'SecureActionButtonTemplate, SecureHandlerStateTemplate, SecureHandlerAttributeTemplate')
+	local Button = CreateFrame('Button', "SVUI_QuestAutoButton", UIParent, 'SecureActionButtonTemplate, SecureHandlerStateTemplate, SecureHandlerAttributeTemplate')
 	Button:SetSize(40,40)
 	Button:SetSlotTemplate(true)
 	Button:SetScript('OnLeave', GameTooltip_Hide)
