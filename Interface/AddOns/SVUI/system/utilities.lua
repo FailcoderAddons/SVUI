@@ -242,6 +242,26 @@ do
     end
 end
 
+function SV:GetScreenXY(frame)
+    local screenHeight = GetScreenHeight();
+    local screenWidth = GetScreenWidth();
+    local screenX, screenY = frame:GetCenter();
+    local isLeft = (screenX < (screenHeight * 0.5));
+    if (screenY < (screenWidth * 0.5)) then
+        if(isLeft) then
+            return "BOTTOMLEFT", "TOPLEFT"
+        else
+            return "BOTTOMRIGHT", "TOPRIGHT"
+        end
+    else
+        if(isLeft) then
+            return "TOPLEFT", "BOTTOMLEFT"
+        else
+            return "TOPRIGHT", "BOTTOMRIGHT"
+        end
+    end
+end
+
 function SV:AnchorToCursor(frame)
     local x, y = GetCursorPosition()
     local vHold = (UIParent:GetHeight() * 0.33)

@@ -185,44 +185,8 @@ local RemoveButtonItem = function(self)
 	end
 end
 
-local UpdateButton = function(self, event, ...)
-	local shortestDistance = 62500;
-	local liveLines = GetNumQuestWatches();
-	local closestQuest, closestLink, closestTexture;
-
-	if(liveLines > 0) then
-		for i = 1, liveLines do
-			local questID, _, questLogIndex, numObjectives, requiredMoney, isComplete, startEvent, isAutoComplete, failureTime, timeElapsed, questType, isTask, isStory, isOnMap, hasLocalPOI = GetQuestWatchInfo(i);
-			if(questID) then
-				local title, level, suggestedGroup = GetQuestLogTitle(questLogIndex)
-				if(QuestHasPOIInfo(questID)) then
-					local link, texture, _, showCompleted = GetQuestLogSpecialItemInfo(questLogIndex)
-					if(link) then
-						local areaID = QuestInZone[questID]
-						if(areaID and areaID == GetCurrentMapAreaID()) then
-							closestQuest = title
-							closestLink = link
-							closestTexture = texture
-						elseif(not isComplete or (isComplete and showCompleted)) then
-							local distanceSq, onContinent = GetDistanceSqToQuest(questLogIndex)
-							if(onContinent and distanceSq < shortestDistance) then
-								shortestDistance = distanceSq
-								closestQuest = title
-								closestLink = link
-								closestTexture = texture
-							end
-						end
-					end
-				end
-			end
-		end
-	end
-
-	if(closestLink) then
-		self:SetItem(closestLink, closestTexture)
-	elseif(self:IsShown()) then
-		self:RemoveItem()
-	end
+local UpdateButton = function(self)
+	MOD:UpdateProximity()
 end
 --[[ 
 ########################################################## 

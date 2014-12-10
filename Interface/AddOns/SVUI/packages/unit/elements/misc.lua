@@ -396,53 +396,47 @@ TARGET ONLY COMPONENTS
 ##########################################################
 ]]--
 function MOD:CreateXRay(frame)
-	local xray = CreateFrame("BUTTON","XRayFocus",frame,"SecureActionButtonTemplate")
+	local xray = CreateFrame("Button", "SVUI_XRayFocus", frame, "SecureActionButtonTemplate")
 	xray:EnableMouse(true)
 	xray:RegisterForClicks("AnyUp")
-	xray:SetAttribute("type","macro")
-	xray:SetAttribute("macrotext","/focus")
+	xray:SetAttribute("type", "macro")
+	xray:SetAttribute("macrotext", "/focus")
 	xray:Size(64,64)
 	xray:SetFrameStrata("MEDIUM")
 	xray.icon = xray:CreateTexture(nil,"ARTWORK")
 	xray.icon:SetTexture("Interface\\Addons\\SVUI\\assets\\artwork\\Unitframe\\UNIT-XRAY")
 	xray.icon:SetAllPoints(xray)
 	xray.icon:SetAlpha(0)
-	xray:SetScript("OnLeave", function() GameTooltip:Hide() xray.icon:SetAlpha(0) end)
+	xray:SetScript("OnLeave", function(self) GameTooltip:Hide() self.icon:SetAlpha(0) end)
 	xray:SetScript("OnEnter", function(self)
-		xray.icon:SetAlpha(1)
-		local r,s,b,m = GetScreenHeight(),GetScreenWidth(),self:GetCenter()
-		local t,u,v = "RIGHT","TOP","BOTTOM"
-		if (b < (r / 2)) then t = "LEFT" end 
-		if (m < (s / 2)) then u,v = v,u end 
-		GameTooltip:SetOwner(self,"ANCHOR_NONE")
-		GameTooltip:SetPoint(u..t,self,v..t)
-		GameTooltip:SetText(FOCUSTARGET.."\n")
+		self.icon:SetAlpha(1)
+		local anchor1, anchor2 = SV:GetScreenXY(self) 
+		GameTooltip:SetOwner(self, "ANCHOR_NONE")
+		GameTooltip:SetPoint(anchor1, self, anchor2)
+		GameTooltip:SetText(FOCUSTARGET)
 	end)
 	return xray 
 end 
 
 function MOD:CreateXRay_Closer(frame)
-	local close = CreateFrame("BUTTON","ClearXRay",frame,"SecureActionButtonTemplate")
+	local close = CreateFrame("Button", "SVUI_XRayFocusClear", frame, "SecureActionButtonTemplate")
 	close:EnableMouse(true)
 	close:RegisterForClicks("AnyUp")
-	close:SetAttribute("type","macro")
-	close:SetAttribute("macrotext","/clearfocus")
+	close:SetAttribute("type", "macro")
+	close:SetAttribute("macrotext", "/clearfocus")
 	close:Size(50,50)
 	close:SetFrameStrata("MEDIUM")
 	close.icon = close:CreateTexture(nil,"ARTWORK")
 	close.icon:SetTexture("Interface\\Addons\\SVUI\\assets\\artwork\\Unitframe\\UNIT-XRAY-CLOSE")
 	close.icon:SetAllPoints(close)
 	close.icon:SetVertexColor(1,0.2,0.1)
-	close:SetScript("OnLeave",function()GameTooltip:Hide()close.icon:SetVertexColor(1,0.2,0.1)end)
+	close:SetScript("OnLeave", function(self) GameTooltip:Hide() self.icon:SetAlpha(0) end)
 	close:SetScript("OnEnter",function(self)
-		close.icon:SetVertexColor(1,1,0.2)
-		local r,s,b,m=GetScreenHeight(),GetScreenWidth(),self:GetCenter()
-		local t,u,v="RIGHT","TOP","BOTTOM"
-		if b<r/2 then t="LEFT"end 
-		if m<s/2 then u,v=v,u end 
-		GameTooltip:SetOwner(self,"ANCHOR_NONE")
-		GameTooltip:SetPoint(u..t,self,v..t)
-		GameTooltip:SetText(CLEAR_FOCUS.."\n")
+		self.icon:SetAlpha(1)
+		local anchor1, anchor2 = SV:GetScreenXY(self) 
+		GameTooltip:SetOwner(self, "ANCHOR_NONE")
+		GameTooltip:SetPoint(anchor1, self, anchor2)
+		GameTooltip:SetText(CLEAR_FOCUS)
 	end)
 	return close 
 end
