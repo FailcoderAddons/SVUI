@@ -264,7 +264,7 @@ function PLUGIN:FetchDocklets()
 	local dock1 = self.cache.Docks[1] or "None";
 	local dock2 = self.cache.Docks[2] or "None";
 	local enabled1 = (dock1 ~= "None")
-	local enabled2 = (dock2 ~= "None")
+	local enabled2 = ((dock2 ~= "None") and (dock2 ~= dock1))
 	return dock1, dock2, enabled1, enabled2
 end
 
@@ -290,70 +290,71 @@ end
 function PLUGIN:RegisterAddonDocklets()
 	local dock1,dock2,enabled1,enabled2 = self:FetchDocklets();
   	local tipLeft, tipRight = "", "";
-  	local activated = false;
+  	local active1, active2 = false, false;
 
   	self.Docklet.Dock1.FrameLink = nil;
   	self.Docklet.Dock2.FrameLink = nil;
 
   	if(enabled1) then
   		local width = self.Docklet:GetWidth();
+
 		if(enabled2) then
 			self.Docklet.Dock1:SetWidth(width * 0.5)
 			self.Docklet.Dock2:SetWidth(width * 0.5)
-		else
+
+			if(self:DockletReady("Skada", dock2)) then
+				tipRight = " and Skada";
+				self:Docklet_Skada()
+				active2 = true
+			elseif(self:DockletReady("Omen", dock2)) then
+				tipRight = " and Omen";
+				self:Docklet_Omen(self.Docklet.Dock2)
+				active2 = true
+			elseif(self:DockletReady("Recount", dock2)) then
+				tipRight = " and Recount";
+				self:Docklet_Recount(self.Docklet.Dock2)
+				active2 = true
+			elseif(self:DockletReady("TinyDPS", dock2)) then
+				tipRight = " and TinyDPS";
+				self:Docklet_TinyDPS(self.Docklet.Dock2)
+				active2 = true
+			elseif(self:DockletReady("alDamageMeter", dock2)) then
+				tipRight = " and alDamageMeter";
+				self:Docklet_alDamageMeter(self.Docklet.Dock2)
+				active2 = true
+			end
+		end
+
+		if(not active2) then
 			self.Docklet.Dock1:SetWidth(width)
 		end
 
 		if(self:DockletReady("Skada", dock1)) then
 			tipLeft = "Skada";
 			self:Docklet_Skada()
-			activated = true
+			active1 = true
 		elseif(self:DockletReady("Omen", dock1)) then
 			tipLeft = "Omen";
 			self:Docklet_Omen(self.Docklet.Dock1)
-			activated = true
+			active1 = true
 		elseif(self:DockletReady("Recount", dock1)) then
 			tipLeft = "Recount";
 			self:Docklet_Recount(self.Docklet.Dock1)
-			activated = true
+			active1 = true
 		elseif(self:DockletReady("TinyDPS", dock1)) then
 			tipLeft = "TinyDPS";
 			self:Docklet_TinyDPS(self.Docklet.Dock1) 
-			activated = true
+			active1 = true
 		elseif(self:DockletReady("alDamageMeter", dock1)) then
 			tipLeft = "alDamageMeter";
 			self:Docklet_alDamageMeter(self.Docklet.Dock1)
-			activated = true
-		end
-
-		if(enabled2) then
-			if(self:DockletReady("Skada", dock2)) then
-				tipRight = " and Skada";
-				self:Docklet_Skada()
-				activated = true
-			elseif(self:DockletReady("Omen", dock2)) then
-				tipRight = " and Omen";
-				self:Docklet_Omen(self.Docklet.Dock2)
-				activated = true
-			elseif(self:DockletReady("Recount", dock2)) then
-				tipRight = " and Recount";
-				self:Docklet_Recount(self.Docklet.Dock2)
-				activated = true
-			elseif(self:DockletReady("TinyDPS", dock2)) then
-				tipRight = " and TinyDPS";
-				self:Docklet_TinyDPS(self.Docklet.Dock2)
-				activated = true
-			elseif(self:DockletReady("alDamageMeter", dock2)) then
-				tipRight = " and alDamageMeter";
-				self:Docklet_alDamageMeter(self.Docklet.Dock2)
-				activated = true
-			end
+			active1 = true
 		end
 	end
 
-	if(activated) then
+	if(active1) then
 		self.Docklet:Enable();
-		if(enabled2) then
+		if(active2) then
 			self.Docklet.Dock1:Show()
 			self.Docklet.Dock2:Show()
 		else

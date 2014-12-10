@@ -1498,6 +1498,7 @@ do
 		local frame = CreateFrame("Button", bagName, isReagent and self.BankFrame or SV.Screen)
 		frame:SetPanelTemplate(isReagent and "Action" or "Container")
 		frame:SetFrameStrata("HIGH")
+		frame:SetFrameLevel(SVUI_ContainerFrame:GetFrameLevel() + 99)
 
 		frame.UpdateLayout = isReagent and ReagentFrame_UpdateLayout or ContainerFrame_UpdateLayout;
 		frame.RefreshBags = ContainerFrame_UpdateBags;

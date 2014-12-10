@@ -232,7 +232,7 @@ local function NewAchievementRow(parent, lineNumber)
 
 	row.Button = CreateFrame("Button", nil, row.Header)
 	row.Button:SetAllPoints(row.Header);
-	row.Button:SetButtonTemplate(true)
+	row.Button:SetButtonTemplate(true, 1, 1, 1)
 	row.Button:SetID(0)
 	row.Button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 	row.Button:SetScript("OnClick", ViewButton_OnClick)

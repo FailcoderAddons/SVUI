@@ -1110,8 +1110,8 @@ function Dock:Initialize()
 	if SV.cache.Docks.IsFaded then Dock.BottomLeft:Hide() Dock.BottomRight:Hide() end
 
 	SV:AddToDisplayAudit(self.BottomRight.Window)
-	SV:AddToDisplayAudit(self.TopLeft.Window)
-	SV:AddToDisplayAudit(self.TopRight.Window)
+	SV:AddToDisplayAudit(self.TopLeft)
+	SV:AddToDisplayAudit(self.TopRight)
 
 	if not InCombatLockdown() then 
 		self.BottomLeft.Bar:Refresh()
@@ -1134,6 +1134,9 @@ function Dock:Initialize()
 	self.BottomCenter.Right:SetPoint("RIGHT")
 	SV.Mentalo:Add(self.BottomCenter.Right, L["BottomCenter Dock Right"])
 
+	SV:AddToDisplayAudit(self.BottomCenter.Left)
+	SV:AddToDisplayAudit(self.BottomCenter.Right)
+
 	--TOP CENTER BAR
 	self.TopCenter:SetParent(SV.Screen)
 	self.TopCenter:ClearAllPoints()
@@ -1147,6 +1150,9 @@ function Dock:Initialize()
 	self.TopCenter.Right:SetSize((centerWidth * 0.5), centerHeight)
 	self.TopCenter.Right:SetPoint("LEFT", self.TopCenter.Left, "RIGHT")
 	SV.Mentalo:Add(self.TopCenter.Right, L["TopCenter Dock Right"])
+
+	SV:AddToDisplayAudit(self.TopCenter.Left)
+	SV:AddToDisplayAudit(self.TopCenter.Right)
 
 	self:UpdateDockBackdrops()
 end

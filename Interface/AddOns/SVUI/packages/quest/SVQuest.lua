@@ -60,7 +60,7 @@ local LARGE_INNER_HEIGHT = LARGE_ROW_HEIGHT - 4;
 local OBJ_ICON_ACTIVE = [[Interface\COMMON\Indicator-Yellow]];
 local OBJ_ICON_COMPLETE = [[Interface\COMMON\Indicator-Green]];
 local OBJ_ICON_INCOMPLETE = [[Interface\COMMON\Indicator-Gray]];
-local LINE_QUEST_ICON = [[Interface\LFGFRAME\LFGICON-QUEST]]
+local LINE_QUEST_ICON = [[Interface\ICONS\Ability_Hisek_Aim]]
 
 local ClosestQuestName, ClosestQuestLink, ClosestQuestTexture;
 local QuestInZone = {
@@ -85,6 +85,38 @@ end
 local HideSubDocklet = function(self)
 	if(InCombatLockdown()) then return end
 	if(ObjectiveTrackerFrame:IsShown()) then ObjectiveTrackerFrame:Hide() end
+end
+
+local ViewButton_OnClick = function(self, button)
+	local questIndex = self:GetID();
+	if(questIndex and (questIndex ~= 0)) then
+		local questID = select(8, GetQuestLogTitle(questIndex));
+		if(IsModifiedClick("CHATLINK") and ChatEdit_GetActiveWindow()) then
+			local questLink = GetQuestLink(questIndex);
+			if(questLink) then
+				ChatEdit_InsertLink(questLink);
+			end
+		elseif(button ~= "RightButton") then
+			CloseDropDownMenus();
+			if(IsModifiedClick("QUESTWATCHTOGGLE")) then
+				local superTrackedQuestID = GetSuperTrackedQuestID();
+				RemoveQuestWatch(questIndex);
+				if(questID == superTrackedQuestID) then
+					QuestSuperTracking_OnQuestUntracked();
+				end
+			else
+				if(IsQuestComplete(questID) and GetQuestLogIsAutoComplete(questIndex)) then
+					AutoQuestPopupTracker_RemovePopUp(questID);
+					ShowQuestComplete(questIndex);
+				else
+					QuestLogPopupDetailFrame_Show(questIndex);
+				end
+			end
+			return;
+		else
+			QuestMapFrame_OpenToQuestDetails(questID);
+		end
+	end
 end
 --[[ 
 ########################################################## 
@@ -154,35 +186,33 @@ local AddObjectiveRow = function(self, index, description, completed, duration, 
 	return objective;
 end
 
-local function NewActiveRow(parent, lineNumber)
-	local lastRowNumber = lineNumber - 1;
-	local previousFrame = parent.Rows[lastRowNumber]
-	local anchorFrame;
-	if(previousFrame and previousFrame.Objectives) then
-		anchorFrame = previousFrame.Objectives;
-	else
-		anchorFrame = parent;
-	end
+local function NewActiveRow(anchorFrame)
+	local parent = MOD.Active
 
 	local row = CreateFrame("Frame", nil, parent)
-	row:SetPoint("TOPLEFT", anchorFrame, "BOTTOMLEFT", 0, -2);
-	row:SetPoint("TOPRIGHT", anchorFrame, "BOTTOMRIGHT", 0, -2);
-	row:SetHeight(LARGE_ROW_HEIGHT);
+	if(anchorFrame) then
+		row:Point("TOPLEFT", anchorFrame, "BOTTOMLEFT", 0, -4);
+		row:Point("TOPRIGHT", anchorFrame, "BOTTOMRIGHT", 0, -4);
+	else
+		row:Point("TOPLEFT", parent, "TOPLEFT", 2, -4);
+		row:Point("TOPRIGHT", parent, "TOPRIGHT", -2, -4);
+	end
+	row:Height(LARGE_ROW_HEIGHT);
 
 	row.Badge = CreateFrame("Frame", nil, row)
-	row.Badge:SetPoint("TOPLEFT", row, "TOPLEFT", 2, -2);
-	row.Badge:SetSize(LARGE_INNER_HEIGHT, LARGE_INNER_HEIGHT);
-	row.Badge:SetPanelTemplate("Headline")
+	row.Badge:Point("TOPLEFT", row, "TOPLEFT", 4, -4);
+	row.Badge:Size((LARGE_INNER_HEIGHT - 4), (LARGE_INNER_HEIGHT - 4));
+	row.Badge:SetPanelTemplate("Inset")
 
 	row.Badge.Icon = row.Badge:CreateTexture(nil,"OVERLAY")
-	row.Badge.Icon:SetAllPoints(row.Badge);
+	row.Badge.Icon:FillInner(row.Badge);
 	row.Badge.Icon:SetTexture(LINE_QUEST_ICON)
 	row.Badge.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 
 	row.Header = CreateFrame("Frame", nil, row)
-	row.Header:SetPoint("TOPLEFT", row.Badge, "TOPRIGHT", 2, 0);
-	row.Header:SetPoint("TOPRIGHT", row, "TOPRIGHT", -2, 0);
-	row.Header:SetHeight(INNER_HEIGHT);
+	row.Header:Point("TOPLEFT", row.Badge, "TOPRIGHT", 4, -1);
+	row.Header:Point("TOPRIGHT", row, "TOPRIGHT", -2, 0);
+	row.Header:Height(INNER_HEIGHT);
 	row.Header:SetPanelTemplate("Headline")
 
 	row.Header.Level = row.Header:CreateFontString(nil,"OVERLAY")
@@ -192,8 +222,8 @@ local function NewActiveRow(parent, lineNumber)
 	row.Header.Level:SetJustifyH('CENTER')
 	row.Header.Level:SetJustifyV('MIDDLE')
 	row.Header.Level:SetText('')
-	row.Header.Level:SetPoint("TOPLEFT", row.Header, "TOPLEFT", 4, 0);
-	row.Header.Level:SetPoint("BOTTOMLEFT", row.Header, "BOTTOMLEFT", 4, 0);
+	row.Header.Level:Point("TOPLEFT", row.Header, "TOPLEFT", 4, 0);
+	row.Header.Level:Point("BOTTOMLEFT", row.Header, "BOTTOMLEFT", 4, 0);
 
 	row.Header.Text = row.Header:CreateFontString(nil,"OVERLAY")
 	row.Header.Text:SetFont(SV.Media.font.roboto, 14, "NONE")
@@ -203,19 +233,20 @@ local function NewActiveRow(parent, lineNumber)
 	row.Header.Text:SetJustifyH('LEFT')
 	row.Header.Text:SetJustifyV('MIDDLE')
 	row.Header.Text:SetText('')
-	row.Header.Text:SetPoint("TOPLEFT", row.Header.Level, "TOPRIGHT", 4, 0);
-	row.Header.Text:SetPoint("BOTTOMRIGHT", row.Header, "BOTTOMRIGHT", 0, 0);
+	row.Header.Text:Point("TOPLEFT", row.Header.Level, "TOPRIGHT", 4, 0);
+	row.Header.Text:Point("BOTTOMRIGHT", row.Header, "BOTTOMRIGHT", 0, 0);
 
 	row.Button = CreateFrame("Button", nil, row.Header)
 	row.Button:SetAllPoints(row.Header);
-	row.Button:SetButtonTemplate(true)
+	row.Button:SetButtonTemplate(true, 1, 1, 1)
 	row.Button:SetID(0)
 	row.Button:SetScript("OnClick", ViewButton_OnClick)
 
 	row.Objectives = CreateFrame("Frame", nil, row)
-	row.Objectives:SetPoint("TOPLEFT", row, "BOTTOMLEFT", 0, 0);
-	row.Objectives:SetPoint("TOPRIGHT", row, "BOTTOMRIGHT", 0, 0);
-	row.Objectives:SetHeight(1);
+	row.Objectives:Point("TOPLEFT", row.Header, "BOTTOMLEFT", 0, -2);
+	row.Objectives:Point("TOPRIGHT", row.Header, "BOTTOMRIGHT", 0, -2);
+	row.Objectives:Height(1);
+	--row.Objectives:SetPanelTemplate("Inset");
 
 	row.Objectives.Rows = {}
 	row.Objectives.Add = AddObjectiveRow;
@@ -229,17 +260,16 @@ end
 TRACKER FUNCTIONS
 ##########################################################
 ]]--
-local AddActiveScenarioRow = function(self, index, title, level, details, icon, questID, questLogIndex, totalObjectives, duration, elapsed)
+local AddActiveScenarioRow = function(self, title, level, details, icon, questID, questLogIndex, numObjectives, duration, elapsed)
 	local objectivesShown = 0;
 	local nextObjective = 1;
 
-	local row = self.Rows[index];
-	if(not row) then
-		self.Rows[index] = NewActiveRow(self, index)
-		row = self.Rows[index]
-		row.RowID = questID
+	local row = self.Rows.Scenario;
+	if(row.RowID == questID) then
+		return
 	end
 
+	row.RowID = questID
 	icon = icon or LINE_QUEST_ICON;
 
 	local color = GetQuestDifficultyColor(level)
@@ -252,9 +282,7 @@ local AddActiveScenarioRow = function(self, index, title, level, details, icon, 
 	row:Show()
 
 	local objectives = row.Objectives;
-	local numLineObjectives = #objectives.Rows;
-
-	for i = 1, totalObjectives do
+	for i = 1, numObjectives do
 		local description, criteriaType, completed, quantity, totalQuantity, flags, assetID, quantityString, criteriaID, duration, elapsed = C_Scenario.GetCriteriaInfo(i);
 		if(description) then
 			description = string.format("%d/%d %s", quantity, totalQuantity, description);
@@ -262,6 +290,95 @@ local AddActiveScenarioRow = function(self, index, title, level, details, icon, 
 			nextObjective = nextObjective + 1;
 		end
 	end
+
+	local numLineObjectives = #objectives.Rows;
+	for x = nextObjective, numLineObjectives do
+		local objective = objectives.Rows[x]
+		if(objective) then
+			objective.Text:SetText('')
+			objective.Icon:SetTexture(OBJ_ICON_INCOMPLETE)
+			if(objective:IsShown()) then
+				objective:Hide()
+			end
+		end
+	end
+
+	local objectiveHeight = (INNER_HEIGHT + 2) * numObjectives;
+	objectives:SetHeight(objectiveHeight + 1);
+
+	local newHeight = (nextObjective * (LARGE_ROW_HEIGHT + 2)) + (numObjectives * (INNER_HEIGHT + 2)) + (LARGE_INNER_HEIGHT + (nextObjective * 2));
+	row:SetHeight(newHeight);
+
+	MOD.Tracker.ScrollFrame.ScrollBar:SetValue(0)
+end
+
+local AddActivePopupRow = function(self, title, flag, questID, questLogIndex)
+	local objectivesShown = 0;
+	local nextObjective = 1;
+
+	local row = self.Rows.Popup;
+	if(row.RowID == questID) then
+		return
+	end
+
+	row.RowID = questID
+
+	icon = icon or LINE_QUEST_ICON;
+
+	row.Header.Text:SetText(title)
+	row.Badge.Icon:SetTexture(icon)
+	row.Button:SetID(questLogIndex)
+	row:Show()
+
+	-- local objectives = row.Objectives;
+	-- local numLineObjectives = #objectives.Rows;
+
+	-- for x = 1, numLineObjectives do
+	-- 	local objective = objectives.Rows[x]
+	-- 	if(objective) then
+	-- 		objective.Text:SetText('')
+	-- 		objective.Icon:SetTexture(OBJ_ICON_INCOMPLETE)
+	-- 		if(objective:IsShown()) then
+	-- 			objective:Hide()
+	-- 		end
+	-- 	end
+	-- end
+
+	-- objectives:SetHeight(1);
+	local newHeight = LARGE_ROW_HEIGHT + 2;
+	row:SetHeight(newHeight);
+end
+
+local AddActiveRow = function(self, title, level, icon, questID, questLogIndex, numObjectives, duration, elapsed)
+	local nextObjective = 1;
+
+	local row = self.Rows.Quest;
+	if(row.RowID == questID) then
+		return
+	end
+
+	icon = icon or LINE_QUEST_ICON;
+	row.RowID = questID
+
+	local color = GetQuestDifficultyColor(level)
+	row.Header.Level:SetTextColor(color.r, color.g, color.b)
+	row.Header.Level:SetText(level)
+	row.Header.Text:SetText(title)
+	row.Badge.Icon:SetTexture(icon)
+	row.Button:SetID(questLogIndex)
+	row:Show()
+
+	local objectives = row.Objectives;
+
+	for i = 1, numObjectives do
+		local description, category, completed = GetQuestObjectiveInfo(questID, i);
+		if(description) then
+			objectives:Add(i, description, completed, duration, elapsed)
+			nextObjective = nextObjective + 1;
+		end
+	end
+
+	local numLineObjectives = #objectives.Rows;
 
 	for x = nextObjective, numLineObjectives do
 		local objective = objectives.Rows[x]
@@ -274,178 +391,84 @@ local AddActiveScenarioRow = function(self, index, title, level, details, icon, 
 		end
 	end
 
-	local objectiveHeight = (INNER_HEIGHT + 2) * totalObjectives;
-	objectives:SetHeight(objectiveHeight);
+	local objectiveHeight = (INNER_HEIGHT + 2) * numObjectives;
+	objectives:SetHeight(objectiveHeight + 1);
 
-	local newHeight = ((ROW_HEIGHT + 2) + (totalObjectives * (INNER_HEIGHT + 2)));
+	local newHeight = (LARGE_ROW_HEIGHT + 2) + (numObjectives * (INNER_HEIGHT + 2)) + 2;
 	row:SetHeight(newHeight);
 
-	return totalObjectives;
+	MOD.Tracker.ScrollFrame.ScrollBar:SetValue(0)
 end
 
-local AddActivePopupRow = function(self, index, title, flag, questID, questLogIndex)
-	local objectivesShown = 0;
-	local nextObjective = 1;
-
-	local row = self.Rows[index];
-	if(not row) then
-		self.Rows[index] = NewActiveRow(self, index)
-		row = self.Rows[index]
-		row.RowID = questID
-	elseif(row and row.RowID == questID) then
-		index = index + 1
-		self.Rows[index] = NewActiveRow(self, index)
-		row = self.Rows[index]
-		row.RowID = questID
-	end
-
-	icon = icon or LINE_QUEST_ICON;
-
-	row.Header.Text:SetText(title)
-	row.Badge.Icon:SetTexture(icon)
-	row.Button:SetID(questLogIndex)
-	row:Show()
-
-	local objectives = row.Objectives;
-	local numLineObjectives = #objectives.Rows;
-
-	for x = 1, numLineObjectives do
-		local objective = objectives.Rows[x]
-		if(objective) then
-			objective.Text:SetText('')
-			objective.Icon:SetTexture(OBJ_ICON_INCOMPLETE)
-			if(objective:IsShown()) then
-				objective:Hide()
-			end
-		end
-	end
-
-	objectives:SetHeight(1);
-	local newHeight = ROW_HEIGHT + 2;
-	row:SetHeight(newHeight);
-
-	return 0;
+local unset_row = function(row)
+	row:SetHeight(1)
+	row.Header.Text:SetText('')
+	row.Header.Level:SetText('')
+	row.Badge.Icon:SetTexture(0,0,0,0)
+	row.Button:SetID(0)
+	row:Hide()
 end
 
-local AddActiveRow = function(self, index, title, questID, questLogIndex)
-	local objectivesShown = 0;
-	local nextObjective = 1;
-
-	local row = self.Rows[index];
-	if(not row) then
-		self.Rows[index] = NewActiveRow(self, index)
-		row = self.Rows[index]
-	elseif(row and row.RowID == questID) then
-		index = index + 1
-		self.Rows[index] = NewActiveRow(self, index)
-		row = self.Rows[index]
+local RefreshActiveHeight = function(self)
+	if(self.Rows.Scenario.RowID == 0) then
+		unset_row(self.Rows.Scenario)
+	end
+	if(self.Rows.Popup.RowID == 0) then
+		unset_row(self.Rows.Popup)
+	end
+	if(self.Rows.Quest.RowID == 0) then
+		unset_row(self.Rows.Quest)
 	end
 
-	icon = icon or LINE_QUEST_ICON;
-	row.RowID = questID
-	row.Header.Text:SetText(title)
-	row.Badge.Icon:SetTexture(icon)
-	row.Button:SetID(questLogIndex)
-	row:Show()
-
-	local objectives = row.Objectives;
-	local numLineObjectives = #objectives.Rows;
-
-	for x = 1, numLineObjectives do
-		local objective = objectives.Rows[x]
-		if(objective) then
-			objective.Text:SetText('')
-			objective.Icon:SetTexture(OBJ_ICON_INCOMPLETE)
-			if(objective:IsShown()) then
-				objective:Hide()
-			end
-		end
-	end
-
-	objectives:SetHeight(1);
-	local newHeight = ROW_HEIGHT + 2;
-	row:SetHeight(newHeight);
-
-	return 0;
+	local h1 = self.Rows.Scenario:GetHeight()
+	local h2 = self.Rows.Popup:GetHeight()
+	local h3 = self.Rows.Quest:GetHeight()
+	local NEWHEIGHT = h1 + h2 + h3 + 6;
+	self:SetHeight(NEWHEIGHT)
 end
 
 local RefreshActiveObjective = function(self, event, ...)
-	local newHeight = 1;
-	local nextLine = 1;
-	local totalObjectives = 0;
-
-	if((event == 'SCENARIO_UPDATE' or event == 'SCENARIO_CRITERIA_UPDATE') and C_Scenario.IsInScenario()) then
-		local scenarioName, currentStage, numStages, flags, _, _, _, xp, money = C_Scenario.GetInfo();
-		if(scenarioName) then
-			local index = #self.Rows;
-			local stageName, stageDescription, numObjectives = C_Scenario.GetStepInfo();
-			-- local inChallengeMode = bit.band(flags, SCENARIO_FLAG_CHALLENGE_MODE) == SCENARIO_FLAG_CHALLENGE_MODE;
-			-- local inProvingGrounds = bit.band(flags, SCENARIO_FLAG_PROVING_GROUNDS) == SCENARIO_FLAG_PROVING_GROUNDS;
-			-- local dungeonDisplay = bit.band(flags, SCENARIO_FLAG_USE_DUNGEON_DISPLAY) == SCENARIO_FLAG_USE_DUNGEON_DISPLAY;
-			local scenariocompleted = currentStage > numStages;
-			if(not scenariocompleted) then
-				local newCount = self:AddScenario(index, title, level, details, icon, questID, questLogIndex, numObjectives, duration, elapsed)
-				totalObjectives = totalObjectives + newCount;
-			end
-
-			newHeight = (#self.Rows * (LARGE_ROW_HEIGHT + 2)) + (totalObjectives * (INNER_HEIGHT + 2));
-			self:SetHeight(newHeight);
-
-			nextLine = nextLine + 1;
-		end
-
-		local numLines = #self.Rows;
-		for x = nextLine, numLines do
-			local row = self.Rows[x]
-			if(row) then
-				row.RowID = 0;
-				row.Header.Text:SetText('');
-				row.Button:SetID(0);
-				if(row:IsShown()) then
-					row:Hide()
+	if(C_Scenario.IsInScenario()) then
+		if(event and (event == 'SCENARIO_UPDATE' or event == 'SCENARIO_CRITERIA_UPDATE')) then
+			local scenarioName, currentStage, numStages, flags, _, _, _, xp, money = C_Scenario.GetInfo();
+			if(scenarioName) then
+				local stageName, stageDescription, numObjectives = C_Scenario.GetStepInfo();
+				-- local inChallengeMode = bit.band(flags, SCENARIO_FLAG_CHALLENGE_MODE) == SCENARIO_FLAG_CHALLENGE_MODE;
+				-- local inProvingGrounds = bit.band(flags, SCENARIO_FLAG_PROVING_GROUNDS) == SCENARIO_FLAG_PROVING_GROUNDS;
+				-- local dungeonDisplay = bit.band(flags, SCENARIO_FLAG_USE_DUNGEON_DISPLAY) == SCENARIO_FLAG_USE_DUNGEON_DISPLAY;
+				local scenariocompleted = currentStage > numStages;
+				if(not scenariocompleted) then
+					self:AddScenario(title, level, details, icon, questID, questLogIndex, numObjectives, duration, elapsed)
+				else
+					self.Rows.Scenario.RowID = 0
 				end
 			end
 		end
-	elseif(event == 'AUTO_QUEST_ADD') then
-		for i = 1, GetNumAutoQuestPopUps() do
-			local questID, popUpType = GetAutoQuestPopUp(i);
-			if(questID) then
-				local index = #self.Rows;
-				local questLogIndex = GetQuestLogIndexByID(questID);
-				local title = GetQuestLogTitle(questLogIndex);
-				local newCount = self:AddPopup(index, title, popUpType, questID, questLogIndex)
-				totalObjectives = totalObjectives + newCount;
-			end
-
-			newHeight = (#self.Rows * (LARGE_ROW_HEIGHT + 2)) + (totalObjectives * (INNER_HEIGHT + 2));
-			self:SetHeight(newHeight);
-
-			nextLine = nextLine + 1;
-		end
-
-		local numLines = #self.Rows;
-		for x = nextLine, numLines do
-			local row = self.Rows[x]
-			if(row) then
-				row.RowID = 0;
-				row.Header.Text:SetText('');
-				row.Button:SetID(0);
-				if(row:IsShown()) then
-					row:Hide()
-				end
-			end
-		end
-	elseif(event == 'AUTO_QUEST_REMOVE') then
-		self:SetHeight(1);
-	elseif(event == 'ACTIVE_QUEST_LOADED') then
-		local index = #self.Rows;
-		local title, level, icon, questID, questLogIndex, numObjectives, duration, elapsed = ...
-		local newCount = self:AddGeneral(index, title, questID, questLogIndex)
-		totalObjectives = totalObjectives + newCount;
-		newHeight = (#self.Rows * (LARGE_ROW_HEIGHT + 2)) + (totalObjectives * (INNER_HEIGHT + 2));
-
-		self:SetHeight(newHeight);
+	else
+		self.Rows.Scenario.RowID = 0
 	end
+
+	if(event) then
+		if(event == 'AUTO_QUEST_ADD') then
+			self.Rows.Popup.RowID = 0
+			for i = 1, GetNumAutoQuestPopUps() do
+				local questID, popUpType = GetAutoQuestPopUp(i);
+				if(questID) then
+					local questLogIndex = GetQuestLogIndexByID(questID);
+					local title = GetQuestLogTitle(questLogIndex);
+					self:AddPopup(title, popUpType, questID, questLogIndex)
+				end
+			end
+			MOD.Tracker.ScrollFrame.ScrollBar:SetValue(0)
+		elseif(event == 'AUTO_QUEST_REMOVE') then
+			self.Rows.Popup.RowID = 0
+		elseif(event == 'ACTIVE_QUEST_LOADED') then
+			self.Rows.Quest.RowID = 0
+			self:AddGeneral(...)
+		end
+	end
+
+	self:RefreshHeight()
 end
 
 local _hook_AutoPopAdd = function(questID, popUpType)
@@ -521,6 +544,9 @@ function MOD:Load()
 	scrollBar:SetValueStep(5);
 	scrollBar:SetMinMaxValues(1, 420);
 	scrollBar:SetValue(1);
+	scrollBar:SetScript("OnValueChanged", function(self, argValue)
+		SVUI_QuestTrackerScrollFrame:SetVerticalScroll(argValue)
+	end)
 
 	local scrollChild = CreateFrame("Frame", "SVUI_QuestTrackerScrollFrameScrollChild", scrollFrame);
 	scrollChild:SetWidth(scrollFrame:GetWidth());
@@ -542,7 +568,7 @@ function MOD:Load()
 		if value > self.MaxVal then 
 			value = self.MaxVal
 		end 
-		self:SetVerticalScroll(value)
+		--self:SetVerticalScroll(value)
 		self.ScrollBar:SetValue(value)
 	end)
 
@@ -555,10 +581,12 @@ function MOD:Load()
 	active:SetHeight(1);
 	active:SetPoint("TOPLEFT", scrollChild, "TOPLEFT", 0, 0);
 	active:SetPoint("TOPRIGHT", scrollChild, "TOPRIGHT", 0, 0);
+	--active:SetPanelTemplate();
 
 	active.Rows = {};
-	--active.Refresh = RefreshActiveObjective;
-	active.Refresh = SV.fubar
+	active.Refresh = RefreshActiveObjective;
+	active.RefreshHeight = RefreshActiveHeight;
+	--active.Refresh = SV.fubar
 	
 	active.AddScenario = AddActiveScenarioRow;
 	active.AddPopup = AddActivePopupRow;
@@ -567,6 +595,11 @@ function MOD:Load()
 
 	self.Active = active;
 
+	self.Active.Rows.Scenario = NewActiveRow()
+	self.Active.Rows.Popup = NewActiveRow(self.Active.Rows.Scenario)
+	self.Active.Rows.Quest = NewActiveRow(self.Active.Rows.Popup)
+	self.Active:RefreshHeight()
+
 	self:InitializeQuestItem()
 	self:InitializeQuests()
 	self:InitializeAchievements()
@@ -574,8 +607,8 @@ function MOD:Load()
 	self:RegisterEvent("SCENARIO_UPDATE", self.UpdateActiveObjective);
 	self:RegisterEvent("SCENARIO_CRITERIA_UPDATE", self.UpdateActiveObjective);
 
-	hooksecurefunc("AddAutoQuestPopUp", _hook_AutoPopAdd)
-	hooksecurefunc("RemoveAutoQuestPopUp", _hook_AutoPopRemove)
+	--hooksecurefunc("AddAutoQuestPopUp", _hook_AutoPopAdd)
+	--hooksecurefunc("RemoveAutoQuestPopUp", _hook_AutoPopRemove)
 
 	self.Tracker.DockButton:MakeDefault();
 	self.Tracker:Show();

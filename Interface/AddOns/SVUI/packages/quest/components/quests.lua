@@ -103,6 +103,16 @@ end
 SCRIPT HANDLERS
 ##########################################################
 ]]--
+local ActiveButton_OnClick = function(self, button)
+	local rowIndex = self:GetID();
+	if(rowIndex and (rowIndex ~= 0)) then
+		local questID, _, questLogIndex, numObjectives, requiredMoney, completed, startEvent, isAutoComplete, duration, elapsed, questType, isTask, isStory, isOnMap, hasLocalPOI = GetQuestWatchInfo(rowIndex);
+		local title, level, suggestedGroup = GetQuestLogTitle(questLogIndex)
+		local icon = self.Icon:GetTexture()
+		MOD.Active:Refresh('ACTIVE_QUEST_LOADED', title, level, icon, questID, questLogIndex, numObjectives, duration, elapsed)
+	end
+end
+
 local ViewButton_OnClick = function(self, button)
 	local questIndex = self:GetID();
 	if(questIndex and (questIndex ~= 0)) then
@@ -223,7 +233,15 @@ local function NewQuestRow(parent, lineNumber)
 	row.Badge.Icon = row.Badge:CreateTexture(nil,"OVERLAY")
 	row.Badge.Icon:SetAllPoints(row.Badge);
 	row.Badge.Icon:SetTexture(LINE_QUEST_ICON)
-	row.Badge.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+	row.Badge.Icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+
+	row.Badge.Button = CreateFrame("Button", nil, row.Badge)
+	row.Badge.Button:SetAllPoints(row.Badge);
+	row.Badge.Button:SetButtonTemplate(true, 1, 1, 1)
+	row.Badge.Button:SetID(0)
+	row.Badge.Button.Icon = row.Badge.Icon;
+	row.Badge.Button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+	row.Badge.Button:SetScript("OnClick", ActiveButton_OnClick)
 
 	row.Header = CreateFrame("Frame", nil, row)
 	row.Header:SetPoint("TOPLEFT", row.Badge, "TOPRIGHT", 2, 0);
@@ -254,7 +272,7 @@ local function NewQuestRow(parent, lineNumber)
 
 	row.Button = CreateFrame("Button", nil, row.Header)
 	row.Button:SetAllPoints(row.Header);
-	row.Button:SetButtonTemplate(true)
+	row.Button:SetButtonTemplate(true, 1, 1, 1)
 	row.Button:SetID(0)
 	row.Button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 	row.Button:SetScript("OnClick", ViewButton_OnClick)
@@ -298,6 +316,7 @@ local AddQuestRow = function(self, index, title, level, details, icon, questID, 
 	row.Header.Level:SetText(level)
 	row.Header.Text:SetText(title)
 	row.Badge.Icon:SetTexture(icon)
+	row.Badge.Button:SetID(index)
 	row.Button:SetID(questLogIndex)
 	row:Show()
 
@@ -342,6 +361,7 @@ local RefreshQuests = function(self, event, ...)
 			if(questID) then
 				nextLine = nextLine + 1;
 				local title, level, suggestedGroup = GetQuestLogTitle(questLogIndex)
+				local icon = LINE_QUEST_ICON;
 				if(QuestHasPOIInfo(questID)) then
 					local link, texture, _, showCompleted = GetQuestLogSpecialItemInfo(questLogIndex)
 					local areaID = QuestInZone[questID]
@@ -355,6 +375,8 @@ local RefreshQuests = function(self, event, ...)
 						closestIndex = questLogIndex
 						closestDuration = failureTime
 						closestExpiration = timeElapsed
+
+						icon = texture
 					elseif(not completed or (completed and showCompleted)) then
 						local distanceSq, onContinent = GetDistanceSqToQuest(questLogIndex)
 						if(onContinent and distanceSq < shortestDistance) then
@@ -368,6 +390,8 @@ local RefreshQuests = function(self, event, ...)
 							closestIndex = questLogIndex
 							closestDuration = failureTime
 							closestExpiration = timeElapsed
+
+							icon = texture
 						end
 					end
 				end
@@ -384,6 +408,7 @@ local RefreshQuests = function(self, event, ...)
 			row.RowID = 0;
 			row.Header.Text:SetText('');
 			row.Button:SetID(0);
+			row.Badge.Button:SetID(0);
 			if(row:IsShown()) then
 				row:Hide()
 			end
@@ -473,7 +498,7 @@ function MOD:InitializeQuests()
 	local quests = CreateFrame("Frame", nil, scrollChild)
 	quests:SetWidth(ROW_WIDTH);
 	quests:SetHeight(ROW_HEIGHT);
-	quests:SetPoint("TOP", self.Active, "BOTTOM", 0, 0);
+	quests:SetPoint("TOPLEFT", self.Active, "BOTTOMLEFT", 0, 0);
 
 	quests.Header = CreateFrame("Frame", nil, quests)
 	quests.Header:SetPoint("TOPLEFT", quests, "TOPLEFT", 2, -2);
