@@ -195,7 +195,7 @@ local EnemyCache, AlertedCache = {},{}
 local playerGUID = UnitGUID('player')
 local playerFaction = UnitFactionGroup("player")
 local classColor = RAID_CLASS_COLORS
-local classColors = SVUI_CLASS_COLORS[SV.class]
+local classColors = CUSTOM_CLASS_COLORS[SV.class]
 local classR, classG, classB = classColors.r, classColors.g, classColors.b
 local classA = 0.35
 local fallbackColor = {r=1,g=1,b=1}

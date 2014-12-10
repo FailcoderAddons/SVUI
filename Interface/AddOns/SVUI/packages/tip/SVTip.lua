@@ -381,7 +381,7 @@ local _hook_GameTooltip_OnTooltipSetUnit = function(self)
 		local pvpName = UnitPVPName(unit)
 		local realmRelation = UnitRealmRelationship(unit)
 		colors = RAID_CLASS_COLORS[classToken]
-		burst = SVUI_CLASS_COLORS[classToken]
+		burst = CUSTOM_CLASS_COLORS[classToken]
 
 		if(PLAYER_INFO and pvpName) then 
 			unitName = pvpName 

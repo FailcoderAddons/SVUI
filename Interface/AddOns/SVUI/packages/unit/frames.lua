@@ -969,7 +969,7 @@ local ArenaPrepHandler_OnEvent = function(self, event)
                             prepframe.SpecClass:SetText(spec .. " - " .. LOCALIZED_CLASS_NAMES_MALE[class])
                             prepframe.SpecIcon.Icon:SetTexture(icon or [[INTERFACE\ICONS\INV_MISC_QUESTIONMARK]])
 
-                            local color = SVUI_CLASS_COLORS[class]
+                            local color = CUSTOM_CLASS_COLORS[class]
                             local textcolor = RAID_CLASS_COLORS[class] or color
                             if color then
                                 prepframe.Health:SetStatusBarColor(color.r, color.g, color.b)

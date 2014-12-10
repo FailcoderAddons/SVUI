@@ -55,9 +55,9 @@ local mungs = false;
 local user_music_vol = GetCVar("Sound_MusicVolume") or 0;
 local musicIsPlaying;
 local PageData, OnClickData
-local SVUI_CLASS_COLORS = _G.SVUI_CLASS_COLORS
+local CUSTOM_CLASS_COLORS = _G.CUSTOM_CLASS_COLORS
 local RAID_CLASS_COLORS = _G.RAID_CLASS_COLORS
-local scc = SVUI_CLASS_COLORS[SV.class];
+local scc = CUSTOM_CLASS_COLORS[SV.class];
 local rcc = RAID_CLASS_COLORS[SV.class];
 local r2 = .1 + (rcc.r * .1)
 local g2 = .1 + (rcc.g * .1)

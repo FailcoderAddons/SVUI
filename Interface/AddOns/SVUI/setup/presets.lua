@@ -49,14 +49,14 @@ local L = SV.L;
 LOCAL VARS
 ##########################################################
 ]]--
-local SVUI_CLASS_COLORS = _G.SVUI_CLASS_COLORS
+local CUSTOM_CLASS_COLORS = _G.CUSTOM_CLASS_COLORS
 local RAID_CLASS_COLORS = _G.RAID_CLASS_COLORS
 
 local CONTINUED = _G.CONTINUED
 local SETTINGS = _G.SETTINGS
 local HIGH = _G.HIGH
 local LOW = _G.LOW
-local scc = SVUI_CLASS_COLORS[SV.class];
+local scc = CUSTOM_CLASS_COLORS[SV.class];
 local rcc = RAID_CLASS_COLORS[SV.class];
 local r2 = .1 + (rcc.r * .1)
 local g2 = .1 + (rcc.g * .1)

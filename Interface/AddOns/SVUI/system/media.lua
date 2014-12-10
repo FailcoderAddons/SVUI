@@ -52,7 +52,7 @@ local CHAT_FONT_HEIGHTS   = _G.CHAT_FONT_HEIGHTS
 local STANDARD_TEXT_FONT  = _G.STANDARD_TEXT_FONT
 local UNIT_NAME_FONT      = _G.UNIT_NAME_FONT
 local DAMAGE_TEXT_FONT    = _G.DAMAGE_TEXT_FONT
-local SVUI_CLASS_COLORS   = _G.SVUI_CLASS_COLORS
+local CUSTOM_CLASS_COLORS   = _G.CUSTOM_CLASS_COLORS
 local RAID_CLASS_COLORS   = _G.RAID_CLASS_COLORS
 local UIDROPDOWNMENU_DEFAULT_TEXT_HEIGHT  = _G.UIDROPDOWNMENU_DEFAULT_TEXT_HEIGHT
 --[[ 
@@ -135,7 +135,7 @@ SV.Media = {}
 
 do
   local myclass = select(2,UnitClass("player"))
-  local cColor1 = SVUI_CLASS_COLORS[myclass]
+  local cColor1 = CUSTOM_CLASS_COLORS[myclass]
   local cColor2 = RAID_CLASS_COLORS[myclass]
   local r1,g1,b1 = cColor1.r,cColor1.g,cColor1.b
   local r2,g2,b2 = cColor2.r*.25, cColor2.g*.25, cColor2.b*.25

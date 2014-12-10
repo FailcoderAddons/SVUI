@@ -58,7 +58,7 @@ UIPanels["CalendarFrame"] 					= { moving = false, snapped = false, canupdate = 
 UIPanels["CharacterFrame"] 					= { moving = false, snapped = false, canupdate = false, cansetpoint = false, centered = false };
 UIPanels["ClassTrainerFrame"] 				= { moving = false, snapped = false, canupdate = false, cansetpoint = false, centered = false };
 UIPanels["DressUpFrame"] 					= { moving = false, snapped = false, canupdate = false, cansetpoint = false, centered = false };
-UIPanels["DraenorZoneAbilityFrame"] 		= { moving = false, snapped = false, canupdate = false, cansetpoint = false, centered = false };
+--UIPanels["DraenorZoneAbilityFrame"] 		= { moving = false, snapped = false, canupdate = false, cansetpoint = false, centered = false };
 UIPanels["EncounterJournal"] 				= { moving = false, snapped = false, canupdate = false, cansetpoint = false, centered = false };
 UIPanels["FriendsFrame"] 					= { moving = false, snapped = false, canupdate = false, cansetpoint = false, centered = false };
 UIPanels["GMSurveyFrame"] 					= { moving = false, snapped = false, canupdate = false, cansetpoint = false, centered = true };
@@ -357,11 +357,6 @@ function Dragger:Initialize()
 	if(not SV.db.general.questWatch) then
 		UIPanels["ObjectiveTrackerFrame"] = { moving = false, snapped = false, canupdate = false, cansetpoint = false, centered = false };
 	end
-
-	DraenorZoneAbilityFrame:ClearAllPoints()
-	DraenorZoneAbilityFrame:SetSize(150, 125)
-	DraenorZoneAbilityFrame:SetClampedToScreen(false)
-	DraenorZoneAbilityFrame:SetPoint('CENTER', UIParent, 'TOP', 0, 0)
 
 	self.EventsActive = true
 

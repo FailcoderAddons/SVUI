@@ -63,7 +63,8 @@ local function StyleAlertIcon(frame, icon)
 	if((not frame) or (not icon)) then return end
 
 	icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-
+	icon:SetDrawLayer("BORDER")
+	
 	if(not frame.IconSlot) then 
 		frame.IconSlot = CreateFrame("Frame", nil, frame)
 		frame.IconSlot:WrapOuter(icon)

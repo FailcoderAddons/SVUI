@@ -1069,19 +1069,19 @@ local colors = {
 -- We do this because people edit the vars directly, and changing the default
 -- globals makes SPICE FLOW!
 local customClassColors = function()
-	if(SVUI_CLASS_COLORS) then
+	if(CUSTOM_CLASS_COLORS) then
 		local updateColors = function()
-			for eclass, color in next, SVUI_CLASS_COLORS do
+			for eclass, color in next, CUSTOM_CLASS_COLORS do
 				colors.class[eclass] = {color.r, color.g, color.b}
 			end
 
 			for _, obj in next, oUF.objects do
-				obj:UpdateAllElements("SVUI_CLASS_COLORS")
+				obj:UpdateAllElements("CUSTOM_CLASS_COLORS")
 			end
 		end
 
 		updateColors()
-		SVUI_CLASS_COLORS:RegisterCallback(updateColors)
+		CUSTOM_CLASS_COLORS:RegisterCallback(updateColors)
 
 		return true
 	end

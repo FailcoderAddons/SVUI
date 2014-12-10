@@ -322,6 +322,7 @@ end
 
 local function ModifyActionButton(parent)
 	local button = parent:GetName()
+	if(not button) then return; end
 	local icon = _G[button.."Icon"]
 	local count = _G[button.."Count"]
 	local flash = _G[button.."Flash"]
@@ -1424,15 +1425,23 @@ CreateMicroBar = function(self)
 	SVUI_MicroBar:SetAlpha(0)
 end
 
-local CreateExtraBar = function(self)
-	local specialBarSize = ExtraActionBarFrame:GetSize()
-	local specialBar = CreateFrame("Frame", "SVUI_SpecialAbility", UIParent)
-	specialBar:Point("BOTTOM", SV.Screen, "BOTTOM", 0, (275 + specialBarSize))
-	specialBar:Size(specialBarSize)
-	ExtraActionBarFrame:SetParent(specialBar)
+local CreateSpecialAbilityButton = function(self)
+	local buttonSize = ExtraActionBarFrame:GetSize()
+
+	local ability = CreateFrame("Frame", "SVUI_SpecialAbility", UIParent)
+	ability:Point("BOTTOM", SV.Screen, "BOTTOM", 0, (275 + buttonSize))
+	ability:Size(buttonSize)
+
+	ExtraActionBarFrame:SetParent(ability)
 	ExtraActionBarFrame:ClearAllPoints()
-	ExtraActionBarFrame:SetPoint("CENTER", specialBar, "CENTER")
+	ExtraActionBarFrame:SetPoint("CENTER", ability, "CENTER")
 	ExtraActionBarFrame.ignoreFramePositionManager = true;
+
+	DraenorZoneAbilityFrame:SetParent(ability)
+	DraenorZoneAbilityFrame:ClearAllPoints()
+	DraenorZoneAbilityFrame:SetPoint("CENTER", ability, "CENTER")
+	DraenorZoneAbilityFrame.ignoreFramePositionManager = true;
+
 	local max = ExtraActionBarFrame:GetNumChildren()
 	for i = 1, max do 
 		local name = ("ExtraActionButton%d"):format(i)
@@ -1443,21 +1452,34 @@ local CreateExtraBar = function(self)
 			button.noResize = true;
 			button.pushed = true;
 			button.checked = true;
+
 			ModifyActionButton(button)
-			button:SetFixedPanelTemplate()
+			--button:SetSlotTemplate(true, 2, 0, 0, 0.75, true)
+
 			_G[icon]:SetDrawLayer("ARTWORK")
 			_G[cool]:FillInner()
+
 			local checkedTexture = button:CreateTexture(nil, "OVERLAY")
 			checkedTexture:SetTexture(0.9, 0.8, 0.1, 0.3)
 			checkedTexture:FillInner()
 			button:SetCheckedTexture(checkedTexture)
 		end 
 	end
+
+	local draenorButton = DraenorZoneAbilityFrame.SpellButton
+	if draenorButton then
+		--ModifyActionButton(draenorButton)
+		--draenorButton:SetSlotTemplate(true, 2, 0, 0, 0.75, true)
+		draenorButton.Icon:SetDrawLayer('ARTWORK')
+		draenorButton.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+		--draenorButton.Icon:SetInside()
+	end
+
 	if HasExtraActionBar()then 
 		ExtraActionBarFrame:Show()
 	end
 
-	SV.Mentalo:Add(specialBar, L["Boss Button"])
+	SV.Mentalo:Add(ability, L["Special Ability Button"])
 end
 --[[ 
 ########################################################## 
@@ -1608,7 +1630,7 @@ function MOD:Load()
 	CreateStanceBar(self)
 	CreatePetBar(self)
 	CreateMicroBar(self)
-	CreateExtraBar(self)
+	CreateSpecialAbilityButton(self)
 	
 	self:LoadKeyBinder()
 

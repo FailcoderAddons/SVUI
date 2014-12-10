@@ -74,7 +74,7 @@ local function formatTime(s)
 		return format("%dh", ceil(s / hour))
 	elseif s >= minute then
 		return format("%dm", ceil(s / minute))
-	elseif s >= minute / 12 then
+	elseif s >= 5 then
 		return floor(s)
 	end
 	

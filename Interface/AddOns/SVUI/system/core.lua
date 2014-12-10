@@ -180,14 +180,14 @@ local function DispatchCallbacks()
     end
 end
 
---[[ BUILD CLASS COLOR GLOBAL ]]--
+--[[ BUILD CLASS COLOR GLOBAL, CAN BE OVERRIDDEN BY THE ADDON !ClassColors ]]--
 
-local SVUI_CLASS_COLORS;
+local CUSTOM_CLASS_COLORS = _G.CUSTOM_CLASS_COLORS;
 
-do
+if(not CUSTOM_CLASS_COLORS) then
     local env = getfenv(0)
-    env.SVUI_CLASS_COLORS = {}
-    SVUI_CLASS_COLORS = env.SVUI_CLASS_COLORS
+    env.CUSTOM_CLASS_COLORS = {}
+    CUSTOM_CLASS_COLORS = env.CUSTOM_CLASS_COLORS
 
     local classes = {};
     local supercolors = {
@@ -207,7 +207,7 @@ do
         tinsert(classes, class)
     end
     tsort(classes)
-    setmetatable(SVUI_CLASS_COLORS,{
+    setmetatable(CUSTOM_CLASS_COLORS,{
         __index = function(t, k)
             if k == "RegisterCallback" then return RegisterCallback end
             if k == "UnregisterCallback" then return UnregisterCallback end
@@ -218,8 +218,8 @@ do
         local color = supercolors[class]
         local r, g, b = color.r, color.g, color.b
         local hex = ("ff%02x%02x%02x"):format(r * 255, g * 255, b * 255)
-        if not SVUI_CLASS_COLORS[class] or not SVUI_CLASS_COLORS[class].r or not SVUI_CLASS_COLORS[class].g or not SVUI_CLASS_COLORS[class].b then
-            SVUI_CLASS_COLORS[class] = {
+        if not CUSTOM_CLASS_COLORS[class] or not CUSTOM_CLASS_COLORS[class].r or not CUSTOM_CLASS_COLORS[class].g or not CUSTOM_CLASS_COLORS[class].b then
+            CUSTOM_CLASS_COLORS[class] = {
                 r = r,
                 g = g,
                 b = b,

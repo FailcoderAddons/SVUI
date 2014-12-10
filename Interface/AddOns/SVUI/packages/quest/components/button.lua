@@ -51,7 +51,6 @@ local MOD = SV.SVQuest;
 LOCALS
 ##########################################################
 ]]--
-local ticker;
 local blacklist = {
 	[113191] = true,
 	[110799] = true,
@@ -186,17 +185,56 @@ local RemoveButtonItem = function(self)
 	end
 end
 
-local UpdateButton = function(self)
-	MOD.Quests:UpdateRows()
+local UpdateButton = function(self, event, ...)
+	local shortestDistance = 62500;
+	local liveLines = GetNumQuestWatches();
+	local closestQuest, closestLink, closestTexture;
+
+	if(liveLines > 0) then
+		for i = 1, liveLines do
+			local questID, _, questLogIndex, numObjectives, requiredMoney, isComplete, startEvent, isAutoComplete, failureTime, timeElapsed, questType, isTask, isStory, isOnMap, hasLocalPOI = GetQuestWatchInfo(i);
+			if(questID) then
+				local title, level, suggestedGroup = GetQuestLogTitle(questLogIndex)
+				if(QuestHasPOIInfo(questID)) then
+					local link, texture, _, showCompleted = GetQuestLogSpecialItemInfo(questLogIndex)
+					if(link) then
+						local areaID = QuestInZone[questID]
+						if(areaID and areaID == GetCurrentMapAreaID()) then
+							closestQuest = title
+							closestLink = link
+							closestTexture = texture
+						elseif(not isComplete or (isComplete and showCompleted)) then
+							local distanceSq, onContinent = GetDistanceSqToQuest(questLogIndex)
+							if(onContinent and distanceSq < shortestDistance) then
+								shortestDistance = distanceSq
+								closestQuest = title
+								closestLink = link
+								closestTexture = texture
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+
+	if(closestLink) then
+		self:SetItem(closestLink, closestTexture)
+	elseif(self:IsShown()) then
+		self:RemoveItem()
+	end
 end
 --[[ 
 ########################################################## 
 PACKAGE CALL
 ##########################################################
 ]]--
-function MOD:CreateQuestItemButton()
+function MOD:InitializeQuestItem()
+	local buttonSize = SVUI_SpecialAbility:GetSize()
+
 	local Button = CreateFrame('Button', "SVUI_QuestAutoButton", UIParent, 'SecureActionButtonTemplate, SecureHandlerStateTemplate, SecureHandlerAttributeTemplate')
-	Button:SetSize(40,40)
+	Button:Size(SVUI_SpecialAbility:GetSize())
+	Button:SetPoint('CENTER', SVUI_SpecialAbility, 'CENTER', 0, 0)
 	Button:SetSlotTemplate(true)
 	Button:SetScript('OnLeave', GameTooltip_Hide)
 	Button:SetAttribute('type', 'item')
@@ -246,6 +284,12 @@ function MOD:CreateQuestItemButton()
 	Cooldown:Hide()
 	Button.Cooldown = Cooldown
 
+	local Artwork = Button:CreateTexture('$parentArtwork', 'OVERLAY')
+	Artwork:SetPoint('CENTER', -2, 0)
+	Artwork:SetSize(256, 128)
+	Artwork:SetTexture([[Interface\ExtraButton\Default]])
+	Button.Artwork = Artwork
+
 	Button.SetItem = SetButtonItem
 	Button.RemoveItem = RemoveButtonItem
 	Button.Update = UpdateButton
@@ -262,5 +306,5 @@ function MOD:CreateQuestItemButton()
 	Button:RegisterEvent('QUEST_POI_UPDATE')
 	Button:SetScript('OnEvent', QuestButton_OnEvent)
 
-	return Button
+	self.QuestItem = Button
 end

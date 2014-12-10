@@ -87,7 +87,7 @@ MOD.ListNeedsUpdate = true
 LOCALIZED GLOBALS
 ##########################################################
 ]]--
-local SVUI_CLASS_COLORS = _G.SVUI_CLASS_COLORS
+local CUSTOM_CLASS_COLORS = _G.CUSTOM_CLASS_COLORS
 local RAID_CLASS_COLORS = _G.RAID_CLASS_COLORS
 --[[ 
 ########################################################## 

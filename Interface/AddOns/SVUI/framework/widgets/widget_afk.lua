@@ -64,7 +64,7 @@ end
 
 function SV.AFK:Initialize()
 	local classToken = select(2,UnitClass("player"))
-	local color = SVUI_CLASS_COLORS[classToken]
+	local color = CUSTOM_CLASS_COLORS[classToken]
 	self.BG:SetVertexColor(color.r, color.g, color.b)
 	self.BG:ClearAllPoints()
 	self.BG:Size(500,600)

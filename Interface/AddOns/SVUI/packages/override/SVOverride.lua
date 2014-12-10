@@ -154,9 +154,9 @@ function MOD:Load()
 	NewHook("UIParent_ManageFramePositions", CaptureBarHandler)
 
 	SVUI_AltPowerBar:Size(128, 50)
-	PlayerPowerBarAlt:ClearAllPoints()
-	PlayerPowerBarAlt:SetPoint("CENTER", SVUI_AltPowerBar, "CENTER")
 	PlayerPowerBarAlt:SetParent(SVUI_AltPowerBar)
+	PlayerPowerBarAlt:ClearAllPoints()
+	PlayerPowerBarAlt:SetPoint("CENTER", SVUI_AltPowerBar, "CENTER", 0, 0)
 	PlayerPowerBarAlt.ignoreFramePositionManager = true;
 	SV.Mentalo:Add(SVUI_AltPowerBar, L["Alternative Power"])
 

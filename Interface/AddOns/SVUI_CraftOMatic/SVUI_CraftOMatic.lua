@@ -93,7 +93,7 @@ LOCAL VARS
 ]]--
 local currentModeKey = false;
 local ModeLogsFrame = CreateFrame("Frame", "SVUI_ModeLogsFrame", UIParent)
-local classColors = SVUI_CLASS_COLORS[SV.class]
+local classColors = CUSTOM_CLASS_COLORS[SV.class]
 local classR, classG, classB = classColors.r, classColors.g, classColors.b
 local classA = 0.35
 local lastClickTime;

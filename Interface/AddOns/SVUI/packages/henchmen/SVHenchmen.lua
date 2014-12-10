@@ -714,49 +714,56 @@ end
 INVITE AUTOMATONS
 ##########################################################
 ]]--
-function MOD:PARTY_INVITE_REQUEST(event, arg)
-	if not SV.db.SVHenchmen.autoAcceptInvite then return end
+function MOD:PARTY_INVITE_REQUEST(event, invitedBy)
+	if(not SV.db.SVHenchmen.autoAcceptInvite) then return; end
 
-	if IsInGroup() or QueueStatusMinimapButton:IsShown() then return end
- 
-	if GetNumFriends() > 0 then ShowFriends() end 
-	if IsInGuild() then GuildRoster() end
+	if(QueueStatusMinimapButton:IsShown() or IsInGroup()) then return end
+	if(GetNumFriends() > 0) then 
+		ShowFriends() 
+	end
+	if(IsInGuild()) then 
+		GuildRoster() 
+	end
 
 	hideStatic = true;
-	local invited = false; 
-	for i = 1, GetNumFriends()do 
-		local friend = GetFriendInfo(i)
-		if friend == arg then 
+	local invited = false;
+
+	for f = 1, GetNumFriends() do 
+		local friend = gsub(GetFriendInfo(f), "-.*", "")
+		if(friend == invitedBy) then 
 			AcceptGroup()
 			invited = true;
 			SV:AddonMessage("Accepted an Invite From Your Friends!")
-			break 
+			break;
 		end 
 	end
-	if not invited then 
-		for i = 1, BNGetNumFriends()do 
-			local _, _, _, friend = BNGetFriendInfo(i)
-			arg = arg:match("(.+)%-.+") or arg;
-			if friend == arg then 
+
+	if(not invited) then 
+		for b = 1, BNGetNumFriends() do 
+			local _, _, _, _, friend = BNGetFriendInfo(b)
+			invitedBy = invitedBy:match("(.+)%-.+") or invitedBy;
+			if(friend == invitedBy) then 
 				AcceptGroup()
 				invited = true;
-				SV:AddonMessage("Accepted an Invite!")
-				break 
+				SV:AddonMessage("Accepted an Invite From Your Friends!")
+				break;
 			end 
 		end 
-	end 
-	if not invited then 
-		for i = 1, GetNumGuildMembers(true)do 
-			local guildMate = GetGuildRosterInfo(i)
-			if guildMate == arg then 
+	end
+
+	if(not invited) then 
+		for g = 1, GetNumGuildMembers(true) do 
+			local guildMate = gsub(GetGuildRosterInfo(g), "-.*", "")
+			if(guildMate == invitedBy) then 
 				AcceptGroup()
 				invited = true;
 				SV:AddonMessage("Accepted an Invite From Your Guild!")
-				break 
+				break;
 			end 
 		end 
 	end
-	if invited then
+
+	if(invited) then
 		local popup = StaticPopup_FindVisible("PARTY_INVITE")
 		if(popup) then
 			popup.inviteAccepted = 1
