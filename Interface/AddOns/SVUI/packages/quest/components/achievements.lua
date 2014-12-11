@@ -52,7 +52,7 @@ LOCALS
 ##########################################################
 ]]--
 local ROW_WIDTH = 300;
-local ROW_HEIGHT = 24;
+local ROW_HEIGHT = 20;
 local INNER_HEIGHT = ROW_HEIGHT - 4;
 local LARGE_ROW_HEIGHT = ROW_HEIGHT * 2;
 local LARGE_INNER_HEIGHT = LARGE_ROW_HEIGHT - 4;
@@ -146,7 +146,7 @@ local function NewObjectiveRow(parent, lineNumber)
 	objective.Text:SetPoint("TOPLEFT", objective, "TOPLEFT", INNER_HEIGHT + 6, -2);
 	objective.Text:SetPoint("TOPRIGHT", objective, "TOPRIGHT", 0, -2);
 	objective.Text:SetHeight(INNER_HEIGHT - 2)
-	objective.Text:SetFont(SV.Media.font.roboto, 12, "NONE")
+	objective.Text:SetFont(SV.Media.font.roboto, 11, "NONE")
 	objective.Text:SetTextColor(1,1,1)
 	objective.Text:SetShadowOffset(-1,-1)
 	objective.Text:SetShadowColor(0,0,0,0.5)
@@ -217,7 +217,7 @@ local function NewAchievementRow(parent, lineNumber)
 	row.Header:SetPoint("TOPLEFT", row.Badge, "TOPRIGHT", 2, 0);
 	row.Header:SetPoint("TOPRIGHT", row, "TOPRIGHT", -2, 0);
 	row.Header:SetHeight(INNER_HEIGHT);
-	row.Header:SetPanelTemplate("Headline")
+	--row.Header:SetPanelTemplate("Headline")
 
 	row.Header.Text = row.Header:CreateFontString(nil,"OVERLAY")
 	row.Header.Text:SetFont(SV.Media.font.roboto, 14, "NONE")
@@ -232,7 +232,7 @@ local function NewAchievementRow(parent, lineNumber)
 
 	row.Button = CreateFrame("Button", nil, row.Header)
 	row.Button:SetAllPoints(row.Header);
-	row.Button:SetButtonTemplate(true, 1, 1, 1)
+	row.Button:SetButtonTemplate("Headline", 1, 1, 1)
 	row.Button:SetID(0)
 	row.Button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 	row.Button:SetScript("OnClick", ViewButton_OnClick)
@@ -363,6 +363,12 @@ function MOD:UpdateAchievements(event, ...)
 	self.Tracker:Refresh()
 end
 
+local function UpdateAchievementLocals(...)
+	ROW_WIDTH, ROW_HEIGHT, INNER_HEIGHT, LARGE_ROW_HEIGHT, LARGE_INNER_HEIGHT = ...;
+end
+
+LibSuperVillain("Registry"):NewCallback("QUEST_UPVALUES_UPDATED", "UpdateAchievementLocals", UpdateAchievementLocals);
+
 function MOD:InitializeAchievements()
 	local scrollChild = self.Tracker.ScrollFrame.ScrollChild;
 
@@ -375,17 +381,22 @@ function MOD:InitializeAchievements()
 	achievements.Header:SetPoint("TOPLEFT", achievements, "TOPLEFT", 2, -2);
 	achievements.Header:SetPoint("TOPRIGHT", achievements, "TOPRIGHT", -2, -2);
 	achievements.Header:SetHeight(INNER_HEIGHT);
-	achievements.Header:SetPanelTemplate("Inset");
 
 	achievements.Header.Text = achievements.Header:CreateFontString(nil,"OVERLAY")
-	achievements.Header.Text:SetFont(SV.Media.font.roboto, 16, "OUTLINE")
-	achievements.Header.Text:SetJustifyH('CENTER')
+	achievements.Header.Text:SetPoint("TOPLEFT", achievements.Header, "TOPLEFT", 2, 0);
+	achievements.Header.Text:SetPoint("BOTTOMLEFT", achievements.Header, "BOTTOMLEFT", 2, 0);
+	achievements.Header.Text:SetFont(SV.Media.font.dialog, 16, "OUTLINE")
+	achievements.Header.Text:SetJustifyH('LEFT')
 	achievements.Header.Text:SetJustifyV('MIDDLE')
 	achievements.Header.Text:SetTextColor(1,0.6,0.1)
 	achievements.Header.Text:SetShadowOffset(-1,-1)
 	achievements.Header.Text:SetShadowColor(0,0,0,0.5)
 	achievements.Header.Text:SetText(TRACKER_HEADER_ACHIEVEMENTS)
-	achievements.Header.Text:SetAllPoints(achievements.Header)
+
+	achievements.Header.Divider = achievements.Header:CreateTexture(nil, 'BACKGROUND');
+	achievements.Header.Divider:SetPoint("TOPLEFT", achievements.Header.Text, "TOPRIGHT", -10, 0);
+	achievements.Header.Divider:SetPoint("BOTTOMRIGHT", achievements.Header, "BOTTOMRIGHT", 0, 0);
+	achievements.Header.Divider:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DROPDOWN-DIVIDER]]);
 
 	achievements.Rows = {};
 

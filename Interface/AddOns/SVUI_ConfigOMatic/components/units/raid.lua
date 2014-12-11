@@ -155,16 +155,41 @@ SV.Options.args.SVUnit.args["raid"] = {
 									step = 1, 
 									set = function(l, m)MOD:ChangeDBVar(m, l[#l], "raid");MOD:SetGroupFrame("raid")end, 
 								}, 
-								spacer = 
+								spacer1 = 
 								{
 									order = 3, 
 									name = "", 
 									type = "description", 
 									width = "full", 
-								}, 
-								showBy = 
+								},
+								wrapXOffset = 
 								{
 									order = 4, 
+									type = "range", 
+									name = L["Horizontal Spacing"], 
+									min = 0, 
+									max = 50, 
+									step = 1, 
+								}, 
+								wrapYOffset = 
+								{
+									order = 5, 
+									type = "range", 
+									name = L["Vertical Spacing"], 
+									min = 0, 
+									max = 50, 
+									step = 1, 
+								},
+								spacer2 = 
+								{
+									order = 6, 
+									name = "", 
+									type = "description", 
+									width = "full", 
+								},
+								showBy = 
+								{
+									order = 7, 
 									name = L["Growth Direction"], 
 									desc = L["Growth direction from the first unitframe."], 
 									type = "select", 
@@ -182,7 +207,7 @@ SV.Options.args.SVUnit.args["raid"] = {
 								},
 								gRowCol = 
 								{
-									order = 5, 
+									order = 8, 
 									type = "range", 
 									name = L["Groups Per Row / Column"], 
 									min = 1, 
@@ -196,25 +221,111 @@ SV.Options.args.SVUnit.args["raid"] = {
 											MOD:ViewGroupFrames(_G["SVUI_Raid"], true)
 										end
 									end, 
-								}, 
-								wrapXOffset = 
-								{
-									order = 6, 
-									type = "range", 
-									name = L["Horizontal Spacing"], 
-									min = 0, 
-									max = 50, 
-									step = 1, 
-								}, 
-								wrapYOffset = 
-								{
-									order = 7, 
-									type = "range", 
-									name = L["Vertical Spacing"], 
-									min = 0, 
-									max = 50, 
-									step = 1, 
-								}, 
+								},
+								allowedGroup = {
+									order = 9, 
+									name = L["Enabled Groups"], 
+									type = "group", 
+									guiInline = true, 
+									set = function(l, m)MOD:ChangeDBVar(m, l[#l], "raid");MOD:SetGroupFrame("raid", true)end, 
+									args = 
+									{
+										showGroupNumber = {
+											type = "toggle", 
+											order = 1, 
+											name = L["Show Group Number Icons"],
+											width = 'full',
+										},
+										one = 
+										{
+											type = "toggle", 
+											order = 2, 
+											name = L["Group 1"],
+											get = function(l)return SV.db.SVUnit["raid"]["allowedGroup"][1] end, 
+											set = function(l, m) 
+												SV.db.SVUnit["raid"]["allowedGroup"][1] = m; 
+												MOD:SetGroupFrame("raid")
+											end, 
+										},
+										two = 
+										{
+											type = "toggle", 
+											order = 3, 
+											name = L["Group 2"],
+											get = function(l)return SV.db.SVUnit["raid"]["allowedGroup"][2] end, 
+											set = function(l, m) 
+												SV.db.SVUnit["raid"]["allowedGroup"][2] = m; 
+												MOD:SetGroupFrame("raid")
+											end, 
+										},
+										three = 
+										{
+											type = "toggle", 
+											order = 4, 
+											name = L["Group 3"],
+											get = function(l)return SV.db.SVUnit["raid"]["allowedGroup"][3] end, 
+											set = function(l, m) 
+												SV.db.SVUnit["raid"]["allowedGroup"][3] = m; 
+												MOD:SetGroupFrame("raid")
+											end, 
+										},
+										four = 
+										{
+											type = "toggle", 
+											order = 5, 
+											name = L["Group 4"],
+											get = function(l)return SV.db.SVUnit["raid"]["allowedGroup"][4] end, 
+											set = function(l, m) 
+												SV.db.SVUnit["raid"]["allowedGroup"][4] = m; 
+												MOD:SetGroupFrame("raid")
+											end, 
+										},
+										five = 
+										{
+											type = "toggle", 
+											order = 6, 
+											name = L["Group 5"],
+											get = function(l)return SV.db.SVUnit["raid"]["allowedGroup"][5] end, 
+											set = function(l, m) 
+												SV.db.SVUnit["raid"]["allowedGroup"][5] = m; 
+												MOD:SetGroupFrame("raid")
+											end, 
+										},
+										six = 
+										{
+											type = "toggle", 
+											order = 7, 
+											name = L["Group 6"],
+											get = function(l)return SV.db.SVUnit["raid"]["allowedGroup"][6] end, 
+											set = function(l, m) 
+												SV.db.SVUnit["raid"]["allowedGroup"][6] = m; 
+												MOD:SetGroupFrame("raid")
+											end, 
+										},
+										seven = 
+										{
+											type = "toggle", 
+											order = 8, 
+											name = L["Group 7"],
+											get = function(l)return SV.db.SVUnit["raid"]["allowedGroup"][7] end, 
+											set = function(l, m) 
+												SV.db.SVUnit["raid"]["allowedGroup"][7] = m; 
+												MOD:SetGroupFrame("raid")
+											end, 
+										},
+										eight = 
+										{
+											type = "toggle", 
+											order = 9, 
+											name = L["Group 8"],
+											get = function(l)return SV.db.SVUnit["raid"]["allowedGroup"][8] end, 
+											set = function(l, m) 
+												SV.db.SVUnit["raid"]["allowedGroup"][8] = m; 
+												MOD:SetGroupFrame("raid")
+											end, 
+										},
+									}, 
+								},
 							}, 
 						},
 						sortingGroup = {

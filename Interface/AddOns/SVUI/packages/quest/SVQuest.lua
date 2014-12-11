@@ -60,23 +60,23 @@ local LARGE_INNER_HEIGHT = LARGE_ROW_HEIGHT - 4;
 local OBJ_ICON_ACTIVE = [[Interface\COMMON\Indicator-Yellow]];
 local OBJ_ICON_COMPLETE = [[Interface\COMMON\Indicator-Green]];
 local OBJ_ICON_INCOMPLETE = [[Interface\COMMON\Indicator-Gray]];
-local LINE_QUEST_ICON = [[Interface\ICONS\Ability_Hisek_Aim]]
-
-local ClosestQuestName, ClosestQuestLink, ClosestQuestTexture;
-local QuestInZone = {
-	[14108] = 541,
-	[13998] = 11,
-	[25798] = 61,
-	[25799] = 61,
-	[25112] = 161,
-	[25111] = 161,
-	[24735] = 201,
-};
+local LINE_QUEST_ICON = [[Interface\ICONS\Ability_Hisek_Aim]];
+local LINE_POPUP_COMPLETE = [[Interface\ICONS\Ability_Hisek_Aim]];
+local LINE_POPUP_OFFER = [[Interface\ICONS\Ability_Hisek_Aim]];
 --[[ 
 ########################################################## 
 SCRIPT HANDLERS
 ##########################################################
 ]]--
+local function unset_row(row)
+	row:SetHeight(1)
+	row.Header.Text:SetText('')
+	row.Header.Level:SetText('')
+	row.Badge.Icon:SetTexture(0,0,0,0)
+	row.Button:SetID(0)
+	row:Hide()
+end
+
 local ShowSubDocklet = function(self)
 	if(InCombatLockdown()) then return end
 	if(not ObjectiveTrackerFrame:IsShown()) then ObjectiveTrackerFrame:Show() end
@@ -85,6 +85,13 @@ end
 local HideSubDocklet = function(self)
 	if(InCombatLockdown()) then return end
 	if(ObjectiveTrackerFrame:IsShown()) then ObjectiveTrackerFrame:Hide() end
+end
+
+local ActiveButton_OnClick = function(self, button)
+	local parent = self.Parent;
+	local row = parent.Rows.Quest;
+	unset_row(row);
+	parent:RefreshHeight();
 end
 
 local ViewButton_OnClick = function(self, button)
@@ -116,6 +123,19 @@ local ViewButton_OnClick = function(self, button)
 		else
 			QuestMapFrame_OpenToQuestDetails(questID);
 		end
+	end
+end
+
+local PopUpButton_OnClick = function(self, button)
+	local questIndex = self:GetID();
+	if(questIndex and (questIndex ~= 0) and self.PopUpType) then
+		local questID = select(8, GetQuestLogTitle(questIndex));
+		if(self.PopUpType == "OFFER") then
+			ShowQuestOffer(questID);
+		else
+			ShowQuestComplete(questID);
+		end
+		AutoQuestPopupTracker_RemovePopUp(questID);
 	end
 end
 --[[ 
@@ -186,6 +206,14 @@ local AddObjectiveRow = function(self, index, description, completed, duration, 
 	return objective;
 end
 
+local CloseButton_OnEnter = function(self)
+    self:SetBackdropBorderColor(0.1, 0.8, 0.8)
+end
+
+local CloseButton_OnLeave = function(self)
+    self:SetBackdropBorderColor(0,0,0,1)
+end
+
 local function NewActiveRow(anchorFrame)
 	local parent = MOD.Active
 
@@ -211,7 +239,7 @@ local function NewActiveRow(anchorFrame)
 
 	row.Header = CreateFrame("Frame", nil, row)
 	row.Header:Point("TOPLEFT", row.Badge, "TOPRIGHT", 4, -1);
-	row.Header:Point("TOPRIGHT", row, "TOPRIGHT", -2, 0);
+	row.Header:Point("TOPRIGHT", row, "TOPRIGHT", -(ROW_HEIGHT + 4), 0);
 	row.Header:Height(INNER_HEIGHT);
 	row.Header:SetPanelTemplate("Headline")
 
@@ -236,8 +264,22 @@ local function NewActiveRow(anchorFrame)
 	row.Header.Text:Point("TOPLEFT", row.Header.Level, "TOPRIGHT", 4, 0);
 	row.Header.Text:Point("BOTTOMRIGHT", row.Header, "BOTTOMRIGHT", 0, 0);
 
+	row.CloseButton = CreateFrame("Button", nil, row.Header, "UIPanelCloseButton")
+	--row.CloseButton:Size(INNER_HEIGHT, INNER_HEIGHT);
+	row.CloseButton:RemoveTextures()
+	row.CloseButton:SetButtonTemplate(nil, 1, -7, -7, nil, "red")
+	row.CloseButton:SetFrameLevel(row.CloseButton:GetFrameLevel() + 4)
+	row.CloseButton:SetNormalTexture([[Interface\AddOns\SVUI\assets\artwork\Icons\CLOSE-BUTTON]])
+    row.CloseButton:HookScript("OnEnter", CloseButton_OnEnter)
+    row.CloseButton:HookScript("OnLeave", CloseButton_OnLeave)
+	row.CloseButton:Point("RIGHT", row.Header, "RIGHT", (ROW_HEIGHT + 4), 0);
+	row.CloseButton:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+	row.CloseButton.Parent = parent;
+	row.CloseButton:SetScript("OnClick", ActiveButton_OnClick)
+
 	row.Button = CreateFrame("Button", nil, row.Header)
-	row.Button:SetAllPoints(row.Header);
+	row.Button:Point("TOPLEFT", row.Header, "TOPLEFT", 0, 0);
+	row.Button:Point("BOTTOMRIGHT", row.Header, "BOTTOMRIGHT", 0, 0);
 	row.Button:SetButtonTemplate(true, 1, 1, 1)
 	row.Button:SetID(0)
 	row.Button:SetScript("OnClick", ViewButton_OnClick)
@@ -255,12 +297,65 @@ local function NewActiveRow(anchorFrame)
 
 	return row;
 end
+
+local function NewPopUpRow(lineNumber)
+	local parent = MOD.Popup;
+	local lastRowNumber = lineNumber - 1;
+	local previousFrame = parent.Rows[lastRowNumber]
+
+	local row = CreateFrame("Frame", nil, parent)
+	if(previousFrame) then
+		row:SetPoint("TOPLEFT", previousFrame, "BOTTOMLEFT", 0, -2);
+		row:SetPoint("TOPRIGHT", previousFrame, "BOTTOMRIGHT", 0, -2);
+	else
+		row:SetPoint("TOPLEFT", parent, "TOPLEFT", 0, -2);
+		row:SetPoint("TOPRIGHT", parent, "TOPRIGHT", 0, -2);
+	end
+	row:Height(LARGE_ROW_HEIGHT);
+
+	row.Badge = CreateFrame("Frame", nil, row)
+	row.Badge:Point("TOPLEFT", row, "TOPLEFT", 4, -4);
+	row.Badge:Size((LARGE_INNER_HEIGHT - 4), (LARGE_INNER_HEIGHT - 4));
+	row.Badge:SetPanelTemplate("Inset")
+
+	row.Badge.Icon = row.Badge:CreateTexture(nil,"OVERLAY")
+	row.Badge.Icon:FillInner(row.Badge);
+	row.Badge.Icon:SetTexture(LINE_QUEST_ICON)
+	row.Badge.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+
+	row.Header = CreateFrame("Frame", nil, row)
+	row.Header:Point("TOPLEFT", row.Badge, "TOPRIGHT", 4, -1);
+	row.Header:Point("BOTTOMRIGHT", row, "BOTTOMRIGHT", -2, 2);
+	row.Header:SetPanelTemplate("Headline")
+
+	row.Header.Text = row.Header:CreateFontString(nil,"OVERLAY")
+	row.Header.Text:SetFont(SV.Media.font.roboto, 14, "NONE")
+	row.Header.Text:SetTextColor(1,1,0)
+	row.Header.Text:SetShadowOffset(-1,-1)
+	row.Header.Text:SetShadowColor(0,0,0,0.5)
+	row.Header.Text:SetJustifyH('LEFT')
+	row.Header.Text:SetJustifyV('MIDDLE')
+	row.Header.Text:SetText('')
+	row.Header.Text:Point("TOPLEFT", row.Header, "TOPLEFT", 0, 0);
+	row.Header.Text:Point("BOTTOMRIGHT", row.Header, "BOTTOMRIGHT", 0, 0);
+
+	row.Button = CreateFrame("Button", nil, row.Header)
+	row.Button:SetAllPoints(row.Header);
+	row.Button:SetButtonTemplate(true, 1, 1, 1)
+	row.Button:SetID(0)
+	row.Button.PopUpType = nil;
+	row.Button:SetScript("OnClick", PopUpButton_OnClick)
+
+	row.RowID = 0;
+
+	return row;
+end
 --[[ 
 ########################################################## 
-TRACKER FUNCTIONS
+ACTIVE FUNCTIONS
 ##########################################################
 ]]--
-local AddActiveScenarioRow = function(self, title, level, details, icon, questID, questLogIndex, numObjectives, duration, elapsed)
+local AddScenarioRow = function(self, title, level, details, icon, questID, questLogIndex, numObjectives, duration, elapsed)
 	local objectivesShown = 0;
 	local nextObjective = 1;
 
@@ -310,43 +405,6 @@ local AddActiveScenarioRow = function(self, title, level, details, icon, questID
 	row:SetHeight(newHeight);
 
 	MOD.Tracker.ScrollFrame.ScrollBar:SetValue(0)
-end
-
-local AddActivePopupRow = function(self, title, flag, questID, questLogIndex)
-	local objectivesShown = 0;
-	local nextObjective = 1;
-
-	local row = self.Rows.Popup;
-	if(row.RowID == questID) then
-		return
-	end
-
-	row.RowID = questID
-
-	icon = icon or LINE_QUEST_ICON;
-
-	row.Header.Text:SetText(title)
-	row.Badge.Icon:SetTexture(icon)
-	row.Button:SetID(questLogIndex)
-	row:Show()
-
-	-- local objectives = row.Objectives;
-	-- local numLineObjectives = #objectives.Rows;
-
-	-- for x = 1, numLineObjectives do
-	-- 	local objective = objectives.Rows[x]
-	-- 	if(objective) then
-	-- 		objective.Text:SetText('')
-	-- 		objective.Icon:SetTexture(OBJ_ICON_INCOMPLETE)
-	-- 		if(objective:IsShown()) then
-	-- 			objective:Hide()
-	-- 		end
-	-- 	end
-	-- end
-
-	-- objectives:SetHeight(1);
-	local newHeight = LARGE_ROW_HEIGHT + 2;
-	row:SetHeight(newHeight);
 end
 
 local AddActiveRow = function(self, title, level, icon, questID, questLogIndex, numObjectives, duration, elapsed)
@@ -400,30 +458,17 @@ local AddActiveRow = function(self, title, level, icon, questID, questLogIndex, 
 	MOD.Tracker.ScrollFrame.ScrollBar:SetValue(0)
 end
 
-local unset_row = function(row)
-	row:SetHeight(1)
-	row.Header.Text:SetText('')
-	row.Header.Level:SetText('')
-	row.Badge.Icon:SetTexture(0,0,0,0)
-	row.Button:SetID(0)
-	row:Hide()
-end
-
 local RefreshActiveHeight = function(self)
 	if(self.Rows.Scenario.RowID == 0) then
 		unset_row(self.Rows.Scenario)
-	end
-	if(self.Rows.Popup.RowID == 0) then
-		unset_row(self.Rows.Popup)
 	end
 	if(self.Rows.Quest.RowID == 0) then
 		unset_row(self.Rows.Quest)
 	end
 
 	local h1 = self.Rows.Scenario:GetHeight()
-	local h2 = self.Rows.Popup:GetHeight()
-	local h3 = self.Rows.Quest:GetHeight()
-	local NEWHEIGHT = h1 + h2 + h3 + 6;
+	local h2 = self.Rows.Quest:GetHeight()
+	local NEWHEIGHT = h1 + h2 + 6;
 	self:SetHeight(NEWHEIGHT)
 end
 
@@ -448,42 +493,82 @@ local RefreshActiveObjective = function(self, event, ...)
 		self.Rows.Scenario.RowID = 0
 	end
 
-	if(event) then
-		if(event == 'AUTO_QUEST_ADD') then
-			self.Rows.Popup.RowID = 0
-			for i = 1, GetNumAutoQuestPopUps() do
-				local questID, popUpType = GetAutoQuestPopUp(i);
-				if(questID) then
-					local questLogIndex = GetQuestLogIndexByID(questID);
-					local title = GetQuestLogTitle(questLogIndex);
-					self:AddPopup(title, popUpType, questID, questLogIndex)
-				end
-			end
-			MOD.Tracker.ScrollFrame.ScrollBar:SetValue(0)
-		elseif(event == 'AUTO_QUEST_REMOVE') then
-			self.Rows.Popup.RowID = 0
-		elseif(event == 'ACTIVE_QUEST_LOADED') then
-			self.Rows.Quest.RowID = 0
-			self:AddGeneral(...)
-		end
+	if(event and (event == 'ACTIVE_QUEST_LOADED')) then
+		self.Rows.Quest.RowID = 0
+		self:AddGeneral(...)
 	end
 
 	self:RefreshHeight()
 end
+--[[ 
+########################################################## 
+POPUP FUNCTIONS
+##########################################################
+]]--
+local AddPopupRow = function(self, title, popUpType, questID, questLogIndex)
+	local index = #self.Rows + 1;
 
-local _hook_AutoPopAdd = function(questID, popUpType)
-	self.Active:Refresh('AUTO_QUEST_ADD')
+	local row = self.Rows[index];
+	if(not row) then
+		self.Rows[index] = NewPopUpRow(index)
+		row = self.Rows[index]
+	end
+	row.RowID = questID
+
+	local icon = (popUpType == 'COMPLETED') and LINE_POPUP_COMPLETE or LINE_POPUP_OFFER
+
+	row.Header.Text:SetText(title)
+	row.Badge.Icon:SetTexture(icon)
+	row.Button.PopUpType = popUpType
+	row.Button:SetID(questLogIndex)
+	row:Show()
 end
 
-local _hook_AutoPopRemove = function(questID)
-	self.Active:Refresh('AUTO_QUEST_REMOVE')
+local RefreshPopupObjective = function(self, event, ...)
+	local nextLine = 1;
+	for i = 1, GetNumAutoQuestPopUps() do
+		local questID, popUpType = GetAutoQuestPopUp(i);
+		local questLogIndex = GetQuestLogIndexByID(questID);
+		local title = GetQuestLogTitle(questLogIndex);
+		if(title and title ~= '') then
+			self:Add(title, popUpType, questID, questLogIndex)
+			nextLine = nextLine + 1;
+		end
+	end
+
+	local numLines = #self.Rows;
+	for x = nextLine, numLines do
+		local row = self.Rows[x]
+		if(row) then
+			row.RowID = 0;
+			row.Header.Text:SetText('');
+			row.Button:SetID(0);
+			row.Button.PopUpType = nil;
+			row.Badge.Icon:SetTexture(0,0,0,0)
+			if(row:IsShown()) then
+				row:Hide()
+			end
+		end
+	end
+
+	local newHeight = (nextLine * (LARGE_ROW_HEIGHT + 2)) + (ROW_HEIGHT + (nextLine * 2));
+	self:SetHeight(newHeight);
 end
 
+local _hook_AutoPopUpQuests = function(...)
+	self.Active:Refresh('AUTO_QUEST_ADD', ...)
+end
+--[[ 
+########################################################## 
+TRACKER FUNCTIONS
+##########################################################
+]]--
 local UpdateScrollFrame = function(self)
-	local h1 = MOD.Active:GetHeight()
-	local h2 = MOD.Quests:GetHeight()
-	local h3 = MOD.Achievements:GetHeight()
-	local NEWHEIGHT = h1 + h2 + h3 + 6;
+	local h1 = MOD.Popup:GetHeight()
+	local h2 = MOD.Active:GetHeight()
+	local h3 = MOD.Quests:GetHeight()
+	local h4 = MOD.Achievements:GetHeight()
+	local NEWHEIGHT = h1 + h2 + h3 + h4 + 6;
 	local scrollHeight = self.ScrollFrame:GetHeight();
 	local scrollWidth = self.ScrollFrame:GetWidth();
 
@@ -493,6 +578,7 @@ local UpdateScrollFrame = function(self)
 	self.ScrollFrame.ScrollChild:SetWidth(scrollWidth);
 	self.ScrollFrame.ScrollChild:SetHeight(NEWHEIGHT);
 
+	MOD.Popup:SetWidth(scrollWidth);
 	MOD.Active:SetWidth(scrollWidth);
 	MOD.Quests:SetWidth(scrollWidth);
 	MOD.Achievements:SetWidth(scrollWidth);
@@ -513,6 +599,7 @@ function MOD:UpdateLocals()
 	INNER_HEIGHT = ROW_HEIGHT - 4;
 	LARGE_ROW_HEIGHT = ROW_HEIGHT * 2;
 	LARGE_INNER_HEIGHT = LARGE_ROW_HEIGHT - 4;
+	LibSuperVillain("Registry"):Trigger("QUEST_UPVALUES_UPDATED", ROW_WIDTH, ROW_HEIGHT, INNER_HEIGHT, LARGE_ROW_HEIGHT, LARGE_INNER_HEIGHT);
 end
 
 function MOD:ReLoad()
@@ -576,11 +663,26 @@ function MOD:Load()
 
 	self:UpdateLocals();
 
+	local popups = CreateFrame("Frame", nil, scrollChild)
+	popups:SetWidth(ROW_WIDTH);
+	popups:SetHeight(1);
+	popups:SetPoint("TOPLEFT", scrollChild, "TOPLEFT", 0, 0);
+	popups:SetPoint("TOPRIGHT", scrollChild, "TOPRIGHT", 0, 0);
+
+	popups.Rows = {};
+	popups.Refresh = RefreshPopupObjective;
+	popups.Add = AddPopupRow;
+
+	self.Popup = popups;
+
+	hooksecurefunc("AddAutoQuestPopUp", _hook_AutoPopUpQuests)
+	hooksecurefunc("RemoveAutoQuestPopUp", _hook_AutoPopUpQuests)
+
 	local active = CreateFrame("Frame", nil, scrollChild)
     active:SetWidth(ROW_WIDTH);
 	active:SetHeight(1);
-	active:SetPoint("TOPLEFT", scrollChild, "TOPLEFT", 0, 0);
-	active:SetPoint("TOPRIGHT", scrollChild, "TOPRIGHT", 0, 0);
+	active:SetPoint("TOPLEFT", popups, "TOPLEFT", 0, 0);
+	active:SetPoint("TOPRIGHT", popups, "TOPRIGHT", 0, 0);
 	--active:SetPanelTemplate();
 
 	active.Rows = {};
@@ -588,27 +690,21 @@ function MOD:Load()
 	active.RefreshHeight = RefreshActiveHeight;
 	--active.Refresh = SV.fubar
 	
-	active.AddScenario = AddActiveScenarioRow;
-	active.AddPopup = AddActivePopupRow;
-	--active.AddBonus = AddActiveBonusRow;
+	active.AddScenario = AddScenarioRow;
 	active.AddGeneral = AddActiveRow;
 
 	self.Active = active;
-
 	self.Active.Rows.Scenario = NewActiveRow()
-	self.Active.Rows.Popup = NewActiveRow(self.Active.Rows.Scenario)
-	self.Active.Rows.Quest = NewActiveRow(self.Active.Rows.Popup)
+	self.Active.Rows.Quest = NewActiveRow(self.Active.Rows.Scenario)
 	self.Active:RefreshHeight()
 
 	self:InitializeQuestItem()
 	self:InitializeQuests()
+	self:InitializeBonuses()
 	self:InitializeAchievements()
 
 	self:RegisterEvent("SCENARIO_UPDATE", self.UpdateActiveObjective);
 	self:RegisterEvent("SCENARIO_CRITERIA_UPDATE", self.UpdateActiveObjective);
-
-	--hooksecurefunc("AddAutoQuestPopUp", _hook_AutoPopAdd)
-	--hooksecurefunc("RemoveAutoQuestPopUp", _hook_AutoPopRemove)
 
 	self.Tracker.DockButton:MakeDefault();
 	self.Tracker:Show();

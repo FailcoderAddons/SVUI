@@ -1092,7 +1092,7 @@ function PLUGIN:Load()
     local listbutton = CreateFrame("Button", nil, self.Docklet)
     listbutton:SetPoint("TOPLEFT", title, "BOTTOMLEFT",0,0)
 	listbutton:SetPoint("BOTTOMRIGHT", title, "BOTTOMRIGHT",0,-14)
-	listbutton:SetButtonTemplate(true)
+	listbutton:SetButtonTemplate(true, 1, 1, 1)
 	listbutton.ShowingKOS = false
 	listbutton:SetScript("OnEnter", Switch_OnEnter)
 	listbutton:SetScript("OnLeave", Switch_OnLeave)

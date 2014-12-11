@@ -52,7 +52,7 @@ LOCALS
 ##########################################################
 ]]--
 local ROW_WIDTH = 300;
-local ROW_HEIGHT = 24;
+local ROW_HEIGHT = 20;
 local INNER_HEIGHT = ROW_HEIGHT - 4;
 local LARGE_ROW_HEIGHT = ROW_HEIGHT * 2;
 local LARGE_INNER_HEIGHT = LARGE_ROW_HEIGHT - 4;
@@ -168,7 +168,7 @@ local function NewObjectiveRow(parent, lineNumber)
 	objective.Text:SetPoint("TOPLEFT", objective, "TOPLEFT", INNER_HEIGHT + 6, -2);
 	objective.Text:SetPoint("TOPRIGHT", objective, "TOPRIGHT", 0, -2);
 	objective.Text:SetHeight(INNER_HEIGHT - 2)
-	objective.Text:SetFont(SV.Media.font.roboto, 12, "NONE")
+	objective.Text:SetFont(SV.Media.font.roboto, 11, "NONE")
 	objective.Text:SetTextColor(1,1,1)
 	objective.Text:SetShadowOffset(-1,-1)
 	objective.Text:SetShadowColor(0,0,0,0.5)
@@ -247,17 +247,17 @@ local function NewQuestRow(parent, lineNumber)
 	row.Header:SetPoint("TOPLEFT", row.Badge, "TOPRIGHT", 2, 0);
 	row.Header:SetPoint("TOPRIGHT", row, "TOPRIGHT", -2, 0);
 	row.Header:SetHeight(INNER_HEIGHT);
-	row.Header:SetPanelTemplate("Headline")
+	--row.Header:SetPanelTemplate("Headline")
 
 	row.Header.Level = row.Header:CreateFontString(nil,"OVERLAY")
-	row.Header.Level:SetFont(SV.Media.font.roboto, 10, "NONE")
+	row.Header.Level:SetFont(SV.Media.font.numbers, 11, "NONE")
 	row.Header.Level:SetShadowOffset(-1,-1)
 	row.Header.Level:SetShadowColor(0,0,0,0.5)
-	row.Header.Level:SetJustifyH('CENTER')
+	row.Header.Level:SetJustifyH('RIGHT')
 	row.Header.Level:SetJustifyV('MIDDLE')
 	row.Header.Level:SetText('')
-	row.Header.Level:SetPoint("TOPLEFT", row.Header, "TOPLEFT", 4, 0);
-	row.Header.Level:SetPoint("BOTTOMLEFT", row.Header, "BOTTOMLEFT", 4, 0);
+	row.Header.Level:SetPoint("TOPRIGHT", row.Header, "TOPRIGHT", -4, 0);
+	row.Header.Level:SetPoint("BOTTOMRIGHT", row.Header, "BOTTOMRIGHT", -4, 0);
 
 	row.Header.Text = row.Header:CreateFontString(nil,"OVERLAY")
 	row.Header.Text:SetFont(SV.Media.font.roboto, 14, "NONE")
@@ -267,12 +267,12 @@ local function NewQuestRow(parent, lineNumber)
 	row.Header.Text:SetJustifyH('LEFT')
 	row.Header.Text:SetJustifyV('MIDDLE')
 	row.Header.Text:SetText('')
-	row.Header.Text:SetPoint("TOPLEFT", row.Header.Level, "TOPRIGHT", 4, 0);
-	row.Header.Text:SetPoint("BOTTOMRIGHT", row.Header, "BOTTOMRIGHT", 0, 0);
+	row.Header.Text:SetPoint("TOPLEFT", row.Header, "TOPLEFT", 4, 0);
+	row.Header.Text:SetPoint("BOTTOMRIGHT", row.Header.Level, "BOTTOMLEFT", 0, 0);
 
 	row.Button = CreateFrame("Button", nil, row.Header)
 	row.Button:SetAllPoints(row.Header);
-	row.Button:SetButtonTemplate(true, 1, 1, 1)
+	row.Button:SetButtonTemplate("Headline", 1, 1, 1)
 	row.Button:SetID(0)
 	row.Button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 	row.Button:SetScript("OnClick", ViewButton_OnClick)
@@ -314,6 +314,7 @@ local AddQuestRow = function(self, index, title, level, details, icon, questID, 
 	
 	row.Header.Level:SetTextColor(color.r, color.g, color.b)
 	row.Header.Level:SetText(level)
+	row.Header.Text:SetTextColor(color.r, color.g, color.b)
 	row.Header.Text:SetText(title)
 	row.Badge.Icon:SetTexture(icon)
 	row.Badge.Button:SetID(index)
@@ -492,6 +493,12 @@ function MOD:UpdateProximity(event, ...)
 	end
 end
 
+local function UpdateQuestLocals(...)
+	ROW_WIDTH, ROW_HEIGHT, INNER_HEIGHT, LARGE_ROW_HEIGHT, LARGE_INNER_HEIGHT = ...;
+end
+
+LibSuperVillain("Registry"):NewCallback("QUEST_UPVALUES_UPDATED", "UpdateQuestLocals", UpdateQuestLocals);
+
 function MOD:InitializeQuests()
 	local scrollChild = self.Tracker.ScrollFrame.ScrollChild;
 
@@ -504,17 +511,23 @@ function MOD:InitializeQuests()
 	quests.Header:SetPoint("TOPLEFT", quests, "TOPLEFT", 2, -2);
 	quests.Header:SetPoint("TOPRIGHT", quests, "TOPRIGHT", -2, -2);
 	quests.Header:SetHeight(INNER_HEIGHT);
-	quests.Header:SetPanelTemplate("Inset");
-	--quests.Header.TestID = "Quests Parent Header"
+
 	quests.Header.Text = quests.Header:CreateFontString(nil,"OVERLAY")
-	quests.Header.Text:SetFont(SV.Media.font.roboto, 16, "OUTLINE")
-	quests.Header.Text:SetJustifyH('CENTER')
+	quests.Header.Text:SetPoint("TOPLEFT", quests.Header, "TOPLEFT", 2, 0);
+	quests.Header.Text:SetPoint("BOTTOMLEFT", quests.Header, "BOTTOMLEFT", 2, 0);
+	quests.Header.Text:SetFont(SV.Media.font.dialog, 16, "OUTLINE")
+	quests.Header.Text:SetJustifyH('LEFT')
 	quests.Header.Text:SetJustifyV('MIDDLE')
 	quests.Header.Text:SetTextColor(1,0.6,0.1)
 	quests.Header.Text:SetShadowOffset(-1,-1)
 	quests.Header.Text:SetShadowColor(0,0,0,0.5)
 	quests.Header.Text:SetText(TRACKER_HEADER_QUESTS)
-	quests.Header.Text:SetAllPoints(quests.Header)
+
+	quests.Header.Divider = quests.Header:CreateTexture(nil, 'BACKGROUND');
+	quests.Header.Divider:SetPoint("TOPLEFT", quests.Header.Text, "TOPRIGHT", -10, 0);
+	quests.Header.Divider:SetPoint("BOTTOMRIGHT", quests.Header, "BOTTOMRIGHT", 0, 0);
+	quests.Header.Divider:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DROPDOWN-DIVIDER]]);
+
 	quests.Rows = {};
 	quests.Refresh = RefreshQuests;
 	quests.Add = AddQuestRow;

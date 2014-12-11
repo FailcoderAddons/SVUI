@@ -65,5 +65,6 @@
     <Script file='SVQuest.lua'/>
     <Script file='components\button.lua'/>
     <Script file='components\quests.lua'/>
+    <Script file='components\bonus.lua'/>
     <Script file='components\achievements.lua'/>
 </Ui>

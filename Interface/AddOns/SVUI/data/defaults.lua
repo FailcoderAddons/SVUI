@@ -682,7 +682,7 @@ SV.defaults["SVPlate"] = {
 
 SV.defaults["SVQuest"] = {
     ["enable"] = true, 
-    ["rowHeight"] = 24,
+    ["rowHeight"] = 20,
 }
 
 SV.defaults["SVStats"] = {
@@ -786,6 +786,8 @@ SV.defaults["SVUnit"] = {
 	["grid"] = {
 		["enable"] = false,
 		["size"] = 28,
+		["wrapXOffset"] = 6, 
+		["wrapYOffset"] = 6,
 		["shownames"] = false,
 		["font"] = "Roboto",
 		["fontsize"] = 16,
@@ -2220,11 +2222,13 @@ SV.defaults["SVUnit"] = {
 		["enable"] = true, 
 		["rangeCheck"] = true, 
 		["threatEnabled"] = true, 
-		["visibility"] = "[@raid6, exists][nogroup] hide;show", 
+		["visibility"] = "[group:raid][nogroup] hide;show", 
 		["showBy"] = "UP_RIGHT", 
 		["wrapXOffset"] = 9, 
 		["wrapYOffset"] = 13,
-		["groupCount"] = 1,
+		["allowedGroup"] = {
+			[1] = true, 
+		},
 		["gRowCol"] = 1,
 		["sortMethod"] = "GROUP", 
 		["sortDir"] = "ASC",
@@ -2396,11 +2400,14 @@ SV.defaults["SVUnit"] = {
 		["gridAllowed"] = true,
 		["rangeCheck"] = true, 
 		["threatEnabled"] = true, 
-		["visibility"] = "[@raid26, noexists][nogroup] hide;show",
+		["visibility"] = "[group:raid] show;hide",
 		["showBy"] = "RIGHT_DOWN", 
 		["wrapXOffset"] = 8, 
 		["wrapYOffset"] = 8,
-		["groupCount"] = 8,
+		["showGroupNumber"] = false,
+		["allowedGroup"] = {
+			[1] = true, [2] = true, [3] = true, [4] = true, [5] = true, [6] = true, [7] = true, [8] = true,
+		},
 		["gRowCol"] = 1,
 		["sortMethod"] = "GROUP", 
 		["sortDir"] = "ASC", 
@@ -2543,11 +2550,13 @@ SV.defaults["SVUnit"] = {
 		["gridAllowed"] = true, 
 		["rangeCheck"] = true, 
 		["threatEnabled"] = true, 
-		["visibility"] = "[group:raid] show; hide", 
+		["visibility"] = "[group:raid] show;hide", 
 		["showBy"] = "DOWN_RIGHT", 
 		["wrapXOffset"] = 3, 
 		["wrapYOffset"] = 3,
-		["groupCount"] = 2,
+		["allowedGroup"] = {
+			[1] = true, [2] = true,
+		},
 		["gRowCol"] = 1,
 		["sortMethod"] = "PETNAME", 
 		["sortDir"] = "ASC",  
@@ -2660,7 +2669,8 @@ SV.defaults["SVUnit"] = {
 	}, 
 	["tank"] = {
 		["enable"] = true, 
-		["threatEnabled"] = true, 
+		["threatEnabled"] = true,
+		["visibility"] = "[group:raid] show;hide",
 		["rangeCheck"] = true, 
 		["width"] = 120, 
 		["height"] = 28,
@@ -2717,7 +2727,8 @@ SV.defaults["SVUnit"] = {
 	}, 
 	["assist"] = {
 		["enable"] = true, 
-		["threatEnabled"] = true, 
+		["threatEnabled"] = true,
+		["visibility"] = "[group:raid] show;hide",
 		["rangeCheck"] = true, 
 		["width"] = 120, 
 		["height"] = 28,

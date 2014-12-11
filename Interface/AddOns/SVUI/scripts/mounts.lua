@@ -260,6 +260,7 @@ ADDING CHECKBOXES TO JOURNAL
 ##########################################################
 ]]--
 local function SetMountCheckButtons()
+	LoadAddOn("Blizzard_PetJournal")
 	SV.cache.Mounts = SV.cache.Mounts or {}
 
 	if not SV.cache.Mounts.types then 

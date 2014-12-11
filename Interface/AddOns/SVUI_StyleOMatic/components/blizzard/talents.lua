@@ -235,40 +235,48 @@ local function TalentFrameStyle()
 	D.Panel:WrapOuter(D.specIcon)
 	D.specIcon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 
-	hooksecurefunc("PlayerTalentFrame_UpdateSpecFrame", function(i, E)
-		local F = GetSpecialization(nil, i.isPet, PlayerSpecTab2:GetChecked() and 2 or 1)
-		local G = E or F or 1;
-		local H, p, p, icon = GetSpecializationInfo(G, nil, i.isPet)
-		local I = i.spellsScroll.child;
-		I.specIcon:SetTexture(icon)
-		local J = 1;
-		local K;
-		if i.isPet then
-			K = { GetSpecializationSpells(G, nil, i.isPet) }
+	hooksecurefunc("PlayerTalentFrame_UpdateSpecFrame", function(self, arg1)
+		local arg2 = GetSpecialization(nil, self.isPet, PlayerSpecTab2:GetChecked() and 2 or 1)
+		local spec = arg1 or arg2 or 1;
+		local arg3, _, _, icon = GetSpecializationInfo(spec, nil, self.isPet)
+		local scrollChild = self.spellsScroll.child;
+		scrollChild.specIcon:SetTexture(icon)
+
+		local cache;
+		if self.isPet then
+			cache = { GetSpecializationSpells(spec, nil, self.isPet) }
 		else
-			 K = SPEC_SPELLS_DISPLAY[H]
-		end 
-		for b = 1, #K, 2 do 
-			local L = I["abilityButton"..J]
-			local p, icon = GetSpellTexture(K[b])
-			L.icon:SetTexture(icon)
-			if not L.restyled then
-				L.restyled = true;L:Size(30, 30)
-				L.ring:Hide()
-				L:SetFixedPanelTemplate("Inset")
-				L.icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-				L.icon:FillInner()
-			end 
-			J = J+1 
-		end 
-		for b = 1, GetNumSpecializations(nil, i.isPet)do 
-			local A = i["specButton"..b]
-			A.SelectedTexture:FillInner(A.Panel)
-			if A.selected then
-				 A.SelectedTexture:Show()
-			else
-				 A.SelectedTexture:Hide()
-			end 
+			 cache = SPEC_SPELLS_DISPLAY[arg3]
+		end
+
+		local indexOffset = 1;
+		for i = 1, #cache, 2 do 
+			local button = scrollChild["abilityButton" .. indexOffset]
+			if(button) then
+				local _, icon = GetSpellTexture(cache[i])
+				button.icon:SetTexture(icon)
+				if not button.restyled then
+					button.restyled = true;
+					button:Size(30, 30)
+					button.ring:Hide()
+					button:SetFixedPanelTemplate("Inset")
+					button.icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+					button.icon:FillInner()
+				end 
+			end
+			indexOffset = indexOffset + 1 
+		end
+
+		for i = 1, GetNumSpecializations(nil, self.isPet)do 
+			local specButton = self["specButton"..i]
+			if(specButton) then
+				specButton.SelectedTexture:FillInner(specButton.Panel)
+				if specButton.selected then
+					 specButton.SelectedTexture:Show()
+				else
+					 specButton.SelectedTexture:Hide()
+				end
+			end
 		end 
 	end)
 

@@ -61,18 +61,27 @@ if(not MOD) then return end
 LOCAL DATA
 ##########################################################
 ]]--
+local GROUP_ICON_FILE = [[Interface\AddOns\SVUI\assets\artwork\Numbers\TYPE1\NUM]];
+
+local GroupCounts = {
+    ['raid'] = 8,
+    ['raidpet'] = 2,
+    ['party'] = 1    
+};
+
 local sortMapping = {
-    ["DOWN_RIGHT"] = {[1]="TOP",[2]="TOPLEFT",[3]="LEFT",[4]=1,[5]=-1,[6]=false},
-    ["DOWN_LEFT"] = {[1]="TOP",[2]="TOPRIGHT",[3]="RIGHT",[4]=1,[5]=-1,[6]=false},
-    ["UP_RIGHT"] = {[1]="BOTTOM",[2]="BOTTOMLEFT",[3]="LEFT",[4]=1,[5]=1,[6]=false},
-    ["UP_LEFT"] = {[1]="BOTTOM",[2]="BOTTOMRIGHT",[3]="RIGHT",[4]=-1,[5]=1,[6]=false},
-    ["RIGHT_DOWN"] = {[1]="LEFT",[2]="TOPLEFT",[3]="TOP",[4]=1,[5]=-1,[6]=true},
-    ["RIGHT_UP"] = {[1]="LEFT",[2]="BOTTOMLEFT",[3]="BOTTOM",[4]=1,[5]=1,[6]=true},
-    ["LEFT_DOWN"] = {[1]="RIGHT",[2]="TOPRIGHT",[3]="TOP",[4]=-1,[5]=-1,[6]=true},
-    ["LEFT_UP"] = {[1]="RIGHT",[2]="BOTTOMRIGHT",[3]="BOTTOM",[4]=-1,[5]=1,[6]=true},
-    ["UP"] = {[1]="BOTTOM",[2]="BOTTOM",[3]="BOTTOM",[4]=1,[5]=1,[6]=false},
-    ["DOWN"] = {[1]="TOP",[2]="TOP",[3]="TOP",[4]=1,[5]=1,[6]=false},
-}
+    ["DOWN_RIGHT"] = {[1]="TOP",[2]="TOPLEFT",[3]="LEFT",[4]=1,[5]=-1,[6]=false,[7]="BOTTOM",[8]="TOP",[9]=1},
+    ["DOWN_LEFT"] = {[1]="TOP",[2]="TOPRIGHT",[3]="RIGHT",[4]=1,[5]=-1,[6]=false,[7]="BOTTOM",[8]="TOP",[9]=1},
+    ["UP_RIGHT"] = {[1]="BOTTOM",[2]="BOTTOMLEFT",[3]="LEFT",[4]=1,[5]=1,[6]=false,[7]="TOP",[8]="BOTTOM",[9]=-1},
+    ["UP_LEFT"] = {[1]="BOTTOM",[2]="BOTTOMRIGHT",[3]="RIGHT",[4]=-1,[5]=1,[6]=false,[7]="TOP",[8]="BOTTOM",[9]=-1},
+    ["RIGHT_DOWN"] = {[1]="LEFT",[2]="TOPLEFT",[3]="TOP",[4]=1,[5]=-1,[6]=true,[7]="RIGHT",[8]="LEFT",[9]=-1},
+    ["RIGHT_UP"] = {[1]="LEFT",[2]="BOTTOMLEFT",[3]="BOTTOM",[4]=1,[5]=1,[6]=true,[7]="RIGHT",[8]="LEFT",[9]=-1},
+    ["LEFT_DOWN"] = {[1]="RIGHT",[2]="TOPRIGHT",[3]="TOP",[4]=-1,[5]=-1,[6]=true,[7]="LEFT",[8]="RIGHT",[9]=1},
+    ["LEFT_UP"] = {[1]="RIGHT",[2]="BOTTOMRIGHT",[3]="BOTTOM",[4]=-1,[5]=1,[6]=true,[7]="LEFT",[8]="RIGHT",[9]=1},
+    ["UP"] = {[1]="BOTTOM",[2]="BOTTOM",[3]="BOTTOM",[4]=1,[5]=1,[6]=false,[7]="TOP",[8]="BOTTOM",[9]=-1},
+    ["DOWN"] = {[1]="TOP",[2]="TOP",[3]="TOP",[4]=1,[5]=1,[6]=false,[7]="BOTTOM",[8]="TOP",[9]=1},
+};
+
 local GroupDistributor = {
     ["CLASS"] = function(x)
         x:SetAttribute("groupingOrder","DEATHKNIGHT,DRUID,HUNTER,MAGE,PALADIN,PRIEST,SHAMAN,WARLOCK,WARRIOR,MONK")
@@ -413,12 +422,12 @@ end
 UpdateTemplates["raid"] = function(self)
     if(SV.NeedsFrameAudit) then return end
     local db = SV.db.SVUnit.raid
-    local groupFrame = self:GetParent()
 
+    local groupFrame = self:GetParent()
     if not groupFrame.positioned then
         groupFrame:ClearAllPoints()
         groupFrame:Point("BOTTOMLEFT", SV.Dock.BottomLeft, "TOPLEFT", 0, 80)
-        RegisterStateDriver(groupFrame, "visibility", "[group:raid] show; hide")
+        RegisterStateDriver(groupFrame, "visibility", "[group:raid] show;hide")
         SV.Mentalo:Add(groupFrame, "Raid Frames")
         groupFrame.positioned = true 
     end
@@ -515,7 +524,7 @@ UpdateTemplates["raidpet"] = function(self)
     if not groupFrame.positioned then 
         groupFrame:ClearAllPoints()
         groupFrame:Point("BOTTOMLEFT", SV.Screen, "BOTTOMLEFT", 4, 433)
-        RegisterStateDriver(groupFrame, "visibility", "[group:raid] show; hide")
+        RegisterStateDriver(groupFrame, "visibility", "[group:raid] show;hide")
         SV.Mentalo:Add(groupFrame, L["Raid Pet Frames"])
         groupFrame.positioned = true;
     end
@@ -646,7 +655,7 @@ UpdateTemplates["tank"] = function(self)
     self:SetAttribute("startingIndex", -1)
     RegisterAttributeDriver(self, "state-visibility", "show")
     self.dirtyWidth, self.dirtyHeight = self:GetSize()
-    RegisterAttributeDriver(self, "state-visibility", "[@raid1, exists] show;hide")
+    RegisterAttributeDriver(self, "state-visibility", "[group:raid] show;hide")
     self:SetAttribute("startingIndex", 1)
     self:SetAttribute("point", "BOTTOM")
     self:SetAttribute("columnAnchorPoint", "LEFT")
@@ -756,7 +765,7 @@ UpdateTemplates["assist"] = function(self)
     self:SetAttribute("startingIndex", -1)
     RegisterAttributeDriver(self, "state-visibility", "show")
     self.dirtyWidth, self.dirtyHeight = self:GetSize()
-    RegisterAttributeDriver(self, "state-visibility", "[@raid1, exists] show;hide")
+    RegisterAttributeDriver(self, "state-visibility", "[group:raid] show;hide")
     self:SetAttribute("startingIndex", 1)
     self:SetAttribute("point", "BOTTOM")
     self:SetAttribute("columnAnchorPoint", "LEFT")
@@ -893,7 +902,7 @@ local HeaderDisableChildren = function(self)
     end 
 end
 
-function MOD:SetGroupHeader(parentFrame, filter, layout, headerName, token)
+function MOD:SetGroupHeader(parentFrame, filter, layout, headerName, token, groupTag)
     local db = SV.db.SVUnit[token]
 
     local template1, template2
@@ -919,13 +928,25 @@ function MOD:SetGroupHeader(parentFrame, filter, layout, headerName, token)
         "showSolo", true, 
         template1 and "template", template1
     )
-    groupHeader.___groupkey = token
-    groupHeader:SetParent(parentFrame)
-    groupHeader.Update = UpdateTemplates[token]
-    groupHeader.MediaUpdate = HeaderMediaUpdate
-    groupHeader.UnsetAttributes = HeaderUnsetAttributes
-    groupHeader.EnableChildren = HeaderEnableChildren
-    groupHeader.DisableChildren = HeaderDisableChildren
+    groupHeader.___groupkey = token;
+    groupHeader:SetParent(parentFrame);
+    groupHeader.Update = UpdateTemplates[token];
+    groupHeader.MediaUpdate = HeaderMediaUpdate;
+    groupHeader.UnsetAttributes = HeaderUnsetAttributes;
+    groupHeader.EnableChildren = HeaderEnableChildren;
+    groupHeader.DisableChildren = HeaderDisableChildren;
+
+    if(groupTag) then
+        local icon = GROUP_ICON_FILE .. groupTag
+        local tag = CreateFrame("Frame", nil, groupHeader);
+        tag:SetSize(16,16)
+        tag:SetPoint('RIGHT', groupHeader, 'LEFT', -10, 0)
+        tag.Icon = tag:CreateTexture(nil, 'BORDER')
+        tag.Icon:SetAllPoints(tag)
+        tag.Icon:SetTexture(icon)
+
+        groupHeader.GroupTag = tag
+    end
 
     return groupHeader 
 end
@@ -957,9 +978,9 @@ local GroupSetVisibility = function(self)
         local token = self.___groupkey
         local db = SV.db.SVUnit[token]
         if(db) then
-            for i=1,#self.groups do
+            for i=1, #self.groups do
                 local frame = self.groups[i]
-                if(i <= db.groupCount) then
+                if(db.allowedGroup[i]) then
                     frame:Show()
                 else 
                     if frame.forceShow then 
@@ -977,19 +998,19 @@ end
 
 local GroupConfigure = function(self)
     local token = self.___groupkey
+    local groupCount = self.___groupcount
     local settings = SV.db.SVUnit[token]
     local UNIT_WIDTH, UNIT_HEIGHT = MOD:GetActiveSize(settings)
     local sorting = settings.showBy
     local sortMethod = settings.sortMethod
     local widthCalc, heightCalc, xCalc, yCalc = 0, 0, 0, 0;
-    local point, anchorPoint, columnAnchor, horizontal, vertical, isHorizontal = unpack(sortMapping[sorting]);
-    local groupCount = settings.groupCount
+    local point, anchorPoint, columnAnchor, horizontal, vertical, isHorizontal, tagPoint1, tagPoint2, mod = unpack(sortMapping[sorting]);
 
     self.groupCount = groupCount
 
     for i = 1, groupCount do
-
         local frame = self.groups[i]
+        local frameEnabled = true;
 
         if(frame) then
             if(settings.showBy == "UP") then 
@@ -1035,53 +1056,76 @@ local GroupConfigure = function(self)
             end
 
             frame:SetAttribute("groupFilter", tostring(i))
+
+            if(frame.GroupTag) then
+                if(settings.showGroupNumber) then
+                    local x,y = 0,(10 * mod);
+                    if(isHorizontal) then
+                        x,y = (10 * mod),0
+                    end
+                    frame.GroupTag:Show()
+                    frame.GroupTag:Size(settings.height * 0.65)
+                    frame.GroupTag:SetPoint(tagPoint1, frame, tagPoint2, x, y)
+                else
+                    frame.GroupTag:Hide()
+                end
+            end
+
+            if(not settings.allowedGroup[i]) then 
+                frame:Hide()
+                frameEnabled = false;
+            else
+                frame:Show()
+            end
         end
 
-        if (i - 1) % settings.gRowCol == 0 then 
-            if isHorizontal then 
-                if(frame) then 
-                    frame:SetPoint(anchorPoint, self, anchorPoint, 0, heightCalc * vertical)
-                end
-
-                heightCalc = heightCalc + UNIT_HEIGHT + settings.wrapYOffset;
-                yCalc = yCalc + 1 
-            else 
-                if(frame) then frame:SetPoint(anchorPoint, self, anchorPoint, widthCalc * horizontal, 0) end
-
-                widthCalc = widthCalc + UNIT_WIDTH + settings.wrapXOffset;
-                xCalc = xCalc + 1 
-            end 
-        else
-            if isHorizontal then 
-                if yCalc == 1 then 
-                    if(frame) then 
-                        frame:SetPoint(anchorPoint, self, anchorPoint, widthCalc * horizontal, 0)
-                    end
-
-                    widthCalc = widthCalc + (UNIT_WIDTH + settings.wrapXOffset) * 5;
-                    xCalc = xCalc + 1 
-                elseif(frame) then 
-                    frame:SetPoint(anchorPoint, self, anchorPoint, (((UNIT_WIDTH + settings.wrapXOffset) * 5) * ((i - 1) % settings.gRowCol)) * horizontal, ((UNIT_HEIGHT + settings.wrapYOffset) * (yCalc - 1)) * vertical)
-                end 
-            else 
-                if xCalc == 1 then 
+        if(frameEnabled) then
+            if (i - 1) % settings.gRowCol == 0 then 
+                if isHorizontal then 
                     if(frame) then 
                         frame:SetPoint(anchorPoint, self, anchorPoint, 0, heightCalc * vertical)
                     end
 
-                    heightCalc = heightCalc + (UNIT_HEIGHT + settings.wrapYOffset) * 5;
+                    heightCalc = heightCalc + UNIT_HEIGHT + settings.wrapYOffset;
                     yCalc = yCalc + 1 
-                elseif(frame) then 
-                    frame:SetPoint(anchorPoint, self, anchorPoint, ((UNIT_WIDTH + settings.wrapXOffset) * (xCalc - 1)) * horizontal, (((UNIT_HEIGHT + settings.wrapYOffset) * 5) * ((i - 1) % settings.gRowCol)) * vertical)
-                end 
-            end 
-        end
+                else 
+                    if(frame) then frame:SetPoint(anchorPoint, self, anchorPoint, widthCalc * horizontal, 0) end
 
-        if heightCalc == 0 then 
-            heightCalc = heightCalc + (UNIT_HEIGHT + settings.wrapYOffset) * 5 
-        elseif widthCalc == 0 then 
-            widthCalc = widthCalc + (UNIT_WIDTH + settings.wrapXOffset) * 5 
-        end 
+                    widthCalc = widthCalc + UNIT_WIDTH + settings.wrapXOffset;
+                    xCalc = xCalc + 1 
+                end 
+            else
+                if isHorizontal then 
+                    if yCalc == 1 then 
+                        if(frame) then 
+                            frame:SetPoint(anchorPoint, self, anchorPoint, widthCalc * horizontal, 0)
+                        end
+
+                        widthCalc = widthCalc + (UNIT_WIDTH + settings.wrapXOffset) * 5;
+                        xCalc = xCalc + 1 
+                    elseif(frame) then 
+                        frame:SetPoint(anchorPoint, self, anchorPoint, (((UNIT_WIDTH + settings.wrapXOffset) * 5) * ((i - 1) % settings.gRowCol)) * horizontal, ((UNIT_HEIGHT + settings.wrapYOffset) * (yCalc - 1)) * vertical)
+                    end 
+                else 
+                    if xCalc == 1 then 
+                        if(frame) then 
+                            frame:SetPoint(anchorPoint, self, anchorPoint, 0, heightCalc * vertical)
+                        end
+
+                        heightCalc = heightCalc + (UNIT_HEIGHT + settings.wrapYOffset) * 5;
+                        yCalc = yCalc + 1 
+                    elseif(frame) then 
+                        frame:SetPoint(anchorPoint, self, anchorPoint, ((UNIT_WIDTH + settings.wrapXOffset) * (xCalc - 1)) * horizontal, (((UNIT_HEIGHT + settings.wrapYOffset) * 5) * ((i - 1) % settings.gRowCol)) * vertical)
+                    end 
+                end 
+            end
+
+            if heightCalc == 0 then 
+                heightCalc = heightCalc + (UNIT_HEIGHT + settings.wrapYOffset) * 5 
+            elseif widthCalc == 0 then 
+                widthCalc = widthCalc + (UNIT_WIDTH + settings.wrapXOffset) * 5 
+            end
+        end
     end
 
     self:SetSize(widthCalc - settings.wrapXOffset, heightCalc - settings.wrapYOffset)
@@ -1093,6 +1137,7 @@ function MOD:GetGroupFrame(token, layout)
         oUF_Villain:SetActiveStyle(layout)
         local groupFrame = CreateFrame("Frame", layout, SVUI_UnitFrameParent, "SecureHandlerStateTemplate")
         groupFrame.___groupkey = token;
+        groupFrame.___groupcount = GroupCounts[token] or 1
         groupFrame.groups = {}
         groupFrame.Update = GroupUpdate
         groupFrame.MediaUpdate = GroupMediaUpdate
@@ -1135,11 +1180,12 @@ function MOD:SetGroupFrame(token, forceUpdate)
         return 
     end
 
-    local groupName
-    for i = 1, settings.groupCount do
+    local groupCount = GroupCounts[token] or 1
+    local groupName;
+    for i = 1, groupCount do
         if(not groupFrame.groups[i]) then
-            groupName = layout .. "Group" .. i
-            groupFrame.groups[i] = self:SetGroupHeader(groupFrame, i, layout, groupName, token)
+            groupName = layout .. "Group" .. i;
+            groupFrame.groups[i] = self:SetGroupHeader(groupFrame, i, layout, groupName, token, i)
             groupFrame.groups[i]:Show()
         end
     end

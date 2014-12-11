@@ -628,7 +628,7 @@ end
 APPENDED BUTTON TEMPLATING METHODS
 ##########################################################
 ]]--
-local function SetButtonTemplate(self, invisible, overridePadding, xOffset, yOffset, keepNormal, defaultColor)
+local function SetButtonTemplate(self, alteration, overridePadding, xOffset, yOffset, keepNormal, defaultColor)
     if(not self or (self and self.Panel)) then return end
 
     local padding = 1
@@ -644,8 +644,8 @@ local function SetButtonTemplate(self, invisible, overridePadding, xOffset, yOff
         underlay = true
     end
 
-    if(invisible) then
-        CreatePanelTemplate(self, "Transparent", underlay, true, padding, x, y, defaultColor)
+    if(alteration and (type(alteration) == 'boolean')) then
+        CreatePanelTemplate(self, "Headline", underlay, true, padding, x, y, defaultColor)
         self:SetBackdropColor(0,0,0,0)
         self:SetBackdropBorderColor(0,0,0,0)
         
@@ -655,6 +655,8 @@ local function SetButtonTemplate(self, invisible, overridePadding, xOffset, yOff
             self.Panel.BorderTop:SetVertexColor(0,0,0,0)
             self.Panel.BorderBottom:SetVertexColor(0,0,0,0)
         end
+    elseif(alteration and (type(alteration) == 'string')) then
+        CreatePanelTemplate(self, alteration, underlay, true, padding, x, y, defaultColor)
     else
         CreatePanelTemplate(self, "Button", underlay, true, padding, x, y, defaultColor)
     end

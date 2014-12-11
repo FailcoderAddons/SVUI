@@ -734,13 +734,13 @@ end
 
 --REGISTRY PUBLIC METHODS
 
-function lib:Trigger(eventName)
+function lib:Trigger(eventName, ...)
     if(not eventName) then return end;
     local eventCallabcks = self.Callbacks[eventName];
     if(not eventCallabcks) then return end;
     for id, fn in pairs(eventCallabcks) do 
         if(fn and type(fn) == "function") then
-            local _, catch = pcall(fn)
+            local _, catch = pcall(fn, ...)
             if(catch) then
                 HandleErrors("LibSuperVillain:Registry:Trigger(" .. eventName .. "):", id, catch)
             end
