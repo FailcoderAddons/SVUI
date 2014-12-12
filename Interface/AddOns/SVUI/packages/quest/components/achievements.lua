@@ -220,7 +220,7 @@ local function NewAchievementRow(parent, lineNumber)
 	--row.Header:SetPanelTemplate("Headline")
 
 	row.Header.Text = row.Header:CreateFontString(nil,"OVERLAY")
-	row.Header.Text:SetFont(SV.Media.font.roboto, 14, "NONE")
+	row.Header.Text:SetFont(SV.Media.font.roboto, 13, "NONE")
 	row.Header.Text:SetTextColor(1,1,0)
 	row.Header.Text:SetShadowOffset(-1,-1)
 	row.Header.Text:SetShadowColor(0,0,0,0.5)

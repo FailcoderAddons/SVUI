@@ -31,21 +31,32 @@ GET ADDON DATA
 local SV = select(2, ...);
 
 SV.AFK = _G["SVUI_AFKFrame"];
+local AFK_SEQUENCES = {
+	[1] = 120,
+	[2] = 141,
+	[3] = 119,
+	[4] = 5,
+};
 
 function SV.AFK:Activate(enabled)
 	if(InCombatLockdown()) then return end
 	if(enabled) then
-		MoveViewLeftStart(0.05);
+		local sequence = random(1, 4);
+		if(not SV.db.general.afkNoMove) then
+			MoveViewLeftStart(0.05);
+		end
 		self:Show();
 		UIParent:Hide();
 		self:SetAlpha(1);
-		self.Model:SetAnimation(119)
+		self.Model:SetAnimation(AFK_SEQUENCES[sequence])
 		DoEmote("READ")
 	else
 		UIParent:Show();
 		self:SetAlpha(0);
 		self:Hide();
-		MoveViewLeftStop();
+		if(not SV.db.general.afkNoMove) then
+			MoveViewLeftStop();
+		end
 	end
 end
 

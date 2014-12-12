@@ -84,7 +84,7 @@ local ReversedUnit = {
 	["focustarget"] = true,
 	["boss"] = true, 
 	["arena"] = true, 
-}
+};
 
 do
 	local hugeMath = math.huge

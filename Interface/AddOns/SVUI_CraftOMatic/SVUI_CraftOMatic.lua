@@ -270,7 +270,7 @@ function PLUGIN:EndJobModes()
 		self[currentModeKey].Disable()
 	end
 	currentModeKey = false;
-	if self.Docklet:IsShown() then self.Docklet.DockButton:Click() end
+	--if self.Docklet:IsShown() then self.Docklet.DockButton:Click() end
 	self:ChangeModeGear()
 	self.ModeAlert:Hide();
 	SendModeMessage("Mode Disabled", CombatText_StandardScroll, 1, 0.35, 0);

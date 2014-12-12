@@ -247,45 +247,45 @@ local ClearMaskColors = function(self)
 	self[8]:SetTexture(0, 0, 0)
 end
 
-function MOD:INSPECT_READY(_,guid)
-	if MOD.lastGUID ~= guid then return end 
+function MOD:INSPECT_READY(event, GUID)
+	if(MOD.lastGUID ~= GUID) then return end 
 	local unit = "mouseover"
-	if UnitExists(unit) then 
+	if(UnitExists(unit)) then 
 		local itemLevel = SV:ParseGearSlots(unit, true)
 		local spec = GetTalentSpec(unit)
-		inspectCache[guid] = {time = GetTime()}
-		if spec then 
-			inspectCache[guid].talent=spec 
+		inspectCache[GUID] = {time = GetTime()}
+		if(spec) then 
+			inspectCache[GUID].talent = spec 
 		end 
-		if itemLevel then 
-			inspectCache[guid].itemLevel = itemLevel 
+		if(itemLevel) then 
+			inspectCache[GUID].itemLevel = itemLevel 
 		end 
 		GameTooltip:SetUnit(unit)
 	end 
 	MOD:UnregisterEvent("INSPECT_READY")
 end 
 
-local function ShowInspectInfo(this,unit,unitLevel,r,g,b,iteration)
+local function ShowInspectInfo(this, unit, unitLevel, r, g, b, iteration)
 	local inspectable = CanInspect(unit)
-	if not inspectable or unitLevel < 10 or iteration > 2 then return end 
-	local guid = UnitGUID(unit)
-	if guid == playerGUID then 
-		this:AddDoubleLine(L["Talent Specialization:"],GetTalentSpec(unit,true),nil,nil,nil,r,g,b)
-		this:AddDoubleLine(L["Item Level:"],floor(select(2,GetAverageItemLevel())),nil,nil,nil,1,1,1)
-	elseif inspectCache[guid] then 
-		local talent = inspectCache[guid].talent;
-		local itemLevel = inspectCache[guid].itemLevel;
-		if GetTime() - inspectCache[guid].time > 900 or not talent or not itemLevel then 
-			inspectCache[guid] = nil;
+	if((not inspectable) or (unitLevel < 10) or (iteration > 2)) then return end 
+	local GUID = UnitGUID(unit)
+	if(GUID == playerGUID) then 
+		this:AddDoubleLine(L["Talent Specialization:"], GetTalentSpec(unit, true), nil, nil, nil, r, g, b)
+		this:AddDoubleLine(L["Item Level:"], floor(select(2, GetAverageItemLevel())), nil, nil, nil, 1, 1, 1)
+	elseif(inspectCache[GUID]) then 
+		local talent = inspectCache[GUID].talent;
+		local itemLevel = inspectCache[GUID].itemLevel;
+		if(((GetTime() - inspectCache[GUID].time) > 900) or not talent or not itemLevel) then 
+			inspectCache[GUID] = nil;
 			return ShowInspectInfo(this,unit,unitLevel,r,g,b,iteration+1)
 		end 
 		this:AddDoubleLine(L["Talent Specialization:"],talent,nil,nil,nil,r,g,b)
 		this:AddDoubleLine(L["Item Level:"],itemLevel,nil,nil,nil,1,1,1)
 	else 
-		if(not inspectable or (InspectFrame and InspectFrame:IsShown())) then 
+		if((not inspectable) or (InspectFrame and InspectFrame:IsShown())) then 
 			return 
 		end 
-		MOD.lastGUID = guid;
+		MOD.lastGUID = GUID;
 		NotifyInspect(unit)
 		MOD:RegisterEvent("INSPECT_READY")
 	end 

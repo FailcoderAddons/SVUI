@@ -260,7 +260,7 @@ local function NewQuestRow(parent, lineNumber)
 	row.Header.Level:SetPoint("BOTTOMRIGHT", row.Header, "BOTTOMRIGHT", -4, 0);
 
 	row.Header.Text = row.Header:CreateFontString(nil,"OVERLAY")
-	row.Header.Text:SetFont(SV.Media.font.roboto, 14, "NONE")
+	row.Header.Text:SetFont(SV.Media.font.roboto, 13, "NONE")
 	row.Header.Text:SetTextColor(1,1,0)
 	row.Header.Text:SetShadowOffset(-1,-1)
 	row.Header.Text:SetShadowColor(0,0,0,0.5)
@@ -436,6 +436,17 @@ CORE FUNCTIONS
 ]]--
 function MOD:UpdateObjectives(event, ...)
 	self.Quests:Refresh(event, ...)
+	if ( event == "QUEST_TURNED_IN" ) then
+		local questID, xp, money = ...;
+		local button = self.Active.Rows.Quest.Button;
+		local questIndex = button:GetID();
+		if(questIndex and (questIndex ~= 0)) then
+			local ActiveQuestID = select(8, GetQuestLogTitle(questIndex));
+			if(ActiveQuestID == questID) then
+				button:CloseMe()
+			end
+		end
+	end
 	self.Tracker:Refresh()
 end
 

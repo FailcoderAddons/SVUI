@@ -404,9 +404,9 @@ do
 
     function SV:ParseGearSlots(unit, inspecting, firstCallback, secondCallback)
         local category = (inspecting) and "Inspect" or "Character";
-        local averageLevel,totalSlots,upgradeAdjust,globalName = 0,0,0;
-        for slotName,flags in pairs(_slots) do
-            globalName = ("%s%s"):format(category, slotName)
+        local averageLevel,totalSlots,upgradeAdjust = 0,0,0;
+        for slotName, flags in pairs(_slots) do
+            local globalName = ("%s%s"):format(category, slotName)
             local slotId = GetInventorySlotInfo(slotName)
             local iLink = GetInventoryItemLink(unit, slotId)
             if(iLink and type(iLink) == "string") then 
@@ -420,7 +420,7 @@ do
                 end
             end
             if(slotId ~= nil) then
-                if(not inspecting and flags[2] and secondCallback and type(secondCallback) == "function") then
+                if((not inspecting) and flags[2] and secondCallback and type(secondCallback) == "function") then
                     secondCallback(globalName, slotId)
                 end
             end

@@ -194,7 +194,7 @@ end
 
 --[[ LIB METHODS ]]--
 
-local function AnimationTemplate(frame, animType, hideOnFinished, speed, special, scriptToParent)
+local function AnimationTemplate(frame, animType, hideOnFinished, speed, special, scriptToParent, noShowHide)
     if(not frame or not animType) then return end 
 
     frame.anim = frame:CreateAnimationGroup(animType)
@@ -207,16 +207,18 @@ local function AnimationTemplate(frame, animType, hideOnFinished, speed, special
         frame.anim:SetScript("OnStop", Anim_OnStop)
     end
 
-    if(scriptToParent) then
-        local frameParent = frame:GetParent();
-        if(frameParent.SetScript) then
-            frameParent.anim = frame.anim;
-            frameParent:SetScript("OnShow", Anim_OnShow)
-            frameParent:SetScript("OnHide", Anim_OnHide)
+    if(not noShowHide) then
+        if(scriptToParent) then
+            local frameParent = frame:GetParent();
+            if(frameParent.SetScript) then
+                frameParent.anim = frame.anim;
+                frameParent:SetScript("OnShow", Anim_OnShow)
+                frameParent:SetScript("OnHide", Anim_OnHide)
+            end
+        elseif(frame.SetScript) then
+            frame:SetScript("OnShow", Anim_OnShow)
+            frame:SetScript("OnHide", Anim_OnHide)
         end
-    elseif(frame.SetScript) then
-        frame:SetScript("OnShow", Anim_OnShow)
-        frame:SetScript("OnHide", Anim_OnHide)
     end
 
     if(animType == 'Flash') then
@@ -369,9 +371,9 @@ function lib:Pulse(frame, hideOnFinished)
     AnimationTemplate(frame, 'Pulse', hideOnFinished) 
 end
 
-function lib:Kapow(frame, hideOnFinished)
+function lib:Kapow(frame, hideOnFinished, noShowHide)
     if not frame then return end 
-    AnimationTemplate(frame, 'Kapow', hideOnFinished) 
+    AnimationTemplate(frame, 'Kapow', hideOnFinished, nil, nil, nil, noShowHide) 
 end
 
 --[[ ANIMATED SPRITES ]]--

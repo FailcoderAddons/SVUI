@@ -227,21 +227,30 @@ local function NewActiveRow(anchorFrame)
 	end
 	row:Height(LARGE_ROW_HEIGHT);
 
-	row.Badge = CreateFrame("Frame", nil, row)
-	row.Badge:Point("TOPLEFT", row, "TOPLEFT", 4, -4);
+	row.Button = CreateFrame("Button", nil, row)
+	row.Button:Point("TOPLEFT", row, "TOPLEFT", 0, 0);
+	row.Button:Point("BOTTOMRIGHT", row, "BOTTOMRIGHT", 0, 8);
+	row.Button:SetFramedButtonTemplate("Headline")
+	row.Button:SetID(0)
+	row.Button.Parent = parent;
+	row.Button:SetScript("OnClick", ViewButton_OnClick)
+	row.Button.CloseMe = ActiveButton_OnClick
+
+	row.Badge = CreateFrame("Frame", nil, row.Button)
+	row.Badge:Point("TOPLEFT", row.Button, "TOPLEFT", 4, -4);
 	row.Badge:Size((LARGE_INNER_HEIGHT - 4), (LARGE_INNER_HEIGHT - 4));
-	row.Badge:SetPanelTemplate("Inset")
+	row.Badge:SetFixedPanelTemplate("Inset")
 
 	row.Badge.Icon = row.Badge:CreateTexture(nil,"OVERLAY")
 	row.Badge.Icon:FillInner(row.Badge);
 	row.Badge.Icon:SetTexture(LINE_QUEST_ICON)
 	row.Badge.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 
-	row.Header = CreateFrame("Frame", nil, row)
+	row.Header = CreateFrame("Frame", nil, row.Button)
 	row.Header:Point("TOPLEFT", row.Badge, "TOPRIGHT", 4, -1);
-	row.Header:Point("TOPRIGHT", row, "TOPRIGHT", -(ROW_HEIGHT + 4), 0);
+	row.Header:Point("TOPRIGHT", row.Button, "TOPRIGHT", -(ROW_HEIGHT + 4), 0);
 	row.Header:Height(INNER_HEIGHT);
-	row.Header:SetPanelTemplate("Headline")
+	row.Header:SetPanelTemplate()
 
 	row.Header.Level = row.Header:CreateFontString(nil,"OVERLAY")
 	row.Header.Level:SetFont(SV.Media.font.roboto, 10, "NONE")
@@ -254,7 +263,7 @@ local function NewActiveRow(anchorFrame)
 	row.Header.Level:Point("BOTTOMLEFT", row.Header, "BOTTOMLEFT", 4, 0);
 
 	row.Header.Text = row.Header:CreateFontString(nil,"OVERLAY")
-	row.Header.Text:SetFont(SV.Media.font.roboto, 14, "NONE")
+	row.Header.Text:SetFont(SV.Media.font.roboto, 13, "NONE")
 	row.Header.Text:SetTextColor(1,1,0)
 	row.Header.Text:SetShadowOffset(-1,-1)
 	row.Header.Text:SetShadowColor(0,0,0,0.5)
@@ -272,17 +281,10 @@ local function NewActiveRow(anchorFrame)
 	row.CloseButton:SetNormalTexture([[Interface\AddOns\SVUI\assets\artwork\Icons\CLOSE-BUTTON]])
     row.CloseButton:HookScript("OnEnter", CloseButton_OnEnter)
     row.CloseButton:HookScript("OnLeave", CloseButton_OnLeave)
-	row.CloseButton:Point("RIGHT", row.Header, "RIGHT", (ROW_HEIGHT + 4), 0);
+	row.CloseButton:Point("RIGHT", row.Header, "RIGHT", (ROW_HEIGHT + 8), 0);
 	row.CloseButton:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 	row.CloseButton.Parent = parent;
 	row.CloseButton:SetScript("OnClick", ActiveButton_OnClick)
-
-	row.Button = CreateFrame("Button", nil, row.Header)
-	row.Button:Point("TOPLEFT", row.Header, "TOPLEFT", 0, 0);
-	row.Button:Point("BOTTOMRIGHT", row.Header, "BOTTOMRIGHT", 0, 0);
-	row.Button:SetButtonTemplate(true, 1, 1, 1)
-	row.Button:SetID(0)
-	row.Button:SetScript("OnClick", ViewButton_OnClick)
 
 	row.Objectives = CreateFrame("Frame", nil, row)
 	row.Objectives:Point("TOPLEFT", row.Header, "BOTTOMLEFT", 0, -2);
@@ -313,23 +315,32 @@ local function NewPopUpRow(lineNumber)
 	end
 	row:Height(LARGE_ROW_HEIGHT);
 
-	row.Badge = CreateFrame("Frame", nil, row)
-	row.Badge:Point("TOPLEFT", row, "TOPLEFT", 4, -4);
+	row.Button = CreateFrame("Button", nil, row)
+	row.Button:Point("TOPLEFT", row, "TOPLEFT", 0, 0);
+	row.Button:Point("BOTTOMRIGHT", row, "BOTTOMRIGHT", 0, 8);
+	row.Button:SetFramedButtonTemplate("FramedTop")
+	row.Button:SetPanelColor("yellow")
+	row.Button:SetID(0)
+	row.Button.PopUpType = nil;
+	row.Button:SetScript("OnClick", PopUpButton_OnClick)
+
+	row.Badge = CreateFrame("Frame", nil, row.Button)
+	row.Badge:Point("TOPLEFT", row.Button, "TOPLEFT", 4, -4);
 	row.Badge:Size((LARGE_INNER_HEIGHT - 4), (LARGE_INNER_HEIGHT - 4));
-	row.Badge:SetPanelTemplate("Inset")
+	row.Badge:SetFixedPanelTemplate("Inset")
 
 	row.Badge.Icon = row.Badge:CreateTexture(nil,"OVERLAY")
 	row.Badge.Icon:FillInner(row.Badge);
 	row.Badge.Icon:SetTexture(LINE_QUEST_ICON)
 	row.Badge.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 
-	row.Header = CreateFrame("Frame", nil, row)
+	row.Header = CreateFrame("Frame", nil, row.Button)
 	row.Header:Point("TOPLEFT", row.Badge, "TOPRIGHT", 4, -1);
-	row.Header:Point("BOTTOMRIGHT", row, "BOTTOMRIGHT", -2, 2);
-	row.Header:SetPanelTemplate("Headline")
+	row.Header:Point("BOTTOMRIGHT", row.Button, "BOTTOMRIGHT", -2, 2);
+	row.Header:SetPanelTemplate()
 
 	row.Header.Text = row.Header:CreateFontString(nil,"OVERLAY")
-	row.Header.Text:SetFont(SV.Media.font.roboto, 14, "NONE")
+	row.Header.Text:SetFont(SV.Media.font.roboto, 13, "NONE")
 	row.Header.Text:SetTextColor(1,1,0)
 	row.Header.Text:SetShadowOffset(-1,-1)
 	row.Header.Text:SetShadowColor(0,0,0,0.5)
@@ -338,13 +349,6 @@ local function NewPopUpRow(lineNumber)
 	row.Header.Text:SetText('')
 	row.Header.Text:Point("TOPLEFT", row.Header, "TOPLEFT", 0, 0);
 	row.Header.Text:Point("BOTTOMRIGHT", row.Header, "BOTTOMRIGHT", 0, 0);
-
-	row.Button = CreateFrame("Button", nil, row.Header)
-	row.Button:SetAllPoints(row.Header);
-	row.Button:SetButtonTemplate(true, 1, 1, 1)
-	row.Button:SetID(0)
-	row.Button.PopUpType = nil;
-	row.Button:SetScript("OnClick", PopUpButton_OnClick)
 
 	row.RowID = 0;
 

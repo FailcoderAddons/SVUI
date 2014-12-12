@@ -70,16 +70,29 @@ local GroupCounts = {
 };
 
 local sortMapping = {
-    ["DOWN_RIGHT"] = {[1]="TOP",[2]="TOPLEFT",[3]="LEFT",[4]=1,[5]=-1,[6]=false,[7]="BOTTOM",[8]="TOP",[9]=1},
-    ["DOWN_LEFT"] = {[1]="TOP",[2]="TOPRIGHT",[3]="RIGHT",[4]=1,[5]=-1,[6]=false,[7]="BOTTOM",[8]="TOP",[9]=1},
-    ["UP_RIGHT"] = {[1]="BOTTOM",[2]="BOTTOMLEFT",[3]="LEFT",[4]=1,[5]=1,[6]=false,[7]="TOP",[8]="BOTTOM",[9]=-1},
-    ["UP_LEFT"] = {[1]="BOTTOM",[2]="BOTTOMRIGHT",[3]="RIGHT",[4]=-1,[5]=1,[6]=false,[7]="TOP",[8]="BOTTOM",[9]=-1},
-    ["RIGHT_DOWN"] = {[1]="LEFT",[2]="TOPLEFT",[3]="TOP",[4]=1,[5]=-1,[6]=true,[7]="RIGHT",[8]="LEFT",[9]=-1},
-    ["RIGHT_UP"] = {[1]="LEFT",[2]="BOTTOMLEFT",[3]="BOTTOM",[4]=1,[5]=1,[6]=true,[7]="RIGHT",[8]="LEFT",[9]=-1},
-    ["LEFT_DOWN"] = {[1]="RIGHT",[2]="TOPRIGHT",[3]="TOP",[4]=-1,[5]=-1,[6]=true,[7]="LEFT",[8]="RIGHT",[9]=1},
-    ["LEFT_UP"] = {[1]="RIGHT",[2]="BOTTOMRIGHT",[3]="BOTTOM",[4]=-1,[5]=1,[6]=true,[7]="LEFT",[8]="RIGHT",[9]=1},
-    ["UP"] = {[1]="BOTTOM",[2]="BOTTOM",[3]="BOTTOM",[4]=1,[5]=1,[6]=false,[7]="TOP",[8]="BOTTOM",[9]=-1},
-    ["DOWN"] = {[1]="TOP",[2]="TOP",[3]="TOP",[4]=1,[5]=1,[6]=false,[7]="BOTTOM",[8]="TOP",[9]=1},
+    ["DOWN_RIGHT"]  = { [1] = "TOP",    [2] = "TOPLEFT",        [3] = "LEFT",   [4] = 1,    [5] = -1,   [6] = false },
+    ["DOWN_LEFT"]   = { [1] = "TOP",    [2] = "TOPRIGHT",       [3] = "RIGHT",  [4] = 1,    [5] = -1,   [6] = false },
+    ["UP_RIGHT"]    = { [1] = "BOTTOM", [2] = "BOTTOMLEFT",     [3] = "LEFT",   [4] = 1,    [5] = 1,    [6] = false },
+    ["UP_LEFT"]     = { [1] = "BOTTOM", [2] = "BOTTOMRIGHT",    [3] = "RIGHT",  [4] = -1,   [5] = 1,    [6] = false },
+    ["RIGHT_DOWN"]  = { [1] = "LEFT",   [2] = "TOPLEFT",        [3] = "TOP",    [4] = 1,    [5] = -1,   [6] = true  },
+    ["RIGHT_UP"]    = { [1] = "LEFT",   [2] = "BOTTOMLEFT",     [3] = "BOTTOM", [4] = 1,    [5] = 1,    [6] = true  },
+    ["LEFT_DOWN"]   = { [1] = "RIGHT",  [2] = "TOPRIGHT",       [3] = "TOP",    [4] = -1,   [5] = -1,   [6] = true  },
+    ["LEFT_UP"]     = { [1] = "RIGHT",  [2] = "BOTTOMRIGHT",    [3] = "BOTTOM", [4] = -1,   [5] = 1,    [6] = true  },
+    ["UP"]          = { [1] = "BOTTOM", [2] = "BOTTOM",         [3] = "BOTTOM", [4] = 1,    [5] = 1,    [6] = false },
+    ["DOWN"]        = { [1] = "TOP",    [2] = "TOP",            [3] = "TOP",    [4] = 1,    [5] = 1,    [6] = false },
+};
+
+local groupTagPoints = {
+    ["DOWN_RIGHT"]  = { [1] = "BOTTOM",     [2] = "TOP",        [3] = 1     },
+    ["DOWN_LEFT"]   = { [1] = "BOTTOM",     [2] = "TOP",        [3] = 1     },
+    ["UP_RIGHT"]    = { [1] = "TOP",        [2] = "BOTTOM",     [3] = -1    },
+    ["UP_LEFT"]     = { [1] = "TOP",        [2] = "BOTTOM",     [3] = -1    },
+    ["RIGHT_DOWN"]  = { [1] = "RIGHT",      [2] = "LEFT",       [3] = -1    },
+    ["RIGHT_UP"]    = { [1] = "RIGHT",      [2] = "LEFT",       [3] = -1    },
+    ["LEFT_DOWN"]   = { [1] = "LEFT",       [2] = "RIGHT",      [3] = 1     },
+    ["LEFT_UP"]     = { [1] = "LEFT",       [2] = "RIGHT",      [3] = 1     },
+    ["UP"]          = { [1] = "TOP",        [2] = "BOTTOM",     [3] = -1    },
+    ["DOWN"]        = { [1] = "BOTTOM",     [2] = "TOP",        [3] = 1     },
 };
 
 local GroupDistributor = {
@@ -1004,7 +1017,8 @@ local GroupConfigure = function(self)
     local sorting = settings.showBy
     local sortMethod = settings.sortMethod
     local widthCalc, heightCalc, xCalc, yCalc = 0, 0, 0, 0;
-    local point, anchorPoint, columnAnchor, horizontal, vertical, isHorizontal, tagPoint1, tagPoint2, mod = unpack(sortMapping[sorting]);
+    local point, anchorPoint, columnAnchor, horizontal, vertical, isHorizontal = unpack(sortMapping[sorting]);
+    local tagPoint1, tagPoint2, mod = unpack(groupTagPoints[sorting]);
 
     self.groupCount = groupCount
 
@@ -1059,12 +1073,17 @@ local GroupConfigure = function(self)
 
             if(frame.GroupTag) then
                 if(settings.showGroupNumber) then
-                    local x,y = 0,(10 * mod);
+                    local x,y = 0,0;
+                    local size = settings.height * 0.65;
                     if(isHorizontal) then
-                        x,y = (10 * mod),0
+                        x,y = (10 * mod),0;
+                        widthCalc = size + 10
+                    else
+                        x,y = 0,(10 * mod);
+                        heightCalc = size + 10
                     end
                     frame.GroupTag:Show()
-                    frame.GroupTag:Size(settings.height * 0.65)
+                    frame.GroupTag:Size(size)
                     frame.GroupTag:SetPoint(tagPoint1, frame, tagPoint2, x, y)
                 else
                     frame.GroupTag:Hide()

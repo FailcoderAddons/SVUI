@@ -92,7 +92,21 @@ local textCounterOffsets = {
 	["BOTTOM"] = {"RIGHT", "LEFT", 2, 0}, 
 }
 
-local CanSteal = (SV.class == "MAGE") 
+local CanSteal = (SV.class == "MAGE");
+--[[ 
+########################################################## 
+UPVALUES
+##########################################################
+]]--
+local FILTER_PLAYERONLY = false;
+local FILTER_DISPELLABLE = false;
+local FILTER_CONSOLIDATED = false;
+local FILTER_INFINITE = false;
+
+local FRIENDLY_FILTER_PLAYERONLY = false;
+local FRIENDLY_FILTER_DISPELLABLE = false;
+local FRIENDLY_FILTER_CONSOLIDATED = false;
+local FRIENDLY_FILTER_INFINITE = false;
 --[[ 
 ########################################################## 
 LOCAL FUNCTIONS
@@ -103,7 +117,7 @@ local AuraIcon_OnClick = function(self)
 	local name = self.name;
 	if name then 
 		SV:AddonMessage((L["The spell '%s' has been added to the Blocked unitframe aura filter."]):format(name))
-		SV.filters["Blocked"][name] = {["enable"] = true, ["priority"] = 0}
+		SV.filters["Blocked"][name] = {["enable"] = true}
 		MOD:RefreshUnitFrames()
 	end
 end
@@ -297,7 +311,7 @@ local AuraBar_OnClick = function(self)
 	local name = self:GetParent().aura.name
 	if name then 
 		SV:AddonMessage((L["The spell '%s' has been added to the Blocked unitframe aura filter."]):format(name))
-		SV.filters["Blocked"][name] = {["enable"] = true, ["priority"] = 0}
+		SV.filters["Blocked"][name] = {["enable"] = true}
 		MOD:RefreshUnitFrames()
 	end 
 end
@@ -344,6 +358,7 @@ local PlayerAuraFilter = function(self, unit, icon, auraName, _, _, _, debuffTyp
 	local isEnemy = UnitIsEnemy("player", unit);
 
 	icon.isPlayer = isPlayer;
+	icon.priority = 0;
 	icon.owner = caster;
 	icon.name = auraName;
 
@@ -418,11 +433,11 @@ end
 
 --[[ NON-PLAYER AURA FILTERING ]]--
 
-local function filter_test(setting, harmful)
+local function filter_test(setting, isEnemy)
 	if((not setting) or (setting and type(setting) ~= "table")) then 
 		return false;
 	end
-	if((setting.enemy and harmful) or (setting.friendly and (not harmful))) then 
+	if((setting.enemy and isEnemy) or (setting.friendly and (not isEnemy))) then 
 	  return true;
 	end
   	return false 
@@ -440,6 +455,7 @@ local CommonAuraFilter = function(self, unit, icon, auraName, _, _, _, debuffTyp
 	local isEnemy = UnitIsEnemy("player", unit);
 
 	icon.isPlayer = isPlayer;
+	icon.priority = 0;
 	icon.owner = caster;
 	icon.name = auraName;
 

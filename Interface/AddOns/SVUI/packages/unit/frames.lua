@@ -673,7 +673,7 @@ CONSTRUCTORS["focustarget"] = function(self, unit)
     self.Debuffs = MOD:CreateDebuffs(self, key)
     self.RaidIcon = MOD:CreateRaidIcon(self)
     self.Range = { insideAlpha = 1, outsideAlpha = 1 }
-    self:Point("LEFT", SVUI_Focus, "RIGHT", 7, 0)
+    self:Point("LEFT", SVUI_Focus, "RIGHT", 12, 0)
     SV.Mentalo:Add(self, L["FocusTarget Frame"], -7)
 
     self.MediaUpdate = MOD.RefreshUnitMedia

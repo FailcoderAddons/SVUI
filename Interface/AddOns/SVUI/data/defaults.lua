@@ -67,6 +67,7 @@ SV.defaults["general"] = {
     ["woot"] = true, 
     ["gamemenu"] = true, 
     ["afk"] = true, 
+    ["afkNoMove"] = false,
     ["pvpinterrupt"] = true, 
     ["lookwhaticando"] = false,
     ["reactionChat"] = false,

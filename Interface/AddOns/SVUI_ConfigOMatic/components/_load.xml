@@ -7,7 +7,7 @@
 	<Script file='chat.lua'/>
 	<Script file='henchmen.lua'/>
 	<Script file='stat.lua'/>
-	<Script file='filter.lua'/>
+	<Include file='filters\_load.xml'/>
 	<Script file='plate.lua'/>
 	<Script file='tip.lua'/>
 	<Include file='units\_load.xml'/>

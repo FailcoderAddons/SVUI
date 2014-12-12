@@ -88,6 +88,8 @@ function SV.Comix:ReadyState(state)
 end
 
 function SV.Comix:LaunchPremiumPopup()
+	self:ReadyState(false)
+
 	local rng = random(1, 16);
 	local coords = COMIX_DATA[1][rng];
 	local offsets = COMIX_DATA[2][rng]
@@ -104,49 +106,42 @@ function SV.Comix:LaunchPremiumPopup()
 	self.Premium.bg.anim:Play() 
 end
 
-function SV.Comix:LaunchDeluxePopup()
-	local rng = random(1, 16);
-	local coords = COMIX_DATA[1][rng];
-	local step1_x = random(-100, 100);
-	if(step1_x > -30 and step1_x < 30) then step1_x = step1_x * 3 end 
-	local step1_y = random(-30, 30);
-	if(step1_y > -30 and step1_y < 30) then step1_y = step1_y * 3 end 
-	local step2_x = step1_x * 0.5;
-	local step2_y = step1_y * 0.75;
-	self.Deluxe.tex:SetTexCoord(coords[1],coords[2],coords[3],coords[4])
-	self.Deluxe.anim[1]:SetOffset(step1_x, step1_y)
-	self.Deluxe.anim[2]:SetOffset(step2_x, step2_y)
-	self.Deluxe.anim[3]:SetOffset(0,0)
-	self.Deluxe.anim:Play() 
-end
-
 function SV.Comix:LaunchPopup()
-	local rng = random(1, 16);
-	local coords = COMIX_DATA[1][rng];
-	local step1_x = random(-100, 100);
-	if(step1_x > -30 and step1_x < 30) then step1_x = step1_x * 3 end 
-	local step1_y = random(-30, 30);
-	if(step1_y > -30 and step1_y < 30) then step1_y = step1_y * 3 end
-	local size = random(64,88)
-	self.Basic:Size(size,size)
-	self.Basic.tex:SetTexCoord(coords[1],coords[2],coords[3],coords[4])
-	self.Basic:ClearAllPoints()
-	self.Basic:Point("CENTER", SV.Screen, "CENTER", step1_x, step1_y)
-	self.Basic.anim:Play()
+	self:ReadyState(false)
+
+	local coords, step1_x, step1_y, step2_x, step2_y, size;
+	local rng = random(1, 32);
+
+	if(rng > 16) then
+		local key = rng - 16;
+		coords = COMIX_DATA[1][key];
+		step1_x = random(-150, 150);
+		if(step1_x > -20 and step1_x < 20) then step1_x = step1_x * 3 end
+		step1_y = random(50, 150);
+		step2_x = step1_x * 0.5;
+		step2_y = step1_y * 0.75;
+		self.Deluxe.tex:SetTexCoord(coords[1],coords[2],coords[3],coords[4]);
+		self.Deluxe.anim[1]:SetOffset(step1_x, step1_y);
+		self.Deluxe.anim[2]:SetOffset(step2_x, step2_y);
+		self.Deluxe.anim[3]:SetOffset(0,0);
+		self.Deluxe.anim:Play();
+	else
+		coords = COMIX_DATA[1][rng];
+		step1_x = random(-100, 100);
+		step1_y = random(-50, 1);
+		size = random(96,128);
+		self.Basic:Size(size,size);
+		self.Basic.tex:SetTexCoord(coords[1],coords[2],coords[3],coords[4]);
+		self.Basic:ClearAllPoints();
+		self.Basic:Point("CENTER", SV.Screen, "CENTER", step1_x, step1_y);
+		self.Basic.anim:Play();
+	end
 end 
 
 local Comix_OnEvent = function(self, event, ...)
-	local subEvent = select(2,...)
-	local guid = select(4,...)
-	local ready = self:ReadyState()
-	if subEvent == "PARTY_KILL" and guid == UnitGUID('player') and ready then 
-		self:ReadyState(false)
-		local rng = random(1,15)
-		if rng < 8 then
-			self:LaunchDeluxePopup()
-		else
-			self:LaunchPopup()
-		end
+	local _, subEvent, _, guid = ...;
+	if((subEvent == "PARTY_KILL" and guid == UnitGUID('player')) and self:ReadyState()) then
+		self:LaunchPopup()
 	end  
 end
 
@@ -176,18 +171,21 @@ function SV.Comix:Initialize()
 	self.Deluxe = _G["SVUI_ComixFrame2"]
 	self.Premium = _G["SVUI_ComixFrame3"]
 
-	self.Basic:Size(64,64)
+	self.Basic:SetParent(SV.Screen)
+	self.Basic:Size(128,128)
 	self.Basic.tex:SetTexCoord(0,0.25,0,0.25)
-	SV.Animate:Kapow(self.Basic, true)
+	SV.Animate:Kapow(self.Basic, true, true)
 	self.Basic:SetAlpha(0)
 	self.Basic.anim[2]:SetScript("OnFinished", Comix_OnUpdate)
 
-	self.Deluxe:Size(88,88)
+	self.Deluxe:SetParent(SV.Screen)
+	self.Deluxe:Size(128,128)
 	self.Deluxe.tex:SetTexCoord(0,0.25,0,0.25)
 	SV.Animate:RandomSlide(self.Deluxe, true)
 	self.Deluxe:SetAlpha(0)
 	self.Deluxe.anim[3]:SetScript("OnFinished", Comix_OnUpdate)
 
+	self.Premium:SetParent(SV.Screen)
 	self.Premium.tex:SetTexCoord(0,0.25,0,0.25)
 	SV.Animate:RandomSlide(self.Premium, true)
 	self.Premium:SetAlpha(0)
@@ -199,10 +197,10 @@ function SV.Comix:Initialize()
 	self.Premium.bg.anim[3]:SetScript("OnFinished", Comix_OnUpdate)
 
 	--MOD
-	local toasty = CreateFrame("Frame", "ComixToastyPanelBG", UIParent)
+	local toasty = CreateFrame("Frame", "ComixToastyPanelBG", SV.Screen)
 	toasty:SetSize(256, 256)
 	toasty:SetFrameStrata("DIALOG")
-	toasty:Point("BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", 0, 0)
+	toasty:Point("BOTTOMRIGHT", SV.Screen, "BOTTOMRIGHT", 0, 0)
 	toasty.tex = toasty:CreateTexture(nil, "ARTWORK")
 	toasty.tex:FillInner(toasty)
 	toasty.tex:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Doodads\TOASTY]])

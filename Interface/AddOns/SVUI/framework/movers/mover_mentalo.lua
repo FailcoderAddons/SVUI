@@ -414,6 +414,7 @@ local Movable_OnUpdate = function(self)
 	end 
 	SVUI_MentaloPrecision:ClearAllPoints()
 	SVUI_MentaloPrecision:SetPoint(anchor1, frame, anchor2, centerX, centerY)
+	SVUI_MentaloPrecision:SetFrameLevel(frame:GetFrameLevel() + 20)
 	Movable_OnMouseUp(frame)
 end
 

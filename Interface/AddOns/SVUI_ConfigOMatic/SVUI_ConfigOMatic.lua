@@ -399,6 +399,14 @@ SV.Options.args.common = {
 									get = function(j)return SV.db.general.afk end,
 									set = function(j,value) SV.db.general.afk = value; SV.AFK:Toggle() end
 								},
+								afkNoMove = {
+									order = 11,
+									type = 'toggle',
+									name = L["Non-Spinning AFK"],
+									desc = L["Uses the awesome AFK screen without the camera spinning."],
+									get = function(j)return SV.db.general.afkNoMove end,
+									set = function(j,value) SV.db.general.afkNoMove = value; SV.AFK:Toggle() end
+								},
 							}
 						},
 						otherGroup = {
@@ -845,9 +853,9 @@ SV.Options.args.common = {
 							name = L["Miscellaneous"],
 							guiInline = true,
 							order = 8,
-							get = function(e)return SV.db.SVGear.misc[e[#e]]end,
-							set = function(e,value)SV.db.SVGear.misc[e[#e]] = value end,
-							disabled = function()return not SV.db.SVBag.enable end,
+							get = function(e) return SV.db.SVGear.misc[e[#e]] end,
+							set = function(e,value) SV.db.SVGear.misc[e[#e]] = value end,
+							disabled = function() return not SV.db.SVBag.enable end,
 							args = {
 								setoverlay = {
 									type = "toggle",
@@ -856,7 +864,7 @@ SV.Options.args.common = {
 									desc = L["Show the associated equipment sets for the items in your bags (or bank)."],
 									set = function(e,value)
 										SV.db.SVGear.misc[e[#e]] = value;
-										SV.SVBag:ToggleEquipmentOverlay()
+										SV:StaticPopup_Show("RL_CLIENT");
 									end
 								}
 							}

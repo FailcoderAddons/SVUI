@@ -174,7 +174,7 @@
     <Frame name="SVUI_ComixFrame1" frameStrata="DIALOG">
         <Size x="100" y="100"/>
         <Anchors>
-            <Anchor point="CENTER" relativePoint="CENTER" x="0" y="-50" />
+            <Anchor point="CENTER" relativePoint="CENTER" x="0" y="0" />
         </Anchors>
         <Layers>
             <Layer level="ARTWORK">
@@ -186,7 +186,7 @@
     <Frame name="SVUI_ComixFrame2" frameStrata="DIALOG">
         <Size x="100" y="100"/>
         <Anchors>
-            <Anchor point="CENTER" relativePoint="CENTER" x="0" y="-50" />
+            <Anchor point="BOTTOM" relativePoint="BOTTOM" x="0" y="100" />
         </Anchors>
         <Layers>
             <Layer level="ARTWORK">
@@ -198,7 +198,7 @@
     <Frame name="SVUI_ComixFrame3" frameStrata="DIALOG">
         <Size x="100" y="100"/>
         <Anchors>
-            <Anchor point="CENTER" relativePoint="CENTER" x="0" y="-50" />
+            <Anchor point="CENTER" relativePoint="CENTER" x="0" y="0" />
         </Anchors>
         <Layers>
             <Layer level="ARTWORK">
@@ -209,7 +209,7 @@
             <Frame name="$parentBG" parentKey="bg" frameStrata="BACKGROUND">
                 <Size x="128" y="128"/>
                 <Anchors>
-                    <Anchor point="CENTER" relativePoint="CENTER" x="0" y="-50" />
+                    <Anchor point="CENTER" relativePoint="CENTER" x="0" y="0" />
                 </Anchors>
                 <Layers>
                     <Layer level="ARTWORK">
