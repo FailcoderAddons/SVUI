@@ -136,7 +136,7 @@ SV.Options.args.SVTip = {
 							max = 15, 
 							step = 1, 
 							width = "full", 
-							set = function(a,b)SV.db.SVTip.healthBar.height = b;GameTooltipStatusBar:Height(b)end
+							set = function(a,b)SV.db.SVTip.healthBar.height = b;GameTooltipStatusBar:SetHeightToScale(b)end
 						},
 						fontGroup = {
 							order = 2, 

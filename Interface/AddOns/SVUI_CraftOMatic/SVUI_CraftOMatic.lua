@@ -349,16 +349,14 @@ end
 local ModeAlert_OnShow = function(self)
 	if InCombatLockdown() then 
 		SV:AddonMessage(ERR_NOT_IN_COMBAT); 
-		self:Hide() 
 		return; 
 	end
-	SV:SecureFadeIn(self, 0.3, 0, 1)
 	PLUGIN.Docklet.Parent.Alert:Activate(self)
 end
 
 local ModeAlert_OnMouseDown = function(self)
 	PLUGIN:EndJobModes()
-	SV:SecureFadeOut(self, 0.5, 1, 0, true)
+	self:FadeOut(0.5, 1, 0, true)
 end
 
 local ModeButton_OnEnter = function(self)
@@ -397,7 +395,7 @@ local function ResizeCraftingDock()
 	SVUI_ModeButton1:SetSize(BUTTON_SIZE,BUTTON_SIZE);
 end
 
-LibSuperVillain("Registry"):NewCallback("DOCKS_UPDATED", "ResizeCraftingDock", ResizeCraftingDock);
+SV.Events:On("DOCKS_UPDATED", "ResizeCraftingDock", ResizeCraftingDock);
 --[[ 
 ########################################################## 
 BUILD FUNCTION
@@ -424,7 +422,7 @@ function PLUGIN:Load()
 	mode4Button:SetSize(BUTTON_SIZE,BUTTON_SIZE)
 	mode4Button.icon = mode4Button:CreateTexture(nil, 'OVERLAY')
 	mode4Button.icon:SetTexture(FARM_ICON)
-	mode4Button.icon:FillInner(mode4Button)
+	mode4Button.icon:SetAllPointsIn(mode4Button)
 	mode4Button.icon:SetGradient("VERTICAL", 0.5, 0.53, 0.55, 0.8, 0.8, 1)
 	mode4Button.modeName = "Farming"
 	mode4Button:SetScript('OnEnter', ModeButton_OnEnter)
@@ -436,7 +434,7 @@ function PLUGIN:Load()
 	mode3Button:SetSize(BUTTON_SIZE,BUTTON_SIZE)
 	mode3Button.icon = mode3Button:CreateTexture(nil, 'OVERLAY')
 	mode3Button.icon:SetTexture(ARCH_ICON)
-	mode3Button.icon:FillInner(mode3Button)
+	mode3Button.icon:SetAllPointsIn(mode3Button)
 	mode3Button.icon:SetGradient("VERTICAL", 0.5, 0.53, 0.55, 0.8, 0.8, 1)
 	mode3Button.modeName = "Archaeology"
 	mode3Button:SetScript('OnEnter', ModeButton_OnEnter)
@@ -448,7 +446,7 @@ function PLUGIN:Load()
 	mode2Button:SetSize(BUTTON_SIZE,BUTTON_SIZE)
 	mode2Button.icon = mode2Button:CreateTexture(nil, 'OVERLAY')
 	mode2Button.icon:SetTexture(FISH_ICON)
-	mode2Button.icon:FillInner(mode2Button)
+	mode2Button.icon:SetAllPointsIn(mode2Button)
 	mode2Button.icon:SetGradient("VERTICAL", 0.5, 0.53, 0.55, 0.8, 0.8, 1)
 	mode2Button.modeName = "Fishing"
 	mode2Button:SetScript('OnEnter', ModeButton_OnEnter)
@@ -460,7 +458,7 @@ function PLUGIN:Load()
 	mode1Button:SetSize(BUTTON_SIZE,BUTTON_SIZE)
 	mode1Button.icon = mode1Button:CreateTexture(nil, 'OVERLAY')
 	mode1Button.icon:SetTexture(COOK_ICON)
-	mode1Button.icon:FillInner(mode1Button)
+	mode1Button.icon:SetAllPointsIn(mode1Button)
 	mode1Button.icon:SetGradient("VERTICAL", 0.5, 0.53, 0.55, 0.8, 0.8, 1)
 	mode1Button.modeName = "Cooking"
 	mode1Button:SetScript('OnEnter', ModeButton_OnEnter)
@@ -554,7 +552,7 @@ function PLUGIN:Load()
     self.ModeAlert = ModeAlert
 	self.TitleWindow = title
 	self.LogWindow = log
-	self.Docklet:Hide()
+	--self.Docklet:Hide()
 	self.ListenerEnabled = false;
 	self:CraftingReset()
 	self:LoadCookingMode()

@@ -50,8 +50,8 @@ local function StyleItemIcon(item)
 	item.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 	if(not item.IconSlot) then 
 		item.IconSlot = CreateFrame("Frame", nil, item)
-		item.IconSlot:WrapOuter(item.Icon)
-		item.IconSlot:SetSlotTemplate()
+		item.IconSlot:SetAllPointsOut(item.Icon)
+		item.IconSlot:SetStylePanel("Slot")
 		item.Icon:SetParent(item.IconSlot)
 	end
 end
@@ -62,7 +62,7 @@ local function StyleListItem(item)
     	local size = item:GetHeight() - 8
     	local texture = item.Icon:GetTexture()
 		item:RemoveTextures()
-    	item:SetSlotTemplate()
+    	item:SetStylePanel("Slot")
     	item.Icon:SetTexture(texture)
 		item.Icon:ClearAllPoints()
 		item.Icon:SetPoint("TOPLEFT", item, "TOPLEFT", 4, -4)
@@ -70,8 +70,8 @@ local function StyleListItem(item)
 		item.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 		if(not item.IconSlot) then 
 			item.IconSlot = CreateFrame("Frame", nil, item)
-			item.IconSlot:WrapOuter(item.Icon)
-			item.IconSlot:SetSlotTemplate()
+			item.IconSlot:SetAllPointsOut(item.Icon)
+			item.IconSlot:SetStylePanel("Slot")
 			item.Icon:SetParent(item.IconSlot)
 		end
     end
@@ -97,7 +97,7 @@ local _hook_ReagentUpdate = function(self)
     for i = 1, #reagents do
     	if(reagents[i] and (not reagents[i].Panel)) then
     		reagents[i]:RemoveTextures()
-        	reagents[i]:SetSlotTemplate(true, 2, 0, 0, 0.5)
+        	reagents[i]:SetStylePanel("Slot", true, 2, 0, 0, 0.5)
         	if(reagents[i].Icon) then
 				reagents[i].Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 			end
@@ -133,7 +133,7 @@ local _hook_GarrisonFollowerListUpdate = function(self)
         	local follower = followers[followersList[index]];
 	        if(not button.Panel) then
 	            button:RemoveTextures()
-	            button:SetPanelTemplate('Blackout', true, 1, 0, 0)
+	            button:SetStylePanel("Default", 'Blackout', true, 1, 0, 0)
 				if(button.XPBar) then
 					button.XPBar:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Bars\DEFAULT]])
 					button.XPBar:SetGradient('HORIZONTAL', 0.5, 0, 1, 1, 0, 1)
@@ -177,14 +177,14 @@ local _hook_GarrisonFollowerPage_ShowFollower = function(self, followerID)
     if(not self.XPBar.Panel) then
 	    self.XPBar:RemoveTextures()
 		self.XPBar:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Bars\DEFAULT]])
-		self.XPBar:SetFixedPanelTemplate("Bar")
+		self.XPBar:SetStylePanel("Fixed", "Bar")
 	end
  
     for i=1, #self.AbilitiesFrame.Abilities do
         local abilityFrame = self.AbilitiesFrame.Abilities[i];
         abilityFrame.IconButton.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9);
         if(not abilityFrame.IconButton.Panel) then
-			abilityFrame.IconButton:SetFixedPanelTemplate("Slot", true, 4)
+			abilityFrame.IconButton:SetStylePanel("Fixed", "Slot", true, 4)
 		end
     end
 end
@@ -203,7 +203,7 @@ local function StyleListButtons(listButtons)
 	    	local size = frame:GetHeight() - 6
 	    	local texture = frame.Icon:GetTexture()
 			frame:RemoveTextures()
-	    	frame:SetFixedPanelTemplate('Blackout', true, 3)
+	    	frame:SetStylePanel("Fixed", 'Blackout', true, 3)
 	    	frame.Icon:SetTexture(texture)
 			frame.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 			frame.Icon:ClearAllPoints()
@@ -236,43 +236,43 @@ local function LoadGarrisonStyle()
 	PLUGIN:ApplyTabStyle(GarrisonMissionFrameTab2)
 
 	GarrisonBuildingFrameFollowers:RemoveTextures()
-	GarrisonBuildingFrameFollowers:SetPanelTemplate('Inset', true, 1, -5, -5)
+	GarrisonBuildingFrameFollowers:SetStylePanel("Default", 'Inset', true, 1, -5, -5)
 	GarrisonBuildingFrameFollowers:ClearAllPoints()
 	GarrisonBuildingFrameFollowers:SetPoint("LEFT", GarrisonBuildingFrame, "LEFT", 10, 0)
 	GarrisonBuildingFrame.BuildingList:RemoveTextures()
-	GarrisonBuildingFrame.BuildingList:SetFixedPanelTemplate('Inset')
+	GarrisonBuildingFrame.BuildingList:SetStylePanel("Fixed", 'Inset')
 	GarrisonBuildingFrame.TownHallBox:RemoveTextures()
-	GarrisonBuildingFrame.TownHallBox:SetFixedPanelTemplate('Inset')
+	GarrisonBuildingFrame.TownHallBox:SetStylePanel("Fixed", 'Inset')
 	GarrisonBuildingFrame.InfoBox:RemoveTextures()
-	GarrisonBuildingFrame.InfoBox:SetFixedPanelTemplate('Inset')
+	GarrisonBuildingFrame.InfoBox:SetStylePanel("Fixed", 'Inset')
 	--PLUGIN:ApplyTabStyle(GarrisonBuildingFrame.BuildingList.Tab1)
 	GarrisonBuildingFrame.BuildingList.Tab1:GetNormalTexture().SetAtlas = function() return end
 	GarrisonBuildingFrame.BuildingList.Tab1:RemoveTextures(true)
-	GarrisonBuildingFrame.BuildingList.Tab1:SetButtonTemplate(false, 1, -4, -10)
+	GarrisonBuildingFrame.BuildingList.Tab1:SetStylePanel("Button", false, 1, -4, -10)
 	--PLUGIN:ApplyTabStyle(GarrisonBuildingFrame.BuildingList.Tab2)
 	GarrisonBuildingFrame.BuildingList.Tab2:GetNormalTexture().SetAtlas = function() return end
 	GarrisonBuildingFrame.BuildingList.Tab2:RemoveTextures(true)
-	GarrisonBuildingFrame.BuildingList.Tab2:SetButtonTemplate(false, 1, -4, -10)
+	GarrisonBuildingFrame.BuildingList.Tab2:SetStylePanel("Button", false, 1, -4, -10)
 	--PLUGIN:ApplyTabStyle(GarrisonBuildingFrame.BuildingList.Tab3)
 	GarrisonBuildingFrame.BuildingList.Tab3:GetNormalTexture().SetAtlas = function() return end
 	GarrisonBuildingFrame.BuildingList.Tab3:RemoveTextures(true)
-	GarrisonBuildingFrame.BuildingList.Tab3:SetButtonTemplate(false, 1, -4, -10)
+	GarrisonBuildingFrame.BuildingList.Tab3:SetStylePanel("Button", false, 1, -4, -10)
 	GarrisonBuildingFrame.BuildingList.MaterialFrame:RemoveTextures()
-	GarrisonBuildingFrame.BuildingList.MaterialFrame:SetPanelTemplate("Inset", true, 1, -5, -7)
+	GarrisonBuildingFrame.BuildingList.MaterialFrame:SetStylePanel("Default", "Inset", true, 1, -5, -7)
 	GarrisonBuildingFrameTutorialButton:Die()
 
 	StyleUpdateRewards(GarrisonMissionFrame)
 
 	GarrisonLandingPage.FollowerTab:RemoveTextures()
 	GarrisonLandingPage.FollowerTab.AbilitiesFrame:RemoveTextures()
-	GarrisonLandingPage.FollowerTab:SetPanelTemplate("ModelBorder")
+	GarrisonLandingPage.FollowerTab:SetStylePanel("Default", "ModelBorder")
 
 	GarrisonLandingPage.FollowerTab.Panel:ClearAllPoints()
 	GarrisonLandingPage.FollowerTab.Panel:SetPoint("TOPLEFT", GarrisonLandingPage.FollowerList.SearchBox, "TOPRIGHT", 10, 6)
 	GarrisonLandingPage.FollowerTab.Panel:SetPoint("BOTTOMRIGHT", GarrisonLandingPage, "BOTTOMRIGHT", -38, 30)
 
 	GarrisonLandingPage.FollowerList:RemoveTextures()
-	GarrisonLandingPage.FollowerList:SetPanelTemplate('Inset', false, 4, 0, 0)
+	GarrisonLandingPage.FollowerList:SetStylePanel("Default", 'Inset', false, 4, 0, 0)
 
 	PLUGIN:ApplyTabStyle(GarrisonLandingPageTab1, nil, 10, 4)
 	PLUGIN:ApplyTabStyle(GarrisonLandingPageTab2, nil, 10, 4)
@@ -281,24 +281,24 @@ local function LoadGarrisonStyle()
 	GarrisonLandingPageTab1:SetPoint(a1, p, a2, x, (y - 15))
 
 	GarrisonLandingPageReportList:RemoveTextures()
-	GarrisonLandingPageReportList:SetPanelTemplate('Inset', false, 4, 0, 0)
+	GarrisonLandingPageReportList:SetStylePanel("Default", 'Inset', false, 4, 0, 0)
 
 	GarrisonLandingPageReport.Available:RemoveTextures(true)
-	GarrisonLandingPageReport.Available:SetButtonTemplate()
+	GarrisonLandingPageReport.Available:SetStylePanel("Button")
 	GarrisonLandingPageReport.Available:GetNormalTexture().SetAtlas = function() return end
 
 	GarrisonLandingPageReport.InProgress:RemoveTextures(true)
-	GarrisonLandingPageReport.InProgress:SetButtonTemplate()
+	GarrisonLandingPageReport.InProgress:SetStylePanel("Button")
 	GarrisonLandingPageReport.InProgress:GetNormalTexture().SetAtlas = function() return end
 
 	GarrisonMissionFrameMissions:RemoveTextures()
-	GarrisonMissionFrameMissions:SetFixedPanelTemplate("Inset")
+	GarrisonMissionFrameMissions:SetStylePanel("Fixed", "Inset")
 	GarrisonMissionFrameMissions.CompleteDialog.BorderFrame:RemoveTextures()
-	GarrisonMissionFrameMissions.CompleteDialog.BorderFrame:SetPanelTemplate('Halftone', false, 4, 0, 0)
+	GarrisonMissionFrameMissions.CompleteDialog.BorderFrame:SetStylePanel("Default", 'Halftone', false, 4, 0, 0)
 	GarrisonMissionFrameMissions.CompleteDialog.BorderFrame.Stage:RemoveTextures()
-	GarrisonMissionFrameMissions.CompleteDialog.BorderFrame.Stage:SetFixedPanelTemplate("Model")
+	GarrisonMissionFrameMissions.CompleteDialog.BorderFrame.Stage:SetStylePanel("Fixed", "Model")
 	GarrisonMissionFrameMissions.CompleteDialog.BorderFrame.ViewButton:RemoveTextures(true)
-	GarrisonMissionFrameMissions.CompleteDialog.BorderFrame.ViewButton:SetButtonTemplate()
+	GarrisonMissionFrameMissions.CompleteDialog.BorderFrame.ViewButton:SetStylePanel("Button")
 
 	GarrisonMissionFrameMissionsListScrollFrame:RemoveTextures()
 	PLUGIN:ApplyScrollFrameStyle(GarrisonMissionFrameMissionsListScrollFrame)
@@ -309,10 +309,10 @@ local function LoadGarrisonStyle()
 	GarrisonMissionFrameMissionsTab1:SetPoint(a1, p, a2, x, (y + 8))
 
 	GarrisonMissionFrameMissions.MaterialFrame:RemoveTextures()
-	GarrisonMissionFrameMissions.MaterialFrame:SetPanelTemplate("Inset", true, 1, -3, -3)
+	GarrisonMissionFrameMissions.MaterialFrame:SetStylePanel("Default", "Inset", true, 1, -3, -3)
 
 	GarrisonMissionFrame.FollowerTab:RemoveTextures()
-	GarrisonMissionFrame.FollowerTab:SetFixedPanelTemplate("ModelBorder")
+	GarrisonMissionFrame.FollowerTab:SetStylePanel("Fixed", "ModelBorder")
 
 	GarrisonMissionFrame.FollowerTab.ItemWeapon:RemoveTextures()
 	StyleListItem(GarrisonMissionFrame.FollowerTab.ItemWeapon)
@@ -321,7 +321,7 @@ local function LoadGarrisonStyle()
 
 	GarrisonMissionFrame.MissionTab:RemoveTextures()
 	GarrisonMissionFrame.MissionTab.MissionPage:RemoveTextures()
-	GarrisonMissionFrame.MissionTab.MissionPage:SetPanelTemplate('Paper', false, 4, 0, 0)
+	GarrisonMissionFrame.MissionTab.MissionPage:SetStylePanel("Default", 'Paper', false, 4, 0, 0)
 	GarrisonMissionFrame.MissionTab.MissionPage:SetPanelColor("special")
 
 
@@ -332,12 +332,12 @@ local function LoadGarrisonStyle()
 	GarrisonMissionFrame.MissionTab.MissionPage.Stage:RemoveTextures()
 	AddFadeBanner(GarrisonMissionFrame.MissionTab.MissionPage.Stage)
 	GarrisonMissionFrame.MissionTab.MissionPage.StartMissionButton:RemoveTextures(true)
-	GarrisonMissionFrame.MissionTab.MissionPage.StartMissionButton:SetButtonTemplate()
+	GarrisonMissionFrame.MissionTab.MissionPage.StartMissionButton:SetStylePanel("Button")
 
 	GarrisonMissionFrameFollowers:RemoveTextures()
-	GarrisonMissionFrameFollowers:SetPanelTemplate('Inset', false, 4, 0, 0)
+	GarrisonMissionFrameFollowers:SetStylePanel("Default", 'Inset', false, 4, 0, 0)
 	GarrisonMissionFrameFollowers.MaterialFrame:RemoveTextures()
-	GarrisonMissionFrameFollowers.MaterialFrame:SetPanelTemplate("Inset", true, 1, -5, -7)
+	GarrisonMissionFrameFollowers.MaterialFrame:SetStylePanel("Default", "Inset", true, 1, -5, -7)
 	PLUGIN:ApplyEditBoxStyle(GarrisonMissionFrameFollowers.SearchBox)
 
 	--GarrisonMissionFrameFollowersListScrollFrame
@@ -347,7 +347,7 @@ local function LoadGarrisonStyle()
 	local mFollowers = mStage.FollowersFrame;
 
 	mComplete:RemoveTextures()
-	mComplete:SetPanelTemplate('Paper', false, 4, 0, 0)
+	mComplete:SetStylePanel("Default", 'Paper', false, 4, 0, 0)
 	mComplete:SetPanelColor("special")
 	mStage:RemoveTextures()
 	mStage.MissionInfo:RemoveTextures()
@@ -364,27 +364,27 @@ local function LoadGarrisonStyle()
 
 	AddFadeBanner(mStage)
 	mComplete.NextMissionButton:RemoveTextures(true)
-	mComplete.NextMissionButton:SetButtonTemplate()
+	mComplete.NextMissionButton:SetStylePanel("Button")
 
 	--GarrisonMissionFrame.MissionComplete.BonusRewards:RemoveTextures()
-	--GarrisonMissionFrame.MissionComplete.BonusRewards:SetFixedPanelTemplate("Model")
+	--GarrisonMissionFrame.MissionComplete.BonusRewards:SetStylePanel("Fixed", "Model")
 
 	--print("Test")
 	local display = GarrisonCapacitiveDisplayFrame
 	display:RemoveTextures(true)
 	GarrisonCapacitiveDisplayFrameInset:RemoveTextures(true)
 	display.CapacitiveDisplay:RemoveTextures(true)
-	display.CapacitiveDisplay:SetPanelTemplate('Transparent')
-	display.CapacitiveDisplay.ShipmentIconFrame:SetSlotTemplate(true, 2, 0, 0, 0.5)
+	display.CapacitiveDisplay:SetStylePanel("Default", 'Transparent')
+	display.CapacitiveDisplay.ShipmentIconFrame:SetStylePanel("Slot", true, 2, 0, 0, 0.5)
 	display.CapacitiveDisplay.ShipmentIconFrame.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-	display:SetPanelTemplate('Action')
+	display:SetStylePanel("Default", 'Action')
 
 	--print("Test")
 	local reagents = display.CapacitiveDisplay.Reagents;
     for i = 1, #reagents do
     	if(reagents[i]) then
     		reagents[i]:RemoveTextures()
-        	reagents[i]:SetSlotTemplate(true, 2, 0, 0, 0.5)
+        	reagents[i]:SetStylePanel("Slot", true, 2, 0, 0, 0.5)
         	if(reagents[i].Icon) then
 				reagents[i].Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 			end
@@ -405,7 +405,7 @@ local function LoadGarrisonStyle()
  	--print("Test")
 	if(GarrisonCapacitiveDisplayFrame.StartWorkOrderButton) then
 		GarrisonCapacitiveDisplayFrame.StartWorkOrderButton:RemoveTextures(true)
-		GarrisonCapacitiveDisplayFrame.StartWorkOrderButton:SetButtonTemplate()
+		GarrisonCapacitiveDisplayFrame.StartWorkOrderButton:SetStylePanel("Button")
 	end
 
 	--print("Test")

@@ -564,10 +564,10 @@ local _hook_GameTooltip_ShowStatusBar = function(self, ...)
 	if bar and not bar.styled then 
 		bar:RemoveTextures()
 		bar:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]])
-		bar:SetFixedPanelTemplate('Inset',true)
+		bar:SetStylePanel("Fixed", 'Inset',true)
 		if not bar.border then 
 			local border=CreateFrame("Frame",nil,bar)
-			border:WrapOuter(bar,1,1)
+			border:SetAllPointsOut(bar,1,1)
 			border:SetFrameLevel(bar:GetFrameLevel() - 1)
 			border:SetBackdrop({
 				edgeFile=[[Interface\BUTTONS\WHITE8X8]],
@@ -688,7 +688,7 @@ MOD.GameTooltip_SetDefaultAnchor = _hook_GameTooltip_SetDefaultAnchor
 local _hook_BNToastOnShow = function(self,anchor,parent,relative,x,y)
 	if parent ~= BattleNetToasts_MOVE then 
 		BNToastFrame:ClearAllPoints()
-		BNToastFrame:Point('TOPLEFT',BattleNetToasts_MOVE,'TOPLEFT')
+		BNToastFrame:SetPointToScale('TOPLEFT',BattleNetToasts_MOVE,'TOPLEFT')
 	end
 end
 
@@ -941,8 +941,8 @@ function MOD:Load()
 	self:UpdateLocals()
 
 	local anchor = CreateFrame("Frame", "SVUI_ToolTip", UIParent)
-	anchor:Point("BOTTOMLEFT", SV.Dock.BottomRight, "TOPLEFT", 0, 24)
-	anchor:Size(130, 20)
+	anchor:SetPointToScale("BOTTOMLEFT", SV.Dock.BottomRight, "TOPLEFT", 0, 24)
+	anchor:SetSizeToScale(130, 20)
 	anchor:SetFrameLevel(anchor:GetFrameLevel()  +  50)
 	SV.Mentalo:Add(anchor, L["Tooltip"])
 
@@ -950,7 +950,7 @@ function MOD:Load()
 	GameTooltipStatusBar:SetStatusBarTexture(SV.Media.bar.default)
 
 	BNToastFrame:ClearAllPoints()
-	BNToastFrame:Point("BOTTOMRIGHT", SV.Dock.BottomLeft, "TOPRIGHT", 0, 20)
+	BNToastFrame:SetPointToScale("BOTTOMRIGHT", SV.Dock.BottomLeft, "TOPRIGHT", 0, 20)
 	SV.Mentalo:Add(BNToastFrame, L["BattleNet Frame"], nil, nil, "BattleNetToasts")
 	NewHook(BNToastFrame, "SetPoint", _hook_BNToastOnShow)
 
@@ -960,13 +960,13 @@ function MOD:Load()
 	GameTooltipStatusBar:SetPoint("BOTTOMLEFT", GameTooltip.SuperBorder, "BOTTOMLEFT", 3, 3)
 	GameTooltipStatusBar:SetPoint("BOTTOMRIGHT", GameTooltip.SuperBorder, "BOTTOMRIGHT", -3, 3)
 	GameTooltipStatusBar.text = GameTooltipStatusBar:CreateFontString(nil, "OVERLAY")
-	GameTooltipStatusBar.text:Point("CENTER", GameTooltipStatusBar, "CENTER", 0, 0)
+	GameTooltipStatusBar.text:SetPointToScale("CENTER", GameTooltipStatusBar, "CENTER", 0, 0)
 	GameTooltipStatusBar.text:FontManager(LSM:Fetch("font", BAR_FONT), BAR_FONTSIZE, "OUTLINE")
 
 
 	if not GameTooltipStatusBar.border then 
 		local border = CreateFrame("Frame", nil, GameTooltipStatusBar)
-		border:WrapOuter(GameTooltipStatusBar, 1, 1)
+		border:SetAllPointsOut(GameTooltipStatusBar, 1, 1)
 		border:SetFrameLevel(GameTooltipStatusBar:GetFrameLevel() - 1)
 		border:SetBackdrop({edgeFile = [[Interface\BUTTONS\WHITE8X8]], edgeSize = 1})
 		border:SetBackdropBorderColor(0, 0, 0, 1)

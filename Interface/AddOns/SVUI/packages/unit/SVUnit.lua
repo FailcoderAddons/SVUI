@@ -462,8 +462,8 @@ function MOD:RefreshUnitLayout(frame, template)
 	end 
 
 	healthPanel:ClearAllPoints()
-	healthPanel:Point(TOP_ANCHOR1, frame, TOP_ANCHOR1, (1 * BOTTOM_MODIFIER), -1)
-	healthPanel:Point(BOTTOM_ANCHOR1, frame, BOTTOM_ANCHOR1, PORTRAIT_WIDTH, POWER_HEIGHT)
+	healthPanel:SetPointToScale(TOP_ANCHOR1, frame, TOP_ANCHOR1, (1 * BOTTOM_MODIFIER), -1)
+	healthPanel:SetPointToScale(BOTTOM_ANCHOR1, frame, BOTTOM_ANCHOR1, PORTRAIT_WIDTH, POWER_HEIGHT)
 
 	if(frame.StatusPanel) then
 		if(template ~= "player" and template ~= "pet" and template ~= "target" and template ~= "targettarget" and template ~= "focus" and template ~= "focustarget") then
@@ -491,10 +491,10 @@ function MOD:RefreshUnitLayout(frame, template)
 	if frame.TargetGlow then 
 		local glow = frame.TargetGlow;
 		glow:ClearAllPoints()
-		glow:Point("TOPLEFT", -3, 3)
-		glow:Point("TOPRIGHT", 3, 3)
-		glow:Point("BOTTOMLEFT", -3, -3)
-		glow:Point("BOTTOMRIGHT", 3, -3)
+		glow:SetPointToScale("TOPLEFT", -3, 3)
+		glow:SetPointToScale("TOPRIGHT", 3, 3)
+		glow:SetPointToScale("BOTTOMLEFT", -3, -3)
+		glow:SetPointToScale("BOTTOMRIGHT", 3, -3)
 	end 
 
 	--[[ INFO TEXTS ]]--
@@ -505,7 +505,7 @@ function MOD:RefreshUnitLayout(frame, template)
 		if(GRID_MODE) then
 			if(SV.db.SVUnit.grid.shownames and SV.db.SVUnit.grid.size >= 30) then
 				if(not nametext:IsShown()) then nametext:Show() end
-				nametext:Point("CENTER", frame, "CENTER", 0, 0)
+				nametext:SetPointToScale("CENTER", frame, "CENTER", 0, 0)
 				nametext:SetJustifyH("CENTER")
 				nametext:SetJustifyV("MIDDLE")
 				frame:Tag(nametext, "[name:grid]")
@@ -669,9 +669,9 @@ function MOD:RefreshUnitLayout(frame, template)
 					power.frequentUpdates = db.power.frequentUpdates
 				end
 				power:ClearAllPoints()
-				power:Height(POWER_HEIGHT - 2)
-				power:Point(BOTTOM_ANCHOR1, frame, BOTTOM_ANCHOR1, (PORTRAIT_WIDTH - (1 * BOTTOM_MODIFIER)), 2)
-				power:Point(BOTTOM_ANCHOR2, frame, BOTTOM_ANCHOR2, (2 * BOTTOM_MODIFIER), 2)
+				power:SetHeightToScale(POWER_HEIGHT - 2)
+				power:SetPointToScale(BOTTOM_ANCHOR1, frame, BOTTOM_ANCHOR1, (PORTRAIT_WIDTH - (1 * BOTTOM_MODIFIER)), 2)
+				power:SetPointToScale(BOTTOM_ANCHOR2, frame, BOTTOM_ANCHOR2, (2 * BOTTOM_MODIFIER), 2)
 			elseif frame:IsElementEnabled('Power')then 
 				frame:DisableElement('Power')
 				power:Hide()
@@ -683,10 +683,10 @@ function MOD:RefreshUnitLayout(frame, template)
 		if frame.AltPowerBar then
 			local altPower = frame.AltPowerBar;
 			local Alt_OnShow = function()
-				healthPanel:Point(TOP_ANCHOR2, PORTRAIT_WIDTH, -(POWER_HEIGHT + 1))
+				healthPanel:SetPointToScale(TOP_ANCHOR2, PORTRAIT_WIDTH, -(POWER_HEIGHT + 1))
 			end 
 			local Alt_OnHide = function()
-				healthPanel:Point(TOP_ANCHOR2, PORTRAIT_WIDTH, -1)
+				healthPanel:SetPointToScale(TOP_ANCHOR2, PORTRAIT_WIDTH, -1)
 				altPower.text:SetText("")
 			end 
 			if db.power.enable then 
@@ -695,8 +695,8 @@ function MOD:RefreshUnitLayout(frame, template)
 					altPower.text:SetFont(infoPanel.Health:GetFont())
 				end
 				altPower.text:SetAlpha(1)
-				altPower:Point(TOP_ANCHOR2, frame, TOP_ANCHOR2, PORTRAIT_WIDTH, -1)
-				altPower:Point(TOP_ANCHOR1, frame, TOP_ANCHOR1, (1 * BOTTOM_MODIFIER), -1)
+				altPower:SetPointToScale(TOP_ANCHOR2, frame, TOP_ANCHOR2, PORTRAIT_WIDTH, -1)
+				altPower:SetPointToScale(TOP_ANCHOR1, frame, TOP_ANCHOR1, (1 * BOTTOM_MODIFIER), -1)
 				altPower:SetHeight(POWER_HEIGHT)
 				altPower.Smooth = SV.db.SVUnit.smoothbars;
 				altPower:HookScript("OnShow", Alt_OnShow)
@@ -731,8 +731,8 @@ function MOD:RefreshUnitLayout(frame, template)
 					portrait.anchor:SetFrameLevel(frame.ActionPanel:GetFrameLevel())
 				end 
 				
-				portrait:Point(TOP_ANCHOR2, healthPanel, TOP_ANCHOR2, (1 * TOP_MODIFIER), -1)
-				portrait:Point(BOTTOM_ANCHOR2, healthPanel, BOTTOM_ANCHOR2, (1 * BOTTOM_MODIFIER), 1)
+				portrait:SetPointToScale(TOP_ANCHOR2, healthPanel, TOP_ANCHOR2, (1 * TOP_MODIFIER), -1)
+				portrait:SetPointToScale(BOTTOM_ANCHOR2, healthPanel, BOTTOM_ANCHOR2, (1 * BOTTOM_MODIFIER), 1)
 				
 				portrait.Panel:Show()
 			else
@@ -745,11 +745,11 @@ function MOD:RefreshUnitLayout(frame, template)
 				end 
 				
 				if not frame.Power or not db.power.enable then 
-					portrait:Point(TOP_ANCHOR2, frame, TOP_ANCHOR2, (1 * TOP_MODIFIER), -1)
-					portrait:Point(BOTTOM_ANCHOR2, healthPanel, BOTTOM_ANCHOR1, (4 * BOTTOM_MODIFIER), 0)
+					portrait:SetPointToScale(TOP_ANCHOR2, frame, TOP_ANCHOR2, (1 * TOP_MODIFIER), -1)
+					portrait:SetPointToScale(BOTTOM_ANCHOR2, healthPanel, BOTTOM_ANCHOR1, (4 * BOTTOM_MODIFIER), 0)
 				else 
-					portrait:Point(TOP_ANCHOR2, frame, TOP_ANCHOR2, (1 * TOP_MODIFIER), -1)
-					portrait:Point(BOTTOM_ANCHOR2, frame.Power, BOTTOM_ANCHOR1, (4 * BOTTOM_MODIFIER), 0)
+					portrait:SetPointToScale(TOP_ANCHOR2, frame, TOP_ANCHOR2, (1 * TOP_MODIFIER), -1)
+					portrait:SetPointToScale(BOTTOM_ANCHOR2, frame.Power, BOTTOM_ANCHOR1, (4 * BOTTOM_MODIFIER), 0)
 				end 
 			end
 		else 
@@ -790,14 +790,14 @@ function MOD:RefreshUnitLayout(frame, template)
 			castbar.Spark:SetSize(sparkSize, sparkSize)
 			if castbar.Spark[1] and castbar.Spark[2] then
 				castbar.Spark[1]:SetAllPoints(castbar.Spark)
-				castbar.Spark[2]:FillInner(castbar.Spark, 4, 4)
+				castbar.Spark[2]:SetAllPointsIn(castbar.Spark, 4, 4)
 			end
 			castbar.Spark.SetHeight = SV.fubar 
 		end 
 		castbar:SetFrameStrata("HIGH")
 		if castbar.Holder then
-			castbar.Holder:Width(castWidth + 2)
-			castbar.Holder:Height(castHeight + 6)
+			castbar.Holder:SetWidthToScale(castWidth + 2)
+			castbar.Holder:SetHeightToScale(castHeight + 6)
 			local holderUpdate = castbar.Holder:GetScript('OnSizeChanged')
 			if holderUpdate then
 				holderUpdate(castbar.Holder)
@@ -813,8 +813,8 @@ function MOD:RefreshUnitLayout(frame, template)
 		end
 
 		if castbar.Organizer then
-			castbar.Organizer:Width(castHeight + 2)
-			castbar.Organizer:Height(castHeight + 2)
+			castbar.Organizer:SetWidthToScale(castHeight + 2)
+			castbar.Organizer:SetHeightToScale(castHeight + 2)
 		end
 
 		if castbar.Icon then
@@ -884,7 +884,7 @@ function MOD:RefreshUnitLayout(frame, template)
 
 			SV:SetReversePoint(buffs, db.buffs.anchorPoint, attachTo, db.buffs.xOffset + BOTTOM_MODIFIER, db.buffs.yOffset)
 			buffs:SetWidth((auraSize + buffs.spacing) * perRow)
-			buffs:Height((auraSize + buffs.spacing) * numRows)
+			buffs:SetHeightToScale((auraSize + buffs.spacing) * numRows)
 			buffs["growth-y"] = db.buffs.verticalGrowth;
 			buffs["growth-x"] = db.buffs.horizontalGrowth;
 
@@ -916,7 +916,7 @@ function MOD:RefreshUnitLayout(frame, template)
 
 			SV:SetReversePoint(debuffs, db.debuffs.anchorPoint, attachTo, db.debuffs.xOffset + BOTTOM_MODIFIER, db.debuffs.yOffset)
 			debuffs:SetWidth((auraSize + debuffs.spacing) * perRow)
-			debuffs:Height((auraSize + debuffs.spacing) * numRows)
+			debuffs:SetHeightToScale((auraSize + debuffs.spacing) * numRows)
 			debuffs["growth-y"] = db.debuffs.verticalGrowth;
 			debuffs["growth-x"] = db.debuffs.horizontalGrowth;
 
@@ -958,10 +958,10 @@ function MOD:RefreshUnitLayout(frame, template)
 			auraBar:SetSize(UNIT_WIDTH, db.aurabar.height)
 
 			if db.aurabar.anchorPoint == "BELOW" then
-				auraBar:Point("TOPLEFT", attachTo, "BOTTOMLEFT", 1, -preOffset)
+				auraBar:SetPointToScale("TOPLEFT", attachTo, "BOTTOMLEFT", 1, -preOffset)
 				auraBar.down = true
 			else
-				auraBar:Point("BOTTOMLEFT", attachTo, "TOPLEFT", 1, preOffset)
+				auraBar:SetPointToScale("BOTTOMLEFT", attachTo, "TOPLEFT", 1, preOffset)
 				auraBar.down = false
 			end 
 			auraBar.buffColor = oUF_Villain.colors.buff_bars
@@ -997,7 +997,7 @@ function MOD:RefreshUnitLayout(frame, template)
 					classIcon:ClearAllPoints()
 
 					classIcon:SetAlpha(1)
-					classIcon:Size(size)
+					classIcon:SetSizeToScale(size)
 					SV:SetReversePoint(classIcon, ico.classIcon.attachTo, healthPanel, ico.classIcon.xOffset, ico.classIcon.yOffset)
 				else 
 					classIcon:Hide()
@@ -1016,11 +1016,11 @@ function MOD:RefreshUnitLayout(frame, template)
 
 					if(GRID_MODE) then
 						raidIcon:SetAlpha(0.7)
-						raidIcon:Size(10)
-						raidIcon:Point("TOP", healthPanel, "TOP", 0, 0)
+						raidIcon:SetSizeToScale(10)
+						raidIcon:SetPointToScale("TOP", healthPanel, "TOP", 0, 0)
 					else
 						raidIcon:SetAlpha(1)
-						raidIcon:Size(size)
+						raidIcon:SetSizeToScale(size)
 						SV:SetReversePoint(raidIcon, ico.raidicon.attachTo, healthPanel, ico.raidicon.xOffset, ico.raidicon.yOffset)
 					end
 				else 
@@ -1041,11 +1041,11 @@ function MOD:RefreshUnitLayout(frame, template)
 
 					if(GRID_MODE) then
 						lfd:SetAlpha(0.7)
-						lfd:Size(10)
-						lfd:Point("BOTTOM", healthPanel, "BOTTOM", 0, 0)
+						lfd:SetSizeToScale(10)
+						lfd:SetPointToScale("BOTTOM", healthPanel, "BOTTOM", 0, 0)
 					else
 						lfd:SetAlpha(1)
-						lfd:Size(size)
+						lfd:SetSizeToScale(size)
 						SV:SetReversePoint(lfd, ico.roleIcon.attachTo, healthPanel, ico.roleIcon.xOffset, ico.roleIcon.yOffset)
 					end
 				else 
@@ -1067,11 +1067,11 @@ function MOD:RefreshUnitLayout(frame, template)
 
 					if(GRID_MODE) then
 						roles:SetAlpha(0.7)
-						roles:Size(10)
-						roles:Point("CENTER", healthPanel, "TOPLEFT", 0, 2)
+						roles:SetSizeToScale(10)
+						roles:SetPointToScale("CENTER", healthPanel, "TOPLEFT", 0, 2)
 					else
 						roles:SetAlpha(1)
-						roles:Size(size)
+						roles:SetSizeToScale(size)
 						SV:SetReversePoint(roles, ico.raidRoleIcons.attachTo, healthPanel, ico.raidRoleIcons.xOffset, ico.raidRoleIcons.yOffset)
 					end
 				else 

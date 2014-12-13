@@ -72,8 +72,8 @@ local function StyleACP()
 	PLUGIN:ApplyFrameStyle(ACP_AddonList)
 	PLUGIN:ApplyFrameStyle(ACP_AddonList_ScrollFrame)
 	local h={"ACP_AddonListSetButton","ACP_AddonListDisableAll","ACP_AddonListEnableAll","ACP_AddonList_ReloadUI","ACP_AddonListBottomClose"}
-	for i,j in pairs(h)do _G[j]:SetButtonTemplate()end 
-	for c=1,20 do _G["ACP_AddonListEntry"..c.."LoadNow"]:SetButtonTemplate()end 
+	for i,j in pairs(h)do _G[j]:SetStylePanel("Button")end 
+	for c=1,20 do _G["ACP_AddonListEntry"..c.."LoadNow"]:SetStylePanel("Button")end 
 	PLUGIN:ApplyCloseButtonStyle(ACP_AddonListCloseButton)
 	for c=1,20,1 do 
 		local k=_G["ACP_AddonList"]
@@ -81,26 +81,26 @@ local function StyleACP()
 		k:SetScript("OnUpdate",cbResize)
 	end 
 	for c=1,20 do 
-		_G["ACP_AddonListEntry"..c.."Enabled"]:SetCheckboxTemplate(true)
+		_G["ACP_AddonListEntry"..c.."Enabled"]:SetStylePanel("Checkbox", true)
 	end 
-	ACP_AddonList_NoRecurse:SetCheckboxTemplate(true)
+	ACP_AddonList_NoRecurse:SetStylePanel("Checkbox", true)
 	PLUGIN:ApplyScrollFrameStyle(ACP_AddonList_ScrollFrameScrollBar)
 	PLUGIN:ApplyDropdownStyle(ACP_AddonListSortDropDown)
-	ACP_AddonListSortDropDown:Width(130)
+	ACP_AddonListSortDropDown:SetWidthToScale(130)
 	ACP_AddonList_ScrollFrame:SetWidth(590)
 	ACP_AddonList_ScrollFrame:SetHeight(412)
 	ACP_AddonList:SetHeight(502)
-	ACP_AddonListEntry1:Point("TOPLEFT",ACP_AddonList,"TOPLEFT",47,-62)
-	ACP_AddonList_ScrollFrame:Point("TOPLEFT",ACP_AddonList,"TOPLEFT",20,-53)
-	ACP_AddonListCloseButton:Point("TOPRIGHT",ACP_AddonList,"TOPRIGHT",4,5)
-	ACP_AddonListSetButton:Point("BOTTOMLEFT",ACP_AddonList,"BOTTOMLEFT",20,8)
+	ACP_AddonListEntry1:SetPointToScale("TOPLEFT",ACP_AddonList,"TOPLEFT",47,-62)
+	ACP_AddonList_ScrollFrame:SetPointToScale("TOPLEFT",ACP_AddonList,"TOPLEFT",20,-53)
+	ACP_AddonListCloseButton:SetPointToScale("TOPRIGHT",ACP_AddonList,"TOPRIGHT",4,5)
+	ACP_AddonListSetButton:SetPointToScale("BOTTOMLEFT",ACP_AddonList,"BOTTOMLEFT",20,8)
 	ACP_AddonListSetButton:SetHeight(25)
-	ACP_AddonListDisableAll:Point("BOTTOMLEFT",ACP_AddonList,"BOTTOMLEFT",90,8)
+	ACP_AddonListDisableAll:SetPointToScale("BOTTOMLEFT",ACP_AddonList,"BOTTOMLEFT",90,8)
 	ACP_AddonListDisableAll:SetHeight(25)
-	ACP_AddonListEnableAll:Point("BOTTOMLEFT",ACP_AddonList,"BOTTOMLEFT",175,8)
+	ACP_AddonListEnableAll:SetPointToScale("BOTTOMLEFT",ACP_AddonList,"BOTTOMLEFT",175,8)
 	ACP_AddonListEnableAll:SetHeight(25)
-	ACP_AddonList_ReloadUI:Point("BOTTOMRIGHT",ACP_AddonList,"BOTTOMRIGHT",-160,8)
-	ACP_AddonListBottomClose:Point("BOTTOMRIGHT",ACP_AddonList,"BOTTOMRIGHT",-50,8)
+	ACP_AddonList_ReloadUI:SetPointToScale("BOTTOMRIGHT",ACP_AddonList,"BOTTOMRIGHT",-160,8)
+	ACP_AddonListBottomClose:SetPointToScale("BOTTOMRIGHT",ACP_AddonList,"BOTTOMRIGHT",-50,8)
 	ACP_AddonListBottomClose:SetHeight(25)ACP_AddonList:SetParent(UIParent)
 end
 

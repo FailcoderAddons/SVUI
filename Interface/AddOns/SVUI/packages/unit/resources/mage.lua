@@ -56,7 +56,7 @@ local Reposition = function(self)
 	local max = self.MaxClassPower;
 	local size = db.classbar.height
 	local width = size * max;
-	bar.Holder:Size(width, size)
+	bar.Holder:SetSizeToScale(width, size)
     if(not db.classbar.detachFromFrame) then
     	SV.Mentalo:Reset(L["Classbar"])
     end
@@ -75,7 +75,7 @@ local Reposition = function(self)
 		if i==1 then 
 			bar[i]:SetPoint("TOPLEFT", bar, "TOPLEFT", 0, 0)
 		else 
-			bar[i]:Point("LEFT", bar[i - 1], "RIGHT", -1, 0) 
+			bar[i]:SetPointToScale("LEFT", bar[i - 1], "RIGHT", -1, 0) 
 		end
 	end 
 end 
@@ -166,7 +166,7 @@ function MOD:CreateClassBar(playerFrame)
 		under.bg = under:CreateTexture(nil, "BORDER")
 		under.bg:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\ORB-BG")
 		local sparks = under:CreateTexture(nil, "OVERLAY")
-		sparks:WrapOuter(under, 3, 3)
+		sparks:SetAllPointsOut(under, 3, 3)
 		sparks:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\MAGE-FG-ANIMATION")
 		sparks:SetBlendMode("ADD")
 		sparks:SetVertexColor(1, 1, 0)
@@ -188,7 +188,7 @@ function MOD:CreateClassBar(playerFrame)
 
 	bar.Override = Update;
 	local classBarHolder = CreateFrame("Frame", "Player_ClassBar", bar)
-	classBarHolder:Point("TOPLEFT", playerFrame, "BOTTOMLEFT", 0, -2)
+	classBarHolder:SetPointToScale("TOPLEFT", playerFrame, "BOTTOMLEFT", 0, -2)
 	bar:SetPoint("TOPLEFT", classBarHolder, "TOPLEFT", 0, 0)
 	bar.Holder = classBarHolder
 	SV.Mentalo:Add(bar.Holder, L["Classbar"])

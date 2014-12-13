@@ -434,15 +434,15 @@ local function LoadSpellBinder()
 
 	SVUI_SpellBinderInset:RemoveTextures()
 
-	SpellBinder:SetPanelTemplate("Action")
+	SpellBinder:SetStylePanel("Default", "Action")
 	SpellBinder.Panel:SetPoint("TOPLEFT", -18, 0)
 	SpellBinder.Panel:SetPoint("BOTTOMRIGHT", 0, 0)
 
 	SpellBinder.list:RemoveTextures()
-	SpellBinder.list:SetPanelTemplate("Inset")
+	SpellBinder.list:SetStylePanel("Default", "Inset")
 
 	SpellBinder.tab:RemoveTextures()
-	SpellBinder.tab:SetButtonTemplate()
+	SpellBinder.tab:SetStylePanel("Button")
 	SpellBinder.tab:SetNormalTexture("Interface\\ICONS\\Achievement_Guild_Doctorisin")
 	SpellBinder.tab:GetNormalTexture():ClearAllPoints()
 	SpellBinder.tab:GetNormalTexture():SetPoint("TOPLEFT", 2, -2)

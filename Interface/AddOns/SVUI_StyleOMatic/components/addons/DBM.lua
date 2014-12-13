@@ -54,18 +54,18 @@ local function StyleBars(self)
 
 				if not icon1.overlay then
 					icon1.overlay = CreateFrame('Frame', '$parentIcon1Overlay', tbar)
-					icon1.overlay:Size(28)
-					icon1.overlay:SetPanelTemplate("Button")
+					icon1.overlay:SetSizeToScale(28)
+					icon1.overlay:SetStylePanel("Default", "Button")
 					icon1.overlay:SetFrameLevel(0)
-					icon1.overlay:Point('BOTTOMRIGHT', frame, 'BOTTOMLEFT', -4, 0)
+					icon1.overlay:SetPointToScale('BOTTOMRIGHT', frame, 'BOTTOMLEFT', -4, 0)
 				end
 
 				if not icon2.overlay then
 					icon2.overlay = CreateFrame('Frame', '$parentIcon2Overlay', tbar)
-					icon2.overlay:Size(28)
-					icon2.overlay:SetPanelTemplate("Button")
+					icon2.overlay:SetSizeToScale(28)
+					icon2.overlay:SetStylePanel("Default", "Button")
 					icon2.overlay:SetFrameLevel(0)
-					icon2.overlay:Point('BOTTOMLEFT', frame, 'BOTTOMRIGHT', 4, 0)
+					icon2.overlay:SetPointToScale('BOTTOMLEFT', frame, 'BOTTOMRIGHT', 4, 0)
 				end
 
 				if bar.color then
@@ -99,22 +99,22 @@ local function StyleBars(self)
 				texture:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]])
 				tbar:SetWidth(sharedWidth)
 				tbar:SetHeight(10)
-				tbar:Point('BOTTOMLEFT', frame, 'BOTTOMLEFT', 0, 0)
-				tbar:SetPanelTemplate("Bar")
+				tbar:SetPointToScale('BOTTOMLEFT', frame, 'BOTTOMLEFT', 0, 0)
+				tbar:SetStylePanel("Default", "Bar")
 
 				name:ClearAllPoints()
 				name:SetHeight(8)
 				name:SetWidth(sharedWidth)
 				name:SetJustifyH('LEFT')
 				name:SetShadowColor(0, 0, 0, 0)
-				name:Point('TOPLEFT', frame, 'TOPLEFT', 0, 0)
+				name:SetPointToScale('TOPLEFT', frame, 'TOPLEFT', 0, 0)
 				name:SetFont(SV.Media.font.roboto, 12, 'OUTLINE')
 				name:SetTextColor(bar.owner.options.TextColorR, bar.owner.options.TextColorG, bar.owner.options.TextColorB)
 
 				timer:ClearAllPoints()
 				timer:SetJustifyH('RIGHT')
 				timer:SetShadowColor(0, 0, 0, 0)
-				timer:Point('TOPRIGHT', frame, 'TOPRIGHT', 0, 0)
+				timer:SetPointToScale('TOPRIGHT', frame, 'TOPRIGHT', 0, 0)
 				timer:SetFont(SV.Media.font.roboto, 12, 'OUTLINE')
 				timer:SetTextColor(bar.owner.options.TextColorR, bar.owner.options.TextColorG, bar.owner.options.TextColorB)
 
@@ -164,22 +164,22 @@ local StyleBoss = function()
 		bar:ClearAllPoints()
 		if count == 1 then
 			if DBM_SavedOptions.HealthFrameGrowUp then
-				bar:Point('BOTTOM', anch, 'TOP' , 0 , 12)
+				bar:SetPointToScale('BOTTOM', anch, 'TOP' , 0 , 12)
 			else
-				bar:Point('TOP', anch, 'BOTTOM' , 0, -22)
+				bar:SetPointToScale('TOP', anch, 'BOTTOM' , 0, -22)
 			end
 		else
 			if DBM_SavedOptions.HealthFrameGrowUp then
-				bar:Point('TOPLEFT', prev, 'TOPLEFT', 0, 22 + 4)
+				bar:SetPointToScale('TOPLEFT', prev, 'TOPLEFT', 0, 22 + 4)
 			else
-				bar:Point('TOPLEFT', prev, 'TOPLEFT', 0, -(22 + 4))
+				bar:SetPointToScale('TOPLEFT', prev, 'TOPLEFT', 0, -(22 + 4))
 			end
 		end
-		bar:SetFixedPanelTemplate('Transparent')
+		bar:SetStylePanel("Fixed", 'Transparent')
 		background:SetNormalTexture(nil)
 		progress:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]])
 		progress:ClearAllPoints()
-		progress:FillInner(bar)
+		progress:SetAllPointsIn(bar)
 		name:ClearAllPoints()
 		name:SetJustifyH('LEFT')
 		name:SetShadowColor(0, 0, 0, 0)
@@ -187,8 +187,8 @@ local StyleBoss = function()
 		timer:SetJustifyH('RIGHT')
 		timer:SetShadowColor(0, 0, 0, 0)
 		bar:SetHeight(22)
-		name:Point('LEFT', bar, 'LEFT', 4, 0)
-		timer:Point('RIGHT', bar, 'RIGHT', -4, 0)
+		name:SetPointToScale('LEFT', bar, 'LEFT', 4, 0)
+		timer:SetPointToScale('RIGHT', bar, 'RIGHT', -4, 0)
 		name:FontManager(SV.Media.font.default, 12, 'OUTLINE')
 		timer:FontManager(SV.Media.font.default, 12, 'OUTLINE')
 		count = count + 1
@@ -210,15 +210,15 @@ local function StyleDBM(event, addon)
 	if((not RangeSet) and DBMRangeCheck and (not DBM_SavedOptions['DontShowRangeFrame'])) then
 		DBM.RangeCheck:Show()
 		DBM.RangeCheck:Hide()
-		DBMRangeCheck:HookScript('OnShow', function(self) self:SetFixedPanelTemplate('Transparent') end)
-		DBMRangeCheckRadar:SetFixedPanelTemplate('Transparent')
+		DBMRangeCheck:HookScript('OnShow', function(self) self:SetStylePanel("Fixed", 'Transparent') end)
+		DBMRangeCheckRadar:SetStylePanel("Fixed", 'Transparent')
 		RangeSet = true
 	end
 
 	if((not InfoSet) and DBMInfoFrame and (not DBM_SavedOptions['DontShowInfoFrame'])) then
 		DBM.InfoFrame:Show(5, 'test')
 		DBM.InfoFrame:Hide()
-		DBMInfoFrame:HookScript('OnShow', function(self) self:SetFixedPanelTemplate('Transparent') end)
+		DBMInfoFrame:HookScript('OnShow', function(self) self:SetStylePanel("Fixed", 'Transparent') end)
 		InfoSet = true
 	end
 

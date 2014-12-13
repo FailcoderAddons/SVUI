@@ -64,11 +64,11 @@ local function StyleAltoholic(event, addon)
 		PLUGIN:ApplyButtonStyle(AltoholicFrame_ResetButton)
 		PLUGIN:ApplyButtonStyle(AltoholicFrame_SearchButton)
 
-		AltoholicFrameTab1:Point("TOPLEFT", AltoholicFrame, "BOTTOMLEFT", -5, 2)
-		AltoholicFrame_ResetButton:Point("TOPLEFT", AltoholicFrame, "TOPLEFT", 25, -77)
-		AltoholicFrame_SearchEditBox:Point("TOPLEFT", AltoholicFrame, "TOPLEFT", 37, -56)
-		AltoholicFrame_ResetButton:Size(85, 24)
-		AltoholicFrame_SearchButton:Size(85, 24)
+		AltoholicFrameTab1:SetPointToScale("TOPLEFT", AltoholicFrame, "BOTTOMLEFT", -5, 2)
+		AltoholicFrame_ResetButton:SetPointToScale("TOPLEFT", AltoholicFrame, "TOPLEFT", 25, -77)
+		AltoholicFrame_SearchEditBox:SetPointToScale("TOPLEFT", AltoholicFrame, "TOPLEFT", 37, -56)
+		AltoholicFrame_ResetButton:SetSizeToScale(85, 24)
+		AltoholicFrame_SearchButton:SetSizeToScale(85, 24)
 	end
 
 	if addon == "Altoholic_Summary" then
@@ -175,7 +175,7 @@ local function StyleAltoholic(event, addon)
 		PLUGIN:ApplyScrollBarStyle(AltoholicFrameAchievementsScrollFrameScrollBar)
 		PLUGIN:ApplyScrollBarStyle(AltoholicAchievementsMenuScrollFrameScrollBar)
 		PLUGIN:ApplyDropdownStyle(AltoholicTabAchievements_SelectRealm)
-		AltoholicTabAchievements_SelectRealm:Point("TOPLEFT", AltoholicFrame, "TOPLEFT", 205, -57)
+		AltoholicTabAchievements_SelectRealm:SetPointToScale("TOPLEFT", AltoholicFrame, "TOPLEFT", 205, -57)
 
 		for i = 1, 15 do
 			PLUGIN:ApplyButtonStyle(_G["AltoholicTabAchievementsMenuItem"..i], true)
@@ -264,9 +264,9 @@ local function StyleAltoholic(event, addon)
 		PLUGIN:ApplyDropdownStyle(AltoholicTabSearch_SelectRarity)
 		PLUGIN:ApplyDropdownStyle(AltoholicTabSearch_SelectSlot)
 		PLUGIN:ApplyDropdownStyle(AltoholicTabSearch_SelectLocation)
-		AltoholicTabSearch_SelectRarity:Size(125, 32)
-		AltoholicTabSearch_SelectSlot:Size(125, 32)
-		AltoholicTabSearch_SelectLocation:Size(175, 32)
+		AltoholicTabSearch_SelectRarity:SetSizeToScale(125, 32)
+		AltoholicTabSearch_SelectSlot:SetSizeToScale(125, 32)
+		AltoholicTabSearch_SelectLocation:SetSizeToScale(175, 32)
 		PLUGIN:ApplyEditBoxStyle(_G["AltoholicTabSearch_MinLevel"])
 		PLUGIN:ApplyEditBoxStyle(_G["AltoholicTabSearch_MaxLevel"])
 

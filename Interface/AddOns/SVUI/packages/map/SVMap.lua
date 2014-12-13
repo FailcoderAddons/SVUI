@@ -117,8 +117,8 @@ do
 		if(not SV.db.SVMap.minimapbar.enable) then return end
 
 		MMBBar:SetPoint("CENTER", MMBHolder, "CENTER", 0, 0)
-		MMBBar:Height(SV.db.SVMap.minimapbar.buttonSize + 4)
-		MMBBar:Width(SV.db.SVMap.minimapbar.buttonSize + 4)
+		MMBBar:SetHeightToScale(SV.db.SVMap.minimapbar.buttonSize + 4)
+		MMBBar:SetWidthToScale(SV.db.SVMap.minimapbar.buttonSize + 4)
 		MMBBar:SetFrameStrata("LOW")
 		MMBBar:SetFrameLevel(0)
 
@@ -151,7 +151,7 @@ do
 				btn:ClearAllPoints()
 				btn:SetFrameStrata("LOW")
 				btn:SetFrameLevel(20)
-				btn:Size(SV.db.SVMap.minimapbar.buttonSize)
+				btn:SetSizeToScale(SV.db.SVMap.minimapbar.buttonSize)
 				if SV.db.SVMap.minimapbar.styleType == "HORIZONTAL"then 
 					anchor = "RIGHT"
 					relative = "LEFT"
@@ -174,9 +174,9 @@ do
 		end 
 		if (SV.db.SVMap.minimapbar.styleType ~= "NOANCHOR" and (count > 0)) then 
 			if SV.db.SVMap.minimapbar.styleType == "HORIZONTAL" then 
-				MMBBar:Width((SV.db.SVMap.minimapbar.buttonSize * count) + count * 2)
+				MMBBar:SetWidthToScale((SV.db.SVMap.minimapbar.buttonSize * count) + count * 2)
 			else 
-				MMBBar:Height((SV.db.SVMap.minimapbar.buttonSize * count) + count * 2)
+				MMBBar:SetHeightToScale((SV.db.SVMap.minimapbar.buttonSize * count) + count * 2)
 			end 
 			MMBHolder:SetSize(MMBBar:GetSize())
 			MMBBar:Show()
@@ -227,8 +227,8 @@ do
 						frame:SetTexture(0,0,0,0)
 					else 
 						frame:ClearAllPoints()
-						frame:Point("TOPLEFT", btn, "TOPLEFT", 2, -2)
-						frame:Point("BOTTOMRIGHT", btn, "BOTTOMRIGHT", -2, 2)
+						frame:SetPointToScale("TOPLEFT", btn, "TOPLEFT", 2, -2)
+						frame:SetPointToScale("BOTTOMRIGHT", btn, "BOTTOMRIGHT", -2, 2)
 						frame:SetTexCoord(0.1, 0.9, 0.1, 0.9 )
 						frame:SetDrawLayer("ARTWORK")
 						if name == "PS_MinimapButton" then 
@@ -238,7 +238,7 @@ do
 				end 
 			end
 
-			btn:SetSlotTemplate(true, 2, -1, -1)
+			btn:SetStylePanel("Slot", true, 2, -1, -1)
 
 			if(name == "DBMMinimapButton") then 
 				btn:SetNormalTexture("Interface\\Icons\\INV_Helmet_87")
@@ -506,7 +506,7 @@ HOOKS
 ]]--
 local _hook_WorldMapZoneDropDownButton_OnClick = function(self)
 	DropDownList1:ClearAllPoints()
-	DropDownList1:Point("TOPRIGHT",self,"BOTTOMRIGHT",-17,-4)
+	DropDownList1:SetPointToScale("TOPRIGHT",self,"BOTTOMRIGHT",-17,-4)
 end 
 
 local _hook_WorldMapFrame_OnShow = function()
@@ -551,19 +551,19 @@ function MOD:RefreshMiniMap()
 		local minimapRotationEnabled = GetCVar("rotateMinimap") ~= "0"
 
 		if(minimapRotationEnabled) then
-			SV.Dock.TopRight:Size(MM_WIDTH, (MM_WIDTH + 4))
-			self.Holder:Size(MM_WIDTH, MM_WIDTH)
-			Minimap:Size(MM_SIZE,MM_SIZE)
+			SV.Dock.TopRight:SetSizeToScale(MM_WIDTH, (MM_WIDTH + 4))
+			self.Holder:SetSizeToScale(MM_WIDTH, MM_WIDTH)
+			Minimap:SetSizeToScale(MM_SIZE,MM_SIZE)
 			self.Holder.Square:Hide()
 			self.Holder.Circle:Show()
 			self.Holder.Circle:SetGradient(unpack(MM_COLOR))
 			Minimap:SetHitRectInsets(0, 0, 0, 0)
-			Minimap:FillInner(self.Holder, MM_BRDR, MM_BRDR)
+			Minimap:SetAllPointsIn(self.Holder, MM_BRDR, MM_BRDR)
 			Minimap:SetMaskTexture('Textures\\MinimapMask')
 		else
-			SV.Dock.TopRight:Size(MM_WIDTH, (MM_HEIGHT + 4))
-			self.Holder:Size(MM_WIDTH, MM_HEIGHT)
-			Minimap:Size(MM_SIZE,MM_SIZE)
+			SV.Dock.TopRight:SetSizeToScale(MM_WIDTH, (MM_HEIGHT + 4))
+			self.Holder:SetSizeToScale(MM_WIDTH, MM_HEIGHT)
+			Minimap:SetSizeToScale(MM_SIZE,MM_SIZE)
 			self.Holder.Circle:Hide()
 			self.Holder.Square:Show()
 			self.Holder.Square.Panel.Skin:SetGradient(unpack(MM_COLOR))
@@ -574,7 +574,7 @@ function MOD:RefreshMiniMap()
 				Minimap:SetMaskTexture('Interface\\AddOns\\SVUI\\assets\\artwork\\Minimap\\MINIMAP_MASK_RECTANGLE')
 			else
 				Minimap:SetHitRectInsets(0, 0, 0, 0)
-				Minimap:FillInner(self.Holder, MM_BRDR, MM_BRDR)
+				Minimap:SetAllPointsIn(self.Holder, MM_BRDR, MM_BRDR)
 				Minimap:SetMaskTexture('Interface\\AddOns\\SVUI\\assets\\artwork\\Minimap\\MINIMAP_MASK_SQUARE')
 			end
 		end
@@ -582,7 +582,7 @@ function MOD:RefreshMiniMap()
 		Minimap:SetZoom(1)
 		Minimap:SetZoom(0)
 	else
-		SV.Dock.TopRight:Size(MM_WIDTH, (MM_HEIGHT + 4))
+		SV.Dock.TopRight:SetSizeToScale(MM_WIDTH, (MM_HEIGHT + 4))
 	end
 
 	self.Zone:SetSize(MM_WIDTH,28)
@@ -610,13 +610,13 @@ function MOD:RefreshMiniMap()
 	end
 
 	if SVUI_AurasAnchor then
-		SVUI_AurasAnchor:Height(MM_HEIGHT)
+		SVUI_AurasAnchor:SetHeightToScale(MM_HEIGHT)
 		if SVUI_AurasAnchor_MOVE and not SV.Mentalo:HasMoved('SVUI_AurasAnchor_MOVE') and not SV.Mentalo:HasMoved('SVUI_MinimapFrame_MOVE') then
 			SVUI_AurasAnchor_MOVE:ClearAllPoints()
-			SVUI_AurasAnchor_MOVE:Point("TOPRIGHT", SVUI_MinimapFrame_MOVE, "TOPLEFT", -8, 0)
+			SVUI_AurasAnchor_MOVE:SetPointToScale("TOPRIGHT", SVUI_MinimapFrame_MOVE, "TOPLEFT", -8, 0)
 		end
 		if SVSVUI_AurasAnchor_MOVE then
-			SVUI_AurasAnchor_MOVE:Height(MM_HEIGHT)
+			SVUI_AurasAnchor_MOVE:SetHeightToScale(MM_HEIGHT)
 		end
 	end
 	if SVUI_HyperBuffs then
@@ -724,16 +724,16 @@ function MOD:Load()
 	local mapHolder = SVUI_MinimapFrame
 	-- mapHolder:SetParent(SV.Screen);
 	mapHolder:SetFrameStrata("BACKGROUND")
-	mapHolder:Point("TOPRIGHT", SV.Screen, "TOPRIGHT", -10, -10)
-	mapHolder:Size(MM_WIDTH, MM_HEIGHT)
+	mapHolder:SetPointToScale("TOPRIGHT", SV.Screen, "TOPRIGHT", -10, -10)
+	mapHolder:SetSizeToScale(MM_WIDTH, MM_HEIGHT)
 
 	mapHolder.Square = CreateFrame("Frame", nil, mapHolder)
-	mapHolder.Square:WrapOuter(mapHolder, 2)
-	mapHolder.Square:SetPanelTemplate("Blackout")
+	mapHolder.Square:SetAllPointsOut(mapHolder, 2)
+	mapHolder.Square:SetStylePanel("Default", "Blackout")
 	mapHolder.Square.Panel.Skin:SetGradient(unpack(MM_COLOR))
 
 	mapHolder.Circle = mapHolder:CreateTexture(nil, "BACKGROUND", nil, -2)
-	mapHolder.Circle:WrapOuter(mapHolder, 2)
+	mapHolder.Circle:SetAllPointsOut(mapHolder, 2)
 	mapHolder.Circle:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Minimap\\MINIMAP-ROUND")
 	mapHolder.Circle:SetGradient(unpack(MM_COLOR))
 	mapHolder.Circle:Hide()
@@ -759,38 +759,38 @@ function MOD:Load()
 	MinimapZoneTextButton:Hide()
 	MiniMapTracking:Hide()
 	MiniMapMailFrame:ClearAllPoints()
-	MiniMapMailFrame:Point("TOPRIGHT", mapHolder, 3, 4)
+	MiniMapMailFrame:SetPointToScale("TOPRIGHT", mapHolder, 3, 4)
 	MiniMapMailBorder:Hide()
 	MiniMapMailIcon:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Minimap\\MINIMAP-MAIL")
 	MiniMapWorldMapButton:Hide()
 
 	MiniMapInstanceDifficulty:ClearAllPoints()
 	MiniMapInstanceDifficulty:SetParent(Minimap)
-	MiniMapInstanceDifficulty:Point("LEFT", mapHolder, "LEFT", 0, 0)
+	MiniMapInstanceDifficulty:SetPointToScale("LEFT", mapHolder, "LEFT", 0, 0)
 
 	GuildInstanceDifficulty:ClearAllPoints()
 	GuildInstanceDifficulty:SetParent(Minimap)
-	GuildInstanceDifficulty:Point("LEFT", mapHolder, "LEFT", 0, 0)
+	GuildInstanceDifficulty:SetPointToScale("LEFT", mapHolder, "LEFT", 0, 0)
 
 	MiniMapChallengeMode:ClearAllPoints()
 	MiniMapChallengeMode:SetParent(Minimap)
-	MiniMapChallengeMode:Point("LEFT", mapHolder, "LEFT", 12, 0)
+	MiniMapChallengeMode:SetPointToScale("LEFT", mapHolder, "LEFT", 12, 0)
 
 	QueueStatusMinimapButton:ClearAllPoints()
-	QueueStatusMinimapButton:Point("BOTTOMLEFT", mapHolder, "BOTTOMLEFT", 6, 5)
-	QueueStatusMinimapButton:SetPanelTemplate("Button", false, 1, -2, -2)
+	QueueStatusMinimapButton:SetPointToScale("BOTTOMLEFT", mapHolder, "BOTTOMLEFT", 6, 5)
+	QueueStatusMinimapButton:SetStylePanel("Default", "Button", false, 1, -2, -2)
 
 	QueueStatusFrame:SetClampedToScreen(true)
 	QueueStatusMinimapButtonBorder:Hide()
 	QueueStatusMinimapButton:SetScript("OnShow", function()
-		MiniMapInstanceDifficulty:Point("BOTTOMLEFT", QueueStatusMinimapButton, "TOPLEFT", 0, 0)
-		GuildInstanceDifficulty:Point("BOTTOMLEFT", QueueStatusMinimapButton, "TOPLEFT", 0, 0)
-		MiniMapChallengeMode:Point("BOTTOMLEFT", QueueStatusMinimapButton, "TOPRIGHT", 0, 0)
+		MiniMapInstanceDifficulty:SetPointToScale("BOTTOMLEFT", QueueStatusMinimapButton, "TOPLEFT", 0, 0)
+		GuildInstanceDifficulty:SetPointToScale("BOTTOMLEFT", QueueStatusMinimapButton, "TOPLEFT", 0, 0)
+		MiniMapChallengeMode:SetPointToScale("BOTTOMLEFT", QueueStatusMinimapButton, "TOPRIGHT", 0, 0)
 	end)
 	QueueStatusMinimapButton:SetScript("OnHide", function()
-		MiniMapInstanceDifficulty:Point("LEFT", mapHolder, "LEFT", 0, 0)
-		GuildInstanceDifficulty:Point("LEFT", mapHolder, "LEFT", 0, 0)
-		MiniMapChallengeMode:Point("LEFT", mapHolder, "LEFT", 12, 0)
+		MiniMapInstanceDifficulty:SetPointToScale("LEFT", mapHolder, "LEFT", 0, 0)
+		GuildInstanceDifficulty:SetPointToScale("LEFT", mapHolder, "LEFT", 0, 0)
+		MiniMapChallengeMode:SetPointToScale("LEFT", mapHolder, "LEFT", 12, 0)
 	end)
 
 	if FeedbackUIButton then
@@ -800,9 +800,9 @@ function MOD:Load()
 	local mwfont = SV.Media.font.dialog
 
 	local narr = CreateFrame("Frame", nil, mapHolder)
-	narr:Point("TOPLEFT", mapHolder, "TOPLEFT", 2, -2)
+	narr:SetPointToScale("TOPLEFT", mapHolder, "TOPLEFT", 2, -2)
 	narr:SetSize(100, 22)
-	narr:SetFixedPanelTemplate("Component", true)
+	narr:SetStylePanel("Fixed", "Component", true)
   	narr:SetPanelColor("yellow")
   	narr:SetBackdropColor(1, 1, 0, 1)
 	narr:SetFrameLevel(Minimap:GetFrameLevel() + 2)
@@ -818,14 +818,14 @@ function MOD:Load()
 	self.Narrator = narr
 
 	local zt = CreateFrame("Frame", nil, mapHolder)
-	zt:Point("BOTTOMRIGHT", mapHolder, "BOTTOMRIGHT", 2, -3)
+	zt:SetPointToScale("BOTTOMRIGHT", mapHolder, "BOTTOMRIGHT", 2, -3)
 	zt:SetSize(MM_WIDTH, 28)
 	zt:SetFrameLevel(Minimap:GetFrameLevel() + 1)
 	zt:SetParent(Minimap)
 
 	zt.Text = zt:CreateFontString(nil, "ARTWORK", nil, 7)
 	zt.Text:FontManager(mwfont, 12, "OUTLINE", "RIGHT", "MIDDLE")
-	zt.Text:Point("RIGHT", zt)
+	zt.Text:SetPointToScale("RIGHT", zt)
 	zt.Text:SetSize(MM_WIDTH, 32)
 	zt.Text:SetTextColor(1, 1, 0)
 	zt.Text:SetShadowColor(0, 0, 0, 0.3)
@@ -918,8 +918,8 @@ function MOD:Load()
 
 	if(SV.db.SVMap.minimapbar.enable == true) then
 		MMBHolder = CreateFrame("Frame", "SVUI_MiniMapButtonHolder", mapHolder)
-		MMBHolder:Point("TOPRIGHT", SV.Dock.TopRight, "BOTTOMRIGHT", 0, -4)
-		MMBHolder:Size(mapHolder:GetWidth(), 32)
+		MMBHolder:SetPointToScale("TOPRIGHT", SV.Dock.TopRight, "BOTTOMRIGHT", 0, -4)
+		MMBHolder:SetSizeToScale(mapHolder:GetWidth(), 32)
 		MMBHolder:SetFrameStrata("BACKGROUND")
 		MMBBar = CreateFrame("Frame", "SVUI_MiniMapButtonBar", MMBHolder)
 		MMBBar:SetFrameStrata("LOW")

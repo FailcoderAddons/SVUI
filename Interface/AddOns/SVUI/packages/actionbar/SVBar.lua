@@ -106,14 +106,14 @@ local function RefreshMicrobar()
 	local buttonSize =  SV.db.SVBar.Micro.buttonsize or 30;
 	local spacing =  SV.db.SVBar.Micro.buttonspacing or 1;
 	local barWidth = (buttonSize + spacing) * 13;
-	SVUI_MicroBar_MOVE:Size(barWidth, buttonSize)
+	SVUI_MicroBar_MOVE:SetSizeToScale(barWidth, buttonSize)
 	SVUI_MicroBar:SetAllPoints(SVUI_MicroBar_MOVE)
 	for i=1,13 do
 		local data = ICON_DATA[i]
 		local button = _G[data[1]]
 		if(button) then
 			button:ClearAllPoints()
-			button:Size(buttonSize, buttonSize + 28)
+			button:SetSizeToScale(buttonSize, buttonSize + 28)
 			button._fade = SV.db.SVBar.Micro.mouseover
 			if lastParent == SVUI_MicroBar then 
 				button:SetPoint("BOTTOMLEFT", lastParent, "BOTTOMLEFT", 0, 0)
@@ -128,13 +128,13 @@ end
 
 local Bar_OnEnter = function(self)
 	if(self._fade) then
-		SV:SecureFadeIn(self, 0.2, self:GetAlpha(), self._alpha)
+		self:FadeIn(0.2, self:GetAlpha(), self._alpha)
 	end
 end 
 
 local Bar_OnLeave = function(self)
 	if(self._fade) then
-		SV:SecureFadeOut(self, 1, self:GetAlpha(), 0)
+		self:FadeOut(1, self:GetAlpha(), 0)
 	end
 end
 
@@ -167,7 +167,7 @@ end
 
 local MicroButton_OnEnter = function(self)
 	if(self._fade) then
-		SV:SecureFadeIn(SVUI_MicroBar,0.2,SVUI_MicroBar:GetAlpha(),1)
+		SVUI_MicroBar:FadeIn(0.2,SVUI_MicroBar:GetAlpha(),1)
 	end
 	if InCombatLockdown()then return end 
 	self.overlay:SetPanelColor("highlight")
@@ -176,7 +176,7 @@ end
 
 local MicroButton_OnLeave = function(self)
 	if(self._fade) then
-		SV:SecureFadeOut(SVUI_MicroBar,1,SVUI_MicroBar:GetAlpha(),0)
+		SVUI_MicroBar:FadeOut(1,SVUI_MicroBar:GetAlpha(),0)
 	end
 	if InCombatLockdown()then return end 
 	self.overlay:SetPanelColor("special")
@@ -263,7 +263,7 @@ local function SaveActionButton(parent)
 	end
 	MOD:FixKeybindText(parent)
 	MOD.ButtonCache[parent] = true 
-	parent:SetSlotTemplate(true, 2, 0, 0, 0.75, true)
+	parent:SetStylePanel("Slot", true, 2, 0, 0, 0.75, true)
 	parent:SetCheckedTexture("")
 end 
 
@@ -371,7 +371,7 @@ local function ModifyActionButton(parent)
 	if icon then 
 		icon:SetTexCoord(.1,.9,.1,.9)
 		--icon:SetGradient("VERTICAL",.5,.5,.5,1,1,1)
-		icon:FillInner(button)
+		icon:SetAllPointsIn(button)
 	end 
 	if shine then shine:SetAllPoints()end 
 	if SV.db.SVBar.hotkeytext then 
@@ -398,7 +398,7 @@ do
 		if anchorParent._fade then
 			local alpha = anchorParent._alpha
 			local actual = anchorParent:GetAlpha()
-			SV:SecureFadeIn(anchorParent, 0.2, actual, alpha)
+			anchorParent:FadeIn(0.2, actual, alpha)
 		end
 	end
 
@@ -409,7 +409,7 @@ do
 		local anchorParent = anchor:GetParent()
 		if anchorParent._fade then
 			local actual = anchorParent:GetAlpha()
-			SV:SecureFadeOut(anchorParent, 1, actual, 0)
+			anchorParent:FadeOut(1, actual, 0)
 		end
 	end
 
@@ -638,7 +638,7 @@ do
 				self.cd:SetSwipeColor(0, 0, 0, 1)
 				self.cd:SetDrawBling(true)
 			end
-			SV:SecureFadeIn(parent, 0.2, parent:GetAlpha(), parent._alpha)
+			parent:FadeIn(0.2, parent:GetAlpha(), parent._alpha)
 		end
 	end 
 
@@ -650,7 +650,7 @@ do
 				self.cd:SetSwipeColor(0, 0, 0, 0)
 				self.cd:SetDrawBling(false)
 			end
-			SV:SecureFadeOut(parent, 1, parent:GetAlpha(), 0)
+			parent:FadeOut(1, parent:GetAlpha(), 0)
 		end
 	end 
 
@@ -666,7 +666,7 @@ do
 			lastRow = bar.buttons[i - cols]
 			button:SetParent(bar)
 			button:ClearAllPoints()
-			button:Size(size)
+			button:SetSizeToScale(size)
 			button:SetAttribute("showgrid",1)
 
 			if(selfcast) then
@@ -705,7 +705,7 @@ do
 				elseif(point:find("LEFT")) then
 					x = space
 				end
-				button:Point(point,bar,point,x,y)
+				button:SetPointToScale(point,bar,point,x,y)
 			elseif((i - 1) % cols == 0) then 
 				x, y = 0, -space
 				anchor1, anchor2 = "TOP", "BOTTOM"
@@ -714,7 +714,7 @@ do
 		        	anchor1 = "BOTTOM"
 		        	anchor2 = "TOP"
 		      	end
-				button:Point(anchor1,lastRow,anchor2,x,y)
+				button:SetPointToScale(anchor1,lastRow,anchor2,x,y)
 			else 
 				x, y = space, 0
 		      	anchor1, anchor2 = "LEFT", "RIGHT";
@@ -723,7 +723,7 @@ do
 		        	anchor1 = "RIGHT"
 		        	anchor2 = "LEFT"
 		      	end
-				button:Point(anchor1,lastButton,anchor2,x,y)
+				button:SetPointToScale(anchor1,lastButton,anchor2,x,y)
 			end 
 
 			if(i > totalButtons) then
@@ -800,8 +800,8 @@ do
 		if max < cols then cols = max end 
 		if rows < 1 then rows = 1 end
 
-		bar:Width(space  +  (size  *  cols)  +  ((space  *  (cols - 1))  +  space));
-		bar:Height((space  +  (size  *  rows))  +  ((space  *  (rows - 1))  +  space));
+		bar:SetWidthToScale(space  +  (size  *  cols)  +  ((space  *  (cols - 1))  +  space));
+		bar:SetHeightToScale((space  +  (size  *  rows))  +  ((space  *  (rows - 1))  +  space));
 		bar.backdrop:ClearAllPoints()
 	  	bar.backdrop:SetAllPoints()
 		bar._fade = db.mouseover;
@@ -915,9 +915,9 @@ local Vehicle_Updater = function()
 	local columns = ceil(total / rows)
 	if (HasOverrideActionBar() or HasVehicleActionBar()) and total == 12 then 
 		bar.backdrop:ClearAllPoints()
-		bar.backdrop:Point(SV.db.SVBar["Bar1"].point, bar, SV.db.SVBar["Bar1"].point)
-		bar.backdrop:Width(space + ((size * rows) + (space * (rows - 1)) + space))
-		bar.backdrop:Height(space + ((size * columns) + (space * (columns - 1)) + space))
+		bar.backdrop:SetPointToScale(SV.db.SVBar["Bar1"].point, bar, SV.db.SVBar["Bar1"].point)
+		bar.backdrop:SetWidthToScale(space + ((size * rows) + (space * (rows - 1)) + space))
+		bar.backdrop:SetHeightToScale(space + ((size * columns) + (space * (columns - 1)) + space))
 		bar.backdrop:SetFrameLevel(0);
 	else 
 		bar.backdrop:SetAllPoints()
@@ -944,7 +944,7 @@ end
 local SVUIButton_ShowOverlayGlow = function(self)
 	if not self.overlay then return end  
 	local size = self:GetWidth() / 3;
-	self.overlay:WrapOuter(self, size)
+	self.overlay:SetAllPointsOut(self, size)
 end 
 
 local ResetAllBindings = function(self)
@@ -992,24 +992,24 @@ CreateActionBars = function(self)
 		thisBar.page = barPageIndex[i]
 
 		if(i == 1) then
-			thisBar:Point("BOTTOM", SV.Screen, "BOTTOM", 0, 28)
+			thisBar:SetPointToScale("BOTTOM", SV.Screen, "BOTTOM", 0, 28)
 		elseif(i == 2) then
-			thisBar:Point("BOTTOM", _G["SVUI_ActionBar1"], "TOP", 0, -space)
+			thisBar:SetPointToScale("BOTTOM", _G["SVUI_ActionBar1"], "TOP", 0, -space)
 		elseif(i == 3) then
-			thisBar:Point("BOTTOMLEFT", _G["SVUI_ActionBar1"], "BOTTOMRIGHT", space, 0)
+			thisBar:SetPointToScale("BOTTOMLEFT", _G["SVUI_ActionBar1"], "BOTTOMRIGHT", space, 0)
 		elseif(i == 4) then
-			thisBar:Point("RIGHT", SV.Screen, "RIGHT", -space, 0)
+			thisBar:SetPointToScale("RIGHT", SV.Screen, "RIGHT", -space, 0)
 		elseif(i == 5) then
-			thisBar:Point("BOTTOMRIGHT", _G["SVUI_ActionBar1"], "BOTTOMLEFT", -space, 0)
+			thisBar:SetPointToScale("BOTTOMRIGHT", _G["SVUI_ActionBar1"], "BOTTOMLEFT", -space, 0)
 		else
-			thisBar:Point("BOTTOM", _G["SVUI_ActionBar2"], "TOP", 0, space)
+			thisBar:SetPointToScale("BOTTOM", _G["SVUI_ActionBar2"], "TOP", 0, space)
 		end
 			
 		local bg = CreateFrame("Frame", nil, thisBar)
 		bg:SetAllPoints()
 		bg:SetFrameLevel(0)
 		thisBar:SetFrameLevel(5)
-		bg:SetPanelTemplate("Component")
+		bg:SetStylePanel("Default", "Component")
 		bg:SetPanelColor("dark")
 		thisBar.backdrop = bg
 
@@ -1192,13 +1192,13 @@ do
 	  local stanceBar = NewActionBar("SVUI_StanceBar")
 	  stanceBar.binding = "CLICK SVUI_StanceBarButton%d:LeftButton"
 
-	  stanceBar:Point("BOTTOMRIGHT",parent,"TOPRIGHT",0,2);
+	  stanceBar:SetPointToScale("BOTTOMRIGHT",parent,"TOPRIGHT",0,2);
 	  stanceBar:SetFrameLevel(5);
 
 	  local bg = CreateFrame("Frame", nil, stanceBar)
 	  bg:SetAllPoints();
 	  bg:SetFrameLevel(0);
-	  bg:SetPanelTemplate("Component")
+	  bg:SetStylePanel("Default", "Component")
 	  bg:SetPanelColor("dark")
 	  stanceBar.backdrop = bg;
 
@@ -1314,12 +1314,12 @@ do
 		local petBar = NewActionBar("SVUI_PetActionBar")
 		petBar.binding = "BONUSACTIONBUTTON%d"
 
-		petBar:Point("BOTTOMLEFT",parent,"TOPLEFT",0,2);
+		petBar:SetPointToScale("BOTTOMLEFT",parent,"TOPLEFT",0,2);
 		petBar:SetFrameLevel(5);
 		local bg = CreateFrame("Frame", nil, petBar)
 		bg:SetAllPoints();
 		bg:SetFrameLevel(0);
-		bg:SetPanelTemplate("Component")
+		bg:SetStylePanel("Default", "Component")
 		bg:SetPanelColor("dark")
 		petBar.backdrop = bg;
 		for i = 1, NUM_PET_ACTION_SLOTS do 
@@ -1359,10 +1359,10 @@ CreateMicroBar = function(self)
 	local barWidth = (buttonSize + spacing) * 13;
 	local barHeight = (buttonSize + 6);
 	local microBar = NewFrame('Frame', 'SVUI_MicroBar', UIParent)
-	microBar:Size(barWidth, barHeight)
+	microBar:SetSizeToScale(barWidth, barHeight)
 	microBar:SetFrameStrata("HIGH")
 	microBar:SetFrameLevel(0)
-	microBar:Point('BOTTOMLEFT', SV.Dock.TopLeft.Bar.ToolBar, 'BOTTOMRIGHT', 4, 0)
+	microBar:SetPointToScale('BOTTOMLEFT', SV.Dock.TopLeft.Bar.ToolBar, 'BOTTOMRIGHT', 4, 0)
 	SV:AddToDisplayAudit(microBar)
 
 	for i=1,13 do
@@ -1371,7 +1371,7 @@ CreateMicroBar = function(self)
 			local button = _G[data[1]]
 			if(button) then
 				button:SetParent(SVUI_MicroBar)
-				button:Size(buttonSize, buttonSize + 28)
+				button:SetSizeToScale(buttonSize, buttonSize + 28)
 				button.Flash:SetTexture(0,0,0,0)
 				if button.SetPushedTexture then 
 					button:SetPushedTexture("")
@@ -1390,10 +1390,10 @@ CreateMicroBar = function(self)
 				local buttonMask = NewFrame("Frame",nil,button)
 				buttonMask:SetPoint("TOPLEFT",button,"TOPLEFT",0,-28)
 				buttonMask:SetPoint("BOTTOMRIGHT",button,"BOTTOMRIGHT",0,0)
-				buttonMask:SetFramedButtonTemplate()
+				buttonMask:SetStylePanel("Framed") 
 				buttonMask:SetPanelColor()
 				buttonMask.icon = buttonMask:CreateTexture(nil,"OVERLAY",nil,2)
-				buttonMask.icon:FillInner(buttonMask,2,2)
+				buttonMask.icon:SetAllPointsIn(buttonMask,2,2)
 				buttonMask.icon:SetTexture(ICON_FILE)
 				buttonMask.icon:SetTexCoord(data[2],data[3],data[4],data[5])
 				buttonMask.icon:SetGradient("VERTICAL", 0.5, 0.53, 0.55, 0.8, 0.8, 1)
@@ -1429,8 +1429,8 @@ local CreateSpecialAbilityButton = function(self)
 	local buttonSize = ExtraActionBarFrame:GetSize()
 
 	local ability = CreateFrame("Frame", "SVUI_SpecialAbility", UIParent)
-	ability:Point("BOTTOM", SV.Screen, "BOTTOM", 0, (275 + buttonSize))
-	ability:Size(buttonSize)
+	ability:SetPointToScale("BOTTOM", SV.Screen, "BOTTOM", 0, (275 + buttonSize))
+	ability:SetSizeToScale(buttonSize)
 
 	ExtraActionBarFrame:SetParent(ability)
 	ExtraActionBarFrame:ClearAllPoints()
@@ -1454,14 +1454,14 @@ local CreateSpecialAbilityButton = function(self)
 			button.checked = true;
 
 			ModifyActionButton(button)
-			--button:SetSlotTemplate(true, 2, 0, 0, 0.75, true)
+			--button:SetStylePanel("Slot", true, 2, 0, 0, 0.75, true)
 
 			_G[icon]:SetDrawLayer("ARTWORK")
-			_G[cool]:FillInner()
+			_G[cool]:SetAllPointsIn()
 
 			local checkedTexture = button:CreateTexture(nil, "OVERLAY")
 			checkedTexture:SetTexture(0.9, 0.8, 0.1, 0.3)
-			checkedTexture:FillInner()
+			checkedTexture:SetAllPointsIn()
 			button:SetCheckedTexture(checkedTexture)
 		end 
 	end
@@ -1469,7 +1469,7 @@ local CreateSpecialAbilityButton = function(self)
 	local draenorButton = DraenorZoneAbilityFrame.SpellButton
 	if draenorButton then
 		--ModifyActionButton(draenorButton)
-		--draenorButton:SetSlotTemplate(true, 2, 0, 0, 0.75, true)
+		--draenorButton:SetStylePanel("Slot", true, 2, 0, 0, 0.75, true)
 		draenorButton.Icon:SetDrawLayer('ARTWORK')
 		draenorButton.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 		--draenorButton.Icon:SetInside()

@@ -245,6 +245,7 @@ SVUI.ConfigurationMode  = false;
 --[[ EMBEDDED LIBS ]]--
 
 SVUI.L          = LibSuperVillain("Linguist"):Lang();
+SVUI.Events     = LibSuperVillain("Events");
 SVUI.Animate    = LibSuperVillain("Animate");
 SVUI.Timers     = LibSuperVillain("Timers");
 

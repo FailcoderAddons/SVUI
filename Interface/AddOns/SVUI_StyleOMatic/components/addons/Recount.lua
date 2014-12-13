@@ -60,7 +60,7 @@ local function StyleFrame(frame)
   frame:SetBackdrop(nil)
 
   frame.TitleBackground = CreateFrame('Frame', nil, frame)
-  frame.TitleBackground:SetFixedPanelTemplate("Transparent")
+  frame.TitleBackground:SetStylePanel("Fixed", "Transparent")
   --frame.TitleBackground:SetPanelColor("class")
   frame.TitleBackground:SetPoint('TOP', frame, 'TOP', 0, -8)
   frame.TitleBackground.timeLapse = 0
@@ -114,9 +114,9 @@ local function StyleRecount()
     if Recount_ReportWindow.isStyled then return end
     Recount_ReportWindow.isStyled = true
     PLUGIN:ApplyFrameStyle(Recount_ReportWindow.Whisper)
-    Recount_ReportWindow.ReportButton:SetButtonTemplate()
+    Recount_ReportWindow.ReportButton:SetStylePanel("Button")
     PLUGIN:ApplyScrollBarStyle(Recount_ReportWindow_Slider)
-    Recount_ReportWindow_Slider:GetThumbTexture():Size(6,6)
+    Recount_ReportWindow_Slider:GetThumbTexture():SetSizeToScale(6,6)
   end)
 end
 PLUGIN:SaveAddonStyle("Recount", StyleRecount)

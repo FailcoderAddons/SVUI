@@ -309,12 +309,12 @@ function MOD:BreakStuffLoader()
 
 	BreakStuffButton:SetParent(SV.Dock.BottomRight.Bar.ToolBar)
 	local size = SV.Dock.BottomRight.Bar.ToolBar:GetHeight()
-	BreakStuffButton:Size(size, size)
-	BreakStuffButton:Point("RIGHT", SV.Dock.BottomRight.Bar.ToolBar, "LEFT", -6, 0)
+	BreakStuffButton:SetSizeToScale(size, size)
+	BreakStuffButton:SetPointToScale("RIGHT", SV.Dock.BottomRight.Bar.ToolBar, "LEFT", -6, 0)
 	BreakStuffButton:Show();
-	BreakStuffButton:SetFramedButtonTemplate()
+	BreakStuffButton:SetStylePanel("Framed") 
 	BreakStuffButton.icon=BreakStuffButton:CreateTexture(nil,"OVERLAY")
-	BreakStuffButton.icon:FillInner(BreakStuffButton,2,2)
+	BreakStuffButton.icon:SetAllPointsIn(BreakStuffButton,2,2)
 	BreakStuffButton.icon:SetTexture(ICONARTFILE)
 	BreakStuffButton.icon:SetGradient("VERTICAL", 0.5, 0.53, 0.55, 0.8, 0.8, 1)
 	BreakStuffButton.ttText = "BreakStuff : OFF";

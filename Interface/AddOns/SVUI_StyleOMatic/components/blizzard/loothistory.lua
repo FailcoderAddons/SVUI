@@ -58,8 +58,8 @@ local LootHistoryFrame_OnUpdate = function(self)
       frame.Icon:SetTexture(Icon)
       frame.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 
-      frame:SetFixedPanelTemplate("Button")
-      frame.Panel:WrapOuter(frame.Icon)
+      frame:SetStylePanel("Fixed", "Button")
+      frame.Panel:SetAllPointsOut(frame.Icon)
       frame.Icon:SetParent(frame.Panel)
 
       frame.isStyled = true 
@@ -78,8 +78,8 @@ local _hook_MasterLootFrame_OnShow = function()
     item:RemoveTextures()
     icon:SetTexture(tex)
     icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-    item:SetPanelTemplate("Pattern")
-    item.Panel:WrapOuter(icon)
+    item:SetStylePanel("Default", "Pattern")
+    item.Panel:SetAllPointsOut(icon)
     item:SetBackdropBorderColor(colors.r, colors.g, colors.b)
   end 
   for i = 1, MasterLooterFrame:GetNumChildren()do 
@@ -89,8 +89,8 @@ local _hook_MasterLootFrame_OnShow = function()
         if child:GetPushedTexture() then
           PLUGIN:ApplyCloseButtonStyle(child)
         else
-          child:SetFixedPanelTemplate()
-          child:SetButtonTemplate()
+          child:SetStylePanel("Fixed")
+          child:SetStylePanel("Button")
         end 
         child.isStyled = true 
       end 
@@ -114,20 +114,20 @@ local function LootHistoryStyle()
   LootHistoryFrame:SetFrameStrata('HIGH')
 
   MissingLootFrame:RemoveTextures()
-  MissingLootFrame:SetPanelTemplate("Pattern")
+  MissingLootFrame:SetStylePanel("Default", "Pattern")
 
   PLUGIN:ApplyCloseButtonStyle(MissingLootFramePassButton)
   hooksecurefunc("MissingLootFrame_Show", MissingLootFrame_OnShow)
   LootHistoryFrame:RemoveTextures()
   PLUGIN:ApplyCloseButtonStyle(LootHistoryFrame.CloseButton)
   LootHistoryFrame:RemoveTextures()
-  LootHistoryFrame:SetFixedPanelTemplate('Transparent')
+  LootHistoryFrame:SetStylePanel("Fixed", 'Transparent')
   PLUGIN:ApplyCloseButtonStyle(LootHistoryFrame.ResizeButton)
-  LootHistoryFrame.ResizeButton:SetFixedPanelTemplate()
-  LootHistoryFrame.ResizeButton:Width(LootHistoryFrame:GetWidth())
-  LootHistoryFrame.ResizeButton:Height(19)
+  LootHistoryFrame.ResizeButton:SetStylePanel("Fixed")
+  LootHistoryFrame.ResizeButton:SetWidthToScale(LootHistoryFrame:GetWidth())
+  LootHistoryFrame.ResizeButton:SetHeightToScale(19)
   LootHistoryFrame.ResizeButton:ClearAllPoints()
-  LootHistoryFrame.ResizeButton:Point("TOP", LootHistoryFrame, "BOTTOM", 0, -2)
+  LootHistoryFrame.ResizeButton:SetPointToScale("TOP", LootHistoryFrame, "BOTTOM", 0, -2)
   LootHistoryFrame.ResizeButton:SetNormalTexture("")
 
   local txt = LootHistoryFrame.ResizeButton:CreateFontString(nil,"OVERLAY")
@@ -141,7 +141,7 @@ local function LootHistoryStyle()
   hooksecurefunc("LootHistoryFrame_FullUpdate", LootHistoryFrame_OnUpdate)
 
   MasterLooterFrame:RemoveTextures()
-  MasterLooterFrame:SetFixedPanelTemplate()
+  MasterLooterFrame:SetStylePanel("Fixed")
   MasterLooterFrame:SetFrameStrata('FULLSCREEN_DIALOG')
 
   hooksecurefunc("MasterLooterFrame_Show", _hook_MasterLootFrame_OnShow)

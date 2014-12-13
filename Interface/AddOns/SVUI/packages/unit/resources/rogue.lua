@@ -79,11 +79,11 @@ local Reposition = function(self)
 	local size = isSmall and 22 or (height - 4)
 	local width = (size + 4) * max;
 	bar:ClearAllPoints()
-	bar:Size(width, height)
-	bar:Point("TOPLEFT", self.ActionPanel, "TOPLEFT", 2, (height * 0.25))
+	bar:SetSizeToScale(width, height)
+	bar:SetPointToScale("TOPLEFT", self.ActionPanel, "TOPLEFT", 2, (height * 0.25))
 	for i = 1, max do
 		bar[i]:ClearAllPoints()
-		bar[i]:Size(size, size)
+		bar[i]:SetSizeToScale(size, size)
 		bar[i].Icon:ClearAllPoints()
 		bar[i].Icon:SetAllPoints(bar[i])
 		if(bar[i].Blood) then
@@ -93,7 +93,7 @@ local Reposition = function(self)
 		if i==1 then 
 			bar[i]:SetPoint("LEFT", bar)
 		else 
-			bar[i]:Point("LEFT", bar[i - 1], "RIGHT", -2, 0) 
+			bar[i]:SetPointToScale("LEFT", bar[i - 1], "RIGHT", -2, 0) 
 		end
 	end 
 end 
@@ -130,10 +130,10 @@ function MOD:CreateRogueCombobar(targetFrame, isSmall)
 	bar.CPoints = CreateFrame("Frame",nil,bar)
 	for i = 1, max do 
 		local cpoint = CreateFrame('Frame',nil,bar.CPoints)
-		cpoint:Size(size,size)
+		cpoint:SetSizeToScale(size,size)
 
 		local icon = cpoint:CreateTexture(nil,"OVERLAY",nil,1)
-		icon:Size(size,size)
+		icon:SetSizeToScale(size,size)
 		icon:SetPoint("CENTER")
 		icon:SetBlendMode("BLEND")
 		icon:SetTexture(ICON_FILE)
@@ -143,7 +143,7 @@ function MOD:CreateRogueCombobar(targetFrame, isSmall)
 			icon:SetTexCoord(coords[1],coords[2],coords[3],coords[4])
 
 			local blood = cpoint:CreateTexture(nil,"OVERLAY",nil,2)
-			blood:Size(size,size)
+			blood:SetSizeToScale(size,size)
 			blood:SetPoint("BOTTOMRIGHT",cpoint,12,-12)
 			blood:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Unitframe\Class\COMBO-ANIMATION]])
 			blood:SetBlendMode("ADD")
@@ -177,7 +177,7 @@ local RepositionTracker = function(self)
 	local size = db.classbar.height
 	local width = size * 3;
 	local textwidth = size * 1.25;
-	bar.Holder:Size(width, size)
+	bar.Holder:SetSizeToScale(width, size)
     if(not db.classbar.detachFromFrame) then
     	SV.Mentalo:Reset(L["Classbar"])
     end
@@ -220,10 +220,10 @@ end
 function MOD:CreateClassBar(playerFrame)
 	local bar = CreateFrame("Frame",nil,playerFrame)
 	bar:SetFrameStrata("DIALOG")
-	bar:Size(150, 30)
+	bar:SetSizeToScale(150, 30)
 	local points = CreateFrame('Frame',nil,bar)
 	points:SetFrameStrata("DIALOG")
-	points:Size(30,30)
+	points:SetSizeToScale(30,30)
 
 	points.Text = points:CreateFontString(nil,'OVERLAY')
 	points.Text:SetAllPoints(points)
@@ -234,7 +234,7 @@ function MOD:CreateClassBar(playerFrame)
 
 	local anticipation = CreateFrame('Frame',nil,bar)
 	anticipation:SetFrameStrata("DIALOG")
-	anticipation:Size(30,30)
+	anticipation:SetSizeToScale(30,30)
 
 	anticipation.Text = anticipation:CreateFontString(nil,'OVERLAY')
 	anticipation.Text:SetAllPoints(anticipation)
@@ -245,7 +245,7 @@ function MOD:CreateClassBar(playerFrame)
 
 	local guile = CreateFrame('Frame',nil,bar)
 	guile:SetFrameStrata("DIALOG")
-	guile:Size(30,30)
+	guile:SetSizeToScale(30,30)
 
 	guile.Text = guile:CreateFontString(nil,'OVERLAY')
 	guile.Text:SetAllPoints(guile)
@@ -255,7 +255,7 @@ function MOD:CreateClassBar(playerFrame)
 	bar.Guile = guile;
 
 	local classBarHolder = CreateFrame("Frame", "Player_ClassBar", bar)
-	classBarHolder:Point("TOPLEFT", playerFrame, "BOTTOMLEFT", 0, -2)
+	classBarHolder:SetPointToScale("TOPLEFT", playerFrame, "BOTTOMLEFT", 0, -2)
 	bar:SetPoint("TOPLEFT", classBarHolder, "TOPLEFT", 0, 0)
 	bar.Holder = classBarHolder
 	SV.Mentalo:Add(bar.Holder, L["Classbar"])

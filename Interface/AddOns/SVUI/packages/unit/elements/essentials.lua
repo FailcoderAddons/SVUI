@@ -269,8 +269,8 @@ local function CreateActionPanel(frame, offset)
     offset = offset or 2
 
     local panel = CreateFrame('Frame', nil, frame)
-    panel:Point('TOPLEFT', frame, 'TOPLEFT', -1, 1)
-    panel:Point('BOTTOMRIGHT', frame, 'BOTTOMRIGHT', 1, -1)
+    panel:SetPointToScale('TOPLEFT', frame, 'TOPLEFT', -1, 1)
+    panel:SetPointToScale('BOTTOMRIGHT', frame, 'BOTTOMRIGHT', 1, -1)
     panel:SetBackdrop({
         bgFile = [[Interface\BUTTONS\WHITE8X8]], 
         tile = false, 
@@ -373,12 +373,12 @@ function MOD:SetActionPanel(frame, unit, noHealthText, noPowerText, noMiscText)
 		local info = CreateFrame("Frame", nil, frame)
 		info:SetFrameStrata("BACKGROUND")
 		info:SetFrameLevel(0)
-		info:Point("TOPLEFT", frame.ActionPanel, "BOTTOMLEFT", -1, 1)
-		info:Point("TOPRIGHT", frame.ActionPanel, "BOTTOMRIGHT", 1, 1)
+		info:SetPointToScale("TOPLEFT", frame.ActionPanel, "BOTTOMLEFT", -1, 1)
+		info:SetPointToScale("TOPRIGHT", frame.ActionPanel, "BOTTOMRIGHT", 1, 1)
 		info:SetHeight(30)
 
 		local bg = info:CreateTexture(nil, "BACKGROUND")
-		bg:FillInner(info)
+		bg:SetAllPointsIn(info)
 		bg:SetTexture(1, 1, 1, 1)
 		bg:SetGradientAlpha("VERTICAL", 0, 0, 0, 0, 0, 0, 0, 0.7)
 
@@ -422,9 +422,9 @@ function MOD:SetActionPanel(frame, unit, noHealthText, noPowerText, noMiscText)
 			end
 
 			frame.ActionPanel.class = CreateFrame("Frame", nil, frame.InfoPanel)
-			frame.ActionPanel.class:Size(18)
-			frame.ActionPanel.class:Point("TOPLEFT", frame.ActionPanel, "TOPLEFT", 2, -2)
-			frame.ActionPanel.class:SetPanelTemplate("Default", true, 2, 0, 0)
+			frame.ActionPanel.class:SetSizeToScale(18)
+			frame.ActionPanel.class:SetPointToScale("TOPLEFT", frame.ActionPanel, "TOPLEFT", 2, -2)
+			frame.ActionPanel.class:SetStylePanel("Default", "Default", true, 2, 0, 0)
 
 			frame.ActionPanel.class.texture = frame.ActionPanel.class.Panel:CreateTexture(nil, "BORDER")
 			frame.ActionPanel.class.texture:SetAllPoints(frame.ActionPanel.class.Panel)
@@ -484,8 +484,8 @@ function MOD:SetActionPanel(frame, unit, noHealthText, noPowerText, noMiscText)
 		frame.InfoPanel = CreateFrame("Frame", nil, frame)
 		frame.InfoPanel:SetFrameStrata("LOW")
 		frame.InfoPanel:SetFrameLevel(20)
-		frame.InfoPanel:Point("TOPLEFT", frame.ActionPanel, "TOPLEFT", 2, -2)
-		frame.InfoPanel:Point("BOTTOMRIGHT", frame.ActionPanel, "BOTTOMRIGHT", -2, 2)
+		frame.InfoPanel:SetPointToScale("TOPLEFT", frame.ActionPanel, "TOPLEFT", 2, -2)
+		frame.InfoPanel:SetPointToScale("BOTTOMRIGHT", frame.ActionPanel, "BOTTOMRIGHT", -2, 2)
 	end
 
 	frame.InfoPanel.Name = CreateNameText(frame.InfoPanel, unit)
@@ -498,7 +498,7 @@ function MOD:SetActionPanel(frame, unit, noHealthText, noPowerText, noMiscText)
 		frame.InfoPanel.Health:SetFont(LSM:Fetch("font", SV.db.SVUnit.font), SV.db.SVUnit.fontSize, SV.db.SVUnit.fontOutline)
 		offset = reverse and 2 or -2;
 		direction = reverse and "LEFT" or "RIGHT";
-		frame.InfoPanel.Health:Point(direction, frame.InfoPanel, direction, offset, 0)
+		frame.InfoPanel.Health:SetPointToScale(direction, frame.InfoPanel, direction, offset, 0)
 	end
 
 	if(not noPowerText) then
@@ -506,13 +506,13 @@ function MOD:SetActionPanel(frame, unit, noHealthText, noPowerText, noMiscText)
 		frame.InfoPanel.Power:SetFont(LSM:Fetch("font", SV.db.SVUnit.font), SV.db.SVUnit.fontSize, SV.db.SVUnit.fontOutline)
 		offset = reverse and -2 or 2;
 		direction = reverse and "RIGHT" or "LEFT";
-		frame.InfoPanel.Power:Point(direction, frame.InfoPanel, direction, offset, 0)
+		frame.InfoPanel.Power:SetPointToScale(direction, frame.InfoPanel, direction, offset, 0)
 	end
 
 	if(not noMiscText) then
 		frame.InfoPanel.Misc = frame.InfoPanel:CreateFontString(nil, "OVERLAY")
 		frame.InfoPanel.Misc:SetFont(LSM:Fetch("font", SV.db.SVUnit.font), SV.db.SVUnit.fontSize, SV.db.SVUnit.fontOutline)
-		frame.InfoPanel.Misc:Point("CENTER", frame, "CENTER", 0, 0)
+		frame.InfoPanel.Misc:SetPointToScale("CENTER", frame, "CENTER", 0, 0)
 	end
 
 	frame.HealthPanel = CreateFrame("Frame", nil, frame)
@@ -624,9 +624,9 @@ local PostUpdateAltPower = function(self, min, current, max)
 	elseif(unit and unit:find("boss%d") and self.text) then 
 		self.text:SetTextColor(self:GetStatusBarColor())
 		if not parent.InfoPanel.Power:GetText() or parent.InfoPanel.Power:GetText() == "" then 
-			self.text:Point("BOTTOMRIGHT", parent.Health, "BOTTOMRIGHT")
+			self.text:SetPointToScale("BOTTOMRIGHT", parent.Health, "BOTTOMRIGHT")
 		else 
-			self.text:Point("RIGHT", parent.InfoPanel.Power, "LEFT", 2, 0)
+			self.text:SetPointToScale("RIGHT", parent.InfoPanel.Power, "LEFT", 2, 0)
 		end 
 		if remaining > 0 then 
 			self.text:SetText("|cffD7BEA5[|r"..format("%d%%", remaining).."|cffD7BEA5]|r")
@@ -639,7 +639,7 @@ end
 function MOD:CreatePowerBar(frame, bg)
 	local power = CreateFrame("StatusBar", nil, frame)
 	power:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Bars\DEFAULT]])
-	power:SetPanelTemplate("Bar")
+	power:SetStylePanel("Default", "Bar")
 	power:SetFrameStrata("LOW")
 	power:SetFrameLevel(6)
 	if bg then 
@@ -657,7 +657,7 @@ end
 function MOD:CreateAltPowerBar(frame)
 	local altPower = CreateFrame("StatusBar", nil, frame)
 	altPower:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Bars\DEFAULT]])
-	altPower:SetPanelTemplate("Bar")
+	altPower:SetStylePanel("Default", "Bar")
 	altPower:GetStatusBarTexture():SetHorizTile(false)
 	altPower:SetFrameStrata("LOW")
 	altPower:SetFrameLevel(8)
@@ -704,9 +704,9 @@ function MOD:CreatePortrait(frame,smallUnit,isPlayer)
 	portrait3D:SetFrameLevel(2)
 
 	if smallUnit then 
-		portrait3D:SetPanelTemplate("UnitSmall")
+		portrait3D:SetStylePanel("Default", "UnitSmall")
 	else 
-		portrait3D:SetPanelTemplate("UnitLarge")
+		portrait3D:SetStylePanel("Default", "UnitLarge")
 	end 
 
 	local overlay = CreateFrame("Frame",nil,portrait3D)
@@ -726,9 +726,9 @@ function MOD:CreatePortrait(frame,smallUnit,isPlayer)
 	portrait2D:SetAllPoints(portrait2Danchor)
 	portrait2D.anchor = portrait2Danchor;
 	if smallUnit then 
-		portrait2Danchor:SetFixedPanelTemplate("UnitSmall")
+		portrait2Danchor:SetStylePanel("Fixed", "UnitSmall")
 	else 
-		portrait2Danchor:SetFixedPanelTemplate("UnitLarge")
+		portrait2Danchor:SetStylePanel("Fixed", "UnitLarge")
 	end 
 	portrait2D.Panel = portrait2Danchor.Panel;
 

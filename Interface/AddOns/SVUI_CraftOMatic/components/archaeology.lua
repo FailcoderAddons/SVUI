@@ -438,7 +438,7 @@ function PLUGIN:LoadArchaeologyMode()
 
 	ArchCrafting:SetParent(ModeLogsFrame)
 	ArchCrafting:SetFrameStrata("MEDIUM")
-	ArchCrafting:FillInner(ModeLogsFrame)
+	ArchCrafting:SetAllPointsIn(ModeLogsFrame)
 
 	local BAR_WIDTH = (ArchCrafting:GetWidth() * 0.33) - 4
 	local BAR_HEIGHT = (ArchCrafting:GetHeight() / 5) - 4
@@ -448,7 +448,7 @@ function PLUGIN:LoadArchaeologyMode()
 		local solve = CreateFrame("Button", nil, bar, "SecureHandlerClickTemplate")
 		local yOffset,xOffset = 0,0;
 
-		bar:SetPanelTemplate("Bar")
+		bar:SetStylePanel("Default", "Bar")
 		bar:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]])
 		bar:SetSize(BAR_WIDTH,BAR_HEIGHT)
 		if(i > 10) then

@@ -88,7 +88,7 @@ local CaptureBarHandler = function()
 			local captureBar = _G["WorldStateCaptureBar"..i]
 			if(captureBar and captureBar:IsVisible()) then
 				captureBar:ClearAllPoints()
-				captureBar:Point("TOP", lastFrame, "TOP", 0, offset)
+				captureBar:SetPointToScale("TOP", lastFrame, "TOP", 0, offset)
 				lastFrame = captureBar
 				offset = (-45 * i);
 			end	
@@ -100,9 +100,9 @@ local Vehicle_OnSetPoint = function(self, _, parent)
 	if(parent == "MinimapCluster" or parent == _G["MinimapCluster"]) then 
 		VehicleSeatIndicator:ClearAllPoints()
 		if _G.VehicleSeatIndicator_MOVE then
-			VehicleSeatIndicator:Point("BOTTOM", VehicleSeatIndicator_MOVE, "BOTTOM", 0, 0)
+			VehicleSeatIndicator:SetPointToScale("BOTTOM", VehicleSeatIndicator_MOVE, "BOTTOM", 0, 0)
 		else
-			VehicleSeatIndicator:Point("TOPLEFT", SV.Dock.TopLeft, "TOPLEFT", 0, 0)
+			VehicleSeatIndicator:SetPointToScale("TOPLEFT", SV.Dock.TopLeft, "TOPLEFT", 0, 0)
 			SV.Mentalo:Add(VehicleSeatIndicator, L["Vehicle Seat Frame"])
 		end 
 		VehicleSeatIndicator:SetScale(0.8)
@@ -112,7 +112,7 @@ end
 local Dura_OnSetPoint = function(self, _, parent)
 	if((parent == "MinimapCluster") or (parent == _G["MinimapCluster"])) then
 		self:ClearAllPoints()
-		self:Point("RIGHT", Minimap, "RIGHT")
+		self:SetPointToScale("RIGHT", Minimap, "RIGHT")
 		self:SetScale(0.6)
 	end 
 end
@@ -149,22 +149,22 @@ function MOD:Load()
 	NewHook(VehicleSeatIndicator, "SetPoint", Vehicle_OnSetPoint)
 	VehicleSeatIndicator:SetPoint("TOPLEFT", MinimapCluster, "TOPLEFT", 2, 2)
 	
-	SVUI_WorldStateHolder:Size(200, 45)
+	SVUI_WorldStateHolder:SetSizeToScale(200, 45)
 	SV.Mentalo:Add(SVUI_WorldStateHolder, L["Capture Bars"])
 	NewHook("UIParent_ManageFramePositions", CaptureBarHandler)
 
-	SVUI_AltPowerBar:Size(128, 50)
+	SVUI_AltPowerBar:SetSizeToScale(128, 50)
 	PlayerPowerBarAlt:SetParent(SVUI_AltPowerBar)
 	PlayerPowerBarAlt:ClearAllPoints()
 	PlayerPowerBarAlt:SetPoint("CENTER", SVUI_AltPowerBar, "CENTER", 0, 0)
 	PlayerPowerBarAlt.ignoreFramePositionManager = true;
 	SV.Mentalo:Add(SVUI_AltPowerBar, L["Alternative Power"])
 
-	SVUI_BailOut:Size(30, 30)
+	SVUI_BailOut:SetSizeToScale(30, 30)
 	SVUI_BailOut:SetNormalTexture(BAILOUT_ICON)
 	SVUI_BailOut:SetPushedTexture(BAILOUT_ICON)
 	SVUI_BailOut:SetHighlightTexture(BAILOUT_ICON)
-	SVUI_BailOut:SetFixedPanelTemplate("Transparent")
+	SVUI_BailOut:SetStylePanel("Fixed", "Transparent")
 	SVUI_BailOut:RegisterForClicks("AnyUp")
 	SVUI_BailOut:SetScript("OnClick", VehicleExit)
 	SVUI_BailOut:RegisterEvent("UNIT_ENTERED_VEHICLE")
@@ -176,7 +176,7 @@ function MOD:Load()
 	SVUI_BailOut:Hide()
 
 	LossOfControlFrame:ClearAllPoints()
-	LossOfControlFrame:Point("CENTER", SV.Screen, "CENTER", 0, 50)
+	LossOfControlFrame:SetPointToScale("CENTER", SV.Screen, "CENTER", 0, 50)
 	SV.Mentalo:Add(LossOfControlFrame, L["Loss Control Icon"], nil, nil, "LoC")
 
 	self:RegisterEvent("CHAT_MSG_BG_SYSTEM_HORDE", PVPRaidNoticeHandler)

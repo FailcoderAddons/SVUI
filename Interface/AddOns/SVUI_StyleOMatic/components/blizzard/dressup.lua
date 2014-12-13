@@ -32,20 +32,20 @@ local function DressUpStyle()
 		 return 
 	end
 
-	DressUpFrame:Size(600, 700)
+	DressUpFrame:SetSizeToScale(600, 700)
 	PLUGIN:ApplyWindowStyle(DressUpFrame, true, true)
 
 	DressUpModel:ClearAllPoints()
-	DressUpModel:Point("TOPLEFT", DressUpFrame, "TOPLEFT", 12, -76)
-	DressUpModel:Point("BOTTOMRIGHT", DressUpFrame, "BOTTOMRIGHT", -12, 36)
+	DressUpModel:SetPointToScale("TOPLEFT", DressUpFrame, "TOPLEFT", 12, -76)
+	DressUpModel:SetPointToScale("BOTTOMRIGHT", DressUpFrame, "BOTTOMRIGHT", -12, 36)
 
-	DressUpModel:SetFixedPanelTemplate("Model")
+	DressUpModel:SetStylePanel("Fixed", "Model")
 
-	DressUpFrameCancelButton:Point("BOTTOMRIGHT", DressUpFrame, "BOTTOMRIGHT", -12, 12)
-	DressUpFrameCancelButton:SetButtonTemplate()
+	DressUpFrameCancelButton:SetPointToScale("BOTTOMRIGHT", DressUpFrame, "BOTTOMRIGHT", -12, 12)
+	DressUpFrameCancelButton:SetStylePanel("Button")
 
-	DressUpFrameResetButton:Point("RIGHT", DressUpFrameCancelButton, "LEFT", -12, 0)
-	DressUpFrameResetButton:SetButtonTemplate()
+	DressUpFrameResetButton:SetPointToScale("RIGHT", DressUpFrameCancelButton, "LEFT", -12, 0)
+	DressUpFrameResetButton:SetStylePanel("Button")
 
 	PLUGIN:ApplyCloseButtonStyle(DressUpFrameCloseButton, DressUpFrame.Panel)
 end 

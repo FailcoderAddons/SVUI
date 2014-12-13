@@ -23,29 +23,27 @@ local parent, ns = ...
 local oUF = ns.oUF
 local frames, allFrames = {}, {}
 local showStatus
-local CORE;
 
 local CheckForReset = function()
 	for frame, unit in pairs(allFrames) do
-		if frame._secureFade and frame._secureFade.reset then
+		if frame.___fadereset then
 			frame:SetAlpha(1)
-			frame._secureFade.reset = nil
+			frame.___fadereset = nil
 		end
 	end
 end
 
 local FadeFramesInOut = function(fade, unit)
-	if(not CORE) then return end
 	for frame, unit in pairs(frames) do
 		if not UnitExists(unit) then return end
 		if fade then
 			if(frame:GetAlpha() ~= 1 or (frame._secureFade and frame._secureFade.endAlpha == 0)) then
-				CORE:SecureFadeIn(frame, 0.15)
+				frame:FadeIn(0.15)
 			end
 		else	
 			if frame:GetAlpha() ~= 0 then
-				CORE:SecureFadeOut(frame, 0.15)
-				frame._secureFade.finishedFunc = CheckForReset
+				frame:FadeOut(0.15)
+				frame:FadeCallback(CheckForReset)
 			else
 				showStatus = false;
 				return
@@ -59,15 +57,12 @@ local FadeFramesInOut = function(fade, unit)
 end
 
 local Update = function(self, arg1, arg2)
-	if(not CORE) then return end
 	if arg1 == "UNIT_HEALTH" and self and self.unit ~= arg2 then return end
 	if type(arg1) == 'boolean' and not frames[self] then return end
 		
 	if(not frames[self]) then
-		if(CORE) then
-			CORE:SecureFadeIn(self, 0.15)
-			self._secureFade.reset = true
-		end
+		self:FadeIn(0.15)
+		self.___fadereset = true
 		return
 	end		
 		
@@ -94,8 +89,6 @@ local Update = function(self, arg1, arg2)
 end
 
 local Enable = function(self, unit)
-	if(not CORE) then CORE = ns end
-
 	if self.CombatFade then
 		frames[self] = self.unit
 		allFrames[self] = self.unit

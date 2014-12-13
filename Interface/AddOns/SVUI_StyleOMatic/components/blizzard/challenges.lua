@@ -32,7 +32,7 @@ local function ChallengesFrameStyle()
   ChallengesFrameInset:RemoveTextures()
   ChallengesFrameInsetBg:Hide()
   ChallengesFrameDetails.bg:Hide()
-  ChallengesFrameLeaderboard:SetButtonTemplate()
+  ChallengesFrameLeaderboard:SetStylePanel("Button")
   select(2, ChallengesFrameDetails:GetRegions()):Hide()
   select(9, ChallengesFrameDetails:GetRegions()):Hide()
   select(10, ChallengesFrameDetails:GetRegions()):Hide()
@@ -41,7 +41,7 @@ local function ChallengesFrameStyle()
 
   for u = 1, 9 do 
     local v = ChallengesFrame["button"..u]
-    v:SetButtonTemplate()
+    v:SetStylePanel("Button")
     v:SetHighlightTexture("")
     v.selectedTex:SetAlpha(.2)
     v.selectedTex:SetPoint("TOPLEFT", 1, -1)
@@ -53,7 +53,7 @@ local function ChallengesFrameStyle()
     local F = ChallengesFrame["RewardRow"..u]
     for A = 1, 2 do 
       local v = F["Reward"..A]
-      v:SetPanelTemplate()
+      v:SetStylePanel("Default")
       v.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
     end 
   end 

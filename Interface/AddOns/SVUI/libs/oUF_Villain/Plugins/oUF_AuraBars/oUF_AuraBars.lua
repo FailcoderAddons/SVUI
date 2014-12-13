@@ -72,7 +72,7 @@ local function SetAnchors(self)
 		local frame = bars[index]
 		local anchor = frame.anchor
 		frame:SetHeight(self.auraBarHeight or 20)
-		frame.statusBar.iconHolder:Size(frame:GetHeight())			
+		frame.statusBar.iconHolder:SetSizeToScale(frame:GetHeight())			
 		frame:SetWidth((self.auraBarWidth or self:GetWidth()) - (frame:GetHeight() + (self.gap or 0)))	
 		frame:ClearAllPoints()
 		if self.down == true then
@@ -328,7 +328,7 @@ local function Update(self, event, unit)
 			elseif(frame:GetTop() and auraBars:GetBottom()) then
 				auraBars:SetHeight(frame:GetTop() - auraBars:GetBottom())
 			else
-				auraBars:Height(20)
+				auraBars:SetHeightToScale(20)
 			end
 		end
 		

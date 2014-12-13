@@ -273,7 +273,7 @@ function SV:MediaUpdate()
 
   self.Media.gradient.special = {"VERTICAL",r1,g1,b1,r2,g2,b2}
 
-  SVLib:Trigger("CORE_MEDIA_UPDATED");
+  self.Events:Trigger("SVUI_COLORS_UPDATED");
 end
 
 function SV:RefreshSystemFonts()
@@ -342,7 +342,7 @@ function SV:RefreshSystemFonts()
   SetFont("NumberFont_Shadow_Small", UNICODE_FONT, unicodesize, "OUTLINE")
   SetFont("SystemFont_Tiny", UNICODE_FONT, unicodesize)
 
-  self:UpdateManagedFonts()
+  self.Events:Trigger("SVUI_FONTS_UPDATED");
 end 
 
 function SV:RefreshAllSystemMedia()

@@ -42,43 +42,64 @@ local tremove, tcopy, twipe, tsort, tconcat, tdump = table.remove, table.copy, t
 GET ADDON DATA
 ##########################################################
 ]]--
-local SV = select(2, ...);
---[[ 
-########################################################## 
-LOCAL VARS
-##########################################################
-]]--
-local ManagedFonts = {};
+local SV = select(2, ...)
+local L = SV.L
+local SVLib = LibSuperVillain("Registry");
 local STANDARD_TEXT_FONT = _G.STANDARD_TEXT_FONT;
-local SizeScaled, HeightScaled, WidthScaled, PointScaled, WrapOuter, FillInner;
 --[[ 
 ########################################################## 
 APPENDED POSITIONING METHODS
 ##########################################################
-]]-- 
+]]--
+local SetSizeToScale = function(self, width, height)
+    if(type(width) == "number") then
+        local h = (height and type(height) == "number") and height or width
+        self:SetSize(SV:Scale(width), SV:Scale(h))
+    end
+end
+
+local SetWidthToScale = function(self, width)
+    if(type(width) == "number") then
+        self:SetWidth(SV:Scale(width))
+    end
+end
+
+local SetHeightToScale = function(self, height)
+    if(type(height) == "number") then
+        self:SetHeight(SV:Scale(height))
+    end
+end
+
+local SetAllPointsOut = function(self, parent, x, y)
+    x = type(x) == "number" and x or 1
+    y = y or x
+    local nx = SV:Scale(x);
+    local ny = SV:Scale(y);
+    parent = parent or self:GetParent()
+    if self:GetPoint() then 
+        self:ClearAllPoints()
+    end 
+    self:SetPoint("TOPLEFT", parent, "TOPLEFT", -nx, ny)
+    self:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", nx, -ny)
+end 
+
+local SetAllPointsIn = function(self, parent, x, y)
+    x = type(x) == "number" and x or 1
+    y = y or x
+    local nx = SV:Scale(x);
+    local ny = SV:Scale(y);
+    parent = parent or self:GetParent()
+    if self:GetPoint() then 
+        self:ClearAllPoints()
+    end 
+    self:SetPoint("TOPLEFT", parent, "TOPLEFT", nx, -ny)
+    self:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", -nx, ny)
+end
+
+local SetPointToScale;
 do
     local PARAMS = {}
-
-    function SizeScaled(self, width, height)
-        if(type(width) == "number") then
-            local h = (height and type(height) == "number") and height or width
-            self:SetSize(SV:Scale(width), SV:Scale(h))
-        end
-    end 
-
-    function WidthScaled(self, width)
-        if(type(width) == "number") then
-            self:SetWidth(SV:Scale(width))
-        end
-    end 
-
-    function HeightScaled(self, height)
-        if(type(height) == "number") then
-            self:SetHeight(SV:Scale(height))
-        end
-    end
-
-    function PointScaled(self, ...)
+    SetPointToScale = function(self, ...)
         local n = select('#', ...) 
         PARAMS = {...}
         local arg
@@ -90,32 +111,6 @@ do
         end 
         self:SetPoint(unpack(PARAMS))
     end
-
-    function WrapOuter(self, parent, x, y)
-        x = type(x) == "number" and x or 1
-        y = y or x
-        local nx = SV:Scale(x);
-        local ny = SV:Scale(y);
-        parent = parent or self:GetParent()
-        if self:GetPoint() then 
-            self:ClearAllPoints()
-        end 
-        self:SetPoint("TOPLEFT", parent, "TOPLEFT", -nx, ny)
-        self:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", nx, -ny)
-    end 
-
-    function FillInner(self, parent, x, y)
-        x = type(x) == "number" and x or 1
-        y = y or x
-        local nx = SV:Scale(x);
-        local ny = SV:Scale(y);
-        parent = parent or self:GetParent()
-        if self:GetPoint() then 
-            self:ClearAllPoints()
-        end 
-        self:SetPoint("TOPLEFT", parent, "TOPLEFT", nx, -ny)
-        self:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", -nx, ny)
-    end
 end
 --[[ 
 ########################################################## 
@@ -125,7 +120,7 @@ APPENDED DESTROY METHODS
 local _purgatory = CreateFrame("Frame", nil)
 _purgatory:Hide()
 
-local function Die(self)
+local Die = function(self)
     if(self.UnregisterAllEvents) then 
         self:UnregisterAllEvents()
         self:SetParent(_purgatory)
@@ -135,7 +130,7 @@ local function Die(self)
     end
 end
 
-local function RemoveTextures(self, option)
+local RemoveTextures = function(self, option)
     if(self.Panel) then return end
     local region, layer, texture
     for i = 1, self:GetNumRegions()do 
@@ -168,7 +163,9 @@ end
 APPENDED FONT TEMPLATING METHODS
 ##########################################################
 ]]--
-local function FontManager(self, font, fontSize, fontStyle, fontJustifyH, fontJustifyV, noUpdate)
+local ManagedFonts = {};
+
+local FontManager = function(self, font, fontSize, fontStyle, fontJustifyH, fontJustifyV, noUpdate)
     if not self then return end
     local STANDARDFONTSIZE = SV.db.media.fonts and SV.db.media.fonts.size or 12
     font = font or [[Interface\AddOns\SVUI\assets\fonts\Default.ttf]]
@@ -197,15 +194,15 @@ local function FontManager(self, font, fontSize, fontStyle, fontJustifyH, fontJu
 end
 --[[ 
 ########################################################## 
-FONT UPDATE CALLBACK
+UPDATE CALLBACKS
 ##########################################################
 ]]--
-local function UpdateManagedFonts()
-    local STANDARDFONTSIZE = SV.db.media.fonts.size;
+local function FontTemplateUpdates()
+    local defaultSize = SV.db.media.fonts.size;
     for i=1, #ManagedFonts do
         local frame = ManagedFonts[i] 
         if frame then
-            local fontSize = frame.useCommon and STANDARDFONTSIZE or frame.fontSize
+            local fontSize = frame.useCommon and defaultSize or frame.fontSize
             frame:SetFont(frame.font, fontSize, frame.fontStyle)
         else 
             ManagedFonts[i] = nil 
@@ -213,9 +210,124 @@ local function UpdateManagedFonts()
     end 
 end
 
-SV.UpdateManagedFonts = UpdateManagedFonts
+SV.Events:On("SVUI_FONTS_UPDATED", "FontTemplateUpdates", FontTemplateUpdates);
+--[[ 
+########################################################## 
+SECURE FADING
+##########################################################
+]]--
+local SecureFade_OnUpdate = function(self, elasped)
+    local frame = self.owner;
+    if(frame) then
+        local state = frame.___fadeset;
+        state[4] = (state[4] or 0) + elasped;
+        if(state[4] < state[3]) then 
 
-LibSuperVillain("Registry"):NewCallback("CORE_MEDIA_UPDATED", "FontTemplateUpdates", FontTemplateUpdates);
+            if(frame.___fademode == "IN") then 
+                frame:SetAlpha((state[4] / state[3]) * (state[2] - state[1]) + state[1])
+            elseif(frame.___fademode == "OUT") then 
+                frame:SetAlpha(((state[3] - state[4]) / state[3]) * (state[1] - state[2]) + state[2])
+            end 
+
+        else
+            state[4] = 0
+            frame:SetAlpha(state[2])
+
+            if((not frame:IsProtected()) and frame.___fadehide and frame:IsShown()) then 
+                frame:Hide()
+            end
+
+            if(frame.___fadefunc) then
+                local _, catch = pcall(frame.___fadefunc, frame)
+                if(not catch) then
+                    frame.___fadefunc = nil
+                end
+            end
+
+            self.Running = false;
+            self:SetScript("OnUpdate", nil);
+        end
+    end
+end
+
+local SecureFadeIn = function(self, duration, alphaStart, alphaEnd)
+    local alpha1 = alphaStart or 0;
+    local alpha2 = alphaEnd or 1;
+    local timer = duration or 0.1;
+    --local name = self:GetName() or 'Frame';
+
+    if(not (self.IsProtected and self:IsProtected())) then
+        if(not self:IsShown()) then 
+            self:Show() 
+        end
+    end
+
+    if(self:IsShown() and self:GetAlpha() == alpha2) then return end
+
+    self.___fademode = "IN";
+    self.___fadehide = false;
+    self.___fadefunc = nil;
+
+    if(not self.___fadeset) then
+        self.___fadeset = {};
+    end
+    self.___fadeset[1] = alpha1;
+    self.___fadeset[2] = alpha2;
+    self.___fadeset[3] = timer;
+
+    self:SetAlpha(alpha1)
+
+    if(not self.___fadehandler) then 
+        self.___fadehandler = CreateFrame("Frame", nil)
+        self.___fadehandler.owner = self;
+    end
+    if(not self.___fadehandler.Running) then 
+        self.___fadehandler.Running = true;
+        self.___fadehandler:SetScript("OnUpdate", SecureFade_OnUpdate)
+    end
+end 
+
+local SecureFadeOut = function(self, duration, alphaStart, alphaEnd, hideOnFinished)
+    local alpha1 = alphaStart or 1;
+    local alpha2 = alphaEnd or 0;
+    local timer = duration or 0.1;
+    --local name = self:GetName() or 'Frame';
+
+    if(not (self.IsProtected and self:IsProtected())) then
+        if(not self:IsShown()) then 
+            self:Show() 
+        end
+    end
+
+    if(not self:IsShown() or self:GetAlpha() == alpha2) then return end
+
+    self.___fademode = "OUT";
+    self.___fadehide = hideOnFinished;
+    self.___fadefunc = nil;
+
+    if(not self.___fadeset) then
+        self.___fadeset = {};
+    end
+
+    self.___fadeset[1] = alpha1;
+    self.___fadeset[2] = alpha2;
+    self.___fadeset[3] = timer;
+
+    self:SetAlpha(alpha1)
+    
+    if(not self.___fadehandler) then 
+        self.___fadehandler = CreateFrame("Frame", nil)
+        self.___fadehandler.owner = self;
+    end
+    if(not self.___fadehandler.Running) then 
+        self.___fadehandler.Running = true;
+        self.___fadehandler:SetScript("OnUpdate", SecureFade_OnUpdate)
+    end
+end
+
+local SecureFadeCallback = function(self, callback)
+    self.___fadefunc = callback;
+end
 --[[ 
 ########################################################## 
 ENUMERATION
@@ -223,15 +335,18 @@ ENUMERATION
 ]]--
 local function AppendMethods(OBJECT)
     local META = getmetatable(OBJECT).__index
-    if not OBJECT.Size then META.Size = SizeScaled end
-    if not OBJECT.Width then META.Width = WidthScaled end
-    if not OBJECT.Height then META.Height = HeightScaled end
-    if not OBJECT.Point then META.Point = PointScaled end
-    if not OBJECT.WrapOuter then META.WrapOuter = WrapOuter end
-    if not OBJECT.FillInner then META.FillInner = FillInner end
+    if not OBJECT.SetSizeToScale then META.SetSizeToScale = SetSizeToScale end
+    if not OBJECT.SetWidthToScale then META.SetWidthToScale = SetWidthToScale end
+    if not OBJECT.SetHeightToScale then META.SetHeightToScale = SetHeightToScale end
+    if not OBJECT.SetPointToScale then META.SetPointToScale = SetPointToScale end
+    if not OBJECT.SetAllPointsOut then META.SetAllPointsOut = SetAllPointsOut end
+    if not OBJECT.SetAllPointsIn then META.SetAllPointsIn = SetAllPointsIn end
     if not OBJECT.Die then META.Die = Die end
     if not OBJECT.RemoveTextures then META.RemoveTextures = RemoveTextures end
     if not OBJECT.FontManager then META.FontManager = FontManager end
+    if not OBJECT.FadeIn then META.FadeIn = SecureFadeIn end
+    if not OBJECT.FadeOut then META.FadeOut = SecureFadeOut end
+    if not OBJECT.FadeCallback then META.FadeCallback = SecureFadeCallback end
 end
 
 local HANDLER, OBJECT = {["Frame"] = true}, CreateFrame("Frame")

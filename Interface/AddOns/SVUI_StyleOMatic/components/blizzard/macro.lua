@@ -48,7 +48,7 @@ local function MacroUIStyle()
 	PLUGIN:ApplyScrollFrameStyle(MacroFrameScrollFrameScrollBar)
 	PLUGIN:ApplyScrollFrameStyle(MacroPopupScrollFrameScrollBar)
 
-	MacroFrame:Width(360)
+	MacroFrame:SetWidthToScale(360)
 
 	local parentStrata = MacroFrame:GetFrameStrata()
 	local parentLevel = MacroFrame:GetFrameLevel()
@@ -59,7 +59,7 @@ local function MacroUIStyle()
 			button:SetFrameStrata(parentStrata)
 			button:SetFrameLevel(parentLevel + 1)
 			button:RemoveTextures()
-			button:SetButtonTemplate(false, 1, 1, 1)
+			button:SetStylePanel("Button", false, 1, 1, 1)
 		end
 	end 
 
@@ -75,28 +75,28 @@ local function MacroUIStyle()
 	for i = 1, 2 do
 		local tab = _G[("MacroFrameTab%d"):format(i)]
 		if(tab) then
-			tab:Height(22)
+			tab:SetHeightToScale(22)
 			if(i == 1) then
-				tab:Point("TOPLEFT", MacroFrame, "TOPLEFT", 85, -39)
+				tab:SetPointToScale("TOPLEFT", MacroFrame, "TOPLEFT", 85, -39)
 				firstTab = tab
 			elseif(firstTab) then
-				tab:Point("LEFT", firstTab, "RIGHT", 4, 0)
+				tab:SetPointToScale("LEFT", firstTab, "RIGHT", 4, 0)
 			end
 		end
 	end 
 
 	MacroFrameText:SetFont(SV.Media.font.roboto, 10, "OUTLINE")
 	MacroFrameTextBackground:RemoveTextures()
-	MacroFrameTextBackground:SetBasicPanel()
+	MacroFrameTextBackground:SetStylePanel("Default", 'Transparent')
 
 	MacroPopupFrame:RemoveTextures()
-	MacroPopupFrame:SetBasicPanel()
+	MacroPopupFrame:SetStylePanel("Default", 'Transparent')
 
 	MacroPopupScrollFrame:RemoveTextures()
-	MacroPopupScrollFrame:SetPanelTemplate("Pattern")
-	MacroPopupScrollFrame.Panel:Point("TOPLEFT", 51, 2)
-	MacroPopupScrollFrame.Panel:Point("BOTTOMRIGHT", -4, 4)
-	MacroPopupEditBox:SetEditboxTemplate()
+	MacroPopupScrollFrame:SetStylePanel("Default", "Pattern")
+	MacroPopupScrollFrame.Panel:SetPointToScale("TOPLEFT", 51, 2)
+	MacroPopupScrollFrame.Panel:SetPointToScale("BOTTOMRIGHT", -4, 4)
+	MacroPopupEditBox:SetStylePanel("Editbox")
 	MacroPopupNameLeft:SetTexture(0,0,0,0)
 	MacroPopupNameMiddle:SetTexture(0,0,0,0)
 	MacroPopupNameRight:SetTexture(0,0,0,0)
@@ -105,48 +105,48 @@ local function MacroUIStyle()
 
 	MacroButtonContainer:RemoveTextures()
 	PLUGIN:ApplyScrollFrameStyle(MacroButtonScrollFrame)
-	MacroButtonScrollFrame:SetFixedPanelTemplate("Inset")
+	MacroButtonScrollFrame:SetStylePanel("Fixed", "Inset")
 
 	MacroPopupFrame:HookScript("OnShow", function(c)
 		c:ClearAllPoints()
-		c:Point("TOPLEFT", MacroFrame, "TOPRIGHT", 5, -2)
+		c:SetPointToScale("TOPLEFT", MacroFrame, "TOPRIGHT", 5, -2)
 	end)
 
 	MacroFrameSelectedMacroButton:SetFrameStrata(parentStrata)
 	MacroFrameSelectedMacroButton:SetFrameLevel(parentLevel + 1)
 	MacroFrameSelectedMacroButton:RemoveTextures()
-	MacroFrameSelectedMacroButton:SetSlotTemplate(true)
+	MacroFrameSelectedMacroButton:SetStylePanel("Slot", true)
 	MacroFrameSelectedMacroButtonIcon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-	MacroFrameSelectedMacroButtonIcon:FillInner()
+	MacroFrameSelectedMacroButtonIcon:SetAllPointsIn()
 
 	MacroEditButton:ClearAllPoints()
-	MacroEditButton:Point("BOTTOMLEFT", MacroFrameSelectedMacroButton.Panel, "BOTTOMRIGHT", 10, 0)
+	MacroEditButton:SetPointToScale("BOTTOMLEFT", MacroFrameSelectedMacroButton.Panel, "BOTTOMRIGHT", 10, 0)
 
 	MacroFrameCharLimitText:ClearAllPoints()
-	MacroFrameCharLimitText:Point("BOTTOM", MacroFrameTextBackground, -25, -35)
+	MacroFrameCharLimitText:SetPointToScale("BOTTOM", MacroFrameTextBackground, -25, -35)
 
 	for i = 1, MAX_ACCOUNT_MACROS do 
 		local button = _G["MacroButton"..i]
 		if(button) then
 			button:RemoveTextures()
-			button:SetSlotTemplate()
+			button:SetStylePanel("Slot")
 
 			local icon = _G["MacroButton"..i.."Icon"]
 			if(icon) then
 				icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-				icon:FillInner()
+				icon:SetAllPointsIn()
 				icon:SetDrawLayer("OVERLAY")
 			end
 
 			local popup = _G["MacroPopupButton"..i]
 			if(popup) then
 				popup:RemoveTextures()
-				popup:SetButtonTemplate()
+				popup:SetStylePanel("Button")
 				popup:SetBackdropColor(0, 0, 0, 0)
 
 				local popupIcon = _G["MacroPopupButton"..i.."Icon"]
 				if(popupIcon) then
-					popupIcon:FillInner()
+					popupIcon:SetAllPointsIn()
 					popupIcon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 				end
 			end 

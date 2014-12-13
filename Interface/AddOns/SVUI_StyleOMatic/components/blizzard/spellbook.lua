@@ -82,13 +82,13 @@ local function ChangeTabHelper(tab)
 	tab:RemoveTextures()
 	if(nTex) then
 		nTex:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-		nTex:FillInner()
+		nTex:SetAllPointsIn()
 	end
 
 	tab.pushed = true;
 
 	tab.backdrop = CreateFrame("Frame", nil, tab)
-	tab.backdrop:WrapOuter(tab,1,1)
+	tab.backdrop:SetAllPointsOut(tab,1,1)
 	tab.backdrop:SetFrameLevel(0)
 	tab.backdrop:SetBackdrop({
 		bgFile = [[Interface\BUTTONS\WHITE8X8]], 
@@ -109,7 +109,7 @@ local function ChangeTabHelper(tab)
 	tab:SetScript("OnLeave", Tab_OnLeave)
 
 	local a1, p, a2, x, y = tab:GetPoint()
-	tab:Point(a1, p, a2, 1, y)
+	tab:SetPointToScale(a1, p, a2, 1, y)
 end 
 
 local function GetSpecTabHelper(index)
@@ -137,12 +137,12 @@ local function AbilityButtonHelper(index)
 		end
 
 		button:RemoveTextures()
-		button:SetPanelTemplate("Slot", true, 2, 0, 0)
+		button:SetStylePanel("Default", "Slot", true, 2, 0, 0)
 
 		if(button.iconTexture) then
 			button.iconTexture:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 			button.iconTexture:ClearAllPoints()
-			button.iconTexture:FillInner(button, 1, 1) 
+			button.iconTexture:SetAllPointsIn(button, 1, 1) 
 		end
 
 		if(button.Name) then 
@@ -173,12 +173,12 @@ local function ButtonUpdateHelper()
 			end 
 
 			button:RemoveTextures() 
-			button:SetPanelTemplate("Slot", true, 2, 0, 0)
+			button:SetStylePanel("Default", "Slot", true, 2, 0, 0)
 
 			if(icon) then
 				icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 				icon:ClearAllPoints()
-				icon:FillInner(button, 1, 1)
+				icon:SetAllPointsIn(button, 1, 1)
 			end
 
 			if(spellString) then 
@@ -210,7 +210,7 @@ local function SpellBookStyle()
 
 	if(SpellBookFrameInset) then 
 		SpellBookFrameInset:RemoveTextures()
-		SpellBookFrameInset:SetFixedPanelTemplate("Inset", true, 6)
+		SpellBookFrameInset:SetStylePanel("Fixed", "Inset", true, 6)
 	end
 	if(SpellBookSpellIconsFrame) then SpellBookSpellIconsFrame:RemoveTextures() end
 	if(SpellBookSideTabsFrame) then SpellBookSideTabsFrame:RemoveTextures() end
@@ -279,10 +279,10 @@ local function SpellBookStyle()
 			button:RemoveTextures()
 			if(buttonTex) then
 				buttonTex:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-				buttonTex:FillInner()
+				buttonTex:SetAllPointsIn()
 				button:SetFrameLevel(button:GetFrameLevel() + 2)
 				if not button.Panel then
-					button:SetPanelTemplate("Inset", false, 3, 3, 3)
+					button:SetStylePanel("Default", "Inset", false, 3, 3, 3)
 					button.Panel:SetAllPoints()
 				end 
 			end
@@ -298,7 +298,7 @@ local function SpellBookStyle()
 			bar:SetHeight(12)
 			bar:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Bars\DEFAULT]])
 			bar:SetStatusBarColor(0, 220/255, 0)
-			bar:SetPanelTemplate("Default")
+			bar:SetStylePanel("Default", "Default")
 			bar.rankText:ClearAllPoints()
 			bar.rankText:SetPoint("CENTER")
 		end

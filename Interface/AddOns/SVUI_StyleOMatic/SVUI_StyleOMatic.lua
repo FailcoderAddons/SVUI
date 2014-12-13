@@ -495,7 +495,7 @@ local function DockFadeInDocklet()
 		PLUGIN.Docklet.Dock2:Show()
 	end
 end
-LibSuperVillain("Registry"):NewCallback("DOCKS_FADE_IN", "DockFadeInDocklet", DockFadeInDocklet);
+SV.Events:On("DOCKS_FADE_IN", "DockFadeInDocklet", DockFadeInDocklet);
 
 local function DockFadeOutDocklet()
 	local active = PLUGIN.Docklet.DockButton:GetAttribute("isActive")
@@ -504,7 +504,7 @@ local function DockFadeOutDocklet()
 		PLUGIN.Docklet.Dock2:Hide()
 	end
 end
-LibSuperVillain("Registry"):NewCallback("DOCKS_FADE_OUT", "DockFadeOutDocklet", DockFadeOutDocklet);
+SV.Events:On("DOCKS_FADE_OUT", "DockFadeOutDocklet", DockFadeOutDocklet);
 --[[ 
 ########################################################## 
 BUILD FUNCTION
@@ -518,7 +518,7 @@ function PLUGIN:Load()
 	self.cache.Docks = self.cache.Docks or {"None", "None"}
 
 	local alert = CreateFrame('Frame', nil, UIParent);
-	alert:SetFixedPanelTemplate('Transparent');
+	alert:SetStylePanel("Fixed", 'Transparent');
 	alert:SetSize(250, 70);
 	alert:SetPoint('CENTER', UIParent, 'CENTER');
 	alert:SetFrameStrata('DIALOG');
@@ -540,8 +540,8 @@ function PLUGIN:Load()
 	alert.Close.Text:SetFont(SV.Media.font.default, 10);
 	alert.Close.Text:SetPoint('CENTER');
 	alert.Close.Text:SetText(_G.NO);
-	alert.Accept:SetButtonTemplate();
-	alert.Close:SetButtonTemplate();
+	alert.Accept:SetStylePanel("Button");
+	alert.Close:SetStylePanel("Button");
 	alert:Hide();
 
 	self.Alert = alert;

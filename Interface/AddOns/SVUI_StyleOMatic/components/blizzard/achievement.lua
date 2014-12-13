@@ -82,7 +82,7 @@ local _hook_TrackingPoint = function(self, anchor, parent, relative, x, y)
 	local actual = self.ListParent
 	if(anchor ~= "BOTTOMLEFT" or parent ~= actual or relative ~= "BOTTOMLEFT" or x ~= 5 or y ~= 5) then 
 		self:ClearAllPoints()
-		self:Point("BOTTOMLEFT", actual, "BOTTOMLEFT", 5, 5)
+		self:SetPointToScale("BOTTOMLEFT", actual, "BOTTOMLEFT", 5, 5)
 	end 
 end
 
@@ -92,7 +92,7 @@ local _hook_AchievementsUpdate = function()
 		local summary = _G[globalName]
 		if(summary) then
 			summary:RemoveTextures()
-			summary:SetButtonTemplate()
+			summary:SetStylePanel("Button")
 
 			local highlight = _G[("%sHighlight"):format(globalName)]
 			local desc = _G[("%sDescription"):format(globalName)]
@@ -107,14 +107,14 @@ local _hook_AchievementsUpdate = function()
 			if(iconover) then iconover:Die() end
 			if(icontex) then 
 				icontex:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-				icontex:FillInner()
+				icontex:SetAllPointsIn()
 			end
 			if(icon and not icon.Panel) then 
-				icon:SetFixedPanelTemplate("Slot")
-				icon:Height(icon:GetHeight() - 14)
-				icon:Width(icon:GetWidth() - 14)
+				icon:SetStylePanel("Fixed", "Slot")
+				icon:SetHeightToScale(icon:GetHeight() - 14)
+				icon:SetWidthToScale(icon:GetWidth() - 14)
 				icon:ClearAllPoints()
-				icon:Point("LEFT", 6, 0)
+				icon:SetPointToScale("LEFT", 6, 0)
 			end
 
 			if summary.accountWide then 
@@ -130,7 +130,7 @@ local function BarStyleHelper(bar)
 	bar:RemoveTextures()
 	bar:SetStatusBarTexture(SV.Media.bar.default)
 	bar:SetStatusBarColor(4/255, 179/255, 30/255)
-	bar:SetPanelTemplate("Default")
+	bar:SetStylePanel("Default", "Default")
 	if _G[bar:GetName().."Title"]then 
 		_G[bar:GetName().."Title"]:SetPoint("LEFT", 4, 0)
 	end 
@@ -176,18 +176,18 @@ local function AchievementStyle()
 	PLUGIN:ApplyWindowStyle(AchievementFrame)
 
 	AchievementFrameSummaryAchievements:RemoveTextures(true)
-	AchievementFrameSummaryAchievements:SetPanelTemplate('Inset')
+	AchievementFrameSummaryAchievements:SetStylePanel("Default", 'Inset')
 	AchievementFrameHeaderTitle:ClearAllPoints()
-	AchievementFrameHeaderTitle:Point("TOPLEFT", AchievementFrame.Panel, "TOPLEFT", -30, -8)
+	AchievementFrameHeaderTitle:SetPointToScale("TOPLEFT", AchievementFrame.Panel, "TOPLEFT", -30, -8)
 	AchievementFrameHeaderPoints:ClearAllPoints()
-	AchievementFrameHeaderPoints:Point("LEFT", AchievementFrameHeaderTitle, "RIGHT", 2, 0)
-	AchievementFrameCategoriesContainer:SetPanelTemplate("Inset", true, 2, -2, 2)
-	AchievementFrameAchievementsContainer:SetPanelTemplate("Default")
-	AchievementFrameAchievementsContainer.Panel:Point("TOPLEFT", 0, 2)
-	AchievementFrameAchievementsContainer.Panel:Point("BOTTOMRIGHT", -3, -3)
+	AchievementFrameHeaderPoints:SetPointToScale("LEFT", AchievementFrameHeaderTitle, "RIGHT", 2, 0)
+	AchievementFrameCategoriesContainer:SetStylePanel("Default", "Inset", true, 2, -2, 2)
+	AchievementFrameAchievementsContainer:SetStylePanel("Default", "Default")
+	AchievementFrameAchievementsContainer.Panel:SetPointToScale("TOPLEFT", 0, 2)
+	AchievementFrameAchievementsContainer.Panel:SetPointToScale("BOTTOMRIGHT", -3, -3)
 	PLUGIN:ApplyCloseButtonStyle(AchievementFrameCloseButton, AchievementFrame.Panel)
 	PLUGIN:ApplyDropdownStyle(AchievementFrameFilterDropDown)
-	AchievementFrameFilterDropDown:Point("TOPRIGHT", AchievementFrame, "TOPRIGHT", -44, 5)
+	AchievementFrameFilterDropDown:SetPointToScale("TOPRIGHT", AchievementFrame, "TOPRIGHT", -44, 5)
 
 	PLUGIN:ApplyScrollFrameStyle(AchievementFrameCategoriesContainerScrollBar, 5)
 	PLUGIN:ApplyScrollFrameStyle(AchievementFrameAchievementsContainerScrollBar, 5)
@@ -209,7 +209,7 @@ local function AchievementStyle()
 
 	AchievementFrameComparisonSummaryFriendStatusBar.text:ClearAllPoints()
 	AchievementFrameComparisonSummaryFriendStatusBar.text:SetPoint("CENTER")
-	AchievementFrameComparisonHeader:Point("BOTTOMRIGHT", AchievementFrameComparison, "TOPRIGHT", 45, -20)
+	AchievementFrameComparisonHeader:SetPointToScale("BOTTOMRIGHT", AchievementFrameComparison, "TOPRIGHT", 45, -20)
 
 	for i = 1, 12 do
 		local categoryName = ("AchievementFrameSummaryCategoriesCategory%d"):format(i)
@@ -264,12 +264,12 @@ local function AchievementStyle()
 			button.bg1 = button:CreateTexture(nil, "BACKGROUND", nil, 4)
 			button.bg1:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]])
 			button.bg1:SetVertexColor(unpack(SV.Media.color.default))
-			button.bg1:Point("TOPLEFT", 1, -1)
-			button.bg1:Point("BOTTOMRIGHT", -1, 1)
+			button.bg1:SetPointToScale("TOPLEFT", 1, -1)
+			button.bg1:SetPointToScale("BOTTOMRIGHT", -1, 1)
 
 			button.bg3 = button:CreateTexture(nil, "BACKGROUND", nil, 2)
 			button.bg3:SetTexture(unpack(SV.Media.color.default))
-			button.bg3:WrapOuter(1)
+			button.bg3:SetAllPointsOut(1)
 
 			if(desc) then
 				desc:SetTextColor(0.6, 0.6, 0.6)
@@ -289,21 +289,21 @@ local function AchievementStyle()
 				if(over) then over:Die() end
 				if(tex) then 
 					tex:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-					tex:FillInner()
+					tex:SetAllPointsIn()
 				end
 
-				icon:SetFixedPanelTemplate("Default")
-				icon:Height(icon:GetHeight()-14)
-				icon:Width(icon:GetWidth()-14)
+				icon:SetStylePanel("Fixed", "Default")
+				icon:SetHeightToScale(icon:GetHeight()-14)
+				icon:SetWidthToScale(icon:GetWidth()-14)
 				icon:ClearAllPoints()
-				icon:Point("LEFT", 6, 0)
+				icon:SetPointToScale("LEFT", 6, 0)
 			end
 			
 			if(track) then
 				track:ClearAllPoints()
-				track:Point("BOTTOMLEFT", 1, 1)
+				track:SetPointToScale("BOTTOMLEFT", 1, 1)
 				track:RemoveTextures()
-				track:SetCheckboxTemplate(true)
+				track:SetStylePanel("Checkbox", true)
 				track.ListParent = button
 			end
 		end
@@ -323,37 +323,37 @@ local function AchievementStyle()
 			_G[d].bg1:SetDrawLayer("BACKGROUND", 4)
 			_G[d].bg1:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]])
 			_G[d].bg1:SetVertexColor(unpack(SV.Media.color.default))
-			_G[d].bg1:Point("TOPLEFT", 4, -4)
-			_G[d].bg1:Point("BOTTOMRIGHT", -4, 4)
+			_G[d].bg1:SetPointToScale("TOPLEFT", 4, -4)
+			_G[d].bg1:SetPointToScale("BOTTOMRIGHT", -4, 4)
 			_G[d].bg2 = _G[d]:CreateTexture(nil, "BACKGROUND")
 			_G[d].bg2:SetDrawLayer("BACKGROUND", 3)
 			_G[d].bg2:SetTexture(0, 0, 0)
-			_G[d].bg2:Point("TOPLEFT", 3, -3)
-			_G[d].bg2:Point("BOTTOMRIGHT", -3, 3)
+			_G[d].bg2:SetPointToScale("TOPLEFT", 3, -3)
+			_G[d].bg2:SetPointToScale("BOTTOMRIGHT", -3, 3)
 			_G[d].bg3 = _G[d]:CreateTexture(nil, "BACKGROUND")
 			_G[d].bg3:SetDrawLayer("BACKGROUND", 2)
 			_G[d].bg3:SetTexture(0,0,0,1)
-			_G[d].bg3:Point("TOPLEFT", 2, -2)
-			_G[d].bg3:Point("BOTTOMRIGHT", -2, 2)
+			_G[d].bg3:SetPointToScale("TOPLEFT", 2, -2)
+			_G[d].bg3:SetPointToScale("BOTTOMRIGHT", -2, 2)
 			_G[d].bg4 = _G[d]:CreateTexture(nil, "BACKGROUND")
 			_G[d].bg4:SetDrawLayer("BACKGROUND", 1)
 			_G[d].bg4:SetTexture(0, 0, 0)
-			_G[d].bg4:Point("TOPLEFT", 1, -1)
-			_G[d].bg4:Point("BOTTOMRIGHT", -1, 1)
+			_G[d].bg4:SetPointToScale("TOPLEFT", 1, -1)
+			_G[d].bg4:SetPointToScale("BOTTOMRIGHT", -1, 1)
 
 			if v == "Friend"then 
-				_G[d.."Shield"]:Point("TOPRIGHT", _G["AchievementFrameComparisonContainerButton"..f.."Friend"], "TOPRIGHT", -20, -3)
+				_G[d.."Shield"]:SetPointToScale("TOPRIGHT", _G["AchievementFrameComparisonContainerButton"..f.."Friend"], "TOPRIGHT", -20, -3)
 			end 
 
 			_G[d.."IconBling"]:Die()
 			_G[d.."IconOverlay"]:Die()
-			_G[d.."Icon"]:SetFixedPanelTemplate("Default")
-			_G[d.."Icon"]:Height(_G[d.."Icon"]:GetHeight()-14)
-			_G[d.."Icon"]:Width(_G[d.."Icon"]:GetWidth()-14)
+			_G[d.."Icon"]:SetStylePanel("Fixed", "Default")
+			_G[d.."Icon"]:SetHeightToScale(_G[d.."Icon"]:GetHeight()-14)
+			_G[d.."Icon"]:SetWidthToScale(_G[d.."Icon"]:GetWidth()-14)
 			_G[d.."Icon"]:ClearAllPoints()
-			_G[d.."Icon"]:Point("LEFT", 6, 0)
+			_G[d.."Icon"]:SetPointToScale("LEFT", 6, 0)
 			_G[d.."IconTexture"]:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-			_G[d.."IconTexture"]:FillInner()
+			_G[d.."IconTexture"]:SetAllPointsIn()
 		end 
 	end
 
@@ -386,7 +386,7 @@ local function AchievementStyle()
 		_G["AchievementFrameStatsContainerButton"..f.."HeaderMiddle"]:Die()
 		local d = "AchievementFrameComparisonStatsContainerButton"..f;
 		_G[d]:RemoveTextures()
-		_G[d]:SetPanelTemplate("Default")
+		_G[d]:SetStylePanel("Default", "Default")
 		_G[d.."BG"]:SetTexture(1, 1, 1, 0.2)
 		_G[d.."HeaderLeft"]:Die()
 		_G[d.."HeaderRight"]:Die()
@@ -401,7 +401,7 @@ local function AchievementStyle()
 				d:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]])
 				d:SetStatusBarColor(4/255, 179/255, 30/255)
 				d:SetFrameLevel(d:GetFrameLevel()+3)
-				d:Height(d:GetHeight()-2)
+				d:SetHeightToScale(d:GetHeight()-2)
 				d.bg1 = d:CreateTexture(nil, "BACKGROUND")
 				d.bg1:SetDrawLayer("BACKGROUND", 4)
 				d.bg1:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]])
@@ -410,14 +410,14 @@ local function AchievementStyle()
 				d.bg3 = d:CreateTexture(nil, "BACKGROUND")
 				d.bg3:SetDrawLayer("BACKGROUND", 2)
 				d.bg3:SetTexture(0,0,0,1)
-				d.bg3:Point("TOPLEFT", -1, 1)
-				d.bg3:Point("BOTTOMRIGHT", 1, -1);
+				d.bg3:SetPointToScale("TOPLEFT", -1, 1)
+				d.bg3:SetPointToScale("BOTTOMRIGHT", 1, -1);
 				d.text:ClearAllPoints()
 				d.text:SetPoint("CENTER", d, "CENTER", 0, -1)
 				d.text:SetJustifyH("CENTER")
 				if y>1 then 
 					d:ClearAllPoints()
-					d:Point("TOP", _G["AchievementFrameProgressBar"..y-1], "BOTTOM", 0, -5)
+					d:SetPointToScale("TOP", _G["AchievementFrameProgressBar"..y-1], "BOTTOM", 0, -5)
 					hooksecurefunc(d, "SetPoint", function(k, p, q, r, s, t, z)
 						if not z then 
 							k:ClearAllPoints()k:SetPoint("TOP", _G["AchievementFrameProgressBar"..y-1], "BOTTOM", 0, -5, true)

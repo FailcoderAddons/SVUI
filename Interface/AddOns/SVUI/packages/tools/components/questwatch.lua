@@ -97,21 +97,21 @@ function MOD:LoadQuestWatch()
 
 		if(SV.db.general.questHeaders) then
 			ObjectiveTrackerFrame.BlocksFrame.QuestHeader:RemoveTextures(true)
-			ObjectiveTrackerFrame.BlocksFrame.QuestHeader:SetPanelTemplate("Headline", true)
+			ObjectiveTrackerFrame.BlocksFrame.QuestHeader:SetStylePanel("Default", "Headline", true)
 	  		ObjectiveTrackerFrame.BlocksFrame.QuestHeader:SetBackdropColor(0, 0, 0, 0.5)
 	  		ObjectiveTrackerFrame.BlocksFrame.QuestHeader.Panel:ClearAllPoints()
 	  		ObjectiveTrackerFrame.BlocksFrame.QuestHeader.Panel:SetPoint("TOPLEFT", ObjectiveTrackerFrame.BlocksFrame.QuestHeader, "TOPLEFT", -2, -2)
 			ObjectiveTrackerFrame.BlocksFrame.QuestHeader.Panel:SetPoint("BOTTOMRIGHT", ObjectiveTrackerFrame.BlocksFrame.QuestHeader, "BOTTOMRIGHT", 12, 2)
 
 			ObjectiveTrackerFrame.BlocksFrame.AchievementHeader:RemoveTextures(true)
-			ObjectiveTrackerFrame.BlocksFrame.AchievementHeader:SetPanelTemplate("Headline", true)
+			ObjectiveTrackerFrame.BlocksFrame.AchievementHeader:SetStylePanel("Default", "Headline", true)
 	  		ObjectiveTrackerFrame.BlocksFrame.AchievementHeader:SetBackdropColor(0, 0, 0, 0.5)
 	  		ObjectiveTrackerFrame.BlocksFrame.AchievementHeader.Panel:ClearAllPoints()
 	  		ObjectiveTrackerFrame.BlocksFrame.AchievementHeader.Panel:SetPoint("TOPLEFT", ObjectiveTrackerFrame.BlocksFrame.AchievementHeader, "TOPLEFT", -2, -2)
 			ObjectiveTrackerFrame.BlocksFrame.AchievementHeader.Panel:SetPoint("BOTTOMRIGHT", ObjectiveTrackerFrame.BlocksFrame.AchievementHeader, "BOTTOMRIGHT", 12, 2)
 
 			ObjectiveTrackerFrame.BlocksFrame.ScenarioHeader:RemoveTextures(true)
-			ObjectiveTrackerFrame.BlocksFrame.ScenarioHeader:SetPanelTemplate("Headline", true)
+			ObjectiveTrackerFrame.BlocksFrame.ScenarioHeader:SetStylePanel("Default", "Headline", true)
 	  		ObjectiveTrackerFrame.BlocksFrame.ScenarioHeader:SetBackdropColor(0, 0, 0, 0.5)
 	  		ObjectiveTrackerFrame.BlocksFrame.ScenarioHeader.Panel:ClearAllPoints()
 	  		ObjectiveTrackerFrame.BlocksFrame.ScenarioHeader.Panel:SetPoint("TOPLEFT", ObjectiveTrackerFrame.BlocksFrame.ScenarioHeader, "TOPLEFT", -2, -2)
@@ -136,7 +136,7 @@ function MOD:LoadQuestWatch()
 		scrollFrame:SetPoint("TOPRIGHT", self.QuestWatch, "TOPRIGHT", -3, 0);
 		scrollFrame:SetBackdrop({bgFile = bgTex, edgeFile = bdTex, edgeSize = 4, insets = {left = 3, right = 3, top = 3, bottom = 3}});
 		scrollFrame:SetFrameLevel(6)
-		scrollFrame:SetFixedPanelTemplate("Transparent", true);
+		scrollFrame:SetStylePanel("Fixed", "Transparent", true);
 		scrollFrame:SetThumbTexture("Interface\\Buttons\\UI-ScrollBar-Knob");
 		scrollFrame:SetOrientation("VERTICAL");
 		scrollFrame:SetValueStep(5);
@@ -190,15 +190,15 @@ function MOD:LoadQuestWatch()
 
 		if(SV.db.general.questHeaders) then
 			ObjectiveTrackerFrame.BlocksFrame.QuestHeader:RemoveTextures(true)
-			ObjectiveTrackerFrame.BlocksFrame.QuestHeader:SetFixedPanelTemplate("Headline", true)
+			ObjectiveTrackerFrame.BlocksFrame.QuestHeader:SetStylePanel("Fixed", "Headline", true)
 	  		ObjectiveTrackerFrame.BlocksFrame.QuestHeader:SetBackdropColor(0, 0, 0, 0.5)
 
 			ObjectiveTrackerFrame.BlocksFrame.AchievementHeader:RemoveTextures(true)
-			ObjectiveTrackerFrame.BlocksFrame.AchievementHeader:SetFixedPanelTemplate("Headline", true)
+			ObjectiveTrackerFrame.BlocksFrame.AchievementHeader:SetStylePanel("Fixed", "Headline", true)
 	  		ObjectiveTrackerFrame.BlocksFrame.AchievementHeader:SetBackdropColor(0, 0, 0, 0.5)
 
 			ObjectiveTrackerFrame.BlocksFrame.ScenarioHeader:RemoveTextures(true)
-			ObjectiveTrackerFrame.BlocksFrame.ScenarioHeader:SetFixedPanelTemplate("Headline", true)
+			ObjectiveTrackerFrame.BlocksFrame.ScenarioHeader:SetStylePanel("Fixed", "Headline", true)
 	  		ObjectiveTrackerFrame.BlocksFrame.ScenarioHeader:SetBackdropColor(0, 0, 0, 0.5)
 	  	end
 

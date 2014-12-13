@@ -78,28 +78,28 @@ function SV.AFK:Initialize()
 	local color = CUSTOM_CLASS_COLORS[classToken]
 	self.BG:SetVertexColor(color.r, color.g, color.b)
 	self.BG:ClearAllPoints()
-	self.BG:Size(500,600)
-	self.BG:Point("BOTTOMRIGHT", self, "BOTTOMRIGHT", 0, 0)
+	self.BG:SetSizeToScale(500,600)
+	self.BG:SetPointToScale("BOTTOMRIGHT", self, "BOTTOMRIGHT", 0, 0)
 
 	self:SetFrameLevel(0)
 	self:SetAllPoints(SV.Screen)
 
 	local narr = self.Model:CreateTexture(nil, "OVERLAY")
-	narr:Size(300, 150)
+	narr:SetSizeToScale(300, 150)
 	narr:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Template\\AFK-NARRATIVE")
-	narr:Point("TOPLEFT", SV.Screen, "TOPLEFT", 15, -15)
+	narr:SetPointToScale("TOPLEFT", SV.Screen, "TOPLEFT", 15, -15)
 
 	self.Model:ClearAllPoints()
-	self.Model:Size(600,600)
-	self.Model:Point("BOTTOMRIGHT", self, "BOTTOMRIGHT", 64, -64)
+	self.Model:SetSizeToScale(600,600)
+	self.Model:SetPointToScale("BOTTOMRIGHT", self, "BOTTOMRIGHT", 64, -64)
 	self.Model:SetUnit("player")
 	self.Model:SetCamDistanceScale(1.15)
 	self.Model:SetFacing(6)
 
 	local splash = self.Model:CreateTexture(nil, "OVERLAY")
-	splash:Size(350, 175)
+	splash:SetSizeToScale(350, 175)
 	splash:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Template\\PLAYER-AFK")
-	splash:Point("BOTTOMRIGHT", self.Model, "CENTER", -75, 75)
+	splash:SetPointToScale("BOTTOMRIGHT", self.Model, "CENTER", -75, 75)
 
 	self:Hide()
 	if(SV.db.general.afk) then

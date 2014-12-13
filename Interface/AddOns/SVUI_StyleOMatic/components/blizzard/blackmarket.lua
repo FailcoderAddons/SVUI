@@ -41,9 +41,9 @@ local function BlackMarketStyle()
 	end 
 
 	BlackMarketFrame:RemoveTextures()
-	BlackMarketFrame:SetPanelTemplate("Halftone")
+	BlackMarketFrame:SetStylePanel("Default", "Halftone")
 	BlackMarketFrame.Inset:RemoveTextures()
-	BlackMarketFrame.Inset:SetFixedPanelTemplate("Inset")
+	BlackMarketFrame.Inset:SetStylePanel("Fixed", "Inset")
 	PLUGIN:ApplyCloseButtonStyle(BlackMarketFrame.CloseButton)
 	PLUGIN:ApplyScrollFrameStyle(BlackMarketScrollFrameScrollBar, 4)
 
@@ -55,10 +55,10 @@ local function BlackMarketStyle()
 	ChangeTab(BlackMarketFrame.ColumnCurrentBid)
 
 	BlackMarketFrame.MoneyFrameBorder:RemoveTextures()
-	BlackMarketBidPriceGold:SetEditboxTemplate()
-	BlackMarketBidPriceGold.Panel:Point("TOPLEFT", -2, 0)
-	BlackMarketBidPriceGold.Panel:Point("BOTTOMRIGHT", -2, 0)
-	BlackMarketFrame.BidButton:SetButtonTemplate()
+	BlackMarketBidPriceGold:SetStylePanel("Editbox")
+	BlackMarketBidPriceGold.Panel:SetPointToScale("TOPLEFT", -2, 0)
+	BlackMarketBidPriceGold.Panel:SetPointToScale("BOTTOMRIGHT", -2, 0)
+	BlackMarketFrame.BidButton:SetStylePanel("Button")
 	hooksecurefunc("BlackMarketScrollFrame_Update", function()
 		local buttons = BlackMarketScrollFrame.buttons;
 		local r = #buttons;
@@ -69,7 +69,7 @@ local function BlackMarketStyle()
 			local v = s+b;
 			if not u.styled then 
 				u:RemoveTextures()
-				u:SetButtonTemplate()
+				u:SetStylePanel("Button")
 				PLUGIN:ApplyItemButtonStyle(u.Item)
 				u.styled = true 
 			end 

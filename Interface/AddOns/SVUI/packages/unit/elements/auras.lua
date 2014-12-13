@@ -163,7 +163,7 @@ local CreateAuraIcon = function(icons, index)
     aura:SetBackdropBorderColor(0, 0, 0)
 
 	local cd = CreateFrame("Cooldown", nil, aura, "CooldownFrameTemplate");
-	cd:FillInner(aura, 1, 1);
+	cd:SetAllPointsIn(aura, 1, 1);
 	cd.noOCC = true;
 	cd.noCooldownCount = true;
 	cd:SetReverse(true);
@@ -180,7 +180,7 @@ local CreateAuraIcon = function(icons, index)
 
 	local icon = aura:CreateTexture(nil, "BORDER");
 	icon:SetAllPoints(aura);
-	icon:FillInner(aura, 1, 1);
+	icon:SetAllPointsIn(aura, 1, 1);
     icon:SetTexCoord(0.1, 0.9, 0.1, 0.9);
 
 	local overlay = aura:CreateTexture(nil, "OVERLAY");
@@ -280,7 +280,7 @@ local PostUpdateAuraIcon = function(self, unit, button, index, offset)
 
 	local size = button:GetParent().size
 	if size then
-		button:Size(size)
+		button:SetSizeToScale(size)
 	end
 	
 	button.spell = name
@@ -685,8 +685,8 @@ function MOD:UpdateAuraWatch(frame, key, override)
 					watchedAura.missingAlpha = watchedAura.onlyShowMissing and 1 or 0;
 					watchedAura.textThreshold = WATCH_CACHE[i].textThreshold or -1;
 					watchedAura.displayText = WATCH_CACHE[i].displayText;
-					watchedAura:Width(db.size)
-					watchedAura:Height(db.size)
+					watchedAura:SetWidthToScale(db.size)
+					watchedAura:SetHeightToScale(db.size)
 					watchedAura:ClearAllPoints()
 
 					watchedAura:SetPoint(WATCH_CACHE[i].point, frame.Health, WATCH_CACHE[i].point, WATCH_CACHE[i].xOffset, WATCH_CACHE[i].yOffset)
@@ -701,8 +701,8 @@ function MOD:UpdateAuraWatch(frame, key, override)
 					end 
 					if not watchedAura.border then 
 						watchedAura.border = watchedAura:CreateTexture(nil, "BACKGROUND")
-						watchedAura.border:Point("TOPLEFT", -1, 1)
-						watchedAura.border:Point("BOTTOMRIGHT", 1, -1)
+						watchedAura.border:SetPointToScale("TOPLEFT", -1, 1)
+						watchedAura.border:SetPointToScale("BOTTOMRIGHT", 1, -1)
 						watchedAura.border:SetTexture([[Interface\BUTTONS\WHITE8X8]])
 						watchedAura.border:SetVertexColor(0, 0, 0)
 					end 

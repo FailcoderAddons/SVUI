@@ -1241,6 +1241,6 @@
         </Layers>
     </Frame>
 
-    <Script file="api_layout.lua"/>
-    <Script file="api_templates.lua"/>
+    <Script file="api_general.lua"/>
+    <Script file="api_style.lua"/>
 </Ui>

@@ -47,45 +47,45 @@ local function TradeSkillStyle()
 	PLUGIN:ApplyWindowStyle(TradeSkillFrame, true, true)
 	PLUGIN:ApplyWindowStyle(TradeSkillGuildFrame)
 
-	TradeSkillGuildFrame:Point("BOTTOMLEFT", TradeSkillFrame, "BOTTOMRIGHT", 3, 19)
+	TradeSkillGuildFrame:SetPointToScale("BOTTOMLEFT", TradeSkillFrame, "BOTTOMRIGHT", 3, 19)
 	TradeSkillGuildFrameContainer:RemoveTextures()
-	TradeSkillGuildFrameContainer:SetPanelTemplate("Inset")
+	TradeSkillGuildFrameContainer:SetStylePanel("Default", "Inset")
 	PLUGIN:ApplyCloseButtonStyle(TradeSkillGuildFrameCloseButton)
 
-	TradeSkillRankFrame:SetPanelTemplate("Bar", true)
+	TradeSkillRankFrame:SetStylePanel("Default", "Bar", true)
 	TradeSkillRankFrame:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Bars\DEFAULT]])
-	TradeSkillListScrollFrame:SetPanelTemplate("Inset")
-	TradeSkillDetailScrollFrame:SetPanelTemplate("Inset")
+	TradeSkillListScrollFrame:SetStylePanel("Default", "Inset")
+	TradeSkillDetailScrollFrame:SetStylePanel("Default", "Inset")
 
-	TradeSkillCreateButton:SetButtonTemplate()
-	TradeSkillCancelButton:SetButtonTemplate()
-	TradeSkillFilterButton:SetButtonTemplate()
-	TradeSkillCreateAllButton:SetButtonTemplate()
-	TradeSkillViewGuildCraftersButton:SetButtonTemplate()
+	TradeSkillCreateButton:SetStylePanel("Button")
+	TradeSkillCancelButton:SetStylePanel("Button")
+	TradeSkillFilterButton:SetStylePanel("Button")
+	TradeSkillCreateAllButton:SetStylePanel("Button")
+	TradeSkillViewGuildCraftersButton:SetStylePanel("Button")
 
 	PLUGIN:ApplyScrollFrameStyle(TradeSkillListScrollFrameScrollBar)
 	PLUGIN:ApplyScrollFrameStyle(TradeSkillDetailScrollFrameScrollBar)
 
-	TradeSkillLinkButton:Size(17, 14)
-	TradeSkillLinkButton:Point("LEFT", TradeSkillLinkFrame, "LEFT", 5, -1)
-	TradeSkillLinkButton:SetButtonTemplate(nil, nil, nil, nil, true)
+	TradeSkillLinkButton:SetSizeToScale(17, 14)
+	TradeSkillLinkButton:SetPointToScale("LEFT", TradeSkillLinkFrame, "LEFT", 5, -1)
+	TradeSkillLinkButton:SetStylePanel("Button", nil, nil, nil, nil, true)
 	TradeSkillLinkButton:GetNormalTexture():SetTexCoord(0.25, 0.7, 0.45, 0.8)
 
-	TradeSkillFrameSearchBox:SetEditboxTemplate()
-	TradeSkillInputBox:SetEditboxTemplate()
+	TradeSkillFrameSearchBox:SetStylePanel("Editbox")
+	TradeSkillInputBox:SetStylePanel("Editbox")
 
 	PLUGIN:ApplyPaginationStyle(TradeSkillDecrementButton)
 	PLUGIN:ApplyPaginationStyle(TradeSkillIncrementButton)
 
-	TradeSkillIncrementButton:Point("RIGHT", TradeSkillCreateButton, "LEFT", -13, 0)
+	TradeSkillIncrementButton:SetPointToScale("RIGHT", TradeSkillCreateButton, "LEFT", -13, 0)
 	PLUGIN:ApplyCloseButtonStyle(TradeSkillFrameCloseButton)
 
-	TradeSkillSkillIcon:SetFixedPanelTemplate("Slot") 
+	TradeSkillSkillIcon:SetStylePanel("Fixed", "Slot") 
 
 	local internalTest = false;
 
 	hooksecurefunc("TradeSkillFrame_SetSelection", function(_)
-		TradeSkillSkillIcon:SetFixedPanelTemplate("Slot") 
+		TradeSkillSkillIcon:SetStylePanel("Fixed", "Slot") 
 		if TradeSkillSkillIcon:GetNormalTexture() then
 			TradeSkillSkillIcon:GetNormalTexture():SetTexCoord(0.1, 0.9, 0.1, 0.9)
 		end 
@@ -102,8 +102,8 @@ local function TradeSkillStyle()
 				else
 					 a2:SetFrameLevel(0)
 				end 
-				a2:WrapOuter(icon)
-				a2:SetFixedPanelTemplate("Slot")
+				a2:SetAllPointsOut(icon)
+				a2:SetStylePanel("Fixed", "Slot")
 				icon:SetParent(a2)
 				icon.backdrop = a2 
 			end 
@@ -112,7 +112,7 @@ local function TradeSkillStyle()
 			if i > 2 and internalTest == false then 
 				local d, a3, f, g, h = u:GetPoint()
 				u:ClearAllPoints()
-				u:Point(d, a3, f, g, h-3)
+				u:SetPointToScale(d, a3, f, g, h-3)
 				internalTest = true 
 			end 
 			_G["TradeSkillReagent"..i.."NameFrame"]:Die()

@@ -65,7 +65,7 @@ local function StyleMogItPreview()
 		if _G["MogItPreview"..i] then PLUGIN:ApplyFrameStyle(_G["MogItPreview"..i]) end
 		if _G["MogItPreview"..i.."CloseButton"] then PLUGIN:ApplyCloseButtonStyle(_G["MogItPreview"..i.."CloseButton"]) end
 		if _G["MogItPreview"..i.."Inset"] then _G["MogItPreview"..i.."Inset"]:RemoveTextures(true) end
-		if _G["MogItPreview"..i.."Activate"] then _G["MogItPreview"..i.."Activate"]:SetButtonTemplate() end
+		if _G["MogItPreview"..i.."Activate"] then _G["MogItPreview"..i.."Activate"]:SetStylePanel("Button") end
 	end
 end
 
@@ -82,7 +82,7 @@ local function StyleMogIt()
 	PLUGIN:ApplyCloseButtonStyle(MogItFrameCloseButton)
 	PLUGIN:ApplyCloseButtonStyle(MogItFiltersCloseButton)
 	MogItFrameFiltersDefaults:RemoveTextures(true)
-	MogItFrameFiltersDefaults:SetButtonTemplate()
+	MogItFrameFiltersDefaults:SetStylePanel("Button")
 	PLUGIN:ApplyScrollFrameStyle(MogItScroll)
 	PLUGIN:ApplyScrollFrameStyle(MogItFiltersScrollScrollBar)
 end

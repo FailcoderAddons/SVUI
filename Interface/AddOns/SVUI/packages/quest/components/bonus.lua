@@ -88,7 +88,7 @@ local function NewObjectiveRow(parent, lineNumber)
 	objective:SetPoint("TOPLEFT", parent, "TOPLEFT", 0, -yOffset);
 	objective:SetPoint("TOPRIGHT", parent, "TOPRIGHT", 0, -yOffset);
 	objective:SetHeight(INNER_HEIGHT);
-	--objective:SetPanelTemplate()
+	--objective:SetStylePanel("Default")
 
 	objective.Icon = objective:CreateTexture(nil,"OVERLAY")
 	objective.Icon:SetPoint("TOPLEFT", objective, "TOPLEFT", 4, -2);
@@ -155,13 +155,13 @@ local function NewBonusRow(lineNumber)
 		row:SetPoint("TOPLEFT", parent, "TOPLEFT", 0, -2);
 		row:SetPoint("TOPRIGHT", parent, "TOPRIGHT", 0, -2);
 	end
-	row:Height(ROW_HEIGHT);
+	row:SetHeightToScale(ROW_HEIGHT);
 
 	row.Header = CreateFrame("Frame", nil, row)
-	row.Header:Point("TOPLEFT", row, "TOPLEFT", 2, -2);
-	row.Header:Point("TOPRIGHT", row, "TOPRIGHT", -2, -2);
-	row.Header:Height(INNER_HEIGHT);
-	row.Header:SetPanelTemplate("Headline");
+	row.Header:SetPointToScale("TOPLEFT", row, "TOPLEFT", 2, -2);
+	row.Header:SetPointToScale("TOPRIGHT", row, "TOPRIGHT", -2, -2);
+	row.Header:SetHeightToScale(INNER_HEIGHT);
+	row.Header:SetStylePanel("Default", "Headline");
 
 	row.Header.Text = row.Header:CreateFontString(nil,"OVERLAY")
 	row.Header.Text:SetFont(SV.Media.font.roboto, 13, "NONE")
@@ -171,14 +171,14 @@ local function NewBonusRow(lineNumber)
 	row.Header.Text:SetJustifyH('LEFT')
 	row.Header.Text:SetJustifyV('MIDDLE')
 	row.Header.Text:SetText('')
-	row.Header.Text:Point("TOPLEFT", row.Header, "TOPLEFT", 0, 0);
-	row.Header.Text:Point("BOTTOMRIGHT", row.Header, "BOTTOMRIGHT", 0, 0);
+	row.Header.Text:SetPointToScale("TOPLEFT", row.Header, "TOPLEFT", 0, 0);
+	row.Header.Text:SetPointToScale("BOTTOMRIGHT", row.Header, "BOTTOMRIGHT", 0, 0);
 
 	row.Objectives = CreateFrame("Frame", nil, row)
-	row.Objectives:Point("TOPLEFT", row.Header, "BOTTOMLEFT", 0, -2);
-	row.Objectives:Point("TOPRIGHT", row.Header, "BOTTOMRIGHT", 0, -2);
-	row.Objectives:Height(1);
-	--row.Objectives:SetPanelTemplate("Inset");
+	row.Objectives:SetPointToScale("TOPLEFT", row.Header, "BOTTOMLEFT", 0, -2);
+	row.Objectives:SetPointToScale("TOPRIGHT", row.Header, "BOTTOMRIGHT", 0, -2);
+	row.Objectives:SetHeightToScale(1);
+	--row.Objectives:SetStylePanel("Default", "Inset");
 
 	row.Objectives.Rows = {}
 	row.Objectives.Add = AddObjectiveRow;

@@ -421,9 +421,9 @@ end
 local Movable_OnSizeChanged = function(self)
 	if InCombatLockdown()then return end 
 	if self.dirtyWidth and self.dirtyHeight then 
-		self.Grip:Size(self.dirtyWidth, self.dirtyHeight)
+		self.Grip:SetSizeToScale(self.dirtyWidth, self.dirtyHeight)
 	else 
-		self.Grip:Size(self:GetSize())
+		self.Grip:SetSizeToScale(self:GetSize())
 	end 
 end
 
@@ -470,11 +470,11 @@ local Movable_OnDragStop = function(self)
 	end 
 	if self.positionOverride then 
 		self.parent:ClearAllPoints()
-		self.parent:Point(self.positionOverride, self, self.positionOverride)
+		self.parent:SetPointToScale(self.positionOverride, self, self.positionOverride)
 	end
 
 	self:ClearAllPoints()
-	self:Point(newAnchor, SV.Screen, newAnchor, cX, cY)
+	self:SetPointToScale(newAnchor, SV.Screen, newAnchor, cX, cY)
 
 	Mentalo:SaveMovable(self.name)
 
@@ -576,7 +576,7 @@ function Mentalo:New(frame, moveName, title, snap, dragStopFunc)
 	end 
 
 	movable:SetPoint(anchor1, anchorParent, anchor2, xPos, yPos)
-	movable:SetFixedPanelTemplate("Transparent")
+	movable:SetStylePanel("Fixed", "Transparent")
 	movable:SetAlpha(0.4)
 
 	frame:SetScript("OnSizeChanged", Movable_OnSizeChanged)
@@ -775,7 +775,7 @@ local XML_MentaloPrecisionInputX_EnterPressed = function(self)
 			local xOffset, yOffset, anchor = CalculateOffsets()
 			yOffset = tonumber(SVUI_MentaloPrecisionSetY.CurrentValue)
 			CurrentFrameTarget:ClearAllPoints()
-			CurrentFrameTarget:Point(anchor, SVUIParent, anchor, current, yOffset)
+			CurrentFrameTarget:SetPointToScale(anchor, SVUIParent, anchor, current, yOffset)
 			Mentalo:SaveMovable(CurrentFrameTarget.name)
 		end
 		self.CurrentValue = current
@@ -791,7 +791,7 @@ local XML_MentaloPrecisionInputY_EnterPressed = function(self)
 			local xOffset, yOffset, anchor = CalculateOffsets()
 			xOffset = tonumber(SVUI_MentaloPrecisionSetX.CurrentValue)
 			CurrentFrameTarget:ClearAllPoints()
-			CurrentFrameTarget:Point(anchor, SVUIParent, anchor, xOffset, current)
+			CurrentFrameTarget:SetPointToScale(anchor, SVUIParent, anchor, xOffset, current)
 			Mentalo:SaveMovable(CurrentFrameTarget.name)
 		end
 		self.CurrentValue = current
@@ -807,7 +807,7 @@ Initialize
 function Mentalo:Initialize()
 	SV.cache.Anchors = SV.cache.Anchors or {}
 	
-	SVUI_Mentalo:SetFixedPanelTemplate("Component")
+	SVUI_Mentalo:SetStylePanel("Fixed", "Component")
 	SVUI_Mentalo:SetPanelColor("yellow")
 	SVUI_Mentalo:RegisterForDrag("LeftButton")
 	SVUI_Mentalo:RegisterEvent("PLAYER_REGEN_DISABLED")
@@ -816,21 +816,21 @@ function Mentalo:Initialize()
 	SVUI_MentaloGridButton:SetScript("OnClick", XML_MentaloGridButton_OnClick)
 	SVUI_MentaloLockButton:SetScript("OnClick", XML_MentaloLockButton_OnClick)
 
-	SVUI_MentaloPrecision:SetPanelTemplate("Transparent")
+	SVUI_MentaloPrecision:SetStylePanel("Default", "Transparent")
 	SVUI_MentaloPrecision:EnableMouse(true)
 
-	SVUI_MentaloPrecisionSetX:SetEditboxTemplate()
+	SVUI_MentaloPrecisionSetX:SetStylePanel("Editbox")
 	SVUI_MentaloPrecisionSetX.CurrentValue = 0;
 	SVUI_MentaloPrecisionSetX:SetScript("OnEnterPressed", XML_MentaloPrecisionInputX_EnterPressed)
 
-	SVUI_MentaloPrecisionSetY:SetEditboxTemplate()
+	SVUI_MentaloPrecisionSetY:SetStylePanel("Editbox")
 	SVUI_MentaloPrecisionSetY.CurrentValue = 0;
 	SVUI_MentaloPrecisionSetY:SetScript("OnEnterPressed", XML_MentaloPrecisionInputY_EnterPressed)
 
-	SVUI_MentaloPrecisionUpButton:SetButtonTemplate()
-	SVUI_MentaloPrecisionDownButton:SetButtonTemplate()
-	SVUI_MentaloPrecisionLeftButton:SetButtonTemplate()
-	SVUI_MentaloPrecisionRightButton:SetButtonTemplate()
+	SVUI_MentaloPrecisionUpButton:SetStylePanel("Button")
+	SVUI_MentaloPrecisionDownButton:SetStylePanel("Button")
+	SVUI_MentaloPrecisionLeftButton:SetStylePanel("Button")
+	SVUI_MentaloPrecisionRightButton:SetStylePanel("Button")
 	
 	self:SetPositions()
 

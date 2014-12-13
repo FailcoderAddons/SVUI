@@ -36,15 +36,15 @@ local PetBattleActionBar = CreateFrame("Frame", "SVUI_PetBattleActionBar", UIPar
 local ITEM_QUALITY_COLORS = _G.ITEM_QUALITY_COLORS;
 
 local function PetBattleButtonHelper(frame)
-	frame:SetPanelTemplate("Blackout")
+	frame:SetStylePanel("Default", "Blackout")
 	frame:SetNormalTexture("")
 	frame.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 	frame.Icon:SetDrawLayer('BORDER')
 	frame.Icon:SetParent(frame.Panel)
 	if(frame.SelectedHighlight) then frame.SelectedHighlight:SetAlpha(0) end
 	if(frame.checked) then frame.checked = true end
-	if(frame.pushed) then frame.pushed:FillInner(frame.Panel) end
-	if(frame.hover) then frame.hover:FillInner(frame.Panel) end
+	if(frame.pushed) then frame.pushed:SetAllPointsIn(frame.Panel) end
+	if(frame.hover) then frame.hover:SetAllPointsIn(frame.Panel) end
 	frame:SetFrameStrata('LOW')
 end
 
@@ -99,8 +99,8 @@ local _hook_AuraHolderUpdate = function(self)
 			local frame = self.frames[nextFrame]
 			frame.DebuffBorder:Hide()
 			if not frame.isStyled then
-				frame:SetSlotTemplate(true, 2, -8,-2)
-				frame.Icon:FillInner(frame.Panel, 2, 2)
+				frame:SetStylePanel("Slot", true, 2, -8,-2)
+				frame.Icon:SetAllPointsIn(frame.Panel, 2, 2)
 				frame.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 				frame.isStyled = true
 			end 
@@ -223,20 +223,20 @@ local function PetBattleStyle()
 			frame.IconBackdrop = CreateFrame("Frame", nil, frame)
 			frame.IconBackdrop:SetFrameLevel(0)
 			frame.IconBackdrop:SetAllPoints(frame.Icon)
-			frame.IconBackdrop:SetSlotTemplate(true, 1, 0, 0, 0.5);
+			frame.IconBackdrop:SetStylePanel("Slot", true, 1, 0, 0, 0.5);
 
-			frame.IconBackdrop.Panel:SetFixedPanelTemplate("Blackout")
+			frame.IconBackdrop.Panel:SetStylePanel("Fixed", "Blackout")
 
 			frame.BorderFlash:Die()
 			frame.HealthBarBG:Die()
 			frame.HealthBarFrame:Die()
 			frame.HealthBarBackdrop = CreateFrame("Frame", nil, frame)
 			frame.HealthBarBackdrop:SetFrameLevel(frame:GetFrameLevel()-1)
-			frame.HealthBarBackdrop:SetFixedPanelTemplate("Blackout")
-			frame.HealthBarBackdrop:Width(frame.healthBarWidth+(2))
+			frame.HealthBarBackdrop:SetStylePanel("Fixed", "Blackout")
+			frame.HealthBarBackdrop:SetWidthToScale(frame.healthBarWidth+(2))
 			frame.ActualHealthBar:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Bars\DEFAULT]])
 			frame.PetTypeFrame = CreateFrame("Frame", nil, frame)
-			frame.PetTypeFrame:Size(100, 23)
+			frame.PetTypeFrame:SetSizeToScale(100, 23)
 			frame.PetTypeFrame.text = frame.PetTypeFrame:CreateFontString(nil, 'OVERLAY')
 			frame.PetTypeFrame.text:SetFont(SV.Media.font.roboto, 12, "OUTLINE")
 			frame.PetTypeFrame.text:SetText("")
@@ -244,29 +244,29 @@ local function PetBattleStyle()
 			frame.Name:SetFontObject(SystemFont_Shadow_Outline_Huge2)
 			frame.Name:ClearAllPoints()
 			frame.FirstAttack = frame:CreateTexture(nil, "ARTWORK")
-			frame.FirstAttack:Size(30)
+			frame.FirstAttack:SetSizeToScale(30)
 			frame.FirstAttack:SetTexture("Interface\\PetBattles\\PetBattle-StatIcons")
 			if i == 1 then 
-				frame.HealthBarBackdrop:Point('TOPLEFT', frame.ActualHealthBar, 'TOPLEFT', -1, 1)
-				frame.HealthBarBackdrop:Point('BOTTOMLEFT', frame.ActualHealthBar, 'BOTTOMLEFT', -1, -1)
+				frame.HealthBarBackdrop:SetPointToScale('TOPLEFT', frame.ActualHealthBar, 'TOPLEFT', -1, 1)
+				frame.HealthBarBackdrop:SetPointToScale('BOTTOMLEFT', frame.ActualHealthBar, 'BOTTOMLEFT', -1, -1)
 				frame.ActualHealthBar:SetVertexColor(171/255, 214/255, 116/255)
 				PetBattleFrame.Ally2.iconPoint = frame.IconBackdrop;
 				PetBattleFrame.Ally3.iconPoint = frame.IconBackdrop;
-				frame.ActualHealthBar:Point('BOTTOMLEFT', frame.Icon, 'BOTTOMRIGHT', 10, 0)
-				frame.Name:Point('BOTTOMLEFT', frame.ActualHealthBar, 'TOPLEFT', 0, 8)
+				frame.ActualHealthBar:SetPointToScale('BOTTOMLEFT', frame.Icon, 'BOTTOMRIGHT', 10, 0)
+				frame.Name:SetPointToScale('BOTTOMLEFT', frame.ActualHealthBar, 'TOPLEFT', 0, 8)
 				frame.PetTypeFrame:SetPoint("BOTTOMRIGHT", frame.HealthBarBackdrop, "TOPRIGHT", 0, 4)
 				frame.PetTypeFrame.text:SetPoint("RIGHT")
 				frame.FirstAttack:SetPoint("LEFT", frame.HealthBarBackdrop, "RIGHT", 5, 0)
 				frame.FirstAttack:SetTexCoord(frame.SpeedIcon:GetTexCoord())
 				frame.FirstAttack:SetVertexColor(.1, .1, .1, 1)
 			else
-				frame.HealthBarBackdrop:Point('TOPRIGHT', frame.ActualHealthBar, 'TOPRIGHT', 1, 1)
-				frame.HealthBarBackdrop:Point('BOTTOMRIGHT', frame.ActualHealthBar, 'BOTTOMRIGHT', 1, -1)
+				frame.HealthBarBackdrop:SetPointToScale('TOPRIGHT', frame.ActualHealthBar, 'TOPRIGHT', 1, 1)
+				frame.HealthBarBackdrop:SetPointToScale('BOTTOMRIGHT', frame.ActualHealthBar, 'BOTTOMRIGHT', 1, -1)
 				frame.ActualHealthBar:SetVertexColor(196/255, 30/255, 60/255)
 				PetBattleFrame.Enemy2.iconPoint = frame.IconBackdrop;
 				PetBattleFrame.Enemy3.iconPoint = frame.IconBackdrop;
-				frame.ActualHealthBar:Point('BOTTOMRIGHT', frame.Icon, 'BOTTOMLEFT', -10, 0)
-				frame.Name:Point('BOTTOMRIGHT', frame.ActualHealthBar, 'TOPRIGHT', 0, 8)
+				frame.ActualHealthBar:SetPointToScale('BOTTOMRIGHT', frame.Icon, 'BOTTOMLEFT', -10, 0)
+				frame.Name:SetPointToScale('BOTTOMRIGHT', frame.ActualHealthBar, 'TOPRIGHT', 0, 8)
 				frame.PetTypeFrame:SetPoint("BOTTOMLEFT", frame.HealthBarBackdrop, "TOPLEFT", 2, 4)
 				frame.PetTypeFrame.text:SetPoint("LEFT")
 				frame.FirstAttack:SetPoint("RIGHT", frame.HealthBarBackdrop, "LEFT", -5, 0)
@@ -282,7 +282,7 @@ local function PetBattleStyle()
 			frame.LevelUnderlay:SetAlpha(0)
 			frame.Level:SetFontObject(NumberFont_Outline_Huge)
 			frame.Level:ClearAllPoints()
-			frame.Level:Point('BOTTOMLEFT', frame.Icon, 'BOTTOMLEFT', -2, -2)
+			frame.Level:SetPointToScale('BOTTOMLEFT', frame.Icon, 'BOTTOMLEFT', -2, -2)
 			if frame.SpeedIcon then 
 				frame.SpeedIcon:ClearAllPoints()
 				frame.SpeedIcon:SetPoint("CENTER")
@@ -298,14 +298,14 @@ local function PetBattleStyle()
 			frame.BorderAlive:SetAlpha(0)
 			frame.HealthBarBG:SetAlpha(0)
 			frame.HealthDivider:SetAlpha(0)
-			frame:Size(40)
+			frame:SetSizeToScale(40)
 
 			frame.IconBackdrop = CreateFrame("Frame", nil, frame)
 			frame.IconBackdrop:SetFrameLevel(0)
 			frame.IconBackdrop:SetAllPoints(frame)
-			frame.IconBackdrop:SetSlotTemplate(true, 1, 0, 0, 0.5);
+			frame.IconBackdrop:SetStylePanel("Slot", true, 1, 0, 0, 0.5);
 
-			frame.IconBackdrop.Panel:SetFixedPanelTemplate("Blackout")
+			frame.IconBackdrop.Panel:SetStylePanel("Fixed", "Blackout")
 
 			frame:ClearAllPoints()
 			frame.healthBarWidth = 40;
@@ -314,10 +314,10 @@ local function PetBattleStyle()
 			frame.ActualHealthBar:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Bars\DEFAULT]])
 			frame.HealthBarBackdrop = CreateFrame("Frame", nil, frame)
 			frame.HealthBarBackdrop:SetFrameLevel(frame:GetFrameLevel()-1)
-			frame.HealthBarBackdrop:SetFixedPanelTemplate("Blackout")
-			frame.HealthBarBackdrop:Width(frame.healthBarWidth+2)
-			frame.HealthBarBackdrop:Point('TOPLEFT', frame.ActualHealthBar, 'TOPLEFT', -1, 1)
-			frame.HealthBarBackdrop:Point('BOTTOMLEFT', frame.ActualHealthBar, 'BOTTOMLEFT', -1, -1)
+			frame.HealthBarBackdrop:SetStylePanel("Fixed", "Blackout")
+			frame.HealthBarBackdrop:SetWidthToScale(frame.healthBarWidth+2)
+			frame.HealthBarBackdrop:SetPointToScale('TOPLEFT', frame.ActualHealthBar, 'TOPLEFT', -1, 1)
+			frame.HealthBarBackdrop:SetPointToScale('BOTTOMLEFT', frame.ActualHealthBar, 'BOTTOMLEFT', -1, -1)
 			frame.hasTempBG = true
 		end
 	end 
@@ -327,7 +327,7 @@ local function PetBattleStyle()
 	PetBattleActionBar:EnableMouse(true)
 	PetBattleActionBar:SetFrameLevel(0)
 	PetBattleActionBar:SetFrameStrata('BACKGROUND')
-	PetBattleActionBar:SetFixedPanelTemplate("Blackout")
+	PetBattleActionBar:SetStylePanel("Fixed", "Blackout")
 
 	local SVUI_DockBottomCenter = _G.SVUI_DockBottomCenter;
 	if(SVUI_DockBottomCenter) then
@@ -349,11 +349,11 @@ local function PetBattleStyle()
 
 	BottomFrame.TurnTimer.SkipButton:ClearAllPoints()
 	BottomFrame.TurnTimer.SkipButton:SetParent(PetBattleActionBar)
-	BottomFrame.TurnTimer.SkipButton:Size((PBAB_WIDTH * 0.2) - 4, 18)
+	BottomFrame.TurnTimer.SkipButton:SetSizeToScale((PBAB_WIDTH * 0.2) - 4, 18)
 	BottomFrame.TurnTimer.SkipButton:SetPoint("BOTTOMLEFT", PetBattleActionBar.Panel, "TOPLEFT", 2, 2)
-	BottomFrame.TurnTimer.SkipButton:SetButtonTemplate()
+	BottomFrame.TurnTimer.SkipButton:SetStylePanel("Button")
 
-	BottomFrame.TurnTimer:Size(BottomFrame.TurnTimer.SkipButton:GetWidth(), BottomFrame.TurnTimer.SkipButton:GetHeight())
+	BottomFrame.TurnTimer:SetSizeToScale(BottomFrame.TurnTimer.SkipButton:GetWidth(), BottomFrame.TurnTimer.SkipButton:GetHeight())
 	BottomFrame.TurnTimer:ClearAllPoints()
 	BottomFrame.TurnTimer:SetPoint("TOP", SV.Screen, "TOP", 0, -140)
 	BottomFrame.TurnTimer.TimerText:SetPoint("CENTER")
@@ -365,9 +365,9 @@ local function PetBattleStyle()
 	BottomFrame.xpBar:ClearAllPoints()
 	BottomFrame.xpBar:RemoveTextures()
 	BottomFrame.xpBar:SetParent(PetBattleActionBar)
-	BottomFrame.xpBar:Size((PBAB_WIDTH * 0.8) - 4, 16)
+	BottomFrame.xpBar:SetSizeToScale((PBAB_WIDTH * 0.8) - 4, 16)
 	BottomFrame.xpBar:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Bars\DEFAULT]])
-	BottomFrame.xpBar:SetPanelTemplate("Bar")
+	BottomFrame.xpBar:SetStylePanel("Default", "Bar")
 	BottomFrame.xpBar:SetPoint("BOTTOMRIGHT", PetBattleActionBar.Panel, "TOPRIGHT", -3, 3)
 	BottomFrame.xpBar:SetScript("OnShow", function(self)
 		self:RemoveTextures()
@@ -392,9 +392,9 @@ local function PetBattleStyle()
 	local PetBattleQueueReadyFrame = _G.PetBattleQueueReadyFrame;
 
 	PetBattleQueueReadyFrame:RemoveTextures()
-	PetBattleQueueReadyFrame:SetBasicPanel()
-	PetBattleQueueReadyFrame.AcceptButton:SetButtonTemplate()
-	PetBattleQueueReadyFrame.DeclineButton:SetButtonTemplate()
+	PetBattleQueueReadyFrame:SetStylePanel("Default", 'Transparent')
+	PetBattleQueueReadyFrame.AcceptButton:SetStylePanel("Button")
+	PetBattleQueueReadyFrame.DeclineButton:SetStylePanel("Button")
 	PetBattleQueueReadyFrame.Art:SetTexture([[Interface\PetBattles\PetBattlesQueue]])
 	
 	--[[ TOO MANY GOD DAMN HOOKS ]]--

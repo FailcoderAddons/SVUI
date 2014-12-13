@@ -827,7 +827,7 @@ do
 			SVUI_PLATE.highlight:Hide()
 			if(NPUsePointer) then
 				NPGlow:SetParent(SVUI_PLATE)
-				NPGlow:WrapOuter(SVUI_PLATE.health,2,2)
+				NPGlow:SetAllPointsOut(SVUI_PLATE.health,2,2)
 				NPGlow:SetFrameLevel(0)
 				NPGlow:SetFrameStrata("BACKGROUND")
 				NPGlow:Show()
@@ -1075,7 +1075,7 @@ do
 		SVUI_PLATE.health.icon:Hide()
 		if SVUI_PLATE.health then
 			SVUI_PLATE.health:SetSize(HBWidth, HBHeight)
-			plate.cast.icon:Size(CBHeight + HBHeight + 5)
+			plate.cast.icon:SetSizeToScale(CBHeight + HBHeight + 5)
 		end
 		if PLATE_AURAS then
 			for index = 1, #PLATE_AURAICONS do
@@ -1105,7 +1105,7 @@ do
 		SVUI_PLATE.cast:SetStatusBarTexture(SV.Media.bar.gradient)
 		SVUI_PLATE.cast.text:SetFont(SV.Media.font.roboto, 8, "OUTLINE")
 		plate.cast.text:SetFont(SV.Media.font.roboto, 8, "OUTLINE")
-		plate.cast.icon:Size((CBHeight + HBHeight) + 5)
+		plate.cast.icon:SetSizeToScale((CBHeight + HBHeight) + 5)
 		PLATE_REF.raidicon:ClearAllPoints()
 		SV:SetReversePoint(PLATE_REF.raidicon, RIAnchor, SVUI_PLATE.health, RIXoffset, RIYoffset)	
 		PLATE_REF.raidicon:SetSize(RISize, RISize)
@@ -1231,7 +1231,7 @@ do
 
 		local alert = CreateFrame("Frame", nil, frame)
 		alert:SetFrameLevel(0)
-		alert:WrapOuter(frame.health,2,2)
+		alert:SetAllPointsOut(frame.health,2,2)
 		alert:SetBackdrop({edgeFile=[[Interface\AddOns\SVUI\assets\artwork\Template\GLOW]],edgeSize=2})		
 		alert:SetBackdropColor(0, 0, 0, 0)
 		alert:SetBackdropBorderColor(1, 1, 0, 0.9)
@@ -1247,7 +1247,7 @@ do
 		frame.cast:SetPoint('TOPLEFT', frame.health, 'BOTTOMLEFT', 0, -8)	
 		frame.cast:SetPoint('TOPRIGHT', frame.health, 'BOTTOMRIGHT', 0, -8)
 		frame.cast:SetFrameStrata("BACKGROUND")
-		frame.cast:SetPanelTemplate('Bar')
+		frame.cast:SetStylePanel("Default", 'Bar')
 		frame.cast:SetFrameLevel(0)
 
 		frame.cast.text = frame.cast:CreateFontString(nil, 'OVERLAY')
@@ -1266,17 +1266,17 @@ do
 		cast.icon:SetPoint("TOPLEFT", frame.health, "TOPRIGHT", 5, 0)
 
 		local bgFrame = CreateFrame("Frame", nil, frame.cast)
-		bgFrame:WrapOuter(cast.icon)
+		bgFrame:SetAllPointsOut(cast.icon)
 		bgFrame:SetFrameLevel(bgFrame:GetFrameLevel() - 1)
 
-		bgFrame:SetPanelTemplate("Bar", true, 2, 0, 0)
+		bgFrame:SetStylePanel("Default", "Bar", true, 2, 0, 0)
 
 		--SetPlateBorder(frame.cast, cast.icon)
 
 		cast.sync = frame.cast
 
 		frame.combo = CreateFrame("Frame", nil, frame.health)
-		frame.combo:Point("CENTER", frame.health, "BOTTOM")
+		frame.combo:SetPointToScale("CENTER", frame.health, "BOTTOM")
 		frame.combo:SetSize(68, 1)
 		frame.combo:Hide()
 

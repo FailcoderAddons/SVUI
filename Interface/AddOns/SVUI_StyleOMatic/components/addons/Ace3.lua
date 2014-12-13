@@ -67,7 +67,7 @@ local function Widget_ButtonStyle(frame, strip, bypass)
 	if frame.SetDisabledTexture then frame:SetDisabledTexture("") end 
 	if strip then frame:RemoveTextures() end 
 	if not bypass then 
-		frame:SetButtonTemplate()
+		frame:SetStylePanel("Button")
 	end
 end 
 
@@ -124,7 +124,7 @@ local function StyleAceGUI(event, addon)
 			widget.highlight:Die()
 			if not widget.styledCheckBG then 
 				widget.styledCheckBG = CreateFrame("Frame", nil, widget.frame)
-				widget.styledCheckBG:FillInner(widget.check)
+				widget.styledCheckBG:SetAllPointsIn(widget.check)
 				PLUGIN:ApplyFixedFrameStyle(widget.styledCheckBG, "Inset")
 			end 
 			widget.check:SetParent(widget.styledCheckBG)
@@ -135,7 +135,7 @@ local function StyleAceGUI(event, addon)
 
 			widgetDropdown:RemoveTextures()
 			widgetButton:ClearAllPoints()
-			widgetButton:Point("RIGHT", widgetDropdown, "RIGHT", -20, 0)
+			widgetButton:SetPointToScale("RIGHT", widgetDropdown, "RIGHT", -20, 0)
 			widgetButton:SetFrameLevel(widgetButton:GetFrameLevel() + 1)
 			Widget_PaginationStyle(widgetButton, true)
 
@@ -160,11 +160,11 @@ local function StyleAceGUI(event, addon)
 
 			PLUGIN:ApplyFixedFrameStyle(widgetSlider, "Bar")
 
-			widgetSlider:Height(20)
+			widgetSlider:SetHeightToScale(20)
 			widgetSlider:SetThumbTexture("Interface\\Buttons\\UI-ScrollBar-Knob")
 			widgetSlider:GetThumbTexture():SetVertexColor(0.8, 0.8, 0.8)
 
-			widgetEditbox:Height(15)
+			widgetEditbox:SetHeightToScale(15)
 			widgetEditbox:SetPoint("TOP", widgetSlider, "BOTTOM", 0, -1)
 
 			widget.lowtext:SetPoint("TOPLEFT", widgetSlider, "BOTTOMLEFT", 2, -2)
@@ -177,9 +177,9 @@ local function StyleAceGUI(event, addon)
 			widgetFrame:RemoveTextures()
 			Widget_PaginationStyle(dropButton, true)
 			widgetFrame.text:ClearAllPoints()
-			widgetFrame.text:Point("RIGHT", dropButton, "LEFT", -2, 0)
+			widgetFrame.text:SetPointToScale("RIGHT", dropButton, "LEFT", -2, 0)
 			dropButton:ClearAllPoints()
-			dropButton:Point("RIGHT", widgetFrame, "RIGHT", -10, -6)
+			dropButton:SetPointToScale("RIGHT", widgetFrame, "RIGHT", -10, -6)
 			if(not widgetFrame.Panel) then 
 				if(widgetType == "LSM30_Font") then 
 					PLUGIN:ApplyAdjustedFrameStyle(widgetFrame, "Transparent", 20, -17, 2, -2)
@@ -187,15 +187,15 @@ local function StyleAceGUI(event, addon)
 					PLUGIN:ApplyAdjustedFrameStyle(widgetFrame, "Transparent", 20, -17, 2, -2)
 					widget.soundbutton:SetParent(widgetFrame.Panel)
 					widget.soundbutton:ClearAllPoints()
-					widget.soundbutton:Point("LEFT", widgetFrame.Panel, "LEFT", 2, 0)
+					widget.soundbutton:SetPointToScale("LEFT", widgetFrame.Panel, "LEFT", 2, 0)
 				elseif(widgetType == "LSM30_Statusbar") then 
 					PLUGIN:ApplyAdjustedFrameStyle(widgetFrame, "Transparent", 20, -17, 2, -2)
 					widget.bar:SetParent(widgetFrame.Panel)
-					widget.bar:FillInner()
+					widget.bar:SetAllPointsIn()
 				elseif(widgetType == "LSM30_Border" or widgetType == "LSM30_Background") then 
 					PLUGIN:ApplyAdjustedFrameStyle(widgetFrame, "Transparent", 42, -16, 2, -2)
 				end 
-				widgetFrame.Panel:Point("BOTTOMRIGHT", dropButton, "BOTTOMRIGHT", 2, -2)
+				widgetFrame.Panel:SetPointToScale("BOTTOMRIGHT", dropButton, "BOTTOMRIGHT", 2, -2)
 				PLUGIN:ApplyAdjustedFrameStyle(widgetFrame, "Transparent", 20, -2, 2, -2)
 			end 
 			dropButton:SetParent(widgetFrame.Panel)
@@ -234,7 +234,7 @@ local function StyleAceGUI(event, addon)
 					newButton.toggle:RemoveTextures()
 					newButton.toggle.SetNormalTexture = NOOP;
 					newButton.toggle.SetPushedTexture = NOOP;
-					newButton.toggle:SetButtonTemplate()
+					newButton.toggle:SetStylePanel("Button")
 					newButton.toggleText = newButton.toggle:CreateFontString(nil, "OVERLAY")
 					newButton.toggleText:SetFont([[Interface\AddOns\SVUI\assets\fonts\Roboto.ttf]], 19)
 					newButton.toggleText:SetPoint("CENTER")

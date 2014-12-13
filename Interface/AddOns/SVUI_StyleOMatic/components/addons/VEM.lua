@@ -56,17 +56,17 @@ local function StyleBars(self)
 
 				if not icon1.overlay then
 					icon1.overlay = CreateFrame('Frame', '$parentIcon1Overlay', tbar)
-					icon1.overlay:SetFixedPanelTemplate()
+					icon1.overlay:SetStylePanel("Fixed")
 					icon1.overlay:SetFrameLevel(0)
-					icon1.overlay:Size(22)
-					icon1.overlay:Point('BOTTOMRIGHT', frame, 'BOTTOMLEFT', -2, 0)
+					icon1.overlay:SetSizeToScale(22)
+					icon1.overlay:SetPointToScale('BOTTOMRIGHT', frame, 'BOTTOMLEFT', -2, 0)
 				end
 				if not icon2.overlay then
 					icon2.overlay = CreateFrame('Frame', '$parentIcon2Overlay', tbar)
-					icon2.overlay:SetFixedPanelTemplate()
+					icon2.overlay:SetStylePanel("Fixed")
 					icon2.overlay:SetFrameLevel(0)
-					icon2.overlay:Size(22)
-					icon2.overlay:Point('BOTTOMLEFT', frame, 'BOTTOMRIGHT', 2, 0)
+					icon2.overlay:SetSizeToScale(22)
+					icon2.overlay:SetPointToScale('BOTTOMLEFT', frame, 'BOTTOMRIGHT', 2, 0)
 				end
 
 				if bar.color then
@@ -90,16 +90,16 @@ local function StyleBars(self)
 
 				icon1:SetTexCoord(0.1,0.9,0.1,0.9)
 				icon1:ClearAllPoints()
-				icon1:FillInner(icon1.overlay)
+				icon1:SetAllPointsIn(icon1.overlay)
 
 				icon2:SetTexCoord(0.1,0.9,0.1,0.9)
 				icon2:ClearAllPoints()
-				icon2:FillInner(icon2.overlay)
+				icon2:SetAllPointsIn(icon2.overlay)
 
 				texture:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]])
-				tbar:FillInner(frame)
+				tbar:SetAllPointsIn(frame)
 
-				frame:SetFixedPanelTemplate()
+				frame:SetStylePanel("Fixed")
 
 				name:ClearAllPoints()
 				name:SetWidth(165)
@@ -111,8 +111,8 @@ local function StyleBars(self)
 				timer:SetShadowColor(0, 0, 0, 0)
 
 				frame:SetHeight(22)
-				name:Point('LEFT', frame, 'LEFT', 4, 0)
-				timer:Point('RIGHT', frame, 'RIGHT', -4, 0)
+				name:SetPointToScale('LEFT', frame, 'LEFT', 4, 0)
+				timer:SetPointToScale('RIGHT', frame, 'RIGHT', -4, 0)
 
 				name:SetFont(SV.Media.font.default, 12, 'OUTLINE')
 				timer:SetFont(SV.Media.font.default, 12, 'OUTLINE')
@@ -163,22 +163,22 @@ local StyleBoss = function()
 		bar:ClearAllPoints()
 		if count == 1 then
 			if VEM_SavedOptions.HealthFrameGrowUp then
-				bar:Point('BOTTOM', anch, 'TOP' , 0 , 12)
+				bar:SetPointToScale('BOTTOM', anch, 'TOP' , 0 , 12)
 			else
-				bar:Point('TOP', anch, 'BOTTOM' , 0, -22)
+				bar:SetPointToScale('TOP', anch, 'BOTTOM' , 0, -22)
 			end
 		else
 			if VEM_SavedOptions.HealthFrameGrowUp then
-				bar:Point('TOPLEFT', prev, 'TOPLEFT', 0, 26)
+				bar:SetPointToScale('TOPLEFT', prev, 'TOPLEFT', 0, 26)
 			else
-				bar:Point('TOPLEFT', prev, 'TOPLEFT', 0, -26)
+				bar:SetPointToScale('TOPLEFT', prev, 'TOPLEFT', 0, -26)
 			end
 		end
-		bar:SetFixedPanelTemplate('Transparent')
+		bar:SetStylePanel("Fixed", 'Transparent')
 		background:SetNormalTexture(nil)
 		progress:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]])
 		progress:ClearAllPoints()
-		progress:FillInner(bar)
+		progress:SetAllPointsIn(bar)
 		name:ClearAllPoints()
 		name:SetJustifyH('LEFT')
 		name:SetShadowColor(0, 0, 0, 0)
@@ -187,8 +187,8 @@ local StyleBoss = function()
 		timer:SetShadowColor(0, 0, 0, 0)
 		
 		bar:SetHeight(22)
-		name:Point('LEFT', bar, 'LEFT', 4, 0)
-		timer:Point('RIGHT', bar, 'RIGHT', -4, 0)
+		name:SetPointToScale('LEFT', bar, 'LEFT', 4, 0)
+		timer:SetPointToScale('RIGHT', bar, 'RIGHT', -4, 0)
 
 		name:SetFont(SV.Media.font.default, 12, 'OUTLINE')
 		timer:SetFont(SV.Media.font.default, 12, 'OUTLINE')
@@ -198,7 +198,7 @@ end
 
 local _hook_OnShow = function(self)
 	if(not self.Panel) then
-		self:SetFixedPanelTemplate('Transparent')
+		self:SetStylePanel("Fixed", 'Transparent')
 	end
 end
 
@@ -215,7 +215,7 @@ local function StyleVEM(event, addon)
 			VEM.RangeCheck:Show()
 			VEM.RangeCheck:Hide()
 			VEMRangeCheck:HookScript('OnShow', _hook_OnShow)
-			VEMRangeCheckRadar:SetFixedPanelTemplate('Transparent')
+			VEMRangeCheckRadar:SetStylePanel("Fixed", 'Transparent')
 		end
 
 		if not VEM_SavedOptions['DontShowInfoFrame'] then
@@ -241,8 +241,8 @@ local function StyleVEM(event, addon)
 		end)
 		PLUGIN:ApplyTabStyle(VEM_GUI_OptionsFrameTab1)
 		PLUGIN:ApplyTabStyle(VEM_GUI_OptionsFrameTab2)
-		VEM_GUI_OptionsFrameOkay:SetButtonTemplate()
-		VEM_GUI_OptionsFrameWebsiteButton:SetButtonTemplate()
+		VEM_GUI_OptionsFrameOkay:SetStylePanel("Button")
+		VEM_GUI_OptionsFrameWebsiteButton:SetStylePanel("Button")
 		PLUGIN:ApplyScrollFrameStyle(VEM_GUI_OptionsFramePanelContainerFOVScrollBar)
 		PLUGIN:SafeEventRemoval("VEM", event)
 	end

@@ -130,10 +130,10 @@ function SV.Comix:LaunchPopup()
 		step1_x = random(-100, 100);
 		step1_y = random(-50, 1);
 		size = random(96,128);
-		self.Basic:Size(size,size);
+		self.Basic:SetSizeToScale(size,size);
 		self.Basic.tex:SetTexCoord(coords[1],coords[2],coords[3],coords[4]);
 		self.Basic:ClearAllPoints();
-		self.Basic:Point("CENTER", SV.Screen, "CENTER", step1_x, step1_y);
+		self.Basic:SetPointToScale("CENTER", SV.Screen, "CENTER", step1_x, step1_y);
 		self.Basic.anim:Play();
 	end
 end 
@@ -172,14 +172,14 @@ function SV.Comix:Initialize()
 	self.Premium = _G["SVUI_ComixFrame3"]
 
 	self.Basic:SetParent(SV.Screen)
-	self.Basic:Size(128,128)
+	self.Basic:SetSizeToScale(128,128)
 	self.Basic.tex:SetTexCoord(0,0.25,0,0.25)
 	SV.Animate:Kapow(self.Basic, true, true)
 	self.Basic:SetAlpha(0)
 	self.Basic.anim[2]:SetScript("OnFinished", Comix_OnUpdate)
 
 	self.Deluxe:SetParent(SV.Screen)
-	self.Deluxe:Size(128,128)
+	self.Deluxe:SetSizeToScale(128,128)
 	self.Deluxe.tex:SetTexCoord(0,0.25,0,0.25)
 	SV.Animate:RandomSlide(self.Deluxe, true)
 	self.Deluxe:SetAlpha(0)
@@ -200,9 +200,9 @@ function SV.Comix:Initialize()
 	local toasty = CreateFrame("Frame", "ComixToastyPanelBG", SV.Screen)
 	toasty:SetSize(256, 256)
 	toasty:SetFrameStrata("DIALOG")
-	toasty:Point("BOTTOMRIGHT", SV.Screen, "BOTTOMRIGHT", 0, 0)
+	toasty:SetPointToScale("BOTTOMRIGHT", SV.Screen, "BOTTOMRIGHT", 0, 0)
 	toasty.tex = toasty:CreateTexture(nil, "ARTWORK")
-	toasty.tex:FillInner(toasty)
+	toasty.tex:SetAllPointsIn(toasty)
 	toasty.tex:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Doodads\TOASTY]])
 	SV.Animate:Slide(toasty, 256, -256, true)
 	toasty:SetAlpha(0)

@@ -112,18 +112,18 @@ _G.HideSuperDocks = function(self, button)
 	else
 		if SV.cache.Docks.IsFaded then 
 			SV.cache.Docks.IsFaded = nil;
-			SV:SecureFadeIn(Dock.BottomLeft, 0.2, Dock.BottomLeft:GetAlpha(), 1)
-			SV:SecureFadeIn(Dock.BottomLeft.Bar, 0.2, Dock.BottomLeft.Bar:GetAlpha(), 1)
-			SV:SecureFadeIn(Dock.BottomRight, 0.2, Dock.BottomRight:GetAlpha(), 1)
-			SV:SecureFadeIn(Dock.BottomRight.Bar, 0.2, Dock.BottomRight.Bar:GetAlpha(), 1)
-			SVLib:Trigger("DOCKS_FADE_IN");
+			Dock.BottomLeft:FadeIn(0.2, Dock.BottomLeft:GetAlpha(), 1)
+			Dock.BottomLeft.Bar:FadeIn(0.2, Dock.BottomLeft.Bar:GetAlpha(), 1)
+			Dock.BottomRight:FadeIn(0.2, Dock.BottomRight:GetAlpha(), 1)
+			Dock.BottomRight.Bar:FadeIn(0.2, Dock.BottomRight.Bar:GetAlpha(), 1)
+			SV.Events:Trigger("DOCKS_FADE_IN");
 		else 
 			SV.cache.Docks.IsFaded = true;
-			SV:SecureFadeOut(Dock.BottomLeft, 0.2, Dock.BottomLeft:GetAlpha(), 0, true)
-			SV:SecureFadeOut(Dock.BottomLeft.Bar, 0.2, Dock.BottomLeft.Bar:GetAlpha(), 0, true)
-			SV:SecureFadeOut(Dock.BottomRight, 0.2, Dock.BottomRight:GetAlpha(), 0, true)
-			SV:SecureFadeOut(Dock.BottomRight.Bar, 0.2, Dock.BottomRight.Bar:GetAlpha(), 0, true)
-			SVLib:Trigger("DOCKS_FADE_OUT");
+			Dock.BottomLeft:FadeOut(0.2, Dock.BottomLeft:GetAlpha(), 0, true)
+			Dock.BottomLeft.Bar:FadeOut(0.2, Dock.BottomLeft.Bar:GetAlpha(), 0, true)
+			Dock.BottomRight:FadeOut(0.2, Dock.BottomRight:GetAlpha(), 0, true)
+			Dock.BottomRight.Bar:FadeOut(0.2, Dock.BottomRight.Bar:GetAlpha(), 0, true)
+			SV.Events:Trigger("DOCKS_FADE_OUT");
 		end
 	end
 end
@@ -131,22 +131,22 @@ end
 function Dock:EnterFade()
 	if SV.cache.Docks.IsFaded then
 		self.BottomLeft:Show()
-		SV:SecureFadeIn(self.BottomLeft, 0.2, self.BottomLeft:GetAlpha(), 1)
-		SV:SecureFadeIn(self.BottomLeft.Bar, 0.2, self.BottomLeft.Bar:GetAlpha(), 1)
+		self.BottomLeft:FadeIn(0.2, self.BottomLeft:GetAlpha(), 1)
+		self.BottomLeft.Bar:FadeIn(0.2, self.BottomLeft.Bar:GetAlpha(), 1)
 		self.BottomRight:Show()
-		SV:SecureFadeIn(self.BottomRight, 0.2, self.BottomRight:GetAlpha(), 1)
-		SV:SecureFadeIn(self.BottomRight.Bar, 0.2, self.BottomRight.Bar:GetAlpha(), 1)
-		SVLib:Trigger("DOCKS_FADE_IN");
+		self.BottomRight:FadeIn(0.2, self.BottomRight:GetAlpha(), 1)
+		self.BottomRight.Bar:FadeIn(0.2, self.BottomRight.Bar:GetAlpha(), 1)
+		SV.Events:Trigger("DOCKS_FADE_IN");
 	end
 end 
 
 function Dock:ExitFade()
 	if SV.cache.Docks.IsFaded then
-		SV:SecureFadeOut(self.BottomLeft, 2, self.BottomLeft:GetAlpha(), 0, true)
-		SV:SecureFadeOut(self.BottomLeft.Bar, 2, self.BottomLeft.Bar:GetAlpha(), 0, true)
-		SV:SecureFadeOut(self.BottomRight, 2, self.BottomRight:GetAlpha(), 0, true)
-		SV:SecureFadeOut(self.BottomRight.Bar, 2, self.BottomRight.Bar:GetAlpha(), 0, true)
-		SVLib:Trigger("DOCKS_FADE_OUT");
+		self.BottomLeft:FadeOut(2, self.BottomLeft:GetAlpha(), 0, true)
+		self.BottomLeft.Bar:FadeOut(2, self.BottomLeft.Bar:GetAlpha(), 0, true)
+		self.BottomRight:FadeOut(2, self.BottomRight:GetAlpha(), 0, true)
+		self.BottomRight.Bar:FadeOut(2, self.BottomRight.Bar:GetAlpha(), 0, true)
+		SV.Events:Trigger("DOCKS_FADE_OUT");
 	end
 end
 --[[ 
@@ -155,17 +155,14 @@ SET DOCKBAR FUNCTIONS
 ##########################################################
 ]]--
 local RefreshDockWindows = function(self)
+	--print('RefreshDockWindows')
 	-- print(table.dump(self.Data.Windows))
 	for name,window in pairs(self.Data.Windows) do
 		if(window) then
-			if((window.IsProtected and not window:IsProtected()) or (not InCombatLockdown())) then
-				if(window.DockButton) then
-					window.DockButton:Deactivate()
-				end
-				if window.Hide then
-					window:Hide()
-				end
+			if(window.DockButton) then
+				window.DockButton:Deactivate()
 			end
+			--window:FadeOut(0.1, 1, 0, true)
 		else
 			print("Error: No Window Found (" .. name .. ")")
 		end
@@ -173,21 +170,19 @@ local RefreshDockWindows = function(self)
 end
 
 local RefreshDockButtons = function(self)
+	--print('RefreshDockButtons')
 	for name,docklet in pairs(Dock.Registration) do
 		if(docklet) then
-			if((docklet.IsProtected and not docklet:IsProtected()) or (not InCombatLockdown())) then
-				if(docklet.DockButton) then
-					docklet.DockButton:Deactivate()
-				end
-				if docklet.Hide then
-					docklet:Hide()
-				end
+			if(docklet.DockButton) then
+				docklet.DockButton:Deactivate()
 			end
+			--docklet:FadeOut(0.1, 1, 0, true)
 		end
 	end
 end
 
 local GetDefault = function(self)
+	--print('GetDefault')
 	local default = self.Data.Default
 	local button = _G[default]
 	if(button) then
@@ -195,17 +190,15 @@ local GetDefault = function(self)
 		if window and _G[window] then
 			self:Refresh()
 			self.Parent.Window.FrameLink = _G[window]
-			if(not self.Parent.Window:IsShown() and (not InCombatLockdown())) then
-				self.Parent.Window:Show()
-			end
-			if(InCombatLockdown() and (_G[window].IsProtected and _G[window]:IsProtected())) then return end
-			_G[window]:Show()
+			self.Parent.Window:FadeIn()
+			_G[window]:FadeIn()
 			button:Activate()
 		end
 	end
 end
 
 local OldDefault = function(self)
+	--print('OldDefault')
 	local default = self.Data.OriginalDefault
 	local button = _G[default]
 	if(button) then
@@ -213,27 +206,21 @@ local OldDefault = function(self)
 		if window and _G[window] then
 			self:Refresh()
 			self.Parent.Window.FrameLink = _G[window]
-			if(not self.Parent.Window:IsShown() and (not InCombatLockdown())) then
-				self.Parent.Window:Show()
-			end
-			if(InCombatLockdown() and (_G[window].IsProtected and _G[window]:IsProtected())) then return end
-			_G[window]:Show()
+			self.Parent.Window:FadeIn()
+			_G[window]:FadeIn()
 			button:Activate()
 		end
 	end
 end
 
 local ToggleDockletWindow = function(self, button)
+	--print('ToggleDockletWindow')
 	local frame  = button.FrameLink
-	if(frame and frame.Show and (not frame:IsShown())) then
+	if(frame) then
 		self.Parent.Window.FrameLink = frame
-
-		if(not self.Parent.Window:IsShown() and (not InCombatLockdown())) then
-			self.Parent.Window:Show()
-		end
+		self.Parent.Window:FadeIn()
 		self:Cycle()
-		if(InCombatLockdown() and (frame.IsProtected and frame:IsProtected())) then return end 
-		frame:Show()
+		frame:FadeIn()
 		button:Activate()
 	else
 		button:Deactivate()
@@ -243,7 +230,7 @@ end
 
 local AlertActivate = function(self, child)
 	local size = SV.db.Dock.buttonSize or 22;
-	self:Height(size)
+	self:SetHeightToScale(size)
 	self.backdrop:Show()
 	child:ClearAllPoints()
 	child:SetAllPoints(self)
@@ -251,22 +238,20 @@ end
 
 local AlertDeactivate = function(self)
 	self.backdrop:Hide()
-	self:Height(1)
+	self:SetHeightToScale(1)
 end
 
 local Docklet_OnShow = function(self)
-	local frame = self.FrameLink
-	if(frame and frame.Show) then
-		if(InCombatLockdown() and (frame.IsProtected and frame:IsProtected())) then return end 
-		frame:Show()
+	--print('Docklet_OnShow')
+	if(self.FrameLink) then
+		self.FrameLink:FadeIn()
 	end 
 end
 
 local Docklet_OnHide = function(self)
-	local frame = self.FrameLink
-	if(frame and frame.Hide) then
-		if(InCombatLockdown() and (frame.IsProtected and frame:IsProtected())) then return end 
-		frame:Hide()
+	--print('Docklet_OnHide')
+	if(self.FrameLink) then
+		self.FrameLink:FadeOut(0.2, 1, 0, true)
 	end 
 end
 
@@ -279,21 +264,23 @@ local DockButtonMakeDefault = function(self)
 end 
 
 local DockButtonActivate = function(self)
+	--print('DockButtonActivate')
 	self:SetAttribute("isActive", true)
 	self:SetPanelColor("green")
 	self.Icon:SetGradient(unpack(SV.Media.gradient.green))
 	if(self.FrameLink) then
-		self.FrameLink:Show()
+		self.FrameLink:FadeIn()
 	end
 end 
 
 local DockButtonDeactivate = function(self)
+	--print('DockButtonDeactivate')
+	if(self.FrameLink) then
+		self.FrameLink:FadeOut(0.2, 1, 0, true)
+	end
 	self:SetAttribute("isActive", false)
 	self:SetPanelColor("default")
 	self.Icon:SetGradient(unpack(SV.Media.gradient.icon))
-	if(self.FrameLink) then
-		self.FrameLink:Hide()
-	end
 end
 
 local DockButton_OnEnter = function(self, ...)
@@ -401,7 +388,7 @@ local DockletRelocate = function(self, location)
 		local spacing = SV.db.Dock.buttonSpacing;
 
 		self.Bar:ClearAllPoints();
-		self.Bar:Point(barAnchor, newParent.Bar.ToolBar, barReverse, (spacing * mod), 0)
+		self.Bar:SetPointToScale(barAnchor, newParent.Bar.ToolBar, barReverse, (spacing * mod), 0)
 	end
 end
 
@@ -567,10 +554,10 @@ local AddToDock = function(self, button)
 		local frameName = frame:GetName()
 		self.Data.Windows[frameName] = frame;
 		Dock.Locations[frameName] = currentLocation;
+		frame:Show()
 		frame:ClearAllPoints()
 		frame:SetParent(self.Parent.Window)
-		frame:FillInner(self.Parent.Window)
-
+		frame:SetAllPointsIn(self.Parent.Window)
 		frame.Parent = self.Parent
 	end
 
@@ -651,7 +638,7 @@ local CreateBasicToolButton = function(self, displayName, texture, onclick, glob
 
 	button:ClearAllPoints()
 	button:SetSize(size, size)
-	button:SetFramedButtonTemplate()
+	button:SetStylePanel("Framed") 
 	button.Icon:SetTexture(dockIcon)
 	button:SetAttribute("tipText", displayName)
 	button:SetAttribute("tipAnchor", self.Data.TipAnchor)
@@ -716,15 +703,15 @@ local function SetSuperDockStyle(dock, isBottom)
 	backdrop:SetFrameStrata("BACKGROUND")
 
 	backdrop.bg = backdrop:CreateTexture(nil, "BORDER")
-	backdrop.bg:FillInner(backdrop)
+	backdrop.bg:SetAllPointsIn(backdrop)
 	backdrop.bg:SetTexture(1, 1, 1, 1)
 	backdrop.bg:SetGradientAlpha("VERTICAL", 0, 0, 0, 0.8, 0, 0, 0, 0)
 
 	backdrop.left = backdrop:CreateTexture(nil, "OVERLAY")
 	backdrop.left:SetTexture(1, 1, 1, 1)
-	backdrop.left:Point("TOPLEFT", 1, -1)
-	backdrop.left:Point("BOTTOMLEFT", -1, -1)
-	backdrop.left:Width(4)
+	backdrop.left:SetPointToScale("TOPLEFT", 1, -1)
+	backdrop.left:SetPointToScale("BOTTOMLEFT", -1, -1)
+	backdrop.left:SetWidthToScale(4)
 	if(isBottom) then
 		backdrop.left:SetGradientAlpha("VERTICAL", 0, 0, 0, 1, 0, 0, 0, 0)
 	else
@@ -733,9 +720,9 @@ local function SetSuperDockStyle(dock, isBottom)
 
 	backdrop.right = backdrop:CreateTexture(nil, "OVERLAY")
 	backdrop.right:SetTexture(1, 1, 1, 1)
-	backdrop.right:Point("TOPRIGHT", -1, -1)
-	backdrop.right:Point("BOTTOMRIGHT", -1, -1)
-	backdrop.right:Width(4)
+	backdrop.right:SetPointToScale("TOPRIGHT", -1, -1)
+	backdrop.right:SetPointToScale("BOTTOMRIGHT", -1, -1)
+	backdrop.right:SetWidthToScale(4)
 	if(isBottom) then
 		backdrop.right:SetGradientAlpha("VERTICAL", 0, 0, 0, 1, 0, 0, 0, 0)
 	else
@@ -743,27 +730,27 @@ local function SetSuperDockStyle(dock, isBottom)
 	end
 
 	backdrop.bottom = backdrop:CreateTexture(nil, "OVERLAY")
-	backdrop.bottom:Point("BOTTOMLEFT", 1, -1)
-	backdrop.bottom:Point("BOTTOMRIGHT", -1, -1)
+	backdrop.bottom:SetPointToScale("BOTTOMLEFT", 1, -1)
+	backdrop.bottom:SetPointToScale("BOTTOMRIGHT", -1, -1)
 	if(isBottom) then
 		backdrop.bottom:SetTexture(0, 0, 0, 1)
-		backdrop.bottom:Height(4)
+		backdrop.bottom:SetHeightToScale(4)
 	else
 		backdrop.bottom:SetTexture(0, 0, 0, 0)
 		backdrop.bottom:SetAlpha(0)
-		backdrop.bottom:Height(1)
+		backdrop.bottom:SetHeightToScale(1)
 	end
 
 	backdrop.top = backdrop:CreateTexture(nil, "OVERLAY")
-	backdrop.top:Point("TOPLEFT", 1, -1)
-	backdrop.top:Point("TOPRIGHT", -1, 1)
+	backdrop.top:SetPointToScale("TOPLEFT", 1, -1)
+	backdrop.top:SetPointToScale("TOPRIGHT", -1, 1)
 	if(isBottom) then
 		backdrop.top:SetTexture(0, 0, 0, 0)
 		backdrop.top:SetAlpha(0)
-		backdrop.top:Height(1)
+		backdrop.top:SetHeightToScale(1)
 	else
 		backdrop.top:SetTexture(0, 0, 0, 1)
-		backdrop.top:Height(4)
+		backdrop.top:SetHeightToScale(4)
 	end
 
 	return backdrop 
@@ -784,7 +771,7 @@ local function BorderColorUpdates()
 	Dock.Border.Bottom:SetBackdropBorderColor(0,0,0,1)
 end
 
-LibSuperVillain("Registry"):NewCallback("CORE_MEDIA_UPDATED", "BorderColorUpdates", BorderColorUpdates)
+SV.Events:On("SVUI_COLORS_UPDATED", "BorderColorUpdates", BorderColorUpdates)
 --[[ 
 ########################################################## 
 EXTERNALLY ACCESSIBLE METHODS
@@ -842,7 +829,6 @@ function Dock:NewDocklet(location, globalName, readableName, texture, onclick)
 	frame.DockButton = newParent.Bar:Create(readableName, texture, onclick, buttonName);
 	frame.DockButton.FrameLink = frame
 	self.Registration[globalName] = frame;
-
 	return frame
 end
 
@@ -879,7 +865,7 @@ function Dock:NewAdvancedDocklet(location, globalName)
 
 	frame.Bar = CreateFrame("Frame", nil, newParent);
 	frame.Bar:SetSize(1, height);
-	frame.Bar:Point(barAnchor, newParent.Bar.ToolBar, barReverse, (spacing * mod), 0)
+	frame.Bar:SetPointToScale(barAnchor, newParent.Bar.ToolBar, barReverse, (spacing * mod), 0)
 	SV.Mentalo:Add(frame.Bar, globalName .. " Dock Bar");
 
 	self.Registration[globalName] = frame;
@@ -894,20 +880,20 @@ function Dock:UpdateDockBackdrops()
 	if SV.db.Dock.rightDockBackdrop then
 		Dock.BottomRight.backdrop:Show()
 		Dock.BottomRight.backdrop:ClearAllPoints()
-		Dock.BottomRight.backdrop:WrapOuter(Dock.BottomRight.Window, 4, 4)
+		Dock.BottomRight.backdrop:SetAllPointsOut(Dock.BottomRight.Window, 4, 4)
 
 		Dock.BottomRight.Alert.backdrop:ClearAllPoints()
-		Dock.BottomRight.Alert.backdrop:WrapOuter(Dock.BottomRight.Alert, 4, 4)
+		Dock.BottomRight.Alert.backdrop:SetAllPointsOut(Dock.BottomRight.Alert, 4, 4)
 	else
 		Dock.BottomRight.backdrop:Hide()
 	end
 	if SV.db.Dock.leftDockBackdrop then
 		Dock.BottomLeft.backdrop:Show()
 		Dock.BottomLeft.backdrop:ClearAllPoints()
-		Dock.BottomLeft.backdrop:WrapOuter(Dock.BottomLeft.Window, 4, 4)
+		Dock.BottomLeft.backdrop:SetAllPointsOut(Dock.BottomLeft.Window, 4, 4)
 
 		Dock.BottomLeft.Alert.backdrop:ClearAllPoints()
-		Dock.BottomLeft.Alert.backdrop:WrapOuter(Dock.BottomLeft.Alert, 4, 4)
+		Dock.BottomLeft.Alert.backdrop:SetAllPointsOut(Dock.BottomLeft.Alert, 4, 4)
 	else
 		Dock.BottomLeft.backdrop:Hide()
 	end
@@ -972,7 +958,7 @@ function Dock:Refresh()
 	self:TopBorderVisibility();
 	self:UpdateDockBackdrops();
 
-	SVLib:Trigger("DOCKS_UPDATED");
+	SV.Events:Trigger("DOCKS_UPDATED");
 end 
 
 function Dock:Initialize()
@@ -1001,9 +987,9 @@ function Dock:Initialize()
 	-- [[ TOP AND BOTTOM BORDERS ]] --
 
 	self.Border.Top = CreateFrame("Frame", "SVUITopBorder", UIParent)
-	self.Border.Top:Point("TOPLEFT", SV.Screen, "TOPLEFT", -1, 1)
-	self.Border.Top:Point("TOPRIGHT", SV.Screen, "TOPRIGHT", 1, 1)
-	self.Border.Top:Height(14)
+	self.Border.Top:SetPointToScale("TOPLEFT", SV.Screen, "TOPLEFT", -1, 1)
+	self.Border.Top:SetPointToScale("TOPRIGHT", SV.Screen, "TOPRIGHT", 1, 1)
+	self.Border.Top:SetHeightToScale(14)
 	self.Border.Top:SetBackdrop({
 		bgFile = texture, 
 		edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
@@ -1023,9 +1009,9 @@ function Dock:Initialize()
 	self:TopBorderVisibility()
 
 	self.Border.Bottom = CreateFrame("Frame", "SVUIBottomBorder", UIParent)
-	self.Border.Bottom:Point("BOTTOMLEFT", SV.Screen, "BOTTOMLEFT", -1, -1)
-	self.Border.Bottom:Point("BOTTOMRIGHT", SV.Screen, "BOTTOMRIGHT", 1, -1)
-	self.Border.Bottom:Height(14)
+	self.Border.Bottom:SetPointToScale("BOTTOMLEFT", SV.Screen, "BOTTOMLEFT", -1, -1)
+	self.Border.Bottom:SetPointToScale("BOTTOMRIGHT", SV.Screen, "BOTTOMRIGHT", 1, -1)
+	self.Border.Bottom:SetHeightToScale(14)
 	self.Border.Bottom:SetBackdrop({
 		bgFile = texture, 
 		edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
@@ -1070,13 +1056,13 @@ function Dock:Initialize()
 
 		if(dock.Bar.Button) then
 	    	dock.Bar.Button:SetSize(buttonsize, buttonsize)
-	    	dock.Bar.Button:SetFramedButtonTemplate()
+	    	dock.Bar.Button:SetStylePanel("Framed") 
 	    	dock.Bar.ToolBar:SetSize(1, buttonsize)
-	    	dock.Bar.ToolBar:Point(barAnchor, dock.Bar.Button, barReverse, (spacing * mod), 0)
+	    	dock.Bar.ToolBar:SetPointToScale(barAnchor, dock.Bar.Button, barReverse, (spacing * mod), 0)
 	    	InitDockButton(dock.Bar.Button)
 	    else
 	    	dock.Bar.ToolBar:SetSize(1, buttonsize)
-	    	dock.Bar.ToolBar:Point(barAnchor, dock.Bar, barAnchor, 0, 0)
+	    	dock.Bar.ToolBar:SetPointToScale(barAnchor, dock.Bar, barAnchor, 0, 0)
 	    end
 
 	    dock:SetParent(SV.Screen)

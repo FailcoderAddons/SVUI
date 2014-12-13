@@ -619,7 +619,7 @@ function SV:CreateButton(frame, label, anchor, x, y, width, height, tooltip)
     button:SetHitRectInsets(0, 0, 0, 0);
     button:SetFrameStrata("FULLSCREEN_DIALOG");
     button.TText = tooltip
-    button:SetButtonTemplate()
+    button:SetStylePanel("Button")
     button:SetScript("OnEnter", Button_OnEnter)        
     button:SetScript("OnLeave", GameTooltip_Hide)
     return button

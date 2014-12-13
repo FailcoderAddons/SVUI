@@ -202,13 +202,13 @@ local function CreateGPS(frame)
 
     local gps = CreateFrame("Frame", nil, frame.InfoPanel)
     gps:SetFrameLevel(99)
-    gps:Size(size, size)
+    gps:SetSizeToScale(size, size)
     gps.DefaultSize = size
-    gps:Point("RIGHT", frame, "RIGHT", 0, 0)
+    gps:SetPointToScale("RIGHT", frame, "RIGHT", 0, 0)
 
     gps.Arrow = gps:CreateTexture(nil, "OVERLAY", nil, 7)
     gps.Arrow:SetTexture([[Interface\AddOns\SVUI_TrackOMatic\artwork\GPS-ARROW]])
-    gps.Arrow:Size(size, size)
+    gps.Arrow:SetSizeToScale(size, size)
     gps.Arrow:SetPoint("CENTER", gps, "CENTER", 0, 0)
     gps.Arrow:SetVertexColor(0.1, 0.8, 0.8)
     gps.Arrow:SetBlendMode("ADD")

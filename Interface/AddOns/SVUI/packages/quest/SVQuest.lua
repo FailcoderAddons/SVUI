@@ -152,7 +152,7 @@ local function NewObjectiveRow(parent, lineNumber)
 	objective:SetPoint("TOPLEFT", parent, "TOPLEFT", 0, -yOffset);
 	objective:SetPoint("TOPRIGHT", parent, "TOPRIGHT", 0, -yOffset);
 	objective:SetHeight(INNER_HEIGHT);
-	--objective:SetPanelTemplate()
+	--objective:SetStylePanel("Default")
 
 	objective.Icon = objective:CreateTexture(nil,"OVERLAY")
 	objective.Icon:SetPoint("TOPLEFT", objective, "TOPLEFT", 4, -2);
@@ -219,38 +219,38 @@ local function NewActiveRow(anchorFrame)
 
 	local row = CreateFrame("Frame", nil, parent)
 	if(anchorFrame) then
-		row:Point("TOPLEFT", anchorFrame, "BOTTOMLEFT", 0, -4);
-		row:Point("TOPRIGHT", anchorFrame, "BOTTOMRIGHT", 0, -4);
+		row:SetPointToScale("TOPLEFT", anchorFrame, "BOTTOMLEFT", 0, -4);
+		row:SetPointToScale("TOPRIGHT", anchorFrame, "BOTTOMRIGHT", 0, -4);
 	else
-		row:Point("TOPLEFT", parent, "TOPLEFT", 2, -4);
-		row:Point("TOPRIGHT", parent, "TOPRIGHT", -2, -4);
+		row:SetPointToScale("TOPLEFT", parent, "TOPLEFT", 2, -4);
+		row:SetPointToScale("TOPRIGHT", parent, "TOPRIGHT", -2, -4);
 	end
-	row:Height(LARGE_ROW_HEIGHT);
+	row:SetHeightToScale(LARGE_ROW_HEIGHT);
 
 	row.Button = CreateFrame("Button", nil, row)
-	row.Button:Point("TOPLEFT", row, "TOPLEFT", 0, 0);
-	row.Button:Point("BOTTOMRIGHT", row, "BOTTOMRIGHT", 0, 8);
-	row.Button:SetFramedButtonTemplate("Headline")
+	row.Button:SetPointToScale("TOPLEFT", row, "TOPLEFT", 0, 0);
+	row.Button:SetPointToScale("BOTTOMRIGHT", row, "BOTTOMRIGHT", 0, 8);
+	row.Button:SetStylePanel("Framed", "Headline")
 	row.Button:SetID(0)
 	row.Button.Parent = parent;
 	row.Button:SetScript("OnClick", ViewButton_OnClick)
 	row.Button.CloseMe = ActiveButton_OnClick
 
 	row.Badge = CreateFrame("Frame", nil, row.Button)
-	row.Badge:Point("TOPLEFT", row.Button, "TOPLEFT", 4, -4);
-	row.Badge:Size((LARGE_INNER_HEIGHT - 4), (LARGE_INNER_HEIGHT - 4));
-	row.Badge:SetFixedPanelTemplate("Inset")
+	row.Badge:SetPointToScale("TOPLEFT", row.Button, "TOPLEFT", 4, -4);
+	row.Badge:SetSizeToScale((LARGE_INNER_HEIGHT - 4), (LARGE_INNER_HEIGHT - 4));
+	row.Badge:SetStylePanel("Fixed", "Inset")
 
 	row.Badge.Icon = row.Badge:CreateTexture(nil,"OVERLAY")
-	row.Badge.Icon:FillInner(row.Badge);
+	row.Badge.Icon:SetAllPointsIn(row.Badge);
 	row.Badge.Icon:SetTexture(LINE_QUEST_ICON)
 	row.Badge.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 
 	row.Header = CreateFrame("Frame", nil, row.Button)
-	row.Header:Point("TOPLEFT", row.Badge, "TOPRIGHT", 4, -1);
-	row.Header:Point("TOPRIGHT", row.Button, "TOPRIGHT", -(ROW_HEIGHT + 4), 0);
-	row.Header:Height(INNER_HEIGHT);
-	row.Header:SetPanelTemplate()
+	row.Header:SetPointToScale("TOPLEFT", row.Badge, "TOPRIGHT", 4, -1);
+	row.Header:SetPointToScale("TOPRIGHT", row.Button, "TOPRIGHT", -(ROW_HEIGHT + 4), 0);
+	row.Header:SetHeightToScale(INNER_HEIGHT);
+	row.Header:SetStylePanel("Default")
 
 	row.Header.Level = row.Header:CreateFontString(nil,"OVERLAY")
 	row.Header.Level:SetFont(SV.Media.font.roboto, 10, "NONE")
@@ -259,8 +259,8 @@ local function NewActiveRow(anchorFrame)
 	row.Header.Level:SetJustifyH('CENTER')
 	row.Header.Level:SetJustifyV('MIDDLE')
 	row.Header.Level:SetText('')
-	row.Header.Level:Point("TOPLEFT", row.Header, "TOPLEFT", 4, 0);
-	row.Header.Level:Point("BOTTOMLEFT", row.Header, "BOTTOMLEFT", 4, 0);
+	row.Header.Level:SetPointToScale("TOPLEFT", row.Header, "TOPLEFT", 4, 0);
+	row.Header.Level:SetPointToScale("BOTTOMLEFT", row.Header, "BOTTOMLEFT", 4, 0);
 
 	row.Header.Text = row.Header:CreateFontString(nil,"OVERLAY")
 	row.Header.Text:SetFont(SV.Media.font.roboto, 13, "NONE")
@@ -270,27 +270,27 @@ local function NewActiveRow(anchorFrame)
 	row.Header.Text:SetJustifyH('LEFT')
 	row.Header.Text:SetJustifyV('MIDDLE')
 	row.Header.Text:SetText('')
-	row.Header.Text:Point("TOPLEFT", row.Header.Level, "TOPRIGHT", 4, 0);
-	row.Header.Text:Point("BOTTOMRIGHT", row.Header, "BOTTOMRIGHT", 0, 0);
+	row.Header.Text:SetPointToScale("TOPLEFT", row.Header.Level, "TOPRIGHT", 4, 0);
+	row.Header.Text:SetPointToScale("BOTTOMRIGHT", row.Header, "BOTTOMRIGHT", 0, 0);
 
 	row.CloseButton = CreateFrame("Button", nil, row.Header, "UIPanelCloseButton")
-	--row.CloseButton:Size(INNER_HEIGHT, INNER_HEIGHT);
+	--row.CloseButton:SetSizeToScale(INNER_HEIGHT, INNER_HEIGHT);
 	row.CloseButton:RemoveTextures()
-	row.CloseButton:SetButtonTemplate(nil, 1, -7, -7, nil, "red")
+	row.CloseButton:SetStylePanel("Button", nil, 1, -7, -7, nil, "red")
 	row.CloseButton:SetFrameLevel(row.CloseButton:GetFrameLevel() + 4)
 	row.CloseButton:SetNormalTexture([[Interface\AddOns\SVUI\assets\artwork\Icons\CLOSE-BUTTON]])
     row.CloseButton:HookScript("OnEnter", CloseButton_OnEnter)
     row.CloseButton:HookScript("OnLeave", CloseButton_OnLeave)
-	row.CloseButton:Point("RIGHT", row.Header, "RIGHT", (ROW_HEIGHT + 8), 0);
+	row.CloseButton:SetPointToScale("RIGHT", row.Header, "RIGHT", (ROW_HEIGHT + 8), 0);
 	row.CloseButton:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 	row.CloseButton.Parent = parent;
 	row.CloseButton:SetScript("OnClick", ActiveButton_OnClick)
 
 	row.Objectives = CreateFrame("Frame", nil, row)
-	row.Objectives:Point("TOPLEFT", row.Header, "BOTTOMLEFT", 0, -2);
-	row.Objectives:Point("TOPRIGHT", row.Header, "BOTTOMRIGHT", 0, -2);
-	row.Objectives:Height(1);
-	--row.Objectives:SetPanelTemplate("Inset");
+	row.Objectives:SetPointToScale("TOPLEFT", row.Header, "BOTTOMLEFT", 0, -2);
+	row.Objectives:SetPointToScale("TOPRIGHT", row.Header, "BOTTOMRIGHT", 0, -2);
+	row.Objectives:SetHeightToScale(1);
+	--row.Objectives:SetStylePanel("Default", "Inset");
 
 	row.Objectives.Rows = {}
 	row.Objectives.Add = AddObjectiveRow;
@@ -313,31 +313,31 @@ local function NewPopUpRow(lineNumber)
 		row:SetPoint("TOPLEFT", parent, "TOPLEFT", 0, -2);
 		row:SetPoint("TOPRIGHT", parent, "TOPRIGHT", 0, -2);
 	end
-	row:Height(LARGE_ROW_HEIGHT);
+	row:SetHeightToScale(LARGE_ROW_HEIGHT);
 
 	row.Button = CreateFrame("Button", nil, row)
-	row.Button:Point("TOPLEFT", row, "TOPLEFT", 0, 0);
-	row.Button:Point("BOTTOMRIGHT", row, "BOTTOMRIGHT", 0, 8);
-	row.Button:SetFramedButtonTemplate("FramedTop")
+	row.Button:SetPointToScale("TOPLEFT", row, "TOPLEFT", 0, 0);
+	row.Button:SetPointToScale("BOTTOMRIGHT", row, "BOTTOMRIGHT", 0, 8);
+	row.Button:SetStylePanel("Framed", "FramedTop")
 	row.Button:SetPanelColor("yellow")
 	row.Button:SetID(0)
 	row.Button.PopUpType = nil;
 	row.Button:SetScript("OnClick", PopUpButton_OnClick)
 
 	row.Badge = CreateFrame("Frame", nil, row.Button)
-	row.Badge:Point("TOPLEFT", row.Button, "TOPLEFT", 4, -4);
-	row.Badge:Size((LARGE_INNER_HEIGHT - 4), (LARGE_INNER_HEIGHT - 4));
-	row.Badge:SetFixedPanelTemplate("Inset")
+	row.Badge:SetPointToScale("TOPLEFT", row.Button, "TOPLEFT", 4, -4);
+	row.Badge:SetSizeToScale((LARGE_INNER_HEIGHT - 4), (LARGE_INNER_HEIGHT - 4));
+	row.Badge:SetStylePanel("Fixed", "Inset")
 
 	row.Badge.Icon = row.Badge:CreateTexture(nil,"OVERLAY")
-	row.Badge.Icon:FillInner(row.Badge);
+	row.Badge.Icon:SetAllPointsIn(row.Badge);
 	row.Badge.Icon:SetTexture(LINE_QUEST_ICON)
 	row.Badge.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 
 	row.Header = CreateFrame("Frame", nil, row.Button)
-	row.Header:Point("TOPLEFT", row.Badge, "TOPRIGHT", 4, -1);
-	row.Header:Point("BOTTOMRIGHT", row.Button, "BOTTOMRIGHT", -2, 2);
-	row.Header:SetPanelTemplate()
+	row.Header:SetPointToScale("TOPLEFT", row.Badge, "TOPRIGHT", 4, -1);
+	row.Header:SetPointToScale("BOTTOMRIGHT", row.Button, "BOTTOMRIGHT", -2, 2);
+	row.Header:SetStylePanel("Default")
 
 	row.Header.Text = row.Header:CreateFontString(nil,"OVERLAY")
 	row.Header.Text:SetFont(SV.Media.font.roboto, 13, "NONE")
@@ -347,8 +347,8 @@ local function NewPopUpRow(lineNumber)
 	row.Header.Text:SetJustifyH('LEFT')
 	row.Header.Text:SetJustifyV('MIDDLE')
 	row.Header.Text:SetText('')
-	row.Header.Text:Point("TOPLEFT", row.Header, "TOPLEFT", 0, 0);
-	row.Header.Text:Point("BOTTOMRIGHT", row.Header, "BOTTOMRIGHT", 0, 0);
+	row.Header.Text:SetPointToScale("TOPLEFT", row.Header, "TOPLEFT", 0, 0);
+	row.Header.Text:SetPointToScale("BOTTOMRIGHT", row.Header, "BOTTOMRIGHT", 0, 0);
 
 	row.RowID = 0;
 
@@ -603,7 +603,7 @@ function MOD:UpdateLocals()
 	INNER_HEIGHT = ROW_HEIGHT - 4;
 	LARGE_ROW_HEIGHT = ROW_HEIGHT * 2;
 	LARGE_INNER_HEIGHT = LARGE_ROW_HEIGHT - 4;
-	LibSuperVillain("Registry"):Trigger("QUEST_UPVALUES_UPDATED", ROW_WIDTH, ROW_HEIGHT, INNER_HEIGHT, LARGE_ROW_HEIGHT, LARGE_INNER_HEIGHT);
+	SV.Events:Trigger("QUEST_UPVALUES_UPDATED", ROW_WIDTH, ROW_HEIGHT, INNER_HEIGHT, LARGE_ROW_HEIGHT, LARGE_INNER_HEIGHT);
 end
 
 function MOD:ReLoad()
@@ -629,7 +629,7 @@ function MOD:Load()
 	scrollBar:SetPoint("TOPRIGHT", self.Tracker, "TOPRIGHT", -4, -2);
 	scrollBar:SetBackdrop({bgFile = bgTex, edgeFile = bdTex, edgeSize = 4, insets = {left = 3, right = 3, top = 3, bottom = 3}});
 	scrollBar:SetFrameLevel(6)
-	scrollBar:SetFixedPanelTemplate("Transparent", true);
+	scrollBar:SetStylePanel("Fixed", "Transparent", true);
 	scrollBar:SetThumbTexture("Interface\\Buttons\\UI-ScrollBar-Knob");
 	scrollBar:SetOrientation("VERTICAL");
 	scrollBar:SetValueStep(5);
@@ -645,7 +645,7 @@ function MOD:Load()
 	scrollChild:SetHeight(500)
 	scrollChild:SetPoint("TOPRIGHT", scrollFrame, "TOPRIGHT", -2, 0)
 	scrollChild:SetFrameLevel(scrollFrame:GetFrameLevel() + 1)
-	--scrollChild:SetPanelTemplate();
+	--scrollChild:SetStylePanel("Default");
 
 	scrollFrame:SetScrollChild(scrollChild);
 	scrollFrame.ScrollBar = scrollBar;
@@ -687,7 +687,7 @@ function MOD:Load()
 	active:SetHeight(1);
 	active:SetPoint("TOPLEFT", popups, "TOPLEFT", 0, 0);
 	active:SetPoint("TOPRIGHT", popups, "TOPRIGHT", 0, 0);
-	--active:SetPanelTemplate();
+	--active:SetStylePanel("Default");
 
 	active.Rows = {};
 	active.Refresh = RefreshActiveObjective;
@@ -710,9 +710,9 @@ function MOD:Load()
 	self:RegisterEvent("SCENARIO_UPDATE", self.UpdateActiveObjective);
 	self:RegisterEvent("SCENARIO_CRITERIA_UPDATE", self.UpdateActiveObjective);
 
+	self.Tracker:Refresh();
 	self.Tracker.DockButton:MakeDefault();
 	self.Tracker:Show();
-	self.Tracker:Refresh();
 
 	ObjectiveTrackerFrame:UnregisterAllEvents();
 	ObjectiveTrackerFrame:SetParent(SV.Hidden);

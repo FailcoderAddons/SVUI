@@ -144,16 +144,16 @@ HELPERS
 ]]--
 local ChatGeneric_OnShow = function(self)
 	 if(not self.Panel) then 
-	 	self:SetPanelTemplate("Halftone") 
+	 	self:SetStylePanel("Default", "Halftone") 
 	end 
 end
 
 local ChatMenu_OnShow = function(self) 
 	if(not self.Panel) then 
-		self:SetPanelTemplate("Halftone") 
+		self:SetStylePanel("Default", "Halftone") 
 	end 
 	self:ClearAllPoints() 
-	self:Point("BOTTOMLEFT", ChatFrame1, "TOPLEFT", 0, 30) 
+	self:SetPointToScale("BOTTOMLEFT", ChatFrame1, "TOPLEFT", 0, 30) 
 end
 
 local ChatConfigChannelSettingsLeft_OnEvent = function(self)
@@ -167,20 +167,20 @@ local ChatConfigChannelSettingsLeft_OnEvent = function(self)
 		if(checkbox) then
 			if(not checkbox.Panel) then
 				checkbox:RemoveTextures()
-				checkbox:SetBasicPanel()
+				checkbox:SetStylePanel("Default", 'Transparent')
 			end
 			checkbox:SetHeight(boxHeight)
-			checkbox.Panel:Point("TOPLEFT",3,-1)
-			checkbox.Panel:Point("BOTTOMRIGHT",-3,1)
+			checkbox.Panel:SetPointToScale("TOPLEFT",3,-1)
+			checkbox.Panel:SetPointToScale("BOTTOMRIGHT",-3,1)
 
 			local check = _G[("%sCheck"):format(gName)]
 			if(check) then
-				check:SetCheckboxTemplate(true)
+				check:SetStylePanel("Checkbox", true)
 			end
 
 			local colors = _G[("%sColorClasses"):format(gName)]
 			if(colors) then
-				colors:SetCheckboxTemplate(true)
+				colors:SetStylePanel("Checkbox", true)
 				colors:SetHeight(colorsHeight)
 			end
 		end
@@ -198,20 +198,20 @@ local ChatConfigBackgroundFrame_OnShow = function(self)
 		if(checkbox) then
 			if(not checkbox.Panel) then
 				checkbox:RemoveTextures()
-				checkbox:SetPanelTemplate("Default")
+				checkbox:SetStylePanel("Default", "Default")
 			end
-			checkbox.Panel:Point("TOPLEFT", 3, -1)
-			checkbox.Panel:Point("BOTTOMRIGHT", -3, 1)
+			checkbox.Panel:SetPointToScale("TOPLEFT", 3, -1)
+			checkbox.Panel:SetPointToScale("BOTTOMRIGHT", -3, 1)
 			checkbox:SetHeight(boxHeight)
 
 			check = _G[("%sCheck"):format(gName)]
 			if(check) then
-				check:SetCheckboxTemplate(true)
+				check:SetStylePanel("Checkbox", true)
 			end
 
 			colors = _G[("%sColorClasses"):format(gName)]
 			if(colors) then
-				colors:SetCheckboxTemplate(true)
+				colors:SetStylePanel("Checkbox", true)
 				colors:SetHeight(colorsHeight)
 			end
 		end
@@ -222,14 +222,14 @@ local ChatConfigBackgroundFrame_OnShow = function(self)
 		if(checkbox) then
 			if(not checkbox.Panel) then
 				checkbox:RemoveTextures()
-				checkbox:SetPanelTemplate("Default")
+				checkbox:SetStylePanel("Default", "Default")
 			end
-			checkbox.Panel:Point("TOPLEFT", 3, -1)
-			checkbox.Panel:Point("BOTTOMRIGHT", -3, 1)
+			checkbox.Panel:SetPointToScale("TOPLEFT", 3, -1)
+			checkbox.Panel:SetPointToScale("BOTTOMRIGHT", -3, 1)
 
 			check = _G[("%sCheck"):format(gName)]
 			if(check) then
-				check:SetCheckboxTemplate(true)
+				check:SetStylePanel("Checkbox", true)
 			end
 		end
 	end
@@ -239,14 +239,14 @@ local ChatConfigBackgroundFrame_OnShow = function(self)
 		if(checkbox) then
 			if(not checkbox.Panel) then
 				checkbox:RemoveTextures()
-				checkbox:SetPanelTemplate("Default")
+				checkbox:SetStylePanel("Default", "Default")
 			end
-			checkbox.Panel:Point("TOPLEFT", 3, -1)
-			checkbox.Panel:Point("BOTTOMRIGHT", -3, 1)
+			checkbox.Panel:SetPointToScale("TOPLEFT", 3, -1)
+			checkbox.Panel:SetPointToScale("BOTTOMRIGHT", -3, 1)
 
 			check = _G[("%sCheck"):format(gName)]
 			if(check) then
-				check:SetCheckboxTemplate(true)
+				check:SetStylePanel("Checkbox", true)
 			end
 		end
 	end
@@ -256,14 +256,14 @@ local ChatConfigBackgroundFrame_OnShow = function(self)
 		if(checkbox) then
 			if(not checkbox.Panel) then
 				checkbox:RemoveTextures()
-				checkbox:SetPanelTemplate("Default")
+				checkbox:SetStylePanel("Default", "Default")
 			end
-			checkbox.Panel:Point("TOPLEFT", 3, -1)
-			checkbox.Panel:Point("BOTTOMRIGHT", -3, 1)
+			checkbox.Panel:SetPointToScale("TOPLEFT", 3, -1)
+			checkbox.Panel:SetPointToScale("BOTTOMRIGHT", -3, 1)
 
 			check = _G[("%sCheck"):format(gName)]
 			if(check) then
-				check:SetCheckboxTemplate(true)
+				check:SetStylePanel("Checkbox", true)
 			end
 		end
 	end
@@ -273,14 +273,14 @@ local ChatConfigBackgroundFrame_OnShow = function(self)
 		if(checkbox) then
 			if(not checkbox.Panel) then
 				checkbox:RemoveTextures()
-				checkbox:SetPanelTemplate("Default")
+				checkbox:SetStylePanel("Default", "Default")
 			end
-			checkbox.Panel:Point("TOPLEFT", 3, -1)
-			checkbox.Panel:Point("BOTTOMRIGHT", -3, 1)
+			checkbox.Panel:SetPointToScale("TOPLEFT", 3, -1)
+			checkbox.Panel:SetPointToScale("BOTTOMRIGHT", -3, 1)
 
 			check = _G[("%sCheck"):format(gName)]
 			if(check) then
-				check:SetCheckboxTemplate(true)
+				check:SetStylePanel("Checkbox", true)
 			end
 		end
 	end
@@ -290,14 +290,14 @@ local ChatConfigBackgroundFrame_OnShow = function(self)
 		if(checkbox) then
 			if(not checkbox.Panel) then
 				checkbox:RemoveTextures()
-				checkbox:SetPanelTemplate("Default")
+				checkbox:SetStylePanel("Default", "Default")
 			end
-			checkbox.Panel:Point("TOPLEFT", 3, -1)
-			checkbox.Panel:Point("BOTTOMRIGHT", -3, 1)
+			checkbox.Panel:SetPointToScale("TOPLEFT", 3, -1)
+			checkbox.Panel:SetPointToScale("BOTTOMRIGHT", -3, 1)
 
 			check = _G[("%sCheck"):format(gName)]
 			if(check) then
-				check:SetCheckboxTemplate(true)
+				check:SetStylePanel("Checkbox", true)
 			end
 		end
 	end
@@ -307,14 +307,14 @@ local ChatConfigBackgroundFrame_OnShow = function(self)
 		if(checkbox) then
 			if(not checkbox.Panel) then
 				checkbox:RemoveTextures()
-				checkbox:SetPanelTemplate("Default")
+				checkbox:SetStylePanel("Default", "Default")
 			end
-			checkbox.Panel:Point("TOPLEFT", 3, -1)
-			checkbox.Panel:Point("BOTTOMRIGHT", -3, 1)
+			checkbox.Panel:SetPointToScale("TOPLEFT", 3, -1)
+			checkbox.Panel:SetPointToScale("BOTTOMRIGHT", -3, 1)
 
 			check = _G[("%sCheck"):format(gName)]
 			if(check) then
-				check:SetCheckboxTemplate(true)
+				check:SetStylePanel("Checkbox", true)
 			end
 		end
 	end
@@ -324,10 +324,10 @@ local ChatConfigBackgroundFrame_OnShow = function(self)
 		if(checkbox) then
 			if(not checkbox.Panel) then
 				checkbox:RemoveTextures()
-				checkbox:SetPanelTemplate("Default")
+				checkbox:SetStylePanel("Default", "Default")
 			end
-			checkbox.Panel:Point("TOPLEFT", 3, -1)
-			checkbox.Panel:Point("BOTTOMRIGHT", -3, 1)
+			checkbox.Panel:SetPointToScale("TOPLEFT", 3, -1)
+			checkbox.Panel:SetPointToScale("BOTTOMRIGHT", -3, 1)
 		end
 	end
 	for i = 1, 4 do
@@ -335,8 +335,8 @@ local ChatConfigBackgroundFrame_OnShow = function(self)
 		for j = 1, 4 do
 			local gName2 = ("%s_%d"):format(gName, j)
 			if(_G[gName] and _G[gName2]) then
-				_G[gName]:SetCheckboxTemplate(true)
-				_G[gName2]:SetCheckboxTemplate(true)
+				_G[gName]:SetStylePanel("Checkbox", true)
+				_G[gName2]:SetStylePanel("Checkbox", true)
 			end
 		end
 
@@ -344,14 +344,14 @@ local ChatConfigBackgroundFrame_OnShow = function(self)
 		for j = 1, 10 do
 			local gName2 = ("%s_%d"):format(gName, j)
 			if(_G[gName] and _G[gName2]) then
-				_G[gName]:SetCheckboxTemplate(true)
-				_G[gName2]:SetCheckboxTemplate(true)
+				_G[gName]:SetStylePanel("Checkbox", true)
+				_G[gName2]:SetStylePanel("Checkbox", true)
 			end
 		end
 
 		gName = ("CombatConfigMessageTypesMiscCheckBox%d"):format(i)
 		if(_G[gName]) then
-			_G[gName]:SetCheckboxTemplate(true)
+			_G[gName]:SetStylePanel("Checkbox", true)
 		end
 	end
 end
@@ -393,10 +393,10 @@ local function ChatStyle()
 		end
 	end	
 
-	ChatConfigFrameOkayButton:Point("RIGHT", ChatConfigFrameCancelButton, "RIGHT", -11, -1)
-	ChatConfigCombatSettingsFiltersDeleteButton:Point("TOPRIGHT", ChatConfigCombatSettingsFilters, "BOTTOMRIGHT", 0, -1)
-	ChatConfigCombatSettingsFiltersAddFilterButton:Point("RIGHT", ChatConfigCombatSettingsFiltersDeleteButton, "LEFT", -1, 0)
-	ChatConfigCombatSettingsFiltersCopyFilterButton:Point("RIGHT", ChatConfigCombatSettingsFiltersAddFilterButton, "LEFT", -1, 0)
+	ChatConfigFrameOkayButton:SetPointToScale("RIGHT", ChatConfigFrameCancelButton, "RIGHT", -11, -1)
+	ChatConfigCombatSettingsFiltersDeleteButton:SetPointToScale("TOPRIGHT", ChatConfigCombatSettingsFilters, "BOTTOMRIGHT", 0, -1)
+	ChatConfigCombatSettingsFiltersAddFilterButton:SetPointToScale("RIGHT", ChatConfigCombatSettingsFiltersDeleteButton, "LEFT", -1, 0)
+	ChatConfigCombatSettingsFiltersCopyFilterButton:SetPointToScale("RIGHT", ChatConfigCombatSettingsFiltersAddFilterButton, "LEFT", -1, 0)
 
 	if(_G["CombatConfigTab1"]) then _G["CombatConfigTab1"]:RemoveTextures() end
 	if(_G["CombatConfigTab2"]) then _G["CombatConfigTab2"]:RemoveTextures() end
@@ -404,14 +404,14 @@ local function ChatStyle()
 	if(_G["CombatConfigTab4"]) then _G["CombatConfigTab4"]:RemoveTextures() end
 	if(_G["CombatConfigTab5"]) then _G["CombatConfigTab5"]:RemoveTextures() end
 
-	CombatConfigSettingsNameEditBox:SetEditboxTemplate()
-	ChatConfigFrame:SetPanelTemplate("Halftone", true)
+	CombatConfigSettingsNameEditBox:SetStylePanel("Editbox")
+	ChatConfigFrame:SetStylePanel("Default", "Halftone", true)
 
 	for i = 1, #ChatFrameList3 do
 		local frame = _G[ChatFrameList3[i]]
 		if(frame) then
 			frame:RemoveTextures()
-			frame:SetBasicPanel()
+			frame:SetStylePanel("Default", 'Transparent')
 		end
 	end
 
@@ -420,9 +420,9 @@ local function ChatStyle()
 		if(this) then
 			this:ClearAllPoints()
 			if this == CombatConfigColorsColorizeSpellNames then
-				this:Point("TOP",CombatConfigColorsColorizeUnitName,"BOTTOM",0,-2)
+				this:SetPointToScale("TOP",CombatConfigColorsColorizeUnitName,"BOTTOM",0,-2)
 			else
-				this:Point("TOP",_G[ChatFrameList4[i-1]],"BOTTOM",0,-2)
+				this:SetPointToScale("TOP",_G[ChatFrameList4[i-1]],"BOTTOM",0,-2)
 			end
 		end
 	end
@@ -457,7 +457,7 @@ local function ChatStyle()
 	for i = 1, #ChatFrameList5 do
 		local this = _G[ChatFrameList5[i]]
 		if(this) then
-			this:SetButtonTemplate()
+			this:SetStylePanel("Button")
 		end
 	end
 	
@@ -471,7 +471,7 @@ local function ChatStyle()
 	for i = 1, #ChatFrameList6 do
 		local this = _G[ChatFrameList6[i]]
 		if(this) then
-			this:SetCheckboxTemplate(true)
+			this:SetStylePanel("Checkbox", true)
 		end
 	end
 
@@ -483,9 +483,9 @@ local function ChatStyle()
 	ChatConfigMoveFilterUpButton:SetPoint("TOPLEFT",ChatConfigCombatSettingsFilters,"BOTTOMLEFT",3,0)
 	ChatConfigMoveFilterDownButton:SetPoint("LEFT",ChatConfigMoveFilterUpButton,24,0)
 
-	CombatConfigSettingsNameEditBox:SetEditboxTemplate()
+	CombatConfigSettingsNameEditBox:SetStylePanel("Editbox")
 
-	ChatConfigFrame:Size(680,596)
+	ChatConfigFrame:SetSizeToScale(680,596)
 	ChatConfigFrameHeader:ClearAllPoints()
 	ChatConfigFrameHeader:SetPoint("TOP", ChatConfigFrame, "TOP", 0, -5)
 

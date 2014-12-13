@@ -68,7 +68,7 @@ local Reposition = function(self)
 	local bar = self.TotemBars
 	local size = db.classbar.height
 	local width = size * totemMax
-	bar.Holder:Size(width, size)
+	bar.Holder:SetSizeToScale(width, size)
     if(not db.classbar.detachFromFrame) then
     	SV.Mentalo:Reset(L["Classbar"])
     end
@@ -87,7 +87,7 @@ local Reposition = function(self)
 		if i==1 then 
 			bar[i]:SetPoint("TOPLEFT", bar, "TOPLEFT", 0, 0)
 		else 
-			bar[i]:Point("LEFT", bar[i - 1], "RIGHT", -1, 0) 
+			bar[i]:SetPointToScale("LEFT", bar[i - 1], "RIGHT", -1, 0) 
 		end
 	end 
 end 
@@ -114,7 +114,7 @@ function MOD:CreateClassBar(playerFrame)
 	end 
 
 	local classBarHolder = CreateFrame("Frame", "Player_ClassBar", bar)
-	classBarHolder:Point("TOPLEFT", playerFrame, "BOTTOMLEFT", 0, -2)
+	classBarHolder:SetPointToScale("TOPLEFT", playerFrame, "BOTTOMLEFT", 0, -2)
 	bar:SetPoint("TOPLEFT", classBarHolder, "TOPLEFT", 0, 0)
 	bar.Holder = classBarHolder
 	SV.Mentalo:Add(bar.Holder, L["Classbar"])

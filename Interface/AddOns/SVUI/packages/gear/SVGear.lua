@@ -147,19 +147,19 @@ local function SetDisplayStats(arg)
 
 		if(flags[1]) then 
 			frame.ItemLevel = frame:CreateFontString(nil, "OVERLAY")
-			frame.ItemLevel:Point("BOTTOMRIGHT", frame, "BOTTOMRIGHT", 2, 1)
+			frame.ItemLevel:SetPointToScale("BOTTOMRIGHT", frame, "BOTTOMRIGHT", 2, 1)
 			frame.ItemLevel:FontManager(SV.Media.font.roboto, 10, "OUTLINE", "RIGHT")
 		end 
 		
 		if(arg == "Character" and flags[2]) then
 			frame.DurabilityInfo = CreateFrame("Frame", nil, frame)
-			frame.DurabilityInfo:Width(7)
+			frame.DurabilityInfo:SetWidthToScale(7)
 			if flags[3] then
-				frame.DurabilityInfo:Point("TOPRIGHT", frame, "TOPLEFT", -1, 1)
-				frame.DurabilityInfo:Point("BOTTOMRIGHT", frame, "BOTTOMLEFT", -1, -1)
+				frame.DurabilityInfo:SetPointToScale("TOPRIGHT", frame, "TOPLEFT", -1, 1)
+				frame.DurabilityInfo:SetPointToScale("BOTTOMRIGHT", frame, "BOTTOMLEFT", -1, -1)
 			else
-				frame.DurabilityInfo:Point("TOPLEFT", frame, "TOPRIGHT", 1, 1)
-				frame.DurabilityInfo:Point("BOTTOMLEFT", frame, "BOTTOMRIGHT", 1, -1)
+				frame.DurabilityInfo:SetPointToScale("TOPLEFT", frame, "TOPRIGHT", 1, 1)
+				frame.DurabilityInfo:SetPointToScale("BOTTOMLEFT", frame, "BOTTOMRIGHT", 1, -1)
 			end
 			frame.DurabilityInfo:SetFrameLevel(frame:GetFrameLevel()-1)
 			frame.DurabilityInfo:SetBackdrop({
@@ -178,11 +178,11 @@ local function SetDisplayStats(arg)
 			frame.DurabilityInfo:SetBackdropColor(0, 0, 0, 0.5)
 			frame.DurabilityInfo:SetBackdropBorderColor(0, 0, 0, 0.8)
 			frame.DurabilityInfo.bar = CreateFrame("StatusBar", nil, frame.DurabilityInfo)
-			frame.DurabilityInfo.bar:FillInner(frame.DurabilityInfo, 2, 2)
+			frame.DurabilityInfo.bar:SetAllPointsIn(frame.DurabilityInfo, 2, 2)
 			frame.DurabilityInfo.bar:SetStatusBarTexture(SV.Media.bar.default)
 			frame.DurabilityInfo.bar:SetOrientation("VERTICAL")
 			frame.DurabilityInfo.bg = frame.DurabilityInfo:CreateTexture(nil, "BORDER")
-			frame.DurabilityInfo.bg:FillInner(frame.DurabilityInfo, 2, 2)
+			frame.DurabilityInfo.bg:SetAllPointsIn(frame.DurabilityInfo, 2, 2)
 			frame.DurabilityInfo.bg:SetTexture([[Interface\BUTTONS\WHITE8X8]])
 			frame.DurabilityInfo.bg:SetVertexColor("VERTICAL", 0.5, 0.53, 0.55, 0.8, 0.8, 1)
 		end 

@@ -36,10 +36,10 @@ local function ItemUpgradeStyle()
 
 	PLUGIN:ApplyCloseButtonStyle(ItemUpgradeFrameCloseButton)
 	ItemUpgradeFrameUpgradeButton:RemoveTextures()
-	ItemUpgradeFrameUpgradeButton:SetButtonTemplate()
+	ItemUpgradeFrameUpgradeButton:SetStylePanel("Button")
 	ItemUpgradeFrame.ItemButton:RemoveTextures()
-	ItemUpgradeFrame.ItemButton:SetSlotTemplate(true)
-	ItemUpgradeFrame.ItemButton.IconTexture:FillInner()
+	ItemUpgradeFrame.ItemButton:SetStylePanel("Slot", true)
+	ItemUpgradeFrame.ItemButton.IconTexture:SetAllPointsIn()
 	hooksecurefunc('ItemUpgradeFrame_Update', function()
 		if GetItemUpgradeItemInfo() then
 			ItemUpgradeFrame.ItemButton.IconTexture:SetAlpha(1)

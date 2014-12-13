@@ -67,8 +67,8 @@ local function StyleAlertIcon(frame, icon)
 	
 	if(not frame.IconSlot) then 
 		frame.IconSlot = CreateFrame("Frame", nil, frame)
-		frame.IconSlot:WrapOuter(icon)
-		frame.IconSlot:SetSlotTemplate()
+		frame.IconSlot:SetAllPointsOut(icon)
+		frame.IconSlot:SetStylePanel("Slot")
 		icon:SetParent(frame.IconSlot)
 	end
 end
@@ -296,17 +296,17 @@ local function AlertStyle()
 
 			PLUGIN:ApplyAlertStyle(frame)
 
-			frame.buttons[1]:SetButtonTemplate()
-			frame.buttons[2]:SetButtonTemplate()
-			frame.buttons[3]:SetButtonTemplate()
+			frame.buttons[1]:SetStylePanel("Button")
+			frame.buttons[2]:SetStylePanel("Button")
+			frame.buttons[3]:SetStylePanel("Button")
 
-			frame.gold:SetEditboxTemplate()
-			frame.silver:SetEditboxTemplate()
-			frame.copper:SetEditboxTemplate()
+			frame.gold:SetStylePanel("Editbox")
+			frame.silver:SetStylePanel("Editbox")
+			frame.copper:SetStylePanel("Editbox")
 
-			frame.input:SetEditboxTemplate()
-			frame.input.Panel:Point("TOPLEFT", -2, -4)
-			frame.input.Panel:Point("BOTTOMRIGHT", 2, 4)
+			frame.input:SetStylePanel("Editbox")
+			frame.input.Panel:SetPointToScale("TOPLEFT", -2, -4)
+			frame.input.Panel:SetPointToScale("BOTTOMRIGHT", 2, 4)
 		end
 	end
 
@@ -413,6 +413,7 @@ local function AlertStyle()
 			frame.IconBG:ClearAllPoints()
 			frame.IconBG:SetPoint("CENTER", frame.AlertPanel.icon, "CENTER", 0, 0)
 			frame.IconBG:SetTexture('')
+			frame.IconBG:SetDrawLayer("BORDER")
 			frame.MissionType:ClearAllPoints()
 			frame.MissionType:SetPoint("CENTER", frame.AlertPanel.icon, "CENTER", 0, 0)
 			frame.Title:SetTextColor(1, 1, 1)
@@ -433,6 +434,7 @@ local function AlertStyle()
 			frame.Icon:ClearAllPoints()
 			frame.Icon:SetPoint("CENTER", frame.AlertPanel.icon, "CENTER", 0, 0)
 			frame.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+			frame.Icon:SetDrawLayer("BORDER")
 			frame.Title:SetTextColor(1, 1, 1)
 
 			if(_G[frameName .. 'Glow']) then _G[frameName .. 'Glow']:Die() end

@@ -121,7 +121,7 @@ local function StyleClique()
 	for _, gName in pairs(CliqueButtons) do
 		local button = _G[gName]
 		if(button) then
-			button:SetButtonTemplate()
+			button:SetStylePanel("Button")
 		end
 	end
 
@@ -146,7 +146,7 @@ local function StyleClique()
 	CliqueSpellTab:GetRegions():SetSize(.1,.1)
 	CliqueSpellTab:GetNormalTexture():SetTexCoord(0.1,0.9,0.1,0.9)
 	CliqueSpellTab:GetNormalTexture():ClearAllPoints()
-	CliqueSpellTab:GetNormalTexture():FillInner()
+	CliqueSpellTab:GetNormalTexture():SetAllPointsIn()
 end
 
 PLUGIN:SaveAddonStyle("Clique", StyleClique)

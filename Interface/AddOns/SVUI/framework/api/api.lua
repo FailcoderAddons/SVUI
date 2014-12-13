@@ -45,12 +45,153 @@ GET ADDON DATA
 local SV = select(2, ...)
 local L = SV.L
 local SVLib = LibSuperVillain("Registry");
+local STANDARD_TEXT_FONT = _G.STANDARD_TEXT_FONT;
 --[[ 
 ########################################################## 
-LOCAL VARS
+APPENDED POSITIONING METHODS
 ##########################################################
 ]]--
-local TemplateUpdateFrames = {}; 
+local SetSizeToScale = function(self, width, height)
+    if(type(width) == "number") then
+        local h = (height and type(height) == "number") and height or width
+        self:SetSize(SV:Scale(width), SV:Scale(h))
+    end
+end
+
+local SetWidthToScale = function(self, width)
+    if(type(width) == "number") then
+        self:SetWidth(SV:Scale(width))
+    end
+end
+
+local SetHeightToScale = function(self, height)
+    if(type(height) == "number") then
+        self:SetHeight(SV:Scale(height))
+    end
+end
+
+local SetAllPointsOut = function(self, parent, x, y)
+    x = type(x) == "number" and x or 1
+    y = y or x
+    local nx = SV:Scale(x);
+    local ny = SV:Scale(y);
+    parent = parent or self:GetParent()
+    if self:GetPoint() then 
+        self:ClearAllPoints()
+    end 
+    self:SetPoint("TOPLEFT", parent, "TOPLEFT", -nx, ny)
+    self:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", nx, -ny)
+end 
+
+local SetAllPointsIn = function(self, parent, x, y)
+    x = type(x) == "number" and x or 1
+    y = y or x
+    local nx = SV:Scale(x);
+    local ny = SV:Scale(y);
+    parent = parent or self:GetParent()
+    if self:GetPoint() then 
+        self:ClearAllPoints()
+    end 
+    self:SetPoint("TOPLEFT", parent, "TOPLEFT", nx, -ny)
+    self:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", -nx, ny)
+end
+
+local SetPointToScale;
+do
+    local PARAMS = {}
+    SetPointToScale = function(self, ...)
+        local n = select('#', ...) 
+        PARAMS = {...}
+        local arg
+        for i = 1, n do
+            arg = PARAMS[i]
+            if(arg and type(arg) == "number") then 
+                PARAMS[i] = SV:Scale(arg)
+            end 
+        end 
+        self:SetPoint(unpack(PARAMS))
+    end
+end
+--[[ 
+########################################################## 
+APPENDED DESTROY METHODS
+##########################################################
+]]--
+local _purgatory = CreateFrame("Frame", nil)
+_purgatory:Hide()
+
+local Die = function(self)
+    if(self.UnregisterAllEvents) then 
+        self:UnregisterAllEvents()
+        self:SetParent(_purgatory)
+    else 
+        self:Hide()
+        self.Show = SV.fubar
+    end
+end
+
+local RemoveTextures = function(self, option)
+    if(self.Panel) then return end
+    local region, layer, texture
+    for i = 1, self:GetNumRegions()do 
+        region = select(i, self:GetRegions())
+        if(region and (region:GetObjectType() == "Texture")) then
+
+            layer = region:GetDrawLayer()
+            texture = region:GetTexture()
+
+            if(option) then
+                if(type(option) == "boolean") then 
+                    if region.UnregisterAllEvents then 
+                        region:UnregisterAllEvents()
+                        region:SetParent(_purgatory)
+                    else 
+                        region.Show = region.Hide 
+                    end 
+                    region:Hide()
+                elseif(type(option) == "string" and ((layer == option) or (texture ~= option))) then
+                    region:SetTexture(0,0,0,0)
+                end
+            else 
+                region:SetTexture(0,0,0,0)
+            end
+        end 
+    end
+end 
+--[[ 
+########################################################## 
+APPENDED FONT TEMPLATING METHODS
+##########################################################
+]]--
+local ManagedFonts = {};
+
+local FontManager = function(self, font, fontSize, fontStyle, fontJustifyH, fontJustifyV, noUpdate)
+    if not self then return end
+    local STANDARDFONTSIZE = SV.db.media.fonts and SV.db.media.fonts.size or 12
+    font = font or [[Interface\AddOns\SVUI\assets\fonts\Default.ttf]]
+    fontSize = fontSize or STANDARDFONTSIZE;
+    fontJustifyH = fontJustifyH or "CENTER";
+    fontJustifyV = fontJustifyV or "MIDDLE";
+    if not font then return end
+    self.font = font;
+    self.fontSize = fontSize;
+    self.fontStyle = fontStyle;
+    self.fontJustifyH = fontJustifyH;
+    self.fontJustifyV = fontJustifyV;
+    self:SetFont(font, fontSize, fontStyle)
+    if(fontStyle and fontStyle ~= "NONE") then 
+        self:SetShadowColor(0, 0, 0, 0)
+    else 
+        self:SetShadowColor(0, 0, 0, 0.2)
+    end 
+    self:SetShadowOffset(1, -1)
+    self:SetJustifyH(fontJustifyH)
+    self:SetJustifyV(fontJustifyV)
+    self.useCommon = fontSize and (fontSize == STANDARDFONTSIZE);
+    if(not noUpdate) then
+        ManagedFonts[self] = true
+    end
+end
 --[[ 
 ########################################################## 
 XML TEMPLATE LOOKUP TABLE
@@ -281,7 +422,7 @@ local function CreateCooldown(button, muted)
     if(cooldown) then
         if(not SV.db.general or (SV.db.general and (not SV.db.general.cooldown))) then return end
         cooldown:ClearAllPoints()
-        cooldown:FillInner()
+        cooldown:SetAllPointsIn()
         cooldown:SetDrawEdge(false)
         if(not muted) then
             cooldown:SetSwipeColor(0, 0, 0, 1)
@@ -332,7 +473,7 @@ local function CreatePanelTemplate(frame, templateName, underlay, noupdate, padd
     xOffset = forcedOffset or xOffset or 1
     yOffset = forcedOffset or yOffset or 1
 
-    frame.Panel:WrapOuter(frame, xOffset, yOffset)
+    frame.Panel:SetAllPointsOut(frame, xOffset, yOffset)
 
     padding = padding or frame.Panel:GetAttribute("panelPadding")
     
@@ -392,9 +533,9 @@ local function CreatePanelTemplate(frame, templateName, underlay, noupdate, padd
     if(frame.Panel.Skin) then
         if(not underlay) then
             frame.Panel.Skin:SetParent(frame)
-            frame.Panel.Skin:FillInner(frame, xOffset, yOffset)
+            frame.Panel.Skin:SetAllPointsIn(frame, xOffset, yOffset)
         else
-            frame.Panel.Skin:FillInner(frame.Panel, xOffset, yOffset)
+            frame.Panel.Skin:SetAllPointsIn(frame.Panel, xOffset, yOffset)
         end
         if(gradientName and SV.Media.gradient[gradientName]) then
             frame.Panel.Skin:SetGradient(unpack(SV.Media.gradient[gradientName]))
@@ -441,7 +582,7 @@ local function CreateButtonPanel(frame, noChecked, brightChecked, mutedCooldown)
     if(frame.SetHighlightTexture) then
         if(not frame.hover) then
             local hover = frame:CreateTexture(nil, "OVERLAY")
-            hover:FillInner(frame.Panel)
+            hover:SetAllPointsIn(frame.Panel)
             frame.hover = hover;
         end
         local color = SV.Media.color.highlight
@@ -452,7 +593,7 @@ local function CreateButtonPanel(frame, noChecked, brightChecked, mutedCooldown)
     if(frame.SetPushedTexture) then
         if(not frame.pushed) then 
             local pushed = frame:CreateTexture(nil, "OVERLAY")
-            pushed:FillInner(frame.Panel)
+            pushed:SetAllPointsIn(frame.Panel)
             frame.pushed = pushed;
         end
         frame.pushed:SetTexture(0.1, 0.8, 0.1, 0.3)
@@ -462,7 +603,7 @@ local function CreateButtonPanel(frame, noChecked, brightChecked, mutedCooldown)
     if(not noChecked and frame.SetCheckedTexture) then
         if(not frame.checked) then
             local checked = frame:CreateTexture(nil, "OVERLAY")
-            checked:FillInner(frame.Panel)
+            checked:SetAllPointsIn(frame.Panel)
             frame.checked = checked
         end
 
@@ -484,82 +625,9 @@ end
 TEMPLATE API
 ##########################################################
 ]]--
-local function SetBasicPanel(self, topX, topY, bottomX, bottomY, hasShadow)
-    local needsHooks = false;
-        
-    if(hasShadow) then
-        if(not self.Panel) then
-            needsHooks = true
+local TemplateUpdateFrames = {};
 
-            self.Panel = CreateFrame("Frame", nil, self) 
-            self.Panel:SetPoint("TOPLEFT", self, "TOPLEFT", -2, 2)
-            self.Panel:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 2, -2)
-        end
-
-        self.Panel:SetBackdrop({
-            bgFile = [[Interface\BUTTONS\WHITE8X8]],  
-            tile = false, 
-            tileSize = 0,
-            edgeFile = [[Interface\AddOns\SVUI\assets\artwork\Template\GLOW]],
-            edgeSize = 3,
-            insets = 
-            {
-                left = 0, 
-                right = 0, 
-                top = 0, 
-                bottom = 0, 
-            }, 
-        })
-        self.Panel:SetBackdropColor(0,0,0,0)
-        self.Panel:SetBackdropBorderColor(0,0,0)
-    else
-        if(not self.Panel) then
-            needsHooks = true 
-
-            self.Panel = CreateFrame("Frame", nil, self) 
-            self.Panel:SetPoint("TOPLEFT", self, "TOPLEFT", topX, topY)
-            self.Panel:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", bottomX, bottomY)
-        end
-
-        self.Panel:SetBackdrop({
-            bgFile = [[Interface\BUTTONS\WHITE8X8]],  
-            tile = false, 
-            tileSize = 0,
-            edgeFile = [[Interface\BUTTONS\WHITE8X8]],
-            edgeSize = 1, 
-            insets = 
-            {
-                left = 1, 
-                right = 1, 
-                top = 1, 
-                bottom = 1, 
-            }, 
-        })
-        self.Panel:SetBackdropColor(0,0,0,0.5)
-        self.Panel:SetBackdropBorderColor(0,0,0)
-    end
-
-    if(needsHooks) then
-        local level = self:GetFrameLevel()
-        if(level == 0 and not InCombatLockdown()) then
-            self:SetFrameLevel(1)
-            level = 1
-        end
-
-        local adjustment = level - 1;
-        if(adjustment < 0) then adjustment = 0 end
-
-        self.Panel:SetFrameLevel(adjustment)
-        hooksecurefunc(self, "SetFrameLevel", HookFrameLevel)
-
-        self:SetBackdrop(nil)
-        self.SetBackdrop = self.Panel.SetBackdrop
-        hooksecurefunc(self, "SetBackdropColor", HookBackdropColor)
-        hooksecurefunc(self, "SetBackdropBorderColor", HookBackdropBorderColor)
-    end
-end
-
-local function SetPanelTemplate(self, templateName, noupdate, overridePadding, xOffset, yOffset, defaultColor)
+local SetPanelTemplate = function(self, templateName, noupdate, overridePadding, xOffset, yOffset, defaultColor)
     if(not self or (self and self.Panel)) then return end
     local padding = false
     if(overridePadding and type(overridePadding) == "number") then
@@ -574,7 +642,7 @@ local function SetPanelTemplate(self, templateName, noupdate, overridePadding, x
     end
 end 
 
-local function SetFixedPanelTemplate(self, templateName, noupdate, overridePadding, xOffset, yOffset, defaultColor)
+local SetFixedPanelTemplate = function(self, templateName, noupdate, overridePadding, xOffset, yOffset, defaultColor)
     if(not self or (self and self.Panel)) then return end
     local padding = false
     if(overridePadding and type(overridePadding) == "number") then
@@ -589,7 +657,7 @@ local function SetFixedPanelTemplate(self, templateName, noupdate, overridePaddi
     end
 end 
 
-local function SetPanelColor(self, ...)
+local SetPanelColor = function(self, ...)
     local arg1,arg2,arg3,arg4,arg5,arg6,arg7 = select(1, ...)
     if(not self.Panel or not arg1) then return; end 
     if(self.Panel.Skin and self.Panel:GetAttribute("panelGradient")) then
@@ -628,7 +696,7 @@ end
 APPENDED BUTTON TEMPLATING METHODS
 ##########################################################
 ]]--
-local function SetButtonTemplate(self, alteration, overridePadding, xOffset, yOffset, keepNormal, defaultColor)
+local SetButtonTemplate = function(self, alteration, overridePadding, xOffset, yOffset, keepNormal, defaultColor)
     if(not self or (self and self.Panel)) then return end
 
     local padding = 1
@@ -684,7 +752,7 @@ local function SetButtonTemplate(self, alteration, overridePadding, xOffset, yOf
     if(self.SetHighlightTexture) then
         if(not self.hover) then
             local hover = self:CreateTexture(nil, "HIGHLIGHT")
-            hover:FillInner(self.Panel, 2, 2)
+            hover:SetAllPointsIn(self.Panel, 2, 2)
             self.hover = hover;
         end
         self.hover:SetTexture(0.1, 0.8, 0.8, 0.5)
@@ -694,7 +762,7 @@ local function SetButtonTemplate(self, alteration, overridePadding, xOffset, yOf
     if(self.SetPushedTexture) then
         if(not self.pushed) then 
             local pushed = self:CreateTexture(nil, "OVERLAY")
-            pushed:FillInner(self.Panel)
+            pushed:SetAllPointsIn(self.Panel)
             self.pushed = pushed;
         end
 
@@ -706,7 +774,7 @@ local function SetButtonTemplate(self, alteration, overridePadding, xOffset, yOf
     if(self.SetCheckedTexture) then
         if(not self.checked) then 
             local checked = self:CreateTexture(nil, "OVERLAY")
-            checked:FillInner(self.Panel)
+            checked:SetAllPointsIn(self.Panel)
             self.checked = checked;
         end
 
@@ -719,7 +787,7 @@ local function SetButtonTemplate(self, alteration, overridePadding, xOffset, yOf
     CreateCooldown(self) 
 end 
 
-local function SetSlotTemplate(self, underlay, padding, x, y, shadowAlpha, mutedCooldown)
+local SetSlotTemplate = function(self, underlay, padding, x, y, shadowAlpha, mutedCooldown)
     if(not self or (self and self.Panel)) then return end
     padding = padding or 1
     CreatePanelTemplate(self, "Slot", underlay, true, padding, x, y)
@@ -729,7 +797,7 @@ local function SetSlotTemplate(self, underlay, padding, x, y, shadowAlpha, muted
     end
 end 
 
-local function SetCheckboxTemplate(self, shrink, x, y)
+local SetCheckboxTemplate = function(self, shrink, x, y)
     if(not self or (self and self.Panel)) then return end
 
     local width, height = self:GetSize()
@@ -756,7 +824,7 @@ local function SetCheckboxTemplate(self, shrink, x, y)
     if(self.SetHighlightTexture) then
         if(not self.hover) then
             local hover = self:CreateTexture(nil, "OVERLAY")
-            hover:FillInner(self.Panel)
+            hover:SetAllPointsIn(self.Panel)
             self.hover = hover;
         end
         local color = SV.Media.color.highlight
@@ -773,7 +841,7 @@ local function SetCheckboxTemplate(self, shrink, x, y)
     end
 end
 
-local function SetColorCheckboxTemplate(self, underlay, x, y)
+local SetColorCheckboxTemplate = function(self, underlay, x, y)
     if(not self or (self and self.Panel)) then return end
 
     if(underlay) then
@@ -793,7 +861,7 @@ local function SetColorCheckboxTemplate(self, underlay, x, y)
     end)
 end 
 
-local function SetEditboxTemplate(self, x, y, fixed)
+local SetEditboxTemplate = function(self, x, y, fixed)
     if(not self or (self and self.Panel)) then return end
 
     if self.TopLeftTex then self.TopLeftTex:Die() end 
@@ -849,7 +917,7 @@ local HideAlertFlash = function(self)
     self:ColorBorder(1,0.9,0, nil, true)
 end
 
-local function SetFramedButtonTemplate(self, template, borderSize)
+local SetFramedButtonTemplate = function(self, template, borderSize)
     if(not self or (self and self.Panel)) then return end
 
     borderSize = borderSize or 2
@@ -958,9 +1026,24 @@ local function SetFramedButtonTemplate(self, template, borderSize)
 end 
 --[[ 
 ########################################################## 
-TEMPLATE UPDATE CALLBACK
+UPDATE CALLBACKS
 ##########################################################
 ]]--
+local function FontTemplateUpdates()
+    local defaultSize = SV.db.media.fonts.size;
+    for i=1, #ManagedFonts do
+        local frame = ManagedFonts[i] 
+        if frame then
+            local fontSize = frame.useCommon and defaultSize or frame.fontSize
+            frame:SetFont(frame.font, fontSize, frame.fontStyle)
+        else 
+            ManagedFonts[i] = nil 
+        end 
+    end 
+end
+
+SV.Events:On("SVUI_FONTS_UPDATED", "FontTemplateUpdates", FontTemplateUpdates);
+
 local function FrameTemplateUpdates()
     for frame in pairs(TemplateUpdateFrames) do
         if(frame) then
@@ -995,7 +1078,127 @@ local function FrameTemplateUpdates()
     end
 end
 
-SVLib:NewCallback("CORE_MEDIA_UPDATED", "FrameTemplateUpdates", FrameTemplateUpdates)
+SV.Events:On("SVUI_COLORS_UPDATED", "FrameTemplateUpdates", FrameTemplateUpdates);
+--[[ 
+########################################################## 
+SECURE FADING
+##########################################################
+]]--
+local SVUI_SecureFadeHandler = CreateFrame("Frame", "SVUI_SecureFadeHandler", UIParent);
+SVUI_SecureFadeHandler.Running = false;
+
+local QUEUED_FRAMES = {};
+local REGISTERED_FRAMES = {};
+
+local SecureFade_OnUpdate = function(self, elasped)
+    if(#QUEUED_FRAMES > 0) then
+        for i = 1, #QUEUED_FRAMES do
+            local frame = QUEUED_FRAMES[i]
+            if(frame) then
+                local state = frame.___fadeset;
+                state[4] = (state[4] or 0) + elasped;
+                state[4] = state[4] + elasped;
+                if(state[4] < state[3]) then 
+
+                    if(state.mode == "IN") then 
+                        frame:SetAlpha((state[4] / state[3]) * (state[2] - state[1]) + state[1])
+                    elseif(state.mode == "OUT") then 
+                        frame:SetAlpha(((state[3] - state[4]) / state[3]) * (state[1] - state[2]) + state[2])
+                    end 
+
+                else
+                    frame:SetAlpha(state[2])
+
+                    if((not frame:IsProtected()) and state.___fadehide and frame:IsShown()) then 
+                        frame:Hide()
+                    end
+
+                    if(frame.___fadefunc) then
+                        local _, catch = pcall(frame.___fadefunc, frame)
+                        if(not catch) then
+                            frame.___fadefunc = nil
+                        end
+                    end
+
+                    REGISTERED_FRAMES[frame] = 0;
+                    QUEUED_FRAMES[i] = nil;
+                end
+            end
+        end
+    else
+        self.Running = false;
+        self:SetScript("OnUpdate", nil);
+    end 
+end
+
+local SecureFadeIn = function(self, duration, alphaStart, alphaEnd)
+    local alpha1 = alphaStart or 0;
+    local alpha2 = alphaEnd or 1;
+    local timer = duration or 0.2;
+
+    self.___fademode = "IN";
+    self.___fadehide = false;
+    self.___fadefunc = nil;
+
+    if(not self.___fadeset) then
+        self.___fadeset = {};
+    end
+    self.___fadeset[1] = alpha1;
+    self.___fadeset[2] = alpha2;
+    self.___fadeset[3] = timer;
+    self.___fadeset[4] = 0;
+
+    if(not (self.IsProtected and self:IsProtected())) then
+        if(not self:IsShown()) then 
+            self:Show() 
+        end
+    end
+
+    self:SetAlpha(alpha1)
+
+    if(REGISTERED_FRAMES[self] and REGISTERED_FRAMES[self] > 0) then return end;
+    local index = #QUEUED_FRAMES + 1
+    QUEUED_FRAMES[index] = self;
+    REGISTERED_FRAMES[self] = index;
+    if(not SVUI_SecureFadeHandler.Running) then 
+        SVUI_SecureFadeHandler.Running = true;
+        SVUI_SecureFadeHandler:SetScript("OnUpdate", SecureFade_OnUpdate)
+    end
+end 
+
+local SecureFadeOut = function(self, duration, alphaStart, alphaEnd, hideOnFinished)
+    local alpha1 = alphaStart or 1;
+    local alpha2 = alphaEnd or 0;
+    local timer = duration or 0.5;
+
+    self.___fademode = "OUT";
+    self.___fadehide = hideOnFinished;
+    self.___fadefunc = nil;
+
+    if(not self.___fadeset) then
+        self.___fadeset = {};
+    end
+
+    self.___fadeset[1] = alpha1;
+    self.___fadeset[2] = alpha2;
+    self.___fadeset[3] = timer;
+    self.___fadeset[4] = 0;
+
+    self:SetAlpha(alpha1)
+    
+    if(REGISTERED_FRAMES[self] and REGISTERED_FRAMES[self] > 0) then return end;
+    local index = #QUEUED_FRAMES + 1
+    QUEUED_FRAMES[index] = self;
+    REGISTERED_FRAMES[self] = index;
+    if(not SVUI_SecureFadeHandler.Running) then
+        SVUI_SecureFadeHandler.Running = true;
+        SVUI_SecureFadeHandler:SetScript("OnUpdate", SecureFade_OnUpdate)
+    end
+end
+
+local SecureFadeCallback = function(self, callback)
+    self.___fadefunc = callback;
+end
 --[[ 
 ########################################################## 
 ENUMERATION
@@ -1003,7 +1206,23 @@ ENUMERATION
 ]]--
 local function AppendMethods(OBJECT)
     local META = getmetatable(OBJECT).__index
-    if not OBJECT.SetBasicPanel then META.SetBasicPanel = SetBasicPanel end
+    if not OBJECT.SetSizeToScale then META.SetSizeToScale = SetSizeToScale end
+    if not OBJECT.SetWidthToScale then META.SetWidthToScale = SetWidthToScale end
+    if not OBJECT.SetHeightToScale then META.SetHeightToScale = SetHeightToScale end
+    if not OBJECT.SetPointToScale then META.SetPointToScale = SetPointToScale end
+    if not OBJECT.SetAllPointsOut then META.SetAllPointsOut = SetAllPointsOut end
+    if not OBJECT.SetAllPointsIn then META.SetAllPointsIn = SetAllPointsIn end
+
+    if not OBJECT.Die then META.Die = Die end
+    if not OBJECT.RemoveTextures then META.RemoveTextures = RemoveTextures end
+
+    if not OBJECT.FontManager then META.FontManager = FontManager end
+
+    -- SetStylePanel
+    -- SetStylePanel
+    -- SetFrameStyle
+    -- SetFrameStyle
+
     if not OBJECT.SetPanelTemplate then META.SetPanelTemplate = SetPanelTemplate end
     if not OBJECT.SetFixedPanelTemplate then META.SetFixedPanelTemplate = SetFixedPanelTemplate end
     if not OBJECT.SetPanelColor then META.SetPanelColor = SetPanelColor end
@@ -1013,6 +1232,10 @@ local function AppendMethods(OBJECT)
     if not OBJECT.SetColorCheckboxTemplate then META.SetColorCheckboxTemplate = SetColorCheckboxTemplate end
     if not OBJECT.SetEditboxTemplate then META.SetEditboxTemplate = SetEditboxTemplate end
     if not OBJECT.SetFramedButtonTemplate then META.SetFramedButtonTemplate = SetFramedButtonTemplate end
+
+    if not OBJECT.FadeIn then META.FadeIn = SecureFadeIn end
+    if not OBJECT.FadeOut then META.FadeOut = SecureFadeOut end
+    if not OBJECT.FadeCallback then META.FadeCallback = SecureFadeCallback end
 end
 
 local HANDLER, OBJECT = {["Frame"] = true}, CreateFrame("Frame")

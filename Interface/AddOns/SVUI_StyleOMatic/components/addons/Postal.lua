@@ -41,8 +41,8 @@ POSTAL
 local function StylePostal()
 	assert(PostalOpenAllButton, "AddOn Not Loaded")
 
-	InboxPrevPageButton:Point("CENTER", InboxFrame, "BOTTOMLEFT", 45, 112)
-	InboxNextPageButton:Point("CENTER", InboxFrame, "BOTTOMLEFT", 295, 112)
+	InboxPrevPageButton:SetPointToScale("CENTER", InboxFrame, "BOTTOMLEFT", 45, 112)
+	InboxNextPageButton:SetPointToScale("CENTER", InboxFrame, "BOTTOMLEFT", 295, 112)
 
 	for i = 1, INBOXITEMS_TO_DISPLAY do
 		local b = _G["MailItem"..i.."ExpireTime"]
@@ -51,14 +51,14 @@ local function StylePostal()
 			b.returnicon:SetPoint("TOPRIGHT", b, "TOPRIGHT", 20, 0)
 		end
 		if _G['PostalInboxCB'..i] and not _G['PostalInboxCB'..i].handled then
-			_G['PostalInboxCB'..i]:SetCheckboxTemplate(true)
+			_G['PostalInboxCB'..i]:SetStylePanel("Checkbox", true)
 			_G['PostalInboxCB'..i].handled = true
 		end
 	end
 	if PostalSelectOpenButton and not PostalSelectOpenButton.handled then
-		PostalSelectOpenButton:SetButtonTemplate()
+		PostalSelectOpenButton:SetStylePanel("Button")
 		PostalSelectOpenButton.handled = true
-		PostalSelectOpenButton:Point("RIGHT", InboxFrame, "TOP", -41, -48)
+		PostalSelectOpenButton:SetPointToScale("RIGHT", InboxFrame, "TOP", -41, -48)
 	end
 	if Postal_OpenAllMenuButton and not Postal_OpenAllMenuButton.handled then
 		PLUGIN:ApplyPaginationStyle(Postal_OpenAllMenuButton, true)
@@ -66,14 +66,14 @@ local function StylePostal()
 		Postal_OpenAllMenuButton.handled = true
 	end
 	if PostalOpenAllButton and not PostalOpenAllButton.handled then
-		PostalOpenAllButton:SetButtonTemplate()
+		PostalOpenAllButton:SetStylePanel("Button")
 		PostalOpenAllButton.handled = true
-		PostalOpenAllButton:Point("CENTER", InboxFrame, "TOP", -34, -400)
+		PostalOpenAllButton:SetPointToScale("CENTER", InboxFrame, "TOP", -34, -400)
 	end
 	if PostalSelectReturnButton and not PostalSelectReturnButton.handled then
-		PostalSelectReturnButton:SetButtonTemplate()
+		PostalSelectReturnButton:SetStylePanel("Button")
 		PostalSelectReturnButton.handled = true
-		PostalSelectReturnButton:Point("LEFT", InboxFrame, "TOP", -5, -48)
+		PostalSelectReturnButton:SetPointToScale("LEFT", InboxFrame, "TOP", -5, -48)
 	end
 	if Postal_PackageMenuButton and not Postal_PackageMenuButton.handled then
 		PLUGIN:ApplyPaginationStyle(Postal_PackageMenuButton, true)

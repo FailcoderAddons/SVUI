@@ -192,7 +192,7 @@ local LootRoll_OnUpdate = function(self)
 	if not self.parent.rollID then return end 
 	local remaining = GetLootRollTimeLeft(self.parent.rollID)
 	local mu = remaining / self.parent.time;
-	self.spark:Point("CENTER", self, "LEFT", mu * self:GetWidth(), 0)
+	self.spark:SetPointToScale("CENTER", self, "LEFT", mu * self:GetWidth(), 0)
 	self:SetValue(remaining)
 	if remaining > 1000000000 then
 		self:GetParent():Hide()
@@ -253,18 +253,18 @@ local function HandleSlots(frame)
 		local slot = frame.slots[i]
 		if slot:IsShown() then
 			counter = counter + 1;
-			slot:Point("TOP", SVUI_LootFrame, 4, (-8 + scale) - (counter * scale))
+			slot:SetPointToScale("TOP", SVUI_LootFrame, 4, (-8 + scale) - (counter * scale))
 		end 
 	end 
-	frame:Height(max(counter * scale + 16, 20))
+	frame:SetHeightToScale(max(counter * scale + 16, 20))
 end 
 
 local function MakeSlots(id)
 	local size = LOOT_HEIGHT;
 	local slot = CreateFrame("Button", "SVUI_LootSlot"..id, SVUI_LootFrame)
-	slot:Point("LEFT", 8, 0)
-	slot:Point("RIGHT", -8, 0)
-	slot:Height(size)
+	slot:SetPointToScale("LEFT", 8, 0)
+	slot:SetPointToScale("RIGHT", -8, 0)
+	slot:SetHeightToScale(size)
 	slot:SetID(id)
 	slot:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 	slot:SetScript("OnEnter", LootSlot_OnEnter)
@@ -273,18 +273,18 @@ local function MakeSlots(id)
 	slot:SetScript("OnShow", LootSlot_OnShow)
 
 	slot.iconFrame = CreateFrame("Frame", nil, slot)
-	slot.iconFrame:Height(size)
-	slot.iconFrame:Width(size)
+	slot.iconFrame:SetHeightToScale(size)
+	slot.iconFrame:SetWidthToScale(size)
 	slot.iconFrame:SetPoint("RIGHT", slot)
-	slot.iconFrame:SetPanelTemplate("Transparent")
+	slot.iconFrame:SetStylePanel("Default", "Transparent")
 
 	slot.icon = slot.iconFrame:CreateTexture(nil, "ARTWORK")
 	slot.icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-	slot.icon:FillInner()
+	slot.icon:SetAllPointsIn()
 
 	slot.count = slot.iconFrame:CreateFontString(nil, "OVERLAY")
 	slot.count:SetJustifyH("RIGHT")
-	slot.count:Point("BOTTOMRIGHT", slot.iconFrame, -2, 2)
+	slot.count:SetPointToScale("BOTTOMRIGHT", slot.iconFrame, -2, 2)
 	slot.count:SetFont(LSM:Fetch("font", "Roboto"), 12, "OUTLINE")
 	slot.count:SetText(1)
 
@@ -303,7 +303,7 @@ local function MakeSlots(id)
 	slot.drop:SetAlpha(.3)
 
 	slot.questTexture = slot.iconFrame:CreateTexture(nil, "OVERLAY")
-	slot.questTexture:FillInner()
+	slot.questTexture:SetAllPointsIn()
 	slot.questTexture:SetTexture(TEXTURE_ITEM_QUEST_BANG)
 	slot.questTexture:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 
@@ -314,8 +314,8 @@ end
 local function CreateRollButton(rollFrame, type, locale, anchor)
 	local preset = RollTypePresets[type];
 	local rollButton = CreateFrame("Button", nil, rollFrame)
-	rollButton:Point("LEFT", anchor, "RIGHT", tonumber(preset[4]), tonumber(preset[5]))
-	rollButton:Size(LOOT_HEIGHT - 4)
+	rollButton:SetPointToScale("LEFT", anchor, "RIGHT", tonumber(preset[4]), tonumber(preset[5]))
+	rollButton:SetSizeToScale(LOOT_HEIGHT - 4)
 	rollButton:SetNormalTexture(preset[1])
 	if preset[2] and preset[2] ~= "" then
 		rollButton:SetPushedTexture(preset[2])
@@ -330,22 +330,22 @@ local function CreateRollButton(rollFrame, type, locale, anchor)
 	rollButton:SetMotionScriptsWhileDisabled(true)
 	local text = rollButton:CreateFontString(nil, nil)
 	text:SetFont(LSM:Fetch("font", "Roboto"),14,"OUTLINE")
-	text:Point("CENTER", 0, ((type == 2 and 1) or (type == 0 and -1.2) or 0))
+	text:SetPointToScale("CENTER", 0, ((type == 2 and 1) or (type == 0 and -1.2) or 0))
 	return rollButton, text 
 end 
 
 local function CreateRollFrame()
 	UpdateLootUpvalues()
 	local rollFrame = CreateFrame("Frame", nil, UIParent)
-	rollFrame:Size(LOOT_WIDTH,LOOT_HEIGHT)
-	rollFrame:SetFixedPanelTemplate('Default')
+	rollFrame:SetSizeToScale(LOOT_WIDTH,LOOT_HEIGHT)
+	rollFrame:SetStylePanel("Fixed", 'Default')
 	rollFrame:SetScript("OnEvent",LootRoll_OnEvent)
 	rollFrame:RegisterEvent("CANCEL_LOOT_ROLL")
 	rollFrame:Hide()
 	rollFrame.button = CreateFrame("Button",nil,rollFrame)
-	rollFrame.button:Point("RIGHT",rollFrame,'LEFT',0,0)
-	rollFrame.button:Size(LOOT_HEIGHT - 2)
-	rollFrame.button:SetPanelTemplate('Default')
+	rollFrame.button:SetPointToScale("RIGHT",rollFrame,'LEFT',0,0)
+	rollFrame.button:SetSizeToScale(LOOT_HEIGHT - 2)
+	rollFrame.button:SetStylePanel("Default", 'Default')
 	rollFrame.button:SetScript("OnEnter",LootItem_SetTooltip)
 	rollFrame.button:SetScript("OnLeave",LootItem_OnLeave)
 	rollFrame.button:SetScript("OnUpdate",LootItem_OnUpdate)
@@ -354,13 +354,13 @@ local function CreateRollFrame()
 	rollFrame.button.icon:SetAllPoints()
 	rollFrame.button.icon:SetTexCoord(0.1,0.9,0.1,0.9 )
 	local border = rollFrame:CreateTexture(nil,"BORDER")
-	border:Point("TOPLEFT",rollFrame,"TOPLEFT",4,0)
-	border:Point("BOTTOMRIGHT",rollFrame,"BOTTOMRIGHT",-4,0)
+	border:SetPointToScale("TOPLEFT",rollFrame,"TOPLEFT",4,0)
+	border:SetPointToScale("BOTTOMRIGHT",rollFrame,"BOTTOMRIGHT",-4,0)
 	border:SetTexture("Interface\\ChatFrame\\ChatFrameBackground")
 	border:SetBlendMode("ADD")
 	border:SetGradientAlpha("VERTICAL",.1,.1,.1,0,.1,.1,.1,0)
 	rollFrame.status=CreateFrame("StatusBar",nil,rollFrame)
-	rollFrame.status:FillInner()
+	rollFrame.status:SetAllPointsIn()
 	rollFrame.status:SetScript("OnUpdate",LootRoll_OnUpdate)
 	rollFrame.status:SetFrameLevel(rollFrame.status:GetFrameLevel() - 1)
 	rollFrame.status:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]])
@@ -371,7 +371,7 @@ local function CreateRollFrame()
 	rollFrame.status.bg:SetAllPoints()
 	rollFrame.status.bg:SetDrawLayer('BACKGROUND',2)
 	rollFrame.status.spark = rollFrame:CreateTexture(nil,"OVERLAY")
-	rollFrame.status.spark:Size(LOOT_HEIGHT * 0.5, LOOT_HEIGHT)
+	rollFrame.status.spark:SetSizeToScale(LOOT_HEIGHT * 0.5, LOOT_HEIGHT)
 	rollFrame.status.spark:SetTexture("Interface\\CastingBar\\UI-CastingBar-Spark")
 	rollFrame.status.spark:SetBlendMode("ADD")
 
@@ -382,19 +382,19 @@ local function CreateRollFrame()
 	rollFrame.NeedIt,rollFrame.WantIt,rollFrame.BreakIt = needButton,greedButton,deButton;
 	rollFrame.need,rollFrame.greed,rollFrame.pass,rollFrame.disenchant = needText,greedText,passText,deText;
 	rollFrame.bindText = rollFrame:CreateFontString()
-	rollFrame.bindText:Point("LEFT",passButton,"RIGHT",3,1)
+	rollFrame.bindText:SetPointToScale("LEFT",passButton,"RIGHT",3,1)
 	rollFrame.bindText:SetFont(LSM:Fetch("font", "SVUI Number Font"),14,"OUTLINE")
 	rollFrame.lootText = rollFrame:CreateFontString(nil,"ARTWORK")
 	rollFrame.lootText:SetFont(LSM:Fetch("font", "SVUI Number Font"),14,"OUTLINE")
-	rollFrame.lootText:Point("LEFT",rollFrame.bindText,"RIGHT",0,0)
-	rollFrame.lootText:Point("RIGHT",rollFrame,"RIGHT",-5,0)
-	rollFrame.lootText:Size(200,10)
+	rollFrame.lootText:SetPointToScale("LEFT",rollFrame.bindText,"RIGHT",0,0)
+	rollFrame.lootText:SetPointToScale("RIGHT",rollFrame,"RIGHT",-5,0)
+	rollFrame.lootText:SetSizeToScale(200,10)
 	rollFrame.lootText:SetJustifyH("LEFT")
 
 	rollFrame.yourRoll = rollFrame:CreateFontString(nil,"ARTWORK")
 	rollFrame.yourRoll:SetFont(LSM:Fetch("font", "SVUI Number Font"),18,"OUTLINE")
-	rollFrame.yourRoll:Size(22,22)
-	rollFrame.yourRoll:Point("LEFT",rollFrame,"RIGHT",5,0)
+	rollFrame.yourRoll:SetSizeToScale(22,22)
+	rollFrame.yourRoll:SetPointToScale("LEFT",rollFrame,"RIGHT",5,0)
 	rollFrame.yourRoll:SetJustifyH("CENTER")
 
 	rollFrame.rolls = {}
@@ -408,7 +408,7 @@ local function FetchRollFrame()
 		end 
 	end 
 	local roll = CreateRollFrame()
-	roll:Point("TOP", next(MOD.RollFrames) and MOD.RollFrames[#MOD.RollFrames] or SVUI_AlertFrame, "BOTTOM", 0, -4);
+	roll:SetPointToScale("TOP", next(MOD.RollFrames) and MOD.RollFrames[#MOD.RollFrames] or SVUI_AlertFrame, "BOTTOM", 0, -4);
 	tinsert(MOD.RollFrames, roll)
 	return roll 
 end  
@@ -545,7 +545,7 @@ local OpenedLootHandler = function(_, event, autoLoot)
 	titleWidth = titleWidth + 5;
 	local color = ITEM_QUALITY_COLORS[iQuality]
 	SVUI_LootFrame:SetBackdropBorderColor(color.r, color.g, color.b, .8)
-	SVUI_LootFrame:Width(max(nameWidth, titleWidth))
+	SVUI_LootFrame:SetWidthToScale(max(nameWidth, titleWidth))
 end 
 
 local LootComplexEventsHandler = function(_, event, arg1, arg2)
@@ -644,11 +644,11 @@ function MOD:SetLootFrames()
 	UIPARENT_MANAGED_FRAME_POSITIONS["GroupLootContainer"] = nil;
 	LootFrame:UnregisterAllEvents();
 
-	SVUI_LootFrameHolder:Size(150, 22);
+	SVUI_LootFrameHolder:SetSizeToScale(150, 22);
 	SV.Mentalo:Add(SVUI_LootFrameHolder, L["Loot Frame"], nil, nil, "SVUI_LootFrame");
 	
-	SVUI_LootFrame:Size(256, 64);
-	SVUI_LootFrame:SetFixedPanelTemplate('Transparent');
+	SVUI_LootFrame:SetSizeToScale(256, 64);
+	SVUI_LootFrame:SetStylePanel("Fixed", 'Transparent');
 	SVUI_LootFrame.title:SetFont(LSM:Fetch("font", "SVUI Number Font"),18,"OUTLINE")
 	SV:AddToDisplayAudit(SVUI_LootFrame);
 	SVUI_LootFrame:Hide();

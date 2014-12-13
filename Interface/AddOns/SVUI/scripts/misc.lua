@@ -270,7 +270,7 @@ local function LoadDressupHelper()
 	helmet = CreateFrame('CheckButton', nil, CharacterModelFrame, "OptionsCheckButtonTemplate")
 	helmet:SetSize(16, 16)
 	--helmet:RemoveTextures()
-	--helmet:SetCheckboxTemplate()
+	--helmet:SetStylePanel("Checkbox")
 	helmet.text = helmet:CreateFontString(nil, 'OVERLAY', "GameFontNormal")
 	helmet.text:SetPoint("LEFT", 24, 0)
 	helmet.TText = "Show/Hide Helmet"
@@ -281,7 +281,7 @@ local function LoadDressupHelper()
 	cloak = CreateFrame('CheckButton', nil, CharacterModelFrame, "OptionsCheckButtonTemplate")
 	cloak:SetSize(16, 16)
 	--cloak:RemoveTextures()
-	--cloak:SetCheckboxTemplate()
+	--cloak:SetStylePanel("Checkbox")
 	cloak.text = cloak:CreateFontString(nil, 'OVERLAY', "GameFontNormal")
 	cloak.text:SetPoint("LEFT", 24, 0)
 	cloak.TText = "Show/Hide Cloak"
@@ -315,8 +315,8 @@ RaidMarkFrame:SetFrameStrata("DIALOG")
 
 local RaidMarkButton_OnEnter = function(self)
 	self.Texture:ClearAllPoints()
-	self.Texture:Point("TOPLEFT",-10,10)
-	self.Texture:Point("BOTTOMRIGHT",10,-10)
+	self.Texture:SetPointToScale("TOPLEFT",-10,10)
+	self.Texture:SetPointToScale("BOTTOMRIGHT",10,-10)
 end 
 
 local RaidMarkButton_OnLeave = function(self)
@@ -441,7 +441,7 @@ function SV:UpdateTotems()
 	for i = 1, MAX_TOTEMS do 
 		local button = TotemBar[i]
 		local lastButton = TotemBar[i - 1]
-		button:Size(totemSize)
+		button:SetSizeToScale(totemSize)
 		button:ClearAllPoints()
 		if(totemGrowth == "HORIZONTAL" and totemSort == "ASCENDING") then 
 			if(i == 1) then 
@@ -473,7 +473,7 @@ function SV:UpdateTotems()
 	local tS2 = (totemSize + (totemSpace * 2));
 	local tW = (totemGrowth == "HORIZONTAL" and tS1 or tS2);
 	local tH = (totemGrowth == "HORIZONTAL" and tS2 or tS1);
-	TotemBar:Size(tW, tH);
+	TotemBar:SetSizeToScale(tW, tH);
 	Totems_OnEvent()
 end
 
@@ -499,7 +499,7 @@ local function CreateTotemBar()
 		totem:Hide()
 		
 		totem.Icon = totem:CreateTexture(nil, "ARTWORK")
-		totem.Icon:FillInner()
+		totem.Icon:SetAllPointsIn()
 		totem.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 		totem.CD = CreateFrame("Cooldown", "TotemBarTotem"..id.."Cooldown", totem, "CooldownFrameTemplate")
 		totem.CD:SetReverse(true)
@@ -507,7 +507,7 @@ local function CreateTotemBar()
 		totem.Anchor = CreateFrame("Frame", nil, totem)
 		totem.Anchor:SetAllPoints()
 
-		totem:SetButtonTemplate()
+		totem:SetStylePanel("Button")
 
 		totem:EnableMouse(true)
 		totem:SetScript('OnEnter', Totem_OnEnter)
@@ -647,9 +647,9 @@ local function LoadThreatBar()
 		ThreatBar:SetOrientation("VERTICAL")
 		ThreatBar:SetMinMaxValues(0, 100)
 		if(anchor) then
-			ThreatBar:Point('LEFT', _G.SVUI_Target, 'RIGHT', 0, 10)
+			ThreatBar:SetPointToScale('LEFT', _G.SVUI_Target, 'RIGHT', 0, 10)
 		else
-			ThreatBar:Point('LEFT', UIParent, 'CENTER', 50, -50)
+			ThreatBar:SetPointToScale('LEFT', UIParent, 'CENTER', 50, -50)
 		end
 		ThreatBar.backdrop = ThreatBar:CreateTexture(nil,"BACKGROUND")
 		ThreatBar.backdrop:SetAllPoints(ThreatBar)

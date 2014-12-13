@@ -59,7 +59,7 @@ local Reposition = function(self)
 	local size = db.classbar.height
 	local width = size * max;
 	
-	bar.Holder:Size(width, size)
+	bar.Holder:SetSizeToScale(width, size)
     if(not db.classbar.detachFromFrame) then
     	SV.Mentalo:Reset(L["Classbar"])
     end
@@ -78,7 +78,7 @@ local Reposition = function(self)
 		if i==1 then 
 			bar[i]:SetPoint("TOPLEFT", bar, "TOPLEFT", 0, 0)
 		else 
-			bar[i]:Point("LEFT", bar[i - 1], "RIGHT", -1, 0) 
+			bar[i]:SetPointToScale("LEFT", bar[i - 1], "RIGHT", -1, 0) 
 		end
 	end 
 end 
@@ -116,10 +116,10 @@ function MOD:CreateClassBar(playerFrame)
 		bar[i].backdrop:SetTexture(ICON_FILE)
 		bar[i].backdrop:SetTexCoord(0,0.5,0,0.5)
 		local swirl = CreateFrame('Frame', nil, bar[i])
-		swirl:Size(30, 30)
+		swirl:SetSizeToScale(30, 30)
 		swirl:SetPoint("CENTER", bar[i], "CENTER", 0, 0)
 		swirl[1] = swirl:CreateTexture(nil, "OVERLAY", nil, 2)
-		swirl[1]:Size(30, 30)
+		swirl[1]:SetSizeToScale(30, 30)
 		swirl[1]:SetPoint("CENTER")
 		swirl[1]:SetTexture(ICON_FILE)
 		swirl[1]:SetTexCoord(0.5,1,0.5,1)
@@ -127,7 +127,7 @@ function MOD:CreateClassBar(playerFrame)
 		swirl[1]:SetVertexColor(0.7, 0.5, 1)
 		SV.Animate:Orbit(swirl[1], 10, false)
 		swirl[2] = swirl:CreateTexture(nil, "OVERLAY", nil, 1)
-		swirl[2]:Size(30, 30)
+		swirl[2]:SetSizeToScale(30, 30)
 		swirl[2]:SetPoint("CENTER")
 		swirl[2]:SetTexture(ICON_FILE)
 		swirl[2]:SetTexCoord(0.5,1,0.5,1)
@@ -152,7 +152,7 @@ function MOD:CreateClassBar(playerFrame)
 	bar.PreUpdate = PreUpdate
 
 	local classBarHolder = CreateFrame("Frame", "Player_ClassBar", bar)
-	classBarHolder:Point("TOPLEFT", playerFrame, "BOTTOMLEFT", 0, -2)
+	classBarHolder:SetPointToScale("TOPLEFT", playerFrame, "BOTTOMLEFT", 0, -2)
 	bar:SetPoint("TOPLEFT", classBarHolder, "TOPLEFT", 0, 0)
 	bar.Holder = classBarHolder
 	SV.Mentalo:Add(bar.Holder, L["Classbar"])

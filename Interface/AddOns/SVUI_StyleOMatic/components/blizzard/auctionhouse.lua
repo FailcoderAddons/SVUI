@@ -104,43 +104,43 @@ local function AuctionStyle()
 	PLUGIN:ApplyDropdownStyle(DurationDropDown)
 	PLUGIN:ApplyScrollFrameStyle(BrowseFilterScrollFrameScrollBar)
 	PLUGIN:ApplyScrollFrameStyle(BrowseScrollFrameScrollBar)
-	IsUsableCheckButton:SetCheckboxTemplate(true)
-	ShowOnPlayerCheckButton:SetCheckboxTemplate(true)
+	IsUsableCheckButton:SetStylePanel("Checkbox", true)
+	ShowOnPlayerCheckButton:SetStylePanel("Checkbox", true)
 	
-	--ExactMatchCheckButton:SetCheckboxTemplate(true)
+	--ExactMatchCheckButton:SetStylePanel("Checkbox", true)
 	
 	SideDressUpFrame:RemoveTextures(true)
 	SideDressUpFrame:ClearAllPoints()
-	SideDressUpFrame:Size(300, 400)
+	SideDressUpFrame:SetSizeToScale(300, 400)
 	SideDressUpFrame:SetPoint("LEFT", AuctionFrame, "RIGHT", 16, 0)
 	SideDressUpFrame.SetPoint = SV.fubar
 	SideDressUpModel:RemoveTextures(true)
 	SideDressUpModel:SetAllPoints(SideDressUpFrame)
-	SideDressUpModel:SetFixedPanelTemplate("ModelBorder")
-	SideDressUpModelResetButton:SetButtonTemplate()
+	SideDressUpModel:SetStylePanel("Fixed", "ModelBorder")
+	SideDressUpModelResetButton:SetStylePanel("Button")
 	SideDressUpModelResetButton:SetPoint("BOTTOM", SideDressUpModel, "BOTTOM", 0, 20)
 	PLUGIN:ApplyCloseButtonStyle(SideDressUpModelCloseButton)
 
 	AuctionProgressFrame:RemoveTextures()
-	AuctionProgressFrame:SetFixedPanelTemplate("Transparent", true)
-	AuctionProgressFrameCancelButton:SetButtonTemplate()
-	AuctionProgressFrameCancelButton:SetFixedPanelTemplate("Default")
+	AuctionProgressFrame:SetStylePanel("Fixed", "Transparent", true)
+	AuctionProgressFrameCancelButton:SetStylePanel("Button")
+	AuctionProgressFrameCancelButton:SetStylePanel("Fixed", "Default")
 	AuctionProgressFrameCancelButton:SetHitRectInsets(0, 0, 0, 0)
-	AuctionProgressFrameCancelButton:GetNormalTexture():FillInner()
+	AuctionProgressFrameCancelButton:GetNormalTexture():SetAllPointsIn()
 	AuctionProgressFrameCancelButton:GetNormalTexture():SetTexCoord(0.67, 0.37, 0.61, 0.26)
-	AuctionProgressFrameCancelButton:Size(28, 28)
-	AuctionProgressFrameCancelButton:Point("LEFT", AuctionProgressBar, "RIGHT", 8, 0)
+	AuctionProgressFrameCancelButton:SetSizeToScale(28, 28)
+	AuctionProgressFrameCancelButton:SetPointToScale("LEFT", AuctionProgressBar, "RIGHT", 8, 0)
 	AuctionProgressBarIcon:SetTexCoord(0.67, 0.37, 0.61, 0.26)
 
 	local AuctionProgressBarBG = CreateFrame("Frame", nil, AuctionProgressBarIcon:GetParent())
-	AuctionProgressBarBG:WrapOuter(AuctionProgressBarIcon)
-	AuctionProgressBarBG:SetFixedPanelTemplate("Default")
+	AuctionProgressBarBG:SetAllPointsOut(AuctionProgressBarIcon)
+	AuctionProgressBarBG:SetStylePanel("Fixed", "Default")
 	AuctionProgressBarIcon:SetParent(AuctionProgressBarBG)
 
 	AuctionProgressBarText:ClearAllPoints()
 	AuctionProgressBarText:SetPoint("CENTER")
 	AuctionProgressBar:RemoveTextures()
-	AuctionProgressBar:SetPanelTemplate("Default")
+	AuctionProgressBar:SetStylePanel("Default", "Default")
 	AuctionProgressBar:SetStatusBarTexture(SV.Media.bar.default)
 	AuctionProgressBar:SetStatusBarColor(1, 1, 0)
 
@@ -150,25 +150,25 @@ local function AuctionStyle()
 	for _,gName in pairs(AuctionBidButtons) do
 		if(_G[gName]) then
 			_G[gName]:RemoveTextures()
-			_G[gName]:SetButtonTemplate()
+			_G[gName]:SetStylePanel("Button")
 		end
 	end 
 
-	AuctionsCloseButton:Point("BOTTOMRIGHT", AuctionFrameAuctions, "BOTTOMRIGHT", 66, 10)
-	AuctionsCancelAuctionButton:Point("RIGHT", AuctionsCloseButton, "LEFT", -4, 0)
+	AuctionsCloseButton:SetPointToScale("BOTTOMRIGHT", AuctionFrameAuctions, "BOTTOMRIGHT", 66, 10)
+	AuctionsCancelAuctionButton:SetPointToScale("RIGHT", AuctionsCloseButton, "LEFT", -4, 0)
 
-	BidBuyoutButton:Point("RIGHT", BidCloseButton, "LEFT", -4, 0)
-	BidBidButton:Point("RIGHT", BidBuyoutButton, "LEFT", -4, 0)
+	BidBuyoutButton:SetPointToScale("RIGHT", BidCloseButton, "LEFT", -4, 0)
+	BidBidButton:SetPointToScale("RIGHT", BidBuyoutButton, "LEFT", -4, 0)
 
-	BrowseBuyoutButton:Point("RIGHT", BrowseCloseButton, "LEFT", -4, 0)
-	BrowseBidButton:Point("RIGHT", BrowseBuyoutButton, "LEFT", -4, 0)
+	BrowseBuyoutButton:SetPointToScale("RIGHT", BrowseCloseButton, "LEFT", -4, 0)
+	BrowseBidButton:SetPointToScale("RIGHT", BrowseBuyoutButton, "LEFT", -4, 0)
 
 	AuctionsItemButton:RemoveTextures()
-	AuctionsItemButton:SetButtonTemplate()
+	AuctionsItemButton:SetStylePanel("Button")
 	AuctionsItemButton:SetScript("OnUpdate", function()
 		if AuctionsItemButton:GetNormalTexture()then 
 			AuctionsItemButton:GetNormalTexture():SetTexCoord(0.1, 0.9, 0.1, 0.9)
-			AuctionsItemButton:GetNormalTexture():FillInner()
+			AuctionsItemButton:GetNormalTexture():SetAllPointsIn()
 		end 
 	end)
 	
@@ -183,41 +183,41 @@ local function AuctionStyle()
 	PLUGIN:ApplyTabStyle(_G["AuctionFrameTab3"])
 
 	AuctionFrameBrowse.bg1 = CreateFrame("Frame", nil, AuctionFrameBrowse)
-	AuctionFrameBrowse.bg1:Point("TOPLEFT", 20, -103)
-	AuctionFrameBrowse.bg1:Point("BOTTOMRIGHT", -575, 40)
-	AuctionFrameBrowse.bg1:SetFixedPanelTemplate("Inset")
+	AuctionFrameBrowse.bg1:SetPointToScale("TOPLEFT", 20, -103)
+	AuctionFrameBrowse.bg1:SetPointToScale("BOTTOMRIGHT", -575, 40)
+	AuctionFrameBrowse.bg1:SetStylePanel("Fixed", "Inset")
 
 	BrowseNoResultsText:SetParent(AuctionFrameBrowse.bg1)
 	BrowseSearchCountText:SetParent(AuctionFrameBrowse.bg1)
 
-	BrowseSearchButton:Point("TOPRIGHT", AuctionFrameBrowse, "TOPRIGHT", 25, -34)
-	BrowseResetButton:Point("TOPRIGHT", BrowseSearchButton, "TOPLEFT", -4, 0)
+	BrowseSearchButton:SetPointToScale("TOPRIGHT", AuctionFrameBrowse, "TOPRIGHT", 25, -34)
+	BrowseResetButton:SetPointToScale("TOPRIGHT", BrowseSearchButton, "TOPLEFT", -4, 0)
 
 	AuctionFrameBrowse.bg1:SetFrameLevel(AuctionFrameBrowse.bg1:GetFrameLevel()-1)
-	BrowseFilterScrollFrame:Height(300)
+	BrowseFilterScrollFrame:SetHeightToScale(300)
 	AuctionFrameBrowse.bg2 = CreateFrame("Frame", nil, AuctionFrameBrowse)
-	AuctionFrameBrowse.bg2:SetFixedPanelTemplate("Inset")
-	AuctionFrameBrowse.bg2:Point("TOPLEFT", AuctionFrameBrowse.bg1, "TOPRIGHT", 4, 0)
-	AuctionFrameBrowse.bg2:Point("BOTTOMRIGHT", AuctionFrame, "BOTTOMRIGHT", -8, 40)
+	AuctionFrameBrowse.bg2:SetStylePanel("Fixed", "Inset")
+	AuctionFrameBrowse.bg2:SetPointToScale("TOPLEFT", AuctionFrameBrowse.bg1, "TOPRIGHT", 4, 0)
+	AuctionFrameBrowse.bg2:SetPointToScale("BOTTOMRIGHT", AuctionFrame, "BOTTOMRIGHT", -8, 40)
 	AuctionFrameBrowse.bg2:SetFrameLevel(AuctionFrameBrowse.bg2:GetFrameLevel() - 1)
 
 	for i = 1, NUM_FILTERS_TO_DISPLAY do 
 		local header = _G[("AuctionFilterButton%d"):format(i)]
 		if(header) then
 			header:RemoveTextures()
-			header:SetButtonTemplate()
+			header:SetStylePanel("Button")
 		end
 	end 
 
 	for _,field in pairs(AuctionTextFields)do
-		_G[field]:SetEditboxTemplate()
+		_G[field]:SetStylePanel("Editbox")
 		_G[field]:SetTextInsets(-1, -1, -2, -2)
 	end
 
 	BrowseMinLevel:ClearAllPoints()
-	BrowseMinLevel:Point("LEFT", BrowseName, "RIGHT", 8, 0)
+	BrowseMinLevel:SetPointToScale("LEFT", BrowseName, "RIGHT", 8, 0)
 	BrowseMaxLevel:ClearAllPoints()
-	BrowseMaxLevel:Point("LEFT", BrowseMinLevel, "RIGHT", 8, 0)
+	BrowseMaxLevel:SetPointToScale("LEFT", BrowseMinLevel, "RIGHT", 8, 0)
 	AuctionsStackSizeEntry.Panel:SetAllPoints()
 	AuctionsNumStacksEntry.Panel:SetAllPoints()
 
@@ -228,23 +228,23 @@ local function AuctionStyle()
 
 		if(button and (not button.Panel)) then 
 			button:RemoveTextures()
-			button:SetButtonTemplate(false, 1, 1, 1)
+			button:SetStylePanel("Button", false, 1, 1, 1)
 			button.Panel:ClearAllPoints()
 			button.Panel:SetPoint("TOPLEFT", button, "TOPLEFT", 0, 0)
 			button.Panel:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", 0, 5)
 
 			if(buttonItem) then
 				buttonItem:RemoveTextures()
-				buttonItem:SetSlotTemplate(false, 2, 0, 0)
+				buttonItem:SetStylePanel("Slot", false, 2, 0, 0)
 				if(buttonTex) then
 					buttonTex:SetParent(buttonItem.Panel)
-					buttonTex:FillInner(buttonItem.Panel, 2, 2)
+					buttonTex:SetAllPointsIn(buttonItem.Panel, 2, 2)
 					buttonTex:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 				end
 
 				local highLight = button:GetHighlightTexture()
 				highLight:ClearAllPoints()
-				highLight:Point("TOPLEFT", buttonItem, "TOPRIGHT", 2, -2)
+				highLight:SetPointToScale("TOPLEFT", buttonItem, "TOPRIGHT", 2, -2)
 				highLight:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", -2, 7)
 				button:GetPushedTexture():SetAllPoints(highLight)
 				_G["BrowseButton"..h.."Highlight"] = highLight
@@ -260,14 +260,14 @@ local function AuctionStyle()
 		if(button) then
 			if(buttonTex) then 
 				buttonTex:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-				buttonTex:FillInner()
+				buttonTex:SetAllPointsIn()
 			end 
 
 			button:RemoveTextures()
-			button:SetButtonTemplate()
+			button:SetStylePanel("Button")
 
 			if(buttonItem) then 
-				buttonItem:SetButtonTemplate()
+				buttonItem:SetStylePanel("Button")
 				buttonItem.Panel:SetAllPoints()
 				buttonItem:HookScript("OnUpdate", function()
 					buttonItem:GetNormalTexture():Die()
@@ -276,7 +276,7 @@ local function AuctionStyle()
 				local highLight = button:GetHighlightTexture()
 				_G["AuctionsButton"..h.."Highlight"] = highLight
 				highLight:ClearAllPoints()
-				highLight:Point("TOPLEFT", buttonItem, "TOPRIGHT", 2, 0)
+				highLight:SetPointToScale("TOPLEFT", buttonItem, "TOPRIGHT", 2, 0)
 				highLight:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", -2, 5)
 				button:GetPushedTexture():SetAllPoints(highLight)
 			end 
@@ -291,14 +291,14 @@ local function AuctionStyle()
 		if(button) then
 			if(buttonTex) then 
 				buttonTex:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-				buttonTex:FillInner()
+				buttonTex:SetAllPointsIn()
 			end 
 
 			button:RemoveTextures()
-			button:SetButtonTemplate()
+			button:SetStylePanel("Button")
 
 			if(buttonItem) then 
-				buttonItem:SetButtonTemplate()
+				buttonItem:SetStylePanel("Button")
 				buttonItem.Panel:SetAllPoints()
 				buttonItem:HookScript("OnUpdate", function()
 					buttonItem:GetNormalTexture():Die()
@@ -307,30 +307,30 @@ local function AuctionStyle()
 				local highLight = button:GetHighlightTexture()
 				_G["BidButton"..h.."Highlight"] = highLight
 				highLight:ClearAllPoints()
-				highLight:Point("TOPLEFT", buttonItem, "TOPRIGHT", 2, 0)
+				highLight:SetPointToScale("TOPLEFT", buttonItem, "TOPRIGHT", 2, 0)
 				highLight:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", -2, 5)
 				button:GetPushedTexture():SetAllPoints(highLight)
 			end 
 		end
 	end 
 
-	BrowseScrollFrame:Height(300)
+	BrowseScrollFrame:SetHeightToScale(300)
 	AuctionFrameBid.bg = CreateFrame("Frame", nil, AuctionFrameBid)
-	AuctionFrameBid.bg:SetFixedPanelTemplate("Inset")
-	AuctionFrameBid.bg:Point("TOPLEFT", 22, -72)
-	AuctionFrameBid.bg:Point("BOTTOMRIGHT", 66, 39)
+	AuctionFrameBid.bg:SetStylePanel("Fixed", "Inset")
+	AuctionFrameBid.bg:SetPointToScale("TOPLEFT", 22, -72)
+	AuctionFrameBid.bg:SetPointToScale("BOTTOMRIGHT", 66, 39)
 	AuctionFrameBid.bg:SetFrameLevel(AuctionFrameBid.bg:GetFrameLevel()-1)
-	BidScrollFrame:Height(332)
-	AuctionsScrollFrame:Height(336)
+	BidScrollFrame:SetHeightToScale(332)
+	AuctionsScrollFrame:SetHeightToScale(336)
 	AuctionFrameAuctions.bg1 = CreateFrame("Frame", nil, AuctionFrameAuctions)
-	AuctionFrameAuctions.bg1:SetFixedPanelTemplate("Inset")
-	AuctionFrameAuctions.bg1:Point("TOPLEFT", 15, -70)
-	AuctionFrameAuctions.bg1:Point("BOTTOMRIGHT", -545, 35)
+	AuctionFrameAuctions.bg1:SetStylePanel("Fixed", "Inset")
+	AuctionFrameAuctions.bg1:SetPointToScale("TOPLEFT", 15, -70)
+	AuctionFrameAuctions.bg1:SetPointToScale("BOTTOMRIGHT", -545, 35)
 	AuctionFrameAuctions.bg1:SetFrameLevel(AuctionFrameAuctions.bg1:GetFrameLevel() - 2)
 	AuctionFrameAuctions.bg2 = CreateFrame("Frame", nil, AuctionFrameAuctions)
-	AuctionFrameAuctions.bg2:SetFixedPanelTemplate("Inset")
-	AuctionFrameAuctions.bg2:Point("TOPLEFT", AuctionFrameAuctions.bg1, "TOPRIGHT", 3, 0)
-	AuctionFrameAuctions.bg2:Point("BOTTOMRIGHT", AuctionFrame, -8, 35)
+	AuctionFrameAuctions.bg2:SetStylePanel("Fixed", "Inset")
+	AuctionFrameAuctions.bg2:SetPointToScale("TOPLEFT", AuctionFrameAuctions.bg1, "TOPRIGHT", 3, 0)
+	AuctionFrameAuctions.bg2:SetPointToScale("BOTTOMRIGHT", AuctionFrame, -8, 35)
 	AuctionFrameAuctions.bg2:SetFrameLevel(AuctionFrameAuctions.bg2:GetFrameLevel() - 2)
 end 
 --[[ 

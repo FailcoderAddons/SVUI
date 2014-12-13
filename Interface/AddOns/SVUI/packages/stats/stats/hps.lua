@@ -131,5 +131,5 @@ local HPSColorUpdate = function()
 	end
 end
 
-LibSuperVillain("Registry"):NewCallback("CORE_MEDIA_UPDATED", "HPSColorUpdates", HPSColorUpdate)
+SV.Events:On("SVUI_COLORS_UPDATED", "HPSColorUpdates", HPSColorUpdate)
 MOD:Extend('HPS', StatEvents, HPS_OnEvent, nil, HPS_OnClick, HPS_OnEnter)

@@ -767,12 +767,12 @@ local function MakeCommWindow()
 		local poi = CreateFrame("Frame", poiName, frame)
 		poi:SetSize((DOCK_WIDTH - 2), sectionHeight)
 		poi:SetPoint("TOP", frame, "TOP", 0, -yOffset)
-		poi:SetPanelTemplate("Transparent")
+		poi:SetStylePanel("Default", "Transparent")
 
 		local safe = CreateFrame("Button", nil, poi)
 		safe:SetSize(sectionWidth, sectionHeight)
 		safe:SetPoint("RIGHT", poi, "RIGHT", -2, 0)
-		safe:SetButtonTemplate()
+		safe:SetStylePanel("Button")
 		safe:SetPanelColor("green")
 		local sicon = safe:CreateTexture(nil, "OVERLAY")
 		sicon:SetPoint("CENTER", safe, "CENTER", 0, 0)
@@ -788,7 +788,7 @@ local function MakeCommWindow()
 		local help = CreateFrame("Button", nil, poi)
 		help:SetSize(sectionWidth, sectionHeight)
 		help:SetPoint("RIGHT", safe, "LEFT", -2, 0)
-		help:SetButtonTemplate()
+		help:SetStylePanel("Button")
 		help:SetPanelColor("red")
 		local hicon = help:CreateTexture(nil, "OVERLAY")
 		hicon:SetPoint("CENTER", help, "CENTER", 0, 0)
@@ -849,15 +849,15 @@ local function MakeInfoWindow()
 	local DATA_HEIGHT = frame:GetHeight() - 2;
 
 	local leftColumn = CreateFrame("Frame", "SVUI_FightOMaticInfoLeft", frame)
-	leftColumn:Size(DATA_WIDTH, DATA_HEIGHT)
-	leftColumn:Point("LEFT", frame, "LEFT", 0, 0)
+	leftColumn:SetSizeToScale(DATA_WIDTH, DATA_HEIGHT)
+	leftColumn:SetPointToScale("LEFT", frame, "LEFT", 0, 0)
 	leftColumn.lockedOpen = true
 	SV.SVStats:NewAnchor(leftColumn, 3, "ANCHOR_CURSOR", nil, "Transparent", true)
 	leftColumn:SetFrameLevel(0)
 
 	local rightColumn = CreateFrame("Frame", "SVUI_FightOMaticInfoRight", frame)
-	rightColumn:Size(DATA_WIDTH, DATA_HEIGHT)
-	rightColumn:Point("LEFT", leftColumn, "RIGHT", 2, 0)
+	rightColumn:SetSizeToScale(DATA_WIDTH, DATA_HEIGHT)
+	rightColumn:SetPointToScale("LEFT", leftColumn, "RIGHT", 2, 0)
 	rightColumn.lockedOpen = true
 	SV.SVStats:NewAnchor(rightColumn, 3, "ANCHOR_CURSOR", nil, "Transparent", true)
 	rightColumn:SetFrameLevel(0)
@@ -909,13 +909,13 @@ local FightOMaticAlert_OnShow = function(self)
 		self:Hide() 
 		return; 
 	end
-	SV:SecureFadeIn(self, 0.3, 0, 1)
+	self:FadeIn(0.3, 0, 1)
 	SV.Dock.BottomRight.Alert:Activate(self)
 end
 
 local FightOMaticAlert_OnMouseDown = function(self)
 	-- DO STUFF
-	SV:SecureFadeOut(self, 0.5, 1, 0, true)
+	self:FadeOut(0.5, 1, 0, true)
 end
 
 local FightOMaticTool_OnEnter = function(self)
@@ -934,21 +934,21 @@ local FightOMaticTool_OnLeave = function(self)
 end
 
 local FightOMaticTool_OnMouseDown = function(self)
-	SV:SecureFadeOut(PLUGIN.LOG, 0.5, 1, 0, true)
-	SV:SecureFadeOut(PLUGIN.COMM, 0.5, 1, 0, true)
-	SV:SecureFadeOut(PLUGIN.TOOL, 0.5, 1, 0, true)
-	SV:SecureFadeOut(PLUGIN.INFO, 0.5, 1, 0, true)
-	SV:SecureFadeIn(self.Window, 0.3, 0, 1)
+	PLUGIN.LOG:FadeOut(0.5, 1, 0, true)
+	PLUGIN.COMM:FadeOut(0.5, 1, 0, true)
+	PLUGIN.TOOL:FadeOut(0.5, 1, 0, true)
+	PLUGIN.INFO:FadeOut(0.5, 1, 0, true)
+	self.Window:FadeIn(0.3, 0, 1)
 	PLUGIN.Title:Clear();
 	PLUGIN.Title:AddMessage(self.TTitle, 1, 1, 0);
 end
 
 local Scanner_OnMouseDown = function(self)
-	SV:SecureFadeOut(PLUGIN.LOG, 0.5, 1, 0, true)
-	SV:SecureFadeOut(PLUGIN.COMM, 0.5, 1, 0, true)
-	SV:SecureFadeOut(PLUGIN.TOOL, 0.5, 1, 0, true)
-	SV:SecureFadeOut(PLUGIN.INFO, 0.5, 1, 0, true)
-	SV:SecureFadeIn(self.Window, 0.3, 0, 1)
+	PLUGIN.LOG:FadeOut(0.5, 1, 0, true)
+	PLUGIN.COMM:FadeOut(0.5, 1, 0, true)
+	PLUGIN.TOOL:FadeOut(0.5, 1, 0, true)
+	PLUGIN.INFO:FadeOut(0.5, 1, 0, true)
+	self.Window:FadeIn(0.3, 0, 1)
 	PLUGIN:PopulateScans()
 end
 
@@ -1022,7 +1022,7 @@ function PLUGIN:Load()
 	tool4:SetSize(BUTTON_SIZE,BUTTON_SIZE)
 	tool4.icon = tool4:CreateTexture(nil, 'OVERLAY')
 	tool4.icon:SetTexture(INFO_ICON)
-	tool4.icon:FillInner(tool4)
+	tool4.icon:SetAllPointsIn(tool4)
 	tool4.icon:SetGradient("VERTICAL", 0.5, 0.53, 0.55, 0.8, 0.8, 1)
 	tool4.TText = "Stats"
 	tool4.TTitle = "Statistics and Information"
@@ -1035,7 +1035,7 @@ function PLUGIN:Load()
 	tool3:SetSize(BUTTON_SIZE,BUTTON_SIZE)
 	tool3.icon = tool3:CreateTexture(nil, 'OVERLAY')
 	tool3.icon:SetTexture(UTILITY_ICON)
-	tool3.icon:FillInner(tool3)
+	tool3.icon:SetAllPointsIn(tool3)
 	tool3.icon:SetGradient("VERTICAL", 0.5, 0.53, 0.55, 0.8, 0.8, 1)
 	tool3.TText = "Tools"
 	tool3.TTitle = "Tools and Utilities"
@@ -1048,7 +1048,7 @@ function PLUGIN:Load()
 	tool2:SetSize(BUTTON_SIZE,BUTTON_SIZE)
 	tool2.icon = tool2:CreateTexture(nil, 'OVERLAY')
 	tool2.icon:SetTexture(RADIO_ICON)
-	tool2.icon:FillInner(tool2)
+	tool2.icon:SetAllPointsIn(tool2)
 	tool2.icon:SetGradient("VERTICAL", 0.5, 0.53, 0.55, 0.8, 0.8, 1)
 	tool2.TText = "Radio"
 	tool2.TTitle = "Radio Communicator"
@@ -1061,7 +1061,7 @@ function PLUGIN:Load()
 	tool1:SetSize(BUTTON_SIZE,BUTTON_SIZE)
 	tool1.icon = tool1:CreateTexture(nil, 'OVERLAY')
 	tool1.icon:SetTexture(SCANNER_ICON)
-	tool1.icon:FillInner(tool1)
+	tool1.icon:SetAllPointsIn(tool1)
 	tool1.icon:SetGradient("VERTICAL", 0.5, 0.53, 0.55, 0.8, 0.8, 1)
 	tool1.TText = "Scanner"
 	tool1.TTitle = "Enemy Scanner"
@@ -1092,7 +1092,7 @@ function PLUGIN:Load()
     local listbutton = CreateFrame("Button", nil, self.Docklet)
     listbutton:SetPoint("TOPLEFT", title, "BOTTOMLEFT",0,0)
 	listbutton:SetPoint("BOTTOMRIGHT", title, "BOTTOMRIGHT",0,-14)
-	listbutton:SetButtonTemplate(true, 1, 1, 1)
+	listbutton:SetStylePanel("Button", true, 1, 1, 1)
 	listbutton.ShowingKOS = false
 	listbutton:SetScript("OnEnter", Switch_OnEnter)
 	listbutton:SetScript("OnLeave", Switch_OnLeave)
@@ -1125,7 +1125,7 @@ function PLUGIN:Load()
 	MakeUtilityWindow()
 	MakeInfoWindow()
 
-	self.Docklet:Hide()
+	--self.Docklet:Hide()
 
 	self:ResetLogs()
 

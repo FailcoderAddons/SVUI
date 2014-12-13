@@ -43,7 +43,7 @@ local function BindingStyle()
 		local btn = _G[gName]
 		if(btn) then
 			btn:RemoveTextures()
-			btn:SetButtonTemplate()
+			btn:SetStylePanel("Button")
 		end
 	end
 
@@ -51,19 +51,19 @@ local function BindingStyle()
 		local button1 = _G["KeyBindingFrameBinding"..i.."Key1Button"]
 		if(button1) then
 			button1:RemoveTextures(true)
-			button1:SetEditboxTemplate()
+			button1:SetStylePanel("Editbox")
 		end
 
 		local button2 = _G["KeyBindingFrameBinding"..i.."Key2Button"]
 		if(button2) then
 			button2:RemoveTextures(true)
-			button2:SetEditboxTemplate()
+			button2:SetStylePanel("Editbox")
 		end
 	end
 
 	PLUGIN:ApplyScrollFrameStyle(KeyBindingFrameScrollFrameScrollBar)
 	KeyBindingFrame:RemoveTextures()
-	KeyBindingFrame:SetPanelTemplate("Halftone")
+	KeyBindingFrame:SetStylePanel("Default", "Halftone")
 end
 --[[ 
 ########################################################## 

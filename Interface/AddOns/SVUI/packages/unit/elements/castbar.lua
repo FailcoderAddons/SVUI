@@ -136,7 +136,7 @@ local function SetCastTicks(bar,count,mod)
 			ticks[i] = bar:CreateTexture(nil,'OVERLAY')
 			ticks[i]:SetTexture(SV.Media.bar.lazer)
 			ticks[i]:SetVertexColor(0,0,0,0.8)
-			ticks[i]:Width(1)
+			ticks[i]:SetWidthToScale(1)
 			ticks[i]:SetHeight(bar:GetHeight())
 		end 
 		ticks[i]:ClearAllPoints()
@@ -211,7 +211,7 @@ end
 local function SetCastbarFading(castbar, texture)
 	local fader = CreateFrame("Frame", nil, castbar)
 	fader:SetFrameLevel(2)
-	fader:FillInner(castbar)
+	fader:SetAllPointsIn(castbar)
 	fader:SetBackdrop({bgFile = texture})
 	fader:SetBackdropColor(0, 0, 0, 0)
 	fader:SetAlpha(0)
@@ -225,7 +225,7 @@ local function SetCastbarFading(castbar, texture)
 	fader:RegisterEvent("UNIT_SPELLCAST_FAILED_QUIET")
 	fader.mask = CreateFrame("Frame", nil, castbar)
 	fader.mask:SetBackdrop({bgFile = texture})
-	fader.mask:FillInner(castbar)
+	fader.mask:SetAllPointsIn(castbar)
 	fader.mask:SetFrameLevel(2)
 	fader.mask:SetBackdropColor(0, 0, 0, 0)
 	fader.mask:SetAlpha(0)
@@ -518,17 +518,17 @@ function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss)
 	organizer:SetFrameStrata("HIGH")
 
 	local iconHolder = CreateFrame("Frame", nil, organizer)
-	iconHolder:SetFixedPanelTemplate("Inset", false)
+	iconHolder:SetStylePanel("Fixed", "Inset", false)
 	organizer.Icon = iconHolder
 
 	local buttonIcon = iconHolder:CreateTexture(nil, "BORDER")
-	buttonIcon:FillInner()
+	buttonIcon:SetAllPointsIn()
 	buttonIcon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 	castbar.Icon = buttonIcon;
 
 	local shieldIcon = iconHolder:CreateTexture(nil, "ARTWORK")
-	shieldIcon:Point("TOPLEFT", buttonIcon, "TOPLEFT", -7, 7)
-	shieldIcon:Point("BOTTOMRIGHT", buttonIcon, "BOTTOMRIGHT", 7, -8)
+	shieldIcon:SetPointToScale("TOPLEFT", buttonIcon, "TOPLEFT", -7, 7)
+	shieldIcon:SetPointToScale("BOTTOMRIGHT", buttonIcon, "BOTTOMRIGHT", 7, -8)
 	shieldIcon:SetTexture("Interface\\Addons\\SVUI\\assets\\artwork\\Unitframe\\Castbar\\SHIELD")
 	castbar.Shield = shieldIcon;
 
@@ -548,13 +548,13 @@ function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss)
 		castbar.Time:SetFont(SV.Media.font.numbers, 12, "OUTLINE")
 		castbar.Time:SetShadowOffset(1, -1)
 		castbar.Time:SetTextColor(1, 1, 1)
-		castbar.Text:SetFont(SV.Media.font.alert, 13, "OUTLINE")
-		castbar.Text:SetShadowOffset(1, -1)
+		castbar.Text:SetFont(SV.Media.font.alert, 12, "OUTLINE")
+		castbar.Text:SetShadowOffset(0, 0)
 		castbar.Text:SetTextColor(1, 1, 1)
 
 		castbar:SetStatusBarTexture(SV.Media.bar.lazer)
 
-		bgFrame:FillInner(castbar, -2, 10)
+		bgFrame:SetAllPointsIn(castbar, -2, 10)
 		bgFrame:SetFrameLevel(bgFrame:GetFrameLevel() - 1)
 
 	  	castbar.LatencyTexture:SetTexture(SV.Media.bar.lazer)
@@ -565,7 +565,7 @@ function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss)
 		hadouken:SetWidth(50)
 		hadouken:SetAlpha(0.9)
 
-		castbarHolder:Point("TOP", frame, "BOTTOM", 0, isBoss and -4 or -35)
+		castbarHolder:SetPointToScale("TOP", frame, "BOTTOM", 0, isBoss and -4 or -35)
 
 		if reversed then 
 			castbar:SetReverseFill(true)
@@ -585,7 +585,7 @@ function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss)
 			SV.Animate:Sprite(hadouken[1],false,false,true)
 
 			hadouken[2] = hadouken:CreateTexture(nil, "ARTWORK")
-			hadouken[2]:FillInner(hadouken, 4, 4)
+			hadouken[2]:SetAllPointsIn(hadouken, 4, 4)
 			hadouken[2]:SetBlendMode("ADD")
 			hadouken[2]:SetTexture("Interface\\Addons\\SVUI\\assets\\artwork\\Unitframe\\Castbar\\CHANNEL-REVERSED")
 			hadouken[2]:SetVertexColor(colors.spark[1],colors.spark[2],colors.spark[3])
@@ -599,10 +599,10 @@ function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss)
 
 			SV.Animate:Sprite(hadouken[2],false,false,true)
 
-			castbar:Point("BOTTOMLEFT", castbarHolder, "BOTTOMLEFT", 1, 1)
-			organizer:Point("LEFT", castbar, "RIGHT", 4, 0)
+			castbar:SetPointToScale("BOTTOMLEFT", castbarHolder, "BOTTOMLEFT", 1, 1)
+			organizer:SetPointToScale("LEFT", castbar, "RIGHT", 4, 0)
 
-			castbar.Time:Point("RIGHT", castbar, "LEFT", -4, 0)
+			castbar.Time:SetPointToScale("RIGHT", castbar, "LEFT", -4, 0)
 			castbar.Time:SetJustifyH("CENTER")
 		else
 			hadouken[1] = hadouken:CreateTexture(nil, "ARTWORK")
@@ -621,7 +621,7 @@ function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss)
 			SV.Animate:Sprite(hadouken[1],false,false,true)
 
 			hadouken[2] = hadouken:CreateTexture(nil, "ARTWORK")
-			hadouken[2]:FillInner(hadouken, 4, 4)
+			hadouken[2]:SetAllPointsIn(hadouken, 4, 4)
 			hadouken[2]:SetBlendMode("ADD")
 			hadouken[2]:SetTexture("Interface\\Addons\\SVUI\\assets\\artwork\\Unitframe\\Castbar\\CHANNEL")
 			hadouken[2]:SetVertexColor(colors.spark[1],colors.spark[2],colors.spark[3])
@@ -635,17 +635,17 @@ function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss)
 
 			SV.Animate:Sprite(hadouken[2],false,false,true)
 			
-			castbar:Point("BOTTOMRIGHT", castbarHolder, "BOTTOMRIGHT", -1, 1)
-			organizer:Point("RIGHT", castbar, "LEFT", -4, 0)
+			castbar:SetPointToScale("BOTTOMRIGHT", castbarHolder, "BOTTOMRIGHT", -1, 1)
+			organizer:SetPointToScale("RIGHT", castbar, "LEFT", -4, 0)
 
-			castbar.Time:Point("LEFT", castbar, "RIGHT", 4, 0)
+			castbar.Time:SetPointToScale("LEFT", castbar, "RIGHT", 4, 0)
 			castbar.Time:SetJustifyH("CENTER")
 		end
 
-		-- castbar.Time:Point("CENTER", organizer, "CENTER", 0, 0)
+		-- castbar.Time:SetPointToScale("CENTER", organizer, "CENTER", 0, 0)
 		-- castbar.Time:SetJustifyH("CENTER")
 
-		castbar.Text:SetPoint("CENTER", castbar, "CENTER", 0, 0)
+		castbar.Text:SetAllPoints(castbar)
 		castbar.Text:SetJustifyH("CENTER")
 	else
 		castbar.Time:SetFont(SV.Media.font.roboto, 11)
@@ -657,14 +657,14 @@ function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss)
 		castbar.Text:SetFont(SV.Media.font.roboto, 11)
 		castbar.Text:SetShadowOffset(1, -1)
 		castbar.Text:SetTextColor(1, 1, 1, 0.9)
-		castbar.Text:Point("CENTER", castbar, "CENTER", 0, 0)
+		castbar.Text:SetAllPoints(castbar)
 		castbar.Text:SetJustifyH("CENTER")
 
 		castbar.pewpew = false
 
 		castbar:SetStatusBarTexture(SV.Media.bar.glow)
-		castbarHolder:Point("TOP", frame, "BOTTOM", 0, -4)
-		castbar:FillInner(castbarHolder, 2, 2)
+		castbarHolder:SetPointToScale("TOP", frame, "BOTTOM", 0, -4)
+		castbar:SetAllPointsIn(castbarHolder, 2, 2)
 
 		bgFrame:SetAllPoints(castbarHolder)
 		bgFrame:SetFrameLevel(bgFrame:GetFrameLevel() - 1)
@@ -673,9 +673,9 @@ function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss)
 
 		if reversed then 
 			castbar:SetReverseFill(true)
-			organizer:Point("LEFT", castbar, "RIGHT", 6, 0)
+			organizer:SetPointToScale("LEFT", castbar, "RIGHT", 6, 0)
 		else
-			organizer:Point("RIGHT", castbar, "LEFT", -6, 0)
+			organizer:SetPointToScale("RIGHT", castbar, "LEFT", -6, 0)
 		end
 	end 
 

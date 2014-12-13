@@ -197,9 +197,9 @@ function MOD:InitializeQuestItem()
 	local buttonSize = SVUI_SpecialAbility:GetSize()
 
 	local Button = CreateFrame('Button', "SVUI_QuestAutoButton", UIParent, 'SecureActionButtonTemplate, SecureHandlerStateTemplate, SecureHandlerAttributeTemplate')
-	Button:Size(SVUI_SpecialAbility:GetSize())
+	Button:SetSizeToScale(SVUI_SpecialAbility:GetSize())
 	Button:SetPoint('CENTER', SVUI_SpecialAbility, 'CENTER', 0, 0)
-	Button:SetSlotTemplate(true)
+	Button:SetStylePanel("Slot", true)
 	Button:SetScript('OnLeave', GameTooltip_Hide)
 	Button:SetAttribute('type', 'item')
 	Button.updateTimer = 0

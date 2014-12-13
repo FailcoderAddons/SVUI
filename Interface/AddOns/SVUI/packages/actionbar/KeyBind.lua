@@ -261,7 +261,7 @@ end
 local BinderButton_OnEnter = function(self)
   local parent = self.button:GetParent()
   if parent and parent._fade then 
-    SV:SecureFadeIn(parent, 0.2, parent:GetAlpha(), parent._alpha)
+    parent:FadeIn(0.2, parent:GetAlpha(), parent._alpha)
   end
 end 
 
@@ -271,7 +271,7 @@ local BinderButton_OnLeave = function(self)
   self:Hide()
   GameTooltip:Hide()
   if parent and parent._fade then 
-    SV:SecureFadeOut(parent, 1, parent:GetAlpha(), 0)
+    parent:FadeOut(1, parent:GetAlpha(), 0)
   end
 end 
 
@@ -470,11 +470,11 @@ function MOD:LoadKeyBinder()
   pop:SetClampedToScreen(true)
   pop:SetWidth(360)
   pop:SetHeight(130)
-  pop:SetFixedPanelTemplate("Transparent")
+  pop:SetStylePanel("Fixed", "Transparent")
   pop:Hide()
 
   local moveHandle = NewFrame("Button", nil, pop)
-  moveHandle:SetFixedPanelTemplate("Button", true)
+  moveHandle:SetStylePanel("Fixed", "Button", true)
   moveHandle:SetWidth(100)
   moveHandle:SetHeight(25)
   moveHandle:SetPoint("CENTER", pop, "TOP")
@@ -500,7 +500,7 @@ function MOD:LoadKeyBinder()
   moveDesc:SetText(L["Hover your mouse over any actionbutton or spellbook button to bind it. Press the escape key or right click to clear the current actionbutton's keybinding."])
 
   local checkButton = NewFrame("CheckButton", "SVUI_KeyBindPopupCheckButton", pop, "OptionsCheckButtonTemplate")
-  checkButton:SetCheckboxTemplate(true)
+  checkButton:SetStylePanel("Checkbox", true)
   _G["SVUI_KeyBindPopupCheckButtonText"]:SetText(CHARACTER_SPECIFIC_KEYBINDINGS)
   checkButton:SetScript("OnShow", Check_OnShow)
   checkButton:SetScript("OnClick", Check_OnClick)
@@ -508,14 +508,14 @@ function MOD:LoadKeyBinder()
   checkButton:SetScript("OnLeave", GameTooltip_Hide)
 
   local saveButton = NewFrame("Button", "SVUI_KeyBindPopupSaveButton", pop, "OptionsButtonTemplate")
-  saveButton:Width(150)
-  saveButton:SetButtonTemplate()
+  saveButton:SetWidthToScale(150)
+  saveButton:SetStylePanel("Button")
   _G["SVUI_KeyBindPopupSaveButtonText"]:SetText(L["Save"])
   saveButton:SetScript("OnClick", Save_OnClick)
 
   local discardButton = NewFrame("Button", "SVUI_KeyBindPopupDiscardButton", pop, "OptionsButtonTemplate")
-  discardButton:Width(150)
-  discardButton:SetButtonTemplate()
+  discardButton:SetWidthToScale(150)
+  discardButton:SetStylePanel("Button")
   _G["SVUI_KeyBindPopupDiscardButtonText"]:SetText(L["Discard"])
   discardButton:SetScript("OnClick", Discard_OnClick)
 

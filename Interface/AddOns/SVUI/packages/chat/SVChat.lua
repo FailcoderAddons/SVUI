@@ -522,16 +522,16 @@ do
 		local lastTab = TabsList[1];
 		if(lastTab) then
 			lastTab:ClearAllPoints()
-			lastTab:Point("LEFT", MOD.Dock.Bar, "LEFT", 2, 0);
+			lastTab:SetPointToScale("LEFT", MOD.Dock.Bar, "LEFT", 2, 0);
 		end
 		local offset = 1;
 		for chatID,frame in pairs(TabsList) do
 			if(frame and chatID ~= 1 and frame.isDocked) then
 				frame:ClearAllPoints()
 				if(not lastTab) then
-					frame:Point("LEFT", MOD.Dock.Bar, "LEFT", 2, 0);
+					frame:SetPointToScale("LEFT", MOD.Dock.Bar, "LEFT", 2, 0);
 				else
-					frame:Point("LEFT", lastTab, "RIGHT", 6, 0);
+					frame:SetPointToScale("LEFT", lastTab, "RIGHT", 6, 0);
 				end
 				lastTab = frame
 			end
@@ -551,7 +551,7 @@ do
 		end
 		frame:SetParent(chat)
 		frame:ClearAllPoints()
-		frame:Point("TOPLEFT", chat, "BOTTOMLEFT", 0, 0)
+		frame:SetPointToScale("TOPLEFT", chat, "BOTTOMLEFT", 0, 0)
 		_repositionDockedTabs()
 	end
 
@@ -578,10 +578,10 @@ do
 		tab:SetParent(holder)
 		tab:ClearAllPoints()
 		tab:SetAllPoints(holder)
-		tab:SetFramedButtonTemplate()
+		tab:SetStylePanel("Framed") 
 		tab.icon = tab:CreateTexture(nil,"BACKGROUND",nil,3)
-		tab.icon:Size(tabSize * 1.25, tabSize)
-		tab.icon:Point("CENTER",tab,"CENTER",0,0)
+		tab.icon:SetSizeToScale(tabSize * 1.25, tabSize)
+		tab.icon:SetPointToScale("CENTER",tab,"CENTER",0,0)
 		tab.icon:SetTexture(ICONARTFILE)
 		if(tab.conversationIcon) then
 			tab.icon:SetGradient("VERTICAL", 0.1, 0.53, 0.65, 0.3, 0.7, 1)
@@ -618,7 +618,7 @@ do
 		chat:SetFont(CHAT_FONT, CHAT_FONTSIZE, CHAT_FONTOUTLINE)
 		tabText:SetFont(TAB_FONT, TAB_FONTSIZE, TAB_FONTOUTLINE)
 		if(not chat.Panel) then
-			chat:SetPanelTemplate("Transparent")
+			chat:SetStylePanel("Default", "Transparent")
 			chat.Panel:Hide()
 		end
 		if(CHAT_FONTOUTLINE ~= 'NONE' )then
@@ -654,13 +654,13 @@ do
 			tab.text:SetTextColor(1, 1, 1)
 			tab.text:SetShadowColor(0, 0, 0)
 			tab.text:SetShadowOffset(2, -2)
-			tab.text:FillInner(tab)
+			tab.text:SetAllPointsIn(tab)
 			tab.text:SetJustifyH("CENTER")
 			tab.text:SetJustifyV("MIDDLE")
 			NewHook(tab.text, "SetTextColor", _hook_TabTextColor)
 			if tab.conversationIcon then 
 				tab.conversationIcon:ClearAllPoints()
-				tab.conversationIcon:Point("RIGHT", tab.text, "LEFT", -1, 0)
+				tab.conversationIcon:SetPointToScale("RIGHT", tab.text, "LEFT", -1, 0)
 			end 
 			if(TAB_SKINS and not tab.IsStyled) then
 				local arg3 = (chat.inUse or chat.isDocked or chat.isTemporary)
@@ -678,7 +678,7 @@ do
 			_G[editBoxName.."FocusLeft"]:Die()
 			_G[editBoxName.."FocusMid"]:Die()
 			_G[editBoxName.."FocusRight"]:Die()
-			editBox:SetPanelTemplate("Headline", true, 2, -2, -3)
+			editBox:SetStylePanel("Default", "Headline", true, 2, -2, -3)
 			editBox:SetAltArrowKeyMode(false)
 			editBox:SetAllPoints(MOD.Dock.Parent.Alert)
 			editBox:HookScript("OnEditFocusGained", EditBox_OnEditFocusGained)
@@ -968,15 +968,15 @@ end
 
 local function DockFadeInChat()
 	local activeChatFrame = FCFDock_GetSelectedWindow(GENERAL_CHAT_DOCK)
-	SV:SecureFadeIn(activeChatFrame, 0.2, activeChatFrame:GetAlpha(), 1)
+	activeChatFrame:FadeIn(0.2, activeChatFrame:GetAlpha(), 1)
 end
-LibSuperVillain("Registry"):NewCallback("DOCKS_FADE_IN", "DockFadeInChat", DockFadeInChat);
+SV.Events:On("DOCKS_FADE_IN", "DockFadeInChat", DockFadeInChat);
 
 local function DockFadeOutChat()
 	local activeChatFrame = FCFDock_GetSelectedWindow(GENERAL_CHAT_DOCK)
-	SV:SecureFadeOut(activeChatFrame, 2, activeChatFrame:GetAlpha(), 0, true)
+	activeChatFrame:FadeOut(2, activeChatFrame:GetAlpha(), 0, true)
 end
-LibSuperVillain("Registry"):NewCallback("DOCKS_FADE_OUT", "DockFadeOutChat", DockFadeOutChat);
+SV.Events:On("DOCKS_FADE_OUT", "DockFadeOutChat", DockFadeOutChat);
 
 function MOD:UpdateLocals()
 	CHAT_WIDTH = (SV.db.Dock.dockLeftWidth or 350) - 10;
@@ -1031,7 +1031,7 @@ function MOD:Load()
 
 	_G.GeneralDockManagerOverflowButton:ClearAllPoints()
 	_G.GeneralDockManagerOverflowButton:SetPoint('BOTTOMRIGHT', self.Dock.Bar, 'BOTTOMRIGHT', -2, 2)
-	_G.GeneralDockManagerOverflowButtonList:SetFixedPanelTemplate('Transparent')
+	_G.GeneralDockManagerOverflowButtonList:SetStylePanel("Fixed", 'Transparent')
 	_G.GeneralDockManager:SetAllPoints(self.Dock.Bar)
 
 	SetAllChatHooks()

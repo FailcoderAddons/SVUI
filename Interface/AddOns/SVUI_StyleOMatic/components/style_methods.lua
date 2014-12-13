@@ -65,13 +65,13 @@ function PLUGIN:ApplyFrameStyle(this, template, noStripping, fullStripping)
 	if(not this or (this and this.Panel)) then return end  
 	if not noStripping then this:RemoveTextures(fullStripping) end
 	template = template or "Transparent"
-	this:SetPanelTemplate(template)
+	this:SetStylePanel("Default", template)
 end 
 
 function PLUGIN:ApplyAdjustedFrameStyle(this, template, xTopleft, yTopleft, xBottomright, yBottomright)
 	if(not this or (this and this.Panel)) then return end
 	template = template or "Transparent"
-	this:SetPanelTemplate(template)
+	this:SetStylePanel("Default", template)
 	this.Panel:SetPoint("TOPLEFT", this, "TOPLEFT", xTopleft, yTopleft)
 	this.Panel:SetPoint("BOTTOMRIGHT", this, "BOTTOMRIGHT", xBottomright, yBottomright)
 end 
@@ -80,7 +80,7 @@ function PLUGIN:ApplyFixedFrameStyle(this, template, noStripping, fullStripping)
 	if(not this or (this and this.Panel)) then return end  
 	if not noStripping then this:RemoveTextures(fullStripping) end
 	template = template or "Transparent"
-    this:SetFixedPanelTemplate(template)
+    this:SetStylePanel("Fixed", template)
 end
 
 function PLUGIN:ApplyWindowStyle(this, action, fullStrip)
@@ -92,7 +92,7 @@ function PLUGIN:ApplyWindowStyle(this, action, fullStrip)
 	end
 	
 	this:RemoveTextures(fullStrip)
-	this:SetPanelTemplate(template)
+	this:SetStylePanel("Default", template)
 end
 
 function PLUGIN:ApplyAdjustedWindowStyle(this, action, fullStrip, padding, xOffset, yOffset)
@@ -104,7 +104,7 @@ function PLUGIN:ApplyAdjustedWindowStyle(this, action, fullStrip, padding, xOffs
 	end
 	
 	this:RemoveTextures(fullStrip)
-	this:SetPanelTemplate(template, false, padding, xOffset, yOffset)
+	this:SetStylePanel("Default", template, false, padding, xOffset, yOffset)
 end 
 
 function PLUGIN:ApplyWindowHolder(this, fullStrip)
@@ -115,7 +115,7 @@ function PLUGIN:ApplyWindowHolder(this, fullStrip)
 	end
 	
 	this:RemoveTextures(fullStrip)
-	this:SetPanelTemplate("Blackout")
+	this:SetStylePanel("Default", "Blackout")
 end
 --[[ 
 ########################################################## 
@@ -139,7 +139,7 @@ end
 
 function PLUGIN:ApplyButtonStyle(this)
 	if not this then return end 
-    this:SetButtonTemplate()
+    this:SetStylePanel("Button")
 end
 
 local ArrowButton_OnEnter = function(self)
@@ -153,7 +153,7 @@ end
 function PLUGIN:ApplyArrowButtonStyle(this, direction, anchor)
 	if not this then return end
 	this:RemoveTextures()
-	this:SetButtonTemplate(nil, 1, -7, -7, nil, "green")
+	this:SetStylePanel("Button", nil, 1, -7, -7, nil, "green")
 	this:SetFrameLevel(this:GetFrameLevel() + 4)
 	this:SetNormalTexture([[Interface\AddOns\SVUI\assets\artwork\Icons\MOVE-]] .. direction:upper())
     if not this.hookedColors then 
@@ -178,7 +178,7 @@ end
 function PLUGIN:ApplyCloseButtonStyle(this, anchor)
 	if not this then return end
 	this:RemoveTextures()
-	this:SetButtonTemplate(nil, 1, -7, -7, nil, "red")
+	this:SetStylePanel("Button", nil, 1, -7, -7, nil, "red")
 	this:SetFrameLevel(this:GetFrameLevel() + 4)
 	this:SetNormalTexture([[Interface\AddOns\SVUI\assets\artwork\Icons\CLOSE-BUTTON]])
     if not this.hookedColors then 
@@ -202,9 +202,9 @@ function PLUGIN:ApplyItemButtonStyle(frame, adjust, shrink, noScript)
 
 	if(not frame.Panel) then
 		if shrink then 
-			frame:SetPanelTemplate("Button", true, 1, -1, -1)
+			frame:SetStylePanel("Default", "Button", true, 1, -1, -1)
 		else
-			frame:SetFixedPanelTemplate("Button")
+			frame:SetStylePanel("Fixed", "Button")
 		end
 	end
 
@@ -220,12 +220,12 @@ function PLUGIN:ApplyItemButtonStyle(frame, adjust, shrink, noScript)
 			iconObject:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 
 			if adjust then 
-				iconObject:FillInner(frame, 2, 2)
+				iconObject:SetAllPointsIn(frame, 2, 2)
 			end 
 
 			frame.IconShadow = CreateFrame("Frame", nil, frame)
-			frame.IconShadow:WrapOuter(iconObject)
-			frame.IconShadow:SetBasicPanel(0,0,0,0,true)
+			frame.IconShadow:SetAllPointsOut(iconObject)
+			frame.IconShadow:SetStylePanel("Slot")
 
 			--iconObject:SetParent(frame.IconShadow)
 		end
@@ -307,7 +307,7 @@ function PLUGIN:ApplyScrollFrameStyle(this, scale, yOffset)
 			local upW, upH = upButton:GetSize()
 			PLUGIN:ApplyPaginationStyle(upButton)
 			SquareButton_SetIcon(upButton, "UP")
-			upButton:Size(upW + scale, upH + scale)
+			upButton:SetSizeToScale(upW + scale, upH + scale)
 			if(yOffset) then
 				local anchor, parent, relative, xBase, yBase = upButton:GetPoint()
 				local yAdjust = (yOffset or 0) + yBase
@@ -321,7 +321,7 @@ function PLUGIN:ApplyScrollFrameStyle(this, scale, yOffset)
 			local dnW, dnH = downButton:GetSize() 
 			PLUGIN:ApplyPaginationStyle(downButton)
 			SquareButton_SetIcon(downButton, "DOWN")
-			downButton:Size(dnW + scale, dnH + scale)
+			downButton:SetSizeToScale(dnW + scale, dnH + scale)
 			if(yOffset) then
 				local anchor, parent, relative, xBase, yBase = downButton:GetPoint()
 				local yAdjust = ((yOffset or 0) * -1) + yBase
@@ -334,7 +334,7 @@ function PLUGIN:ApplyScrollFrameStyle(this, scale, yOffset)
 			this.ScrollBG = CreateFrame("Frame", nil, this)
 			this.ScrollBG:SetPoint("TOPLEFT", upButton, "BOTTOMLEFT", 0, -1)
 			this.ScrollBG:SetPoint("BOTTOMRIGHT", downButton, "TOPRIGHT", 0, 1)
-			this.ScrollBG:SetFixedPanelTemplate("Transparent")
+			this.ScrollBG:SetStylePanel("Fixed", "Transparent")
 		end 
 
 		if(this:GetThumbTexture()) then 
@@ -365,7 +365,7 @@ function PLUGIN:ApplyScrollBarStyle(this)
 
 	this:RemoveTextures()
 	this:SetBackdrop(nil)
-	this:SetFixedPanelTemplate("Component")
+	this:SetStylePanel("Fixed", "Component")
     this:SetBackdropBorderColor(0.2,0.2,0.2)
 	this:SetThumbTexture("Interface\\Buttons\\UI-ScrollBar-Knob")
 
@@ -416,7 +416,7 @@ function PLUGIN:ApplyTabStyle(this, addBackground, xOffset, yOffset)
 
 		if(nTex) then
 			nTex:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-			nTex:FillInner()
+			nTex:SetAllPointsIn()
 		end
 
 		xOffset = xOffset or 1
@@ -424,7 +424,7 @@ function PLUGIN:ApplyTabStyle(this, addBackground, xOffset, yOffset)
 
 		this.pushed = true;
 		this.backdrop = CreateFrame("Frame", nil, this)
-		this.backdrop:WrapOuter(this, xOffset, yOffset)
+		this.backdrop:SetAllPointsOut(this, xOffset, yOffset)
 		this.backdrop:SetFrameLevel(0)
 		this.backdrop:SetBackdrop({
 			bgFile = [[Interface\BUTTONS\WHITE8X8]], 
@@ -443,13 +443,13 @@ function PLUGIN:ApplyTabStyle(this, addBackground, xOffset, yOffset)
 		this.backdrop:SetBackdropBorderColor(0,0,0,1)
 
 		local initialAnchor, anchorParent, relativeAnchor, xPosition, yPosition = this:GetPoint()
-		this:Point(initialAnchor, anchorParent, relativeAnchor, 1, yPosition)
+		this:SetPointToScale(initialAnchor, anchorParent, relativeAnchor, 1, yPosition)
 	else
 		xOffset = xOffset or 10
 		yOffset = yOffset or 3
 		this.backdrop = CreateFrame("Frame", nil, this)
-		this.backdrop:FillInner(this, xOffset, yOffset)
-		this.backdrop:SetFixedPanelTemplate("Component", true)
+		this.backdrop:SetAllPointsIn(this, xOffset, yOffset)
+		this.backdrop:SetStylePanel("Fixed", "Component", true)
 		this.backdrop:SetPanelColor("dark")
 
 		if(this:GetFrameLevel() > 0) then
@@ -487,12 +487,12 @@ function PLUGIN:ApplyPaginationStyle(button, isVertical)
 	button:SetHighlightTexture(0,0,0,0)
 	button:SetDisabledTexture("")
 
-	button:SetButtonTemplate()
-	button:Size((button:GetWidth() - 7), (button:GetHeight() - 7))
+	button:SetStylePanel("Button")
+	button:SetSizeToScale((button:GetWidth() - 7), (button:GetHeight() - 7))
 
 	if not button.icon then 
 		button.icon = button:CreateTexture(nil,'ARTWORK')
-		button.icon:Size(13)
+		button.icon:SetSizeToScale(13)
 		button.icon:SetPoint('CENTER')
 		button.icon:SetTexture([[Interface\Buttons\SquareButtonTextures]])
 		button.icon:SetTexCoord(0.02, 0.2, 0.02, 0.2)
@@ -552,7 +552,7 @@ end
 --]]
 local _hook_DropDownButton_SetPoint = function(self, _, _, _, _, _, breaker)
 	if not breaker then
-		self:Point("RIGHT", self.AnchorParent, "RIGHT", -10, 3, true)
+		self:SetPointToScale("RIGHT", self.AnchorParent, "RIGHT", -10, 3, true)
 	end
 end
 
@@ -566,7 +566,7 @@ function PLUGIN:ApplyDropdownStyle(this, width)
 	if not width then width = 155 end 
 
 	this:RemoveTextures()
-	this:Width(width)
+	this:SetWidthToScale(width)
 
 	if(ddButton) then
 		if(ddText) then
@@ -574,7 +574,7 @@ function PLUGIN:ApplyDropdownStyle(this, width)
 		end
 
 		ddButton:ClearAllPoints()
-		ddButton:Point("RIGHT", this, "RIGHT", -10, 3)
+		ddButton:SetPointToScale("RIGHT", this, "RIGHT", -10, 3)
 		ddButton.AnchorParent = this
 
 		NewHook(ddButton, "SetPoint", _hook_DropDownButton_SetPoint)
@@ -587,9 +587,9 @@ function PLUGIN:ApplyDropdownStyle(this, width)
 		end
 
 		local bg = CreateFrame("Frame", nil, this)
-		bg:Point("TOPLEFT", this, "TOPLEFT", 18, -2)
-		bg:Point("BOTTOMRIGHT", ddButton, "BOTTOMRIGHT", 2, -2)
-		bg:SetPanelTemplate("Blackout")
+		bg:SetPointToScale("TOPLEFT", this, "TOPLEFT", 18, -2)
+		bg:SetPointToScale("BOTTOMRIGHT", ddButton, "BOTTOMRIGHT", 2, -2)
+		bg:SetStylePanel("Default", "Blackout")
 		bg:SetBackdropBorderColor(0,0,0)
 		this.Panel = bg
 	end
@@ -772,9 +772,9 @@ end
 function PLUGIN:ApplyEditBoxStyle(this, width, height, x, y)
 	if not this then return end
 	this:RemoveTextures(true)
-    this:SetEditboxTemplate(x, y)
-    if width then this:Width(width) end
-	if height then this:Height(height) end
+    this:SetStylePanel("Editbox", x, y)
+    if width then this:SetWidthToScale(width) end
+	if height then this:SetHeightToScale(height) end
 end
 
 function PLUGIN:ApplyTextureStyle(this)
@@ -782,7 +782,7 @@ function PLUGIN:ApplyTextureStyle(this)
 	this:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 	local parent = this:GetParent()
 	if(parent) then
-		this:FillInner(parent, 1, 1)
+		this:SetAllPointsIn(parent, 1, 1)
 	end
 end
 

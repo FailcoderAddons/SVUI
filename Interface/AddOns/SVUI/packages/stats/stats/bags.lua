@@ -99,5 +99,5 @@ local BagsColorUpdate = function()
 	end 
 end 
 
-LibSuperVillain("Registry"):NewCallback("CORE_MEDIA_UPDATED", "BagsColorUpdates", BagsColorUpdate)
+SV.Events:On("SVUI_COLORS_UPDATED", "BagsColorUpdates", BagsColorUpdate)
 MOD:Extend("Bags", StatEvents,	bags_events, nil, bags_click, bags_focus);

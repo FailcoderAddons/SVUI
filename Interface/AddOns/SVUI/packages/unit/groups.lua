@@ -257,7 +257,7 @@ local PartyUnitUpdate = function(self)
             if altDB.enable then
                 local UNIT_WIDTH, UNIT_HEIGHT = MOD:GetActiveSize(altDB) 
                 self:SetParent(self.originalParent)
-                self:Size(UNIT_WIDTH, UNIT_HEIGHT)
+                self:SetSizeToScale(UNIT_WIDTH, UNIT_HEIGHT)
                 self:ClearAllPoints()
                 SV:SetReversePoint(self, altDB.anchorPoint, self.originalParent, altDB.xOffset, altDB.yOffset)
             else 
@@ -273,8 +273,8 @@ local PartyUnitUpdate = function(self)
             health.colorClass = true;
             health.colorReaction = true;
             health:ClearAllPoints()
-            health:Point("TOPRIGHT", self, "TOPRIGHT", -1, -1)
-            health:Point("BOTTOMLEFT", self, "BOTTOMLEFT", 1, 1)
+            health:SetPointToScale("TOPRIGHT", self, "TOPRIGHT", -1, -1)
+            health:SetPointToScale("BOTTOMLEFT", self, "BOTTOMLEFT", 1, 1)
         end 
         do 
             local nametext = self.InfoPanel.Name
@@ -283,7 +283,7 @@ local PartyUnitUpdate = function(self)
     else 
         if not InCombatLockdown() then
             local UNIT_WIDTH, UNIT_HEIGHT = MOD:GetActiveSize(db, "party")
-            self:Size(UNIT_WIDTH, UNIT_HEIGHT) 
+            self:SetSizeToScale(UNIT_WIDTH, UNIT_HEIGHT) 
         end 
         MOD:RefreshUnitLayout(self, "party")
         MOD:UpdateAuraWatch(self, "party")
@@ -299,7 +299,7 @@ UpdateTemplates["party"] = function(self)
 
     if not groupFrame.positioned then 
         groupFrame:ClearAllPoints()
-        groupFrame:Point("BOTTOMLEFT", SV.Dock.BottomLeft, "TOPLEFT", 0, 80)
+        groupFrame:SetPointToScale("BOTTOMLEFT", SV.Dock.BottomLeft, "TOPLEFT", 0, 80)
         RegisterStateDriver(groupFrame, "visibility", "[group:raid][nogroup] hide;show")
         SV.Mentalo:Add(groupFrame, L['Party Frames']);
         groupFrame.positioned = true;
@@ -361,7 +361,7 @@ BuildTemplates["party"] = function(self, unit)
         local shadow = CreateFrame("Frame", nil, self)
         shadow:SetFrameLevel(1)
         shadow:SetFrameStrata(self:GetFrameStrata())
-        shadow:WrapOuter(self, 3, 3)
+        shadow:SetAllPointsOut(self, 3, 3)
         shadow:SetBackdrop({
             edgeFile = [[Interface\AddOns\SVUI\assets\artwork\Template\GLOW]], 
             edgeSize = 3, 
@@ -403,7 +403,7 @@ local RaidUnitUpdate = function(self)
 
     local UNIT_WIDTH, UNIT_HEIGHT = MOD:GetActiveSize(db)
     if not InCombatLockdown() then 
-        self:Size(UNIT_WIDTH, UNIT_HEIGHT) 
+        self:SetSizeToScale(UNIT_WIDTH, UNIT_HEIGHT) 
     end 
 
     do
@@ -413,8 +413,8 @@ local RaidUnitUpdate = function(self)
                 self:EnableElement("RaidDebuffs")
             end
             local actualSz = numMin(db.rdebuffs.size, (UNIT_HEIGHT - 8))
-            rdBuffs:Size(actualSz)
-            rdBuffs:Point("CENTER", self, "CENTER", db.rdebuffs.xOffset, db.rdebuffs.yOffset)
+            rdBuffs:SetSizeToScale(actualSz)
+            rdBuffs:SetPointToScale("CENTER", self, "CENTER", db.rdebuffs.xOffset, db.rdebuffs.yOffset)
             rdBuffs:Show()
         else 
             self:DisableElement("RaidDebuffs")
@@ -439,7 +439,7 @@ UpdateTemplates["raid"] = function(self)
     local groupFrame = self:GetParent()
     if not groupFrame.positioned then
         groupFrame:ClearAllPoints()
-        groupFrame:Point("BOTTOMLEFT", SV.Dock.BottomLeft, "TOPLEFT", 0, 80)
+        groupFrame:SetPointToScale("BOTTOMLEFT", SV.Dock.BottomLeft, "TOPLEFT", 0, 80)
         RegisterStateDriver(groupFrame, "visibility", "[group:raid] show;hide")
         SV.Mentalo:Add(groupFrame, "Raid Frames")
         groupFrame.positioned = true 
@@ -499,7 +499,7 @@ BuildTemplates["raid"] = function(self, unit)
     local shadow = CreateFrame("Frame", nil, self)
     shadow:SetFrameLevel(1)
     shadow:SetFrameStrata(self:GetFrameStrata())
-    shadow:WrapOuter(self, 3, 3)
+    shadow:SetAllPointsOut(self, 3, 3)
     shadow:SetBackdrop({
         edgeFile = [[Interface\AddOns\SVUI\assets\artwork\Template\GLOW]], 
         edgeSize = 3, 
@@ -536,7 +536,7 @@ UpdateTemplates["raidpet"] = function(self)
 
     if not groupFrame.positioned then 
         groupFrame:ClearAllPoints()
-        groupFrame:Point("BOTTOMLEFT", SV.Screen, "BOTTOMLEFT", 4, 433)
+        groupFrame:SetPointToScale("BOTTOMLEFT", SV.Screen, "BOTTOMLEFT", 4, 433)
         RegisterStateDriver(groupFrame, "visibility", "[group:raid] show;hide")
         SV.Mentalo:Add(groupFrame, L["Raid Pet Frames"])
         groupFrame.positioned = true;
@@ -589,7 +589,7 @@ BuildTemplates["raidpet"] = function(self, unit)
     local shadow = CreateFrame("Frame", nil, self)
     shadow:SetFrameLevel(1)
     shadow:SetFrameStrata(self:GetFrameStrata())
-    shadow:WrapOuter(self, 3, 3)
+    shadow:SetAllPointsOut(self, 3, 3)
     shadow:SetBackdrop({
         edgeFile = [[Interface\AddOns\SVUI\assets\artwork\Template\GLOW]], 
         edgeSize = 3, 
@@ -630,7 +630,7 @@ local TankUnitUpdate = function(self)
             if targets.enable then
                 local UNIT_WIDTH, UNIT_HEIGHT = MOD:GetActiveSize(targets)
                 self:SetParent(self.originalParent)
-                self:Size(UNIT_WIDTH, UNIT_HEIGHT)
+                self:SetSizeToScale(UNIT_WIDTH, UNIT_HEIGHT)
                 self:ClearAllPoints()
                 SV:SetReversePoint(self, targets.anchorPoint, self.originalParent, targets.xOffset, targets.yOffset)
             else 
@@ -639,7 +639,7 @@ local TankUnitUpdate = function(self)
         end 
     elseif not InCombatLockdown() then
         local UNIT_WIDTH, UNIT_HEIGHT = MOD:GetActiveSize(db)
-        self:Size(UNIT_WIDTH, UNIT_HEIGHT)
+        self:SetSizeToScale(UNIT_WIDTH, UNIT_HEIGHT)
     end 
     MOD:RefreshUnitLayout(self, "tank")
     do 
@@ -677,7 +677,7 @@ UpdateTemplates["tank"] = function(self)
 
     if not self.positioned then 
         self:ClearAllPoints()
-        self:Point("BOTTOMLEFT", SV.Dock.TopLeft, "BOTTOMLEFT", 0, 0)
+        self:SetPointToScale("BOTTOMLEFT", SV.Dock.TopLeft, "BOTTOMLEFT", 0, 0)
         SV.Mentalo:Add(self, L["Tank Frames"])
         self.Grip.positionOverride = "TOPLEFT"
         self:SetAttribute("minHeight", self.dirtyHeight)
@@ -744,7 +744,7 @@ local AssistUnitUpdate = function(self)
             if targets.enable then
                 local UNIT_WIDTH, UNIT_HEIGHT = MOD:GetActiveSize(targets)
                 self:SetParent(self.originalParent)
-                self:Size(UNIT_WIDTH, UNIT_HEIGHT)
+                self:SetSizeToScale(UNIT_WIDTH, UNIT_HEIGHT)
                 self:ClearAllPoints()
                 SV:SetReversePoint(self, targets.anchorPoint, self.originalParent, targets.xOffset, targets.yOffset)
             else 
@@ -753,7 +753,7 @@ local AssistUnitUpdate = function(self)
         end 
     elseif not InCombatLockdown() then
         local UNIT_WIDTH, UNIT_HEIGHT = MOD:GetActiveSize(db)
-        self:Size(UNIT_WIDTH, UNIT_HEIGHT)
+        self:SetSizeToScale(UNIT_WIDTH, UNIT_HEIGHT)
     end 
 
     MOD:RefreshUnitLayout(self, "assist")
@@ -787,7 +787,7 @@ UpdateTemplates["assist"] = function(self)
 
     if not self.positioned then 
         self:ClearAllPoints()
-        self:Point("TOPLEFT", SV.Dock.TopLeft, "BOTTOMLEFT", 0, -10)
+        self:SetPointToScale("TOPLEFT", SV.Dock.TopLeft, "BOTTOMLEFT", 0, -10)
         SV.Mentalo:Add(self, L["Assist Frames"])
         self.Grip.positionOverride = "TOPLEFT"
         self:SetAttribute("minHeight", self.dirtyHeight)
@@ -1083,7 +1083,7 @@ local GroupConfigure = function(self)
                         heightCalc = size + 10
                     end
                     frame.GroupTag:Show()
-                    frame.GroupTag:Size(size)
+                    frame.GroupTag:SetSizeToScale(size)
                     frame.GroupTag:SetPoint(tagPoint1, frame, tagPoint2, x, y)
                 else
                     frame.GroupTag:Hide()

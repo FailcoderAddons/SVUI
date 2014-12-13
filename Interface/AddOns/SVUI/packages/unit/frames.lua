@@ -155,10 +155,10 @@ local UpdatePlayerFrame = function(self)
     MOD.RefreshUnitMedia(self, "player")
 
     self.colors = oUF_Villain.colors;
-    self:Size(UNIT_WIDTH, UNIT_HEIGHT)
+    self:SetSizeToScale(UNIT_WIDTH, UNIT_HEIGHT)
     local lossSize = UNIT_WIDTH * 0.6
     self.LossOfControl.stunned:SetSize(lossSize, lossSize)
-    _G[self:GetName().."_MOVE"]:Size(self:GetSize())
+    _G[self:GetName().."_MOVE"]:SetSizeToScale(self:GetSize())
 
     MOD:RefreshUnitLayout(self, "player")
 
@@ -168,7 +168,7 @@ local UpdatePlayerFrame = function(self)
             if iconDB and iconDB.restIcon and iconDB.restIcon.enable then
                 local size = iconDB.restIcon.size;
                 resting:ClearAllPoints()
-                resting:Size(size)
+                resting:SetSizeToScale(size)
                 SV:SetReversePoint(resting, iconDB.restIcon.attachTo, healthPanel, iconDB.restIcon.xOffset, iconDB.restIcon.yOffset)
                 if not self:IsElementEnabled("Resting")then 
                     self:EnableElement("Resting")
@@ -185,7 +185,7 @@ local UpdatePlayerFrame = function(self)
             if iconDB and iconDB.combatIcon and iconDB.combatIcon.enable then
                 local size = iconDB.combatIcon.size;
                 combat:ClearAllPoints()
-                combat:Size(size)
+                combat:SetSizeToScale(size)
                 SV:SetReversePoint(combat, iconDB.combatIcon.attachTo, healthPanel, iconDB.combatIcon.xOffset, iconDB.combatIcon.yOffset)
                 if not self:IsElementEnabled("Combat")then 
                     self:EnableElement("Combat")
@@ -200,7 +200,7 @@ local UpdatePlayerFrame = function(self)
         local pvp = self.PvPText;
         local point = db.pvp.position;
         pvp:ClearAllPoints()
-        pvp:Point(db.pvp.position, healthPanel, db.pvp.position)
+        pvp:SetPointToScale(db.pvp.position, healthPanel, db.pvp.position)
         self:Tag(pvp, db.pvp.tags)
     end 
     do 
@@ -319,7 +319,7 @@ CONSTRUCTORS["player"] = function(self, unit)
     self.HealPrediction = MOD:CreateHealPrediction(self, true)
     self.AuraBars = MOD:CreateAuraBarHeader(self, key)
     self.CombatFade = true;
-    self:Point("BOTTOMLEFT", SV.Screen, "BOTTOM", -413, 182)
+    self:SetPointToScale("BOTTOMLEFT", SV.Screen, "BOTTOM", -413, 182)
     SV.Mentalo:Add(self, L["Player Frame"])
 
     self.MediaUpdate = MOD.RefreshUnitMedia
@@ -342,8 +342,8 @@ local UpdateTargetFrame = function(self)
 
     MOD.RefreshUnitMedia(self, "target")
     self.colors = oUF_Villain.colors;
-    self:Size(UNIT_WIDTH, UNIT_HEIGHT)
-    _G[self:GetName().."_MOVE"]:Size(self:GetSize())
+    self:SetSizeToScale(UNIT_WIDTH, UNIT_HEIGHT)
+    _G[self:GetName().."_MOVE"]:SetSizeToScale(self:GetSize())
     if not self:IsElementEnabled("ActionPanel")then 
         self:EnableElement("ActionPanel")
     end
@@ -433,7 +433,7 @@ CONSTRUCTORS["target"] = function(self, unit)
     self.Range = { insideAlpha = 1, outsideAlpha = 1 }
     self.XRay = MOD:CreateXRay(self)
     self.XRay:SetPoint("TOPRIGHT", 12, 12)
-    self:Point("BOTTOMRIGHT", SV.Screen, "BOTTOM", 413, 182)
+    self:SetPointToScale("BOTTOMRIGHT", SV.Screen, "BOTTOM", 413, 182)
     SV.Mentalo:Add(self, L["Target Frame"])
 
     self.MediaUpdate = MOD.RefreshUnitMedia
@@ -452,8 +452,8 @@ local UpdateTargetTargetFrame = function(self)
     self:RegisterForClicks(SV.db.SVUnit.fastClickTarget and "AnyDown" or "AnyUp")
     MOD.RefreshUnitMedia(self, "targettarget")
     self.colors = oUF_Villain.colors;
-    self:Size(UNIT_WIDTH, UNIT_HEIGHT)
-    _G[self:GetName().."_MOVE"]:Size(self:GetSize())
+    self:SetSizeToScale(UNIT_WIDTH, UNIT_HEIGHT)
+    _G[self:GetName().."_MOVE"]:SetSizeToScale(self:GetSize())
     MOD:RefreshUnitLayout(self, "targettarget")
     self:UpdateAllElements()
 end
@@ -475,7 +475,7 @@ CONSTRUCTORS["targettarget"] = function(self, unit)
     self.Debuffs = MOD:CreateDebuffs(self, key)
     self.RaidIcon = MOD:CreateRaidIcon(self)
     self.Range = { insideAlpha = 1, outsideAlpha = 1 }
-    self:Point("BOTTOM", SV.Screen, "BOTTOM", 0, 213)
+    self:SetPointToScale("BOTTOM", SV.Screen, "BOTTOM", 0, 213)
     SV.Mentalo:Add(self, L["TargetTarget Frame"])
 
     self.MediaUpdate = MOD.RefreshUnitMedia
@@ -494,8 +494,8 @@ local UpdatePetFrame = function(self)
     self:RegisterForClicks(SV.db.SVUnit.fastClickTarget and "AnyDown" or "AnyUp")
     MOD.RefreshUnitMedia(self, "pet")
     self.colors = oUF_Villain.colors;
-    self:Size(UNIT_WIDTH, UNIT_HEIGHT)
-    _G[self:GetName().."_MOVE"]:Size(self:GetSize())
+    self:SetSizeToScale(UNIT_WIDTH, UNIT_HEIGHT)
+    _G[self:GetName().."_MOVE"]:SetSizeToScale(self:GetSize())
     MOD:RefreshUnitLayout(self, "pet")
     do 
         if SVUI_Player and not InCombatLockdown()then 
@@ -526,7 +526,7 @@ CONSTRUCTORS["pet"] = function(self, unit)
     self.AuraWatch = MOD:CreateAuraWatch(self, key)
     self.RaidIcon = MOD:CreateRaidIcon(self)
     self.Range = { insideAlpha = 1, outsideAlpha = 1 }
-    self:Point("BOTTOM", SV.Screen, "BOTTOM", 0, 182)
+    self:SetPointToScale("BOTTOM", SV.Screen, "BOTTOM", 0, 182)
     SV.Mentalo:Add(self, L["Pet Frame"])
     self.MediaUpdate = MOD.RefreshUnitMedia
     self.Update = UpdatePetFrame
@@ -544,8 +544,8 @@ local UpdatePetTargetFrame = function(self)
     self:RegisterForClicks(SV.db.SVUnit.fastClickTarget and "AnyDown" or "AnyUp")
     MOD.RefreshUnitMedia(self, "pettarget")
     self.colors = oUF_Villain.colors;
-    self:Size(UNIT_WIDTH, UNIT_HEIGHT)
-    _G[self:GetName().."_MOVE"]:Size(self:GetSize())
+    self:SetSizeToScale(UNIT_WIDTH, UNIT_HEIGHT)
+    _G[self:GetName().."_MOVE"]:SetSizeToScale(self:GetSize())
     MOD:RefreshUnitLayout(self, "pettarget")
     do 
         if SVUI_Pet and not InCombatLockdown()then 
@@ -570,7 +570,7 @@ CONSTRUCTORS["pettarget"] = function(self, unit)
     self.Buffs = MOD:CreateBuffs(self, key)
     self.Debuffs = MOD:CreateDebuffs(self, key)
     self.Range = { insideAlpha = 1, outsideAlpha = 1 }
-    self:Point("BOTTOM", SVUI_Pet, "TOP", 0, 7)
+    self:SetPointToScale("BOTTOM", SVUI_Pet, "TOP", 0, 7)
     SV.Mentalo:Add(self, L["PetTarget Frame"], -7)
 
     self.MediaUpdate = MOD.RefreshUnitMedia
@@ -589,8 +589,8 @@ local UpdateFocusFrame = function(self)
     self:RegisterForClicks(SV.db.SVUnit.fastClickTarget and "AnyDown" or "AnyUp")
     MOD.RefreshUnitMedia(self, "focus")
     self.colors = oUF_Villain.colors;
-    self:Size(UNIT_WIDTH, UNIT_HEIGHT)
-    _G[self:GetName().."_MOVE"]:Size(self:GetSize())
+    self:SetSizeToScale(UNIT_WIDTH, UNIT_HEIGHT)
+    _G[self:GetName().."_MOVE"]:SetSizeToScale(self:GetSize())
     MOD:RefreshUnitLayout(self, "focus")
 
     if(SV.db.SVUnit.xrayFocus) then
@@ -632,7 +632,7 @@ CONSTRUCTORS["focus"] = function(self, unit)
     self.Range = { insideAlpha = 1, outsideAlpha = 1 }
     self.XRay = MOD:CreateXRay_Closer(self)
     self.XRay:SetPoint("RIGHT", 20, 0)
-    self:Point("BOTTOMRIGHT", SVUI_Target, "TOPRIGHT", 0, 220)
+    self:SetPointToScale("BOTTOMRIGHT", SVUI_Target, "TOPRIGHT", 0, 220)
     SV.Mentalo:Add(self, L["Focus Frame"])
 
     self.MediaUpdate = MOD.RefreshUnitMedia
@@ -651,8 +651,8 @@ local UpdateFocusTargetFrame = function(self)
     self:RegisterForClicks(SV.db.SVUnit.fastClickTarget and "AnyDown" or "AnyUp")
     MOD.RefreshUnitMedia(self, "focustarget")
     self.colors = oUF_Villain.colors;
-    self:Size(UNIT_WIDTH, UNIT_HEIGHT)
-    _G[self:GetName().."_MOVE"]:Size(self:GetSize())
+    self:SetSizeToScale(UNIT_WIDTH, UNIT_HEIGHT)
+    _G[self:GetName().."_MOVE"]:SetSizeToScale(self:GetSize())
     MOD:RefreshUnitLayout(self, "focustarget")
     self:UpdateAllElements()
 end
@@ -673,7 +673,7 @@ CONSTRUCTORS["focustarget"] = function(self, unit)
     self.Debuffs = MOD:CreateDebuffs(self, key)
     self.RaidIcon = MOD:CreateRaidIcon(self)
     self.Range = { insideAlpha = 1, outsideAlpha = 1 }
-    self:Point("LEFT", SVUI_Focus, "RIGHT", 12, 0)
+    self:SetPointToScale("LEFT", SVUI_Focus, "RIGHT", 12, 0)
     SV.Mentalo:Add(self, L["FocusTarget Frame"], -7)
 
     self.MediaUpdate = MOD.RefreshUnitMedia
@@ -695,23 +695,23 @@ local UpdateBossFrame = function(self)
     MOD.RefreshUnitMedia(self, "boss")
 
     self.colors = oUF_Villain.colors;
-    self:Size(UNIT_WIDTH, UNIT_HEIGHT)
+    self:SetSizeToScale(UNIT_WIDTH, UNIT_HEIGHT)
     self:ClearAllPoints()
 
     if(tonumber(INDEX) == 1) then
-        holder:Width(UNIT_WIDTH)
-        holder:Height(UNIT_HEIGHT + (UNIT_HEIGHT + 12 + db.castbar.height) * 4)
+        holder:SetWidthToScale(UNIT_WIDTH)
+        holder:SetHeightToScale(UNIT_HEIGHT + (UNIT_HEIGHT + 12 + db.castbar.height) * 4)
         if db.showBy == "UP"then 
-            self:Point("BOTTOMRIGHT", holder, "BOTTOMRIGHT")
+            self:SetPointToScale("BOTTOMRIGHT", holder, "BOTTOMRIGHT")
         else 
-            self:Point("TOPRIGHT", holder, "TOPRIGHT")
+            self:SetPointToScale("TOPRIGHT", holder, "TOPRIGHT")
         end 
     else
         local yOffset = (UNIT_HEIGHT + 12 + db.castbar.height) * (INDEX - 1)
         if db.showBy == "UP"then 
-            self:Point("BOTTOMRIGHT", holder, "BOTTOMRIGHT", 0, yOffset)
+            self:SetPointToScale("BOTTOMRIGHT", holder, "BOTTOMRIGHT", 0, yOffset)
         else 
-            self:Point("TOPRIGHT", holder, "TOPRIGHT", 0, -yOffset)
+            self:SetPointToScale("TOPRIGHT", holder, "TOPRIGHT", 0, -yOffset)
         end 
     end 
 
@@ -750,10 +750,10 @@ CONSTRUCTORS["boss"] = function(self, unit)
     self:SetAttribute("type2", "focus")
 
     if(not _G["SVUI_Boss_MOVE"]) then
-        self:Point("RIGHT", SV.Screen, "RIGHT", -105, 0)
+        self:SetPointToScale("RIGHT", SV.Screen, "RIGHT", -105, 0)
         SV.Mentalo:Add(self, L["Boss Frames"], nil, nil, "SVUI_Boss")
     else
-        self:Point("TOPRIGHT", lastBossFrame, "BOTTOMRIGHT", 0, -20)
+        self:SetPointToScale("TOPRIGHT", lastBossFrame, "BOTTOMRIGHT", 0, -20)
     end
 
     self.MediaUpdate = MOD.RefreshUnitMedia
@@ -776,25 +776,25 @@ local UpdateArenaFrame = function(self)
     MOD.RefreshUnitMedia(self, "arena")
 
     self.colors = oUF_Villain.colors;
-    self:Size(UNIT_WIDTH, UNIT_HEIGHT)
+    self:SetSizeToScale(UNIT_WIDTH, UNIT_HEIGHT)
     self:RegisterForClicks(SV.db.SVUnit.fastClickTarget and "AnyDown" or "AnyUp")
 
     self:ClearAllPoints()
 
     if(tonumber(INDEX) == 1) then
-        holder:Width(UNIT_WIDTH)
-        holder:Height(UNIT_HEIGHT + (UNIT_HEIGHT + 12 + db.castbar.height) * 4)
+        holder:SetWidthToScale(UNIT_WIDTH)
+        holder:SetHeightToScale(UNIT_HEIGHT + (UNIT_HEIGHT + 12 + db.castbar.height) * 4)
         if(db.showBy == "UP") then 
-            self:Point("BOTTOMRIGHT", holder, "BOTTOMRIGHT")
+            self:SetPointToScale("BOTTOMRIGHT", holder, "BOTTOMRIGHT")
         else 
-            self:Point("TOPRIGHT", holder, "TOPRIGHT")
+            self:SetPointToScale("TOPRIGHT", holder, "TOPRIGHT")
         end 
     else
         local yOffset = (UNIT_HEIGHT + 12 + db.castbar.height) * (INDEX - 1)
         if(db.showBy == "UP") then 
-            self:Point("BOTTOMRIGHT", holder, "BOTTOMRIGHT", 0, yOffset)
+            self:SetPointToScale("BOTTOMRIGHT", holder, "BOTTOMRIGHT", 0, yOffset)
         else 
-            self:Point("TOPRIGHT", holder, "TOPRIGHT", 0, -yOffset)
+            self:SetPointToScale("TOPRIGHT", holder, "TOPRIGHT", 0, -yOffset)
         end 
     end
 
@@ -808,23 +808,23 @@ local UpdateArenaFrame = function(self)
         local leftAnchor = self
         local rightAnchor = self
 
-        trinket:Size(db.pvp.trinketSize)
+        trinket:SetSizeToScale(db.pvp.trinketSize)
         trinket:ClearAllPoints()
         if(db.pvp.trinketPosition == "RIGHT") then 
-            trinket:Point("LEFT", rightAnchor, "RIGHT", db.pvp.trinketX, db.pvp.trinketY)
+            trinket:SetPointToScale("LEFT", rightAnchor, "RIGHT", db.pvp.trinketX, db.pvp.trinketY)
             rightAnchor = trinket
         else 
-            trinket:Point("RIGHT", leftAnchor, "LEFT", db.pvp.trinketX, db.pvp.trinketY)
+            trinket:SetPointToScale("RIGHT", leftAnchor, "LEFT", db.pvp.trinketX, db.pvp.trinketY)
             leftAnchor = trinket
         end
 
-        badge:Size(db.pvp.specSize)
+        badge:SetSizeToScale(db.pvp.specSize)
         badge:ClearAllPoints()
         if(db.pvp.specPosition == "RIGHT") then 
-            badge:Point("LEFT", rightAnchor, "RIGHT", db.pvp.specX, db.pvp.specY)
+            badge:SetPointToScale("LEFT", rightAnchor, "RIGHT", db.pvp.specX, db.pvp.specY)
             rightAnchor = badge
         else 
-            badge:Point("RIGHT", leftAnchor, "LEFT", db.pvp.specX, db.pvp.specY)
+            badge:SetPointToScale("RIGHT", leftAnchor, "LEFT", db.pvp.specX, db.pvp.specY)
             leftAnchor = badge
         end
 
@@ -878,7 +878,7 @@ CONSTRUCTORS["arena"] = function(self, unit)
         prep:SetFrameStrata("MEDIUM")
         prep:SetAllPoints(self)
         prep:SetID(selfID)
-        prep:SetPanelTemplate("Bar", true, 3, 1, 1)
+        prep:SetStylePanel("Default", "Bar", true, 3, 1, 1)
 
         local health = CreateFrame("StatusBar", nil, prep)
         health:SetAllPoints(prep)
@@ -905,7 +905,7 @@ CONSTRUCTORS["arena"] = function(self, unit)
         icon:SetBackdropBorderColor(0, 0, 0)
         icon.Icon = icon:CreateTexture(nil, "OVERLAY")
         icon.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-        icon.Icon:FillInner(icon, 2, 2)
+        icon.Icon:SetAllPointsIn(icon, 2, 2)
         prep.SpecIcon = icon
 
         local text = prep.Health:CreateFontString(nil, "OVERLAY")
@@ -918,10 +918,10 @@ CONSTRUCTORS["arena"] = function(self, unit)
     end
 
     if(not _G["SVUI_Arena_MOVE"]) then
-        self:Point("RIGHT", SV.Screen, "RIGHT", -105, 0)
+        self:SetPointToScale("RIGHT", SV.Screen, "RIGHT", -105, 0)
         SV.Mentalo:Add(self, L["Arena Frames"], nil, nil, "SVUI_Arena")
     else
-        self:Point("TOPRIGHT", lastArenaFrame, "BOTTOMRIGHT", 0, -20)
+        self:SetPointToScale("TOPRIGHT", lastArenaFrame, "BOTTOMRIGHT", 0, -20)
     end
 
     self.MediaUpdate = MOD.RefreshUnitMedia

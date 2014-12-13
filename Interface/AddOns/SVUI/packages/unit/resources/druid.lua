@@ -81,14 +81,14 @@ local function CreateAltMana(playerFrame, eclipse)
 	bar:SetPoint("TOPLEFT", eclipse, "TOPLEFT", 38, -2)
 	bar:SetPoint("TOPRIGHT", eclipse, "TOPRIGHT", 0, -2)
 	bar:SetHeight(18)
-	bar:SetFixedPanelTemplate("Default")
+	bar:SetStylePanel("Fixed", "Default")
 	bar:SetFrameLevel(bar:GetFrameLevel() + 1)
 	bar.colorPower = true;
 	bar.PostUpdatePower = UpdateAltPower;
 	bar.ManaBar = CreateFrame("StatusBar", nil, bar)
 	bar.ManaBar.noupdate = true;
 	bar.ManaBar:SetStatusBarTexture(SV.Media.bar.glow)
-	bar.ManaBar:FillInner(bar)
+	bar.ManaBar:SetAllPointsIn(bar)
 	bar.bg = bar:CreateTexture(nil, "BORDER")
 	bar.bg:SetAllPoints(bar.ManaBar)
 	bar.bg:SetTexture([[Interface\BUTTONS\WHITE8X8]])
@@ -114,7 +114,7 @@ local Reposition = function(self)
 	local scaled = (height * 0.8)
 	local width = db.width * 0.4;
 
-	bar.Holder:Size(width, height)
+	bar.Holder:SetSizeToScale(width, height)
     if(not db.classbar.detachFromFrame) then
     	SV.Mentalo:Reset(L["Classbar"])
     end
@@ -126,21 +126,21 @@ local Reposition = function(self)
     bar:ClearAllPoints()
     bar:SetAllPoints(bar.Holder)
 	
-	bar.LunarBar:Size(width, adjustedBar)
+	bar.LunarBar:SetSizeToScale(width, adjustedBar)
 	bar.LunarBar:SetMinMaxValues(0,0)
 	bar.LunarBar:SetStatusBarColor(.13,.32,1)
 
-	bar.Moon:Size(height, height)
-	bar.Moon[1]:Size(adjustedAnim, adjustedAnim)
-	bar.Moon[2]:Size(scaled, scaled)
+	bar.Moon:SetSizeToScale(height, height)
+	bar.Moon[1]:SetSizeToScale(adjustedAnim, adjustedAnim)
+	bar.Moon[2]:SetSizeToScale(scaled, scaled)
 
-	bar.SolarBar:Size(width, adjustedBar)
+	bar.SolarBar:SetSizeToScale(width, adjustedBar)
 	bar.SolarBar:SetMinMaxValues(0,0)
 	bar.SolarBar:SetStatusBarColor(1,1,0.21)
 
-	bar.Sun:Size(height, height)
-	bar.Sun[1]:Size(adjustedAnim, adjustedAnim)
-	bar.Sun[2]:Size(scaled, scaled)
+	bar.Sun:SetSizeToScale(height, height)
+	bar.Sun[1]:SetSizeToScale(adjustedAnim, adjustedAnim)
+	bar.Sun[2]:SetSizeToScale(scaled, scaled)
 
 	bar.Text:SetPoint("TOPLEFT", bar, "TOPLEFT", 10, 0)
 	bar.Text:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT", -10, 0)
@@ -154,15 +154,15 @@ DRUID ECLIPSE BAR
 function MOD:CreateClassBar(playerFrame)
 	local bar = CreateFrame('Frame', nil, playerFrame)
 	bar:SetFrameLevel(playerFrame.InfoPanel:GetFrameLevel() + 30)
-	bar:Size(100,40)
+	bar:SetSizeToScale(100,40)
 
 	local moon = CreateFrame('Frame', nil, bar)
 	moon:SetFrameLevel(bar:GetFrameLevel() + 2)
-	moon:Size(40, 40)
+	moon:SetSizeToScale(40, 40)
 	moon:SetPoint("TOPLEFT", bar, "TOPLEFT", 0, 0)
 
 	moon[1] = moon:CreateTexture(nil, "BACKGROUND", nil, 1)
-	moon[1]:Size(40, 40)
+	moon[1]:SetSizeToScale(40, 40)
 	moon[1]:SetPoint("CENTER")
 	moon[1]:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\VORTEX")
 	moon[1]:SetBlendMode("ADD")
@@ -170,14 +170,14 @@ function MOD:CreateClassBar(playerFrame)
 	SV.Animate:Orbit(moon[1], 10, false)
 
 	moon[2] = moon:CreateTexture(nil, "OVERLAY", nil, 2)
-	moon[2]:Size(30, 30)
+	moon[2]:SetSizeToScale(30, 30)
 	moon[2]:SetPoint("CENTER")
 	moon[2]:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\DRUID-MOON")
 	moon[1]:Hide()
 
 	local lunar = CreateFrame('StatusBar', nil, bar)
 	lunar:SetPoint("LEFT", moon, "RIGHT", -10, 0)
-	lunar:Size(100,40)
+	lunar:SetSizeToScale(100,40)
 	lunar:SetStatusBarTexture(SV.Media.bar.lazer)
 	lunar.noupdate = true;
 
@@ -187,16 +187,16 @@ function MOD:CreateClassBar(playerFrame)
 
 	local solar = CreateFrame('StatusBar', nil, bar)
 	solar:SetPoint('LEFT', lunar:GetStatusBarTexture(), 'RIGHT')
-	solar:Size(100,40)
+	solar:SetSizeToScale(100,40)
 	solar:SetStatusBarTexture(SV.Media.bar.lazer)
 	solar.noupdate = true;
 
 	local sun = CreateFrame('Frame', nil, bar)
 	sun:SetFrameLevel(bar:GetFrameLevel() + 2)
-	sun:Size(40, 40)
+	sun:SetSizeToScale(40, 40)
 	sun:SetPoint("LEFT", lunar, "RIGHT", -10, 0)
 	sun[1] = sun:CreateTexture(nil, "BACKGROUND", nil, 1)
-	sun[1]:Size(40, 40)
+	sun[1]:SetSizeToScale(40, 40)
 	sun[1]:SetPoint("CENTER")
 	sun[1]:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\VORTEX")
 	sun[1]:SetBlendMode("ADD")
@@ -204,7 +204,7 @@ function MOD:CreateClassBar(playerFrame)
 	SV.Animate:Orbit(sun[1], 10, false)
 
 	sun[2] = sun:CreateTexture(nil, "OVERLAY", nil, 2)
-	sun[2]:Size(30, 30)
+	sun[2]:SetSizeToScale(30, 30)
 	sun[2]:SetPoint("CENTER")
 	sun[2]:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\DRUID-SUN")
 	sun[1]:Hide()
@@ -220,8 +220,8 @@ function MOD:CreateClassBar(playerFrame)
 
 	local hyper = CreateFrame("Frame",nil,playerFrame)
 	hyper:SetFrameStrata("DIALOG")
-	hyper:Size(45,30)
-	hyper:Point("TOPLEFT", playerFrame.InfoPanel, "TOPLEFT", 0, -2)
+	hyper:SetSizeToScale(45,30)
+	hyper:SetPointToScale("TOPLEFT", playerFrame.InfoPanel, "TOPLEFT", 0, -2)
 
 	local points = CreateFrame('Frame',nil,hyper)
 	points:SetFrameStrata("DIALOG")
@@ -268,7 +268,7 @@ function MOD:CreateClassBar(playerFrame)
 	}
 	
 	local classBarHolder = CreateFrame("Frame", "Player_ClassBar", bar)
-	classBarHolder:Point("TOPLEFT", playerFrame, "BOTTOMLEFT", 0, -2)
+	classBarHolder:SetPointToScale("TOPLEFT", playerFrame, "BOTTOMLEFT", 0, -2)
 	bar:SetPoint("TOPLEFT", classBarHolder, "TOPLEFT", 0, 0)
 	bar.Holder = classBarHolder
 	SV.Mentalo:Add(bar.Holder, L["Classbar"])
@@ -323,11 +323,11 @@ local RepositionCombo = function(self)
 	local size = isSmall and 22 or (height - 4)
 	local width = (size + 4) * max;
 	bar:ClearAllPoints()
-	bar:Size(width, height)
-	bar:Point("TOPLEFT", self.ActionPanel, "TOPLEFT", 2, (height * 0.25))
+	bar:SetSizeToScale(width, height)
+	bar:SetPointToScale("TOPLEFT", self.ActionPanel, "TOPLEFT", 2, (height * 0.25))
 	for i = 1, max do
 		bar[i]:ClearAllPoints()
-		bar[i]:Size(size, size)
+		bar[i]:SetSizeToScale(size, size)
 		bar[i].Icon:ClearAllPoints()
 		bar[i].Icon:SetAllPoints(bar[i])
 		if(bar[i].Blood) then
@@ -337,7 +337,7 @@ local RepositionCombo = function(self)
 		if i==1 then 
 			bar[i]:SetPoint("LEFT", bar)
 		else 
-			bar[i]:Point("LEFT", bar[i - 1], "RIGHT", -2, 0) 
+			bar[i]:SetPointToScale("LEFT", bar[i - 1], "RIGHT", -2, 0) 
 		end
 	end 
 end 
@@ -350,10 +350,10 @@ function MOD:CreateDruidCombobar(targetFrame, isSmall)
 	bar.CPoints = CreateFrame("Frame",nil,bar)
 	for i = 1, max do 
 		local cpoint = CreateFrame('Frame',nil,bar.CPoints)
-		cpoint:Size(size,size)
+		cpoint:SetSizeToScale(size,size)
 
 		local icon = cpoint:CreateTexture(nil,"OVERLAY",nil,1)
-		icon:Size(size,size)
+		icon:SetSizeToScale(size,size)
 		icon:SetPoint("CENTER")
 		icon:SetBlendMode("BLEND")
 
@@ -361,7 +361,7 @@ function MOD:CreateDruidCombobar(targetFrame, isSmall)
 			icon:SetTexture(comboTextures[random(1,3)])
 
 			local blood = cpoint:CreateTexture(nil,"OVERLAY",nil,2)
-			blood:Size(size,size)
+			blood:SetSizeToScale(size,size)
 			blood:SetPoint("BOTTOMRIGHT",cpoint,12,-12)
 			blood:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Unitframe\Class\COMBO-ANIMATION]])
 			blood:SetBlendMode("ADD")

@@ -128,7 +128,7 @@ local function CreateHyperBuff(index)
 	bar:SetMinMaxValues(0, 100)
 	bar:SetValue(0)
 	local bg = bar:CreateTexture(nil, "BACKGROUND", nil, -2)
-	bg:WrapOuter(buff, 1, 1)
+	bg:SetAllPointsOut(buff, 1, 1)
 	bg:SetTexture(texture)
 	bg:SetVertexColor(0, 0, 0, 0.5)
 	local empty = bar:CreateTexture(nil, "BACKGROUND", nil, -1)
@@ -288,7 +288,7 @@ do
 	 	aura:SetBackdropBorderColor(0, 0, 0)
 		
 		aura.texture = aura:CreateTexture(nil, "BORDER")
-		aura.texture:FillInner(aura, 2, 2)
+		aura.texture:SetAllPointsIn(aura, 2, 2)
 		aura.texture:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 
 		aura.count = aura:CreateFontString(nil, "ARTWORK")
@@ -302,7 +302,7 @@ do
 		aura.highlight = aura:CreateTexture(nil, "HIGHLIGHT")
 		aura.highlight:SetTexture(BASIC_TEXTURE)
 		aura.highlight:SetVertexColor(1, 1, 1, 0.45)
-		aura.highlight:FillInner(aura, 2, 2)
+		aura.highlight:SetAllPointsIn(aura, 2, 2)
 
 		SV.Animate:Flash(aura)
 
@@ -449,10 +449,10 @@ do
 				buff:ClearAllPoints()
 
 				if i==1 then 
-					buff:Point("TOP", SVUI_ConsolidatedBuffs, "TOP", 0, 0)
+					buff:SetPointToScale("TOP", SVUI_ConsolidatedBuffs, "TOP", 0, 0)
 					lastGoodFrame = buff
 				else
-					buff:Point("TOP", lastGoodFrame, "BOTTOM", 0, -4)
+					buff:SetPointToScale("TOP", lastGoodFrame, "BOTTOM", 0, -4)
 				end 
 
 				if(hideIndex and i == hideIndex) then 
@@ -582,7 +582,7 @@ function MOD:Load()
 
 	local auras = CreateFrame("Frame", "SVUI_AurasAnchor", UIParent)
 	auras:SetSize(CB_WIDTH, CB_HEIGHT)
-	auras:Point("TOPRIGHT", Minimap, "TOPLEFT", -8, 0)
+	auras:SetPointToScale("TOPRIGHT", Minimap, "TOPLEFT", -8, 0)
 	SV:AddToDisplayAudit(auras)
 	
 	self.BuffFrame = CreateAuraHeader("HELPFUL")

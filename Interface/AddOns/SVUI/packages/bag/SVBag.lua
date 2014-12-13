@@ -100,7 +100,7 @@ local function StyleBagToolButton(button, iconTex)
 	if button.styled then return end 
 
 	local outer = button:CreateTexture(nil, "OVERLAY")
-	outer:WrapOuter(button, 6, 6)
+	outer:SetAllPointsOut(button, 6, 6)
 	outer:SetTexture(BORDER_TEXTURE)
 	outer:SetGradient("VERTICAL", 0.4, 0.47, 0.5, 0.3, 0.33, 0.35)
 
@@ -109,18 +109,18 @@ local function StyleBagToolButton(button, iconTex)
 	iconTex:SetGradient("VERTICAL", 0.5, 0.53, 0.55, 0.8, 0.8, 1)
 	
 	local icon = button:CreateTexture(nil, "OVERLAY")
-	icon:WrapOuter(button, 6, 6)
+	icon:SetAllPointsOut(button, 6, 6)
 	SetPortraitToTexture(icon, iconTex)
 	hooksecurefunc(icon, "SetTexture", SetPortraitToTexture)
 
 	local hover = button:CreateTexture(nil, "HIGHLIGHT")
-	hover:WrapOuter(button, 6, 6)
+	hover:SetAllPointsOut(button, 6, 6)
 	hover:SetTexture(BORDER_TEXTURE)
 	hover:SetGradient(unpack(SV.Media.gradient.yellow))
 
 	if button.SetPushedTexture then 
 		local pushed = button:CreateTexture(nil, "BORDER")
-		pushed:WrapOuter(button, 6, 6)
+		pushed:SetAllPointsOut(button, 6, 6)
 		pushed:SetTexture(BORDER_TEXTURE)
 		pushed:SetGradient(unpack(SV.Media.gradient.highlight))
 		button:SetPushedTexture(pushed)
@@ -128,7 +128,7 @@ local function StyleBagToolButton(button, iconTex)
 
 	if button.SetCheckedTexture then 
 		local checked = button:CreateTexture(nil, "BORDER")
-		checked:WrapOuter(button, 6, 6)
+		checked:SetAllPointsOut(button, 6, 6)
 		checked:SetTexture(BORDER_TEXTURE)
 		checked:SetGradient(unpack(SV.Media.gradient.green))
 		button:SetCheckedTexture(checked)
@@ -136,7 +136,7 @@ local function StyleBagToolButton(button, iconTex)
 
 	if button.SetDisabledTexture then 
 		local disabled = button:CreateTexture(nil, "BORDER")
-		disabled:WrapOuter(button, 6, 6)
+		disabled:SetAllPointsOut(button, 6, 6)
 		disabled:SetTexture(BORDER_TEXTURE)
 		disabled:SetGradient(unpack(SV.Media.gradient.default))
 		button:SetDisabledTexture(disabled)
@@ -145,7 +145,7 @@ local function StyleBagToolButton(button, iconTex)
 	local cd = button:GetName() and _G[button:GetName().."Cooldown"]
 	if cd then 
 		cd:ClearAllPoints()
-		cd:FillInner()
+		cd:SetAllPointsIn()
 	end 
 	button.styled = true
 end 
@@ -495,13 +495,13 @@ local ContainerFrame_UpdateLayout = function(self)
 	local totalSlots = 0;
 
 	self.ButtonSize = buttonSize;
-	self.holderFrame:Width(holderWidth);
+	self.holderFrame:SetWidthToScale(holderWidth);
 
 	local menu = self.BagMenu
 
 	for i, bagID in ipairs(self.BagIDs) do 
 		if((not isBank and bagID <= 3) or (isBank and (bagID ~= -1 and numContainerSlots >= 1))) then
-			menu:Size(((buttonSize + buttonSpacing) * (isBank and i - 1 or i)) + buttonSpacing, buttonSize + (buttonSpacing * 2))
+			menu:SetSizeToScale(((buttonSize + buttonSpacing) * (isBank and i - 1 or i)) + buttonSpacing, buttonSize + (buttonSpacing * 2))
 			
 			local bagSlot, globalName, bagTemplate;
 
@@ -522,12 +522,12 @@ local ContainerFrame_UpdateLayout = function(self)
 				bagSlot:SetPushedTexture("")
 				bagSlot:SetScript("OnClick", nil)
 				bagSlot:RemoveTextures()
-				bagSlot:SetSlotTemplate(true, 2, 0, 0, 0.5);
+				bagSlot:SetStylePanel("Slot", true, 2, 0, 0, 0.5);
 
 				if(not bagSlot.icon) then
 					bagSlot.icon = bagSlot:CreateTexture(nil, "BORDER");
 				end
-				bagSlot.icon:FillInner()
+				bagSlot.icon:SetAllPointsIn()
 				bagSlot.icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 
 				hooksecurefunc(bagSlot, "UpdateTooltip", BagMenu_OnEnter)
@@ -550,7 +550,7 @@ local ContainerFrame_UpdateLayout = function(self)
 				bagSlot = menu[i]
 			end
 
-			bagSlot:Size(buttonSize) 
+			bagSlot:SetSizeToScale(buttonSize) 
 			bagSlot:ClearAllPoints()
 
 			if(isBank) then
@@ -619,32 +619,32 @@ local ContainerFrame_UpdateLayout = function(self)
 					slot:SetNormalTexture("");
 					slot:SetCheckedTexture("");
 					slot:RemoveTextures()
-					slot:SetSlotTemplate(true, 2, 0, 0, 0.45);
+					slot:SetStylePanel("Slot", true, 2, 0, 0, 0.45);
 					slot.Panel.Shadow:SetAttribute("shadowAlpha", 0.9)
 					
 					if(not slot.NewItemTexture) then
 						slot.NewItemTexture = slot:CreateTexture(nil, "OVERLAY", 1);
 					end
-					slot.NewItemTexture:FillInner(slot);
+					slot.NewItemTexture:SetAllPointsIn(slot);
 					slot.NewItemTexture:SetTexture(0,0,0,0);
 					slot.NewItemTexture:Hide()
 
 					if(not slot.JunkIcon) then 
 						slot.JunkIcon = slot:CreateTexture(nil, "OVERLAY");
-						slot.JunkIcon:Size(16,16);
+						slot.JunkIcon:SetSizeToScale(16,16);
 					end
 					slot.JunkIcon:SetTexture([[Interface\BUTTONS\UI-GroupLoot-Coin-Up]]);
-					slot.JunkIcon:Point("TOPLEFT", slot, "TOPLEFT", -4, 4);
+					slot.JunkIcon:SetPointToScale("TOPLEFT", slot, "TOPLEFT", -4, 4);
 
 					if(not slot.icon) then
 						slot.icon = slot:CreateTexture(nil, "BORDER");
 					end
-					slot.icon:FillInner(slot);
+					slot.icon:SetAllPointsIn(slot);
 					slot.icon:SetTexCoord(0.1, 0.9, 0.1, 0.9);
 
 					slot.questIcon = _G[questIcon] or slot:CreateTexture(nil, "OVERLAY")
 					slot.questIcon:SetTexture(TEXTURE_ITEM_QUEST_BANG);
-					slot.questIcon:FillInner(slot);
+					slot.questIcon:SetAllPointsIn(slot);
 					slot.questIcon:SetTexCoord(0.1, 0.9, 0.1, 0.9);
 					
 					hooksecurefunc(slot, "SetBackdropColor", function(self, r, g, b, a) if(self.HasQuestItem and (r ~= 1)) then self:SetBackdropColor(1,0.3,0.3,a) end end)
@@ -667,7 +667,7 @@ local ContainerFrame_UpdateLayout = function(self)
 				end
 
 				slot:SetID(slotID);
-				slot:Size(buttonSize);
+				slot:SetSizeToScale(buttonSize);
 
 				if slot:GetPoint() then 
 					slot:ClearAllPoints();
@@ -675,13 +675,13 @@ local ContainerFrame_UpdateLayout = function(self)
 
 				if lastButton then 
 					if((totalSlots - 1) % numContainerColumns == 0) then 
-						slot:Point("TOP", lastRowButton, "BOTTOM", 0, -buttonSpacing);
+						slot:SetPointToScale("TOP", lastRowButton, "BOTTOM", 0, -buttonSpacing);
 						lastRowButton = slot;
 					else 
-						slot:Point("LEFT", lastButton, "RIGHT", buttonSpacing, 0);
+						slot:SetPointToScale("LEFT", lastButton, "RIGHT", buttonSpacing, 0);
 					end 
 				else 
-					slot:Point("TOPLEFT", self.holderFrame, "TOPLEFT");
+					slot:SetPointToScale("TOPLEFT", self.holderFrame, "TOPLEFT");
 					lastRowButton = slot;
 				end
 
@@ -706,7 +706,7 @@ local ContainerFrame_UpdateLayout = function(self)
 		end
 	end
 	
-	self:Size(containerWidth, containerHeight);
+	self:SetSizeToScale(containerWidth, containerHeight);
 end 
 
 local ReagentFrame_UpdateLayout = function(self)
@@ -729,7 +729,7 @@ local ReagentFrame_UpdateLayout = function(self)
 	local bagID = REAGENTBANK_CONTAINER;
 	local totalSlots = 0;
 
-	self.holderFrame:Width(holderWidth);
+	self.holderFrame:SetWidthToScale(holderWidth);
 	self.BagID = bagID
 
 	local bag;
@@ -763,25 +763,25 @@ local ReagentFrame_UpdateLayout = function(self)
 			slot:SetNormalTexture(nil);
 			slot:SetCheckedTexture(nil);
 			slot:RemoveTextures()
-			slot:SetSlotTemplate(true, 2, 0, 0, 0.5);
+			slot:SetStylePanel("Slot", true, 2, 0, 0, 0.5);
 
 			slot.NewItemTexture = slot:CreateTexture(nil, "OVERLAY", 1);
-			slot.NewItemTexture:FillInner(slot);
+			slot.NewItemTexture:SetAllPointsIn(slot);
 			slot.NewItemTexture:SetTexture(0,0,0,0);
 			slot.NewItemTexture:Hide()
 
 			slot.JunkIcon = slot:CreateTexture(nil, "OVERLAY");
-			slot.JunkIcon:Size(16,16);
+			slot.JunkIcon:SetSizeToScale(16,16);
 			slot.JunkIcon:SetTexture(0,0,0,0);
-			slot.JunkIcon:Point("TOPLEFT", slot, "TOPLEFT", -4, 4);
+			slot.JunkIcon:SetPointToScale("TOPLEFT", slot, "TOPLEFT", -4, 4);
 
 			slot.icon = _G[iconName] or slot:CreateTexture(nil, "BORDER");
-			slot.icon:FillInner(slot);
+			slot.icon:SetAllPointsIn(slot);
 			slot.icon:SetTexCoord(0.1, 0.9, 0.1, 0.9);
 
 			slot.questIcon = _G[questIcon] or slot:CreateTexture(nil, "OVERLAY")
 			slot.questIcon:SetTexture(TEXTURE_ITEM_QUEST_BANG);
-			slot.questIcon:FillInner(slot);
+			slot.questIcon:SetAllPointsIn(slot);
 			slot.questIcon:SetTexCoord(0.1, 0.9, 0.1, 0.9);
 
 			slot.cooldown = _G[cdName];
@@ -792,7 +792,7 @@ local ReagentFrame_UpdateLayout = function(self)
 		end
 
 		slot:SetID(slotID);
-		slot:Size(buttonSize);
+		slot:SetSizeToScale(buttonSize);
 
 		if slot:GetPoint() then 
 			slot:ClearAllPoints();
@@ -800,13 +800,13 @@ local ReagentFrame_UpdateLayout = function(self)
 
 		if lastButton then 
 			if((totalSlots - 1) % numContainerColumns == 0) then 
-				slot:Point("TOP", lastRowButton, "BOTTOM", 0, -buttonSpacing);
+				slot:SetPointToScale("TOP", lastRowButton, "BOTTOM", 0, -buttonSpacing);
 				lastRowButton = slot;
 			else 
-				slot:Point("LEFT", lastButton, "RIGHT", buttonSpacing, 0);
+				slot:SetPointToScale("LEFT", lastButton, "RIGHT", buttonSpacing, 0);
 			end 
 		else 
-			slot:Point("TOPLEFT", self.holderFrame, "TOPLEFT");
+			slot:SetPointToScale("TOPLEFT", self.holderFrame, "TOPLEFT");
 			lastRowButton = slot;
 		end
 
@@ -818,7 +818,7 @@ local ReagentFrame_UpdateLayout = function(self)
 		bag:SlotUpdate(slotID);
 	end
 
-	self:Size(containerWidth, containerHeight);
+	self:SetSizeToScale(containerWidth, containerHeight);
 end 
 
 function MOD:RefreshBagFrames(frame)
@@ -933,22 +933,22 @@ function MOD:ModifyBags()
 	if(docked) then
 		if self.BagFrame then
 			self.BagFrame:ClearAllPoints()
-			self.BagFrame:Point("BOTTOMRIGHT", SV.Dock.BottomRight, "BOTTOMRIGHT", 0, 0)
+			self.BagFrame:SetPointToScale("BOTTOMRIGHT", SV.Dock.BottomRight, "BOTTOMRIGHT", 0, 0)
 		end 
 		if self.BankFrame then
 			self.BankFrame:ClearAllPoints()
-			self.BankFrame:Point("BOTTOMLEFT", SV.Dock.BottomLeft, "BOTTOMLEFT", 0, 0)
+			self.BankFrame:SetPointToScale("BOTTOMLEFT", SV.Dock.BottomLeft, "BOTTOMLEFT", 0, 0)
 		end
 	else
 		if self.BagFrame then
 			local anchor, x, y = SV.db.SVBag.bags.point, SV.db.SVBag.bags.xOffset, SV.db.SVBag.bags.yOffset
 			self.BagFrame:ClearAllPoints()
-			self.BagFrame:Point(anchor, SV.Screen, anchor, x, y)
+			self.BagFrame:SetPointToScale(anchor, SV.Screen, anchor, x, y)
 		end 
 		if self.BankFrame then
 			local anchor, x, y = SV.db.SVBag.bank.point, SV.db.SVBag.bank.xOffset, SV.db.SVBag.bank.yOffset
 			self.BankFrame:ClearAllPoints()
-			self.BankFrame:Point(anchor, SV.Screen, anchor, x, y)
+			self.BankFrame:SetPointToScale(anchor, SV.Screen, anchor, x, y)
 		end
 	end
 end 
@@ -956,22 +956,22 @@ end
 do
 	local function Bags_OnEnter()
 		if SV.db.SVBag.bagBar.mouseover ~= true then return end 
-		SV:SecureFadeIn(SVUI_BagBar, 0.2, SVUI_BagBar:GetAlpha(), 1)
+		SVUI_BagBar:FadeIn(0.2, SVUI_BagBar:GetAlpha(), 1)
 	end
 
 	local function Bags_OnLeave()
 		if SV.db.SVBag.bagBar.mouseover ~= true then return end 
-		SV:SecureFadeOut(SVUI_BagBar, 0.2, SVUI_BagBar:GetAlpha(), 0)
+		SVUI_BagBar:FadeOut(0.2, SVUI_BagBar:GetAlpha(), 0)
 	end
 
 	local function AlterBagBar(bar)
 		local icon = _G[bar:GetName().."IconTexture"]
 		bar.oldTex = icon:GetTexture()
 		bar:RemoveTextures()
-		bar:SetFixedPanelTemplate("Default")
-		bar:SetSlotTemplate(false, 1, nil, nil, true)
+		bar:SetStylePanel("Fixed", "Default")
+		bar:SetStylePanel("Slot", false, 1, nil, nil, true)
 		icon:SetTexture(bar.oldTex)
-		icon:FillInner()
+		icon:SetAllPointsIn()
 		icon:SetTexCoord(0.1, 0.9, 0.1, 0.9 )
 	end
 
@@ -990,7 +990,7 @@ do
 		MainMenuBarBackpackButton:ClearAllPoints()
 		MainMenuBarBackpackButtonCount:FontManager(nil, 10)
 		MainMenuBarBackpackButtonCount:ClearAllPoints()
-		MainMenuBarBackpackButtonCount:Point("BOTTOMRIGHT", MainMenuBarBackpackButton, "BOTTOMRIGHT", -1, 4)
+		MainMenuBarBackpackButtonCount:SetPointToScale("BOTTOMRIGHT", MainMenuBarBackpackButton, "BOTTOMRIGHT", -1, 4)
 		MainMenuBarBackpackButton:HookScript("OnEnter", Bags_OnEnter)
 		MainMenuBarBackpackButton:HookScript("OnLeave", Bags_OnLeave)
 
@@ -1035,7 +1035,7 @@ do
 			local button = SVUI_BagBar.buttons[i]
 			local lastButton = SVUI_BagBar.buttons[i - 1]
 
-			button:Size(bagSize)
+			button:SetSizeToScale(bagSize)
 			button:ClearAllPoints()
 
 			if(showBy == "HORIZONTAL" and sortDir == "ASCENDING") then 
@@ -1065,15 +1065,15 @@ do
 			end 
 		end 
 		if showBy == "HORIZONTAL" then 
-			SVUI_BagBar:Width((bagSize * numBagFrame) + (bagSpacing * numBagFrame) + bagSpacing)
-			SVUI_BagBar:Height(bagSize + (bagSpacing * 2))
+			SVUI_BagBar:SetWidthToScale((bagSize * numBagFrame) + (bagSpacing * numBagFrame) + bagSpacing)
+			SVUI_BagBar:SetHeightToScale(bagSize + (bagSpacing * 2))
 		else 
-			SVUI_BagBar:Height((bagSize * numBagFrame) + (bagSpacing * numBagFrame) + bagSpacing)
-			SVUI_BagBar:Width(bagSize + (bagSpacing * 2))
+			SVUI_BagBar:SetHeightToScale((bagSize * numBagFrame) + (bagSpacing * numBagFrame) + bagSpacing)
+			SVUI_BagBar:SetWidthToScale(bagSize + (bagSpacing * 2))
 		end
 
 	    if not SVUI_BagBar_MOVE then
-	    	SVUI_BagBar:SetPanelTemplate("Default")
+	    	SVUI_BagBar:SetStylePanel("Default", "Default")
 	        SV.Mentalo:Add(SVUI_BagBar, L["Bags Bar"])
 	    end
 
@@ -1245,7 +1245,7 @@ do
 		local bagsCount = #self.BagFrames + 1;
 		local frame = CreateFrame("Button", "SVUI_ContainerFrame", UIParent)
 
-		frame:SetPanelTemplate("Container")
+		frame:SetStylePanel("Default", "Container")
 		frame:SetFrameStrata("HIGH")
 		frame.UpdateLayout = ContainerFrame_UpdateLayout;
 		frame.RefreshBags = ContainerFrame_UpdateBags;
@@ -1280,14 +1280,14 @@ do
 
 		frame.Bags = {}
 		frame.closeButton = CreateFrame("Button", "SVUI_ContainerFrameCloseButton", frame, "UIPanelCloseButton")
-		frame.closeButton:Point("TOPRIGHT", -4, -4)
+		frame.closeButton:SetPointToScale("TOPRIGHT", -4, -4)
 		frame.closeButton:SetScript("PostClick", function() 
 			if(not InCombatLockdown()) then CloseBag(0) end 
 		end)
 
 		frame.holderFrame = CreateFrame("Frame", nil, frame)
-		frame.holderFrame:Point("TOP", frame, "TOP", 0, -frame.topOffset)
-		frame.holderFrame:Point("BOTTOM", frame, "BOTTOM", 0, frame.bottomOffset)
+		frame.holderFrame:SetPointToScale("TOP", frame, "TOP", 0, -frame.topOffset)
+		frame.holderFrame:SetPointToScale("BOTTOM", frame, "BOTTOM", 0, frame.bottomOffset)
 
 		frame.Title = frame:CreateFontString()
 		frame.Title:SetFontObject(NumberFont_Outline_Large)
@@ -1296,22 +1296,22 @@ do
 		frame.Title:SetTextColor(1,0.8,0)
 
 		frame.BagMenu = CreateFrame("Button", "SVUI_ContainerFrameBagMenu", frame)
-		frame.BagMenu:Point("BOTTOMLEFT", frame, "TOPLEFT", 0, 1)
-		frame.BagMenu:SetFixedPanelTemplate("Transparent")
+		frame.BagMenu:SetPointToScale("BOTTOMLEFT", frame, "TOPLEFT", 0, 1)
+		frame.BagMenu:SetStylePanel("Fixed", "Transparent")
 		frame.BagMenu:Hide()
 
 		frame.goldText = frame:CreateFontString(nil, "OVERLAY")
 		frame.goldText:FontManager(SV.Media.font.numbers)
-		frame.goldText:Point("BOTTOMRIGHT", frame.holderFrame, "TOPRIGHT", -2, 4)
+		frame.goldText:SetPointToScale("BOTTOMRIGHT", frame.holderFrame, "TOPRIGHT", -2, 4)
 		frame.goldText:SetJustifyH("RIGHT")
 
 		frame.editBox = CreateFrame("EditBox", "SVUI_ContainerFrameEditBox", frame)
 		frame.editBox:SetFrameLevel(frame.editBox:GetFrameLevel()+2)
-		frame.editBox:SetEditboxTemplate()
-		frame.editBox:Height(15)
+		frame.editBox:SetStylePanel("Editbox")
+		frame.editBox:SetHeightToScale(15)
 		frame.editBox:Hide()
-		frame.editBox:Point("BOTTOMLEFT", frame.holderFrame, "TOPLEFT", 2, 4)
-		frame.editBox:Point("RIGHT", frame.goldText, "LEFT", -5, 0)
+		frame.editBox:SetPointToScale("BOTTOMLEFT", frame.holderFrame, "TOPLEFT", 2, 4)
+		frame.editBox:SetPointToScale("RIGHT", frame.goldText, "LEFT", -5, 0)
 		frame.editBox:SetAutoFocus(true)
 		frame.editBox:SetScript("OnEscapePressed", Search_OnKeyPressed)
 		frame.editBox:SetScript("OnEnterPressed", Search_OnKeyPressed)
@@ -1327,7 +1327,7 @@ do
 		searchButton:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 		searchButton:SetSize(60, 18)
 		searchButton:SetPoint("BOTTOMLEFT", frame.editBox, "BOTTOMLEFT", -2, 0)
-		searchButton:SetButtonTemplate()
+		searchButton:SetStylePanel("Button")
 		searchButton:SetScript("OnClick", Search_OnClick)
 		local searchText = searchButton:CreateFontString(nil, "OVERLAY")
 		searchText:SetFont(SV.Media.font.roboto, 12, "NONE")
@@ -1338,8 +1338,8 @@ do
 		frame.detail = searchButton
 
 		frame.sortButton = CreateFrame("Button", nil, frame)
-		frame.sortButton:Point("TOP", frame, "TOP", 0, -10)
-		frame.sortButton:Size(25, 25)
+		frame.sortButton:SetPointToScale("TOP", frame, "TOP", 0, -10)
+		frame.sortButton:SetSizeToScale(25, 25)
 		StyleBagToolButton(frame.sortButton, ICON_CLEANUP)
 		frame.sortButton.ttText = L["Sort Bags"]
 		frame.sortButton.altText = L["Filtered Cleanup"]
@@ -1349,8 +1349,8 @@ do
 		frame.sortButton:SetScript("OnClick", Sort_OnClick)
 
 		frame.stackButton = CreateFrame("Button", nil, frame)
-		frame.stackButton:Point("LEFT", frame.sortButton, "RIGHT", 10, 0)
-		frame.stackButton:Size(25, 25)
+		frame.stackButton:SetPointToScale("LEFT", frame.sortButton, "RIGHT", 10, 0)
+		frame.stackButton:SetSizeToScale(25, 25)
 		StyleBagToolButton(frame.stackButton, ICON_STACK)
 		frame.stackButton.ttText = L["Stack Items"]
 		frame.stackButton:SetScript("OnEnter", Tooltip_Show)
@@ -1359,8 +1359,8 @@ do
 		frame.stackButton:SetScript("OnClick", Stack_OnClick)
 
 		frame.vendorButton = CreateFrame("Button", nil, frame)
-		frame.vendorButton:Point("RIGHT", frame.sortButton, "LEFT", -10, 0)
-		frame.vendorButton:Size(25, 25)
+		frame.vendorButton:SetPointToScale("RIGHT", frame.sortButton, "LEFT", -10, 0)
+		frame.vendorButton:SetSizeToScale(25, 25)
 		StyleBagToolButton(frame.vendorButton, ICON_VENDOR)
 		frame.vendorButton.ttText = L["Vendor Grays"]
 		frame.vendorButton.ttText2 = L["Hold Shift:"]
@@ -1370,8 +1370,8 @@ do
 		frame.vendorButton:SetScript("OnClick", Vendor_OnClick)
 
 		frame.bagsButton = CreateFrame("Button", nil, frame)
-		frame.bagsButton:Point("RIGHT", frame.vendorButton, "LEFT", -10, 0)
-		frame.bagsButton:Size(25, 25)
+		frame.bagsButton:SetPointToScale("RIGHT", frame.vendorButton, "LEFT", -10, 0)
+		frame.bagsButton:SetSizeToScale(25, 25)
 		StyleBagToolButton(frame.bagsButton, ICON_BAGS)
 		frame.bagsButton.ttText = L["Toggle Bags"]
 		frame.bagsButton:SetScript("OnEnter", Tooltip_Show)
@@ -1386,8 +1386,8 @@ do
 		frame.bagsButton:SetScript("OnClick", BagBtn_OnClick)
 
 		frame.transferButton = CreateFrame("Button", nil, frame)
-		frame.transferButton:Point("LEFT", frame.stackButton, "RIGHT", 10, 0)
-		frame.transferButton:Size(25, 25)
+		frame.transferButton:SetPointToScale("LEFT", frame.stackButton, "RIGHT", 10, 0)
+		frame.transferButton:SetSizeToScale(25, 25)
 		StyleBagToolButton(frame.transferButton, ICON_TRANSFER)
 		frame.transferButton.ttText = L["Stack Bags to Bank"]
 		frame.transferButton:SetScript("OnEnter", Tooltip_Show)
@@ -1396,19 +1396,19 @@ do
 		frame.transferButton:SetScript("OnClick", Transfer_OnClick)
 
 		frame.currencyButton = CreateFrame("Frame", nil, frame)
-		frame.currencyButton:Point("BOTTOMLEFT", frame, "BOTTOMLEFT", 4, 0)
-		frame.currencyButton:Point("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -4, 0)
-		frame.currencyButton:Height(32)
+		frame.currencyButton:SetPointToScale("BOTTOMLEFT", frame, "BOTTOMLEFT", 4, 0)
+		frame.currencyButton:SetPointToScale("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -4, 0)
+		frame.currencyButton:SetHeightToScale(32)
 		for h = 1, MAX_WATCHED_TOKENS do 
 			frame.currencyButton[h] = CreateFrame("Button", nil, frame.currencyButton)
-			frame.currencyButton[h]:Size(22)
-			frame.currencyButton[h]:SetFixedPanelTemplate("Default")
+			frame.currencyButton[h]:SetSizeToScale(22)
+			frame.currencyButton[h]:SetStylePanel("Fixed", "Default")
 			frame.currencyButton[h]:SetID(h)
 			frame.currencyButton[h].icon = frame.currencyButton[h]:CreateTexture(nil, "OVERLAY")
-			frame.currencyButton[h].icon:FillInner()
+			frame.currencyButton[h].icon:SetAllPointsIn()
 			frame.currencyButton[h].icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 			frame.currencyButton[h].text = frame.currencyButton[h]:CreateFontString(nil, "OVERLAY")
-			frame.currencyButton[h].text:Point("LEFT", frame.currencyButton[h], "RIGHT", 2, 0)
+			frame.currencyButton[h].text:SetPointToScale("LEFT", frame.currencyButton[h], "RIGHT", 2, 0)
 			frame.currencyButton[h].text:FontManager(SV.Media.font.numbers, 18, "NONE")
 			frame.currencyButton[h]:SetScript("OnEnter", Token_OnEnter)
 			frame.currencyButton[h]:SetScript("OnLeave", Token_OnLeave)
@@ -1432,7 +1432,7 @@ do
 		local bagsCount = #self.BagFrames + 1;
 
 		local frame = CreateFrame("Button", bagName, isReagent and self.BankFrame or SV.Screen)
-		frame:SetPanelTemplate(isReagent and "Action" or "Container")
+		frame:SetStylePanel("Default", isReagent and "Action" or "Container")
 		frame:SetFrameStrata("HIGH")
 		frame:SetFrameLevel(SVUI_ContainerFrame:GetFrameLevel() + 99)
 
@@ -1472,14 +1472,14 @@ do
 		frame.Bags = {}
 
 		frame.closeButton = CreateFrame("Button", bagName.."CloseButton", frame, "UIPanelCloseButton")
-		frame.closeButton:Point("TOPRIGHT", -4, -4)
+		frame.closeButton:SetPointToScale("TOPRIGHT", -4, -4)
 		frame.closeButton:SetScript("PostClick", function() 
 			if(not InCombatLockdown()) then CloseBag(0) end 
 		end)
 
 		frame.holderFrame = CreateFrame("Frame", nil, frame)
-		frame.holderFrame:Point("TOP", frame, "TOP", 0, -frame.topOffset)
-		frame.holderFrame:Point("BOTTOM", frame, "BOTTOM", 0, frame.bottomOffset)
+		frame.holderFrame:SetPointToScale("TOP", frame, "TOP", 0, -frame.topOffset)
+		frame.holderFrame:SetPointToScale("BOTTOM", frame, "BOTTOM", 0, frame.bottomOffset)
 
 		frame.Title = frame:CreateFontString()
 		frame.Title:SetFontObject(NumberFont_Outline_Large)
@@ -1488,8 +1488,8 @@ do
 		frame.Title:SetTextColor(1,0.8,0)
 
 		frame.sortButton = CreateFrame("Button", nil, frame)
-		frame.sortButton:Point("TOPRIGHT", frame, "TOP", 0, -10)
-		frame.sortButton:Size(25, 25)
+		frame.sortButton:SetPointToScale("TOPRIGHT", frame, "TOP", 0, -10)
+		frame.sortButton:SetSizeToScale(25, 25)
 		StyleBagToolButton(frame.sortButton, ICON_CLEANUP)
 		frame.sortButton.ttText = L["Sort Bank"]
 		frame.sortButton.altText = L["Filtered Cleanup"]
@@ -1497,8 +1497,8 @@ do
 		frame.sortButton:SetScript("OnLeave", Tooltip_Hide)
 
 		frame.stackButton = CreateFrame("Button", nil, frame)
-		frame.stackButton:Point("LEFT", frame.sortButton, "RIGHT", 10, 0)
-		frame.stackButton:Size(25, 25)
+		frame.stackButton:SetPointToScale("LEFT", frame.sortButton, "RIGHT", 10, 0)
+		frame.stackButton:SetSizeToScale(25, 25)
 		StyleBagToolButton(frame.stackButton, ICON_STACK)
 		frame.stackButton.ttText = L["Stack Items"]
 		frame.stackButton:SetScript("OnEnter", Tooltip_Show)
@@ -1506,8 +1506,8 @@ do
 
 		if(not isReagent) then
 			frame.BagMenu = CreateFrame("Button", bagName.."BagMenu", frame)
-			frame.BagMenu:Point("BOTTOMLEFT", frame, "TOPLEFT", 0, 1)
-			frame.BagMenu:SetFixedPanelTemplate("Transparent")
+			frame.BagMenu:SetPointToScale("BOTTOMLEFT", frame, "TOPLEFT", 0, 1)
+			frame.BagMenu:SetStylePanel("Fixed", "Transparent")
 			frame.BagMenu:Hide()
 
 			local Sort_OnClick = MOD:RunSortingProcess(MOD.Sort, "bank", SortBankBags)
@@ -1516,8 +1516,8 @@ do
 			frame.stackButton:SetScript("OnClick", Stack_OnClick)
 
 			frame.transferButton = CreateFrame("Button", nil, frame)
-			frame.transferButton:Point("LEFT", frame.stackButton, "RIGHT", 10, 0)
-			frame.transferButton:Size(25, 25)
+			frame.transferButton:SetPointToScale("LEFT", frame.stackButton, "RIGHT", 10, 0)
+			frame.transferButton:SetSizeToScale(25, 25)
 			StyleBagToolButton(frame.transferButton, ICON_TRANSFER)
 			frame.transferButton.ttText = L["Stack Bank to Bags"]
 			frame.transferButton:SetScript("OnEnter", Tooltip_Show)
@@ -1528,8 +1528,8 @@ do
 			tinsert(UISpecialFrames, bagName)
 
 			frame.bagsButton = CreateFrame("Button", nil, frame)
-			frame.bagsButton:Point("RIGHT", frame.sortButton, "LEFT", -10, 0)
-			frame.bagsButton:Size(25, 25)
+			frame.bagsButton:SetPointToScale("RIGHT", frame.sortButton, "LEFT", -10, 0)
+			frame.bagsButton:SetSizeToScale(25, 25)
 			StyleBagToolButton(frame.bagsButton, ICON_BAGS)
 			frame.bagsButton.ttText = L["Toggle Bags"]
 			frame.bagsButton:SetScript("OnEnter", Tooltip_Show)
@@ -1549,8 +1549,8 @@ do
 			frame.bagsButton:SetScript("OnClick", BagBtn_OnClick)
 
 			frame.purchaseBagButton = CreateFrame("Button", nil, frame)
-			frame.purchaseBagButton:Size(25, 25)
-			frame.purchaseBagButton:Point("RIGHT", frame.bagsButton, "LEFT", -10, 0)
+			frame.purchaseBagButton:SetSizeToScale(25, 25)
+			frame.purchaseBagButton:SetPointToScale("RIGHT", frame.bagsButton, "LEFT", -10, 0)
 			frame.purchaseBagButton:SetFrameLevel(frame.purchaseBagButton:GetFrameLevel()+2)
 			StyleBagToolButton(frame.purchaseBagButton, ICON_PURCHASE)
 			frame.purchaseBagButton.ttText = L["Purchase"]
@@ -1569,8 +1569,8 @@ do
 
 			local active_icon = IsReagentBankUnlocked() and ICON_REAGENTS or ICON_PURCHASE
 			frame.swapButton = CreateFrame("Button", nil, frame)
-			frame.swapButton:Point("TOPRIGHT", frame, "TOPRIGHT", -40, -10)
-			frame.swapButton:Size(25, 25)
+			frame.swapButton:SetPointToScale("TOPRIGHT", frame, "TOPRIGHT", -40, -10)
+			frame.swapButton:SetSizeToScale(25, 25)
 			StyleBagToolButton(frame.swapButton, active_icon)
 			frame.swapButton.ttText = L["Toggle Reagents Bank"]
 			frame.swapButton:SetScript("OnEnter", function(self)
@@ -1606,8 +1606,8 @@ do
 			frame.stackButton:SetScript("OnClick", Stack_OnClick)
 
 			frame.transferButton = CreateFrame("Button", nil, frame)
-			frame.transferButton:Point("LEFT", frame.stackButton, "RIGHT", 10, 0)
-			frame.transferButton:Size(25, 25)
+			frame.transferButton:SetPointToScale("LEFT", frame.stackButton, "RIGHT", 10, 0)
+			frame.transferButton:SetSizeToScale(25, 25)
 			StyleBagToolButton(frame.transferButton, ICON_DEPOSIT)
 			frame.transferButton.ttText = L["Deposit All Reagents"]
 			frame.transferButton:SetScript("OnEnter", Tooltip_Show)
@@ -1661,14 +1661,14 @@ function MOD:RefreshTokens()
 	frame.bottomOffset = 28;
 	local set = frame.currencyButton;
 	if index == 1 then 
-		set[1]:Point("BOTTOM", set, "BOTTOM", -(set[1].text:GetWidth() / 2), 3)
+		set[1]:SetPointToScale("BOTTOM", set, "BOTTOM", -(set[1].text:GetWidth() / 2), 3)
 	elseif index == 2 then 
-		set[1]:Point("BOTTOM", set, "BOTTOM", -set[1].text:GetWidth()-set[1]:GetWidth() / 2, 3)
-		frame.currencyButton[2]:Point("BOTTOMLEFT", set, "BOTTOM", set[2]:GetWidth() / 2, 3)
+		set[1]:SetPointToScale("BOTTOM", set, "BOTTOM", -set[1].text:GetWidth()-set[1]:GetWidth() / 2, 3)
+		frame.currencyButton[2]:SetPointToScale("BOTTOMLEFT", set, "BOTTOM", set[2]:GetWidth() / 2, 3)
 	else 
-		set[1]:Point("BOTTOMLEFT", set, "BOTTOMLEFT", 3, 3)
-		set[2]:Point("BOTTOM", set, "BOTTOM", -(set[2].text:GetWidth() / 3), 3)
-		set[3]:Point("BOTTOMRIGHT", set, "BOTTOMRIGHT", -set[3].text:GetWidth()-set[3]:GetWidth() / 2, 3)
+		set[1]:SetPointToScale("BOTTOMLEFT", set, "BOTTOMLEFT", 3, 3)
+		set[2]:SetPointToScale("BOTTOM", set, "BOTTOM", -(set[2].text:GetWidth() / 3), 3)
+		set[3]:SetPointToScale("BOTTOMRIGHT", set, "BOTTOMRIGHT", -set[3].text:GetWidth()-set[3]:GetWidth() / 2, 3)
 	end 
 end
 
@@ -1805,7 +1805,7 @@ function MOD:Load()
 	self.BagFrame:UpdateLayout()
 
 	-- BagFilters:SetParent(SV.Screen)
-	BagFilters:SetPanelTemplate("Default")
+	BagFilters:SetStylePanel("Default", "Default")
 	BagFilters.buttons = {}
 	BagFilters:SetFrameStrata("DIALOG")
 	BagFilters:SetClampedToScreen(true)

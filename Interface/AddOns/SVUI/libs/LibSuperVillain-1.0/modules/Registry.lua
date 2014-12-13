@@ -104,10 +104,6 @@ if GetLocale() == "ruRU" then
     INFO_FORMAT = "|cffFFFF00%s|r\n        |cff33FF00Версия: %s|r |cff0099FFот %s|r";
 end
 
---[[ LIB CUSTOM EVENT CALLBACKS ]]--
-
-lib.Callbacks = {};
-
 --[[ LIB EVENT LISTENER ]]--
 
 lib.EventManager = CreateFrame("Frame", nil)
@@ -734,20 +730,6 @@ end
 
 --REGISTRY PUBLIC METHODS
 
-function lib:Trigger(eventName, ...)
-    if(not eventName) then return end;
-    local eventCallabcks = self.Callbacks[eventName];
-    if(not eventCallabcks) then return end;
-    for id, fn in pairs(eventCallabcks) do 
-        if(fn and type(fn) == "function") then
-            local _, catch = pcall(fn, ...)
-            if(catch) then
-                HandleErrors("LibSuperVillain:Registry:Trigger(" .. eventName .. "):", id, catch)
-            end
-        end
-    end
-end
-
 function lib:RefreshModule(schema)
     local obj = CoreObject[schema]
     LoadingProxy(schema, obj)
@@ -869,16 +851,6 @@ function lib:LoadQueuedPlugins()
 end
 
 --[[ CONSTRUCTORS ]]--
-
-function lib:NewCallback(event, id, callback)
-    if((not event) or (not id)) then return end; 
-    if(callback and type(callback) == "function") then
-        if(not self.Callbacks[event]) then
-            self.Callbacks[event] = {}
-        end
-        self.Callbacks[event][id] = callback
-    end 
-end
 
 function lib:NewPlugin(addonName, addonObject, pfile, gfile, cfile)
     local version   = GetAddOnMetadata(addonName, "Version")

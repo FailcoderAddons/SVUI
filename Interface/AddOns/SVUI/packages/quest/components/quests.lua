@@ -156,7 +156,7 @@ local function NewObjectiveRow(parent, lineNumber)
 	objective:SetPoint("TOPLEFT", parent, "TOPLEFT", 0, -yOffset);
 	objective:SetPoint("TOPRIGHT", parent, "TOPRIGHT", 0, -yOffset);
 	objective:SetHeight(INNER_HEIGHT);
-	--objective:SetPanelTemplate()
+	--objective:SetStylePanel("Default")
 
 	objective.Icon = objective:CreateTexture(nil,"OVERLAY")
 	objective.Icon:SetPoint("TOPLEFT", objective, "TOPLEFT", 4, -2);
@@ -228,7 +228,7 @@ local function NewQuestRow(parent, lineNumber)
 	row.Badge = CreateFrame("Frame", nil, row)
 	row.Badge:SetPoint("TOPLEFT", row, "TOPLEFT", 2, -2);
 	row.Badge:SetSize(INNER_HEIGHT, INNER_HEIGHT);
-	row.Badge:SetPanelTemplate("Headline")
+	row.Badge:SetStylePanel("Default", "Headline")
 
 	row.Badge.Icon = row.Badge:CreateTexture(nil,"OVERLAY")
 	row.Badge.Icon:SetAllPoints(row.Badge);
@@ -237,7 +237,7 @@ local function NewQuestRow(parent, lineNumber)
 
 	row.Badge.Button = CreateFrame("Button", nil, row.Badge)
 	row.Badge.Button:SetAllPoints(row.Badge);
-	row.Badge.Button:SetButtonTemplate(true, 1, 1, 1)
+	row.Badge.Button:SetStylePanel("Button", true, 1, 1, 1)
 	row.Badge.Button:SetID(0)
 	row.Badge.Button.Icon = row.Badge.Icon;
 	row.Badge.Button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
@@ -247,7 +247,7 @@ local function NewQuestRow(parent, lineNumber)
 	row.Header:SetPoint("TOPLEFT", row.Badge, "TOPRIGHT", 2, 0);
 	row.Header:SetPoint("TOPRIGHT", row, "TOPRIGHT", -2, 0);
 	row.Header:SetHeight(INNER_HEIGHT);
-	--row.Header:SetPanelTemplate("Headline")
+	--row.Header:SetStylePanel("Default", "Headline")
 
 	row.Header.Level = row.Header:CreateFontString(nil,"OVERLAY")
 	row.Header.Level:SetFont(SV.Media.font.numbers, 11, "NONE")
@@ -272,7 +272,7 @@ local function NewQuestRow(parent, lineNumber)
 
 	row.Button = CreateFrame("Button", nil, row.Header)
 	row.Button:SetAllPoints(row.Header);
-	row.Button:SetButtonTemplate("Headline", 1, 1, 1)
+	row.Button:SetStylePanel("Button", "Headline", 1, 1, 1)
 	row.Button:SetID(0)
 	row.Button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 	row.Button:SetScript("OnClick", ViewButton_OnClick)
@@ -508,7 +508,7 @@ local function UpdateQuestLocals(...)
 	ROW_WIDTH, ROW_HEIGHT, INNER_HEIGHT, LARGE_ROW_HEIGHT, LARGE_INNER_HEIGHT = ...;
 end
 
-LibSuperVillain("Registry"):NewCallback("QUEST_UPVALUES_UPDATED", "UpdateQuestLocals", UpdateQuestLocals);
+SV.Events:On("QUEST_UPVALUES_UPDATED", "UpdateQuestLocals", UpdateQuestLocals);
 
 function MOD:InitializeQuests()
 	local scrollChild = self.Tracker.ScrollFrame.ScrollChild;

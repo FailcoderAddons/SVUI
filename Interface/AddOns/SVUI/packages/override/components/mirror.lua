@@ -72,7 +72,7 @@ MIRROR BARS
 ]]--
 local SetMirrorPosition = function(bar)
 	local yOffset = mirrorYOffset[bar.type]
-	return bar:Point("TOP", SV.Screen, "TOP", 0, -yOffset)
+	return bar:SetPointToScale("TOP", SV.Screen, "TOP", 0, -yOffset)
 end 
 
 local MirrorBar_OnUpdate = function(self, elapsed)
@@ -107,7 +107,7 @@ local function MirrorBarRegistry(barType)
 		return RegisteredMirrorBars[barType]
 	end 
 	local bar = CreateFrame('StatusBar', nil, UIParent)
-	bar:SetPanelTemplate("Bar", false, 3, 3, 3)
+	bar:SetStylePanel("Default", "Bar", false, 3, 3, 3)
 	bar:SetScript("OnUpdate", MirrorBar_OnUpdate)
 	local r, g, b = unpack(mirrorTypeColor[barType])
 	bar.text = bar:CreateFontString(nil, 'OVERLAY')
@@ -116,9 +116,9 @@ local function MirrorBarRegistry(barType)
 	bar.text:SetTextColor(1, 1, 1)
 	bar.text:SetPoint('LEFT', bar)
 	bar.text:SetPoint('RIGHT', bar)
-	bar.text:Point('TOP', bar, 0, 2)
+	bar.text:SetPointToScale('TOP', bar, 0, 2)
 	bar.text:SetPoint('BOTTOM', bar)
-	bar:Size(222, 18)
+	bar:SetSizeToScale(222, 18)
 	bar:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]])
 	bar:SetStatusBarColor(r, g, b)
 	bar.type = barType;
@@ -139,7 +139,7 @@ local function SetTimerStyle(bar)
 	end 
 	bar:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]])
 	bar:SetStatusBarColor(0.37, 0.92, 0.08)
-	bar:SetPanelTemplate("Bar", false, 3, 3, 3)
+	bar:SetStylePanel("Default", "Bar", false, 3, 3, 3)
 end 
 
 local MirrorBarToggleHandler = function(_, event, arg, ...)

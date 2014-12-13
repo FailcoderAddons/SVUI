@@ -42,30 +42,30 @@ DXE
 ##########################################################
 ]]--
 local function StyleDXEBar(bar)
-	bar:SetFixedPanelTemplate("Transparent")
+	bar:SetStylePanel("Fixed", "Transparent")
 	bar.bg:SetTexture(0,0,0,0)
 	bar.border.Show = SV.fubar
 	bar.border:Hide()
 	bar.statusbar:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]])
 	bar.statusbar:ClearAllPoints()
-	bar.statusbar:FillInner()
-	bar.righticon:SetFixedPanelTemplate("Default")
+	bar.statusbar:SetAllPointsIn()
+	bar.righticon:SetStylePanel("Fixed", "Default")
 	bar.righticon.border.Show = SV.fubar
 	bar.righticon.border:Hide()
 	bar.righticon:ClearAllPoints()
 	bar.righticon:SetPoint("LEFT", bar, "RIGHT", 2, 0)
 	bar.righticon.t:SetTexCoord(0.1,0.9,0.1,0.9)
 	bar.righticon.t:ClearAllPoints()
-	bar.righticon.t:FillInner()
+	bar.righticon.t:SetAllPointsIn()
 	bar.righticon.t:SetDrawLayer("ARTWORK")
-	bar.lefticon:SetFixedPanelTemplate("Default")
+	bar.lefticon:SetStylePanel("Fixed", "Default")
 	bar.lefticon.border.Show = SV.fubar
 	bar.lefticon.border:Hide()
 	bar.lefticon:ClearAllPoints()
 	bar.lefticon:SetPoint("RIGHT", bar, "LEFT", -2, 0)
 	bar.lefticon.t:SetTexCoord(0.1,0.9,0.1,0.9)
 	bar.lefticon.t:ClearAllPoints()
-	bar.lefticon.t:FillInner()
+	bar.lefticon.t:SetAllPointsIn()
 	bar.lefticon.t:SetDrawLayer("ARTWORK")
 end
 
@@ -96,7 +96,7 @@ local function StyleDXE()
 		DXE:LayoutHealthWatchers_()
 		for i,hw in ipairs(frame.HW) do
 			if hw:IsShown() then
-				hw:SetFixedPanelTemplate("Transparent")
+				hw:SetStylePanel("Fixed", "Transparent")
 				hw.border.Show = SV.fubar
 				hw.border:Hide()
 				hw.healthbar:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]])

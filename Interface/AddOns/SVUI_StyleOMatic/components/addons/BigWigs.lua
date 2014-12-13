@@ -73,16 +73,16 @@ end
 
 local function applystyle(bar)
 	if not FreeBG then FreeBG = {} end
-	bar:Height(20)
+	bar:SetHeightToScale(20)
 	local bg = nil
 	if #FreeBG > 0 then
 		bg = tremove(FreeBG)
 	else
 		bg = CreateFrame("Frame")
 	end
-	bg:SetFixedPanelTemplate('Transparent', true)
+	bg:SetStylePanel("Fixed", 'Transparent', true)
 	bg:SetParent(bar)
-	bg:WrapOuter(bar)
+	bg:SetAllPointsOut(bar)
 	bg:SetFrameLevel(bar:GetFrameLevel() - 1)
 	bg:SetFrameStrata(bar:GetFrameStrata())
 	bg:Show()
@@ -95,9 +95,9 @@ local function applystyle(bar)
 			ibg = CreateFrame("Frame")
 		end
 		ibg:SetParent(bar)
-		ibg:SetFixedPanelTemplate('Transparent', true)
+		ibg:SetStylePanel("Fixed", 'Transparent', true)
 		ibg:SetBackdropColor(0, 0, 0, 0)
-		ibg:WrapOuter(bar.candyBarIconFrame)
+		ibg:SetAllPointsOut(bar.candyBarIconFrame)
 		ibg:SetFrameLevel(bar:GetFrameLevel() - 1)
 		ibg:SetFrameStrata(bar:GetFrameStrata())
 		ibg:Show()
@@ -107,8 +107,8 @@ local function applystyle(bar)
 	bar.candyBarLabel:ClearAllPoints()
 	bar.candyBarDuration:SetJustifyH("RIGHT")
 	bar.candyBarDuration:ClearAllPoints()
-	bar.candyBarLabel:Point("LEFT", bar, "LEFT", 4, 0)
-	bar.candyBarDuration:Point("RIGHT", bar, "RIGHT", -4, 0)
+	bar.candyBarLabel:SetPointToScale("LEFT", bar, "LEFT", 4, 0)
+	bar.candyBarDuration:SetPointToScale("RIGHT", bar, "RIGHT", -4, 0)
 	bar.candyBarBar:ClearAllPoints()
 	bar.candyBarBar:SetAllPoints(bar)
 	bar.candyBarBar.OldSetPoint = bar.candyBarBar.SetPoint
@@ -116,7 +116,7 @@ local function applystyle(bar)
 	bar.candyBarIconFrame.OldSetWidth = bar.candyBarIconFrame.SetWidth
 	bar.candyBarIconFrame.SetWidth = SV.fubar
 	bar.candyBarIconFrame:ClearAllPoints()
-	bar.candyBarIconFrame:Point("BOTTOMRIGHT", bar, "BOTTOMLEFT", -1, 0)
+	bar.candyBarIconFrame:SetPointToScale("BOTTOMRIGHT", bar, "BOTTOMLEFT", -1, 0)
 	bar.candyBarIconFrame:SetSize(20, 20)
 	bar.candyBarIconFrame:SetTexCoord(0.1,0.9,0.1,0.9)
 end

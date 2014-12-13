@@ -53,13 +53,13 @@ local function ChangeTabHelper(this)
 	local nTex = this:GetNormalTexture()
 	if(nTex) then
 		nTex:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-		nTex:FillInner()
+		nTex:SetAllPointsIn()
 	end
 
 	this.pushed = true;
 
 	this.backdrop = CreateFrame("Frame", nil, this)
-	this.backdrop:WrapOuter(this,1,1)
+	this.backdrop:SetAllPointsOut(this,1,1)
 	this.backdrop:SetFrameLevel(0)
 	this.backdrop:SetBackdrop({
 		bgFile = [[Interface\BUTTONS\WHITE8X8]], 
@@ -84,19 +84,19 @@ local function StyleGlyphHolder(holder, offset)
     if holder.styled then return end 
 
     local outer = holder:CreateTexture(nil, "OVERLAY")
-    outer:WrapOuter(holder, offset, offset)
+    outer:SetAllPointsOut(holder, offset, offset)
     outer:SetTexture(borderTex)
     outer:SetGradient(unpack(SV.Media.gradient.class))
 
     local hover = holder:CreateTexture(nil, "HIGHLIGHT")
-    hover:WrapOuter(holder, offset, offset)
+    hover:SetAllPointsOut(holder, offset, offset)
     hover:SetTexture(borderTex)
     hover:SetGradient(unpack(SV.Media.gradient.yellow))
     holder.hover = hover
 
     if holder.SetDisabledTexture then 
         local disabled = holder:CreateTexture(nil, "BORDER")
-        disabled:WrapOuter(holder, offset, offset)
+        disabled:SetAllPointsOut(holder, offset, offset)
         disabled:SetTexture(borderTex)
         disabled:SetGradient(unpack(SV.Media.gradient.default))
         holder:SetDisabledTexture(disabled)
@@ -105,7 +105,7 @@ local function StyleGlyphHolder(holder, offset)
     local cd = holder:GetName() and _G[holder:GetName().."Cooldown"]
     if cd then 
         cd:ClearAllPoints()
-        cd:FillInner()
+        cd:SetAllPointsIn()
     end 
     holder.styled = true
 end 
@@ -123,42 +123,42 @@ local function TalentFrameStyle()
 	PlayerTalentFrameTalents:RemoveTextures()
 	PlayerTalentFrameTalentsClearInfoFrame:RemoveTextures()
 
-	PlayerTalentFrame.Panel:Point("BOTTOMRIGHT", PlayerTalentFrame, "BOTTOMRIGHT", 0, -5)
+	PlayerTalentFrame.Panel:SetPointToScale("BOTTOMRIGHT", PlayerTalentFrame, "BOTTOMRIGHT", 0, -5)
 	PlayerTalentFrameSpecializationTutorialButton:Die()
 	PlayerTalentFrameTalentsTutorialButton:Die()
 	PlayerTalentFramePetSpecializationTutorialButton:Die()
 	PLUGIN:ApplyCloseButtonStyle(PlayerTalentFrameCloseButton)
-	PlayerTalentFrameActivateButton:SetButtonTemplate()
+	PlayerTalentFrameActivateButton:SetStylePanel("Button")
 
 	for _,name in pairs(SpecButtonList)do
 		local button = _G[name];
 		if(button) then
 			button:RemoveTextures()
-			button:SetButtonTemplate()
+			button:SetStylePanel("Button")
 			local initialAnchor, anchorParent, relativeAnchor, xPosition, yPosition = button:GetPoint()
 			button:SetPoint(initialAnchor, anchorParent, relativeAnchor, xPosition, -28)
 		end
 	end 
 
-	PlayerTalentFrameTalents:SetFixedPanelTemplate("Inset")
+	PlayerTalentFrameTalents:SetStylePanel("Fixed", "Inset")
 	PlayerTalentFrameTalentsClearInfoFrame.icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-	PlayerTalentFrameTalentsClearInfoFrame:Width(PlayerTalentFrameTalentsClearInfoFrame:GetWidth()-2)
-	PlayerTalentFrameTalentsClearInfoFrame:Height(PlayerTalentFrameTalentsClearInfoFrame:GetHeight()-2)
-	PlayerTalentFrameTalentsClearInfoFrame.icon:Size(PlayerTalentFrameTalentsClearInfoFrame:GetSize())
-	PlayerTalentFrameTalentsClearInfoFrame:Point('TOPLEFT', PlayerTalentFrameTalents, 'BOTTOMLEFT', 8, -8)
+	PlayerTalentFrameTalentsClearInfoFrame:SetWidthToScale(PlayerTalentFrameTalentsClearInfoFrame:GetWidth()-2)
+	PlayerTalentFrameTalentsClearInfoFrame:SetHeightToScale(PlayerTalentFrameTalentsClearInfoFrame:GetHeight()-2)
+	PlayerTalentFrameTalentsClearInfoFrame.icon:SetSizeToScale(PlayerTalentFrameTalentsClearInfoFrame:GetSize())
+	PlayerTalentFrameTalentsClearInfoFrame:SetPointToScale('TOPLEFT', PlayerTalentFrameTalents, 'BOTTOMLEFT', 8, -8)
 
 	for i = 1, 4 do
 		PLUGIN:ApplyTabStyle(_G["PlayerTalentFrameTab"..i])
 		if i == 1 then 
 			local d, e, k, g = _G["PlayerTalentFrameTab"..i]:GetPoint()
-			_G["PlayerTalentFrameTab"..i]:Point(d, e, k, g, -4)
+			_G["PlayerTalentFrameTab"..i]:SetPointToScale(d, e, k, g, -4)
 		end 
 	end 
 
 	hooksecurefunc("PlayerTalentFrame_UpdateTabs", function()
 		for i = 1, 4 do 
 			local d, e, k, g = _G["PlayerTalentFrameTab"..i]:GetPoint()
-			_G["PlayerTalentFrameTab"..i]:Point(d, e, k, g, -4)
+			_G["PlayerTalentFrameTab"..i]:SetPointToScale(d, e, k, g, -4)
 		end 
 	end)
 
@@ -173,7 +173,7 @@ local function TalentFrameStyle()
 
 	hooksecurefunc("PlayerTalentFrame_UpdateSpecs", function()
 		local d, x, f, g, h = PlayerSpecTab1:GetPoint()
-		PlayerSpecTab1:Point(d, x, f, -1, h)
+		PlayerSpecTab1:SetPointToScale(d, x, f, -1, h)
 	end)
 
 	local maxTiers = MAX_TALENT_TIERS
@@ -187,8 +187,8 @@ local function TalentFrameStyle()
 
 			rowFrame:DisableDrawLayer("BORDER")
 			rowFrame:RemoveTextures()
-			rowFrame.TopLine:Point("TOP", 0, 4)
-			rowFrame.BottomLine:Point("BOTTOM", 0, -4)
+			rowFrame.TopLine:SetPointToScale("TOP", 0, 4)
+			rowFrame.BottomLine:SetPointToScale("BOTTOM", 0, -4)
 
 			for z = 1, NUM_TALENT_COLUMNS do 
 				local talentItem = _G[("%sTalent%d"):format(gName, z)]
@@ -225,14 +225,14 @@ local function TalentFrameStyle()
 
 	local C = _G["PlayerTalentFrameSpecializationSpellScrollFrameScrollChild"]
 	C.ring:Hide()
-	C:SetFixedPanelTemplate("Inset")
-	C.Panel:WrapOuter(C.specIcon)
+	C:SetStylePanel("Fixed", "Inset")
+	C.Panel:SetAllPointsOut(C.specIcon)
 	C.specIcon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 
 	local D = _G["PlayerTalentFramePetSpecializationSpellScrollFrameScrollChild"]
 	D.ring:Hide()
-	D:SetFixedPanelTemplate("Inset")
-	D.Panel:WrapOuter(D.specIcon)
+	D:SetStylePanel("Fixed", "Inset")
+	D.Panel:SetAllPointsOut(D.specIcon)
 	D.specIcon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 
 	hooksecurefunc("PlayerTalentFrame_UpdateSpecFrame", function(self, arg1)
@@ -257,11 +257,11 @@ local function TalentFrameStyle()
 				button.icon:SetTexture(icon)
 				if not button.restyled then
 					button.restyled = true;
-					button:Size(30, 30)
+					button:SetSizeToScale(30, 30)
 					button.ring:Hide()
-					button:SetFixedPanelTemplate("Inset")
+					button:SetStylePanel("Fixed", "Inset")
 					button.icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-					button.icon:FillInner()
+					button.icon:SetAllPointsIn()
 				end 
 			end
 			indexOffset = indexOffset + 1 
@@ -270,7 +270,7 @@ local function TalentFrameStyle()
 		for i = 1, GetNumSpecializations(nil, self.isPet)do 
 			local specButton = self["specButton"..i]
 			if(specButton) then
-				specButton.SelectedTexture:FillInner(specButton.Panel)
+				specButton.SelectedTexture:SetAllPointsIn(specButton.Panel)
 				if specButton.selected then
 					 specButton.SelectedTexture:Show()
 				else
@@ -288,7 +288,7 @@ local function TalentFrameStyle()
 			button.specIcon:SetTexture(icon)
 			button.specIcon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 			button.specIcon:SetSize(50, 50)
-			button.specIcon:Point("LEFT", button, "LEFT", 15, 0)
+			button.specIcon:SetPointToScale("LEFT", button, "LEFT", 15, 0)
 			button.SelectedTexture = button:CreateTexture(nil, 'ARTWORK')
 			button.SelectedTexture:SetTexture(1, 1, 0, 0.1)
 		end
@@ -309,8 +309,8 @@ local function TalentFrameStyle()
 				button.bg:SetAlpha(0)
 				button.learnedTex:SetAlpha(0)
 				button.selectedTex:SetAlpha(0)
-				button:SetFixedPanelTemplate("Button")
-				button:GetHighlightTexture():FillInner(button.Panel)
+				button:SetStylePanel("Fixed", "Button")
+				button:GetHighlightTexture():SetAllPointsIn(button.Panel)
 			end
 		end 
 	end
@@ -335,7 +335,7 @@ local function TalentFrameStyle()
 			A.specIcon:SetTexture(icon)
 			A.specIcon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 			A.specIcon:SetSize(50, 50)
-			A.specIcon:Point("LEFT", A, "LEFT", 15, 0)
+			A.specIcon:SetPointToScale("LEFT", A, "LEFT", 15, 0)
 			A.SelectedTexture = A:CreateTexture(nil, 'ARTWORK')
 			A.SelectedTexture:SetTexture(1, 1, 0, 0.1)
 		end 
@@ -364,16 +364,16 @@ local function GlyphStyle()
 	GlyphFrame:RemoveTextures()
 	--GlyphFrame.background:ClearAllPoints()
 	--GlyphFrame.background:SetAllPoints(PlayerTalentFrameInset)
-	GlyphFrame:SetFixedPanelTemplate("Comic", false, 0, 3, 3)
+	GlyphFrame:SetStylePanel("Fixed", "Comic", false, 0, 3, 3)
 	GlyphFrameSideInset:RemoveTextures()
 	GlyphFrameClearInfoFrame:RemoveTextures()
 	GlyphFrameClearInfoFrame.icon:SetTexCoord(0.1, 0.9, 0.1, 0.9 )
-	GlyphFrameClearInfoFrame:Width(GlyphFrameClearInfoFrame:GetWidth()-2)
-	GlyphFrameClearInfoFrame:Height(GlyphFrameClearInfoFrame:GetHeight()-2)
-	GlyphFrameClearInfoFrame.icon:Size(GlyphFrameClearInfoFrame:GetSize())
-	GlyphFrameClearInfoFrame:Point("TOPLEFT", GlyphFrame, "BOTTOMLEFT", 6, -10)
+	GlyphFrameClearInfoFrame:SetWidthToScale(GlyphFrameClearInfoFrame:GetWidth()-2)
+	GlyphFrameClearInfoFrame:SetHeightToScale(GlyphFrameClearInfoFrame:GetHeight()-2)
+	GlyphFrameClearInfoFrame.icon:SetSizeToScale(GlyphFrameClearInfoFrame:GetSize())
+	GlyphFrameClearInfoFrame:SetPointToScale("TOPLEFT", GlyphFrame, "BOTTOMLEFT", 6, -10)
 	PLUGIN:ApplyDropdownStyle(GlyphFrameFilterDropDown, 212)
-	GlyphFrameSearchBox:SetEditboxTemplate()
+	GlyphFrameSearchBox:SetStylePanel("Editbox")
 	PLUGIN:ApplyScrollFrameStyle(GlyphFrameScrollFrameScrollBar, 5)
 
 	for b = 1, 10 do 
@@ -398,7 +398,7 @@ local function GlyphStyle()
 
 	GlyphFrameHeader1:RemoveTextures()
 	GlyphFrameHeader2:RemoveTextures()
-	GlyphFrameScrollFrame:SetPanelTemplate("Inset", false, 3, 2, 2)
+	GlyphFrameScrollFrame:SetStylePanel("Default", "Inset", false, 3, 2, 2)
 end 
 
 PLUGIN:SaveBlizzardStyle("Blizzard_GlyphUI", GlyphStyle)

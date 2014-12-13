@@ -220,7 +220,7 @@ function SV.Dropdown:Initialize()
 	self:SetParent(SV.Screen)
 	self:SetFrameStrata("DIALOG")
 	self:SetFrameLevel(99)
-	self:SetPanelTemplate("Default")
+	self:SetStylePanel("Default", "Default")
 	self.option = {}
 	self:SetClampedToScreen(true)
 	self:SetSize(155, 94)

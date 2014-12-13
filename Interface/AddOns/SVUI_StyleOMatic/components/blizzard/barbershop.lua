@@ -32,16 +32,16 @@ local function BarberShopStyle()
 
 	local buttons = {"BarberShopFrameOkayButton", "BarberShopFrameCancelButton", "BarberShopFrameResetButton"}
 
-	BarberShopFrameOkayButton:Point("RIGHT", BarberShopFrameSelector4, "BOTTOM", 2, -50)
+	BarberShopFrameOkayButton:SetPointToScale("RIGHT", BarberShopFrameSelector4, "BOTTOM", 2, -50)
 
 	for b = 1, #buttons do 
 		_G[buttons[b]]:RemoveTextures()
-		_G[buttons[b]]:SetButtonTemplate()
+		_G[buttons[b]]:SetStylePanel("Button")
 	end
 
 	BarberShopFrame:RemoveTextures()
-	BarberShopFrame:SetPanelTemplate("Halftone")
-	BarberShopFrame:Size(BarberShopFrame:GetWidth()-30, BarberShopFrame:GetHeight()-56)
+	BarberShopFrame:SetStylePanel("Default", "Halftone")
+	BarberShopFrame:SetSizeToScale(BarberShopFrame:GetWidth()-30, BarberShopFrame:GetHeight()-56)
 
 	local lastframe;
 	for i = 1, 5 do 
@@ -52,9 +52,9 @@ local function BarberShopStyle()
 			selector:ClearAllPoints()
 
 			if lastframe then 
-				selector:Point("TOP", lastframe, "BOTTOM", 0, -3)
+				selector:SetPointToScale("TOP", lastframe, "BOTTOM", 0, -3)
 			else
-				selector:Point("TOP", BarberShopFrame, "TOP", 0, -12)
+				selector:SetPointToScale("TOP", BarberShopFrame, "TOP", 0, -12)
 			end
 
 			selector:RemoveTextures()
@@ -65,20 +65,20 @@ local function BarberShopStyle()
 	end
 
 	BarberShopFrameMoneyFrame:RemoveTextures()
-	BarberShopFrameMoneyFrame:SetPanelTemplate("Inset")
-	BarberShopFrameMoneyFrame:Point("TOP", lastframe, "BOTTOM", 0, -10)
+	BarberShopFrameMoneyFrame:SetStylePanel("Default", "Inset")
+	BarberShopFrameMoneyFrame:SetPointToScale("TOP", lastframe, "BOTTOM", 0, -10)
 
 	BarberShopFrameBackground:Die()
 	BarberShopBannerFrameBGTexture:Die()
 	BarberShopBannerFrame:Die()
 
 	BarberShopAltFormFrameBorder:RemoveTextures()
-	BarberShopAltFormFrame:Point("BOTTOM", BarberShopFrame, "TOP", 0, 5)
+	BarberShopAltFormFrame:SetPointToScale("BOTTOM", BarberShopFrame, "TOP", 0, 5)
 	BarberShopAltFormFrame:RemoveTextures()
-	BarberShopAltFormFrame:SetPanelTemplate("Action")
+	BarberShopAltFormFrame:SetStylePanel("Default", "Action")
 
 	BarberShopFrameResetButton:ClearAllPoints()
-	BarberShopFrameResetButton:Point("BOTTOM", BarberShopFrame.Panel, "BOTTOM", 0, 4)
+	BarberShopFrameResetButton:SetPointToScale("BOTTOM", BarberShopFrame.Panel, "BOTTOM", 0, 4)
 end 
 --[[ 
 ########################################################## 

@@ -48,17 +48,17 @@ local function ChangeTabHelper(this, xOffset, yOffset)
   this:SetHighlightTexture([[Interface\Addons\SVUI\assets\artwork\Template\EMPTY]])
 
   this.backdrop = CreateFrame("Frame", nil, this)
-  this.backdrop:FillInner(this)
+  this.backdrop:SetAllPointsIn(this)
   this.backdrop:SetFrameLevel(0)
 
-  this.backdrop:SetPanelTemplate("Component", true)
+  this.backdrop:SetStylePanel("Default", "Component", true)
   this.backdrop:SetPanelColor("dark")
   this:HookScript("OnEnter",Tab_OnEnter)
   this:HookScript("OnLeave",Tab_OnLeave)
 
   local initialAnchor, anchorParent, relativeAnchor, xPosition, yPosition = this:GetPoint()
   this:ClearAllPoints()
-  this:Point(initialAnchor, anchorParent, relativeAnchor, xOffset or 0, yOffset or 0)
+  this:SetPointToScale(initialAnchor, anchorParent, relativeAnchor, xOffset or 0, yOffset or 0)
 end
 
 local function Outline(frame, noHighlight)
@@ -67,8 +67,8 @@ local function Outline(frame, noHighlight)
     local mod = noHighlight and 50 or 5
 
     local panel = CreateFrame('Frame', nil, frame)
-    panel:Point('TOPLEFT', frame, 'TOPLEFT', 1, -1)
-    panel:Point('BOTTOMRIGHT', frame, 'BOTTOMRIGHT', -1, 1)
+    panel:SetPointToScale('TOPLEFT', frame, 'TOPLEFT', 1, -1)
+    panel:SetPointToScale('BOTTOMRIGHT', frame, 'BOTTOMRIGHT', -1, 1)
 
     --[[ UNDERLAY BORDER ]]--
     local borderLeft = panel:CreateTexture(nil, "BORDER")
@@ -153,33 +153,33 @@ local function EncounterJournalStyle()
 
   EncounterJournalSearchResults:RemoveTextures(true)
 
-  EncounterJournal:SetPanelTemplate("Action")
+  EncounterJournal:SetStylePanel("Default", "Action")
   EncounterJournal:SetPanelColor("dark")
-  EncounterJournalInset:SetFixedPanelTemplate("Inset")
+  EncounterJournalInset:SetStylePanel("Fixed", "Inset")
 
-  EncounterJournalInstanceSelectScrollFrameScrollChild:SetFixedPanelTemplate("Default")
+  EncounterJournalInstanceSelectScrollFrameScrollChild:SetStylePanel("Fixed", "Default")
   EncounterJournalInstanceSelectScrollFrameScrollChild:SetPanelColor("dark")
-  EncounterJournalInstanceSelectScrollDownButton:SetButtonTemplate()
+  EncounterJournalInstanceSelectScrollDownButton:SetStylePanel("Button")
   EncounterJournalInstanceSelectScrollDownButton:SetNormalTexture([[Interface\AddOns\SVUI\assets\artwork\Icons\MOVE-DOWN]])
 
-  EncounterJournalEncounterFrameInstanceFrame:SetFixedPanelTemplate("Inset")
+  EncounterJournalEncounterFrameInstanceFrame:SetStylePanel("Fixed", "Inset")
 
   local comicHolder = CreateFrame('Frame', nil, EncounterJournal.encounter)
   comicHolder:SetPoint("TOPLEFT", EncounterJournalEncounterFrameInfoBossesScrollFrame, "TOPLEFT", -20, 40)
   comicHolder:SetPoint("BOTTOMRIGHT", EncounterJournalEncounterFrameInfoBossesScrollFrame, "BOTTOMRIGHT", 0, 0)
-  comicHolder:SetPanelTemplate("Comic")
+  comicHolder:SetStylePanel("Default", "Comic")
   comicHolder:SetPanelColor("dark")
   EncounterJournal.encounter.info.encounterTitle:SetParent(comicHolder)
   EncounterJournal.searchResults.TitleText:SetParent(comicHolder)
 
-  EncounterJournalNavBarHomeButton:SetButtonTemplate()
-  EncounterJournalEncounterFrameInfoDifficulty:SetButtonTemplate()
+  EncounterJournalNavBarHomeButton:SetStylePanel("Button")
+  EncounterJournalEncounterFrameInfoDifficulty:SetStylePanel("Button")
   EncounterJournalEncounterFrameInfoDifficulty:SetFrameLevel(EncounterJournalEncounterFrameInfoDifficulty:GetFrameLevel() + 10)
-  EncounterJournalEncounterFrameInfoLootScrollFrameFilterToggle:SetButtonTemplate()
+  EncounterJournalEncounterFrameInfoLootScrollFrameFilterToggle:SetStylePanel("Button")
   EncounterJournalEncounterFrameInfoLootScrollFrameFilterToggle:SetFrameLevel(EncounterJournalEncounterFrameInfoLootScrollFrameFilterToggle:GetFrameLevel() + 10)
 
-  EncounterJournalInstanceSelectDungeonTab:SetButtonTemplate()
-  EncounterJournalInstanceSelectRaidTab:SetButtonTemplate()
+  EncounterJournalInstanceSelectDungeonTab:SetStylePanel("Button")
+  EncounterJournalInstanceSelectRaidTab:SetStylePanel("Button")
 
   PLUGIN:ApplyScrollBarStyle(EncounterJournalEncounterFrameInfoLootScrollBar)
 
@@ -189,7 +189,7 @@ local function EncounterJournalStyle()
   bgParent.loreBG:SetPoint("TOPLEFT", bgParent, "TOPLEFT", 0, 0)
   bgParent.loreBG:SetPoint("BOTTOMRIGHT", bgParent, "BOTTOMRIGHT", 0, 90)
 
-  loreParent:SetPanelTemplate("Pattern", true, 1, 1, 5)
+  loreParent:SetStylePanel("Default", "Pattern", true, 1, 1, 5)
   loreParent:SetPanelColor("dark")
   loreParent.child.lore:SetTextColor(1, 1, 1)
   EncounterJournal.encounter.infoFrame.description:SetTextColor(1, 1, 1)
@@ -225,7 +225,7 @@ local function EncounterJournalStyle()
       if(not used.button.Panel) then
           used:RemoveTextures(true)
           used.button:RemoveTextures(true)
-          used.button:SetButtonTemplate()
+          used.button:SetStylePanel("Button")
       end
       used.description:SetTextColor(1, 1, 1)
       --used.button.portrait.icon:Hide()
@@ -246,7 +246,7 @@ local function EncounterJournalStyle()
       if index <= numLoot then
           item.icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
           if(not item.Panel) then
-            item:SetFixedPanelTemplate("Slot")
+            item:SetStylePanel("Fixed", "Slot")
           end
           item.slot:SetTextColor(0.5, 1, 0)
           item.armorType:SetTextColor(1, 1, 0)

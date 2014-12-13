@@ -50,13 +50,13 @@ end
 local function LossOfControlStyle()
   if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.losscontrol ~= true then return end 
   local IconBackdrop = CreateFrame("Frame", nil, LossOfControlFrame)
-  IconBackdrop:WrapOuter(LossOfControlFrame.Icon)
+  IconBackdrop:SetAllPointsOut(LossOfControlFrame.Icon)
   IconBackdrop:SetFrameLevel(LossOfControlFrame:GetFrameLevel()-1)
-  IconBackdrop:SetPanelTemplate("Slot")
+  IconBackdrop:SetStylePanel("Default", "Slot")
   LossOfControlFrame.Icon:SetTexCoord(.1, .9, .1, .9)
   LossOfControlFrame:RemoveTextures()
   LossOfControlFrame.AbilityName:ClearAllPoints()
-  LossOfControlFrame:Size(LossOfControlFrame.Icon:GetWidth() + 50)
+  LossOfControlFrame:SetSizeToScale(LossOfControlFrame.Icon:GetWidth() + 50)
   --local bg = CreateFrame("Frame", nil, LossOfControlFrame)
   hooksecurefunc("LossOfControlFrame_SetUpDisplay", _hook_LossOfControl)
 end 

@@ -58,10 +58,10 @@ local function TabardFrameStyle()
 		 return 
 	end 
 	cleanT(TabardFrame, true)
-	TabardFrame:SetPanelTemplate("Action", false)
-	TabardModel:SetFixedPanelTemplate("Transparent")
-	TabardFrameCancelButton:SetButtonTemplate()
-	TabardFrameAcceptButton:SetButtonTemplate()
+	TabardFrame:SetStylePanel("Default", "Action", false)
+	TabardModel:SetStylePanel("Fixed", "Transparent")
+	TabardFrameCancelButton:SetStylePanel("Button")
+	TabardFrameAcceptButton:SetStylePanel("Button")
 	PLUGIN:ApplyCloseButtonStyle(TabardFrameCloseButton)
 	TabardFrameCostFrame:RemoveTextures()
 	TabardFrameCustomizationFrame:RemoveTextures()
@@ -74,10 +74,10 @@ local function TabardFrameStyle()
 		PLUGIN:ApplyPaginationStyle(_G[c.."RightButton"])
 		if b > 1 then
 			 _G[c]:ClearAllPoints()
-			_G[c]:Point("TOP", _G["TabardFrameCustomization"..b-1], "BOTTOM", 0, -6)
+			_G[c]:SetPointToScale("TOP", _G["TabardFrameCustomization"..b-1], "BOTTOM", 0, -6)
 		else
 			local d, e, f, g, h = _G[c]:GetPoint()
-			_G[c]:Point(d, e, f, g, h + 4)
+			_G[c]:SetPointToScale(d, e, f, g, h + 4)
 		end 
 	end 
 	TabardCharacterModelRotateLeftButton:SetPoint("BOTTOMLEFT", 4, 4)

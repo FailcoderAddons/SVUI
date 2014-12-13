@@ -62,7 +62,7 @@ local Reposition = function(self)
 	local max = self.MaxClassPower;
 	local size = db.classbar.height
 	local width = size * max;
-	bar.Holder:Size(width, size)
+	bar.Holder:SetSizeToScale(width, size)
     if(not db.classbar.detachFromFrame) then
     	SV.Mentalo:Reset(L["Classbar"])
     end
@@ -81,7 +81,7 @@ local Reposition = function(self)
 		if i==1 then 
 			bar[i]:SetPoint("TOPLEFT", bar, "TOPLEFT", 0, 0)
 		else 
-			bar[i]:Point("LEFT", bar[i - 1], "RIGHT", -1, 0) 
+			bar[i]:SetPointToScale("LEFT", bar[i - 1], "RIGHT", -1, 0) 
 		end
 	end 
 end 
@@ -146,12 +146,12 @@ function MOD:CreateClassBar(playerFrame)
 		bar[i].backdrop:SetVertexColor(0,0,0)
 
 		local barAnimation = CreateFrame('Frame',nil,bar[i])
-		barAnimation:Size(40,40)
+		barAnimation:SetSizeToScale(40,40)
 		barAnimation:SetPoint("CENTER",bar[i],"CENTER",0,0)
 		barAnimation:SetFrameLevel(0)
 		
 		barAnimation[1] = barAnimation:CreateTexture(nil,"BACKGROUND",nil,1)
-		barAnimation[1]:Size(40,40)
+		barAnimation[1]:SetSizeToScale(40,40)
 		barAnimation[1]:SetPoint("CENTER")
 		barAnimation[1]:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\SWIRL")
 		barAnimation[1]:SetBlendMode("ADD")
@@ -159,7 +159,7 @@ function MOD:CreateClassBar(playerFrame)
 		SV.Animate:Orbit(barAnimation[1],10)
 
 		barAnimation[2] = barAnimation:CreateTexture(nil,"BACKGROUND",nil,2)
-		barAnimation[2]:Size(40,40)
+		barAnimation[2]:SetSizeToScale(40,40)
 		barAnimation[2]:SetPoint("CENTER")
 		barAnimation[2]:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\SWIRL")
 		barAnimation[2]:SetTexCoord(1,0,1,1,0,0,0,1)
@@ -168,7 +168,7 @@ function MOD:CreateClassBar(playerFrame)
 		SV.Animate:Orbit(barAnimation[2],10,true)
 
 		barAnimation[3] = barAnimation:CreateTexture(nil, "OVERLAY")
-		barAnimation[3]:WrapOuter(barAnimation, 3, 3)
+		barAnimation[3]:SetAllPointsOut(barAnimation, 3, 3)
 		barAnimation[3]:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\MAGE-FG-ANIMATION")
 		barAnimation[3]:SetBlendMode("ADD")
 		barAnimation[3]:SetVertexColor(1, 1, 0)
@@ -180,7 +180,7 @@ function MOD:CreateClassBar(playerFrame)
 	bar.Override = Update;
 	
 	local classBarHolder = CreateFrame("Frame", "Player_ClassBar", bar)
-	classBarHolder:Point("TOPLEFT", playerFrame, "BOTTOMLEFT", 0, -2)
+	classBarHolder:SetPointToScale("TOPLEFT", playerFrame, "BOTTOMLEFT", 0, -2)
 	bar:SetPoint("TOPLEFT", classBarHolder, "TOPLEFT", 0, 0)
 	bar.Holder = classBarHolder
 	SV.Mentalo:Add(bar.Holder, L["Classbar"])

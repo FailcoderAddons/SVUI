@@ -60,7 +60,7 @@ TRANSMOG PLUGINR
 local function TransmogStyle()
 	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.transmogrify ~= true then return end
 
-	TransmogrifyFrame:Size(500, 600)
+	TransmogrifyFrame:SetSizeToScale(500, 600)
 	PLUGIN:ApplyWindowStyle(TransmogrifyFrame, true)
 
 	for p, texture in pairs(TransmogFrameList)do
@@ -70,14 +70,14 @@ local function TransmogStyle()
 	select(2, TransmogrifyModelFrame:GetRegions()):Die()
 
 	TransmogrifyModelFrame:ClearAllPoints()
-	TransmogrifyModelFrame:Point("TOPLEFT", TransmogrifyFrame, "TOPLEFT", 12, -22)
-	TransmogrifyModelFrame:Point("BOTTOMRIGHT", TransmogrifyFrame, "BOTTOMRIGHT", -12, 36)
-	TransmogrifyModelFrame:SetFixedPanelTemplate("Model")
+	TransmogrifyModelFrame:SetPointToScale("TOPLEFT", TransmogrifyFrame, "TOPLEFT", 12, -22)
+	TransmogrifyModelFrame:SetPointToScale("BOTTOMRIGHT", TransmogrifyFrame, "BOTTOMRIGHT", -12, 36)
+	TransmogrifyModelFrame:SetStylePanel("Fixed", "Model")
 
 	TransmogrifyFrameButtonFrame:GetRegions():Die()
 	TransmogrifyApplyButton:RemoveTextures()
-	TransmogrifyApplyButton:SetButtonTemplate()
-	TransmogrifyApplyButton:Point("BOTTOMRIGHT", TransmogrifyFrame, "BOTTOMRIGHT", -4, 4)
+	TransmogrifyApplyButton:SetStylePanel("Button")
+	TransmogrifyApplyButton:SetPointToScale("BOTTOMRIGHT", TransmogrifyFrame, "BOTTOMRIGHT", -4, 4)
 	PLUGIN:ApplyCloseButtonStyle(TransmogrifyArtFrameCloseButton)
 	TransmogrifyArtFrame:RemoveTextures()
 
@@ -86,21 +86,21 @@ local function TransmogStyle()
 		local a9 = _G["TransmogrifyFrame"..a9 .."Slot"]
 		if a9 then
 			a9:RemoveTextures()
-			a9:SetSlotTemplate(true)
+			a9:SetStylePanel("Slot", true)
 			a9:SetFrameLevel(a9:GetFrameLevel()+2)
 			
 			a9.Panel:SetAllPoints()
 			icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 			icon:ClearAllPoints()
-			icon:FillInner()
+			icon:SetAllPointsIn()
 		end 
 	end
 	
 	TransmogrifyConfirmationPopup:SetParent(UIParent)
 	TransmogrifyConfirmationPopup:RemoveTextures()
-	TransmogrifyConfirmationPopup:SetPanelTemplate("Pattern")
-	TransmogrifyConfirmationPopup.Button1:SetButtonTemplate()
-	TransmogrifyConfirmationPopup.Button2:SetButtonTemplate()
+	TransmogrifyConfirmationPopup:SetStylePanel("Default", "Pattern")
+	TransmogrifyConfirmationPopup.Button1:SetStylePanel("Button")
+	TransmogrifyConfirmationPopup.Button2:SetStylePanel("Button")
 	PLUGIN:ApplyItemButtonStyle(TransmogrifyConfirmationPopupItemFrame1, true)
 	PLUGIN:ApplyItemButtonStyle(TransmogrifyConfirmationPopupItemFrame2, true)
 end 

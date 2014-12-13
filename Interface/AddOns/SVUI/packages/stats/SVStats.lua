@@ -151,9 +151,9 @@ local UpdateAnchor = function()
 
 		for i = 1, numPoints do 
 			local this = positionIndex[anchor.useIndex][i]
-			anchor.holders[this]:Width(width)
-			anchor.holders[this]:Height(height)
-			anchor.holders[this]:Point(GrabPlot(anchor, i, numPoints))
+			anchor.holders[this]:SetWidthToScale(width)
+			anchor.holders[this]:SetHeightToScale(height)
+			anchor.holders[this]:SetPointToScale(GrabPlot(anchor, i, numPoints))
 		end 
 	end 
 end
@@ -233,18 +233,18 @@ function MOD:NewAnchor(parent, maxCount, tipAnchor, isTop, customTemplate, isVer
 			parent.holders[position]:RegisterForClicks("AnyUp")
 			parent.holders[position].barframe = CreateFrame("Frame", nil, parent.holders[position])
 			if(SV.db.SVStats.showBackground) then
-				parent.holders[position].barframe:Point("TOPLEFT", parent.holders[position], "TOPLEFT", 24, -2)
-				parent.holders[position].barframe:Point("BOTTOMRIGHT", parent.holders[position], "BOTTOMRIGHT", -2, 2)
+				parent.holders[position].barframe:SetPointToScale("TOPLEFT", parent.holders[position], "TOPLEFT", 24, -2)
+				parent.holders[position].barframe:SetPointToScale("BOTTOMRIGHT", parent.holders[position], "BOTTOMRIGHT", -2, 2)
 				if(customTemplate) then
-					parent.holders[position]:SetFixedPanelTemplate(template)
+					parent.holders[position]:SetStylePanel("Fixed", template)
 				else
-					parent.holders[position]:SetFramedButtonTemplate(template)
+					parent.holders[position]:SetStylePanel("Framed", template)
 				end
 			else
-				parent.holders[position].barframe:Point("TOPLEFT", parent.holders[position], "TOPLEFT", 24, 2)
-				parent.holders[position].barframe:Point("BOTTOMRIGHT", parent.holders[position], "BOTTOMRIGHT", 2, -2)
+				parent.holders[position].barframe:SetPointToScale("TOPLEFT", parent.holders[position], "TOPLEFT", 24, 2)
+				parent.holders[position].barframe:SetPointToScale("BOTTOMRIGHT", parent.holders[position], "BOTTOMRIGHT", 2, -2)
 				parent.holders[position].barframe.bg = parent.holders[position].barframe:CreateTexture(nil, "BORDER")
-				parent.holders[position].barframe.bg:FillInner(parent.holders[position].barframe, 2, 2)
+				parent.holders[position].barframe.bg:SetAllPointsIn(parent.holders[position].barframe, 2, 2)
 				parent.holders[position].barframe.bg:SetTexture([[Interface\BUTTONS\WHITE8X8]])
 				parent.holders[position].barframe.bg:SetGradient(unpack(SV.Media.gradient.dark))
 			end
@@ -260,13 +260,13 @@ function MOD:NewAnchor(parent, maxCount, tipAnchor, isTop, customTemplate, isVer
 			parent.holders[position].barframe:SetBackdropColor(0, 0, 0, 0.5)
 			parent.holders[position].barframe:SetBackdropBorderColor(0, 0, 0, 0.8)
 			parent.holders[position].barframe.icon = CreateFrame("Frame", nil, parent.holders[position].barframe)
-			parent.holders[position].barframe.icon:Point("TOPLEFT", parent.holders[position], "TOPLEFT", 0, 6)
-			parent.holders[position].barframe.icon:Point("BOTTOMRIGHT", parent.holders[position], "BOTTOMLEFT", 26, -6)
+			parent.holders[position].barframe.icon:SetPointToScale("TOPLEFT", parent.holders[position], "TOPLEFT", 0, 6)
+			parent.holders[position].barframe.icon:SetPointToScale("BOTTOMRIGHT", parent.holders[position], "BOTTOMLEFT", 26, -6)
 			parent.holders[position].barframe.icon.texture = parent.holders[position].barframe.icon:CreateTexture(nil, "OVERLAY")
-			parent.holders[position].barframe.icon.texture:FillInner(parent.holders[position].barframe.icon, 2, 2)
+			parent.holders[position].barframe.icon.texture:SetAllPointsIn(parent.holders[position].barframe.icon, 2, 2)
 			parent.holders[position].barframe.icon.texture:SetTexture("Interface\\Addons\\SVUI\\assets\\artwork\\Icons\\PLACEHOLDER")
 			parent.holders[position].barframe.bar = CreateFrame("StatusBar", nil, parent.holders[position].barframe)
-			parent.holders[position].barframe.bar:FillInner(parent.holders[position].barframe, 2, 2)
+			parent.holders[position].barframe.bar:SetAllPointsIn(parent.holders[position].barframe, 2, 2)
 			parent.holders[position].barframe.bar:SetStatusBarTexture(SV.Media.bar.default)
 				
 			parent.holders[position].barframe.bar.extra = CreateFrame("StatusBar", nil, parent.holders[position].barframe.bar)
@@ -293,7 +293,7 @@ function MOD:NewAnchor(parent, maxCount, tipAnchor, isTop, customTemplate, isVer
 		parent.holders[position].TokenKey = 738;
 		parent.holders[position].MenuList = {};
 		parent.holders[position].TokenList = {};
-		parent.holders[position]:Point(GrabPlot(parent, i, maxCount))
+		parent.holders[position]:SetPointToScale(GrabPlot(parent, i, maxCount))
 	end 
 	parent:SetScript("OnSizeChanged", UpdateAnchor)
 	UpdateAnchor(parent)

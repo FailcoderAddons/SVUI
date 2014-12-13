@@ -75,10 +75,10 @@ end
 local function NewToolButton(name, parent, template, width, height, point, relativeto, point2, xOfs, yOfs, textDisplay)
 	local button = CreateFrame("Button", name, parent, template)
 	button:RemoveTextures()
-	button:Width(width)
-	button:Height(height)
-	button:Point(point, relativeto, point2, xOfs, yOfs)
-	button:SetFramedButtonTemplate()
+	button:SetWidthToScale(width)
+	button:SetHeightToScale(height)
+	button:SetPointToScale(point, relativeto, point2, xOfs, yOfs)
+	button:SetStylePanel("Framed") 
 
 	if(textDisplay) then
 		local text = button:CreateFontString(nil,"OVERLAY")
@@ -122,9 +122,9 @@ function MOD:LoadRaidLeaderTools()
 	self.RaidTool:SetAttribute("hasDropDown", false);
 
 	self.RaidTool.Menu = CreateFrame("Frame", "SVUI_RaidToolMenu", self.RaidTool, "SecureHandlerClickTemplate");
-	self.RaidTool.Menu:SetPanelTemplate('Transparent');
-	self.RaidTool.Menu:Width(120);
-	self.RaidTool.Menu:Height(140);
+	self.RaidTool.Menu:SetStylePanel("Default", 'Transparent');
+	self.RaidTool.Menu:SetWidthToScale(120);
+	self.RaidTool.Menu:SetHeightToScale(140);
 	self.RaidTool.Menu:SetPoint("TOPLEFT", dock.ToolBar, "BOTTOMLEFT", 0, -2);
 	self.RaidTool.Menu:SetFrameLevel(3);
 	self.RaidTool.Menu.toggled = false;
@@ -201,10 +201,10 @@ function MOD:LoadRaidLeaderTools()
 		markerButton:ClearAllPoints()
 		markerButton:SetPoint("TOP", control, "BOTTOM", 0, -5)
 		markerButton:SetParent(self.RaidTool.Menu)
-		markerButton:Height(18)
+		markerButton:SetHeightToScale(18)
 		markerButton:SetWidth(109)
 		markerButton:RemoveTextures()
-		markerButton:SetFramedButtonTemplate()
+		markerButton:SetStylePanel("Framed") 
 
 		local markersText = markerButton:CreateFontString(nil,"OVERLAY")
 		markersText:SetFont(SV.Media.font.roboto, 14, "NONE")

@@ -85,7 +85,7 @@ local Reposition = function(self)
 	local size = db.classbar.height
 	local width = size * max;
 	local dbOffset = (size * 0.15)
-	bar.Holder:Size(width, size)
+	bar.Holder:SetSizeToScale(width, size)
     if(not db.classbar.detachFromFrame) then
     	SV.Mentalo:Reset(L["Classbar"])
     end
@@ -98,7 +98,7 @@ local Reposition = function(self)
     bar:SetAllPoints(bar.Holder)
 
 	bar.DemonBar:ClearAllPoints()
-	bar.DemonBar:Size(width, (size * 1.25))
+	bar.DemonBar:SetSizeToScale(width, (size * 1.25))
 	bar.DemonBar:SetPoint("LEFT", bar, "LEFT", 0, dbOffset) 
 	for i = 1, max do 
 		bar[i]:ClearAllPoints()
@@ -107,7 +107,7 @@ local Reposition = function(self)
 		if(i == 1) then 
 			bar[i]:SetPoint("LEFT", bar)
 		else 
-			bar[i]:Point("LEFT", bar[i - 1], "RIGHT", -2, 0)
+			bar[i]:SetPointToScale("LEFT", bar[i - 1], "RIGHT", -2, 0)
 		end 
 	end
 end 
@@ -301,8 +301,8 @@ function MOD:CreateClassBar(playerFrame)
 		bar[i].overlay:Hide()
 
 		bar[i].underlay = bar[i]:CreateTexture(nil,'BORDER')
-		bar[i].underlay:Height(100)
-		bar[i].underlay:Width(100)
+		bar[i].underlay:SetHeightToScale(100)
+		bar[i].underlay:SetWidthToScale(100)
 		bar[i].underlay:SetPoint("CENTER",bar[i])
 		bar[i].underlay:SetTexture('Interface\\Addons\\SVUI\\assets\\artwork\\Unitframe\\Class\\WARLOCK-SOUL-ANIMATION')
 		bar[i].underlay:SetBlendMode('ADD')
@@ -320,7 +320,7 @@ function MOD:CreateClassBar(playerFrame)
 	demonBar:SetStatusBarTexture(SV.Media.bar.lazer)
 
 	local bgFrame = CreateFrame("Frame", nil, demonBar)
-	bgFrame:FillInner(demonBar, 0, 8)
+	bgFrame:SetAllPointsIn(demonBar, 0, 8)
 	bgFrame:SetFrameLevel(bgFrame:GetFrameLevel() - 1)
 
 	demonBar.bg = bgFrame:CreateTexture(nil, "BACKGROUND")
@@ -357,7 +357,7 @@ function MOD:CreateClassBar(playerFrame)
 	bar.Override = Update;
 
 	local classBarHolder = CreateFrame("Frame", "Player_ClassBar", bar)
-	classBarHolder:Point("TOPLEFT", playerFrame, "BOTTOMLEFT", 0, -2)
+	classBarHolder:SetPointToScale("TOPLEFT", playerFrame, "BOTTOMLEFT", 0, -2)
 	bar:SetPoint("TOPLEFT", classBarHolder, "TOPLEFT", 0, 0)
 	bar.Holder = classBarHolder
 	SV.Mentalo:Add(bar.Holder, L["Classbar"])

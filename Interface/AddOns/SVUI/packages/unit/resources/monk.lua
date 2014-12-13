@@ -56,7 +56,7 @@ local Reposition = function(self)
 	local max = self.MaxClassPower;
 	local size = db.classbar.height
 	local width = size * max;
-	bar.Holder:Size(width, size)
+	bar.Holder:SetSizeToScale(width, size)
     if(not db.classbar.detachFromFrame) then
     	SV.Mentalo:Reset(L["Classbar"])
     end
@@ -77,7 +77,7 @@ local Reposition = function(self)
 		if i==1 then 
 			bar[i]:SetPoint("TOPLEFT", bar, "TOPLEFT", 0, 0)
 		else 
-			bar[i]:Point("LEFT", bar[i - 1], "RIGHT", -2, 0) 
+			bar[i]:SetPointToScale("LEFT", bar[i - 1], "RIGHT", -2, 0) 
 		end
 	end 
 end 
@@ -92,7 +92,7 @@ MONK STAGGER BAR
 local function CreateDrunkenMasterBar(playerFrame)
 	local stagger = CreateFrame("Statusbar",nil,playerFrame)
 	stagger:SetSize(45,90)
-	stagger:Point('BOTTOMLEFT', playerFrame, 'BOTTOMRIGHT', 6, 0)
+	stagger:SetPointToScale('BOTTOMLEFT', playerFrame, 'BOTTOMRIGHT', 6, 0)
 	stagger:SetOrientation("VERTICAL")
 	stagger:SetStatusBarTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\MONK-STAGGER-BAR")
 	stagger:GetStatusBarTexture():SetHorizTile(false)
@@ -152,7 +152,7 @@ function MOD:CreateClassBar(playerFrame)
 	end 
 
 	local classBarHolder = CreateFrame("Frame", "Player_ClassBar", bar)
-	classBarHolder:Point("TOPLEFT", playerFrame, "BOTTOMLEFT", 0, -2)
+	classBarHolder:SetPointToScale("TOPLEFT", playerFrame, "BOTTOMLEFT", 0, -2)
 	bar:SetPoint("TOPLEFT", classBarHolder, "TOPLEFT", 0, 0)
 	bar.Holder = classBarHolder
 	SV.Mentalo:Add(bar.Holder, L["Classbar"])

@@ -35,10 +35,10 @@ local function PetitionFrameStyle()
 	PLUGIN:ApplyWindowStyle(PetitionFrame, nil, true)
 	PetitionFrameInset:Die()
 
-	PetitionFrameSignButton:SetButtonTemplate()
-	PetitionFrameRequestButton:SetButtonTemplate()
-	PetitionFrameRenameButton:SetButtonTemplate()
-	PetitionFrameCancelButton:SetButtonTemplate()
+	PetitionFrameSignButton:SetStylePanel("Button")
+	PetitionFrameRequestButton:SetStylePanel("Button")
+	PetitionFrameRenameButton:SetStylePanel("Button")
+	PetitionFrameCancelButton:SetStylePanel("Button")
 
 	PLUGIN:ApplyCloseButtonStyle(PetitionFrameCloseButton)
 
@@ -58,8 +58,8 @@ local function PetitionFrameStyle()
 
 	PetitionFrameInstructions:SetTextColor(1, 1, 1)
 	
-	PetitionFrameRenameButton:Point("LEFT", PetitionFrameRequestButton, "RIGHT", 3, 0)
-	PetitionFrameRenameButton:Point("RIGHT", PetitionFrameCancelButton, "LEFT", -3, 0)
+	PetitionFrameRenameButton:SetPointToScale("LEFT", PetitionFrameRequestButton, "RIGHT", 3, 0)
+	PetitionFrameRenameButton:SetPointToScale("RIGHT", PetitionFrameCancelButton, "LEFT", -3, 0)
 end 
 --[[ 
 ########################################################## 

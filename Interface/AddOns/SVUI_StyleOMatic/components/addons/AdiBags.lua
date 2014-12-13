@@ -45,10 +45,10 @@ local function StyleAdiBags(event)
 
 	local function SkinFrame(frame)
 		local region = frame.HeaderRightRegion
-		frame:SetBasicPanel()
-		_G[frame:GetName()..'Bags']:SetPanelTemplate("Default")
+		frame:SetStylePanel("Default", 'Transparent')
+		_G[frame:GetName()..'Bags']:SetStylePanel("Default", "Default")
 		for i = 1, 3 do
-			region.widgets[i].widget:SetButtonTemplate()
+			region.widgets[i].widget:SetStylePanel("Button")
 		end
 	end
 
@@ -57,8 +57,8 @@ local function StyleAdiBags(event)
 			if not AdiBagsContainer1 then ToggleBackpack() ToggleBackpack() end
 			if AdiBagsContainer1 then
 				SkinFrame(AdiBagsContainer1)
-				AdiBagsContainer1SearchBox:SetEditboxTemplate()
-				AdiBagsContainer1SearchBox:Point('TOPRIGHT', AdiBagsSimpleLayeredRegion2, 'TOPRIGHT', -75, -1)
+				AdiBagsContainer1SearchBox:SetStylePanel("Editbox")
+				AdiBagsContainer1SearchBox:SetPointToScale('TOPRIGHT', AdiBagsSimpleLayeredRegion2, 'TOPRIGHT', -75, -1)
 			end
 		end, 1)
 	elseif event == 'BANKFRAME_OPENED' then

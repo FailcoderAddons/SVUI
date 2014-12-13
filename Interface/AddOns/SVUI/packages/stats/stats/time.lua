@@ -233,6 +233,6 @@ local TimeColorUpdate = function()
 	end 
 end 
 
-LibSuperVillain("Registry"):NewCallback("CORE_MEDIA_UPDATED", "TimeColorUpdates", TimeColorUpdate)
+SV.Events:On("SVUI_COLORS_UPDATED", "TimeColorUpdates", TimeColorUpdate)
 
 MOD:Extend('Time', {"UPDATE_INSTANCE_INFO"}, OnEvent, Update, Click, OnEnter, OnLeave)

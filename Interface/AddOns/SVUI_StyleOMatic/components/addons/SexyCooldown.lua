@@ -59,8 +59,8 @@ local function StyleSexyCooldownBar(bar)
 	SV:AddToDisplayAudit(bar)
 	if PLUGIN:IsAddonReady("DockletSexyCooldown") then
 		bar:ClearAllPoints()
-		bar:Point('BOTTOMRIGHT', SVUI_ActionBar1, 'TOPRIGHT', 0, 2)
-		bar:Point("BOTTOMLEFT", SVUI_ActionBar1, "TOPLEFT", 0, 2)
+		bar:SetPointToScale('BOTTOMRIGHT', SVUI_ActionBar1, 'TOPRIGHT', 0, 2)
+		bar:SetPointToScale("BOTTOMLEFT", SVUI_ActionBar1, "TOPLEFT", 0, 2)
 		bar:SetHeight(SVUI_ActionBar1Button1:GetHeight())
 	end
 end
@@ -76,7 +76,7 @@ local function StyleSexyCooldownIcon(bar, icon)
 end
 
 local function StyleSexyCooldownBackdrop(bar)
-	bar:SetFixedPanelTemplate("Transparent")
+	bar:SetStylePanel("Fixed", "Transparent")
 end
 
 local function HookSCDBar(bar)

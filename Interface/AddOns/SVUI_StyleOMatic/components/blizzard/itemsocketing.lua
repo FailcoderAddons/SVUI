@@ -30,10 +30,10 @@ ITEMSOCKETING PLUGINR
 local function ItemSocketStyle()
 	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.socket ~= true then return end 
 	ItemSocketingFrame:RemoveTextures()
-	ItemSocketingFrame:SetPanelTemplate("Action")
+	ItemSocketingFrame:SetStylePanel("Default", "Action")
 	ItemSocketingFrameInset:Die()
 	ItemSocketingScrollFrame:RemoveTextures()
-	ItemSocketingScrollFrame:SetPanelTemplate("Inset", true)
+	ItemSocketingScrollFrame:SetStylePanel("Default", "Inset", true)
 	PLUGIN:ApplyScrollFrameStyle(ItemSocketingScrollFrameScrollBar, 2)
 	for j = 1, MAX_NUM_SOCKETS do 
 		local i = _G[("ItemSocketingSocket%d"):format(j)];
@@ -41,12 +41,12 @@ local function ItemSocketStyle()
 		local D = _G[("ItemSocketingSocket%dBackground"):format(j)];
 		local E = _G[("ItemSocketingSocket%dIconTexture"):format(j)];
 		i:RemoveTextures()
-		i:SetButtonTemplate()
-		i:SetFixedPanelTemplate("Button", true)
+		i:SetStylePanel("Button")
+		i:SetStylePanel("Fixed", "Button", true)
 		C:Die()
 		D:Die()
 		E:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-		E:FillInner()
+		E:SetAllPointsIn()
 	end 
 	hooksecurefunc("ItemSocketingFrame_Update", function()
 		local max = GetNumSockets()
@@ -60,8 +60,8 @@ local function ItemSocketStyle()
 	end)
 	ItemSocketingFramePortrait:Die()
 	ItemSocketingSocketButton:ClearAllPoints()
-	ItemSocketingSocketButton:Point("BOTTOMRIGHT", ItemSocketingFrame, "BOTTOMRIGHT", -5, 5)
-	ItemSocketingSocketButton:SetButtonTemplate()
+	ItemSocketingSocketButton:SetPointToScale("BOTTOMRIGHT", ItemSocketingFrame, "BOTTOMRIGHT", -5, 5)
+	ItemSocketingSocketButton:SetStylePanel("Button")
 	PLUGIN:ApplyCloseButtonStyle(ItemSocketingFrameCloseButton)
 end 
 --[[ 

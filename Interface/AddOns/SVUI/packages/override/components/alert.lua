@@ -187,9 +187,9 @@ local AlertFramePostMove_Hook = function(forced)
 		for index, rollFrame in pairs(MOD.RollFrames) do
 			rollFrame:ClearAllPoints()
 			if(POSITION == "TOP") then 
-				rollFrame:Point("TOP", lastFrame, "BOTTOM", 0, -4)
+				rollFrame:SetPointToScale("TOP", lastFrame, "BOTTOM", 0, -4)
 			else
-				rollFrame:Point("BOTTOM", lastFrame, "TOP", 0, 4)
+				rollFrame:SetPointToScale("BOTTOM", lastFrame, "TOP", 0, 4)
 			end 
 			lastFrame = rollFrame;
 			if(rollFrame:IsShown()) then
@@ -218,7 +218,7 @@ PACKAGE CALL
 ##########################################################
 ]]--
 function MOD:SetAlerts()
-	SVUI_AlertFrame:Size(180, 20);
+	SVUI_AlertFrame:SetSizeToScale(180, 20);
 	SV.Mentalo:Add(SVUI_AlertFrame, L["Loot / Alert Frames"], nil, AlertFramePostMove_Hook)
 
 	NewHook('AlertFrame_FixAnchors', AlertFramePostMove_Hook)

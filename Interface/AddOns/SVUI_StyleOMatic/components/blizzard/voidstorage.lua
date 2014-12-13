@@ -56,14 +56,14 @@ local function ChangeTabHelper(this)
   if(nTex) then
     nTex:SetTexture([[Interface\ICONS\INV_Enchant_VoidSphere]])
     nTex:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-    nTex:FillInner()
+    nTex:SetAllPointsIn()
   end
 
   this.pushed = true;
 
   this.backdrop = CreateFrame("Frame", nil, this)
   
-  this.backdrop:WrapOuter(this,1,1)
+  this.backdrop:SetAllPointsOut(this,1,1)
   this.backdrop:SetFrameLevel(0)
 
   this.backdrop:SetBackdrop({
@@ -86,7 +86,7 @@ local function ChangeTabHelper(this)
   this:SetScript("OnLeave", Tab_OnLeave)
 
   local a,b,c,d,e = this:GetPoint()
-  this:Point(a,b,c,1,e)
+  this:SetPointToScale(a,b,c,1,e)
 end
 
 local function VoidSlotStyler(name, index)
@@ -96,10 +96,10 @@ local function VoidSlotStyler(name, index)
   local bg = _G[gName .. "Bg"]
   if(button) then
     if(bg) then bg:Hide() end
-    button:SetSlotTemplate(true, 2, 0, 0)
+    button:SetStylePanel("Slot", true, 2, 0, 0)
     if(icon) then
       icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-      icon:FillInner()
+      icon:SetAllPointsIn()
     end
   end
 end
@@ -124,21 +124,21 @@ local function VoidStorageStyle()
   end
 
   VoidStoragePurchaseFrame:SetFrameStrata('DIALOG')
-  VoidStoragePurchaseFrame:SetFixedPanelTemplate("Button", true)
+  VoidStoragePurchaseFrame:SetStylePanel("Fixed", "Button", true)
   VoidStorageFrameMarbleBg:Die()
   VoidStorageFrameLines:Die()
 
   select(2, VoidStorageFrame:GetRegions()):Die()
 
-  VoidStoragePurchaseButton:SetButtonTemplate()
-  VoidStorageHelpBoxButton:SetButtonTemplate()
-  VoidStorageTransferButton:SetButtonTemplate()
+  VoidStoragePurchaseButton:SetStylePanel("Button")
+  VoidStorageHelpBoxButton:SetStylePanel("Button")
+  VoidStorageTransferButton:SetStylePanel("Button")
 
   PLUGIN:ApplyCloseButtonStyle(VoidStorageBorderFrame.CloseButton)
 
-  VoidItemSearchBox:SetPanelTemplate("Inset")
-  VoidItemSearchBox.Panel:Point("TOPLEFT", 10, -1)
-  VoidItemSearchBox.Panel:Point("BOTTOMRIGHT", 4, 1)
+  VoidItemSearchBox:SetStylePanel("Default", "Inset")
+  VoidItemSearchBox.Panel:SetPointToScale("TOPLEFT", 10, -1)
+  VoidItemSearchBox.Panel:SetPointToScale("BOTTOMRIGHT", 4, 1)
 
   for i=1, 9 do
     VoidSlotStyler("VoidStorageDeposit", i)

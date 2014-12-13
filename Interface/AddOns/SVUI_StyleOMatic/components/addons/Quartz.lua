@@ -52,7 +52,7 @@ local function StyleQuartz()
 			self.IconBorder = CreateFrame("Frame", nil, self)
 			PLUGIN:ApplyFrameStyle(self.IconBorder,"Transparent")
 			self.IconBorder:SetFrameLevel(0)
-			self.IconBorder:WrapOuter(self.Icon)
+			self.IconBorder:SetAllPointsOut(self.Icon)
 			PLUGIN:ApplyFrameStyle(self.Bar,"Transparent",true)
 			self.isStyled = true
 		end
