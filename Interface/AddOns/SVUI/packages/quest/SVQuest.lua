@@ -143,7 +143,7 @@ end
 HELPERS
 ##########################################################
 ]]--
-local function NewObjectiveRow(parent, lineNumber)
+function MOD:NewObjectiveRow(parent, lineNumber)
 	local lastRowNumber = lineNumber - 1;
 	local previousFrame = parent.Rows[lastRowNumber]
 	local yOffset = (lineNumber * (ROW_HEIGHT)) - ROW_HEIGHT
@@ -160,6 +160,14 @@ local function NewObjectiveRow(parent, lineNumber)
 	objective.Icon:SetWidth(INNER_HEIGHT - 4);
 	objective.Icon:SetTexture(OBJ_ICON_INCOMPLETE)
 
+	objective.Bar = CreateFrame("StatusBar", nil, objective)
+	objective.Bar:SetPoint("TOPLEFT", objective.Icon, "TOPRIGHT", 4, 0);
+	objective.Bar:SetPoint("BOTTOMRIGHT", objective, "BOTTOMRIGHT", -2, 2);
+	objective.Bar:SetStatusBarTexture(SV.Media.bar.default)
+	objective.Bar:SetStatusBarColor(0.5,0,1)
+	objective.Bar:SetMinMaxValues(0, 1)
+	objective.Bar:SetValue(0)
+
 	objective.Text = objective:CreateFontString(nil,"OVERLAY")
 	objective.Text:SetPoint("TOPLEFT", objective, "TOPLEFT", INNER_HEIGHT + 6, -2);
 	objective.Text:SetPoint("TOPRIGHT", objective, "TOPRIGHT", 0, -2);
@@ -175,11 +183,11 @@ local function NewObjectiveRow(parent, lineNumber)
 	return objective;
 end
 
-local AddObjectiveRow = function(self, index, description, completed, duration, elapsed)
+function MOD:AddObjectiveRow(index, description, completed, duration, elapsed)
 	local objective = self.Rows[index];
 
 	if(not objective) then
-		self.Rows[index] = NewObjectiveRow(self, index)
+		self.Rows[index] = MOD:NewObjectiveRow(self, index)
 		objective = self.Rows[index]
 	end
 
@@ -195,9 +203,11 @@ local AddObjectiveRow = function(self, index, description, completed, duration, 
 
 	if(duration and elapsed) then
 		if(duration > 0 and elapsed <= duration ) then
-			--DO STUFF	
+			objective.Bar:SetMinMaxValues(0, duration)
+			objective.Bar:SetValue(elapsed)	
 		else
-			--DO STUFF	
+			objective.Bar:SetMinMaxValues(0, 1)
+			objective.Bar:SetValue(0)	
 		end
 	end
 
@@ -293,7 +303,7 @@ local function NewActiveRow(anchorFrame)
 	--row.Objectives:SetStylePanel("Default", "Inset");
 
 	row.Objectives.Rows = {}
-	row.Objectives.Add = AddObjectiveRow;
+	row.Objectives.Add = MOD.AddObjectiveRow;
 
 	row.RowID = 0;
 
@@ -364,10 +374,8 @@ local AddScenarioRow = function(self, title, stageName, currentStage, numObjecti
 	local nextObjective = 1;
 	local row = self.Rows.Scenario;
 
-	--local color = GetQuestDifficultyColor(level)
-	
-	--row.Header.Level:SetTextColor(color.r, color.g, color.b)
-	--row.Header.Level:SetText(currentStage)
+	row.RowID = 1
+	row.Header.Level:SetText(currentStage)
 	row.Header.Text:SetText(stageName)
 	row.Badge.Icon:SetTexture(LINE_QUEST_ICON)
 	row:Show()
@@ -689,7 +697,7 @@ function MOD:Load()
 	--active.Refresh = SV.fubar
 
 	self.Active = active;
-	
+
 	self.Active.Rows.Scenario = NewActiveRow()
 	self.Active.Rows.Quest = NewActiveRow(self.Active.Rows.Scenario)
 	self.Active.AddScenario = AddScenarioRow;

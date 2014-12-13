@@ -79,69 +79,6 @@ end
 HELPERS
 ##########################################################
 ]]--
-local function NewObjectiveRow(parent, lineNumber)
-	local lastRowNumber = lineNumber - 1;
-	local previousFrame = parent.Rows[lastRowNumber]
-	local yOffset = (lineNumber * (ROW_HEIGHT)) - ROW_HEIGHT
-
-	local objective = CreateFrame("Frame", nil, parent)
-	objective:SetPoint("TOPLEFT", parent, "TOPLEFT", 0, -yOffset);
-	objective:SetPoint("TOPRIGHT", parent, "TOPRIGHT", 0, -yOffset);
-	objective:SetHeight(INNER_HEIGHT);
-	--objective:SetStylePanel("Default")
-
-	objective.Icon = objective:CreateTexture(nil,"OVERLAY")
-	objective.Icon:SetPoint("TOPLEFT", objective, "TOPLEFT", 4, -2);
-	objective.Icon:SetPoint("BOTTOMLEFT", objective, "BOTTOMLEFT", 4, 2);
-	objective.Icon:SetWidth(INNER_HEIGHT - 4);
-	objective.Icon:SetTexture(OBJ_ICON_INCOMPLETE)
-
-	objective.Text = objective:CreateFontString(nil,"OVERLAY")
-	objective.Text:SetPoint("TOPLEFT", objective, "TOPLEFT", INNER_HEIGHT + 6, -2);
-	objective.Text:SetPoint("TOPRIGHT", objective, "TOPRIGHT", 0, -2);
-	objective.Text:SetHeight(INNER_HEIGHT - 2)
-	objective.Text:SetFont(SV.Media.font.roboto, 12, "NONE")
-	objective.Text:SetTextColor(1,1,1)
-	objective.Text:SetShadowOffset(-1,-1)
-	objective.Text:SetShadowColor(0,0,0,0.5)
-	objective.Text:SetJustifyH('LEFT')
-	objective.Text:SetJustifyV('MIDDLE')
-	objective.Text:SetText('')
-
-	return objective;
-end
-
-local AddObjectiveRow = function(self, index, description, completed, duration, elapsed)
-	local objective = self.Rows[index];
-
-	if(not objective) then
-		self.Rows[index] = NewObjectiveRow(self, index)
-		objective = self.Rows[index]
-	end
-
-	objective.Text:SetText(description)
-
-	if(completed) then
-		objective.Text:SetTextColor(0.1,0.9,0.1)
-		objective.Icon:SetTexture(OBJ_ICON_COMPLETE)
-	else
-		objective.Text:SetTextColor(1,1,1)
-		objective.Icon:SetTexture(OBJ_ICON_INCOMPLETE)
-	end
-
-	if(duration and elapsed) then
-		if(duration > 0 and elapsed <= duration) then
-			--DO STUFF	
-		else
-			--DO STUFF	
-		end
-	end
-
-	objective:Show()
-
-	return objective;
-end
-
 local function NewBonusRow(lineNumber)
 	local parent = MOD.Bonus;
 	local lastRowNumber = lineNumber - 1;
@@ -181,7 +118,7 @@ local function NewBonusRow(lineNumber)
 	--row.Objectives:SetStylePanel("Default", "Inset");
 
 	row.Objectives.Rows = {}
-	row.Objectives.Add = AddObjectiveRow;
+	row.Objectives.Add = MOD.AddObjectiveRow;
 
 	row.RowID = 0;
 
