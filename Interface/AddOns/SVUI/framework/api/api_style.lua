@@ -61,6 +61,7 @@ local XML_TEMPLATE = {
     ["FramedBottom"]    = "SVUI_PanelTemplate_FramedBottom",
     ["Bar"]             = "SVUI_PanelTemplate_Bar",
     ["Slot"]            = "SVUI_PanelTemplate_Slot",
+    ["Icon"]            = "SVUI_PanelTemplate_Icon",
     ["Inset"]           = "SVUI_PanelTemplate_Inset",
     ["Comic"]           = "SVUI_PanelTemplate_Comic",
     ["Model"]           = "SVUI_PanelTemplate_Model",
@@ -594,6 +595,16 @@ TEMPLATE_METHODS["Slot"] = function(self, underlay, padding, x, y, shadowAlpha, 
     if(not self or (self and self.Panel)) then return end
     padding = padding or 1
     CreatePanelTemplate(self, "Slot", underlay, true, padding, x, y)
+    CreateButtonPanel(self, true, nil, mutedCooldown)
+    if(shadowAlpha) then
+        self.Panel.Shadow:SetAttribute("shadowAlpha", shadowAlpha)
+    end
+end;
+
+TEMPLATE_METHODS["Icon"] = function(self, underlay, padding, x, y, shadowAlpha, mutedCooldown)
+    if(not self or (self and self.Panel)) then return end
+    padding = padding or 1
+    CreatePanelTemplate(self, "Icon", false, true, padding, x, y)
     CreateButtonPanel(self, true, nil, mutedCooldown)
     if(shadowAlpha) then
         self.Panel.Shadow:SetAttribute("shadowAlpha", shadowAlpha)

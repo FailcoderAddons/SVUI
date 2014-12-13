@@ -225,7 +225,7 @@ function PLUGIN:ApplyItemButtonStyle(frame, adjust, shrink, noScript)
 
 			frame.IconShadow = CreateFrame("Frame", nil, frame)
 			frame.IconShadow:SetAllPointsOut(iconObject)
-			frame.IconShadow:SetStylePanel("Slot")
+			frame.IconShadow:SetStylePanel("Slot", true, 2, 0, 0)
 
 			--iconObject:SetParent(frame.IconShadow)
 		end

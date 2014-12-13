@@ -882,7 +882,8 @@ SV.defaults["SVUnit"] = {
 			["attachTo"] = "FRAME", 
 			["anchorPoint"] = "TOPLEFT", 
 			["verticalGrowth"] = "UP", 
-			["horizontalGrowth"] = "RIGHT", 
+			["horizontalGrowth"] = "RIGHT",
+			["filterWhiteList"] = false,
 			["filterPlayer"] = true, 
 			["filterRaid"] = true, 
 			["filterAll"] = false, 
@@ -901,7 +902,8 @@ SV.defaults["SVUnit"] = {
 			["attachTo"] = "BUFFS", 
 			["anchorPoint"] = "TOPLEFT", 
 			["verticalGrowth"] = "UP", 
-			["horizontalGrowth"] = "RIGHT", 
+			["horizontalGrowth"] = "RIGHT",
+			["filterWhiteList"] = false,
 			["filterPlayer"] = false, 
 			["filterAll"] = false, 
 			["filterInfinite"] = false, 
@@ -915,7 +917,8 @@ SV.defaults["SVUnit"] = {
 		{
 			["enable"] = false, 
 			["anchorPoint"] = "ABOVE", 
-			["attachTo"] = "DEBUFFS", 
+			["attachTo"] = "DEBUFFS",
+			["filterWhiteList"] = false,
 			["filterPlayer"] = true, 
 			["filterRaid"] = true, 
 			["filterAll"] = false, 
@@ -1056,7 +1059,12 @@ SV.defaults["SVUnit"] = {
 			["attachTo"] = "FRAME", 
 			["anchorPoint"] = "TOPRIGHT", 
 			["verticalGrowth"] = "UP", 
-			["horizontalGrowth"] = "LEFT", 
+			["horizontalGrowth"] = "LEFT",
+			["filterWhiteList"] = 
+			{
+				friendly = false, 
+				enemy = false, 
+			},
 			["filterPlayer"] = 
 			{
 				friendly = false, 
@@ -1095,7 +1103,12 @@ SV.defaults["SVUnit"] = {
 			["attachTo"] = "BUFFS", 
 			["anchorPoint"] = "TOPRIGHT", 
 			["verticalGrowth"] = "UP", 
-			["horizontalGrowth"] = "LEFT", 
+			["horizontalGrowth"] = "LEFT",
+			["filterWhiteList"] = 
+			{
+				friendly = false, 
+				enemy = false, 
+			},
 			["filterPlayer"] = 
 			{
 				friendly = false, 
@@ -1125,7 +1138,12 @@ SV.defaults["SVUnit"] = {
 		{
 			["enable"] = false, 
 			["anchorPoint"] = "ABOVE", 
-			["attachTo"] = "DEBUFFS", 
+			["attachTo"] = "DEBUFFS",
+			["filterWhiteList"] = 
+			{
+				friendly = false, 
+				enemy = false, 
+			},
 			["filterPlayer"] = 
 			{
 				friendly = true, 
@@ -1271,7 +1289,12 @@ SV.defaults["SVUnit"] = {
 			["attachTo"] = "FRAME", 
 			["anchorPoint"] = "BOTTOMLEFT", 
 			["verticalGrowth"] = "DOWN", 
-			["horizontalGrowth"] = "RIGHT", 
+			["horizontalGrowth"] = "RIGHT",
+			["filterWhiteList"] = 
+			{
+				friendly = false, 
+				enemy = false, 
+			},
 			["filterPlayer"] = 
 			{
 				friendly = true, 
@@ -1310,7 +1333,12 @@ SV.defaults["SVUnit"] = {
 			["attachTo"] = "FRAME", 
 			["anchorPoint"] = "TOPLEFT", 
 			["verticalGrowth"] = "UP", 
-			["horizontalGrowth"] = "RIGHT", 
+			["horizontalGrowth"] = "RIGHT",
+			["filterWhiteList"] = 
+			{
+				friendly = false, 
+				enemy = false, 
+			},
 			["filterPlayer"] = 
 			{
 				friendly = false, 
@@ -1404,6 +1432,19 @@ SV.defaults["SVUnit"] = {
 			["fontSize"] = 14, 
 			["fontOutline"] = "OUTLINE", 
 		},
+		["castbar"] = 
+		{
+			["enable"] = true, 
+			["width"] = 170, 
+			["height"] = 10,
+			["icon"] = false,
+			["matchFrameWidth"] = true,
+			["format"] = "REMAINING", 
+			["spark"] = true, 
+			["useCustomColor"] = false, 
+			["castingColor"] = {0.8, 0.8, 0}, 
+			["sparkColor"] = {1, 0.72, 0}, 
+		}, 
 		["buffs"] = 
 		{
 			["enable"] = true, 
@@ -1412,7 +1453,12 @@ SV.defaults["SVUnit"] = {
 			["attachTo"] = "FRAME", 
 			["anchorPoint"] = "TOPRIGHT", 
 			["verticalGrowth"] = "UP", 
-			["horizontalGrowth"] = "LEFT", 
+			["horizontalGrowth"] = "LEFT",
+			["filterWhiteList"] = 
+			{
+				friendly = false, 
+				enemy = false, 
+			},
 			["filterPlayer"] = 
 			{
 				friendly = true, 
@@ -1451,7 +1497,12 @@ SV.defaults["SVUnit"] = {
 			["attachTo"] = "FRAME", 
 			["anchorPoint"] = "LEFT", 
 			["verticalGrowth"] = "UP", 
-			["horizontalGrowth"] = "LEFT", 
+			["horizontalGrowth"] = "LEFT",
+			["filterWhiteList"] = 
+			{
+				friendly = false, 
+				enemy = false, 
+			},
 			["filterPlayer"] = 
 			{
 				friendly = false, 
@@ -1477,24 +1528,16 @@ SV.defaults["SVUnit"] = {
 			["yOffset"] = 0, 
 			["sizeOverride"] = 0, 
 		}, 
-		["castbar"] = 
-		{
-			["enable"] = true, 
-			["width"] = 170, 
-			["height"] = 10,
-			["icon"] = false,
-			["matchFrameWidth"] = true,
-			["format"] = "REMAINING", 
-			["spark"] = true, 
-			["useCustomColor"] = false, 
-			["castingColor"] = {0.8, 0.8, 0}, 
-			["sparkColor"] = {1, 0.72, 0}, 
-		}, 
 		["aurabar"] = 
 		{
 			["enable"] = false, 
 			["anchorPoint"] = "ABOVE", 
-			["attachTo"] = "FRAME", 
+			["attachTo"] = "FRAME",
+			["filterWhiteList"] = 
+			{
+				friendly = false, 
+				enemy = false, 
+			},
 			["filterPlayer"] = 
 			{
 				friendly = false, 
@@ -1601,7 +1644,12 @@ SV.defaults["SVUnit"] = {
 			["attachTo"] = "FRAME", 
 			["anchorPoint"] = "TOPRIGHT", 
 			["verticalGrowth"] = "UP", 
-			["horizontalGrowth"] = "LEFT", 
+			["horizontalGrowth"] = "LEFT",
+			["filterWhiteList"] = 
+			{
+				friendly = false, 
+				enemy = false, 
+			},
 			["filterPlayer"] = 
 			{
 				friendly = true, 
@@ -1640,7 +1688,12 @@ SV.defaults["SVUnit"] = {
 			["attachTo"] = "FRAME", 
 			["anchorPoint"] = "LEFT", 
 			["verticalGrowth"] = "UP", 
-			["horizontalGrowth"] = "LEFT", 
+			["horizontalGrowth"] = "LEFT",
+			["filterWhiteList"] = 
+			{
+				friendly = false, 
+				enemy = false, 
+			},
 			["filterPlayer"] = 
 			{
 				friendly = false, 
@@ -1751,7 +1804,8 @@ SV.defaults["SVUnit"] = {
 			["attachTo"] = "FRAME", 
 			["anchorPoint"] = "LEFT", 
 			["verticalGrowth"] = "DOWN", 
-			["horizontalGrowth"] = "LEFT", 
+			["horizontalGrowth"] = "LEFT",
+			["filterWhiteList"] = false,
 			["filterPlayer"] = true, 
 			["filterRaid"] = true,
 			["filterAll"] = true, 
@@ -1770,7 +1824,8 @@ SV.defaults["SVUnit"] = {
 			["attachTo"] = "FRAME", 
 			["anchorPoint"] = "RIGHT", 
 			["verticalGrowth"] = "DOWN", 
-			["horizontalGrowth"] = "RIGHT", 
+			["horizontalGrowth"] = "RIGHT",
+			["filterWhiteList"] = false,
 			["filterPlayer"] = false,
 			["filterAll"] = false, 
 			["filterInfinite"] = false, 
@@ -1862,7 +1917,12 @@ SV.defaults["SVUnit"] = {
 			["attachTo"] = "FRAME", 
 			["anchorPoint"] = "BOTTOMLEFT", 
 			["verticalGrowth"] = "DOWN", 
-			["horizontalGrowth"] = "RIGHT", 
+			["horizontalGrowth"] = "RIGHT",
+			["filterWhiteList"] = 
+			{
+				friendly = false, 
+				enemy = false, 
+			},
 			["filterPlayer"] = 
 			{
 				friendly = true, 
@@ -1901,7 +1961,12 @@ SV.defaults["SVUnit"] = {
 			["attachTo"] = "FRAME", 
 			["anchorPoint"] = "BOTTOMRIGHT", 
 			["verticalGrowth"] = "DOWN", 
-			["horizontalGrowth"] = "LEFT", 
+			["horizontalGrowth"] = "LEFT",
+			["filterWhiteList"] = 
+			{
+				friendly = false, 
+				enemy = false, 
+			},
 			["filterPlayer"] = 
 			{
 				friendly = false, 
@@ -2001,6 +2066,7 @@ SV.defaults["SVUnit"] = {
 			["anchorPoint"] = "LEFT", 
 			["verticalGrowth"] = "UP", 
 			["horizontalGrowth"] = "LEFT", 
+			["filterWhiteList"] = false,
 			["filterPlayer"] = false, 
 			["filterRaid"] = false, 
 			["filterAll"] = false, 
@@ -2020,6 +2086,7 @@ SV.defaults["SVUnit"] = {
 			["anchorPoint"] = "LEFT", 
 			["verticalGrowth"] = "UP", 
 			["horizontalGrowth"] = "LEFT", 
+			["filterWhiteList"] = false,
 			["filterPlayer"] = true, 
 			["filterAll"] = false, 
 			["filterInfinite"] = false, 
@@ -2128,33 +2195,14 @@ SV.defaults["SVUnit"] = {
 			["attachTo"] = "FRAME", 
 			["anchorPoint"] = "LEFT", 
 			["verticalGrowth"] = "UP", 
-			["horizontalGrowth"] = "LEFT", 
-			["filterPlayer"] = 
-			{
-				friendly = false, 
-				enemy = false, 
-			}, 
-			["filterRaid"] = 
-			{
-				friendly = false, 
-				enemy = false, 
-			}, 
-			["filterAll"] = 
-			{
-				friendly = false, 
-				enemy = false, 
-			}, 
-			["filterInfinite"] = 
-			{
-				friendly = false, 
-				enemy = false, 
-			}, 
+			["horizontalGrowth"] = "LEFT",
+			["filterWhiteList"] = false,
+			["filterPlayer"] = false, 
+			["filterRaid"] = false, 
+			["filterAll"] = false, 
+			["filterInfinite"] = false, 
+			["filterDispellable"] = false, 
 			["useFilter"] = "Shield", 
-			["filterDispellable"] = 
-			{
-				friendly = false, 
-				enemy = false, 
-			}, 
 			["xOffset"] = -8, 
 			["yOffset"] = 0, 
 			["sizeOverride"] = 40, 
@@ -2168,27 +2216,13 @@ SV.defaults["SVUnit"] = {
 			["anchorPoint"] = "LEFT", 
 			["verticalGrowth"] = "UP", 
 			["horizontalGrowth"] = "LEFT", 
-			["filterPlayer"] = 
-			{
-				friendly = false, 
-				enemy = false, 
-			}, 
-			["filterAll"] = 
-			{
-				friendly = false, 
-				enemy = false, 
-			}, 
-			["filterInfinite"] = 
-			{
-				friendly = false, 
-				enemy = false, 
-			}, 
-			["useFilter"] = "CC", 
-			["filterDispellable"] = 
-			{
-				friendly = false, 
-				enemy = false, 
-			}, 
+			["filterWhiteList"] = false,
+			["filterPlayer"] = false, 
+			["filterRaid"] = false, 
+			["filterAll"] = false, 
+			["filterInfinite"] = false, 
+			["filterDispellable"] = false, 
+			["useFilter"] = "CC",
 			["xOffset"] = -8, 
 			["yOffset"] = 0, 
 			["sizeOverride"] = 40, 
@@ -2301,6 +2335,7 @@ SV.defaults["SVUnit"] = {
 			["anchorPoint"] = "RIGHTTOP", 
 			["verticalGrowth"] = "DOWN", 
 			["horizontalGrowth"] = "RIGHT", 
+			["filterWhiteList"] = false,
 			["filterPlayer"] = true, 
 			["filterRaid"] = true, 
 			["filterAll"] = false, 
@@ -2320,6 +2355,7 @@ SV.defaults["SVUnit"] = {
 			["anchorPoint"] = "RIGHTTOP", 
 			["verticalGrowth"] = "DOWN", 
 			["horizontalGrowth"] = "RIGHT", 
+			["filterWhiteList"] = false,
 			["filterPlayer"] = false, 
 			["filterAll"] = false, 
 			["filterInfinite"] = false, 
@@ -2478,6 +2514,7 @@ SV.defaults["SVUnit"] = {
 			["anchorPoint"] = "RIGHT", 
 			["verticalGrowth"] = "UP", 
 			["horizontalGrowth"] = "RIGHT", 
+			["filterWhiteList"] = false,
 			["filterPlayer"] = true, 
 			["filterRaid"] = true, 
 			["filterAll"] = false, 
@@ -2497,6 +2534,7 @@ SV.defaults["SVUnit"] = {
 			["anchorPoint"] = "RIGHT", 
 			["verticalGrowth"] = "UP", 
 			["horizontalGrowth"] = "RIGHT", 
+			["filterWhiteList"] = false,
 			["filterPlayer"] = false, 
 			["filterAll"] = false, 
 			["filterInfinite"] = false, 
@@ -2616,6 +2654,7 @@ SV.defaults["SVUnit"] = {
 			["anchorPoint"] = "RIGHT", 
 			["verticalGrowth"] = "UP", 
 			["horizontalGrowth"] = "RIGHT", 
+			["filterWhiteList"] = false,
 			["filterPlayer"] = true, 
 			["filterRaid"] = true,
 			["filterAll"] = false, 
@@ -2635,6 +2674,7 @@ SV.defaults["SVUnit"] = {
 			["anchorPoint"] = "RIGHT", 
 			["verticalGrowth"] = "UP", 
 			["horizontalGrowth"] = "RIGHT", 
+			["filterWhiteList"] = false,
 			["filterPlayer"] = false, 
 			["filterAll"] = false, 
 			["filterInfinite"] = false, 

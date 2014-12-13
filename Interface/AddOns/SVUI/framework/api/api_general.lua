@@ -293,12 +293,6 @@ local SecureFadeOut = function(self, duration, alphaStart, alphaEnd, hideOnFinis
     local timer = duration or 0.1;
     --local name = self:GetName() or 'Frame';
 
-    if(not (self.IsProtected and self:IsProtected())) then
-        if(not self:IsShown()) then 
-            self:Show() 
-        end
-    end
-
     if(not self:IsShown() or self:GetAlpha() == alpha2) then return end
 
     self.___fademode = "OUT";

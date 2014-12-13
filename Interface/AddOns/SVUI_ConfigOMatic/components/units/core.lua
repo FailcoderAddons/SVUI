@@ -960,48 +960,79 @@ function ns:SetIconConfigGroup(updateFunction, unitName, count)
 	return k 
 end
 
+local BoolFilters = {
+	['player'] = true,
+	['pet'] = true,
+	['boss'] = true,
+	['arena'] = true,
+	['party'] = true,
+	['raid'] = true,
+	['raidpet'] = true,	
+};
+
 local function setAuraFilteringOptions(configTable, unitName, auraType, updateFunction, isPlayer)
-	if isPlayer then
+	if BoolFilters[unitName] then
 		configTable.filterGroup = {
 			order = 10, 
 			guiInline = true, 
 			type = "group", 
 			name = L["Filter Options"],
 			args = {
-				filterPlayer = {
+				filterWhiteList = {
 					order = 1, 
+					type = "toggle", 
+					name = L["Only White Listed"], 
+					desc = L["Only show auras that are on the whitelist."], 
+					get = function(key)return SV.db.SVUnit[unitName][auraType].filterWhiteList end, 
+					set = function(key, value)
+						SV.db.SVUnit[unitName][auraType].filterWhiteList = value; 
+						if(value) then
+							SV.db.SVUnit[unitName][auraType].filterPlayer = false;
+							SV.db.SVUnit[unitName][auraType].filterDispellable = false;
+							SV.db.SVUnit[unitName][auraType].filterInfinite = false;
+							SV.db.SVUnit[unitName][auraType].filterRaid = false;
+						end
+						updateFunction(MOD, unitName)
+					end,
+				},
+				filterPlayer = {
+					order = 2, 
 					type = "toggle", 
 					name = L["From You"], 
 					desc = L["Only show auras that were cast by you."],
 					get = function(key) return SV.db.SVUnit[unitName][auraType].filterPlayer end,
 					set = function(key, value) SV.db.SVUnit[unitName][auraType].filterPlayer = value; updateFunction(MOD, unitName) end,
+					disabled = function() return SV.db.SVUnit[unitName][auraType].filterWhiteList end,
 				},
 				filterDispellable = {
-					order = 2, 
+					order = 3, 
 					type = "toggle", 
 					name = L["You Can Remove"], 
 					desc = L["Only show auras that can be removed by you. (example: Purge, Dispel)"],
 					get = function(key) return SV.db.SVUnit[unitName][auraType].filterDispellable end,
 					set = function(key, value) SV.db.SVUnit[unitName][auraType].filterDispellable = value; updateFunction(MOD, unitName) end,
+					disabled = function() return SV.db.SVUnit[unitName][auraType].filterWhiteList end,
 				},
 				filterInfinite = {
-					order = 3, 
+					order = 4, 
 					type = "toggle", 
 					name = L["No Duration"], 
 					desc = L["Don't display auras that have no duration."],
 					get = function(key) return SV.db.SVUnit[unitName][auraType].filterInfinite end,
 					set = function(key, value) SV.db.SVUnit[unitName][auraType].filterInfinite = value; updateFunction(MOD, unitName) end,
+					disabled = function() return SV.db.SVUnit[unitName][auraType].filterWhiteList end,
 				},
 				filterRaid = {
-					order = 4, 
+					order = 5, 
 					type = "toggle", 
 					name = L["Consolidated Buffs"], 
 					desc = L["Don't display consolidated buffs"],
 					get = function(key) return SV.db.SVUnit[unitName][auraType].filterRaid end,
 					set = function(key, value) SV.db.SVUnit[unitName][auraType].filterRaid = value; updateFunction(MOD, unitName) end,
+					disabled = function() return SV.db.SVUnit[unitName][auraType].filterWhiteList end,
 				},
 				useFilter = {
-					order = 5, 
+					order = 6, 
 					type = "select",
 					name = L["Custom Filter"], 
 					desc = L["Select a custom filter to include."],  
@@ -1015,6 +1046,7 @@ local function setAuraFilteringOptions(configTable, unitName, auraType, updateFu
 					end,
 					get = function(key) return SV.db.SVUnit[unitName][auraType].useFilter end,
 					set = function(key, value) SV.db.SVUnit[unitName][auraType].useFilter = value; updateFunction(MOD, unitName) end,
+					disabled = function() return not SV.db.SVUnit.arena.pvp.enable end,
 				}
 			}
 		}
@@ -1036,32 +1068,76 @@ local function setAuraFilteringOptions(configTable, unitName, auraType, updateFu
 							type = "toggle", 
 							name = L["Hide All"], 
 							desc = L["Don't display any " .. auraType .. "."], 
-							get = function(key) return SV.db.SVUnit[unitName][auraType].filterAll.friendly end, 
-							set = function(key, value) SV.db.SVUnit[unitName][auraType].filterAll.friendly = value; updateFunction(MOD, unitName) end,
+							get = function(key) return SV.db.SVUnit[unitName][auraType].filterAll.friendly end,
+							set = function(key, value)
+								SV.db.SVUnit[unitName][auraType].filterAll.friendly = value;
+								if(value) then
+									SV.db.SVUnit[unitName][auraType].filterWhiteList.friendly = false;
+									SV.db.SVUnit[unitName][auraType].filterPlayer.friendly = false;
+									SV.db.SVUnit[unitName][auraType].filterDispellable.friendly = false;
+									SV.db.SVUnit[unitName][auraType].filterInfinite.friendly = false;
+									if(SV.db.SVUnit[unitName][auraType].filterRaid) then
+										SV.db.SVUnit[unitName][auraType].filterRaid.friendly = false;
+									end
+								end
+								updateFunction(MOD, unitName)
+							end,
+						},
+						filterWhiteList = {
+							order = 2, 
+							type = "toggle", 
+							name = L["Only White Listed"], 
+							desc = L["Only show auras that are on the whitelist."], 
+							get = function(key)return SV.db.SVUnit[unitName][auraType].filterWhiteList.friendly end, 
+							set = function(key, value)SV.db.SVUnit[unitName][auraType].filterWhiteList.friendly = value; updateFunction(MOD, unitName) end,
+							set = function(key, value)
+								SV.db.SVUnit[unitName][auraType].filterWhiteList.friendly = value;
+								if(value) then
+									SV.db.SVUnit[unitName][auraType].filterPlayer.friendly = false;
+									SV.db.SVUnit[unitName][auraType].filterDispellable.friendly = false;
+									SV.db.SVUnit[unitName][auraType].filterInfinite.friendly = false;
+									if(SV.db.SVUnit[unitName][auraType].filterRaid) then
+										SV.db.SVUnit[unitName][auraType].filterRaid.friendly = false;
+									end
+								end
+								updateFunction(MOD, unitName)
+							end,
+							disabled = function() 
+								return SV.db.SVUnit[unitName][auraType].filterAll.friendly
+							end,
 						},
 						filterPlayer = {
-							order = 2, 
+							order = 3, 
 							type = "toggle", 
 							name = L["From You"], 
 							desc = L["Only show auras that were cast by you."], 
 							get = function(key)return SV.db.SVUnit[unitName][auraType].filterPlayer.friendly end, 
 							set = function(key, value)SV.db.SVUnit[unitName][auraType].filterPlayer.friendly = value; updateFunction(MOD, unitName) end,
+							disabled = function() 
+								return (SV.db.SVUnit[unitName][auraType].filterAll.friendly or SV.db.SVUnit[unitName][auraType].filterWhiteList.friendly)
+							end,
 						},
 						filterDispellable = {
-							order = 3, 
+							order = 4, 
 							type = "toggle", 
 							name = L["You Can Remove"], 
 							desc = L["Only show auras that can be removed by you. (example: Purge, Dispel)"], 
 							get = function(key)return SV.db.SVUnit[unitName][auraType].filterDispellable.friendly end, 
 							set = function(key, value)SV.db.SVUnit[unitName][auraType].filterDispellable.friendly = value; updateFunction(MOD, unitName) end,
+							disabled = function() 
+								return (SV.db.SVUnit[unitName][auraType].filterAll.friendly or SV.db.SVUnit[unitName][auraType].filterWhiteList.friendly)
+							end,
 						},
 						filterInfinite = {
-							order = 4, 
+							order = 5, 
 							type = "toggle", 
 							name = L["No Duration"], 
 							desc = L["Don't display auras that have no duration."], 
 							get = function(key)return SV.db.SVUnit[unitName][auraType].filterInfinite.friendly end, 
-							set = function(key, value)SV.db.SVUnit[unitName][auraType].filterInfinite.friendly = value; updateFunction(MOD, unitName) end
+							set = function(key, value)SV.db.SVUnit[unitName][auraType].filterInfinite.friendly = value; updateFunction(MOD, unitName) end,
+							disabled = function() 
+								return (SV.db.SVUnit[unitName][auraType].filterAll.friendly or SV.db.SVUnit[unitName][auraType].filterWhiteList.friendly)
+							end,
 						},
 					},
 				},
@@ -1077,31 +1153,74 @@ local function setAuraFilteringOptions(configTable, unitName, auraType, updateFu
 							name = L["Hide All"], 
 							desc = L["Don't display any " .. auraType .. "."], 
 							get = function(key)return SV.db.SVUnit[unitName][auraType].filterAll.enemy end, 
-							set = function(key, value)SV.db.SVUnit[unitName][auraType].filterAll.enemy = value; updateFunction(MOD, unitName) end,
+							set = function(key, value)
+								SV.db.SVUnit[unitName][auraType].filterAll.enemy = value;
+								if(value) then
+									SV.db.SVUnit[unitName][auraType].filterWhiteList.enemy = false;
+									SV.db.SVUnit[unitName][auraType].filterPlayer.enemy = false;
+									SV.db.SVUnit[unitName][auraType].filterDispellable.enemy = false;
+									SV.db.SVUnit[unitName][auraType].filterInfinite.enemy = false;
+									if(SV.db.SVUnit[unitName][auraType].filterRaid) then
+										SV.db.SVUnit[unitName][auraType].filterRaid.enemy = false;
+									end
+								end
+								updateFunction(MOD, unitName)
+							end,
+						},
+						filterWhiteList = {
+							order = 2, 
+							type = "toggle", 
+							name = L["Only White Listed"], 
+							desc = L["Only show auras that are on the whitelist."], 
+							get = function(key)return SV.db.SVUnit[unitName][auraType].filterPlayer.enemy end, 
+							set = function(key, value)
+								SV.db.SVUnit[unitName][auraType].filterWhiteList.enemy = value;
+								if(value) then
+									SV.db.SVUnit[unitName][auraType].filterPlayer.enemy = false;
+									SV.db.SVUnit[unitName][auraType].filterDispellable.enemy = false;
+									SV.db.SVUnit[unitName][auraType].filterInfinite.enemy = false;
+									if(SV.db.SVUnit[unitName][auraType].filterRaid) then
+										SV.db.SVUnit[unitName][auraType].filterRaid.enemy = false;
+									end
+								end
+								updateFunction(MOD, unitName)
+							end,
+							disabled = function() 
+								return SV.db.SVUnit[unitName][auraType].filterAll.enemy
+							end,
 						},
 						filterPlayer = {
-							order = 2, 
+							order = 3, 
 							type = "toggle", 
 							name = L["From You"], 
 							desc = L["Only show auras that were cast by you."], 
 							get = function(key)return SV.db.SVUnit[unitName][auraType].filterPlayer.enemy end, 
 							set = function(key, value)SV.db.SVUnit[unitName][auraType].filterPlayer.enemy = value; updateFunction(MOD, unitName) end,
+							disabled = function() 
+								return (SV.db.SVUnit[unitName][auraType].filterAll.enemy or SV.db.SVUnit[unitName][auraType].filterWhiteList.enemy)
+							end,
 						},
 						filterDispellable = {
-							order = 3, 
+							order = 4, 
 							type = "toggle", 
 							name = L["You Can Remove"], 
 							desc = L["Only show auras that can be removed by you. (example: Purge, Dispel)"], 
 							get = function(key)return SV.db.SVUnit[unitName][auraType].filterDispellable.enemy end, 
 							set = function(key, value)SV.db.SVUnit[unitName][auraType].filterDispellable.enemy = value; updateFunction(MOD, unitName) end,
+							disabled = function() 
+								return (SV.db.SVUnit[unitName][auraType].filterAll.enemy or SV.db.SVUnit[unitName][auraType].filterWhiteList.enemy)
+							end,
 						},
 						filterInfinite = {
-							order = 4, 
+							order = 5, 
 							type = "toggle", 
 							name = L["No Duration"], 
 							desc = L["Don't display auras that have no duration."], 
 							get = function(key)return SV.db.SVUnit[unitName][auraType].filterInfinite.enemy end, 
-							set = function(key, value)SV.db.SVUnit[unitName][auraType].filterInfinite.enemy = value; updateFunction(MOD, unitName) end
+							set = function(key, value)SV.db.SVUnit[unitName][auraType].filterInfinite.enemy = value; updateFunction(MOD, unitName) end,
+							disabled = function() 
+								return (SV.db.SVUnit[unitName][auraType].filterAll.enemy or SV.db.SVUnit[unitName][auraType].filterWhiteList.enemy)
+							end,
 						},
 					},
 				},
@@ -1120,26 +1239,35 @@ local function setAuraFilteringOptions(configTable, unitName, auraType, updateFu
 					end,
 					get = function(key) return SV.db.SVUnit[unitName][auraType].useFilter end,
 					set = function(key, value) SV.db.SVUnit[unitName][auraType].useFilter = value; updateFunction(MOD, unitName) end,
+					disabled = function() 
+						return (SV.db.SVUnit[unitName][auraType].filterAll.enemy or SV.db.SVUnit[unitName][auraType].filterWhiteList.enemy)
+					end,
 				}
 			}
 		}
 
 		if(SV.db.SVUnit[unitName][auraType].filterRaid) then
 			configTable.filterGroup.args.friendlyGroup.args.filterRaid = {
-				order = 5, 
+				order = 6, 
 				type = "toggle", 
 				name = L["Consolidated Buffs"], 
 				desc = L["Don't display consolidated buffs"],
 				get = function(key)return SV.db.SVUnit[unitName][auraType].filterRaid.friendly end, 
-				set = function(key, value)SV.db.SVUnit[unitName][auraType].filterRaid.friendly = value; updateFunction(MOD, unitName) end
+				set = function(key, value)SV.db.SVUnit[unitName][auraType].filterRaid.friendly = value; updateFunction(MOD, unitName) end,
+				disabled = function() 
+					return (SV.db.SVUnit[unitName][auraType].filterAll.friendly or SV.db.SVUnit[unitName][auraType].filterWhiteList.friendly)
+				end,
 			};
 			configTable.filterGroup.args.enemyGroup.args.filterRaid = {
-				order = 5, 
+				order = 6, 
 				type = "toggle", 
 				name = L["Consolidated Buffs"], 
 				desc = L["Don't display consolidated buffs"],
 				get = function(key)return SV.db.SVUnit[unitName][auraType].filterRaid.enemy end, 
-				set = function(key, value)SV.db.SVUnit[unitName][auraType].filterRaid.enemy = value; updateFunction(MOD, unitName) end
+				set = function(key, value)SV.db.SVUnit[unitName][auraType].filterRaid.enemy = value; updateFunction(MOD, unitName) end,
+				disabled = function() 
+					return (SV.db.SVUnit[unitName][auraType].filterAll.enemy or SV.db.SVUnit[unitName][auraType].filterWhiteList.enemy)
+				end,
 			};
 		end
 	end

@@ -60,7 +60,7 @@ local privateFilters = {
 
 local publicFilters = {
 	["Player"] = "Player Only Auras",
-	["Blocked"] = "Blocked Auras",
+	["BlackList"] = "BlackList Auras",
 	["Allowed"] = "Allowed Auras",
 	["Raid"] = "Raid Debuffs",
 	["AuraBars"] = "AuraBar Auras",

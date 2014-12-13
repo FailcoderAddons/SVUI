@@ -156,15 +156,17 @@ SET DOCKBAR FUNCTIONS
 ]]--
 local RefreshDockWindows = function(self)
 	--print('RefreshDockWindows')
-	-- print(table.dump(self.Data.Windows))
+	local dd = self.Data.Default
+	local button = _G[dd]
+	local default
+	if(button) then
+		default = button:GetAttribute("ownerFrame")
+	end
 	for name,window in pairs(self.Data.Windows) do
-		if(window) then
+		if(window ~= default) then
 			if(window.DockButton) then
 				window.DockButton:Deactivate()
 			end
-			--window:FadeOut(0.1, 1, 0, true)
-		else
-			print("Error: No Window Found (" .. name .. ")")
 		end
 	end
 end
@@ -191,7 +193,7 @@ local GetDefault = function(self)
 			self:Refresh()
 			self.Parent.Window.FrameLink = _G[window]
 			self.Parent.Window:FadeIn()
-			_G[window]:FadeIn()
+			_G[window]:Show()
 			button:Activate()
 		end
 	end
@@ -207,7 +209,7 @@ local OldDefault = function(self)
 			self:Refresh()
 			self.Parent.Window.FrameLink = _G[window]
 			self.Parent.Window:FadeIn()
-			_G[window]:FadeIn()
+			_G[window]:Show()
 			button:Activate()
 		end
 	end
@@ -220,7 +222,7 @@ local ToggleDockletWindow = function(self, button)
 		self.Parent.Window.FrameLink = frame
 		self.Parent.Window:FadeIn()
 		self:Cycle()
-		frame:FadeIn()
+		--frame:FadeIn()
 		button:Activate()
 	else
 		button:Deactivate()
@@ -589,7 +591,7 @@ local RemoveFromDock = function(self, button)
 	if(button.FrameLink) then
 		local frameName = button.FrameLink:GetName()
 		Dock.Locations[frameName] = nil;
-		button.FrameLink:Hide()
+		button.FrameLink:FadeOut()
 		self.Data.Windows[frameName] = nil;
 	end
 
@@ -829,6 +831,7 @@ function Dock:NewDocklet(location, globalName, readableName, texture, onclick)
 	frame.DockButton = newParent.Bar:Create(readableName, texture, onclick, buttonName);
 	frame.DockButton.FrameLink = frame
 	self.Registration[globalName] = frame;
+	frame:SetAlpha(0)
 	return frame
 end
 
@@ -919,6 +922,14 @@ function Dock:ResetAllButtons()
 	wipe(SV.cache.Docks.Order)
 	wipe(SV.cache.Docks.Locations)
 	ReloadUI()
+end
+
+function Dock:UpdateAllDocks()
+	for location, settings in pairs(DOCK_LOCATIONS) do
+		local dock = self[location];
+		dock.Bar:Cycle()
+		dock.Bar:GetDefault()
+	end
 end
 
 function Dock:Refresh()

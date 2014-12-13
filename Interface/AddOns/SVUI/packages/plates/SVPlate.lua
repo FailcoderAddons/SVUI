@@ -151,7 +151,7 @@ local AuraFOutline = "OUTLINE";
 local AuraFilterName, AuraFilter;
 local AuraMaxCount = 5;
 
-local BlockedPlates = {
+local RestrictedPlates = {
 	["Army of the Dead Ghoul"] = true,
 	["Venomous Snake"] = true,
 	["Healing Tide Totem"] = true,
@@ -464,7 +464,7 @@ local function SetAuraInstance(guid, spellID, expiration, stacks, caster, durati
 	end
 	if(AuraFilter and AuraFilterName) then
 		local name = GetSpellInfo(spellID)
-		if(AuraFilter[name] and AuraFilter[name].enable and ((AuraFilterName ~= 'Blocked') and (AuraFilterName ~= 'Allowed'))) then
+		if(AuraFilter[name] and AuraFilter[name].enable and ((AuraFilterName ~= 'BlackList') and (AuraFilterName ~= 'Allowed'))) then
 			filter = nil;
 		end
 	end
@@ -1014,7 +1014,7 @@ do
 	local function ShowThisPlate(plate)
 		if(not ProxyThisPlate(plate, true)) then return; end
 
-		if BlockedPlates[PLATE_REALNAME] then
+		if RestrictedPlates[PLATE_REALNAME] then
 			SVUI_PLATE:Hide()
 			PLATE_GRIP:Hide()
 			return

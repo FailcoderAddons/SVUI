@@ -56,13 +56,13 @@ ns.FilterSpellGroups = {};
 local tempFilterTable = {};
 
 local publicFilters = {
-	["Player"] = "Player Only Auras",
-	["Blocked"] = "Blocked Auras",
-	["Allowed"] = "Allowed Auras",
-	["Raid"] = "Raid Debuffs",
-	["AuraBars"] = "AuraBar Auras",
-	["BuffWatch"] = "(AuraWatch) Player Buffs",
-	["PetBuffWatch"] = "(AuraWatch) Pet Buffs",
+	["BlackList"] = "Blacklisted Auras",
+	["WhiteList"] = "Whitelisted Auras",
+	["Raid"] = "Consolidated Auras",
+	["AuraBars"] = "Aura Bars",
+	["Player"] = "Player Auras",
+	["BuffWatch"] = "(AuraWatch) Player Auras",
+	["PetBuffWatch"] = "(AuraWatch) Pet Auras",
 };
 
 local NONE = _G.NONE;

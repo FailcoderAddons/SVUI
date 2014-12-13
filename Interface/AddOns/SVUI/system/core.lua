@@ -546,6 +546,8 @@ function SVUI:Initialize()
 
     SVLib:RefreshModule("SVMap");
 
+    self.Dock:UpdateAllDocks()
+
     collectgarbage("collect") 
 
     if self.db.general.loginmessage then

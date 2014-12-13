@@ -359,25 +359,17 @@ end
 ACTIVE FUNCTIONS
 ##########################################################
 ]]--
-local AddScenarioRow = function(self, title, level, details, icon, questID, questLogIndex, numObjectives, duration, elapsed)
+local AddScenarioRow = function(self, title, stageName, currentStage, numObjectives)
 	local objectivesShown = 0;
 	local nextObjective = 1;
-
 	local row = self.Rows.Scenario;
-	if(row.RowID == questID) then
-		return
-	end
 
-	row.RowID = questID
-	icon = icon or LINE_QUEST_ICON;
-
-	local color = GetQuestDifficultyColor(level)
+	--local color = GetQuestDifficultyColor(level)
 	
-	row.Header.Level:SetTextColor(color.r, color.g, color.b)
-	row.Header.Level:SetText(level)
-	row.Header.Text:SetText(title)
-	row.Badge.Icon:SetTexture(icon)
-	row.Button:SetID(questLogIndex)
+	--row.Header.Level:SetTextColor(color.r, color.g, color.b)
+	--row.Header.Level:SetText(currentStage)
+	row.Header.Text:SetText(stageName)
+	row.Badge.Icon:SetTexture(LINE_QUEST_ICON)
 	row:Show()
 
 	local objectives = row.Objectives;
@@ -405,7 +397,7 @@ local AddScenarioRow = function(self, title, level, details, icon, questID, ques
 	local objectiveHeight = (INNER_HEIGHT + 2) * numObjectives;
 	objectives:SetHeight(objectiveHeight + 1);
 
-	local newHeight = (nextObjective * (LARGE_ROW_HEIGHT + 2)) + (numObjectives * (INNER_HEIGHT + 2)) + (LARGE_INNER_HEIGHT + (nextObjective * 2));
+	local newHeight = (LARGE_ROW_HEIGHT + 2) + (numObjectives * (INNER_HEIGHT + 2)) + (INNER_HEIGHT + (numObjectives * 2));
 	row:SetHeight(newHeight);
 
 	MOD.Tracker.ScrollFrame.ScrollBar:SetValue(0)
@@ -479,15 +471,16 @@ end
 local RefreshActiveObjective = function(self, event, ...)
 	if(C_Scenario.IsInScenario()) then
 		if(event and (event == 'SCENARIO_UPDATE' or event == 'SCENARIO_CRITERIA_UPDATE')) then
-			local scenarioName, currentStage, numStages, flags, _, _, _, xp, money = C_Scenario.GetInfo();
-			if(scenarioName) then
+			local title, currentStage, numStages, flags, _, _, _, xp, money = C_Scenario.GetInfo();
+			if(title) then
 				local stageName, stageDescription, numObjectives = C_Scenario.GetStepInfo();
 				-- local inChallengeMode = bit.band(flags, SCENARIO_FLAG_CHALLENGE_MODE) == SCENARIO_FLAG_CHALLENGE_MODE;
 				-- local inProvingGrounds = bit.band(flags, SCENARIO_FLAG_PROVING_GROUNDS) == SCENARIO_FLAG_PROVING_GROUNDS;
 				-- local dungeonDisplay = bit.band(flags, SCENARIO_FLAG_USE_DUNGEON_DISPLAY) == SCENARIO_FLAG_USE_DUNGEON_DISPLAY;
 				local scenariocompleted = currentStage > numStages;
 				if(not scenariocompleted) then
-					self:AddScenario(title, level, details, icon, questID, questLogIndex, numObjectives, duration, elapsed)
+					--local questLogIndex = GetQuestLogIndexByID(questID);
+					self:AddScenario(title, stageName, currentStage, numObjectives)
 				else
 					self.Rows.Scenario.RowID = 0
 				end
@@ -659,7 +652,7 @@ function MOD:Load()
 		if value > self.MaxVal then 
 			value = self.MaxVal
 		end 
-		--self:SetVerticalScroll(value)
+		self:SetVerticalScroll(value)
 		self.ScrollBar:SetValue(value)
 	end)
 
@@ -692,14 +685,15 @@ function MOD:Load()
 	active.Rows = {};
 	active.Refresh = RefreshActiveObjective;
 	active.RefreshHeight = RefreshActiveHeight;
+
 	--active.Refresh = SV.fubar
-	
-	active.AddScenario = AddScenarioRow;
-	active.AddGeneral = AddActiveRow;
 
 	self.Active = active;
+	
 	self.Active.Rows.Scenario = NewActiveRow()
 	self.Active.Rows.Quest = NewActiveRow(self.Active.Rows.Scenario)
+	self.Active.AddScenario = AddScenarioRow;
+	self.Active.AddGeneral = AddActiveRow;
 	self.Active:RefreshHeight()
 
 	self:InitializeQuestItem()

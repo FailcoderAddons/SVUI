@@ -95,20 +95,6 @@ local textCounterOffsets = {
 local CanSteal = (SV.class == "MAGE");
 --[[ 
 ########################################################## 
-UPVALUES
-##########################################################
-]]--
-local FILTER_PLAYERONLY = false;
-local FILTER_DISPELLABLE = false;
-local FILTER_CONSOLIDATED = false;
-local FILTER_INFINITE = false;
-
-local FRIENDLY_FILTER_PLAYERONLY = false;
-local FRIENDLY_FILTER_DISPELLABLE = false;
-local FRIENDLY_FILTER_CONSOLIDATED = false;
-local FRIENDLY_FILTER_INFINITE = false;
---[[ 
-########################################################## 
 LOCAL FUNCTIONS
 ##########################################################
 ]]--
@@ -116,8 +102,8 @@ local AuraIcon_OnClick = function(self)
 	if not IsShiftKeyDown() then return end 
 	local name = self.name;
 	if name then 
-		SV:AddonMessage((L["The spell '%s' has been added to the Blocked unitframe aura filter."]):format(name))
-		SV.filters["Blocked"][name] = {["enable"] = true}
+		SV:AddonMessage((L["The spell '%s' has been added to the BlackList unitframe aura filter."]):format(name))
+		SV.filters["BlackList"][name] = {["enable"] = true}
 		MOD:RefreshUnitFrames()
 	end
 end
@@ -310,8 +296,8 @@ local AuraBar_OnClick = function(self)
 	if not IsShiftKeyDown() then return end 
 	local name = self:GetParent().aura.name
 	if name then 
-		SV:AddonMessage((L["The spell '%s' has been added to the Blocked unitframe aura filter."]):format(name))
-		SV.filters["Blocked"][name] = {["enable"] = true}
+		SV:AddonMessage((L["The spell '%s' has been added to the BlackList unitframe aura filter."]):format(name))
+		SV.filters["BlackList"][name] = {["enable"] = true}
 		MOD:RefreshUnitFrames()
 	end 
 end
@@ -344,9 +330,9 @@ local ColorizeAuraBars = function(self)
 	end 
 end
 
---[[ PLAYER AURA FILTERING ]]--
+--[[ AURA FILTERING ]]--
 
-local PlayerAuraFilter = function(self, unit, icon, auraName, _, _, _, debuffType, duration, _, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossAura)
+local CommonAuraFilter = function(self, unit, icon, auraName, _, _, _, debuffType, duration, _, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossAura)
 	local db = SV.db.SVUnit[self.___key]
 	local auraType = self.type;
 	if(not auraType) then return true end 
@@ -362,8 +348,10 @@ local PlayerAuraFilter = function(self, unit, icon, auraName, _, _, _, debuffTyp
 	icon.owner = caster;
 	icon.name = auraName;
 
-	if(SV.filters.Blocked[auraName] and SV.filters.Blocked[auraName].enable) then
-		return false
+	if(auraDB.filterWhiteList and (not SV.filters.WhiteList[auraName])) then
+		return false;
+	elseif(SV.filters.BlackList[auraName] and SV.filters.BlackList[auraName].enable) then
+		return false;
 	else
 		if(auraDB.filterPlayer and (not isPlayer)) then
 			return false
@@ -392,7 +380,7 @@ local PlayerAuraFilter = function(self, unit, icon, auraName, _, _, _, debuffTyp
   	return true
 end
 
-local PlayerBarFilter = function(self, unit, auraName, _, _, _, debuffType, duration, _, caster, isStealable, shouldConsolidate, spellID)
+local CommonBarFilter = function(self, unit, auraName, _, _, _, debuffType, duration, _, caster, isStealable, shouldConsolidate, spellID)
 	local db = SV.db.SVUnit[self.___key]
 	if((not db) or (db and not db.aurabar)) then 
 		return false;
@@ -401,7 +389,9 @@ local PlayerBarFilter = function(self, unit, auraName, _, _, _, debuffType, dura
 	local isPlayer = caster == "player" or caster == "vehicle";
 	local isEnemy = UnitIsEnemy("player", unit);
 
-	if(SV.filters.Blocked[auraName] and SV.filters.Blocked[auraName].enable) then
+	if(auraDB.filterWhiteList and (not SV.filters.WhiteList[auraName])) then
+		return false;
+	elseif(SV.filters.BlackList[auraName] and SV.filters.BlackList[auraName].enable) then
 		return false
 	else
 		if(auraDB.filterPlayer and (not isPlayer)) then
@@ -431,7 +421,7 @@ local PlayerBarFilter = function(self, unit, auraName, _, _, _, debuffType, dura
   	return true
 end
 
---[[ NON-PLAYER AURA FILTERING ]]--
+--[[ DETAILED AURA FILTERING ]]--
 
 local function filter_test(setting, isEnemy)
 	if((not setting) or (setting and type(setting) ~= "table")) then 
@@ -443,7 +433,7 @@ local function filter_test(setting, isEnemy)
   	return false 
 end
 
-local CommonAuraFilter = function(self, unit, icon, auraName, _, _, _, debuffType, duration, _, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossAura)
+local DetailedAuraFilter = function(self, unit, icon, auraName, _, _, _, debuffType, duration, _, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossAura)
 	local db = SV.db.SVUnit[self.___key]
 	local auraType = self.type;
 	if(not auraType) then return true end 
@@ -461,7 +451,9 @@ local CommonAuraFilter = function(self, unit, icon, auraName, _, _, _, debuffTyp
 
 	if(filter_test(auraDB.filterAll, isEnemy)) then
 		return false
-	elseif(SV.filters.Blocked[auraName] and SV.filters.Blocked[auraName].enable) then
+	elseif(filter_test(auraDB.filterWhiteList, isEnemy) and (not SV.filters.WhiteList[auraName])) then
+		return false;
+	elseif(SV.filters.BlackList[auraName] and SV.filters.BlackList[auraName].enable) then
 		return false
 	else
 		if(filter_test(auraDB.filterPlayer, isEnemy) and (not isPlayer)) then
@@ -489,7 +481,7 @@ local CommonAuraFilter = function(self, unit, icon, auraName, _, _, _, debuffTyp
   	return true 
 end
 
-local CommonBarFilter = function(self, unit, auraName, _, _, _, debuffType, duration, _, caster, isStealable, shouldConsolidate, spellID)
+local DetailedBarFilter = function(self, unit, auraName, _, _, _, debuffType, duration, _, caster, isStealable, shouldConsolidate, spellID)
 	local db = SV.db.SVUnit[self.___key]
 	if((not db) or (db and not db.aurabar)) then 
 		return false;
@@ -500,7 +492,9 @@ local CommonBarFilter = function(self, unit, auraName, _, _, _, debuffType, dura
 
 	if(filter_test(auraDB.filterAll, isEnemy)) then
 		return false
-	elseif(SV.filters.Blocked[auraName] and SV.filters.Blocked[auraName].enable) then
+	elseif(filter_test(auraDB.filterWhiteList, isEnemy) and (not SV.filters.WhiteList[auraName])) then
+		return false;
+	elseif(SV.filters.BlackList[auraName] and SV.filters.BlackList[auraName].enable) then
 		return false
 	else
 		if(filter_test(auraDB.filterPlayer, isEnemy) and (not isPlayer)) then
@@ -531,16 +525,26 @@ end
 BUILD FUNCTION
 ##########################################################
 ]]--
+local BoolFilters = {
+	['player'] = true,
+	['pet'] = true,
+	['boss'] = true,
+	['arena'] = true,
+	['party'] = true,
+	['raid'] = true,
+	['raidpet'] = true,	
+};
+
 function MOD:CreateBuffs(frame, unit)
 	local aura = CreateFrame("Frame", nil, frame)
 	aura.___key = unit
 	aura.spacing = 2;
 	aura.CreateIcon = CreateAuraIcon;
 	aura.PostUpdateIcon = PostUpdateAuraIcon;
-	if(unit == "player") then
-		aura.CustomFilter = PlayerAuraFilter;
-	else
+	if(BoolFilters[unit]) then
 		aura.CustomFilter = CommonAuraFilter;
+	else
+		aura.CustomFilter = DetailedAuraFilter;
 	end
 	aura:SetFrameLevel(10)
 	aura.type = "buffs"
@@ -556,10 +560,10 @@ function MOD:CreateDebuffs(frame, unit)
 	aura.spacing = 2;
 	aura.CreateIcon = CreateAuraIcon;
 	aura.PostUpdateIcon = PostUpdateAuraIcon;
-	if(unit == "player") then
-		aura.CustomFilter = PlayerAuraFilter;
-	else
+	if(BoolFilters[unit]) then
 		aura.CustomFilter = CommonAuraFilter;
+	else
+		aura.CustomFilter = DetailedAuraFilter;
 	end
 	aura.type = "debuffs"
 	aura:SetFrameLevel(10)
@@ -588,9 +592,9 @@ function MOD:CreateAuraBarHeader(frame, unit)
 	auraBarParent.spacing = 1;
 	auraBarParent.spark = true;
 	if(unit == "player") then
-		auraBarParent.filter = PlayerBarFilter;
-	else
 		auraBarParent.filter = CommonBarFilter;
+	else
+		auraBarParent.filter = DetailedBarFilter;
 	end
 	auraBarParent.PostUpdate = ColorizeAuraBars;
 	auraBarParent.barTexture = LSM:Fetch("statusbar", SV.db.SVUnit.auraBarStatusbar)

@@ -177,7 +177,7 @@ end
 LOCAL FUNCTIONS
 ##########################################################
 ]]--
-local function SetBlockedCache(...)
+local function SetCacheBlacklist(...)
 	twipe(blackList)
 	for index = 1, select('#', ...) do
 		local name = select(index, ...)
@@ -479,7 +479,7 @@ do
 		twipe(blackListedSlots)
 		local ignoreItems = SV.db.SVBag.ignoreItems
 		ignoreItems = ignoreItems:gsub(',%s', ',')
-		SetBlockedCache(split(",", ignoreItems))
+		SetCacheBlacklist(split(",", ignoreItems))
 		for i, bag, slot in IterateBagsForSorting(bags, nil, 'both') do
 			local bagSlot = BagEncoder(bag, slot)
 			local link = GetSortingItemLink(bag, slot);

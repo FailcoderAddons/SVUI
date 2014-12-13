@@ -82,7 +82,7 @@ local RefreshLoggedSlots = function(self, bagID, save)
 			end
 		end
 	end
-end 
+end
 
 local RefreshLoggedBags = function(self)
 	for id,bag in pairs(self.Bags)do
@@ -92,6 +92,40 @@ local RefreshLoggedBags = function(self)
 			PLUGIN.myStash[id] = {};
 		end
 		RefreshLoggedSlots(bag, id, true) 
+	end
+	for id,items in pairs(PLUGIN.myStash) do
+		for id,amt in pairs(items) do
+			PLUGIN.BagItemCache[id] = PLUGIN.BagItemCache[id] or {}
+			PLUGIN.BagItemCache[id][nameKey] = amt
+		end
+	end
+end 
+
+local RefreshLoggedReagentSlots = function(self, bagID, save)
+	local id = bagID or self:GetID()
+	if(not id or (not self.SlotUpdate)) then return end
+	local maxcount = self.numSlots
+	for slotID = 1, maxcount do
+		self:SlotUpdate(slotID) 
+		local itemLink = GetContainerItemLink(bagID, slotID);
+		if(itemLink) then
+			local key = GetItemInfo(itemLink)
+			if(key) then
+				local id = GetContainerItemID(bagID, slotID)
+				if id ~= 6948 then PLUGIN.myStash[bagID][key] = GetItemCount(id,true) end
+			end
+		end
+	end
+end
+
+local RefreshLoggedReagentBags = function(self)
+	for id,bag in pairs(self.Bags)do
+		if PLUGIN.myStash[id] then
+			twipe(PLUGIN.myStash[id])
+		else
+			PLUGIN.myStash[id] = {};
+		end
+		RefreshLoggedReagentSlots(bag, id, true) 
 	end
 	for id,items in pairs(PLUGIN.myStash) do
 		for id,amt in pairs(items) do
@@ -125,6 +159,9 @@ function PLUGIN:AppendBankFunctions()
 	local BAGS = SV.SVBag;
 	if(BAGS.BankFrame) then
 		BAGS.BankFrame.RefreshBags = RefreshLoggedBags
+	end
+	if(BAGS.ReagentFrame) then
+		BAGS.ReagentFrame.RefreshBags = RefreshLoggedReagentBags
 	end
 end
 --[[ 
