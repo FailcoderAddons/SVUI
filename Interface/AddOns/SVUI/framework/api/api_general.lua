@@ -232,8 +232,8 @@ local SecureFade_OnUpdate = function(self, elasped)
         else
             state[4] = 0
             frame:SetAlpha(state[2])
-
-            if((not frame:IsProtected()) and frame.___fadehide and frame:IsShown()) then 
+            local canfade = (not InCombatLockdown()) or (InCombatLockdown() and (not frame:IsProtected()))
+            if(frame.___fadehide and canfade) then 
                 frame:Hide()
             end
 
@@ -255,11 +255,9 @@ local SecureFadeIn = function(self, duration, alphaStart, alphaEnd)
     local alpha2 = alphaEnd or 1;
     local timer = duration or 0.1;
     --local name = self:GetName() or 'Frame';
-
-    if(not (self.IsProtected and self:IsProtected())) then
-        if(not self:IsShown()) then 
-            self:Show() 
-        end
+    local canfade = (not InCombatLockdown()) or (InCombatLockdown() and (not self:IsProtected()))
+    if(canfade and not self:IsShown()) then 
+        self:Show() 
     end
 
     if(self:IsShown() and self:GetAlpha() == alpha2) then return end

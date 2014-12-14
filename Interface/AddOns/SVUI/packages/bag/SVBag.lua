@@ -329,6 +329,10 @@ local SlotUpdate = function(self, slotID)
 					slot.JunkIcon:Show()
 				end
 			end
+		else
+			if(GameTooltip:NumLines() ~= 0) then
+				GameTooltip:Hide()
+			end
 		end
 	end
 

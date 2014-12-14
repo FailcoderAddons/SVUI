@@ -160,9 +160,9 @@ local CreateAuraIcon = function(icons, index)
 	text:SetPoint('CENTER', aura, 'CENTER', 1, 1);
 	text:SetJustifyH('CENTER');
 
-	local count = aura:CreateFontString(nil, "OVERLAY");
+	local count = cd:CreateFontString(nil, "OVERLAY");
 	count:SetFontObject(NumberFontNormal);
-	count:SetPoint("BOTTOMRIGHT", aura, "BOTTOMRIGHT", -1, 0);
+	count:SetPoint("BOTTOMRIGHT", aura, "BOTTOMRIGHT", 3, -3);
 
 	local icon = aura:CreateTexture(nil, "BORDER");
 	icon:SetAllPoints(aura);

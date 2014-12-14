@@ -246,6 +246,7 @@ end
 local Docklet_OnShow = function(self)
 	--print('Docklet_OnShow')
 	if(self.FrameLink) then
+		self.FrameLink:SetFrameLevel(10)
 		self.FrameLink:FadeIn()
 	end 
 end
@@ -253,7 +254,12 @@ end
 local Docklet_OnHide = function(self)
 	--print('Docklet_OnHide')
 	if(self.FrameLink) then
-		self.FrameLink:FadeOut(0.2, 1, 0, true)
+		self.FrameLink:SetFrameLevel(0)
+		if(not InCombatLockdown()) then
+			self.FrameLink:Hide()
+		else
+			self.FrameLink:FadeOut(0.2, 1, 0, true)
+		end
 	end 
 end
 
@@ -271,6 +277,7 @@ local DockButtonActivate = function(self)
 	self:SetPanelColor("green")
 	self.Icon:SetGradient(unpack(SV.Media.gradient.green))
 	if(self.FrameLink) then
+		self.FrameLink:SetFrameLevel(10)
 		self.FrameLink:FadeIn()
 	end
 end 
@@ -278,7 +285,12 @@ end
 local DockButtonDeactivate = function(self)
 	--print('DockButtonDeactivate')
 	if(self.FrameLink) then
-		self.FrameLink:FadeOut(0.2, 1, 0, true)
+		self.FrameLink:SetFrameLevel(0)
+		if(not InCombatLockdown()) then
+			self.FrameLink:Hide()
+		else
+			self.FrameLink:FadeOut(0.2, 1, 0, true)
+		end
 	end
 	self:SetAttribute("isActive", false)
 	self:SetPanelColor("default")
@@ -591,7 +603,7 @@ local RemoveFromDock = function(self, button)
 	if(button.FrameLink) then
 		local frameName = button.FrameLink:GetName()
 		Dock.Locations[frameName] = nil;
-		button.FrameLink:FadeOut()
+		button.FrameLink:FadeOut(0.2, 1, 0, true)
 		self.Data.Windows[frameName] = nil;
 	end
 
@@ -1097,8 +1109,6 @@ function Dock:Initialize()
 			dock.backdrop = SetSuperDockStyle(dock.Window, isBottom)
 			dock.Alert.backdrop = SetSuperDockStyle(dock.Alert, isBottom)
 			dock.Alert.backdrop:Hide()
-			dock.Window:SetScript("OnShow", Docklet_OnShow)
-			dock.Window:SetScript("OnHide", Docklet_OnHide)
 		end
 		
 		SV.Mentalo:Add(dock, location .. " Dock Window")

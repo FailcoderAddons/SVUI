@@ -102,8 +102,8 @@ local CHAT_FONTOUTLINE = "OUTLINE";
 local TAB_WIDTH = 75;
 local TAB_HEIGHT = 20;
 local TAB_SKINS = true;
-local TAB_FONT = [[Interface\AddOns\SVUI\assets\fonts\Alert.ttf]];
-local TAB_FONTSIZE = 10;
+local TAB_FONT = [[Interface\AddOns\SVUI\assets\fonts\Action.ttf]];
+local TAB_FONTSIZE = 11;
 local TAB_FONTOUTLINE = "OUTLINE";
 local CHAT_FADING = false;
 local CHAT_PSST = [[Interface\AddOns\SVUI\assets\sounds\whisper.mp3]];
@@ -584,8 +584,10 @@ do
 		tab.icon:SetPointToScale("CENTER",tab,"CENTER",0,0)
 		tab.icon:SetTexture(ICONARTFILE)
 		if(tab.conversationIcon) then
+			tab:SetPanelColor("VERTICAL", 0.1, 0.53, 0.65, 0.6, 0.2, 1)
 			tab.icon:SetGradient("VERTICAL", 0.1, 0.53, 0.65, 0.3, 0.7, 1)
 		else
+			tab:SetPanelColor("default")
 			tab.icon:SetGradient("VERTICAL", 0.5, 0.53, 0.55, 0.8, 0.8, 1)
 		end
 		tab.icon:SetAlpha(0.5)
@@ -651,16 +653,16 @@ do
 			_G[tabName .."HighlightRight"]:SetTexture(0,0,0,0)
 
 			tab.text = _G[chatName.."TabText"]
-			tab.text:SetTextColor(1, 1, 1)
 			tab.text:SetShadowColor(0, 0, 0)
 			tab.text:SetShadowOffset(2, -2)
 			tab.text:SetAllPointsIn(tab)
 			tab.text:SetJustifyH("CENTER")
 			tab.text:SetJustifyV("MIDDLE")
 			NewHook(tab.text, "SetTextColor", _hook_TabTextColor)
-			if tab.conversationIcon then 
+			if tab.conversationIcon then
+				tab.conversationIcon:SetAlpha(0)
 				tab.conversationIcon:ClearAllPoints()
-				tab.conversationIcon:SetPointToScale("RIGHT", tab.text, "LEFT", -1, 0)
+				tab.conversationIcon:SetPointToScale("TOPLEFT", tab, "TOPLEFT", 0, 0)
 			end 
 			if(TAB_SKINS and not tab.IsStyled) then
 				local arg3 = (chat.inUse or chat.isDocked or chat.isTemporary)

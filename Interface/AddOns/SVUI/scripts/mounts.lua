@@ -398,7 +398,7 @@ _G.SVUILetsRide = function()
 
 	local continent = GetCurrentMapContinent()
 	local checkList = SV.cache.Mounts.types
-	local letsFly = (IsFlyableArea() and (continent ~= 7))
+	local letsFly = (IsFlyableArea() and continent ~= 962)
 	local letsSwim = IsSwimming()
 
 	if(IsModifierKeyDown() and checkList["SPECIAL"]) then

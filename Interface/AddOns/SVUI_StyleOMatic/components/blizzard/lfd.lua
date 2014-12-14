@@ -51,7 +51,7 @@ local function StyleMoneyRewards(frameName)
       local size = frame:GetHeight() - 6
       local texture = icon:GetTexture()
       frame:RemoveTextures()
-      frame:SetStylePanel("Fixed", 'Blackout', true, 3)
+      frame:SetStylePanel("Fixed", 'Inset', true, 3)
       icon:SetTexture(texture)
       icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
       icon:ClearAllPoints()
@@ -273,7 +273,7 @@ local function LFDFrameStyle()
     end
   end
 
-  for u = 1, 2 do
+  for u = 1, 3 do
      PLUGIN:ApplyTabStyle(_G['PVEFrameTab'..u])
   end
 

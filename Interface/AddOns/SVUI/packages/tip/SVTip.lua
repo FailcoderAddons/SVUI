@@ -89,7 +89,7 @@ local tooltips = {
 	BattlePetTooltip, FloatingBattlePetTooltip, FloatingPetBattleAbilityTooltip, FloatingGarrisonFollowerTooltip,
 	GarrisonMissionMechanicTooltip, GarrisonFollowerTooltip,
 	GarrisonMissionMechanicFollowerCounterTooltip, GarrisonFollowerAbilityTooltip,
-	--StoreTooltip, 
+	SmallTextTooltip, 
 	BrowserSettingsTooltip, 
 	QueueStatusFrame
 };
@@ -203,6 +203,10 @@ CORE FUNCTIONS
 ##########################################################
 ]]--
 local SetMaskBorderColor = function(self, r, g, b, hasStatusBar)
+	if(self:GetAlpha() == 0) then
+		self:FadeIn()
+	end
+	self:SetBackdropColor(0, 0, 0, 0.8)
 	if(COMIC_TIPS) then
 		local a = self.ToggleAlpha
 		if(hasStatusBar) then
@@ -218,33 +222,27 @@ local SetMaskBorderColor = function(self, r, g, b, hasStatusBar)
 		end
 	end
 	r,g,b = (r * 0.5),(g * 0.5),(b * 0.5)
-	self[5]:SetTexture(r, g, b)
-	self[6]:SetTexture(r, g, b)
-	self[7]:SetTexture(r, g, b)
-	self[8]:SetTexture(r, g, b)
+	self[5]:SetTexture(r, g, b, 1)
+	self[6]:SetTexture(r, g, b, 1)
+	self[7]:SetTexture(r, g, b, 1)
+	self[8]:SetTexture(r, g, b, 1)
+	--print('Set Color')
 end
 
-local ClearMaskColors = function(self)
-	self:SetBackdrop({
-		bgFile = TT_BG, 
-		edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
-		tile = true, 
-		tileSize = 128,
-		edgeSize = 1,
-		insets = {left = 1, right = 1, top = 1, bottom = 1}
-	})
-	self:SetBackdropColor(0, 0, 0, 1)
-	self:SetBackdropBorderColor(0, 0, 0, 1)
-
+local ClearMaskColors = function(self, hide)
 	self[1]:SetVertexColor(0, 0, 0, 0)
 	--self[2]:SetVertexColor(0, 0, 0, 0)
 	self[3]:SetVertexColor(0, 0, 0, 0)
 	self[4]:SetVertexColor(0, 0, 0, 0)
 
-	self[5]:SetTexture(0, 0, 0)
-	self[6]:SetTexture(0, 0, 0)
-	self[7]:SetTexture(0, 0, 0)
-	self[8]:SetTexture(0, 0, 0)
+	self[5]:SetTexture(0, 0, 0, 0)
+	self[6]:SetTexture(0, 0, 0, 0)
+	self[7]:SetTexture(0, 0, 0, 0)
+	self[8]:SetTexture(0, 0, 0, 0)
+	
+	if(hide) then
+		self:SetBackdropColor(0, 0, 0, 0)
+	end
 end
 
 function MOD:INSPECT_READY(event, GUID)
@@ -312,18 +310,9 @@ local function tiplevel(this, start)
 end
 
 local function tipbackground(this)
-	this:SetBackdrop({
-		bgFile = TT_BG, 
-		edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
-		tile = true, 
-		tileSize = 128,
-		edgeSize = 1,
-		insets = {left = 1, right = 1, top = 1, bottom = 1}
-	})
-	this:SetBackdropColor(0, 0, 0, 0)
-	this:SetBackdropBorderColor(0, 0, 0, 0)
+	this:SetBackdropColor(0, 0, 0, 1)
 	if(this.SuperBorder) then
-		--this.SuperBorder:ClearMaskColors()
+		this.SuperBorder:SetBackdropColor(0, 0, 0, 0.8)
 		if(not GameTooltipStatusBar:IsShown()) then
 			this.SuperBorder:ClearAllPoints()
 			this.SuperBorder:SetPoint("TOPLEFT", this, "TOPLEFT", 0, 0)
@@ -341,7 +330,6 @@ local function tipupdate(this, color, hasStatusBar)
 		local mask = this.SuperBorder
 		local borderColor = color or NIL_COLOR
 		local yOffset = (hasStatusBar) and mask.ToggleHeight or 0;
-		mask:ClearMaskColors()
 		mask:ClearAllPoints()
 		mask:SetPoint("TOPLEFT", this, "TOPLEFT", 0, 0)
 		mask:SetPoint("BOTTOMRIGHT", this, "BOTTOMRIGHT", 0, yOffset)
@@ -532,13 +520,12 @@ end
 
 local _hook_GameTooltip_OnTooltipSetItem = function(self)
 	tipbackground(self)
-	
 	local key,itemLink = self:GetItem()
 	if(key and (not self.itemCleared)) then
 		local quality = select(3, GetItemInfo(key))
 		if(quality) then
 			local r,g,b = GetItemQualityColor(quality)
-			self.SuperBorder:SetMaskBorderColor(r,g,b)
+			self.SuperBorder:SetMaskBorderColor(r, g, b)
 		end
 
 		if(SPELL_IDS and (itemLink ~= nil)) then
@@ -583,11 +570,9 @@ end
 
 local _hook_OnSetUnitAura = function(self, unit, index, filter)
 	tipbackground(self)
-	--self.SuperBorder:ClearMaskColors()
 	if(not SPELL_IDS) then return; end
 	local _, _, _, _, _, _, _, caster, _, _, spellID = UnitAura(unit, index, filter)
 	if(spellID) then 
-		--self.SuperBorder:ClearMaskColors()
 		if caster then 
 			local name = UnitName(caster)
 			local _, class = UnitClass(caster)
@@ -605,7 +590,6 @@ end
 
 local _hook_OnSetHyperUnitAura = function(self, unit, index, filter)
 	tipbackground(self)
-	--self.SuperBorder:ClearMaskColors()
 	if unit ~= "player" then return end
 	local auraName, _, _, _, _, _, _, caster, _, shouldConsolidate, spellID = UnitAura(unit, index, filter)
 	if shouldConsolidate then
@@ -639,13 +623,13 @@ local _hook_GameTooltip_OnTooltipSetSpell = function(self)
 	end 
 	if not check then
 		tipbackground(self)
-		self.SuperBorder:ClearMaskColors() 
 		self:AddLine(text)
 		self:Show()
 	end
 end 
 
 local _hook_GameTooltip_SetDefaultAnchor = function(self, parent)
+	tipbackground(self)
 	if(self:GetAnchorType() ~= "ANCHOR_NONE") then return end 
 	if(InCombatLockdown() and VISIBILITY_COMBAT) then 
 		self:Hide()
@@ -692,12 +676,6 @@ local _hook_BNToastOnShow = function(self,anchor,parent,relative,x,y)
 	end
 end
 
-local _hook_OnTipCleared = function(self)
-	tipbackground(self)
-	self.SuperBorder:ClearMaskColors()
-	self.itemCleared = nil
-end
-
 local _hook_OnItemRef = function(link, text, button, chatFrame)
 	if link:find("^spell:") then 
 		local ref = sub(link,7)
@@ -713,27 +691,31 @@ local TooltipModifierChangeHandler = function(self, event, mod)
 end 
 
 local Override_BGColor = function(self, r, g, b, a) 
-	if(b ~= 0 or (a and a ~= 0)) then
+	if(((r ~= 0) and (g ~= 0) and (b ~= 0)) or (a and a ~= 0)) then
 		self:SetBackdropColor(0, 0, 0, 0)
-		self.SuperBorder:SetBackdropColor(0, 0, 0, 0.8) 
+		self.SuperBorder:SetBackdropColor(r, g, b, 0.8) 
 	end
 end
 
 local Override_BorderColor = function(self, r, g, b, a)
-	if(b ~= 0 or (a and a ~= 0)) then
-		self:SetBackdropBorderColor(0, 0, 0, 0)
-		self.SuperBorder:SetBackdropBorderColor(0, 0, 0)
-		self.SuperBorder:SetMaskBorderColor(r, g, b)
-	end 
+	self.SuperBorder:SetMaskBorderColor(r, g, b, 1)
+end
+
+local _hook_OnTipCleared = function(self)
+	tipbackground(self)
+	self.SuperBorder:ClearMaskColors()
+	self.itemCleared = nil
 end
 
 local _hook_OnTipShow = function(self)
+	--print('Show')
 	tipbackground(self)
 end
 
 local _hook_OnTipHide = function(self)
+	--print('Hide')
 	tipbackground(self)
-	self.SuperBorder:ClearMaskColors()
+	self.SuperBorder:ClearMaskColors(true)
 	wipe(self.InjectedDouble)
 end
 
@@ -835,11 +817,8 @@ local function ApplyTooltipSkins()
 
 			mask:SetBackdrop({
 				bgFile = TT_BG, 
-				edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
 				tile = true,
 				tileSize = 128,
-				edgeSize = 1,
-				insets = {left = 1, right = 1, top = 1, bottom = 1}
 			})
 			mask:SetBackdropColor(0, 0, 0, 1)
 			mask:SetBackdropBorderColor(0, 0, 0)
@@ -893,17 +872,14 @@ local function ApplyTooltipSkins()
 			
 			tooltip:SetBackdrop({
 				bgFile = TT_BG, 
-				edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
+				tile = true,
 				tileSize = 128,
-				tile = true, 
-				edgeSize = 1,
-				insets = {left = 1, right = 1, top = 1, bottom = 1}
 			})
 			tooltip:SetBackdropColor(0, 0, 0, 0)
-			tooltip:SetBackdropBorderColor(0, 0, 0, 0)
+			--tooltip:SetBackdropBorderColor(0, 0, 0, 0)
 
 			NewHook(tooltip, "SetBackdropColor", Override_BGColor)
-			NewHook(tooltip, "SetBackdropBorderColor", Override_BorderColor)
+			--NewHook(tooltip, "SetBackdropBorderColor", Override_BorderColor)
 			tooltip:HookScript("OnShow", _hook_OnTipShow)
 			tooltip:HookScript("OnHide", _hook_OnTipHide)
 			tooltip:HookScript("OnSizeChanged", _hook_OnSizeChanged)

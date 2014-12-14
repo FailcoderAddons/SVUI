@@ -1088,8 +1088,12 @@ local Core_ResetData = function(self, sub, sub2, sub3)
         targetData = sv
     end
     if(targetData) then
-        for k,v in pairs(targetData) do
-            targetData[k] = nil
+        if(type(targetData) == 'table') then
+            for k,v in pairs(targetData) do
+                targetData[k] = nil
+            end
+        else
+            targetData = nil
         end
     else
         sv = {}
@@ -1108,8 +1112,12 @@ local Core_ResetFilter = function(self, key)
         targetData = sv
     end
     if(targetData) then
-        for k,v in pairs(targetData) do
-            targetData[k] = nil
+        if(type(targetData) == 'table') then
+            for k,v in pairs(targetData) do
+                targetData[k] = nil
+            end
+        else
+            targetData = nil
         end
     else
         sv = {}

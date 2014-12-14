@@ -555,7 +555,7 @@
         <Attributes>
             <Attribute name="panelID" type="string" value="slot" />
             <Attribute name="panelPadding" type="number" value="2" />
-            <Attribute name="panelColor" type="string" value="hinted" />
+            <Attribute name="panelColor" type="string" value="invisible" />
             <Attribute name="panelGradient" type="boolean" value="false" />
             <Attribute name="panelTexUpdate" type="boolean" value="false" />
             <Attribute name="panelSkipUpdate" type="boolean" value="true" />

@@ -235,7 +235,7 @@ local function AuctionStyle()
 
 			if(buttonItem) then
 				buttonItem:RemoveTextures()
-				buttonItem:SetStylePanel("Slot", false, 2, 0, 0)
+				buttonItem:SetStylePanel("Icon", false, 2, 0, 0)
 				if(buttonTex) then
 					buttonTex:SetParent(buttonItem.Panel)
 					buttonTex:SetAllPointsIn(buttonItem.Panel, 2, 2)

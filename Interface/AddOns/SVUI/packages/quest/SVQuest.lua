@@ -138,6 +138,23 @@ local PopUpButton_OnClick = function(self, button)
 		AutoQuestPopupTracker_RemovePopUp(questID);
 	end
 end
+
+local TimerBar_OnUpdate = function(self, elapsed)
+    self.elapsed = self.elapsed + elapsed;
+    local currentTime = self.duration - self.elapsed
+    local timeString = GetTimeStringFromSeconds(currentTime)
+    if(self.elapsed <= self.duration) then
+        self:SetValue(currentTime)
+        self.TimeLeft:SetText(timeString)
+    else
+        self.elapsed = 0
+        self:SetMinMaxValues(0, 1)
+        self:SetValue(0)
+        self:SetHeight(1)
+        self:FadeOut()
+        self:SetScript("OnUpdate", nil);
+    end
+end
 --[[ 
 ########################################################## 
 HELPERS
@@ -201,19 +218,148 @@ function MOD:AddObjectiveRow(index, description, completed, duration, elapsed)
 		objective.Icon:SetTexture(OBJ_ICON_INCOMPLETE)
 	end
 
-	if(duration and elapsed) then
-		if(duration > 0 and elapsed <= duration ) then
-			objective.Bar:SetMinMaxValues(0, duration)
-			objective.Bar:SetValue(elapsed)	
-		else
-			objective.Bar:SetMinMaxValues(0, 1)
-			objective.Bar:SetValue(0)	
-		end
-	end
+	duration = duration or 1;
+	elapsed = (elapsed and elapsed <= duration) and elapsed or 0;
+	objective.Bar:SetMinMaxValues(0, duration)
+	objective.Bar:SetValue(elapsed)	
 
 	objective:Show()
 
 	return objective;
+end
+
+local function NewScenarioObjective(parent, lineNumber)
+	local lastRowNumber = lineNumber - 1;
+	local previousFrame = parent.Rows[lastRowNumber]
+	local yOffset = (lineNumber * (ROW_HEIGHT)) - ROW_HEIGHT
+
+	local objective = CreateFrame("Frame", nil, parent)
+	objective:SetPoint("TOPLEFT", parent, "TOPLEFT", 0, -yOffset);
+	objective:SetPoint("TOPRIGHT", parent, "TOPRIGHT", 0, -yOffset);
+	objective:SetHeight(INNER_HEIGHT);
+	--objective:SetStylePanel("Default")
+
+	objective.Icon = objective:CreateTexture(nil,"OVERLAY")
+	objective.Icon:SetPoint("TOPLEFT", objective, "TOPLEFT", 4, -2);
+	objective.Icon:SetPoint("BOTTOMLEFT", objective, "BOTTOMLEFT", 4, 2);
+	objective.Icon:SetWidth(INNER_HEIGHT - 4);
+	objective.Icon:SetTexture(OBJ_ICON_INCOMPLETE)
+
+	objective.Text = objective:CreateFontString(nil,"OVERLAY")
+	objective.Text:SetPoint("TOPLEFT", objective, "TOPLEFT", INNER_HEIGHT + 6, -2);
+	objective.Text:SetPoint("TOPRIGHT", objective, "TOPRIGHT", 0, -2);
+	objective.Text:SetHeight(INNER_HEIGHT - 2)
+	objective.Text:SetFont(SV.Media.font.roboto, 12, "NONE")
+	objective.Text:SetTextColor(1,1,1)
+	objective.Text:SetShadowOffset(-1,-1)
+	objective.Text:SetShadowColor(0,0,0,0.5)
+	objective.Text:SetJustifyH('LEFT')
+	objective.Text:SetJustifyV('MIDDLE')
+	objective.Text:SetText('')
+
+	return objective;
+end
+
+local function AddScenarioObjective(self, index, description, completed)
+	local objective = self.Rows[index];
+
+	if(not objective) then
+		self.Rows[index] = NewScenarioObjective(self, index)
+		objective = self.Rows[index]
+	end
+
+	objective.Text:SetText(description)
+
+	if(completed) then
+		objective.Text:SetTextColor(0.1,0.9,0.1)
+		objective.Icon:SetTexture(OBJ_ICON_COMPLETE)
+	else
+		objective.Text:SetTextColor(1,1,1)
+		objective.Icon:SetTexture(OBJ_ICON_INCOMPLETE)
+	end	
+
+	objective:Show()
+
+	return objective;
+end
+
+local function NewScenarioRow(anchorFrame)
+	local parent = MOD.Active
+
+	local row = CreateFrame("Frame", nil, parent)
+	if(anchorFrame) then
+		row:SetPointToScale("TOPLEFT", anchorFrame, "BOTTOMLEFT", 0, -4);
+		row:SetPointToScale("TOPRIGHT", anchorFrame, "BOTTOMRIGHT", 0, -4);
+	else
+		row:SetPointToScale("TOPLEFT", parent, "TOPLEFT", 2, -4);
+		row:SetPointToScale("TOPRIGHT", parent, "TOPRIGHT", -2, -4);
+	end
+	row:SetHeightToScale(LARGE_ROW_HEIGHT);
+
+	row.Button = CreateFrame("Frame", nil, row)
+	row.Button:SetPointToScale("TOPLEFT", row, "TOPLEFT", 0, 0);
+	row.Button:SetPointToScale("BOTTOMRIGHT", row, "BOTTOMRIGHT", 0, 8);
+	row.Button:SetStylePanel("Framed", "Headline")
+
+	row.Badge = CreateFrame("Frame", nil, row.Button)
+	row.Badge:SetPointToScale("TOPLEFT", row.Button, "TOPLEFT", 4, -4);
+	row.Badge:SetSizeToScale((LARGE_INNER_HEIGHT - 4), (LARGE_INNER_HEIGHT - 4));
+	row.Badge:SetStylePanel("Fixed", "Inset")
+
+	row.Badge.Icon = row.Badge:CreateTexture(nil,"OVERLAY")
+	row.Badge.Icon:SetAllPointsIn(row.Badge);
+	row.Badge.Icon:SetTexture(LINE_QUEST_ICON)
+	row.Badge.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+
+	row.Header = CreateFrame("Frame", nil, row.Button)
+	row.Header:SetPointToScale("TOPLEFT", row.Badge, "TOPRIGHT", 4, -1);
+	row.Header:SetPointToScale("TOPRIGHT", row.Button, "TOPRIGHT", -(ROW_HEIGHT + 4), 0);
+	row.Header:SetHeightToScale(INNER_HEIGHT);
+	row.Header:SetStylePanel("Default")
+
+	row.Header.Stage = row.Header:CreateFontString(nil,"OVERLAY")
+	row.Header.Stage:SetFont(SV.Media.font.roboto, 13, "NONE")
+	row.Header.Stage:SetShadowOffset(-1,-1)
+	row.Header.Stage:SetShadowColor(0,0,0,0.5)
+	row.Header.Stage:SetJustifyH('LEFT')
+	row.Header.Stage:SetJustifyV('MIDDLE')
+	row.Header.Stage:SetText('')
+	row.Header.Stage:SetPointToScale("TOPLEFT", row.Header, "TOPLEFT", 4, 0);
+	row.Header.Stage:SetPointToScale("BOTTOMLEFT", row.Header, "BOTTOMLEFT", 4, 0);
+
+	row.Header.Level = row.Header:CreateFontString(nil,"OVERLAY")
+	row.Header.Level:SetFont(SV.Media.font.roboto, 10, "NONE")
+	row.Header.Level:SetShadowOffset(-1,-1)
+	row.Header.Level:SetShadowColor(0,0,0,0.5)
+	row.Header.Level:SetJustifyH('LEFT')
+	row.Header.Level:SetJustifyV('MIDDLE')
+	row.Header.Level:SetText('')
+	row.Header.Level:SetPointToScale("TOPLEFT", row.Header.Stage, "TOPLEFT", 4, 0);
+	row.Header.Level:SetPointToScale("BOTTOMLEFT", row.Header.Stage, "BOTTOMLEFT", 4, 0);
+
+	row.Header.Text = row.Header:CreateFontString(nil,"OVERLAY")
+	row.Header.Text:SetFont(SV.Media.font.roboto, 13, "NONE")
+	row.Header.Text:SetTextColor(1,1,0)
+	row.Header.Text:SetShadowOffset(-1,-1)
+	row.Header.Text:SetShadowColor(0,0,0,0.5)
+	row.Header.Text:SetJustifyH('LEFT')
+	row.Header.Text:SetJustifyV('MIDDLE')
+	row.Header.Text:SetText('')
+	row.Header.Text:SetPointToScale("TOPLEFT", row.Header.Stage, "TOPRIGHT", 4, 0);
+	row.Header.Text:SetPointToScale("BOTTOMRIGHT", row.Header, "BOTTOMRIGHT", 0, 0);
+
+	row.Objectives = CreateFrame("Frame", nil, row)
+	row.Objectives:SetPointToScale("TOPLEFT", row.Header, "BOTTOMLEFT", 0, -2);
+	row.Objectives:SetPointToScale("TOPRIGHT", row.Header, "BOTTOMRIGHT", 0, -2);
+	row.Objectives:SetHeightToScale(1);
+	--row.Objectives:SetStylePanel("Default", "Inset");
+
+	row.Objectives.Rows = {}
+	row.Objectives.Add = AddScenarioObjective;
+
+	row.RowID = 0;
+
+	return row;
 end
 
 local CloseButton_OnEnter = function(self)
@@ -266,7 +412,7 @@ local function NewActiveRow(anchorFrame)
 	row.Header.Level:SetFont(SV.Media.font.roboto, 10, "NONE")
 	row.Header.Level:SetShadowOffset(-1,-1)
 	row.Header.Level:SetShadowColor(0,0,0,0.5)
-	row.Header.Level:SetJustifyH('CENTER')
+	row.Header.Level:SetJustifyH('LEFT')
 	row.Header.Level:SetJustifyV('MIDDLE')
 	row.Header.Level:SetText('')
 	row.Header.Level:SetPointToScale("TOPLEFT", row.Header, "TOPLEFT", 4, 0);
@@ -369,14 +515,15 @@ end
 ACTIVE FUNCTIONS
 ##########################################################
 ]]--
-local AddScenarioRow = function(self, title, stageName, currentStage, numObjectives)
+local AddScenarioRow = function(self, title, stageName, currentStage, numStages, stageDescription, numObjectives)
 	local objectivesShown = 0;
 	local nextObjective = 1;
 	local row = self.Rows.Scenario;
 
 	row.RowID = 1
+	row.Header.Stage:SetText(stageName)
 	row.Header.Level:SetText(currentStage)
-	row.Header.Text:SetText(stageName)
+	row.Header.Text:SetText(title)
 	row.Badge.Icon:SetTexture(LINE_QUEST_ICON)
 	row:Show()
 
@@ -476,9 +623,126 @@ local RefreshActiveHeight = function(self)
 	self:SetHeight(NEWHEIGHT)
 end
 
+local MEDAL_TIMES = {};
+local LAST_MEDAL;
+
+local function ChallengeUpdateMedal(elapsedTime)
+	-- find best medal for current time
+	local prevMedalTime = 0;
+	for i = #MEDAL_TIMES, 1, -1 do
+		local currentMedalTime = MEDAL_TIMES[i];
+		if ( elapsedTime < currentMedalTime ) then
+			MOD.TimerBar:SetMinMaxValues(0, currentMedalTime - prevMedalTime);
+			MOD.TimerBar.medalTime = currentMedalTime;
+			-- if ( CHALLENGE_MEDAL_TEXTURES[i] ) then
+			-- 	block.MedalIcon:SetTexture(CHALLENGE_MEDAL_TEXTURES[i]);
+			-- 	block.MedalIcon:Show();
+			-- 	block.GlowFrame.MedalIcon:SetTexture(CHALLENGE_MEDAL_TEXTURES[i]);
+			-- 	block.GlowFrame.MedalGlowAnim:Play();
+			-- end
+			-- block.NoMedal:Hide();
+			-- play sound if medal changed
+			if ( LAST_MEDAL and LAST_MEDAL ~= i ) then
+				if ( LAST_MEDAL == CHALLENGE_MEDAL_GOLD ) then
+					PlaySound("UI_Challenges_MedalExpires_GoldtoSilver");
+				elseif ( LAST_MEDAL == CHALLENGE_MEDAL_SILVER ) then
+					PlaySound("UI_Challenges_MedalExpires_SilvertoBronze");
+				else
+					PlaySound("UI_Challenges_MedalExpires");
+				end
+			end
+			LAST_MEDAL = i;
+			return;
+		else
+			prevMedalTime = currentMedalTime;
+		end
+	end
+	-- no medal
+	MOD.TimerBar.TimeLeft:SetText(CHALLENGES_TIMER_NO_MEDAL);
+	MOD.TimerBar:SetValue(0);
+	MOD.TimerBar.medalTime = nil;
+	--block.NoMedal:Show();
+	--block.MedalIcon:Hide();
+	-- play sound if medal changed
+	if ( LAST_MEDAL and LAST_MEDAL ~= 0 ) then
+		PlaySound("UI_Challenges_MedalExpires");
+	end
+	LAST_MEDAL = 0;
+end
+
+
+local function ChallengeUpdateTime(block, elapsedTime)
+	local statusBar = MOD.TimerBar;
+	if ( statusBar.medalTime ) then
+		local timeLeft = statusBar.medalTime - elapsedTime;
+		if (timeLeft == 10) then
+			if (not statusBar.playedSound) then
+				PlaySoundKitID(34154);
+				statusBar.playedSound = true;
+			end
+		else
+			statusBar.playedSound = false;
+		end
+		if ( timeLeft < 0 ) then
+			ChallengeUpdateMedal(elapsedTime);
+		else
+			statusBar:SetValue(timeLeft);
+			statusBar.TimeLeft:SetText(GetTimeStringFromSeconds(timeLeft));
+		end
+	end
+end
+
+local function SetMedalData(elapsedTime, ...)
+	MOD.ScenarioTimer:SetMinMaxValues(0, elapsedTime)
+	MOD.ScenarioTimer:SetValue(elapsedTime)
+	MOD.ScenarioTimer:SetHeight(ROW_HEIGHT)
+	MOD.ScenarioTimer:FadeIn()
+
+	for i = 1, select("#", ...) do
+		MEDAL_TIMES[i] = select(i, ...);
+	end
+	LAST_MEDAL = nil;
+	ChallengeUpdateMedal(elapsedTime);
+	ChallengeUpdateMedal(elapsedTime);
+end
+
+local function CheckScenarioTimers(...)
+	local timeLeftFound
+	for i = 1, select("#", ...) do
+		local timerID = select(i, ...);
+		local _, elapsedTime, type = GetWorldElapsedTime(timerID);
+		if ( type == LE_WORLD_ELAPSED_TIMER_TYPE_CHALLENGE_MODE) then
+			local _, _, _, _, _, _, _, mapID = GetInstanceInfo();
+			if ( mapID ) then
+				SetMedalData(elapsedTime, GetChallengeModeMapTimes(mapID));
+				return;
+			end
+		elseif ( type == LE_WORLD_ELAPSED_TIMER_TYPE_PROVING_GROUND ) then
+			local diffID, currWave, maxWave, duration = C_Scenario.GetProvingGroundsInfo()
+			if (duration > 0) then
+				MOD.ScenarioTimer.duration = duration;
+				MOD.ScenarioTimer.elapsed = elapsedTime;
+				MOD.ScenarioTimer:SetMinMaxValues(0, duration)
+				MOD.ScenarioTimer:SetValue(duration)
+				MOD.ScenarioTimer:SetHeight(ROW_HEIGHT)
+				MOD.ScenarioTimer:FadeIn()
+				MOD.ScenarioTimer:SetScript("OnUpdate", TimerBar_OnUpdate)
+				return;
+			end
+		end
+	end
+end
+
 local RefreshActiveObjective = function(self, event, ...)
 	if(C_Scenario.IsInScenario()) then
-		if(event and (event == 'SCENARIO_UPDATE' or event == 'SCENARIO_CRITERIA_UPDATE')) then
+		if(event == "PLAYER_ENTERING_WORLD") then
+			CheckScenarioTimers(GetWorldElapsedTimers());
+		elseif(event == "WORLD_STATE_TIMER_START") then
+			CheckScenarioTimers(...)
+		elseif(event == "PROVING_GROUNDS_SCORE_UPDATE") then
+			local score = ...
+			--ScenarioProvingGroundsBlock.Score:SetText(score);
+		elseif(event and (event == 'SCENARIO_UPDATE' or event == 'SCENARIO_CRITERIA_UPDATE')) then
 			local title, currentStage, numStages, flags, _, _, _, xp, money = C_Scenario.GetInfo();
 			if(title) then
 				local stageName, stageDescription, numObjectives = C_Scenario.GetStepInfo();
@@ -488,7 +752,7 @@ local RefreshActiveObjective = function(self, event, ...)
 				local scenariocompleted = currentStage > numStages;
 				if(not scenariocompleted) then
 					--local questLogIndex = GetQuestLogIndexByID(questID);
-					self:AddScenario(title, stageName, currentStage, numObjectives)
+					self:AddScenario(title, stageName, currentStage, numStages, stageDescription, numObjectives)
 				else
 					self.Rows.Scenario.RowID = 0
 				end
@@ -668,11 +932,68 @@ function MOD:Load()
 
 	self:UpdateLocals();
 
+	local timerbar = CreateFrame("StatusBar", nil, scrollChild);
+	timerbar:SetWidth(ROW_WIDTH);
+	timerbar:SetHeight(1);
+	timerbar:SetPoint("TOPLEFT", scrollChild, "TOPLEFT", 0, 0);
+	timerbar:SetPoint("TOPRIGHT", scrollChild, "TOPRIGHT", 0, 0);
+	timerbar:SetStatusBarTexture(SV.Media.bar.default)
+	timerbar:SetStatusBarColor(0.5,0,1)
+	timerbar:SetMinMaxValues(0, 1)
+	timerbar:SetValue(0)
+
+	local bgFrame = CreateFrame("Frame", nil, timerbar)
+	bgFrame:SetAllPoints(timerbar)
+	bgFrame:SetFrameLevel(bgFrame:GetFrameLevel() - 1)
+
+	timerbar.bg = bgFrame:CreateTexture(nil, "BACKGROUND")
+	timerbar.bg:SetAllPoints(bgFrame)
+	timerbar.bg:SetTexture(SV.Media.bar.default)
+  	timerbar.bg:SetVertexColor(0,0,0,0.5)
+
+	local borderB = bgFrame:CreateTexture(nil,"OVERLAY")
+	borderB:SetTexture(0,0,0)
+	borderB:SetPoint("BOTTOMLEFT")
+	borderB:SetPoint("BOTTOMRIGHT")
+	borderB:SetHeight(2)
+
+	local borderT = bgFrame:CreateTexture(nil,"OVERLAY")
+	borderT:SetTexture(0,0,0)
+	borderT:SetPoint("TOPLEFT")
+	borderT:SetPoint("TOPRIGHT")
+	borderT:SetHeight(2)
+
+	local borderL = bgFrame:CreateTexture(nil,"OVERLAY")
+	borderL:SetTexture(0,0,0)
+	borderL:SetPoint("TOPLEFT")
+	borderL:SetPoint("BOTTOMLEFT")
+	borderL:SetWidth(2)
+
+	local borderR = bgFrame:CreateTexture(nil,"OVERLAY")
+	borderR:SetTexture(0,0,0)
+	borderR:SetPoint("TOPRIGHT")
+	borderR:SetPoint("BOTTOMRIGHT")
+	borderR:SetWidth(2)
+
+	timerbar.TimeLeft = timerbar:CreateFontString(nil,"OVERLAY")
+	timerbar.TimeLeft:SetAllPoints(timerbar);
+	timerbar.TimeLeft:SetFont(SV.Media.font.roboto, 12, "NONE")
+	timerbar.TimeLeft:SetTextColor(1,1,1)
+	timerbar.TimeLeft:SetShadowOffset(-1,-1)
+	timerbar.TimeLeft:SetShadowColor(0,0,0,0.5)
+	timerbar.TimeLeft:SetJustifyH('CENTER')
+	timerbar.TimeLeft:SetJustifyV('MIDDLE')
+	timerbar.TimeLeft:SetText('')
+
+	timerbar:SetAlpha(0)
+
+	self.ScenarioTimer = timerbar
+
 	local popups = CreateFrame("Frame", nil, scrollChild)
 	popups:SetWidth(ROW_WIDTH);
 	popups:SetHeight(1);
-	popups:SetPoint("TOPLEFT", scrollChild, "TOPLEFT", 0, 0);
-	popups:SetPoint("TOPRIGHT", scrollChild, "TOPRIGHT", 0, 0);
+	popups:SetPoint("TOPLEFT", timerbar, "BOTTOMLEFT", 0, 0);
+	popups:SetPoint("TOPRIGHT", timerbar, "BOTTOMRIGHT", 0, 0);
 
 	popups.Rows = {};
 	popups.Refresh = RefreshPopupObjective;
@@ -686,8 +1007,8 @@ function MOD:Load()
 	local active = CreateFrame("Frame", nil, scrollChild)
     active:SetWidth(ROW_WIDTH);
 	active:SetHeight(1);
-	active:SetPoint("TOPLEFT", popups, "TOPLEFT", 0, 0);
-	active:SetPoint("TOPRIGHT", popups, "TOPRIGHT", 0, 0);
+	active:SetPoint("TOPLEFT", popups, "BOTTOMLEFT", 0, 0);
+	active:SetPoint("TOPRIGHT", popups, "BOTTOMRIGHT", 0, 0);
 	--active:SetStylePanel("Default");
 
 	active.Rows = {};
@@ -698,7 +1019,7 @@ function MOD:Load()
 
 	self.Active = active;
 
-	self.Active.Rows.Scenario = NewActiveRow()
+	self.Active.Rows.Scenario = NewScenarioRow()
 	self.Active.Rows.Quest = NewActiveRow(self.Active.Rows.Scenario)
 	self.Active.AddScenario = AddScenarioRow;
 	self.Active.AddGeneral = AddActiveRow;
@@ -709,6 +1030,9 @@ function MOD:Load()
 	self:InitializeBonuses()
 	self:InitializeAchievements()
 
+	self:RegisterEvent("PLAYER_ENTERING_WORLD", self.UpdateActiveObjective);
+	self:RegisterEvent("PROVING_GROUNDS_SCORE_UPDATE", self.UpdateActiveObjective);
+	self:RegisterEvent("WORLD_STATE_TIMER_START", self.UpdateActiveObjective);
 	self:RegisterEvent("SCENARIO_UPDATE", self.UpdateActiveObjective);
 	self:RegisterEvent("SCENARIO_CRITERIA_UPDATE", self.UpdateActiveObjective);
 
