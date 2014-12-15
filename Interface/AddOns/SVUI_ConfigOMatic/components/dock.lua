@@ -209,35 +209,35 @@ SV.Options.args.Dock.args["rightDockGroup"] = {
 				BAG.BankFrame:UpdateLayout()
 			end,
 		},
-		quest = {
-			order = 4, 
-			type = "group", 
-			name = L['Quest Watch Docklet'], 
-			args = {
-				enable = {
-					order = 1,
-					type = "toggle",
-					name = L["Enable"],
-					get = function()return SV.db.general.questWatch end,
-				 	set = function(j, value) SV.db.general.questWatch = value; SV:StaticPopup_Show("RL_CLIENT") end
-				}
-			}
-		},
-		questHeaders = {
-			order = 5, 
-			type = "group", 
-			name = L['Quest Header Styled'], 
-			args = {
-				enable = {
-					order = 1,
-					type = "toggle",
-					name = L["Enable"],
-					get = function()return SV.db.general.questHeaders end,
-				 	set = function(j, value) SV.db.general.questHeaders = value; SV:StaticPopup_Show("RL_CLIENT") end,
-				 	disabled = function()return (not SV.db.general.questWatch) end, 
-				}
-			}
-		}
+		-- quest = {
+		-- 	order = 4, 
+		-- 	type = "group", 
+		-- 	name = L['Quest Watch Docklet'], 
+		-- 	args = {
+		-- 		enable = {
+		-- 			order = 1,
+		-- 			type = "toggle",
+		-- 			name = L["Enable"],
+		-- 			get = function()return SV.db.general.questWatch end,
+		-- 		 	set = function(j, value) SV.db.general.questWatch = value; SV:StaticPopup_Show("RL_CLIENT") end
+		-- 		}
+		-- 	}
+		-- },
+		-- questHeaders = {
+		-- 	order = 5, 
+		-- 	type = "group", 
+		-- 	name = L['Quest Header Styled'], 
+		-- 	args = {
+		-- 		enable = {
+		-- 			order = 1,
+		-- 			type = "toggle",
+		-- 			name = L["Enable"],
+		-- 			get = function()return SV.db.general.questHeaders end,
+		-- 		 	set = function(j, value) SV.db.general.questHeaders = value; SV:StaticPopup_Show("RL_CLIENT") end,
+		-- 		 	disabled = function()return (not SV.db.general.questWatch) end, 
+		-- 		}
+		-- 	}
+		-- }
 	}
 };
 

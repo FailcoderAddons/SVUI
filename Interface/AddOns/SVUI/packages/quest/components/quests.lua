@@ -294,11 +294,18 @@ local RefreshQuests = function(self, event, ...)
 	local totalObjectives = 0;
 	local nextLine = 1;
 	local closestQuest, closestLink, closestTexture, closestLevel, closestCount, closestIndex, closestDuration, closestExpiration, closestID;
-
+	local activeInProgress = false;
+	local button = MOD.Active.Block.Button;
+	local activeQuestIndex = button:GetID();
+	local activeQuestID = 0;
+	if(activeQuestIndex and (activeQuestIndex ~= 0)) then
+		activeQuestID = select(8, GetQuestLogTitle(activeQuestIndex));
+	end
 	if(liveLines > 0) then
 		for i = 1, liveLines do
 			local questID, _, questLogIndex, numObjectives, requiredMoney, completed, startEvent, isAutoComplete, duration, elapsed, questType, isTask, isStory, isOnMap, hasLocalPOI = GetQuestWatchInfo(i);
 			if(questID) then
+				if(questID == activeQuestID) then activeInProgress = true; end
 				nextLine = nextLine + 1;
 				local title, level, suggestedGroup = GetQuestLogTitle(questLogIndex)
 				local icon = LINE_QUEST_ICON;
@@ -341,6 +348,10 @@ local RefreshQuests = function(self, event, ...)
 		end
 	end
 
+	if(not activeInProgress) then
+		button:CloseMe()
+	end
+
 	local numLines = #self.Rows;
 	for x = nextLine, numLines do
 		local row = self.Rows[x]
@@ -377,7 +388,7 @@ function MOD:UpdateObjectives(event, ...)
 	self.Quests:Refresh(event, ...)
 	if ( event == "QUEST_TURNED_IN" ) then
 		local questID, xp, money = ...;
-		local button = self.Active.Rows.Quest.Button;
+		local button = self.Active.Block.Button;
 		local questIndex = button:GetID();
 		if(questIndex and (questIndex ~= 0)) then
 			local ActiveQuestID = select(8, GetQuestLogTitle(questIndex));
@@ -455,7 +466,7 @@ function MOD:InitializeQuests()
 	local quests = CreateFrame("Frame", nil, scrollChild)
 	quests:SetWidth(ROW_WIDTH);
 	quests:SetHeight(ROW_HEIGHT);
-	quests:SetPoint("TOPLEFT", self.Active, "BOTTOMLEFT", 0, 0);
+	quests:SetPoint("TOPLEFT", self.Scenario, "BOTTOMLEFT", 0, -4);
 
 	quests.Header = CreateFrame("Frame", nil, quests)
 	quests.Header:SetPoint("TOPLEFT", quests, "TOPLEFT", 2, -2);

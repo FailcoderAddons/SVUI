@@ -312,7 +312,7 @@ function MOD:InitializeAchievements()
     local achievements = CreateFrame("Frame", nil, scrollChild)
     achievements:SetWidth(ROW_WIDTH);
 	achievements:SetHeight(ROW_HEIGHT);
-	achievements:SetPoint("TOP", self.Quests, "BOTTOM", 0, 0);
+	achievements:SetPoint("TOPLEFT", self.Bonus, "BOTTOMLEFT", 0, 0);
 
 	achievements.Header = CreateFrame("Frame", nil, achievements)
 	achievements.Header:SetPoint("TOPLEFT", achievements, "TOPLEFT", 2, -2);

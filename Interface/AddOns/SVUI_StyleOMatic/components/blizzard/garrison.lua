@@ -51,18 +51,18 @@ local function StyleItemIcon(item)
 	if(not item.IconSlot) then 
 		item.IconSlot = CreateFrame("Frame", nil, item)
 		item.IconSlot:SetAllPointsOut(item.Icon)
-		item.IconSlot:SetStylePanel("Slot")
+		item.IconSlot:SetStylePanel("Icon")
 		item.Icon:SetParent(item.IconSlot)
 	end
 end
 
 local function StyleListItem(item)
 	if(not item) then return; end
-    if(item.Icon and (not item.Panel)) then
+    if(item.Icon) then
     	local size = item:GetHeight() - 8
     	local texture = item.Icon:GetTexture()
 		item:RemoveTextures()
-    	item:SetStylePanel("Slot")
+    	item:SetStylePanel("Inset")
     	item.Icon:SetTexture(texture)
 		item.Icon:ClearAllPoints()
 		item.Icon:SetPoint("TOPLEFT", item, "TOPLEFT", 4, -4)
@@ -71,7 +71,7 @@ local function StyleListItem(item)
 		if(not item.IconSlot) then 
 			item.IconSlot = CreateFrame("Frame", nil, item)
 			item.IconSlot:SetAllPointsOut(item.Icon)
-			item.IconSlot:SetStylePanel("Slot")
+			item.IconSlot:SetStylePanel("Icon")
 			item.Icon:SetParent(item.IconSlot)
 		end
     end

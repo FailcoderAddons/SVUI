@@ -412,7 +412,7 @@ local RefreshBonusObjectives = function(self, event, ...)
 		end
 	end
 
-	self:UpdateScenarios();
+	--self:UpdateScenarios();
 	self:UpdateQuests();
 end
 --[[ 
@@ -428,7 +428,7 @@ end
 function MOD:InitializeBonuses()
 	local bonus = CreateFrame("Frame", nil, scrollChild)
 	bonus:SetWidth(ROW_WIDTH);
-	bonus:SetHeight(ROW_HEIGHT);
+	bonus:SetHeight(1);
 	bonus:SetPoint("TOPLEFT", self.Quests, "BOTTOMLEFT", 0, 0);
 
 	bonus.Rows = {};
