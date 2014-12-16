@@ -1531,6 +1531,18 @@ function MOD:UpdateLocals()
 	AuraFilterName = db.auras.additionalFilter
 	AuraFilter = SV.filters[AuraFilterName]
 
+	if(not db.comicStyle) then
+		PLATE_TOP = [[Interface\Addons\SVUI\assets\artwork\Template\EMPTY]]
+		PLATE_BOTTOM = [[Interface\Addons\SVUI\assets\artwork\Template\EMPTY]]
+		PLATE_RIGHT = [[Interface\Addons\SVUI\assets\artwork\Template\EMPTY]]
+		PLATE_LEFT = [[Interface\Addons\SVUI\assets\artwork\Template\EMPTY]]
+	else
+		PLATE_TOP = [[Interface\Addons\SVUI\assets\artwork\Template\Plate\PLATE-TOP]]
+		PLATE_BOTTOM = [[Interface\Addons\SVUI\assets\artwork\Template\Plate\PLATE-BOTTOM]]
+		PLATE_RIGHT = [[Interface\Addons\SVUI\assets\artwork\Template\Plate\PLATE-RIGHT]]
+		PLATE_LEFT = [[Interface\Addons\SVUI\assets\artwork\Template\Plate\PLATE-LEFT]]
+	end
+
 	if (db.comboPoints and (SV.class == 'ROGUE' or SV.class == 'DRUID')) then
 		self.UseCombo = true
 		self:RegisterEvent("UNIT_COMBO_POINTS")

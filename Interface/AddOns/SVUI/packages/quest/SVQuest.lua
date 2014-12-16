@@ -74,6 +74,7 @@ local function unset_row(row)
 	row.Header.Level:SetText('')
 	row.Badge.Icon:SetTexture(0,0,0,0)
 	row.Button:SetID(0)
+	MOD.Active.CurrentQuest = nil;
 	row:Hide()
 end
 
@@ -141,6 +142,22 @@ end
 HELPERS
 ##########################################################
 ]]--
+function MOD:GetTimerTextColor(duration, elapsed)
+	local yellowPercent = .66
+	local redPercent = .33
+	
+	local percentageLeft = 1 - ( elapsed / duration )
+	if(percentageLeft > yellowPercent) then
+		return 1, 1, 1;
+	elseif(percentageLeft > redPercent) then
+		local blueOffset = (percentageLeft - redPercent) / (yellowPercent - redPercent);
+		return 1, 1, blueOffset;
+	else
+		local greenOffset = percentageLeft / redPercent;
+		return 1, greenOffset, 0;
+	end
+end
+
 function MOD:NewObjectiveRow(parent, lineNumber)
 	local lastRowNumber = lineNumber - 1;
 	local previousFrame = parent.Rows[lastRowNumber]
@@ -213,17 +230,18 @@ end
 ACTIVE FUNCTIONS
 ##########################################################
 ]]--
-local SetActiveData = function(self, title, level, icon, questID, questLogIndex, numObjectives, duration, elapsed)
+local SetActiveData = function(self, title, level, icon, questID, questLogIndex, numObjectives, duration, elapsed, bypass)
 	local nextObjective = 1;
 
 	local block = self.Block;
-	if(block.RowID == questID) then
+	if((not bypass) and block.RowID == questID) then
 		return
 	end
 
 	icon = icon or LINE_QUEST_ICON;
 	block.RowID = questID
 
+	level = level or 100
 	local color = GetQuestDifficultyColor(level)
 	block.Header.Level:SetTextColor(color.r, color.g, color.b)
 	block.Header.Level:SetText(level)
@@ -231,6 +249,7 @@ local SetActiveData = function(self, title, level, icon, questID, questLogIndex,
 	block.Badge.Icon:SetTexture(icon)
 	block.Button:SetID(questLogIndex)
 	block:Show()
+	self.CurrentQuest = questLogIndex;
 
 	local objectives = block.Objectives;
 
@@ -262,6 +281,11 @@ local SetActiveData = function(self, title, level, icon, questID, questLogIndex,
 	block:SetHeight(newHeight);
 
 	MOD.Tracker.ScrollFrame.ScrollBar:SetValue(0)
+
+	-- local link, texture, _, showCompleted = GetQuestLogSpecialItemInfo(questLogIndex)
+	-- if(link and (questLogIndex ~= MOD.QuestItem.CurrentQuest)) then
+	-- 	MOD.QuestItem:SetItem(link, texture, questLogIndex)
+	-- end
 end
 
 local RefreshActiveHeight = function(self)
@@ -272,9 +296,18 @@ local RefreshActiveHeight = function(self)
 end
 
 local RefreshActiveObjective = function(self, event, ...)
-	if(event and (event == 'ACTIVE_QUEST_LOADED')) then
-		self.Block.RowID = 0
-		self:Set(...)
+	if(event) then 
+		if(event == 'ACTIVE_QUEST_LOADED') then
+			self.Block.RowID = 0
+			self:Set(...)
+		elseif(event == 'SUPER_TRACKED_QUEST_CHANGED') then
+			local questID = ...;
+			local questLogIndex = GetQuestLogIndexByID(questID)
+			local questWatchIndex = GetQuestWatchIndex(questLogIndex)
+			local title, level, suggestedGroup = GetQuestLogTitle(questLogIndex)
+			local questID, _, questLogIndex, numObjectives, requiredMoney, completed, startEvent, isAutoComplete, duration, elapsed, questType, isTask, isStory, isOnMap, hasLocalPOI = GetQuestWatchInfo(questWatchIndex);
+			self:Set(title, level, nil, questID, questLogIndex, numObjectives, duration, elapsed)
+		end
 	end
 
 	self:RefreshHeight()
@@ -582,7 +615,7 @@ function MOD:Load()
     block.CloseButton:HookScript("OnLeave", CloseButton_OnLeave)
 	block.CloseButton:SetPointToScale("RIGHT", block.Header, "RIGHT", (ROW_HEIGHT + 8), 0);
 	block.CloseButton:RegisterForClicks("LeftButtonUp", "RightButtonUp")
-	block.CloseButton.Parent = parent;
+	block.CloseButton.Parent = active;
 	block.CloseButton:SetScript("OnClick", ActiveButton_OnClick)
 
 	block.Objectives = CreateFrame("Frame", nil, block)
@@ -618,4 +651,6 @@ function MOD:Load()
 
 	ObjectiveTrackerFrame:UnregisterAllEvents();
 	ObjectiveTrackerFrame:SetParent(SV.Hidden);
+
+	self:RegisterEvent("SUPER_TRACKED_QUEST_CHANGED", self.UpdateActiveObjective);
 end

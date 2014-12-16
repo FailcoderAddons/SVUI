@@ -200,7 +200,7 @@ local function CreateGPS(frame)
     if not frame then return end
     local size = 32
 
-    local gps = CreateFrame("Frame", nil, frame.InfoPanel)
+    local gps = CreateFrame("Frame", nil, frame.TextGrip)
     gps:SetFrameLevel(99)
     gps:SetSizeToScale(size, size)
     gps.DefaultSize = size

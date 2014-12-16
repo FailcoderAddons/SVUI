@@ -579,12 +579,81 @@ end
 function SV.Setup:EZDefault()
 	mungs = true;
 	okToResetMOVE = false;
+
+	self:SetAllDefaults()
+
 	self:ChatConfigs(true);
-	self:UserScreen('high');
+	self:UserScreen()
 	self:ColorTheme("default", true);
 	self:UnitframeLayout("default", true);
+	self:GroupframeLayout("default", true);
 	self:BarLayout("default", true);
 	self:Auralayout("default", true);
+
+	SV.db.general.comix = true;
+	SV.db.general.gamemenu = true;
+	SV.db.general.afk = true;
+	SV.db.general.woot = true;
+
+	SV.db.general.arenadrink = true;
+	SV.db.general.stupidhat = true;
+	SV.db.SVAura.hyperBuffs.enable = true;
+	SV.db.SVBag.bagTools = true;
+	SV.db.Dock.leftDockBackdrop = true;
+	SV.db.Dock.rightDockBackdrop = true;
+
+	SV.db.SVGear.enable = true;
+	SV.db.SVMap.customIcons = true;
+	SV.db.SVMap.bordersize = 6;
+	SV.db.SVMap.locationText = "";
+	SV.db.SVMap.playercoords = "";
+	SV.db.SVPlate.comicStyle = true;
+	SV.db.SVStats.showBackground = true;
+	SV.db.SVTip.comicStyle = true;
+	SV.db.SVTools.enable = true;
+	SV.db.SVUnit.comicStyle = true;
+
+	SVLib:SaveSafeData("install_version", SV.Version)
+	StopMusic()
+	SetCVar("Sound_MusicVolume", user_music_vol or 0)
+	ReloadUI()
+end
+
+function SV.Setup:Minimalist()
+	mungs = true;
+	okToResetMOVE = false;
+	self:SetAllDefaults()
+	self:ChatConfigs(true);
+	self:UserScreen()
+	self:ColorTheme("classy", true);
+	self:UnitframeLayout("compact", true);
+	self:GroupframeLayout("grid", true);
+	self:BarLayout("default", true);
+	self:Auralayout("default", true);
+
+	SV.db.general.comix = false;
+	SV.db.general.gamemenu = false;
+	SV.db.general.afk = false;
+	SV.db.general.woot = false;
+
+	SV.db.general.arenadrink = false;
+	SV.db.general.stupidhat = false;
+	SV.db.SVAura.hyperBuffs.enable = false;
+	SV.db.SVBag.bagTools = false;
+	--SV.db.Dock.leftDockBackdrop = false;
+	--SV.db.Dock.rightDockBackdrop = false;
+
+	SV.db.SVGear.enable = false;
+	SV.db.SVMap.customIcons = false;
+	SV.db.SVMap.bordersize = 1;
+	SV.db.SVMap.locationText = "HIDE";
+	SV.db.SVMap.playercoords = "HIDE";
+	SV.db.SVPlate.comicStyle = false;
+	SV.db.SVStats.showBackground = false;
+	SV.db.SVTip.comicStyle = false;
+	--SV.db.SVTools.enable = false;
+	SV.db.SVUnit.comicStyle = false;
+
 	SVLib:SaveSafeData("install_version", SV.Version)
 	StopMusic()
 	SetCVar("Sound_MusicVolume", user_music_vol or 0)
@@ -910,12 +979,12 @@ function SV.Setup:Install(autoLoaded)
 		frame.Option02.texture:SetSizeToScale(130, 110)
 		frame.Option02.texture:SetPoint("CENTER", frame.Option02, "BOTTOM", 0, -15)
 		frame.Option02.texture:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Template\\OPTION")
-		frame.Option02.texture:SetGradient("VERTICAL", 0.3, 0, 0, 0.7, 0, 0)
+		frame.Option02.texture:SetGradient("VERTICAL", 0, 0.1, 0.3, 0, 0.5, 0.7)
 		frame.Option02:SetScript("OnEnter", function(this)
 			this.texture:SetVertexColor(0.5, 1, 0.4)
 		end)
 		frame.Option02:SetScript("OnLeave", function(this)
-			this.texture:SetGradient("VERTICAL", 0.3, 0, 0, 0.7, 0, 0)
+			this.texture:SetGradient("VERTICAL", 0, 0.1, 0.3, 0, 0.5, 0.7)
 		end)
 		frame.Option02:SetScript("OnShow", function()
 			if(not frame.Option03:IsShown()) then
@@ -941,12 +1010,12 @@ function SV.Setup:Install(autoLoaded)
 		frame.Option03.texture:SetSizeToScale(130, 110)
 		frame.Option03.texture:SetPoint("CENTER", frame.Option03, "BOTTOM", 0, -15)
 		frame.Option03.texture:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Template\\OPTION")
-		frame.Option03.texture:SetGradient("VERTICAL", 0, 0.1, 0.3, 0, 0.5, 0.7)
+		frame.Option03.texture:SetGradient("VERTICAL", 0.3, 0, 0, 0.7, 0, 0)
 		frame.Option03:SetScript("OnEnter", function(this)
 			this.texture:SetVertexColor(0.2, 0.5, 1)
 		end)
 		frame.Option03:SetScript("OnLeave", function(this)
-			this.texture:SetGradient("VERTICAL", 0, 0.1, 0.3, 0, 0.5, 0.7)
+			this.texture:SetGradient("VERTICAL", 0.3, 0, 0, 0.7, 0, 0)
 		end)
 		frame.Option03:SetScript("OnShow", function(this)
 			this:SetWidth(130)

@@ -40,9 +40,8 @@ SV.Options.args.SVUnit.args.party = {
 	type = 'group',
 	order = 11,
 	childGroups = "tab",
-	get = function(l)return
-	SV.db.SVUnit['party'][l[#l]]end,
-	set = function(l, m)MOD:ChangeDBVar(m, l[#l], "party");MOD:SetGroupFrame('party')end,
+	get = function(l) return SV.db.SVUnit['party'][l[#l]] end,
+	set = function(l, m) MOD:ChangeDBVar(m, l[#l], "party"); MOD:SetGroupFrame('party') end,
 	args = {
 		enable = {
 			type = 'toggle',
@@ -64,180 +63,146 @@ SV.Options.args.SVUnit.args.party = {
 			func = function(l, m)MOD:ResetUnitOptions('party')SV.Mentalo:Reset('Party Frames')end,
 		},
 		tabGroups= {
-			order=3,
-			type='group',
-			name=L['Unit Options'],
-			childGroups="tree",
-			args= {
-				common = {
-					order = 4,
-					type = 'group',
-					name = L['General'],
+			order = 4,
+			type = 'group',
+			name = L['Unit Options'],
+			childGroups ="tree",
+			args = {
+				general = {
+					order = 1, 
+					type = "group", 
+					name = L["General Settings"], 
 					args = {
-						showPlayer = {
-							order = 1,
-							type = 'toggle',
-							name = L['Display Player'],
-							desc = L['When true, always show player in party frames'],
-							get = function(l)return SV.db.SVUnit.party.showPlayer end, 
-							set = function(l, m) MOD:ChangeDBVar(m, l[#l], "party"); MOD:SetGroupFrame("party", true) end, 
-						},
-						hideonnpc = {
-							type = 'toggle',
-							order = 2,
-							name = L['Text Toggle On NPC'],
-							desc = L['Power text will be hidden on NPC targets, in addition the name text will be repositioned to the power texts anchor point.'],
-							get = function(l)return SV.db.SVUnit['party']['power'].hideonnpc end,
-							set = function(l, m)SV.db.SVUnit['party']['power'].hideonnpc = m;MOD:SetGroupFrame('party')end,
-						},
-						rangeCheck = {
-							order = 3,
-							name = L["Range Check"],
-							desc = L["Check if you are in range to cast spells on this specific unit."],
-							type = "toggle",
-						},
-						gps = {
-							order = 4, 
-							name = "GPS Tracking", 
-							desc = "Show an arrow giving the direction and distance to the frames unit.", 
-							type = "toggle", 
-						}, 
-						predict = {
-							order = 5,
-							name = L['Heal Prediction'],
-							desc = L['Show a incomming heal prediction bar on the unitframe. Also display a slightly different colored bar for incoming overheals.'],
-							type = 'toggle',
-						},
-						threatEnabled = {
-							type = 'toggle',
-							order = 6,
-							name = L['Show Threat'],
-						},
-						colorOverride = {
-							order = 7,
-							name = L['Class Color Override'],
-							desc = L['Override the default class color setting.'],
-							type = 'select',
-							values = {
-								['USE_DEFAULT'] = L['Use Default'],
-								['FORCE_ON'] = L['Force On'],
-								['FORCE_OFF'] = L['Force Off'],
-							},
-						},
-						positionsGroup = {
-							order = 100,
-							name = L['Size and Positions'],
-							type = 'group',
+						commonGroup = {
+							order = 1, 
+							name = L["Basic Options"], 
+							type = "group", 
 							guiInline = true,
-							set = function(l, m)MOD:ChangeDBVar(m, l[#l], "party");MOD:SetGroupFrame('party', true)end,
 							args = {
-								width = {
+								rangeCheck = {
 									order = 1,
-									name = L['Width'],
-									type = 'range',
-									min = 10,
-									max = 500,
-									step = 1,
-									set = function(l, m)MOD:ChangeDBVar(m, l[#l], "party");MOD:SetGroupFrame('party')end,
+									type = "toggle", 
+									name = L["Range Check"], 
+									desc = L["Check if you are in range to cast spells on this specific unit."],  
 								},
-								height = {
+								predict = {
 									order = 2,
-									name = L['Height'],
-									type = 'range',
-									min = 10,
-									max = 500,
-									step = 1,
-									set = function(l, m)MOD:ChangeDBVar(m, l[#l], "party");MOD:SetGroupFrame('party')end,
-								},
-								spacer = {
+									type = "toggle", 
+									name = L["Heal Prediction"], 
+									desc = L["Show a incomming heal prediction bar on the unitframe. Also display a slightly different colored bar for incoming overheals."], 
+								}, 
+								threatEnabled = {
 									order = 3,
-									name = '',
-									type = 'description',
-									width = 'full',
-								},
-								showBy = {
-									order = 4,
-									name = L['Growth Direction'],
-									desc = L['Growth direction from the first unitframe.'],
-									type = 'select',
-									values = {
-										DOWN_RIGHT = format(L['%s and then %s'], L['Down'], L['Right']),
-										DOWN_LEFT = format(L['%s and then %s'], L['Down'], L['Left']),
-										UP_RIGHT = format(L['%s and then %s'], L['Up'], L['Right']),
-										UP_LEFT = format(L['%s and then %s'], L['Up'], L['Left']),
-										RIGHT_DOWN = format(L['%s and then %s'], L['Right'], L['Down']),
-										RIGHT_UP = format(L['%s and then %s'], L['Right'], L['Up']),
-										LEFT_DOWN = format(L['%s and then %s'], L['Left'], L['Down']),
-										LEFT_UP = format(L['%s and then %s'], L['Left'], L['Up']),
-									},
-								},
-								wrapXOffset = {
-									order = 5,
-									type = 'range',
-									name = L['Horizontal Spacing'],
-									min = 0,
-									max = 50,
-									step = 1,
-								},
-								wrapYOffset = {
-									order = 6,
-									type = 'range',
-									name = L['Vertical Spacing'],
-									min = 0,
-									max = 50,
-									step = 1,
-								},
-							},
+									type = "toggle", 
+									name = L["Show Threat"], 
+								}, 
+							}
 						},
-						sortingGroup = {
-							order = 300,
-							type = 'group',
-							guiInline = true,
-							name = L['Grouping & Sorting'],
-							set = function(l, m)MOD:ChangeDBVar(m, l[#l], "party");MOD:SetGroupFrame('party', true)end,
+						layoutGroup = {
+							order = 2, 
+							name = L["Layout Options"], 
+							type = "group", 
+							guiInline = true, 
+							set = function(key, value) MOD:ChangeDBVar(value, key[#key], "party"); MOD:SetGroupFrame("party", true) end, 
 							args = {
-								sortMethod = {
-									order = 1,
-									name = L['Group By'],
-									desc = L['Set the order that the group will sort.'],
-									type = 'select',
-									values = {
-										["CLASS"] = CLASS, 
-										["ROLE"] = ROLE.."(Tanks, Healers, DPS)", 
-										["ROLE_TDH"] = ROLE.."(Tanks, DPS, Healers)", 
-										["ROLE_HDT"] = ROLE.."(Healers, DPS, Tanks)", 
-										["ROLE_HTD"] = ROLE.."(Healers, Tanks, DPS)", 
-										["NAME"] = NAME,
-										["GROUP"] = GROUP, 
-									},
+								common = {
+									order = 1, 
+									name = L["General Layout"], 
+									type = "group", 
+									guiInline = true, 
+									args = {
+										enable = {
+											order = 1, 
+											name = L["Enable Grid Mode"], 
+											desc = L["Converts frames into symmetrical squares. Ideal for healers."], 
+											type = "toggle",
+											get = function(key) return SV.db.SVUnit["party"].grid.enable end,
+											set = function(key, value) 
+												MOD:ChangeDBVar(value, key[#key], "party", "grid"); 
+												MOD:SetGroupFrame("party", true);
+												SV.Options.args.SVUnit.args.party.args.tabGroups.args.general.args.layoutGroup.args.sizing = ns:SetSizeConfigGroup(value, "party");
+											end,
+										},
+										invertGroupingOrder = {
+											order = 2,
+											type = "toggle",
+											name = L["Invert Grouping Order"], 
+											desc = L["Enabling this inverts the grouping order."], 
+											disabled = function() return not SV.db.SVUnit["party"].customSorting end,  
+										},
+									}
 								},
-								sortDir = {
-									order = 2,
-									name = L['Sort Direction'],
-									desc = L['Defines the sort order of the selected sort method.'],
-									type = 'select',
-									values = {
-										['ASC'] = L['Ascending'],
-										['DESC'] = L['Descending'],
-									},
-								},
-								spacer = {
-									order = 3,
-									type = 'description',
-									width = 'full',
-									name = ' ',
-								},
-								invertGroupingOrder = {
-									order = 4,
-									name = L['Invert Grouping Order'],
-									desc = L['Enabling this inverts the sorting order.'],
-									disabled = function()return not SV.db.SVUnit['party'].customSorting end,
-									type = 'toggle',
-								},
-							},
+								sizing = ns:SetSizeConfigGroup(SV.db.SVUnit.party.grid.enable, "party"),
+								sorting = {
+									order = 3, 
+									name = L["Sorting"], 
+									type = "group", 
+									guiInline = true, 
+									args = {
+										gRowCol = {
+											order = 1, 
+											type = "range", 
+											name = L["Groups Per Row / Column"], 
+											min = 1, 
+											max = 8, 
+											step = 1, 
+											width = 'full',
+											set = function(key, value)
+												MOD:ChangeDBVar(value, key[#key], "party");
+												MOD:SetGroupFrame("party")
+												if(_G["SVUI_Raid"] and _G["SVUI_Raid"].isForced) then	
+													MOD:ViewGroupFrames(_G["SVUI_Raid"])
+													MOD:ViewGroupFrames(_G["SVUI_Raid"], true)
+												end
+											end, 
+										},
+										showBy = {
+											order = 2, 
+											name = L["Growth Direction"], 
+											desc = L["Growth direction from the first unitframe."], 
+											type = "select", 
+											values = {
+												DOWN_RIGHT = format(L["%s and then %s"], L["Down"], L["Right"]), 
+												DOWN_LEFT = format(L["%s and then %s"], L["Down"], L["Left"]), 
+												UP_RIGHT = format(L["%s and then %s"], L["Up"], L["Right"]), 
+												UP_LEFT = format(L["%s and then %s"], L["Up"], L["Left"]), 
+												RIGHT_DOWN = format(L["%s and then %s"], L["Right"], L["Down"]), 
+												RIGHT_UP = format(L["%s and then %s"], L["Right"], L["Up"]), 
+												LEFT_DOWN = format(L["%s and then %s"], L["Left"], L["Down"]), 
+												LEFT_UP = format(L["%s and then %s"], L["Left"], L["Up"]), 
+											}, 
+										}, 
+										sortMethod = {
+											order = 3, 
+											name = L["Group By"], 
+											desc = L["Set the order that the group will sort."], 
+											type = "select", 
+											values = {
+												["CLASS"] = CLASS, 
+												["ROLE"] = ROLE.."(Tanks, Healers, DPS)", 
+												["ROLE_TDH"] = ROLE.."(Tanks, DPS, Healers)", 
+												["ROLE_HDT"] = ROLE.."(Healers, DPS, Tanks)", 
+												["ROLE_HTD"] = ROLE.."(Healers, Tanks, DPS)", 
+												["NAME"] = NAME, 
+												["MTMA"] = L["Main Tanks  /  Main Assist"], 
+												["GROUP"] = GROUP, 
+											}, 
+										}, 
+										sortDir = {
+											order = 4, 
+											name = L["Sort Direction"], 
+											desc = L["Defines the sort order of the selected sort method."], 
+											type = "select", 
+											values = {
+												["ASC"] = L["Ascending"], 
+												["DESC"] = L["Descending"], 
+											}, 
+										},
+									}
+								}
+							}, 
 						},
-
-					},
+					}
 				},
 				auraWatch = {
 					order = 600,
@@ -245,7 +210,7 @@ SV.Options.args.SVUnit.args.party = {
 					name = L['Aura Watch'],
 					get = function(l)return
 					SV.db.SVUnit['party']['auraWatch'][l[#l]]end,
-					set = function(l, m)MOD:ChangeDBVar(m, l[#l], "party", "auraWatch");MOD:SetGroupFrame('party')end,
+					set = function(l, m) MOD:ChangeDBVar(m, l[#l], "party", "auraWatch"); MOD:SetGroupFrame('party')end,
 					args = {
 						enable = {
 							type = 'toggle',
@@ -353,7 +318,7 @@ SV.Options.args.SVUnit.args.party = {
 					name = L['Party Targets'],
 					get = function(l)return
 					SV.db.SVUnit['party']['targetsGroup'][l[#l]]end,
-					set = function(l, m)MOD:ChangeDBVar(m, l[#l], "party", "targetsGroup");MOD:SetGroupFrame('party')end,
+					set = function(l, m) MOD:ChangeDBVar(m, l[#l], "party", "targetsGroup"); MOD:SetGroupFrame('party') end,
 					args = {
 						enable = {
 							type = 'toggle',

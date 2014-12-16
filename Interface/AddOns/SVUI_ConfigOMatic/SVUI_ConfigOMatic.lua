@@ -119,8 +119,8 @@ SV.Options.args.primary = {
 	type = "group", 
 	order = 1, 
 	name = L["Main"], 
-	get = function(j)return SV.db[j[#j]]end, 
-	set = function(j, value)SV.db[j[#j]] = value end, 
+	get = function(j) return SV.db[j[#j]] end, 
+	set = function(j, value) SV.db[j[#j]] = value end, 
 	args = {
 		introGroup1 = {
 			order = 1, 

@@ -37,7 +37,7 @@ local FadeFramesInOut = function(fade, unit)
 	for frame, unit in pairs(frames) do
 		if not UnitExists(unit) then return end
 		if fade then
-			if(frame:GetAlpha() ~= 1 or (frame._secureFade and frame._secureFade.endAlpha == 0)) then
+			if(frame:GetAlpha() ~= 1 or (frame.___fadeset and frame.___fadeset[2] == 0)) then
 				frame:FadeIn(0.15)
 			end
 		else	

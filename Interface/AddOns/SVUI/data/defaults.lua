@@ -612,7 +612,8 @@ SV.defaults["SVOverride"] = {
 };
 
 SV.defaults["SVPlate"] = {
-	["enable"] = true, 
+	["enable"] = true,
+	["comicStyle"] = true,
 	["filter"] = {}, 
 	["font"] = NAMEFONT, 
 	["fontSize"] = 10, 
@@ -773,26 +774,13 @@ SV.defaults["SVUnit"] = {
 	["glowtime"] = 0.8, 
 	["glowcolor"] = {1, 1, 0}, 
 	["autoRoleSet"] = false, 
-	["healthclass"] = true, 
 	["forceHealthColor"] = false, 
 	["overlayAnimation"] = true, 
-	["powerclass"] = false, 
-	["colorhealthbyvalue"] = true, 
-	["customhealthbackdrop"] = true, 
-	["classbackdrop"] = false, 
+	["powerclass"] = false,
 	["auraBarByType"] = true, 
 	["auraBarShield"] = true, 
 	["castClassColor"] = false, 
 	["xrayFocus"] = true,
-	["grid"] = {
-		["enable"] = false,
-		["size"] = 28,
-		["wrapXOffset"] = 6, 
-		["wrapYOffset"] = 6,
-		["shownames"] = false,
-		["font"] = "Roboto",
-		["fontsize"] = 16,
-	}, 
 	["player"] = {
 		["enable"] = true, 
 		["width"] = 215, 
@@ -829,7 +817,10 @@ SV.defaults["SVUnit"] = {
 			["xOffset"] = 0, 
 			["yOffset"] = 0, 
 			["reversed"] = false,
-			["fontSize"] = 11, 
+			["fontSize"] = 11,
+			["classColor"] = true, 
+			["valueColor"] = true, 
+			["classBackdrop"] = false, 
 		}, 
 		["power"] = 
 		{
@@ -844,6 +835,7 @@ SV.defaults["SVUnit"] = {
 			["attachTextToPower"] = false, 
 			["druidMana"] = true,
 			["fontSize"] = 11,
+			["classColor"] = false,
 		}, 
 		["name"] = 
 		{
@@ -1019,6 +1011,9 @@ SV.defaults["SVUnit"] = {
 			["yOffset"] = 0, 
 			["reversed"] = true, 
 			["fontSize"] = 11,
+			["classColor"] = true, 
+			["valueColor"] = true, 
+			["classBackdrop"] = false, 
 		}, 
 		["power"] = 
 		{
@@ -1031,6 +1026,7 @@ SV.defaults["SVUnit"] = {
 			["yOffset"] = 0, 
 			["attachTextToPower"] = false,
 			["fontSize"] = 11,
+			["classColor"] = false,
 		}, 
 		["name"] = 
 		{
@@ -1250,6 +1246,9 @@ SV.defaults["SVUnit"] = {
 			["yOffset"] = 0, 
 			["reversed"] = false,
 			["fontSize"] = 9,
+			["classColor"] = true, 
+			["valueColor"] = true, 
+			["classBackdrop"] = false, 
 		}, 
 		["power"] = 
 		{
@@ -1261,6 +1260,7 @@ SV.defaults["SVUnit"] = {
 			["xOffset"] = 0, 
 			["yOffset"] = 0,
 			["fontSize"] = 9,
+			["classColor"] = false,
 		}, 
 		["name"] = 
 		{
@@ -1410,6 +1410,9 @@ SV.defaults["SVUnit"] = {
 			["yOffset"] = 0, 
 			["reversed"] = false,
 			["fontSize"] = 10,
+			["classColor"] = true, 
+			["valueColor"] = true, 
+			["classBackdrop"] = false, 
 		}, 
 		["power"] = 
 		{
@@ -1421,6 +1424,7 @@ SV.defaults["SVUnit"] = {
 			["xOffset"] = 0, 
 			["yOffset"] = 0,
 			["fontSize"] = 10,
+			["classColor"] = false,
 		}, 
 		["name"] = 
 		{
@@ -1614,6 +1618,9 @@ SV.defaults["SVUnit"] = {
 			["yOffset"] = 0, 
 			["reversed"] = false,
 			["fontSize"] = 10,
+			["classColor"] = true, 
+			["valueColor"] = true, 
+			["classBackdrop"] = false, 
 		}, 
 		["power"] = 
 		{
@@ -1625,6 +1632,7 @@ SV.defaults["SVUnit"] = {
 			["xOffset"] = 0, 
 			["yOffset"] = 0,
 			["fontSize"] = 10,
+			["classColor"] = false,
 		}, 
 		["name"] = 
 		{
@@ -1765,6 +1773,9 @@ SV.defaults["SVUnit"] = {
 			["xOffset"] = 0, 
 			["reversed"] = false,
 			["fontSize"] = 10,
+			["classColor"] = true, 
+			["valueColor"] = true, 
+			["classBackdrop"] = false, 
 		}, 
 		["power"] = 
 		{
@@ -1776,6 +1787,7 @@ SV.defaults["SVUnit"] = {
 			["yOffset"] = 0, 
 			["xOffset"] = 0,
 			["fontSize"] = 10,
+			["classColor"] = false,
 		}, 
 		["name"] = 
 		{
@@ -1887,6 +1899,9 @@ SV.defaults["SVUnit"] = {
 			["xOffset"] = 0, 
 			["reversed"] = false,
 			["fontSize"] = 10,
+			["classColor"] = true, 
+			["valueColor"] = true, 
+			["classBackdrop"] = false, 
 		}, 
 		["power"] = 
 		{
@@ -1898,6 +1913,7 @@ SV.defaults["SVUnit"] = {
 			["yOffset"] = 0, 
 			["xOffset"] = 0,
 			["fontSize"] = 10,
+			["classColor"] = false,
 		}, 
 		["name"] = 
 		{
@@ -2026,6 +2042,9 @@ SV.defaults["SVUnit"] = {
 			["xOffset"] = 0, 
 			["reversed"] = true,
 			["fontSize"] = 10,
+			["classColor"] = true, 
+			["valueColor"] = true, 
+			["classBackdrop"] = false, 
 		}, 
 		["power"] = 
 		{
@@ -2037,6 +2056,7 @@ SV.defaults["SVUnit"] = {
 			["yOffset"] = 7, 
 			["xOffset"] = 0,
 			["fontSize"] = 10,
+			["classColor"] = false,
 		}, 
 		["portrait"] = 
 		{
@@ -2128,7 +2148,6 @@ SV.defaults["SVUnit"] = {
 		["width"] = 215, 
 		["height"] = 45,  
 		["predict"] = false, 
-		["colorOverride"] = "USE_DEFAULT", 
 		["formatting"] = {
 			["power_colored"] = true, 
 			["power_type"] = "none", 
@@ -2156,6 +2175,9 @@ SV.defaults["SVUnit"] = {
 			["xOffset"] = 0, 
 			["reversed"] = true,
 			["fontSize"] = 10,
+			["classColor"] = true, 
+			["valueColor"] = true, 
+			["classBackdrop"] = false, 
 		}, 
 		["power"] = 
 		{
@@ -2167,6 +2189,7 @@ SV.defaults["SVUnit"] = {
 			["yOffset"] = 7, 
 			["xOffset"] = 0,
 			["fontSize"] = 10,
+			["classColor"] = false,
 		}, 
 		["name"] = 
 		{
@@ -2269,11 +2292,16 @@ SV.defaults["SVUnit"] = {
 		["sortDir"] = "ASC",
 		["invertGroupingOrder"] = false, 
 		["showPlayer"] = true, 
-		["predict"] = false, 
-		["colorOverride"] = "USE_DEFAULT", 
+		["predict"] = false,
 		["width"] = 70, 
 		["height"] = 70,
-		["gridAllowed"] = true,
+		["grid"] = {
+			["enable"] = false,
+			["size"] = 45,
+			["fontsize"] = 12,
+			["iconSize"] = 12,
+			["powerEnable"] = false
+		}, 
 		["formatting"] = {
 			["power_colored"] = true, 
 			["power_type"] = "none", 
@@ -2303,6 +2331,9 @@ SV.defaults["SVUnit"] = {
 			["xOffset"] = 0, 
 			["reversed"] = false,
 			["fontSize"] = 10,
+			["classColor"] = true, 
+			["valueColor"] = true, 
+			["classBackdrop"] = false, 
 		}, 
 		["power"] = 
 		{
@@ -2315,6 +2346,7 @@ SV.defaults["SVUnit"] = {
 			["yOffset"] = 0, 
 			["xOffset"] = 0,
 			["fontSize"] = 10,
+			["classColor"] = false,
 		}, 
 		["name"] = 
 		{
@@ -2434,7 +2466,6 @@ SV.defaults["SVUnit"] = {
 	},
 	["raid"] = {
 		["enable"] = true,
-		["gridAllowed"] = true,
 		["rangeCheck"] = true, 
 		["threatEnabled"] = true, 
 		["visibility"] = "[group:raid] show;hide",
@@ -2449,10 +2480,16 @@ SV.defaults["SVUnit"] = {
 		["sortMethod"] = "GROUP", 
 		["sortDir"] = "ASC", 
 		["showPlayer"] = true, 
-		["predict"] = false, 
-		["colorOverride"] = "USE_DEFAULT", 
+		["predict"] = false,
 		["width"] = 50, 
 		["height"] = 30,
+		["grid"] = {
+			["enable"] = false,
+			["size"] = 30,
+			["fontsize"] = 12,
+			["iconSize"] = 12,
+			["powerEnable"] = false
+		},
 		["formatting"] = {
 			["power_colored"] = true, 
 			["power_type"] = "none", 
@@ -2482,6 +2519,9 @@ SV.defaults["SVUnit"] = {
 			["xOffset"] = 0, 
 			["reversed"] = false,
 			["fontSize"] = 10,
+			["classColor"] = true, 
+			["valueColor"] = true, 
+			["classBackdrop"] = false, 
 		}, 
 		["power"] = 
 		{
@@ -2494,6 +2534,7 @@ SV.defaults["SVUnit"] = {
 			["yOffset"] = 0, 
 			["xOffset"] = 0,
 			["fontSize"] = 10,
+			["classColor"] = false,
 		}, 
 		["name"] = 
 		{
@@ -2586,7 +2627,6 @@ SV.defaults["SVUnit"] = {
 	}, 
 	["raidpet"] = {
 		["enable"] = false,
-		["gridAllowed"] = true, 
 		["rangeCheck"] = true, 
 		["threatEnabled"] = true, 
 		["visibility"] = "[group:raid] show;hide", 
@@ -2600,11 +2640,16 @@ SV.defaults["SVUnit"] = {
 		["sortMethod"] = "PETNAME", 
 		["sortDir"] = "ASC",  
 		["invertGroupingOrder"] = false, 
-		["predict"] = false, 
-		["colorOverride"] = "USE_DEFAULT", 
+		["predict"] = false,
 		["width"] = 80, 
 		["height"] = 30,
-		["gridAllowed"] = true,
+		["grid"] = {
+			["enable"] = false,
+			["size"] = 30,
+			["fontsize"] = 12,
+			["iconSize"] = 12,
+			["powerEnable"] = false
+		},
 		["formatting"] = {
 			["power_colored"] = true, 
 			["power_type"] = "none", 
@@ -2634,6 +2679,9 @@ SV.defaults["SVUnit"] = {
 			["xOffset"] = 0, 
 			["reversed"] = false,
 			["fontSize"] = 10,
+			["classColor"] = true, 
+			["valueColor"] = true, 
+			["classBackdrop"] = false, 
 		}, 
 		["name"] = 
 		{
@@ -2715,7 +2763,13 @@ SV.defaults["SVUnit"] = {
 		["rangeCheck"] = true, 
 		["width"] = 120, 
 		["height"] = 28,
-		["gridAllowed"] = true,
+		["grid"] = {
+			["enable"] = false,
+			["size"] = 45,
+			["fontsize"] = 12,
+			["iconSize"] = 12,
+			["powerEnable"] = false
+		},
 		["formatting"] = {
 			["power_colored"] = true, 
 			["power_type"] = "none", 
@@ -2745,6 +2799,9 @@ SV.defaults["SVUnit"] = {
 			["xOffset"] = 0, 
 			["reversed"] = false,
 			["fontSize"] = 10,
+			["classColor"] = true, 
+			["valueColor"] = true, 
+			["classBackdrop"] = false, 
 		}, 
 		["name"] = 
 		{
@@ -2773,7 +2830,13 @@ SV.defaults["SVUnit"] = {
 		["rangeCheck"] = true, 
 		["width"] = 120, 
 		["height"] = 28,
-		["gridAllowed"] = true,
+		["grid"] = {
+			["enable"] = false,
+			["size"] = 45,
+			["fontsize"] = 12,
+			["iconSize"] = 12,
+			["powerEnable"] = false
+		},
 		["formatting"] = {
 			["power_colored"] = true, 
 			["power_type"] = "none", 
@@ -2803,6 +2866,9 @@ SV.defaults["SVUnit"] = {
 			["xOffset"] = 0, 
 			["reversed"] = false,
 			["fontSize"] = 10,
+			["classColor"] = true, 
+			["valueColor"] = true, 
+			["classBackdrop"] = false, 
 		}, 
 		["name"] = 
 		{

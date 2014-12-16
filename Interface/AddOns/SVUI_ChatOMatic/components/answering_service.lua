@@ -740,8 +740,8 @@ function PLUGIN:AddCaller(caller)
 			if self.db.autoAnswer == true then
 				PhoneLines[caller].InUse = true;
 				btn:SetPanelColor("green");
-				self.Docklet:SetPanelColor("green");
-				self.Docklet.stateColor = GREEN_GRADIENT
+				self.Docklet.DockButton:SetPanelColor("green");
+				self.Docklet.DockButton.stateColor = GREEN_GRADIENT
 				state_text = "on the line.";
 				PlaySoundFile("Sound\\interface\\iQuestUpdate.wav")
 			end
@@ -771,17 +771,17 @@ function PLUGIN:GetServiceState()
 
 	if inUse then
 		if onHold then
-			self.Docklet:SetPanelColor("yellow")
-			self.Docklet.Icon:SetGradient(unpack(YELLOW_GRADIENT))
-			self.Docklet.stateColor = YELLOW_GRADIENT
+			self.Docklet.DockButton:SetPanelColor("yellow")
+			self.Docklet.DockButton.Icon:SetGradient(unpack(YELLOW_GRADIENT))
+			self.Docklet.DockButton.stateColor = YELLOW_GRADIENT
 		else
-			self.Docklet:SetPanelColor("green")
-			self.Docklet.Icon:SetGradient(unpack(GREEN_GRADIENT))
-			self.Docklet.stateColor = GREEN_GRADIENT
+			self.Docklet.DockButton:SetPanelColor("green")
+			self.Docklet.DockButton.Icon:SetGradient(unpack(GREEN_GRADIENT))
+			self.Docklet.DockButton.stateColor = GREEN_GRADIENT
 		end
 	else
-		self.Docklet:SetPanelColor("default")
-		self.Docklet.stateColor = DEFAULT_GRADIENT
+		self.Docklet.DockButton:SetPanelColor("default")
+		self.Docklet.DockButton.stateColor = DEFAULT_GRADIENT
 	end
 	return inUse,onHold
 end
@@ -904,16 +904,12 @@ function PLUGIN:EnableAnsweringService()
 	self:RegisterUpdate("PhoneTimeUpdate", 4)
 
 	self.Docklet = SV.Dock:NewDocklet("BottomLeft", "SVUI_ChatOMaticDock", "Answering Service", ICON_FILE, AnsweringOnClick)
+	self.Docklet:SetFrameStrata("HIGH")
+	self.Docklet:SetStylePanel("Default")
 
-	local window = CreateFrame("Frame", nil, self.Docklet)
-	window:SetPoint("TOPLEFT", self.Docklet, "TOPLEFT", -4, 4)
-	window:SetPoint("BOTTOMRIGHT", self.Docklet, "BOTTOMRIGHT", 4, -4)
-	window:SetFrameStrata("HIGH")
-	window:SetStylePanel("Default")
-
-	local title = window:CreateFontString("HenchmenOperatorText") 
-	title:SetPoint("TOPLEFT", window, "TOPLEFT", 0, -2)
-	title:SetPoint("TOPRIGHT", window, "TOPRIGHT", 0, -2)  
+	local title = self.Docklet:CreateFontString("HenchmenOperatorText") 
+	title:SetPoint("TOPLEFT", self.Docklet, "TOPLEFT", 0, -2)
+	title:SetPoint("TOPRIGHT", self.Docklet, "TOPRIGHT", 0, -2)  
 	title:SetHeight(50) 
 	title:SetFontObject(GameFontNormal)
 	title:SetTextColor(0.5, 0.5, 1, 1)
@@ -922,9 +918,9 @@ function PLUGIN:EnableAnsweringService()
 	title:SetText("Henchman Answering Service")
 
 	for x = 1, 5 do
-		local phLn = CreateFrame("Button", "HenchmenPhoneLine"..x, window)
-		phLn:SetPoint("TOPLEFT", window, "TOPLEFT", 8, ((-20) - (x * 25)))
-		phLn:SetPoint("TOPRIGHT", window, "TOPRIGHT", -8, ((-20) - (x * 25))) 
+		local phLn = CreateFrame("Button", "HenchmenPhoneLine"..x, self.Docklet)
+		phLn:SetPoint("TOPLEFT", self.Docklet, "TOPLEFT", 8, ((-20) - (x * 25)))
+		phLn:SetPoint("TOPRIGHT", self.Docklet, "TOPRIGHT", -8, ((-20) - (x * 25))) 
 		phLn:SetHeight(20) 
 		phLn:RegisterForClicks("AnyUp")
 		phLn:SetScript("OnClick", PhoneLineClick)
@@ -940,7 +936,7 @@ function PLUGIN:EnableAnsweringService()
 		phLn.Text:SetText("Empty Phone Line")
 	end
 	
-	self.Docklet:Hide()
+	--self.Docklet:Hide()
 
 	local strMsg
 	if self.db.autoAnswer == true then

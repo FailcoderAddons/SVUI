@@ -82,9 +82,11 @@ local TimerBar_OnUpdate = function(self, elapsed)
     statusbar.elapsed = statusbar.elapsed + elapsed;
     local currentTime = statusbar.duration - statusbar.elapsed
     local timeString = GetTimeStringFromSeconds(currentTime)
+    local r,g,b = MOD:GetTimerTextColor(statusbar.duration, statusbar.elapsed)
     if(statusbar.elapsed <= statusbar.duration) then
         statusbar:SetValue(currentTime)
-        statusbar.TimeLeft:SetText(timeString)
+        statusbar.TimeLeft:SetText(timeString);
+        statusbar.TimeLeft:SetTextColor(r,g,b);
     else
     	self:StopTimer()
     end
@@ -159,7 +161,11 @@ local SetScenarioData = function(self, title, stageName, currentStage, numStages
 	local block = self.Block;
 
 	block.HasData = true;
-	block.Header.Stage:SetText(currentStage)
+	if(currentStage ~= 0) then
+		block.Header.Stage:SetText("Stage " .. currentStage)
+	else
+		block.Header.Stage:SetText('')
+	end
 	block.Header.Text:SetText(title)
 	block.Icon:SetTexture(LINE_SCENARIO_ICON)
 	block:Show()
@@ -464,8 +470,8 @@ function MOD:InitializeScenarios()
 	block.Header.Text:SetPointToScale("BOTTOMRIGHT", block.Header.Score, "BOTTOMRIGHT", 0, 0);
 
 	local timer = CreateFrame("Frame", nil, block.Header)
-	timer:SetPointToScale("TOPLEFT", block.Header, "BOTTOMLEFT", 0, -4);
-	timer:SetPointToScale("TOPRIGHT", block.Header, "BOTTOMRIGHT", 0, -4);
+	timer:SetPointToScale("TOPLEFT", block.Header, "BOTTOMLEFT", 4, -4);
+	timer:SetPointToScale("TOPRIGHT", block.Header, "BOTTOMRIGHT", -4, -4);
 	timer:SetHeight(INNER_HEIGHT);
 	timer:SetStylePanel("Fixed", "Bar");
 
@@ -510,10 +516,9 @@ function MOD:InitializeScenarios()
 	timer:SetAlpha(0)
 
 	block.Objectives = CreateFrame("Frame", nil, block)
-	block.Objectives:SetPointToScale("TOPLEFT", timer, "BOTTOMLEFT", 0, -4);
-	block.Objectives:SetPointToScale("TOPRIGHT", timer, "BOTTOMRIGHT", 0, -4);
+	block.Objectives:SetPointToScale("TOPLEFT", timer, "BOTTOMLEFT", -4, -4);
+	block.Objectives:SetPointToScale("TOPRIGHT", timer, "BOTTOMRIGHT", 4, -4);
 	block.Objectives:SetHeightToScale(1);
-	--block.Objectives:SetStylePanel("Default", "Inset");
 
 	block.Objectives.Rows = {}
 	block.Objectives.Add = AddScenarioObjective;

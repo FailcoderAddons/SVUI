@@ -71,7 +71,6 @@ local Update = function(self, event, unit)
 	end
 
 	local bg = health.bg;
-	local db = oUF.SVConfigs;
 	local r, g, b, t, t2;
 
 	if(health.colorTapping and not UnitPlayerControlled(unit) and UnitIsTapped(unit) and not UnitIsTappedByPlayer(unit) and not UnitIsTappedByAllThreatList(unit)) then
@@ -84,12 +83,12 @@ local Update = function(self, event, unit)
 		local _, class = UnitClass(unit)
 		local tmp = oUF.colors.class[class] or oUF.colors.health
 		t = {(tmp[1] * 0.75),(tmp[2] * 0.75),(tmp[3] * 0.75)}
-		if(bg and (db and db.classbackdrop) and UnitIsPlayer(unit)) then
+		if(bg and (health.colorBackdrop) and UnitIsPlayer(unit)) then
 			t2 = t
 		end
 	elseif(health.colorReaction and UnitReaction(unit, 'player')) then
 		t = oUF.colors.reaction[UnitReaction(unit, "player")]
-		if(bg and (db and db.classbackdrop) and not UnitIsPlayer(unit) and UnitReaction(unit, "player")) then
+		if(bg and (health.colorBackdrop) and not UnitIsPlayer(unit) and UnitReaction(unit, "player")) then
 			t2 = t
 		end
 	elseif(health.colorSmooth) then
@@ -103,7 +102,7 @@ local Update = function(self, event, unit)
 	end
 
 	if(b) then
-		if(db and db.healthclass == true and db.colorhealthbyvalue == true or db.colorhealthbyvalue and self.isForced and not(UnitIsTapped(unit) and not UnitIsTappedByPlayer(unit))) then 
+		if((health.colorClass and health.colorSmooth) or (health.colorSmooth and self.isForced and not (UnitIsTapped(unit) and not UnitIsTappedByPlayer(unit)))) then 
 			r, g, b = self.ColorGradient(min,max,1,0,0,1,1,0,r,g,b)
 		end
 		health:SetStatusBarColor(r, g, b)

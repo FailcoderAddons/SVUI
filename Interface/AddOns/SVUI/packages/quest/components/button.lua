@@ -140,7 +140,9 @@ end
 BUTTON INTERNALS
 ##########################################################
 ]]--
-local SetButtonItem = function(self, itemLink, texture)
+local SetButtonItem = function(self, itemLink, texture, ...)
+	MOD.Active:Refresh(...)
+
 	if(itemLink) then
 		if(itemLink == self.itemLink and self:IsShown()) then
 			return
@@ -178,9 +180,11 @@ end
 
 local RemoveButtonItem = function(self)
 	if(InCombatLockdown()) then
-		self.attribute = nil
+		self.attribute = nil;
+		self.CurrentQuest = nil;
 		self:RegisterEvent('PLAYER_REGEN_ENABLED')
 	else
+		self.CurrentQuest = nil;
 		self:SetAttribute('item', nil)
 	end
 end
@@ -197,9 +201,9 @@ function MOD:InitializeQuestItem()
 	local buttonSize = SVUI_SpecialAbility:GetSize()
 
 	local Button = CreateFrame('Button', "SVUI_QuestAutoButton", UIParent, 'SecureActionButtonTemplate, SecureHandlerStateTemplate, SecureHandlerAttributeTemplate')
-	Button:SetSizeToScale(SVUI_SpecialAbility:GetSize())
+	Button:SetSizeToScale(50,50)
 	Button:SetPoint('CENTER', SVUI_SpecialAbility, 'CENTER', 0, 0)
-	Button:SetStylePanel("Slot", true)
+	Button:SetStylePanel("Icon")
 	Button:SetScript('OnLeave', GameTooltip_Hide)
 	Button:SetAttribute('type', 'item')
 	Button.updateTimer = 0
@@ -248,10 +252,10 @@ function MOD:InitializeQuestItem()
 	Cooldown:Hide()
 	Button.Cooldown = Cooldown
 
-	local Artwork = Button:CreateTexture('$parentArtwork', 'OVERLAY')
-	Artwork:SetPoint('CENTER', -2, 0)
-	Artwork:SetSize(256, 128)
-	Artwork:SetTexture([[Interface\ExtraButton\Default]])
+	local Artwork = Button.Panel:CreateTexture('$parentArtwork', 'BACKGROUND')
+	Artwork:SetPoint('CENTER', -2, 2)
+	Artwork:SetSizeToScale(256, 128)
+	Artwork:SetTexture([[Interface\ExtraButton\Smash]])
 	Button.Artwork = Artwork
 
 	Button.SetItem = SetButtonItem
@@ -269,6 +273,8 @@ function MOD:InitializeQuestItem()
 	Button:RegisterEvent('QUEST_LOG_UPDATE')
 	Button:RegisterEvent('QUEST_POI_UPDATE')
 	Button:SetScript('OnEvent', QuestButton_OnEvent)
+
+	Button:Hide()
 
 	self.QuestItem = Button
 end

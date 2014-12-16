@@ -51,12 +51,18 @@ local function StyleMoneyRewards(frameName)
       local size = frame:GetHeight() - 6
       local texture = icon:GetTexture()
       frame:RemoveTextures()
-      frame:SetStylePanel("Fixed", 'Inset', true, 3)
+      frame:SetStylePanel("Fixed", "Inset")
       icon:SetTexture(texture)
       icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
       icon:ClearAllPoints()
       icon:SetPoint("TOPLEFT", frame, "TOPLEFT", 3, -3)
       icon:SetSize(size, size)
+      if(not frame.IconSlot) then 
+        frame.IconSlot = CreateFrame("Frame", nil, frame)
+        frame.IconSlot:SetAllPointsOut(icon)
+        frame.IconSlot:SetStylePanel("Icon")
+        icon:SetParent(frame.IconSlot)
+      end
   end
 end
 

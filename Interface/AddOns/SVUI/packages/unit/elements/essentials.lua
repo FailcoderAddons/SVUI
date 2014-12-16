@@ -382,10 +382,10 @@ function MOD:SetActionPanel(frame, unit, noHealthText, noPowerText, noMiscText)
 		bg:SetTexture(1, 1, 1, 1)
 		bg:SetGradientAlpha("VERTICAL", 0, 0, 0, 0, 0, 0, 0, 0.7)
 
-		frame.InfoPanel = CreateFrame("Frame", nil, info)
-		frame.InfoPanel:SetFrameStrata("LOW")
-		frame.InfoPanel:SetFrameLevel(20)
-		frame.InfoPanel:SetAllPoints(info)
+		frame.TextGrip = CreateFrame("Frame", nil, info)
+		frame.TextGrip:SetFrameStrata("LOW")
+		frame.TextGrip:SetFrameLevel(20)
+		frame.TextGrip:SetAllPoints(info)
 
 		if(unit == "target") then
 			frame.ActionPanel:SetFrameLevel(1)
@@ -421,7 +421,7 @@ function MOD:SetActionPanel(frame, unit, noHealthText, noPowerText, noMiscText)
 				frame.ActionPanel:SetScript("OnSizeChanged", _hook_ActionPanel_OnSizeChanged)
 			end
 
-			frame.ActionPanel.class = CreateFrame("Frame", nil, frame.InfoPanel)
+			frame.ActionPanel.class = CreateFrame("Frame", nil, frame.TextGrip)
 			frame.ActionPanel.class:SetSizeToScale(18)
 			frame.ActionPanel.class:SetPointToScale("TOPLEFT", frame.ActionPanel, "TOPLEFT", 2, -2)
 			frame.ActionPanel.class:SetStylePanel("Default", "Default", true, 2, 0, 0)
@@ -454,7 +454,7 @@ function MOD:SetActionPanel(frame, unit, noHealthText, noPowerText, noMiscText)
 			border4:SetPoint("BOTTOMLEFT")
 			border4:SetWidth(2)
 		else
-			frame.LossOfControl = CreateFrame("Frame", nil, frame.InfoPanel)
+			frame.LossOfControl = CreateFrame("Frame", nil, frame.TextGrip)
 			frame.LossOfControl:SetAllPoints(frame)
 			frame.LossOfControl:SetFrameStrata("DIALOG")
 			frame.LossOfControl:SetFrameLevel(99)
@@ -481,48 +481,48 @@ function MOD:SetActionPanel(frame, unit, noHealthText, noPowerText, noMiscText)
 		end
 	else
 		frame.ActionPanel = CreateActionPanel(frame, 2)
-		frame.InfoPanel = CreateFrame("Frame", nil, frame)
-		frame.InfoPanel:SetFrameStrata("LOW")
-		frame.InfoPanel:SetFrameLevel(20)
-		frame.InfoPanel:SetPointToScale("TOPLEFT", frame.ActionPanel, "TOPLEFT", 2, -2)
-		frame.InfoPanel:SetPointToScale("BOTTOMRIGHT", frame.ActionPanel, "BOTTOMRIGHT", -2, 2)
+		frame.TextGrip = CreateFrame("Frame", nil, frame)
+		frame.TextGrip:SetFrameStrata("LOW")
+		frame.TextGrip:SetFrameLevel(20)
+		frame.TextGrip:SetPointToScale("TOPLEFT", frame.ActionPanel, "TOPLEFT", 2, -2)
+		frame.TextGrip:SetPointToScale("BOTTOMRIGHT", frame.ActionPanel, "BOTTOMRIGHT", -2, 2)
 	end
 
-	frame.InfoPanel.Name = CreateNameText(frame.InfoPanel, unit)
+	frame.TextGrip.Name = CreateNameText(frame.TextGrip, unit)
 
 	local reverse = unit and (unit == "target" or unit == "focus" or unit == "boss" or unit == "arena") or false;
 	local offset, direction
 
 	if(not noHealthText) then
-		frame.InfoPanel.Health = frame.InfoPanel:CreateFontString(nil, "OVERLAY")
-		frame.InfoPanel.Health:SetFont(LSM:Fetch("font", SV.db.SVUnit.font), SV.db.SVUnit.fontSize, SV.db.SVUnit.fontOutline)
+		frame.TextGrip.Health = frame.TextGrip:CreateFontString(nil, "OVERLAY")
+		frame.TextGrip.Health:SetFont(LSM:Fetch("font", SV.db.SVUnit.font), SV.db.SVUnit.fontSize, SV.db.SVUnit.fontOutline)
 		offset = reverse and 2 or -2;
 		direction = reverse and "LEFT" or "RIGHT";
-		frame.InfoPanel.Health:SetPointToScale(direction, frame.InfoPanel, direction, offset, 0)
+		frame.TextGrip.Health:SetPointToScale(direction, frame.TextGrip, direction, offset, 0)
 	end
 
 	if(not noPowerText) then
-		frame.InfoPanel.Power = frame.InfoPanel:CreateFontString(nil, "OVERLAY")
-		frame.InfoPanel.Power:SetFont(LSM:Fetch("font", SV.db.SVUnit.font), SV.db.SVUnit.fontSize, SV.db.SVUnit.fontOutline)
+		frame.TextGrip.Power = frame.TextGrip:CreateFontString(nil, "OVERLAY")
+		frame.TextGrip.Power:SetFont(LSM:Fetch("font", SV.db.SVUnit.font), SV.db.SVUnit.fontSize, SV.db.SVUnit.fontOutline)
 		offset = reverse and -2 or 2;
 		direction = reverse and "RIGHT" or "LEFT";
-		frame.InfoPanel.Power:SetPointToScale(direction, frame.InfoPanel, direction, offset, 0)
+		frame.TextGrip.Power:SetPointToScale(direction, frame.TextGrip, direction, offset, 0)
 	end
 
 	if(not noMiscText) then
-		frame.InfoPanel.Misc = frame.InfoPanel:CreateFontString(nil, "OVERLAY")
-		frame.InfoPanel.Misc:SetFont(LSM:Fetch("font", SV.db.SVUnit.font), SV.db.SVUnit.fontSize, SV.db.SVUnit.fontOutline)
-		frame.InfoPanel.Misc:SetPointToScale("CENTER", frame, "CENTER", 0, 0)
+		frame.TextGrip.Misc = frame.TextGrip:CreateFontString(nil, "OVERLAY")
+		frame.TextGrip.Misc:SetFont(LSM:Fetch("font", SV.db.SVUnit.font), SV.db.SVUnit.fontSize, SV.db.SVUnit.fontOutline)
+		frame.TextGrip.Misc:SetPointToScale("CENTER", frame, "CENTER", 0, 0)
 	end
 
-	frame.HealthPanel = CreateFrame("Frame", nil, frame)
-	frame.HealthPanel:SetAllPoints(frame)
+	frame.MasterGrip = CreateFrame("Frame", nil, frame)
+	frame.MasterGrip:SetAllPoints(frame)
 
-	frame.StatusPanel = CreateFrame("Frame", nil, frame.HealthPanel)
+	frame.StatusPanel = CreateFrame("Frame", nil, frame.MasterGrip)
 	frame.StatusPanel:EnableMouse(false)
 
 	if(unit and (unit == "player" or unit == "pet" or unit == "target" or unit == "targettarget" or unit == "focus" or unit == "focustarget")) then
-		frame.StatusPanel:SetAllPoints(frame.HealthPanel)
+		frame.StatusPanel:SetAllPoints(frame.MasterGrip)
 		frame.StatusPanel.media = {
 			[[Interface\Addons\SVUI\assets\artwork\Unitframe\TARGET-DC]],
 			[[Interface\Addons\SVUI\assets\artwork\Unitframe\TARGET-DEAD]],
@@ -530,7 +530,7 @@ function MOD:SetActionPanel(frame, unit, noHealthText, noPowerText, noMiscText)
 		}
 	else
 		frame.StatusPanel:SetSize(50, 50)
-		frame.StatusPanel:SetPoint("CENTER", frame.HealthPanel, "CENTER", 0, 0)
+		frame.StatusPanel:SetPoint("CENTER", frame.MasterGrip, "CENTER", 0, 0)
 		frame.StatusPanel.media = {
 			[[Interface\Addons\SVUI\assets\artwork\Unitframe\UNIT-DC]],
 			[[Interface\Addons\SVUI\assets\artwork\Unitframe\UNIT-DEAD]],
@@ -623,10 +623,10 @@ local PostUpdateAltPower = function(self, min, current, max)
 		end 
 	elseif(unit and unit:find("boss%d") and self.text) then 
 		self.text:SetTextColor(self:GetStatusBarColor())
-		if not parent.InfoPanel.Power:GetText() or parent.InfoPanel.Power:GetText() == "" then 
+		if not parent.TextGrip.Power:GetText() or parent.TextGrip.Power:GetText() == "" then 
 			self.text:SetPointToScale("BOTTOMRIGHT", parent.Health, "BOTTOMRIGHT")
 		else 
-			self.text:SetPointToScale("RIGHT", parent.InfoPanel.Power, "LEFT", 2, 0)
+			self.text:SetPointToScale("RIGHT", parent.TextGrip.Power, "LEFT", 2, 0)
 		end 
 		if remaining > 0 then 
 			self.text:SetText("|cffD7BEA5[|r"..format("%d%%", remaining).."|cffD7BEA5]|r")

@@ -54,7 +54,7 @@ DRUID ALT MANA
 local TRACKER_FONT = [[Interface\AddOns\SVUI\assets\fonts\Combo.ttf]]
 
 local UpdateAltPower = function(self, unit, arg1, arg2)
-	local value = self:GetParent().InfoPanel.Power;
+	local value = self:GetParent().TextGrip.Power;
 	if(arg1 ~= arg2) then 
 		local color = oUF_Villain.colors.power.MANA
 		color = SV:HexColor(color[1],color[2],color[3])
@@ -153,7 +153,7 @@ DRUID ECLIPSE BAR
 ]]--
 function MOD:CreateClassBar(playerFrame)
 	local bar = CreateFrame('Frame', nil, playerFrame)
-	bar:SetFrameLevel(playerFrame.InfoPanel:GetFrameLevel() + 30)
+	bar:SetFrameLevel(playerFrame.TextGrip:GetFrameLevel() + 30)
 	bar:SetSizeToScale(100,40)
 
 	local moon = CreateFrame('Frame', nil, bar)
@@ -221,7 +221,7 @@ function MOD:CreateClassBar(playerFrame)
 	local hyper = CreateFrame("Frame",nil,playerFrame)
 	hyper:SetFrameStrata("DIALOG")
 	hyper:SetSizeToScale(45,30)
-	hyper:SetPointToScale("TOPLEFT", playerFrame.InfoPanel, "TOPLEFT", 0, -2)
+	hyper:SetPointToScale("TOPLEFT", playerFrame.TextGrip, "TOPLEFT", 0, -2)
 
 	local points = CreateFrame('Frame',nil,hyper)
 	points:SetFrameStrata("DIALOG")

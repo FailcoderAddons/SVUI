@@ -162,65 +162,6 @@ local function LoadPresetData()
 			["default"] = {
 				["player"] = {
 					["buffs"] = {
-						enable = false,
-						attachTo = "DEBUFFS",
-						anchorPoint = 'TOPLEFT',
-						verticalGrowth = 'UP',
-						horizontalGrowth = 'RIGHT',
-					},
-					["debuffs"] = {
-						enable = false,
-						attachTo = "FRAME",
-						anchorPoint = 'TOPLEFT',
-						verticalGrowth = 'UP',
-						horizontalGrowth = 'RIGHT',
-					},
-					["aurabar"] = {
-						enable = false
-					}
-				},
-				["target"] = {
-					["buffs"] = {
-						enable = true,
-						attachTo = "FRAME",
-						anchorPoint = 'TOPRIGHT',
-						verticalGrowth = 'UP',
-						horizontalGrowth = 'LEFT',
-					},
-					["debuffs"] = {
-						enable = true,
-						attachTo = "BUFFS",
-						anchorPoint = 'TOPRIGHT',
-						verticalGrowth = 'UP',
-						horizontalGrowth = 'LEFT',
-					},
-					["aurabar"] = {
-						enable = false
-					}
-				},
-				["focus"] = {
-					["buffs"] = {
-						enable = false,
-						attachTo = "FRAME",
-						anchorPoint = 'TOPRIGHT',
-						verticalGrowth = 'UP',
-						horizontalGrowth = 'LEFT',
-					},
-					["debuffs"] = {
-						enable = true,
-						attachTo = "FRAME",
-						anchorPoint = 'TOPRIGHT',
-						verticalGrowth = 'UP',
-						horizontalGrowth = 'LEFT',
-					},
-					["aurabar"] = {
-						enable = false
-					}
-				}
-			},
-			["icons"] = {
-				["player"] = {
-					["buffs"] = {
 						enable = true,
 						attachTo = "FRAME",
 						anchorPoint = 'TOPLEFT',
@@ -257,9 +198,9 @@ local function LoadPresetData()
 						enable = false
 					}
 				},
-				["focus"] = {
+				["targettarget"] = {
 					["buffs"] = {
-						enable = false,
+						enable = true,
 						attachTo = "FRAME",
 						anchorPoint = 'TOPRIGHT',
 						verticalGrowth = 'UP',
@@ -267,7 +208,23 @@ local function LoadPresetData()
 					},
 					["debuffs"] = {
 						enable = true,
+						attachTo = "BUFFS",
+						anchorPoint = 'TOPRIGHT',
+						verticalGrowth = 'UP',
+						horizontalGrowth = 'LEFT',
+					},
+				},
+				["focus"] = {
+					["buffs"] = {
+						enable = true,
 						attachTo = "FRAME",
+						anchorPoint = 'TOPRIGHT',
+						verticalGrowth = 'UP',
+						horizontalGrowth = 'LEFT',
+					},
+					["debuffs"] = {
+						enable = true,
+						attachTo = "BUFFS",
 						anchorPoint = 'TOPRIGHT',
 						verticalGrowth = 'UP',
 						horizontalGrowth = 'LEFT',
@@ -275,17 +232,31 @@ local function LoadPresetData()
 					["aurabar"] = {
 						enable = false
 					}
+				},
+				["focustarget"] = {
+					["buffs"] = {
+						enable = true,
+						attachTo = "FRAME",
+						anchorPoint = 'TOPRIGHT',
+						verticalGrowth = 'UP',
+						horizontalGrowth = 'LEFT',
+					},
+					["debuffs"] = {
+						enable = true,
+						attachTo = "BUFFS",
+						anchorPoint = 'TOPRIGHT',
+						verticalGrowth = 'UP',
+						horizontalGrowth = 'LEFT',
+					},
 				}
 			},
 			["bars"] = {
 				["player"] = {
 					["buffs"] = {
 						enable = false,
-						attachTo = "FRAME"
 					},
 					["debuffs"] = {
 						enable = false,
-						attachTo = "FRAME"
 					},
 					["aurabar"] = {
 						enable = true,
@@ -295,30 +266,58 @@ local function LoadPresetData()
 				["target"] = {
 					["buffs"] = {
 						enable = false,
-						attachTo = "FRAME"
 					},
 					["debuffs"] = {
 						enable = false,
-						attachTo = "FRAME"
 					},
 					["aurabar"] = {
 						enable = true,
 						attachTo = "FRAME"
 					}
 				},
+				["targettarget"] = {
+					["buffs"] = {
+						enable = true,
+						attachTo = "FRAME",
+						anchorPoint = 'TOPRIGHT',
+						verticalGrowth = 'UP',
+						horizontalGrowth = 'LEFT',
+					},
+					["debuffs"] = {
+						enable = true,
+						attachTo = "BUFFS",
+						anchorPoint = 'TOPRIGHT',
+						verticalGrowth = 'UP',
+						horizontalGrowth = 'LEFT',
+					},
+				},
 				["focus"] = {
 					["buffs"] = {
 						enable = false,
-						attachTo = "FRAME"
 					},
 					["debuffs"] = {
 						enable = false,
-						attachTo = "FRAME"
 					},
 					["aurabar"] = {
 						enable = true,
 						attachTo = "FRAME"
 					}
+				},
+				["focustarget"] = {
+					["buffs"] = {
+						enable = true,
+						attachTo = "FRAME",
+						anchorPoint = 'TOPRIGHT',
+						verticalGrowth = 'UP',
+						horizontalGrowth = 'LEFT',
+					},
+					["debuffs"] = {
+						enable = true,
+						attachTo = "BUFFS",
+						anchorPoint = 'TOPRIGHT',
+						verticalGrowth = 'UP',
+						horizontalGrowth = 'LEFT',
+					},
 				}
 			},
 			["theworks"] = {
@@ -362,6 +361,22 @@ local function LoadPresetData()
 						attachTo = "DEBUFFS"
 					}
 				},
+				["targettarget"] = {
+					["buffs"] = {
+						enable = true,
+						attachTo = "FRAME",
+						anchorPoint = 'TOPRIGHT',
+						verticalGrowth = 'UP',
+						horizontalGrowth = 'LEFT',
+					},
+					["debuffs"] = {
+						enable = true,
+						attachTo = "BUFFS",
+						anchorPoint = 'TOPRIGHT',
+						verticalGrowth = 'UP',
+						horizontalGrowth = 'LEFT',
+					},
+				},
 				["focus"] = {
 					["buffs"] = {
 						enable = true,
@@ -381,6 +396,22 @@ local function LoadPresetData()
 						enable = true,
 						attachTo = "DEBUFFS"
 					}
+				},
+				["focustarget"] = {
+					["buffs"] = {
+						enable = true,
+						attachTo = "FRAME",
+						anchorPoint = 'TOPRIGHT',
+						verticalGrowth = 'UP',
+						horizontalGrowth = 'LEFT',
+					},
+					["debuffs"] = {
+						enable = true,
+						attachTo = "BUFFS",
+						anchorPoint = 'TOPRIGHT',
+						verticalGrowth = 'UP',
+						horizontalGrowth = 'LEFT',
+					},
 				}
 			},
 		},
@@ -927,28 +958,52 @@ local function LoadPresetData()
 				},
 			},
 			["grid"] = {
-				["grid"] = {
-					["enable"] = true,
-					["size"] = 34,
-					["shownames"] = true,
-				},
 				["party"] = {
-					["gridAllowed"] = true,
-					["wrapXOffset"] = 1,
-					["wrapYOffset"] = 1,
+					["wrapXOffset"] = 6,
+					["wrapYOffset"] = 6,
+					["showBy"] = "RIGHT_DOWN",
 					["power"] = {
 						["enable"] = false,
 					},
 					portrait = {
 						enable = false,
 					},
+					["grid"] = {
+						["enable"] = true,
+						["size"] = 45,
+					},
 				},
 				["raid"] = {
-					["gridAllowed"] = true,
-					["wrapXOffset"] = 1,
-					["wrapYOffset"] = 1,
+					["wrapXOffset"] = 6,
+					["wrapYOffset"] = 6,
 					["gRowCol"] = 1,
 					["showBy"] = "RIGHT_DOWN",
+					["grid"] = {
+						["enable"] = true,
+						["size"] = 34,
+					},
+				},
+				["raidpet"] = {
+					["wrapXOffset"] = 6,
+					["wrapYOffset"] = 6,
+					["gRowCol"] = 1,
+					["showBy"] = "RIGHT_DOWN",
+					["grid"] = {
+						["enable"] = true,
+						["size"] = 34,
+					},
+				},
+				["tank"] = {
+					["grid"] = {
+						["enable"] = true,
+						["size"] = 45,
+					},
+				},
+				["assist"] = {
+					["grid"] = {
+						["enable"] = true,
+						["size"] = 45,
+					},
 				},
 			},
 		}
@@ -966,7 +1021,8 @@ local function LoadPageData()
 			["Desc3"] = L["CHOOSE_OR_DIE"],
 
 			["Option01"] = {USE.."\n"..DEFAULT.."\n"..SETTINGS, "EZDefault"},
-			["Option02"] = {"PRETEND YOU\nDID THIS\nALREADY", "Complete"},
+			["Option02"] = {USE.."\nMINIMALIST\n" .. SETTINGS, "Minimalist"},
+			--["Option02"] = {"PRETEND YOU\nDID THIS\nALREADY", "Complete"},
 			["Option03"] = {"Keep\nSaved\n"..SETTINGS, "Complete", nil, hasOldConfigs},
 		},
 		--PAGE 2
@@ -1049,10 +1105,9 @@ local function LoadPageData()
 			["Desc2"] = L["If you have an aura that you don't want to display simply hold down shift and right click the icon for it to suffer a painful death."],
 			["Desc3"] = L["CHOOSE_OR_DIE"],
 
-			["Option1"] = {L["Vintage"], "Auralayout"},
-			["Option2"] = {L["Icons"], "Auralayout", "icons"},
-			["Option3"] = {L["Bars"], "Auralayout", "bars"},
-			["Option4"] = {L["The" .. "\n" .. "Works!"], "Auralayout", "theworks"},
+			["Option1"] = {L["Icons"], "Auralayout", "default"},
+			["Option2"] = {L["Bars"], "Auralayout", "bars"},
+			["Option3"] = {L["The" .. "\n" .. "Works!"], "Auralayout", "theworks"},
 		},
 		--PAGE 9
 		{
@@ -1174,6 +1229,10 @@ local function _copyPresets(saved, preset)
     else
     	saved = preset
     end
+end
+
+function SV.Setup:SetAllDefaults()
+	_copyPresets(SV.db, SV.defaults)
 end
 
 function SV.Setup:CopyPreset(category, theme)

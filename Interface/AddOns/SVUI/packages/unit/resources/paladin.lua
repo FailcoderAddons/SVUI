@@ -132,7 +132,7 @@ PALADIN
 function MOD:CreateClassBar(playerFrame)
 	local max = 5
 	local bar = CreateFrame("Frame", nil, playerFrame)
-	bar:SetFrameLevel(playerFrame.InfoPanel:GetFrameLevel() + 30)
+	bar:SetFrameLevel(playerFrame.TextGrip:GetFrameLevel() + 30)
 
 	for i = 1, max do 
 		bar[i] = CreateFrame("StatusBar", nil, bar)

@@ -36,7 +36,7 @@ local format = string.format;
 --[[ MATH METHODS ]]--
 local abs, ceil, floor, round = math.abs, math.ceil, math.floor, math.round;
 --[[ TABLE METHODS ]]--
-local tremove, twipe = table.remove, table.wipe;
+local tremove, wipe, tsort = table.remove, table.wipe, table.sort;
 --[[ 
 ########################################################## 
 GET ADDON DATA
@@ -60,7 +60,15 @@ local LARGE_INNER_HEIGHT = LARGE_ROW_HEIGHT - 4;
 local OBJ_ICON_ACTIVE = [[Interface\COMMON\Indicator-Yellow]];
 local OBJ_ICON_COMPLETE = [[Interface\COMMON\Indicator-Green]];
 local OBJ_ICON_INCOMPLETE = [[Interface\COMMON\Indicator-Gray]];
-local LINE_QUEST_ICON = [[Interface\LFGFRAME\LFGICON-QUEST]]
+local LINE_QUEST_ICON = [[Interface\LFGFRAME\LFGICON-QUEST]];
+
+local LINE_QUEST_COMPLETE = [[Interface\AddOns\SVUI\assets\artwork\Quest\QUEST-COMPLETE]];
+local LINE_QUEST_INCOMPLETE = [[Interface\LFGFRAME\LFGICON-QUEST]];
+local QUEST_NEAR_TEXT = TRACKER_HEADER_QUESTS .. " Near By";
+local QUEST_FAR_TEXT = TRACKER_HEADER_QUESTS .. " Elsewhere";
+
+local QUESTS_ON_MAP = {};
+local QUEST_DISTANCES = {};
 
 local ClosestQuestName, ClosestQuestLink, ClosestQuestTexture;
 local QuestInZone = {
@@ -72,32 +80,6 @@ local QuestInZone = {
 	[25111] = 161,
 	[24735] = 201,
 };
-
-local function GetTimerTextColor(duration, elapsed)
-	local yellowPercent = .66
-	local redPercent = .33
-	
-	local percentageLeft = 1 - ( elapsed / duration )
-	if(percentageLeft > yellowPercent) then
-		return 1, 1, 1;
-	elseif(percentageLeft > redPercent) then
-		local blueOffset = (percentageLeft - redPercent) / (yellowPercent - redPercent);
-		return 1, 1, blueOffset;
-	else
-		local greenOffset = percentageLeft / redPercent;
-		return 1, greenOffset, 0;
-	end
-end
-
-local function CheckAndHideHeader(moduleHeader)
-	if(moduleHeader and not moduleHeader.added and moduleHeader:IsShown()) then
-		moduleHeader:Hide();
-		if(moduleHeader.animating) then
-			moduleHeader.animating = nil;
-			moduleHeader.HeaderOpenAnim:Stop();
-		end
-	end
-end
 --[[ 
 ########################################################## 
 SCRIPT HANDLERS
@@ -109,7 +91,9 @@ local ActiveButton_OnClick = function(self, button)
 		local questID, _, questLogIndex, numObjectives, requiredMoney, completed, startEvent, isAutoComplete, duration, elapsed, questType, isTask, isStory, isOnMap, hasLocalPOI = GetQuestWatchInfo(rowIndex);
 		local title, level, suggestedGroup = GetQuestLogTitle(questLogIndex)
 		local icon = self.Icon:GetTexture()
-		MOD.Active:Refresh('ACTIVE_QUEST_LOADED', title, level, icon, questID, questLogIndex, numObjectives, duration, elapsed)
+		SetSuperTrackedQuestID(questID);
+		local link, texture, _, showCompleted = GetQuestLogSpecialItemInfo(questLogIndex)
+		MOD.QuestItem:SetItem(link, texture, 'ACTIVE_QUEST_LOADED', title, level, icon, questID, questLogIndex, numObjectives, duration, elapsed)
 	end
 end
 
@@ -171,8 +155,8 @@ local function NewQuestRow(parent, lineNumber)
 
 	row.Badge.Icon = row.Badge:CreateTexture(nil,"OVERLAY")
 	row.Badge.Icon:SetAllPoints(row.Badge);
-	row.Badge.Icon:SetTexture(LINE_QUEST_ICON)
-	row.Badge.Icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+	row.Badge.Icon:SetTexture(LINE_QUEST_INCOMPLETE)
+	--row.Badge.Icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
 
 	row.Badge.Button = CreateFrame("Button", nil, row.Badge)
 	row.Badge.Button:SetAllPoints(row.Badge);
@@ -235,7 +219,7 @@ end
 TRACKER FUNCTIONS
 ##########################################################
 ]]--
-local AddQuestRow = function(self, index, title, level, details, icon, questID, questLogIndex, totalObjectives, duration, elapsed)
+local AddQuestRow = function(self, index, title, level, watchIndex, questID, questLogIndex, totalObjectives, duration, elapsed, completed)
 	local objectivesShown = 0;
 	local nextObjective = 1;
 
@@ -247,8 +231,9 @@ local AddQuestRow = function(self, index, title, level, details, icon, questID, 
 		row.RowID = questID
 	end
 
-	icon = icon or LINE_QUEST_ICON;
+	local icon = completed and LINE_QUEST_COMPLETE or LINE_QUEST_INCOMPLETE
 
+	level = level or 100
 	local color = GetQuestDifficultyColor(level)
 	
 	row.Header.Level:SetTextColor(color.r, color.g, color.b)
@@ -256,14 +241,16 @@ local AddQuestRow = function(self, index, title, level, details, icon, questID, 
 	row.Header.Text:SetTextColor(color.r, color.g, color.b)
 	row.Header.Text:SetText(title)
 	row.Badge.Icon:SetTexture(icon)
-	row.Badge.Button:SetID(index)
+	row.Badge.Button:SetID(watchIndex)
 	row.Button:SetID(questLogIndex)
 	row:Show()
 
 	local objectives = row.Objectives;
 
+	local iscomplete = true;
 	for i = 1, totalObjectives do
 		local description, category, completed = GetQuestObjectiveInfo(questID, i);
+		if not completed then iscomplete = false end
 		if(description) then
 			objectives:Add(i, description, completed, duration, elapsed)
 			nextObjective = nextObjective + 1;
@@ -282,79 +269,70 @@ local AddQuestRow = function(self, index, title, level, details, icon, questID, 
 		end
 	end
 
-	local objectiveHeight = (INNER_HEIGHT + 2) * totalObjectives;
+	local objectiveHeight = (ROW_HEIGHT + 2) * totalObjectives;
 	objectives:SetHeight(objectiveHeight + 1);
 
-	return totalObjectives;
+	return totalObjectives, iscomplete;
 end
 
 local RefreshQuests = function(self, event, ...)
 	local shortestDistance = 62500;
 	local liveLines = GetNumQuestWatches();
-	local totalObjectives = 0;
-	local nextLine = 1;
+	local initObjectives = 0;
+	local nearQuests, farQuests = 0, 0;
 	local closestQuest, closestLink, closestTexture, closestLevel, closestCount, closestIndex, closestDuration, closestExpiration, closestID;
-	local activeInProgress = false;
-	local button = MOD.Active.Block.Button;
-	local activeQuestIndex = button:GetID();
-	local activeQuestID = 0;
-	if(activeQuestIndex and (activeQuestIndex ~= 0)) then
-		activeQuestID = select(8, GetQuestLogTitle(activeQuestIndex));
-	end
+	local activeQuestIndex = MOD.Active.CurrentQuest;
+
 	if(liveLines > 0) then
+		wipe(QUESTS_ON_MAP);
+
+		local closestWatchIndex;
+
 		for i = 1, liveLines do
 			local questID, _, questLogIndex, numObjectives, requiredMoney, completed, startEvent, isAutoComplete, duration, elapsed, questType, isTask, isStory, isOnMap, hasLocalPOI = GetQuestWatchInfo(i);
 			if(questID) then
-				if(questID == activeQuestID) then activeInProgress = true; end
-				nextLine = nextLine + 1;
+				local onMap = false;
 				local title, level, suggestedGroup = GetQuestLogTitle(questLogIndex)
-				local icon = LINE_QUEST_ICON;
+				local distanceSq, onContinent = GetDistanceSqToQuest(questLogIndex)
 				if(QuestHasPOIInfo(questID)) then
-					local link, texture, _, showCompleted = GetQuestLogSpecialItemInfo(questLogIndex)
 					local areaID = QuestInZone[questID]
 					if(areaID and areaID == GetCurrentMapAreaID()) then
-						closestQuest = title
-						closestID = questID
-						closestLink = link
-						closestTexture = texture
-						closestLevel = level
-						closestCount = numObjectives
-						closestIndex = questLogIndex
-						closestDuration = failureTime
-						closestExpiration = timeElapsed
-
-						icon = texture
-					elseif(not completed or (completed and showCompleted)) then
-						local distanceSq, onContinent = GetDistanceSqToQuest(questLogIndex)
-						if(onContinent and distanceSq < shortestDistance) then
-							shortestDistance = distanceSq
-							closestQuest = title
-							closestID = questID
-							closestLink = link
-							closestTexture = texture
-							closestLevel = level
-							closestCount = numObjectives
-							closestIndex = questLogIndex
-							closestDuration = failureTime
-							closestExpiration = timeElapsed
-
-							icon = texture
+						closestWatchIndex = i
+						tinsert(QUESTS_ON_MAP, i)
+						onMap = true
+					else
+						if(onContinent) then
+							if(distanceSq < shortestDistance) then
+								shortestDistance = distanceSq
+								closestWatchIndex = i
+							end
+							tinsert(QUESTS_ON_MAP, {watchIndex = i, distance = distanceSq});
+							onMap = true
 						end
 					end
+				elseif(hasLocalPOI) then
+					tinsert(QUESTS_ON_MAP, {watchIndex = i, distance = distanceSq});
+					onMap = true
 				end
-				local newCount = self:Add(i, title, level, details, icon, questID, questLogIndex, numObjectives, duration, elapsed)
-				totalObjectives = totalObjectives + newCount;
+				if(not onMap) then
+					farQuests = farQuests + 1;
+					local newCount, completedQuest = self.Far:Add(farQuests, title, level, i, questID, questLogIndex, numObjectives, duration, elapsed, completed)
+					if(completedQuest and (questLogIndex == MOD.QuestItem.CurrentQuest)) then
+						MOD.QuestItem:RemoveItem()
+					end
+					initObjectives = initObjectives + newCount;
+				end
+				if(questLogIndex == activeQuestIndex) then
+					local link, texture, _, showCompleted = GetQuestLogSpecialItemInfo(questLogIndex)
+					MOD.Active:Set(title, level, texture, questID, questLogIndex, numObjectives, duration, elapsed, true)
+				end
 			end
 		end
 	end
 
-	if(not activeInProgress) then
-		button:CloseMe()
-	end
-
-	local numLines = #self.Rows;
-	for x = nextLine, numLines do
-		local row = self.Rows[x]
+	local farLines = #self.Far.Rows;
+	for x = (farQuests + 1), farLines do
+		local row = self.Far.Rows[x]
 		if(row) then
 			row.RowID = 0;
 			row.Header.Text:SetText('');
@@ -366,15 +344,90 @@ local RefreshQuests = function(self, event, ...)
 		end
 	end
 
-	local newHeight = (nextLine * (ROW_HEIGHT + 2)) + (totalObjectives * (INNER_HEIGHT + 2)) + (ROW_HEIGHT + (nextLine * 2));
-	self:SetHeight(newHeight);
-
-	if(closestQuest) then
-		MOD.Active:Refresh('ACTIVE_QUEST_LOADED', closestQuest, closestLevel, closestTexture, closestID, closestIndex, closestCount, closestDuration, closestExpiration)
+	if(farQuests == 0) then
+		self.Far.Header.Text:SetText('');
+		self.Far:SetHeight(1);
+	else
+		self.Far.Header.Text:SetText(QUEST_FAR_TEXT);
+		local farHeight = ((farQuests + 1) * (ROW_HEIGHT + 2)) + (initObjectives * (INNER_HEIGHT + 2)) + (INNER_HEIGHT * 2);
+		self.Far:SetHeight(farHeight);
 	end
 
+	local totalObjectives = 0;
+	if(closestWatchIndex) then
+		local questID, _, questLogIndex, numObjectives, _, completed, _, _, duration, elapsed = GetQuestWatchInfo(closestWatchIndex);
+		if(questID) then
+			local title, level, suggestedGroup = GetQuestLogTitle(questLogIndex)
+			local link, texture, _, showCompleted = GetQuestLogSpecialItemInfo(questLogIndex)
+			closestQuest = title
+			closestID = questID
+			closestLink = link
+			closestTexture = texture
+			closestLevel = level
+			closestCount = numObjectives
+			closestIndex = questLogIndex
+			closestDuration = failureTime
+			closestExpiration = timeElapsed
+			nearQuests = nearQuests + 1;
+			local newCount, completedQuest = self.Near:Add(nearQuests, title, level, closestWatchIndex, questID, questLogIndex, numObjectives, duration, elapsed, completed)
+			if(completedQuest and (questLogIndex == MOD.QuestItem.CurrentQuest)) then
+				MOD.QuestItem:RemoveItem()
+			end
+			totalObjectives = totalObjectives + newCount;
+		end
+	end
+
+	if(#QUESTS_ON_MAP > 0) then
+		tsort(QUESTS_ON_MAP, function(a,b) return a.distance < b.distance end)
+		for i = 1, #QUESTS_ON_MAP do
+			local watchIndex = QUESTS_ON_MAP[i].watchIndex;
+			if(watchIndex ~= closestWatchIndex) then
+				local questID, _, questLogIndex, numObjectives, requiredMoney, completed, startEvent, isAutoComplete, duration, elapsed, questType, isTask, isStory, isOnMap, hasLocalPOI = GetQuestWatchInfo(watchIndex);
+				if(questID) then
+					nearQuests = nearQuests + 1;
+					local title, level, suggestedGroup = GetQuestLogTitle(questLogIndex)
+					local newCount, completedQuest = self.Near:Add(nearQuests, title, level, watchIndex, questID, questLogIndex, numObjectives, duration, elapsed, completed)
+					if(completedQuest and (questLogIndex == MOD.QuestItem.CurrentQuest)) then
+						MOD.QuestItem:RemoveItem()
+					end
+					totalObjectives = totalObjectives + newCount;
+				end
+			end
+		end
+	end
+
+	local numLines = #self.Near.Rows;
+	for x = (nearQuests + 1), numLines do
+		local row = self.Near.Rows[x]
+		if(row) then
+			row.RowID = 0;
+			row.Header.Text:SetText('');
+			row.Button:SetID(0);
+			row.Badge.Button:SetID(0);
+			if(row:IsShown()) then
+				row:Hide()
+			end
+		end
+	end
+
+	if(nearQuests == 0) then
+		self.Near.Header.Text:SetText('');
+		self.Near:SetHeight(1);
+	else
+		self.Near.Header.Text:SetText(QUEST_NEAR_TEXT);
+		local nearHeight = ((nearQuests + 1) * (ROW_HEIGHT + 2)) + (totalObjectives * (INNER_HEIGHT + 2)) + (INNER_HEIGHT * 2);
+		self.Near:SetHeight(nearHeight);
+	end
+
+	-- if(not activeInProgress) then
+	-- 	MOD.Active.Block.Button:CloseMe()
+	-- end
+
+	local newHeight = self.Far:GetHeight() + self.Near:GetHeight() + (ROW_HEIGHT + 2);
+	self:SetHeight(newHeight);
+
 	if(closestLink) then
-		MOD.QuestItem:SetItem(closestLink, closestTexture)
+		MOD.QuestItem:SetItem(closestLink, closestTexture, 'ACTIVE_QUEST_LOADED', closestQuest, closestLevel, closestTexture, closestID, closestIndex, closestCount, closestDuration, closestExpiration)
 	elseif(MOD.QuestItem:IsShown()) then
 		MOD.QuestItem:RemoveItem()
 	end
@@ -386,7 +439,7 @@ CORE FUNCTIONS
 ]]--
 function MOD:UpdateObjectives(event, ...)
 	self.Quests:Refresh(event, ...)
-	if ( event == "QUEST_TURNED_IN" ) then
+	if(event == "QUEST_TURNED_IN") then
 		local questID, xp, money = ...;
 		local button = self.Active.Block.Button;
 		local questIndex = button:GetID();
@@ -423,32 +476,14 @@ function MOD:UpdateProximity(event, ...)
 						closestIndex = questLogIndex
 						closestDuration = failureTime
 						closestExpiration = timeElapsed
-					elseif(not completed or (completed and showCompleted)) then
-						local distanceSq, onContinent = GetDistanceSqToQuest(questLogIndex)
-						if(onContinent and distanceSq < shortestDistance) then
-							shortestDistance = distanceSq
-							closestQuest = title
-							closestID = questID
-							closestLink = link
-							closestTexture = texture
-							closestLevel = level
-							closestCount = numObjectives
-							closestIndex = questLogIndex
-							closestDuration = failureTime
-							closestExpiration = timeElapsed
-						end
 					end
 				end
 			end
 		end
 	end
 
-	if(closestQuest) then
-		self.Active:Refresh('ACTIVE_QUEST_LOADED', closestQuest, closestLevel, closestTexture, closestID, closestIndex, closestCount, closestDuration, closestExpiration)
-	end
-
 	if(closestLink) then
-		self.QuestItem:SetItem(closestLink, closestTexture)
+		self.QuestItem:SetItem(closestLink, closestTexture, 'ACTIVE_QUEST_LOADED', closestQuest, closestLevel, closestTexture, closestID, closestIndex, closestCount, closestDuration, closestExpiration)
 	elseif(self.QuestItem:IsShown()) then
 		self.QuestItem:RemoveItem()
 	end
@@ -468,30 +503,78 @@ function MOD:InitializeQuests()
 	quests:SetHeight(ROW_HEIGHT);
 	quests:SetPoint("TOPLEFT", self.Scenario, "BOTTOMLEFT", 0, -4);
 
-	quests.Header = CreateFrame("Frame", nil, quests)
-	quests.Header:SetPoint("TOPLEFT", quests, "TOPLEFT", 2, -2);
-	quests.Header:SetPoint("TOPRIGHT", quests, "TOPRIGHT", -2, -2);
-	quests.Header:SetHeight(INNER_HEIGHT);
+	local near = CreateFrame("Frame", nil, quests)
+	near:SetPoint("TOPLEFT", quests, "TOPLEFT", 2, -2);
+	near:SetPoint("TOPRIGHT", quests, "TOPRIGHT", -2, -2);
+	near:SetHeight(ROW_HEIGHT);
 
-	quests.Header.Text = quests.Header:CreateFontString(nil,"OVERLAY")
-	quests.Header.Text:SetPoint("TOPLEFT", quests.Header, "TOPLEFT", 2, 0);
-	quests.Header.Text:SetPoint("BOTTOMLEFT", quests.Header, "BOTTOMLEFT", 2, 0);
-	quests.Header.Text:SetFont(SV.Media.font.dialog, 16, "OUTLINE")
-	quests.Header.Text:SetJustifyH('LEFT')
-	quests.Header.Text:SetJustifyV('MIDDLE')
-	quests.Header.Text:SetTextColor(1,0.6,0.1)
-	quests.Header.Text:SetShadowOffset(-1,-1)
-	quests.Header.Text:SetShadowColor(0,0,0,0.5)
-	quests.Header.Text:SetText(TRACKER_HEADER_QUESTS)
+	near.Header = CreateFrame("Frame", nil, near)
+	near.Header:SetPoint("TOPLEFT", near, "TOPLEFT", 2, -2);
+	near.Header:SetPoint("TOPRIGHT", near, "TOPRIGHT", -2, -2);
+	near.Header:SetHeight(INNER_HEIGHT);
 
-	quests.Header.Divider = quests.Header:CreateTexture(nil, 'BACKGROUND');
-	quests.Header.Divider:SetPoint("TOPLEFT", quests.Header.Text, "TOPRIGHT", -10, 0);
-	quests.Header.Divider:SetPoint("BOTTOMRIGHT", quests.Header, "BOTTOMRIGHT", 0, 0);
-	quests.Header.Divider:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DROPDOWN-DIVIDER]]);
+	near.Header.Text = near.Header:CreateFontString(nil,"OVERLAY")
+	near.Header.Text:SetPoint("TOPLEFT", near.Header, "TOPLEFT", 2, 0);
+	near.Header.Text:SetPoint("BOTTOMLEFT", near.Header, "BOTTOMLEFT", 2, 0);
+	near.Header.Text:SetFont(SV.Media.font.dialog, 16, "OUTLINE")
+	near.Header.Text:SetJustifyH('LEFT')
+	near.Header.Text:SetJustifyV('MIDDLE')
+	near.Header.Text:SetTextColor(1,0.6,0.1)
+	near.Header.Text:SetShadowOffset(-1,-1)
+	near.Header.Text:SetShadowColor(0,0,0,0.5)
+	near.Header.Text:SetText(QUEST_NEAR_TEXT)
 
-	quests.Rows = {};
+	-- near.Header.Zone = near.Header:CreateFontString(nil,"OVERLAY")
+	-- near.Header.Zone:SetPoint("TOPRIGHT", near.Header, "TOPRIGHT", -2, 0);
+	-- near.Header.Zone:SetPoint("BOTTOMRIGHT", near.Header, "BOTTOMRIGHT", -2, 0);
+	-- near.Header.Zone:SetFont(SV.Media.font.system, 10, "OUTLINE")
+	-- near.Header.Zone:SetJustifyH('RIGHT')
+	-- near.Header.Zone:SetJustifyV('MIDDLE')
+	-- near.Header.Zone:SetTextColor(1,0.4,0.1)
+	-- near.Header.Zone:SetShadowOffset(-1,-1)
+	-- near.Header.Zone:SetShadowColor(0,0,0,0.5)
+	-- near.Header.Zone:SetText("")
+
+	near.Header.Divider = near.Header:CreateTexture(nil, 'BACKGROUND');
+	near.Header.Divider:SetPoint("TOPLEFT", near.Header.Text, "TOPRIGHT", -10, 0);
+	near.Header.Divider:SetPoint("BOTTOMRIGHT", near.Header, "BOTTOMRIGHT", 0, 0);
+	near.Header.Divider:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DROPDOWN-DIVIDER]]);
+
+	near.Rows = {};
+	near.Add = AddQuestRow;
+
+	local far = CreateFrame("Frame", nil, quests)
+	far:SetPoint("TOPLEFT", near, "BOTTOMLEFT", 0, -2);
+	far:SetPoint("TOPRIGHT", near, "BOTTOMRIGHT", 0, -2);
+	far:SetHeight(ROW_HEIGHT);
+
+	far.Header = CreateFrame("Frame", nil, far)
+	far.Header:SetPoint("TOPLEFT", far, "TOPLEFT", 2, -2);
+	far.Header:SetPoint("TOPRIGHT", far, "TOPRIGHT", -2, -2);
+	far.Header:SetHeight(INNER_HEIGHT);
+
+	far.Header.Text = far.Header:CreateFontString(nil,"OVERLAY")
+	far.Header.Text:SetPoint("TOPLEFT", far.Header, "TOPLEFT", 2, 0);
+	far.Header.Text:SetPoint("BOTTOMLEFT", far.Header, "BOTTOMLEFT", 2, 0);
+	far.Header.Text:SetFont(SV.Media.font.dialog, 16, "OUTLINE")
+	far.Header.Text:SetJustifyH('LEFT')
+	far.Header.Text:SetJustifyV('MIDDLE')
+	far.Header.Text:SetTextColor(1,0.6,0.1)
+	far.Header.Text:SetShadowOffset(-1,-1)
+	far.Header.Text:SetShadowColor(0,0,0,0.5)
+	far.Header.Text:SetText(QUEST_FAR_TEXT)
+
+	far.Header.Divider = far.Header:CreateTexture(nil, 'BACKGROUND');
+	far.Header.Divider:SetPoint("TOPLEFT", far.Header.Text, "TOPRIGHT", -10, 0);
+	far.Header.Divider:SetPoint("BOTTOMRIGHT", far.Header, "BOTTOMRIGHT", 0, 0);
+	far.Header.Divider:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DROPDOWN-DIVIDER]]);
+
+	far.Rows = {};
+	far.Add = AddQuestRow;
+
+	quests.Near = near;
+	quests.Far = far;
 	quests.Refresh = RefreshQuests;
-	quests.Add = AddQuestRow;
 
 	self.Quests = quests;
 
@@ -501,12 +584,8 @@ function MOD:InitializeQuests()
 	self:RegisterEvent("QUEST_POI_UPDATE", self.UpdateObjectives);
 	self:RegisterEvent("QUEST_TURNED_IN", self.UpdateObjectives);
 
-	--self:RegisterEvent("PLAYER_MONEY", self.UpdateObjectives);
-	--self:RegisterEvent("QUEST_AUTOCOMPLETE", self.UpdateObjectives);
-	--self:RegisterEvent("SUPER_TRACKED_QUEST_CHANGED", self.UpdateObjectives);
-
-	self:RegisterEvent("ZONE_CHANGED_NEW_AREA", self.UpdateProximity);
-	self:RegisterEvent("ZONE_CHANGED", self.UpdateProximity);
+	self:RegisterEvent("ZONE_CHANGED_NEW_AREA", self.UpdateObjectives);
+	self:RegisterEvent("ZONE_CHANGED", self.UpdateObjectives);
 
 	self.Quests:Refresh()
 end

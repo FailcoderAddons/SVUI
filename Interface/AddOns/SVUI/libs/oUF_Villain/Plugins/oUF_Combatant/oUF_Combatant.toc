@@ -2,7 +2,7 @@
 ## Title: oUF Combatant
 ## Notes: Adds PvP trinket status and spec icons to oUF frames.
 ## Author: Munglunch
-## Version: 5.4.04
+## Version: 5.4.05
 ## X-Category: oUF
 ## Dependencies: oUF
 

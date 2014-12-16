@@ -104,8 +104,10 @@ function PLUGIN:Style(style, fn, ...)
 	end
 	if(pass and (not style:find("Blizzard")) and not self.StyledAddons[style]) then
 		self.StyledAddons[style] = true
-		local verb = charming[math.random(1,#charming)]
-		self:AddonMessage(styleMessage:format(style, verb))
+		if(SV.db.general.loginmessage) then
+			local verb = charming[math.random(1,#charming)]
+			self:AddonMessage(styleMessage:format(style, verb))
+		end
 		self.AddOnQueue[style] = nil
 	end
 	self.Debugging = false

@@ -220,4 +220,6 @@ function PLUGIN:Load()
 
         self:RegisterEvent("PLAYER_TARGET_CHANGED")
     end
+
+    self:EnableGPS()
 end

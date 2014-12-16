@@ -108,7 +108,7 @@ function MOD:CreateRaidDebuffs(frame)
 	raidDebuff.time:FontManager(AURA_FONT, AURA_FONTSIZE, AURA_OUTLINE)
 	raidDebuff.time:SetPoint("CENTER")
 	raidDebuff.time:SetTextColor(1, .9, 0)
-	raidDebuff:SetParent(frame.InfoPanel)
+	raidDebuff:SetParent(frame.TextGrip)
 	return raidDebuff
 end 
 
@@ -132,15 +132,15 @@ VARIOUS ICONS
 ##########################################################
 ]]--
 function MOD:CreateResurectionIcon(frame)
-	local rez = frame.InfoPanel:CreateTexture(nil, "OVERLAY")
-	rez:SetPointToScale("CENTER", frame.InfoPanel.Health, "CENTER")
+	local rez = frame.TextGrip:CreateTexture(nil, "OVERLAY")
+	rez:SetPointToScale("CENTER", frame.TextGrip.Health, "CENTER")
 	rez:SetSizeToScale(30, 25)
 	rez:SetDrawLayer("OVERLAY", 7)
 	return rez 
 end 
 
 function MOD:CreateReadyCheckIcon(frame)
-	local rdy = frame.InfoPanel:CreateTexture(nil, "OVERLAY", nil, 7)
+	local rdy = frame.TextGrip:CreateTexture(nil, "OVERLAY", nil, 7)
 	rdy:SetSizeToScale(12)
 	rdy:SetPointToScale("BOTTOM", frame.Health, "BOTTOM", 0, 2)
 	return rdy 
@@ -201,10 +201,10 @@ CONFIGURABLE ICONS
 ##########################################################
 ]]--
 function MOD:CreateRaidIcon(frame)
-	local rIcon = frame.InfoPanel:CreateTexture(nil, "OVERLAY", nil, 2)
+	local rIcon = frame.TextGrip:CreateTexture(nil, "OVERLAY", nil, 2)
 	rIcon:SetTexture([[Interface\TargetingFrame\UI-RaidTargetingIcons]])
 	rIcon:SetSizeToScale(18)
-	rIcon:SetPointToScale("CENTER", frame.InfoPanel, "TOP", 0, 2)
+	rIcon:SetPointToScale("CENTER", frame.TextGrip, "TOP", 0, 2)
 	return rIcon 
 end 
 
@@ -234,7 +234,7 @@ local UpdateRoleIcon = function(self)
 end 
 
 function MOD:CreateRoleIcon(frame)
-	local parent = frame.InfoPanel or frame;
+	local parent = frame.TextGrip or frame;
 	local rIconHolder = CreateFrame("Frame", nil, parent)
 	rIconHolder:SetAllPoints()
 	local rIcon = rIconHolder:CreateTexture(nil, "ARTWORK", nil, 2)
@@ -246,7 +246,7 @@ function MOD:CreateRoleIcon(frame)
 end 
 
 function MOD:CreateRaidRoleFrames(frame)
-	local parent = frame.InfoPanel or frame;
+	local parent = frame.TextGrip or frame;
 	local raidRoles = CreateFrame("Frame", nil, frame)
 	raidRoles:SetSizeToScale(24, 12)
 	raidRoles:SetPointToScale("TOPLEFT", frame.ActionPanel, "TOPLEFT", -2, 4)

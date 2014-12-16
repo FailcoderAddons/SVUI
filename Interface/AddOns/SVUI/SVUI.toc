@@ -1,6 +1,6 @@
 ## Interface: 60000
 ## Author: Munglunch
-## Version: 5.4.04
+## Version: 5.4.05
 ## Title: |cffFF9900SVUI|r
 ## Notes: Supervillain UI [|cff9911FFCore Framework|r].
 ## SavedVariables: SVUI_Global, SVUI_Errors

@@ -567,7 +567,8 @@ local function GuildFrameStyle()
 	GuildMemberOfficerNoteBackground:SetStylePanel("Default", 'Transparent')
 
 	PLUGIN:ApplyDropdownStyle(GuildMemberRankDropdown, 182)
-	GuildMemberDetailRankText:Hide()
+	GuildMemberRankDropdown:HookScript("OnShow", function() GuildMemberDetailRankText:Hide() end)
+	GuildMemberRankDropdown:HookScript("OnHide", function() GuildMemberDetailRankText:Show() end)
 	GuildNewsFrame:RemoveTextures()
 	GuildNewsContainer:SetStylePanel("Default", "Inset")
 

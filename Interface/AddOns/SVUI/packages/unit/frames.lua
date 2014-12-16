@@ -148,7 +148,7 @@ local UpdatePlayerFrame = function(self)
     local USE_CLASSBAR = db.classbar.enable;
     local classBarHeight = db.classbar.height;
     local classBarWidth = db.width * 0.4;
-    local healthPanel = self.HealthPanel
+    local MASTER_GRIP = self.MasterGrip
     local iconDB = db.icons
     self:RegisterForClicks(SV.db.SVUnit.fastClickTarget and "AnyDown" or "AnyUp")
 
@@ -169,7 +169,7 @@ local UpdatePlayerFrame = function(self)
                 local size = iconDB.restIcon.size;
                 resting:ClearAllPoints()
                 resting:SetSizeToScale(size)
-                SV:SetReversePoint(resting, iconDB.restIcon.attachTo, healthPanel, iconDB.restIcon.xOffset, iconDB.restIcon.yOffset)
+                SV:SetReversePoint(resting, iconDB.restIcon.attachTo, MASTER_GRIP, iconDB.restIcon.xOffset, iconDB.restIcon.yOffset)
                 if not self:IsElementEnabled("Resting")then 
                     self:EnableElement("Resting")
                 end 
@@ -186,7 +186,7 @@ local UpdatePlayerFrame = function(self)
                 local size = iconDB.combatIcon.size;
                 combat:ClearAllPoints()
                 combat:SetSizeToScale(size)
-                SV:SetReversePoint(combat, iconDB.combatIcon.attachTo, healthPanel, iconDB.combatIcon.xOffset, iconDB.combatIcon.yOffset)
+                SV:SetReversePoint(combat, iconDB.combatIcon.attachTo, MASTER_GRIP, iconDB.combatIcon.xOffset, iconDB.combatIcon.yOffset)
                 if not self:IsElementEnabled("Combat")then 
                     self:EnableElement("Combat")
                 end 
@@ -200,7 +200,7 @@ local UpdatePlayerFrame = function(self)
         local pvp = self.PvPText;
         local point = db.pvp.position;
         pvp:ClearAllPoints()
-        pvp:SetPointToScale(db.pvp.position, healthPanel, db.pvp.position)
+        pvp:SetPointToScale(db.pvp.position, MASTER_GRIP, db.pvp.position)
         self:Tag(pvp, db.pvp.tags)
     end 
     do 
@@ -313,7 +313,7 @@ CONSTRUCTORS["player"] = function(self, unit)
     self.RaidIcon = MOD:CreateRaidIcon(self)
     self.Resting = MOD:CreateRestingIndicator(self)
     self.Combat = MOD:CreateCombatIndicator(self)
-    self.PvPText = self.InfoPanel:CreateFontString(nil,'OVERLAY')
+    self.PvPText = self.TextGrip:CreateFontString(nil,'OVERLAY')
     self.PvPText:FontManager(LSM:Fetch("font", SV.db.SVUnit.font), SV.db.SVUnit.fontSize, SV.db.SVUnit.fontOutline)
     self.Afflicted = MOD:CreateAfflicted(self)
     self.HealPrediction = MOD:CreateHealPrediction(self, true)

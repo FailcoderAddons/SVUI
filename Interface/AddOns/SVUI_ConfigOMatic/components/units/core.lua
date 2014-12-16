@@ -57,6 +57,113 @@ local textStringFormats = {
 SET PACKAGE OPTIONS
 ##########################################################
 ]]--
+function ns:SetSizeConfigGroup(gridMode, unitName)
+	local sizeGroup = {
+		order = 2, 
+		guiInline = true, 
+		type = "group", 
+		name = L["Size Settings"],
+		args = {}
+	}
+
+	if(gridMode) then
+		sizeGroup.args = {
+			size = {
+				order = 1, 
+				name = L["Grid Size"], 
+				type = "range", 
+				min = 10, 
+				max = 100, 
+				step = 1,
+				width = 'full',
+				get = function(key) return SV.db.SVUnit[unitName].grid[key[#key]] end,
+				set = function(key, value) MOD:ChangeDBVar(value, key[#key], unitName, "grid"); MOD:SetGroupFrame(unitName) end,
+			},
+			spacer1 = {
+				order = 2, 
+				name = "", 
+				type = "description", 
+				width = "full", 
+			},
+			wrapXOffset = {
+				order = 3, 
+				type = "range", 
+				name = L["Horizontal Spacing"], 
+				min = 0, 
+				max = 50, 
+				step = 1,
+				get = function(key) return SV.db.SVUnit[unitName][key[#key]] end,
+				set = function(key, value) MOD:ChangeDBVar(value, key[#key], unitName); MOD:SetGroupFrame(unitName) end,
+			}, 
+			wrapYOffset = {
+				order = 4, 
+				type = "range", 
+				name = L["Vertical Spacing"], 
+				min = 0, 
+				max = 50, 
+				step = 1,
+				get = function(key) return SV.db.SVUnit[unitName][key[#key]] end,
+				set = function(key, value) MOD:ChangeDBVar(value, key[#key], unitName); MOD:SetGroupFrame(unitName) end,
+			},
+		}
+	else
+		sizeGroup.args = {
+			width = {
+				order = 1, 
+				name = L["Width"], 
+				type = "range", 
+				min = 10, 
+				max = 500, 
+				step = 1,
+				width = 'full',
+				get = function(key) return SV.db.SVUnit[unitName][key[#key]] end,
+				set = function(key, value) MOD:ChangeDBVar(value, key[#key], unitName); MOD:SetGroupFrame(unitName) end,
+			}, 
+			height = {
+				order = 2, 
+				name = L["Height"], 
+				type = "range", 
+				min = 10, 
+				max = 500, 
+				step = 1,
+				width = 'full',
+				get = function(key) return SV.db.SVUnit[unitName][key[#key]] end,
+				set = function(key, value) MOD:ChangeDBVar(value, key[#key], unitName); MOD:SetGroupFrame(unitName) end,
+			},
+			spacer1 = {
+				order = 3, 
+				name = "", 
+				type = "description", 
+				width = "full", 
+			},
+			wrapXOffset = {
+				order = 4, 
+				type = "range", 
+				name = L["Horizontal Spacing"], 
+				min = 0, 
+				max = 50, 
+				step = 1,
+				width = 'full',
+				get = function(key) return SV.db.SVUnit[unitName][key[#key]] end,
+				set = function(key, value) MOD:ChangeDBVar(value, key[#key], unitName); MOD:SetGroupFrame(unitName) end,
+			}, 
+			wrapYOffset = {
+				order = 5, 
+				type = "range", 
+				name = L["Vertical Spacing"], 
+				min = 0, 
+				max = 50, 
+				step = 1,
+				width = 'full',
+				get = function(key) return SV.db.SVUnit[unitName][key[#key]] end,
+				set = function(key, value) MOD:ChangeDBVar(value, key[#key], unitName); MOD:SetGroupFrame(unitName) end,
+			},
+		}
+	end
+
+	return sizeGroup
+end
+
 function ns:SetCastbarConfigGroup(updateFunction, unitName, count)	
 	local configTable = {
 		order = 800, 
@@ -337,17 +444,64 @@ function ns:SetHealthConfigGroup(partyRaid, updateFunction, unitName, count)
 				guiInline = true, 
 				name = L["Base Settings"],
 				args = {
-					reversed = {type = "toggle", order = 1, name = L["Reverse Fill"], desc = L["Invert this bars fill direction"]}, 
-					position = {type = "select", order = 2, name = L["Text Position"], desc = L["Set the anchor for this bars value text"], values = SV.PointIndexes}, 
 					configureButton = {
-						order = 4, 
+						order = 1, 
 						width = "full", 
 						name = L["Coloring"], 
 						type = "execute", 
 						func = function() ACD:SelectGroup(SV.NameID, "SVUnit", "common", "allColorsGroup", "healthGroup") end
 					}, 
-					xOffset = {order = 5, type = "range", width = "full", name = L["Text xOffset"], desc = L["Offset position for text."], min = -300, max = 300, step = 1}, 
-					yOffset = {order = 6, type = "range", width = "full", name = L["Text yOffset"], desc = L["Offset position for text."], min = -300, max = 300, step = 1}, 
+					classColor = {
+						order = 2, 
+						type = "toggle", 
+						name = L["Class Health"], 
+						desc = L["Color health by classcolor or reaction."],
+					}, 
+					valueColor = {
+						order = 3, 
+						type = "toggle", 
+						name = L["Health By Value"], 
+						desc = L["Color health by amount remaining."],
+					}, 
+					classBackdrop = {
+						order = 4, 
+						type = "toggle", 
+						name = L["Class Backdrop"], 
+						desc = L["Color the health backdrop by class or reaction."],
+					},
+					reversed = {
+						type = "toggle", 
+						order = 5, 
+						name = L["Reverse Fill"], 
+						desc = L["Invert this bars fill direction"]
+					}, 
+					position = {
+						type = "select", 
+						order = 6, 
+						name = L["Text Position"], 
+						desc = L["Set the anchor for this bars value text"], 
+						values = SV.PointIndexes
+					},
+					xOffset = {
+						order = 7, 
+						type = "range", 
+						width = "full", 
+						name = L["Text xOffset"], 
+						desc = L["Offset position for text."], 
+						min = -300, 
+						max = 300, 
+						step = 1
+					}, 
+					yOffset = {
+						order = 8, 
+						type = "range", 
+						width = "full", 
+						name = L["Text yOffset"], 
+						desc = L["Offset position for text."], 
+						min = -300, 
+						max = 300, 
+						step = 1
+					},
 				}
 			}, 
 			formatGroup = {
@@ -427,25 +581,55 @@ function ns:SetPowerConfigGroup(playerTarget, updateFunction, unitName, count)
 				guiInline = true, 
 				name = L["Base Settings"],
 				args = {
-					position = {type = "select", order = 3, name = L["Text Position"], desc = L["Set the anchor for this bars value text"], values = SV.PointIndexes}, 
 					configureButton = {
-						order = 4, 
+						order = 1, 
 						name = L["Coloring"], 
 						width = "full", 
 						type = "execute", 
 						func = function()ACD:SelectGroup(SV.NameID, "SVUnit", "common", "allColorsGroup", "powerGroup")end
 					}, 
+					classColor = {
+						order = 2, 
+						type = "toggle", 
+						name = L["Class Power"], 
+						desc = L["Color power by classcolor or reaction."],
+					}, 
+					position = {
+						type = "select", 
+						order = 3, 
+						name = L["Text Position"], 
+						desc = L["Set the anchor for this bars value text"], 
+						values = SV.PointIndexes
+					}, 
 					height = {
 						type = "range", 
 						name = L["Height"], 
-						order = 5, 
+						order = 4, 
 						width = "full", 
 						min = 3, 
 						max = 50, 
 						step = 1
 					}, 
-					xOffset = {order = 6, type = "range", width = "full", name = L["Text xOffset"], desc = L["Offset position for text."], min = -300, max = 300, step = 1}, 
-					yOffset = {order = 7, type = "range", width = "full", name = L["Text yOffset"], desc = L["Offset position for text."], min = -300, max = 300, step = 1}, 
+					xOffset = {
+						order = 5, 
+						type = "range", 
+						width = "full", 
+						name = L["Text xOffset"], 
+						desc = L["Offset position for text."], 
+						min = -300, 
+						max = 300, 
+						step = 1
+					}, 
+					yOffset = {
+						order = 6, 
+						type = "range", 
+						width = "full", 
+						name = L["Text yOffset"], 
+						desc = L["Offset position for text."], 
+						min = -300, 
+						max = 300, 
+						step = 1
+					}, 
 				}
 			}, 
 			formatGroup = {
@@ -1746,50 +1930,11 @@ SV.Options.args.SVUnit = {
 							type = "group", guiInline = true, 
 							name = HEALTH, 
 							args = { 
-								healthclass = {
+								forceHealthColor = {
 									order = 1, 
 									type = "toggle", 
-									name = L["Class Health"], 
-									desc = L["Color health by classcolor or reaction."],
-									get = function(key)
-										return SV.db.SVUnit[key[#key]]
-									end, 
-									set = function(key, value)
-										MOD:ChangeDBVar(value, key[#key]);
-										MOD:RefreshUnitFrames()
-									end
-								}, 
-								colorhealthbyvalue = {
-									order = 2, 
-									type = "toggle", 
-									name = L["Health By Value"], 
-									desc = L["Color health by amount remaining."], 
-									get = function(key)
-										return SV.db.SVUnit[key[#key]]
-									end, 
-									set = function(key, value)
-										MOD:ChangeDBVar(value, key[#key]);
-										MOD:RefreshUnitFrames()
-									end
-								}, 
-								classbackdrop = {
-									order = 3, 
-									type = "toggle", 
-									name = L["Class Backdrop"], 
-									desc = L["Color the health backdrop by class or reaction."], 
-									get = function(key)
-										return SV.db.SVUnit[key[#key]]
-									end, 
-									set = function(key, value)
-										MOD:ChangeDBVar(value, key[#key]);
-										MOD:RefreshUnitFrames()
-									end
-								},
-								forceHealthColor = {
-									order = 4, 
-									type = "toggle", 
 									name = L["Overlay Health Color"], 
-									desc = L["Force custom health color when using portrait overlays."], 
+									desc = L["Allow custom health colors when using portrait overlays."], 
 									get = function(key)
 										return SV.db.SVUnit[key[#key]]
 									end, 
@@ -1799,7 +1944,7 @@ SV.Options.args.SVUnit = {
 									end
 								},
 								overlayAnimation = {
-									order = 5, 
+									order = 2, 
 									type = "toggle", 
 									name = L["Overlay Animations"], 
 									desc = L["Toggle health animations on portrait overlays."], 
@@ -1812,7 +1957,7 @@ SV.Options.args.SVUnit = {
 									end
 								},
 								health = {
-									order = 7, 
+									order = 3, 
 									type = "color", 
 									name = L["Health"],
 									get = function(key)
@@ -1825,7 +1970,7 @@ SV.Options.args.SVUnit = {
 									end, 
 								}, 
 								tapped = {
-									order = 8, 
+									order = 4, 
 									type = "color", 
 									name = L["Tapped"],
 									get = function(key)
@@ -1838,7 +1983,7 @@ SV.Options.args.SVUnit = {
 									end,
 								}, 
 								disconnected = {
-									order = 9, 
+									order = 5, 
 									type = "color", 
 									name = L["Disconnected"],
 									get = function(key)
@@ -1858,21 +2003,8 @@ SV.Options.args.SVUnit = {
 							guiInline = true, 
 							name = L["Powers"],
 							args = {
-								powerclass = {
-									order = 0, 
-									type = "toggle", 
-									name = L["Class Power"], 
-									desc = L["Color power by classcolor or reaction."], 
-									get = function(key)
-										return SV.db.SVUnit[key[#key]]
-									end, 
-									set = function(key, value)
-										MOD:ChangeDBVar(value, key[#key]);
-										MOD:RefreshUnitFrames()
-									end
-								}, 
 								MANA = {
-									order = 2, 
+									order = 1, 
 									name = MANA, 
 									type = "color",
 									get = function(key)
@@ -1885,7 +2017,7 @@ SV.Options.args.SVUnit = {
 									end, 
 								}, 
 								RAGE = {
-									order = 3, 
+									order = 2, 
 									name = RAGE, 
 									type = "color",
 									get = function(key)
@@ -1898,7 +2030,7 @@ SV.Options.args.SVUnit = {
 									end,
 								}, 
 								FOCUS = {
-									order = 4, 
+									order = 3, 
 									name = FOCUS, 
 									type = "color",
 									get = function(key)
@@ -1911,7 +2043,7 @@ SV.Options.args.SVUnit = {
 									end,
 								}, 
 								ENERGY = {
-									order = 5, 
+									order = 4, 
 									name = ENERGY, 
 									type = "color",
 									get = function(key)
@@ -1924,7 +2056,7 @@ SV.Options.args.SVUnit = {
 									end,
 								}, 
 								RUNIC_POWER = {
-									order = 6, 
+									order = 5, 
 									name = RUNIC_POWER, 
 									type = "color",
 									get = function(key)

@@ -295,15 +295,34 @@ SV.Options.args.SVUnit.args.tank = {
 			name = L["Unit Options"], 
 			childGroups = "tree", 
 			args = {
-				commonGroup = {
+				general = {
 					order = 1, 
+					name = L["General Layout"], 
 					type = "group", 
-					name = L["General Settings"], 
+					guiInline = true, 
 					args = {
-						width = {order = 2, name = L["Width"], type = "range", min = 50, max = 500, step = 1}, 
-						height = {order = 3, name = L["Height"], type = "range", min = 10, max = 250, step = 1}
+						enable = {
+							order = 1, 
+							name = L["Enable Grid Mode"], 
+							desc = L["Converts frames into symmetrical squares. Ideal for healers."], 
+							type = "toggle",
+							get = function(key) return SV.db.SVUnit["tank"].grid.enable end,
+							set = function(key, value) 
+								MOD:ChangeDBVar(value, key[#key], "tank", "grid"); 
+								MOD:SetGroupFrame("tank");
+								SV.Options.args.SVUnit.args.tank.args.tabGroups.args.sizing = ns:SetSizeConfigGroup(value, "tank");
+							end,
+						},
+						invertGroupingOrder = {
+							order = 2,
+							type = "toggle",
+							name = L["Invert Grouping Order"], 
+							desc = L["Enabling this inverts the grouping order."], 
+							disabled = function() return not SV.db.SVUnit["tank"].customSorting end,  
+						},
 					}
-				}, 
+				},
+				sizing = ns:SetSizeConfigGroup(SV.db.SVUnit.tank.grid.enable, "tank"),
 				targetsGroup = {
 					order = 2, 
 					type = "group", 
@@ -345,17 +364,36 @@ SV.Options.args.SVUnit.args.assist = {
 			name = L["Unit Options"], 
 			childGroups = "tree", 
 			args = {
-				commonGroup = {
+				general = {
 					order = 1, 
+					name = L["General Layout"], 
 					type = "group", 
-					name = L["General Settings"], 
+					guiInline = true, 
 					args = {
-						width = {order = 2, name = L["Width"], type = "range", min = 50, max = 500, step = 1}, 
-						height = {order = 3, name = L["Height"], type = "range", min = 10, max = 250, step = 1}
+						enable = {
+							order = 1, 
+							name = L["Enable Grid Mode"], 
+							desc = L["Converts frames into symmetrical squares. Ideal for healers."], 
+							type = "toggle",
+							get = function(key) return SV.db.SVUnit["assist"].grid.enable end,
+							set = function(key, value) 
+								MOD:ChangeDBVar(value, key[#key], "assist", "grid"); 
+								MOD:SetGroupFrame("assist");
+								SV.Options.args.SVUnit.args.assist.args.tabGroups.args.sizing = ns:SetSizeConfigGroup(value, "assist");
+							end,
+						},
+						invertGroupingOrder = {
+							order = 2,
+							type = "toggle",
+							name = L["Invert Grouping Order"], 
+							desc = L["Enabling this inverts the grouping order."], 
+							disabled = function() return not SV.db.SVUnit["assist"].customSorting end,  
+						},
 					}
-				}, 
+				},
+				sizing = ns:SetSizeConfigGroup(SV.db.SVUnit.assist.grid.enable, "assist"),
 				targetsGroup = {
-					order = 4, 
+					order = 2, 
 					type = "group", 
 					name = L["Assist Target"], 
 					guiInline = true, 

@@ -68,7 +68,7 @@ local function StyleAlertIcon(frame, icon)
 	if(not frame.IconSlot) then 
 		frame.IconSlot = CreateFrame("Frame", nil, frame)
 		frame.IconSlot:SetAllPointsOut(icon)
-		frame.IconSlot:SetStylePanel("Slot")
+		frame.IconSlot:SetStylePanel("Icon")
 		icon:SetParent(frame.IconSlot)
 	end
 end

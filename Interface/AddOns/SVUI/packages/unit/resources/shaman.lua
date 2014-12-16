@@ -98,7 +98,7 @@ SHAMAN
 ]]--
 function MOD:CreateClassBar(playerFrame)
 	local bar = CreateFrame("Frame",nil,playerFrame)
-	bar:SetFrameLevel(playerFrame.InfoPanel:GetFrameLevel() + 30)
+	bar:SetFrameLevel(playerFrame.TextGrip:GetFrameLevel() + 30)
 	for i=1, totemMax do
 		local iconfile = totemTextures[totemPriorities[i]]
 		bar[i] = CreateFrame("StatusBar",nil,bar)

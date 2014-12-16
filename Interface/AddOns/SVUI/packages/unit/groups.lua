@@ -277,7 +277,7 @@ local PartyUnitUpdate = function(self)
             health:SetPointToScale("BOTTOMLEFT", self, "BOTTOMLEFT", 1, 1)
         end 
         do 
-            local nametext = self.InfoPanel.Name
+            local nametext = self.TextGrip.Name
             self:Tag(nametext, altDB.tags)
         end 
     else 
@@ -643,7 +643,7 @@ local TankUnitUpdate = function(self)
     end 
     MOD:RefreshUnitLayout(self, "tank")
     do 
-        local nametext = self.InfoPanel.Name;
+        local nametext = self.TextGrip.Name;
         if oUF_Villain.colors.healthclass then 
             self:Tag(nametext, "[name:10]")
         else 
@@ -759,7 +759,7 @@ local AssistUnitUpdate = function(self)
     MOD:RefreshUnitLayout(self, "assist")
 
     do 
-        local nametext = self.InfoPanel.Name;
+        local nametext = self.TextGrip.Name;
         if oUF_Villain.colors.healthclass then 
             self:Tag(nametext, "[name:10]")
         else 

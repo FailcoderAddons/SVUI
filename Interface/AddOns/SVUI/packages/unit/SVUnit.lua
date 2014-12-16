@@ -68,8 +68,6 @@ local MOD = SV:NewPackage("SVUnit", L["UnitFrames"])
 MOD.Units = {}
 MOD.Headers = {}
 MOD.Dispellable = {}
-
-oUF_Villain.SVConfigs = {}
 --[[ 
 ########################################################## 
 LOCALS
@@ -231,8 +229,8 @@ end
 
 function MOD:GetActiveSize(db, token)
 	local width, height, best = 0,0,0
-	if(SV.db.SVUnit.grid.enable and db.gridAllowed) then
-		width = SV.db.SVUnit.grid.size
+	if(db.grid and db.grid.enable) then
+		width = db.grid.size
 		height = width
 		best = width
 	elseif(db) then
@@ -270,10 +268,6 @@ function MOD:RefreshUnitColors()
 	end
 	local r, g, b = db.health[1], db.health[2], db.health[3]
 	oUF_Villain.colors.smooth = {1, 0, 0, 1, 1, 0, r, g, b}
-
-	oUF_Villain.SVConfigs.classbackdrop = SV.db.SVUnit.classbackdrop
-	oUF_Villain.SVConfigs.healthclass = SV.db.SVUnit.healthclass
-	oUF_Villain.SVConfigs.colorhealthbyvalue = SV.db.SVUnit.colorhealthbyvalue
 end
 
 function MOD:RefreshAllUnitMedia()
@@ -337,10 +331,10 @@ function MOD:RefreshUnitMedia(unitName)
     local CURRENT_AURABAR_FONTOUTLINE = db.auraFontOutline
     local unitDB = db[key]
     if(unitDB and unitDB.enable) then
-        local panel = self.InfoPanel
+        local panel = self.TextGrip
         if(panel) then
             if(panel.Name and unitDB.name) then
-            	if(db.grid.enable and unitDB.gridAllowed) then
+            	if(unitDB.grid and unitDB.grid.enable) then
             		panel.Name:SetFont(SV.Media.font.pixel, 8, "MONOCHROMEOUTLINE")
             		panel.Name:SetShadowOffset(1, -1)
 					panel.Name:SetShadowColor(0, 0, 0, 0.75)
@@ -425,51 +419,70 @@ function MOD:RefreshUnitLayout(frame, template)
 		BOTTOM_MODIFIER = 1
 	end
 
-	local UNIT_WIDTH, UNIT_HEIGHT, BEST_SIZE = self:GetActiveSize(db)
-	local POWER_HEIGHT = (db.power and db.power.enable) and (db.power.height - 1) or 1;
-	local PORTRAIT_WIDTH = (1 * TOP_MODIFIER)
-	local GRID_MODE = (SV.db.SVUnit.grid.enable and db.gridAllowed) or false
-	local MINI_GRID = (GRID_MODE and SV.db.SVUnit.grid.size < 26) or false
+	local MASTER_GRIP = frame.MasterGrip;
+	local TEXT_GRIP = frame.TextGrip;
 
-	local healthPanel = frame.HealthPanel
-	local infoPanel = frame.InfoPanel
-	local portraitOverlay = false
-	local overlayAnimation = false
+	local UNIT_WIDTH, UNIT_HEIGHT, BEST_SIZE = self:GetActiveSize(db);
+	local GRID_MODE = (db.grid and db.grid.enable);
+	local MINI_GRID = (GRID_MODE and BEST_SIZE < 26);
 
-	if(db.portrait and db.portrait.enable) then 
-		if(not db.portrait.overlay) then
-			PORTRAIT_WIDTH = ((db.portrait.width * TOP_MODIFIER) + (1 * TOP_MODIFIER))
-		else
-			portraitOverlay = true
-			overlayAnimation = SV.db.SVUnit.overlayAnimation
-		end
+	local POWER_GRIP = frame.Power;
+	local POWER_ENABLED = false;
+	local POWER_HEIGHT = 1;
+	if(POWER_GRIP and db.power) then
+		POWER_ENABLED = (GRID_MODE and db.grid.powerEnable) or db.power.enable;
+		POWER_HEIGHT = POWER_ENABLED and (db.power.height - 1) or 1;
 	end
 
-	if GRID_MODE then portraitOverlay = false end
-
-	if frame.Portrait then
-		frame.Portrait:Hide()
-		frame.Portrait:ClearAllPoints()
-	end 
-	if db.portrait and frame.PortraitTexture and frame.PortraitModel then
-		if db.portrait.style == '2D' then
-			frame.Portrait = frame.PortraitTexture
-		else
-			frame.PortraitModel.UserRotation = db.portrait.rotation;
-			frame.PortraitModel.UserCamDistance = db.portrait.camDistanceScale;
-			frame.Portrait = frame.PortraitModel
+	local PORTRAIT_GRIP = false;
+	local PORTRAIT_ENABLED = false;
+	local PORTRAIT_OVERLAY = false;
+	local PORTRAIT_OVERLAY_ANIMATION = false;
+	local PORTRAIT_WIDTH = (1 * TOP_MODIFIER);
+	local PORTRAIT_STYLE = 'None';
+	if(db.portrait) then
+		PORTRAIT_ENABLED = (not GRID_MODE and db.portrait.enable);
+		PORTRAIT_OVERLAY = (not GRID_MODE and PORTRAIT_ENABLED and db.portrait.overlay);
+		PORTRAIT_OVERLAY_ANIMATION = (PORTRAIT_OVERLAY) and SV.db.SVUnit.overlayAnimation or false;
+		if(PORTRAIT_ENABLED and (not PORTRAIT_OVERLAY)) then 
+			PORTRAIT_WIDTH = ((db.portrait.width * TOP_MODIFIER) + (1 * TOP_MODIFIER));
 		end
-	end 
+		PORTRAIT_STYLE = db.portrait.style;
 
-	healthPanel:ClearAllPoints()
-	healthPanel:SetPointToScale(TOP_ANCHOR1, frame, TOP_ANCHOR1, (1 * BOTTOM_MODIFIER), -1)
-	healthPanel:SetPointToScale(BOTTOM_ANCHOR1, frame, BOTTOM_ANCHOR1, PORTRAIT_WIDTH, POWER_HEIGHT)
+		if(frame.Portrait) then
+			frame.Portrait:Hide()
+			frame.Portrait:ClearAllPoints()
+		end 
+		if(frame.PortraitTexture and frame.PortraitModel) then
+			if(PORTRAIT_STYLE == '2D') then
+				frame.Portrait = frame.PortraitTexture
+			else
+				frame.PortraitModel.UserRotation = db.portrait.rotation;
+				frame.PortraitModel.UserCamDistance = db.portrait.camDistanceScale;
+				frame.Portrait = frame.PortraitModel
+			end
+		end
+
+		PORTRAIT_GRIP = frame.Portrait; 
+	end
+
+	local BUFF_GRIP = frame.Buffs;
+	local BUFF_ENABLED = (db.buffs and db.buffs.enable) or false;
+	local DEBUFF_GRIP = frame.Debuffs;
+	local DEBUFF_ENABLED = (db.debuffs and db.debuffs.enable) or false;
+	local AURABAR_GRIP = frame.AuraBars;
+	local AURABAR_ENABLED = (db.aurabar and db.aurabar.enable) or false;
+
+
+	MASTER_GRIP:ClearAllPoints();
+	MASTER_GRIP:SetPointToScale(TOP_ANCHOR1, frame, TOP_ANCHOR1, (1 * BOTTOM_MODIFIER), -1);
+	MASTER_GRIP:SetPointToScale(BOTTOM_ANCHOR1, frame, BOTTOM_ANCHOR1, PORTRAIT_WIDTH, POWER_HEIGHT);
 
 	if(frame.StatusPanel) then
 		if(template ~= "player" and template ~= "pet" and template ~= "target" and template ~= "targettarget" and template ~= "focus" and template ~= "focustarget") then
-			local size = healthPanel:GetHeight()
+			local size = MASTER_GRIP:GetHeight()
 			frame.StatusPanel:SetSize(size, size)
-			frame.StatusPanel:SetPoint("CENTER", healthPanel, "CENTER", 0, 0)
+			frame.StatusPanel:SetPoint("CENTER", MASTER_GRIP, "CENTER", 0, 0)
 		end
 	end
 
@@ -500,24 +513,22 @@ function MOD:RefreshUnitLayout(frame, template)
 	--[[ INFO TEXTS ]]--
 	local point,cX,cY;
 
-	if(infoPanel.Name and db.name) then
-		local nametext = infoPanel.Name
+	if(TEXT_GRIP.Name and db.name) then
+		local nametext = TEXT_GRIP.Name
 		if(GRID_MODE) then
-			if(SV.db.SVUnit.grid.shownames and SV.db.SVUnit.grid.size >= 30) then
-				if(not nametext:IsShown()) then nametext:Show() end
-				nametext:SetPointToScale("CENTER", frame, "CENTER", 0, 0)
-				nametext:SetJustifyH("CENTER")
-				nametext:SetJustifyV("MIDDLE")
+			nametext:ClearAllPoints()
+			nametext:SetPointToScale("CENTER", frame, "CENTER", 0, 0)
+			nametext:SetJustifyH("CENTER")
+			nametext:SetJustifyV("MIDDLE")
+			if(db.name.tags ~= nil and db.name.tags ~= '') then
 				frame:Tag(nametext, "[name:grid]")
-			else
-				nametext:Hide()
 			end
 		else
 			point = db.name.position
 			cX = db.name.xOffset
 			cY = db.name.yOffset
 			nametext:ClearAllPoints()
-			SV:SetReversePoint(nametext, point, infoPanel, cX, cY)
+			SV:SetReversePoint(nametext, point, TEXT_GRIP, cX, cY)
 
 			if(nametext.initialAnchor:find("RIGHT")) then
 				nametext:SetJustifyH("RIGHT")
@@ -539,49 +550,49 @@ function MOD:RefreshUnitLayout(frame, template)
 		end
 	end
 
-	if(frame.Health and infoPanel.Health and db.health) then
+	if(frame.Health and TEXT_GRIP.Health and db.health) then
 		if(GRID_MODE) then
-			infoPanel.Health:Hide()
+			TEXT_GRIP.Health:Hide()
 		else
-			if(not infoPanel.Health:IsShown()) then infoPanel.Health:Show() end
-			local healthtext = infoPanel.Health
+			if(not TEXT_GRIP.Health:IsShown()) then TEXT_GRIP.Health:Show() end
+			local healthtext = TEXT_GRIP.Health
 			point = db.health.position
 			cX = db.health.xOffset
 			cY = db.health.yOffset
 			healthtext:ClearAllPoints()
-			SV:SetReversePoint(healthtext, point, infoPanel, cX, cY)
+			SV:SetReversePoint(healthtext, point, TEXT_GRIP, cX, cY)
 			frame:Tag(healthtext, db.health.tags)
 		end
 	end
 
-	if(frame.Power and infoPanel.Power and db.power) then
+	if(POWER_GRIP and TEXT_GRIP.Power and db.power) then
 		if(GRID_MODE) then
-			infoPanel.Power:Hide()
+			TEXT_GRIP.Power:Hide()
 		else
-			if(not infoPanel.Power:IsShown()) then infoPanel.Power:Show() end
-			local powertext = infoPanel.Power
-			if db.power.tags ~= nil and db.power.tags ~= '' then
+			if(not TEXT_GRIP.Power:IsShown()) then TEXT_GRIP.Power:Show() end
+			local powertext = TEXT_GRIP.Power
+			if(db.power.tags ~= nil and db.power.tags ~= '') then
 				point = db.power.position
 				cX = db.power.xOffset
 				cY = db.power.yOffset
 				powertext:ClearAllPoints()
-				SV:SetReversePoint(powertext, point, infoPanel, cX, cY)
+				SV:SetReversePoint(powertext, point, TEXT_GRIP, cX, cY)
 				if db.power.attachTextToPower then 
-					powertext:SetParent(frame.Power)
+					powertext:SetParent(POWER_GRIP)
 				else 
-					powertext:SetParent(infoPanel)
+					powertext:SetParent(TEXT_GRIP)
 				end
 			end
 			frame:Tag(powertext, db.power.tags)
 		end
 	end
 
-	if(infoPanel.Misc and db.misc) then
+	if(TEXT_GRIP.Misc and db.misc) then
 		if(GRID_MODE) then
-			infoPanel.Misc:Hide()
+			TEXT_GRIP.Misc:Hide()
 		else
-			if(not infoPanel.Misc:IsShown()) then infoPanel.Misc:Show() end
-			frame:Tag(infoPanel.Misc, db.misc.tags)
+			if(not TEXT_GRIP.Misc:IsShown()) then TEXT_GRIP.Misc:Show() end
+			frame:Tag(TEXT_GRIP.Misc, db.misc.tags)
 		end
 	end
 
@@ -599,40 +610,30 @@ function MOD:RefreshUnitLayout(frame, template)
 		health.colorSmooth = nil;
 		health.colorHealth = nil;
 		health.colorClass = nil;
+		health.colorBackdrop = nil;
 		health.colorReaction = nil;
 		health.colorOverlay = nil;
-		health.overlayAnimation = overlayAnimation
+		health.overlayAnimation = PORTRAIT_OVERLAY_ANIMATION;
 
 		if((not GRID_MODE) and frame.HealPrediction) then
 			frame.HealPrediction["frequentUpdates"] = health.frequentUpdates
 		end
-		if((not GRID_MODE) and portraitOverlay and SV.db.SVUnit.forceHealthColor) then
+
+		if((not GRID_MODE) and PORTRAIT_OVERLAY and SV.db.SVUnit.forceHealthColor) then
 			health.colorOverlay = true;
 		else
-			if(GRID_MODE or (db.colorOverride and db.colorOverride == "FORCE_ON")) then 
-				health.colorClass = true;
-				health.colorReaction = true 
-			elseif(db.colorOverride and db.colorOverride == "FORCE_OFF") then 
-				if SV.db.SVUnit.colorhealthbyvalue == true then 
-					health.colorSmooth = true 
-				else 
-					health.colorHealth = true 
-				end 
-			else
-				if(not SV.db.SVUnit.healthclass) then 
-					if SV.db.SVUnit.colorhealthbyvalue == true then 
-						health.colorSmooth = true 
-					else 
-						health.colorHealth = true 
-					end 
-				else 
-					health.colorClass = true;
-					health.colorReaction = true 
-				end 
-			end
+			local CLASSCOLOR = db.health.classColor or false;
+			local VALUECOLOR = (not CLASSCOLOR and db.health.valueColor) or false;
+
+			health.colorClass = CLASSCOLOR;
+			health.colorReaction = CLASSCOLOR;
+			health.colorSmooth = VALUECOLOR;
+			health.colorHealth = ((not CLASSCOLOR) and (not VALUECOLOR)) or false;
+			health.colorBackdrop = (CLASSCOLOR and db.health.classBackdrop) or false;
 		end
+
 		health:ClearAllPoints()
-		health:SetAllPoints(healthPanel)
+		health:SetAllPoints(MASTER_GRIP)
 
 		health.gridMode = GRID_MODE;
 
@@ -640,59 +641,56 @@ function MOD:RefreshUnitLayout(frame, template)
 			health:SetOrientation(GRID_MODE and "VERTICAL" or db.health.orientation)
 		end
 
-		self:RefreshHealthBar(frame, portraitOverlay)
+		self:RefreshHealthBar(frame, PORTRAIT_OVERLAY)
 	end 
 
 	--[[ POWER LAYOUT ]]--
 
 	do
-		if frame.Power then
-			local power = frame.Power;
-			if db.power.enable then 
-				if not frame:IsElementEnabled('Power')then 
+		if(POWER_GRIP) then
+			if(POWER_ENABLED) then 
+				if(not frame:IsElementEnabled('Power')) then 
 					frame:EnableElement('Power')
-					power:Show()
+					POWER_GRIP:Show()
 				end
 
-				power.Smooth = SV.db.SVUnit.smoothbars;
+				POWER_GRIP.Smooth = SV.db.SVUnit.smoothbars;
  
-				power.colorClass = nil;
-				power.colorReaction = nil;
-				power.colorPower = nil;
-				if SV.db.SVUnit.powerclass then 
-					power.colorClass = true;
-					power.colorReaction = true 
-				else 
-					power.colorPower = true 
-				end 
-				if(db.power.frequentUpdates) then
-					power.frequentUpdates = db.power.frequentUpdates
-				end
-				power:ClearAllPoints()
-				power:SetHeightToScale(POWER_HEIGHT - 2)
-				power:SetPointToScale(BOTTOM_ANCHOR1, frame, BOTTOM_ANCHOR1, (PORTRAIT_WIDTH - (1 * BOTTOM_MODIFIER)), 2)
-				power:SetPointToScale(BOTTOM_ANCHOR2, frame, BOTTOM_ANCHOR2, (2 * BOTTOM_MODIFIER), 2)
-			elseif frame:IsElementEnabled('Power')then 
+				POWER_GRIP.colorClass = nil;
+				POWER_GRIP.colorReaction = nil;
+				POWER_GRIP.colorPower = nil;
+
+				local CLASSCOLOR = db.power.classColor or false;
+				POWER_GRIP.colorClass = CLASSCOLOR;
+				POWER_GRIP.colorReaction = CLASSCOLOR;
+				POWER_GRIP.colorPower = (not CLASSCOLOR); 
+				POWER_GRIP.frequentUpdates = db.power.frequentUpdates;
+
+				POWER_GRIP:ClearAllPoints()
+				POWER_GRIP:SetHeightToScale(POWER_HEIGHT - 2)
+				POWER_GRIP:SetPointToScale(BOTTOM_ANCHOR1, frame, BOTTOM_ANCHOR1, (PORTRAIT_WIDTH - (1 * BOTTOM_MODIFIER)), 2)
+				POWER_GRIP:SetPointToScale(BOTTOM_ANCHOR2, frame, BOTTOM_ANCHOR2, (2 * BOTTOM_MODIFIER), 2)
+			elseif(frame:IsElementEnabled('Power')) then 
 				frame:DisableElement('Power')
-				power:Hide()
+				POWER_GRIP:Hide()
 			end 
 		end
 
 		--[[ ALTPOWER LAYOUT ]]--
 
-		if frame.AltPowerBar then
+		if(frame.AltPowerBar) then
 			local altPower = frame.AltPowerBar;
 			local Alt_OnShow = function()
-				healthPanel:SetPointToScale(TOP_ANCHOR2, PORTRAIT_WIDTH, -(POWER_HEIGHT + 1))
+				MASTER_GRIP:SetPointToScale(TOP_ANCHOR2, PORTRAIT_WIDTH, -(POWER_HEIGHT + 1))
 			end 
 			local Alt_OnHide = function()
-				healthPanel:SetPointToScale(TOP_ANCHOR2, PORTRAIT_WIDTH, -1)
+				MASTER_GRIP:SetPointToScale(TOP_ANCHOR2, PORTRAIT_WIDTH, -1)
 				altPower.text:SetText("")
 			end 
 			if db.power.enable then 
 				frame:EnableElement('AltPowerBar')
-				if(infoPanel.Health) then
-					altPower.text:SetFont(infoPanel.Health:GetFont())
+				if(TEXT_GRIP.Health) then
+					altPower.text:SetFont(TEXT_GRIP.Health:GetFont())
 				end
 				altPower.text:SetAlpha(1)
 				altPower:SetPointToScale(TOP_ANCHOR2, frame, TOP_ANCHOR2, PORTRAIT_WIDTH, -1)
@@ -711,50 +709,50 @@ function MOD:RefreshUnitLayout(frame, template)
 
 	--[[ PORTRAIT LAYOUT ]]--
 
-	if db.portrait and frame.Portrait then
+	if(PORTRAIT_GRIP) then
 		local portrait = frame.Portrait;
 
-		if(not GRID_MODE and db.portrait.enable) then
-			portrait:Show()
+		if(PORTRAIT_ENABLED) then
+			PORTRAIT_GRIP:Show()
 
 			if not frame:IsElementEnabled('Portrait')then 
 				frame:EnableElement('Portrait')
 			end 
-			portrait:ClearAllPoints()
-			portrait:SetAlpha(1)
+			PORTRAIT_GRIP:ClearAllPoints()
+			PORTRAIT_GRIP:SetAlpha(1)
 		
-			if db.portrait.overlay then 
-				if db.portrait.style == '3D' then
-					portrait:SetFrameLevel(frame.ActionPanel:GetFrameLevel())
-					portrait:SetCamDistanceScale(db.portrait.camDistanceScale)
-				elseif db.portrait.style == '2D' then 
-					portrait.anchor:SetFrameLevel(frame.ActionPanel:GetFrameLevel())
+			if(PORTRAIT_OVERLAY) then 
+				if(PORTRAIT_STYLE == '3D') then
+					PORTRAIT_GRIP:SetFrameLevel(frame.ActionPanel:GetFrameLevel())
+					PORTRAIT_GRIP:SetCamDistanceScale(db.portrait.camDistanceScale)
+				elseif(PORTRAIT_STYLE == '2D') then 
+					PORTRAIT_GRIP.anchor:SetFrameLevel(frame.ActionPanel:GetFrameLevel())
 				end 
 				
-				portrait:SetPointToScale(TOP_ANCHOR2, healthPanel, TOP_ANCHOR2, (1 * TOP_MODIFIER), -1)
-				portrait:SetPointToScale(BOTTOM_ANCHOR2, healthPanel, BOTTOM_ANCHOR2, (1 * BOTTOM_MODIFIER), 1)
+				PORTRAIT_GRIP:SetPointToScale(TOP_ANCHOR2, MASTER_GRIP, TOP_ANCHOR2, (1 * TOP_MODIFIER), -1)
+				PORTRAIT_GRIP:SetPointToScale(BOTTOM_ANCHOR2, MASTER_GRIP, BOTTOM_ANCHOR2, (1 * BOTTOM_MODIFIER), 1)
 				
-				portrait.Panel:Show()
+				PORTRAIT_GRIP.Panel:Show()
 			else
-				portrait.Panel:Show()
-				if db.portrait.style == '3D' then 
-					portrait:SetFrameLevel(frame.ActionPanel:GetFrameLevel())
-					portrait:SetCamDistanceScale(db.portrait.camDistanceScale)
-				elseif db.portrait.style == '2D' then 
-					portrait.anchor:SetFrameLevel(frame.ActionPanel:GetFrameLevel())
+				PORTRAIT_GRIP.Panel:Show()
+				if(PORTRAIT_STYLE == '3D') then 
+					PORTRAIT_GRIP:SetFrameLevel(frame.ActionPanel:GetFrameLevel())
+					PORTRAIT_GRIP:SetCamDistanceScale(db.portrait.camDistanceScale)
+				elseif(PORTRAIT_STYLE == '2D') then 
+					PORTRAIT_GRIP.anchor:SetFrameLevel(frame.ActionPanel:GetFrameLevel())
 				end 
 				
-				if not frame.Power or not db.power.enable then 
-					portrait:SetPointToScale(TOP_ANCHOR2, frame, TOP_ANCHOR2, (1 * TOP_MODIFIER), -1)
-					portrait:SetPointToScale(BOTTOM_ANCHOR2, healthPanel, BOTTOM_ANCHOR1, (4 * BOTTOM_MODIFIER), 0)
+				if(not POWER_ENABLED) then 
+					PORTRAIT_GRIP:SetPointToScale(TOP_ANCHOR2, frame, TOP_ANCHOR2, (1 * TOP_MODIFIER), -1)
+					PORTRAIT_GRIP:SetPointToScale(BOTTOM_ANCHOR2, MASTER_GRIP, BOTTOM_ANCHOR1, (4 * BOTTOM_MODIFIER), 0)
 				else 
-					portrait:SetPointToScale(TOP_ANCHOR2, frame, TOP_ANCHOR2, (1 * TOP_MODIFIER), -1)
-					portrait:SetPointToScale(BOTTOM_ANCHOR2, frame.Power, BOTTOM_ANCHOR1, (4 * BOTTOM_MODIFIER), 0)
+					PORTRAIT_GRIP:SetPointToScale(TOP_ANCHOR2, frame, TOP_ANCHOR2, (1 * TOP_MODIFIER), -1)
+					PORTRAIT_GRIP:SetPointToScale(BOTTOM_ANCHOR2, POWER_GRIP, BOTTOM_ANCHOR1, (4 * BOTTOM_MODIFIER), 0)
 				end 
 			end
 		else 
-			portrait:Hide()
-			portrait.Panel:Hide()
+			PORTRAIT_GRIP:Hide()
+			PORTRAIT_GRIP.Panel:Hide()
 
 			if frame:IsElementEnabled('Portrait') then 
 				frame:DisableElement('Portrait')
@@ -764,7 +762,7 @@ function MOD:RefreshUnitLayout(frame, template)
 
 	--[[ CASTBAR LAYOUT ]]--
 
-	if db.castbar and frame.Castbar then
+	if(db.castbar and frame.Castbar) then
 		local castbar = frame.Castbar;
 		local castHeight = db.castbar.height;
 		local castWidth
@@ -847,9 +845,9 @@ function MOD:RefreshUnitLayout(frame, template)
 
 	--[[ AURA LAYOUT ]]--
 
-	if frame.Buffs and frame.Debuffs then
+	if(BUFF_GRIP or DEBUFF_GRIP) then
 		do
-			if db.debuffs.enable or db.buffs.enable then 
+			if(BUFF_ENABLED or DEBUFF_ENABLED) then 
 				if not frame:IsElementEnabled('Aura')then 
 					frame:EnableElement('Aura')
 				end 
@@ -857,88 +855,87 @@ function MOD:RefreshUnitLayout(frame, template)
 				if frame:IsElementEnabled('Aura')then 
 					frame:DisableElement('Aura')
 				end 
-			end 
-			frame.Buffs:ClearAllPoints()
-			frame.Debuffs:ClearAllPoints()
+			end
 		end 
 
-		do 
+		if(BUFF_GRIP) then 
 			local buffs = frame.Buffs;
 			local numRows = db.buffs.numrows;
 			local perRow = db.buffs.perrow;
 			local buffCount = perRow * numRows;
 			
-			buffs.forceShow = frame.forceShowAuras;
-			buffs.num = GRID_MODE and 0 or buffCount;
+			BUFF_GRIP.forceShow = frame.forceShowAuras;
+			BUFF_GRIP.num = GRID_MODE and 0 or buffCount;
 
-			local tempSize = (((UNIT_WIDTH + 2) - (buffs.spacing * (perRow - 1))) / perRow);
+			local tempSize = (((UNIT_WIDTH + 2) - (BUFF_GRIP.spacing * (perRow - 1))) / perRow);
 			local auraSize = min(BEST_SIZE, tempSize)
 			if(db.buffs.sizeOverride and db.buffs.sizeOverride > 0) then
 				auraSize = db.buffs.sizeOverride
-				buffs:SetWidth(perRow * db.buffs.sizeOverride)
+				BUFF_GRIP:SetWidth(perRow * db.buffs.sizeOverride)
 			end
 
-			buffs.size = auraSize;
+			BUFF_GRIP.size = auraSize;
 
 			local attachTo = FindAnchorFrame(frame, db.buffs.attachTo, db.debuffs.attachTo == 'BUFFS' and db.buffs.attachTo == 'DEBUFFS')
+			BUFF_GRIP:ClearAllPoints()
+			SV:SetReversePoint(BUFF_GRIP, db.buffs.anchorPoint, attachTo, db.buffs.xOffset + BOTTOM_MODIFIER, db.buffs.yOffset)
+			BUFF_GRIP:SetWidth((auraSize + BUFF_GRIP.spacing) * perRow)
+			BUFF_GRIP:SetHeightToScale((auraSize + BUFF_GRIP.spacing) * numRows)
+			BUFF_GRIP["growth-y"] = db.buffs.verticalGrowth;
+			BUFF_GRIP["growth-x"] = db.buffs.horizontalGrowth;
 
-			SV:SetReversePoint(buffs, db.buffs.anchorPoint, attachTo, db.buffs.xOffset + BOTTOM_MODIFIER, db.buffs.yOffset)
-			buffs:SetWidth((auraSize + buffs.spacing) * perRow)
-			buffs:SetHeightToScale((auraSize + buffs.spacing) * numRows)
-			buffs["growth-y"] = db.buffs.verticalGrowth;
-			buffs["growth-x"] = db.buffs.horizontalGrowth;
-
-			if db.buffs.enable then 
-				buffs:Show()
+			if(BUFF_ENABLED) then 
+				BUFF_GRIP:Show()
 			else 
-				buffs:Hide()
+				BUFF_GRIP:Hide()
 			end 
-		end 
-		do 
-			local debuffs = frame.Debuffs;
+		end
+
+		if(DEBUFF_GRIP) then 
 			local numRows = db.debuffs.numrows;
 			local perRow = db.debuffs.perrow;
 			local debuffCount = perRow * numRows;
 			
-			debuffs.forceShow = frame.forceShowAuras;
-			debuffs.num = GRID_MODE and 0 or debuffCount;
+			DEBUFF_GRIP.forceShow = frame.forceShowAuras;
+			DEBUFF_GRIP.num = GRID_MODE and 0 or debuffCount;
 
-			local tempSize = (((UNIT_WIDTH + 2) - (debuffs.spacing * (perRow - 1))) / perRow);
+			local tempSize = (((UNIT_WIDTH + 2) - (DEBUFF_GRIP.spacing * (perRow - 1))) / perRow);
 			local auraSize = min(BEST_SIZE,tempSize)
 			if(db.debuffs.sizeOverride and db.debuffs.sizeOverride > 0) then
 				auraSize = db.debuffs.sizeOverride
-				debuffs:SetWidth(perRow * db.debuffs.sizeOverride)
+				DEBUFF_GRIP:SetWidth(perRow * db.debuffs.sizeOverride)
 			end
 
-			debuffs.size = auraSize;
+			DEBUFF_GRIP.size = auraSize;
 
 			local attachTo = FindAnchorFrame(frame, db.debuffs.attachTo, db.debuffs.attachTo == 'BUFFS' and db.buffs.attachTo == 'DEBUFFS')
+			DEBUFF_GRIP:ClearAllPoints()
+			SV:SetReversePoint(DEBUFF_GRIP, db.debuffs.anchorPoint, attachTo, db.debuffs.xOffset + BOTTOM_MODIFIER, db.debuffs.yOffset)
+			DEBUFF_GRIP:SetWidth((auraSize + DEBUFF_GRIP.spacing) * perRow)
+			DEBUFF_GRIP:SetHeightToScale((auraSize + DEBUFF_GRIP.spacing) * numRows)
+			DEBUFF_GRIP["growth-y"] = db.debuffs.verticalGrowth;
+			DEBUFF_GRIP["growth-x"] = db.debuffs.horizontalGrowth;
 
-			SV:SetReversePoint(debuffs, db.debuffs.anchorPoint, attachTo, db.debuffs.xOffset + BOTTOM_MODIFIER, db.debuffs.yOffset)
-			debuffs:SetWidth((auraSize + debuffs.spacing) * perRow)
-			debuffs:SetHeightToScale((auraSize + debuffs.spacing) * numRows)
-			debuffs["growth-y"] = db.debuffs.verticalGrowth;
-			debuffs["growth-x"] = db.debuffs.horizontalGrowth;
-
-			if db.debuffs.enable then 
-				debuffs:Show()
+			if(DEBUFF_ENABLED) then  
+				DEBUFF_GRIP:Show()
 			else 
-				debuffs:Hide()
+				DEBUFF_GRIP:Hide()
 			end 
 		end 
 	end 
 
 	--[[ AURABAR LAYOUT ]]--
 
-	if frame.AuraBars then
-		local auraBar = frame.AuraBars;
-		if db.aurabar.enable then 
-			if not frame:IsElementEnabled("AuraBars") then frame:EnableElement("AuraBars") end 
-			auraBar:Show()
+	if(AURABAR_GRIP) then
+		if(AURABAR_ENABLED) then 
+			if(not frame:IsElementEnabled("AuraBars")) then 
+				frame:EnableElement("AuraBars") 
+			end 
+			AURABAR_GRIP:Show()
 
-			auraBar.forceShow = frame.forceShowAuras;
-			auraBar.friendlyAuraType = db.aurabar.friendlyAuraType
-			auraBar.enemyAuraType = db.aurabar.enemyAuraType
+			AURABAR_GRIP.forceShow = frame.forceShowAuras;
+			AURABAR_GRIP.friendlyAuraType = db.aurabar.friendlyAuraType
+			AURABAR_GRIP.enemyAuraType = db.aurabar.enemyAuraType
 
 			local attachTo = frame.ActionPanel;
 			local preOffset = 1;
@@ -948,36 +945,39 @@ function MOD:RefreshUnitLayout(frame, template)
 			elseif(db.aurabar.attachTo == "DEBUFFS" and frame.Debuffs and frame.Debuffs:IsShown()) then 
 				attachTo = frame.Debuffs
 				preOffset = 10
-			elseif template ~= "player" and SVUI_Player and db.aurabar.attachTo == "PLAYER_AURABARS" then
+			elseif(template ~= "player" and SVUI_Player and db.aurabar.attachTo == "PLAYER_AURABARS") then
 				attachTo = SVUI_Player.AuraBars
 				preOffset = 10
 			end
 
-			auraBar.auraBarHeight = db.aurabar.height;
-			auraBar:ClearAllPoints()
-			auraBar:SetSize(UNIT_WIDTH, db.aurabar.height)
+			AURABAR_GRIP.auraBarHeight = db.aurabar.height;
+			AURABAR_GRIP:ClearAllPoints()
+			AURABAR_GRIP:SetSize(UNIT_WIDTH, db.aurabar.height)
 
-			if db.aurabar.anchorPoint == "BELOW" then
-				auraBar:SetPointToScale("TOPLEFT", attachTo, "BOTTOMLEFT", 1, -preOffset)
-				auraBar.down = true
+			if(db.aurabar.anchorPoint == "BELOW") then
+				AURABAR_GRIP:SetPointToScale("TOPLEFT", attachTo, "BOTTOMLEFT", 1, -preOffset)
+				AURABAR_GRIP.down = true
 			else
-				auraBar:SetPointToScale("BOTTOMLEFT", attachTo, "TOPLEFT", 1, preOffset)
-				auraBar.down = false
+				AURABAR_GRIP:SetPointToScale("BOTTOMLEFT", attachTo, "TOPLEFT", 1, preOffset)
+				AURABAR_GRIP.down = false
 			end 
-			auraBar.buffColor = oUF_Villain.colors.buff_bars
+			AURABAR_GRIP.buffColor = oUF_Villain.colors.buff_bars
 
-			if SV.db.SVUnit.auraBarByType then 
-				auraBar.debuffColor = nil;
-				auraBar.defaultDebuffColor = oUF_Villain.colors.debuff_bars
+			if(SV.db.SVUnit.auraBarByType) then 
+				AURABAR_GRIP.debuffColor = nil;
+				AURABAR_GRIP.defaultDebuffColor = oUF_Villain.colors.debuff_bars
 			else 
-				auraBar.debuffColor = oUF_Villain.colors.debuff_bars
-				auraBar.defaultDebuffColor = nil 
+				AURABAR_GRIP.debuffColor = oUF_Villain.colors.debuff_bars
+				AURABAR_GRIP.defaultDebuffColor = nil 
 			end
 
-			SortAuraBars(auraBar, db.aurabar.sort)
-			auraBar:SetAnchors()
+			SortAuraBars(AURABAR_GRIP, db.aurabar.sort)
+			AURABAR_GRIP:SetAnchors()
 		else 
-			if frame:IsElementEnabled("AuraBars")then frame:DisableElement("AuraBars")auraBar:Hide()end 
+			if(frame:IsElementEnabled("AuraBars")) then 
+				frame:DisableElement("AuraBars")
+				AURABAR_GRIP:Hide()
+			end 
 		end
 	end 
 
@@ -998,7 +998,7 @@ function MOD:RefreshUnitLayout(frame, template)
 
 					classIcon:SetAlpha(1)
 					classIcon:SetSizeToScale(size)
-					SV:SetReversePoint(classIcon, ico.classIcon.attachTo, healthPanel, ico.classIcon.xOffset, ico.classIcon.yOffset)
+					SV:SetReversePoint(classIcon, ico.classIcon.attachTo, MASTER_GRIP, ico.classIcon.xOffset, ico.classIcon.yOffset)
 				else 
 					classIcon:Hide()
 				end
@@ -1017,11 +1017,11 @@ function MOD:RefreshUnitLayout(frame, template)
 					if(GRID_MODE) then
 						raidIcon:SetAlpha(0.7)
 						raidIcon:SetSizeToScale(10)
-						raidIcon:SetPointToScale("TOP", healthPanel, "TOP", 0, 0)
+						raidIcon:SetPointToScale("TOP", MASTER_GRIP, "TOP", 0, 0)
 					else
 						raidIcon:SetAlpha(1)
 						raidIcon:SetSizeToScale(size)
-						SV:SetReversePoint(raidIcon, ico.raidicon.attachTo, healthPanel, ico.raidicon.xOffset, ico.raidicon.yOffset)
+						SV:SetReversePoint(raidIcon, ico.raidicon.attachTo, MASTER_GRIP, ico.raidicon.xOffset, ico.raidicon.yOffset)
 					end
 				else 
 					frame:DisableElement('RaidIcon')
@@ -1042,11 +1042,11 @@ function MOD:RefreshUnitLayout(frame, template)
 					if(GRID_MODE) then
 						lfd:SetAlpha(0.7)
 						lfd:SetSizeToScale(10)
-						lfd:SetPointToScale("BOTTOM", healthPanel, "BOTTOM", 0, 0)
+						lfd:SetPointToScale("BOTTOM", MASTER_GRIP, "BOTTOM", 0, 0)
 					else
 						lfd:SetAlpha(1)
 						lfd:SetSizeToScale(size)
-						SV:SetReversePoint(lfd, ico.roleIcon.attachTo, healthPanel, ico.roleIcon.xOffset, ico.roleIcon.yOffset)
+						SV:SetReversePoint(lfd, ico.roleIcon.attachTo, MASTER_GRIP, ico.roleIcon.xOffset, ico.roleIcon.yOffset)
 					end
 				else 
 					frame:DisableElement('LFDRole')
@@ -1068,11 +1068,11 @@ function MOD:RefreshUnitLayout(frame, template)
 					if(GRID_MODE) then
 						roles:SetAlpha(0.7)
 						roles:SetSizeToScale(10)
-						roles:SetPointToScale("CENTER", healthPanel, "TOPLEFT", 0, 2)
+						roles:SetPointToScale("CENTER", MASTER_GRIP, "TOPLEFT", 0, 2)
 					else
 						roles:SetAlpha(1)
 						roles:SetSizeToScale(size)
-						SV:SetReversePoint(roles, ico.raidRoleIcons.attachTo, healthPanel, ico.raidRoleIcons.xOffset, ico.raidRoleIcons.yOffset)
+						SV:SetReversePoint(roles, ico.raidRoleIcons.attachTo, MASTER_GRIP, ico.raidRoleIcons.xOffset, ico.raidRoleIcons.yOffset)
 					end
 				else 
 					roles:Hide()
