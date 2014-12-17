@@ -90,7 +90,7 @@ TRACKER FUNCTIONS
 local GetScenarioObjective = function(self, index)
 	if(not self.Rows[index]) then 
 		local previousFrame = self.Rows[#self.Rows]
-		local yOffset = (index * (ROW_HEIGHT)) - ROW_HEIGHT
+		local yOffset = ((index * (ROW_HEIGHT)) - ROW_HEIGHT) + 3
 
 		local objective = CreateFrame("Frame", nil, self)
 		objective:SetPoint("TOPLEFT", self, "TOPLEFT", 0, -yOffset);
@@ -406,7 +406,7 @@ function MOD:InitializeScenarios()
 	local scenario = CreateFrame("Frame", nil, scrollChild)
     scenario:SetWidth(ROW_WIDTH);
 	scenario:SetHeight(ROW_HEIGHT);
-	scenario:SetPoint("TOPLEFT", self.Headers["Active"], "BOTTOMLEFT", 0, 0);
+	scenario:SetPoint("TOPLEFT", self.Headers["Active"], "BOTTOMLEFT", 0, -6);
 
 	scenario.Set = SetScenarioData;
 	scenario.Unset = UnsetScenarioData;

@@ -183,4 +183,6 @@ function MOD:Load()
 
 	ObjectiveTrackerFrame:UnregisterAllEvents();
 	ObjectiveTrackerFrame:SetParent(SV.Hidden);
+
+	self.Headers["Popups"]:Refresh()
 end

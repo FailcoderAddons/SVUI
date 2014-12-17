@@ -69,6 +69,7 @@ local LINE_QUEST_COMPLETE = [[Interface\AddOns\SVUI\assets\artwork\Quest\QUEST-C
 local LINE_QUEST_INCOMPLETE = [[Interface\LFGFRAME\LFGICON-QUEST]];
 
 local QUESTS_BY_DISTANCE = {};
+local QUEST_ID_CACHE = {};
 local CLOSEST_QUEST = {};
 local ZONES_LISTED = 0;
 
@@ -84,14 +85,17 @@ local QuestInZone = {
 
 local function GetCachedQuests()
 	local shortestDistance = 62500;
-	local currentAreaID = GetCurrentMapAreaID()
+	local currentAreaID = GetCurrentMapAreaID();
+	local validIndex = 1;
 	local closest = 0;
+
+	wipe(QUEST_ID_CACHE);
 
 	for i = 1, GetNumQuestWatches() do
 		local questID, _, questLogIndex, numObjectives, requiredMoney, completed, startEvent, isAutoComplete, duration, elapsed, questType, isTask, isStory, isOnMap, hasLocalPOI = GetQuestWatchInfo(i);
 		local title, level, suggestedGroup, link, texture, _, showCompleted, distanceSq, onContinent = "",100;
 		local mapID,floorNumber = 0,0;
-		if(questID) then
+		if(questID and (not QUEST_ID_CACHE[questID])) then
 			title, level, suggestedGroup = GetQuestLogTitle(questLogIndex)
 			link, texture, _, showCompleted = GetQuestLogSpecialItemInfo(questLogIndex)
 			distanceSq, onContinent = GetDistanceSqToQuest(questLogIndex)
@@ -99,32 +103,35 @@ local function GetCachedQuests()
 			if(QuestHasPOIInfo(questID)) then
 				local areaID = QuestInZone[questID]
 				if(areaID and (areaID == currentAreaID)) then
-					closest = i
+					closest = validIndex
 				elseif(onContinent and (distanceSq < shortestDistance)) then
 					shortestDistance = distanceSq
-					closest = i
+					closest = validIndex
 				end
 			end
-		end
 
-		if(not QUESTS_BY_DISTANCE[i]) then
-			QUESTS_BY_DISTANCE[i] = {order = i, item = false, range = 0, mapID = 0, floorNumber = 0, values = {"", 100, LINE_QUEST_ICON, 0, 0, 0, 0, 0, false}}
-		end
+			if(not QUESTS_BY_DISTANCE[validIndex]) then
+				QUESTS_BY_DISTANCE[validIndex] = {watchIndex = i, item = false, range = 0, mapID = 0, floorNumber = 0, values = {"", 100, LINE_QUEST_ICON, 0, 0, 0, 0, 0, false}}
+			end
 
-		QUESTS_BY_DISTANCE[i].order = i;
-		QUESTS_BY_DISTANCE[i].item = link;
-		QUESTS_BY_DISTANCE[i].mapID = mapID;
-		QUESTS_BY_DISTANCE[i].floorNumber = floorNumber;
-		QUESTS_BY_DISTANCE[i].range = distanceSq;
-		QUESTS_BY_DISTANCE[i].values[1] = title;
-		QUESTS_BY_DISTANCE[i].values[2] = level;
-		QUESTS_BY_DISTANCE[i].values[3] = texture;
-		QUESTS_BY_DISTANCE[i].values[4] = questID;
-		QUESTS_BY_DISTANCE[i].values[5] = questLogIndex;
-		QUESTS_BY_DISTANCE[i].values[6] = numObjectives;
-		QUESTS_BY_DISTANCE[i].values[7] = duration;
-		QUESTS_BY_DISTANCE[i].values[8] = elapsed;
-		QUESTS_BY_DISTANCE[i].values[9] = completed;
+			QUESTS_BY_DISTANCE[validIndex].watchIndex = i;
+			QUESTS_BY_DISTANCE[validIndex].item = link;
+			QUESTS_BY_DISTANCE[validIndex].mapID = mapID;
+			QUESTS_BY_DISTANCE[validIndex].floorNumber = floorNumber;
+			QUESTS_BY_DISTANCE[validIndex].range = distanceSq;
+			QUESTS_BY_DISTANCE[validIndex].values[1] = title;
+			QUESTS_BY_DISTANCE[validIndex].values[2] = level;
+			QUESTS_BY_DISTANCE[validIndex].values[3] = texture;
+			QUESTS_BY_DISTANCE[validIndex].values[4] = questID;
+			QUESTS_BY_DISTANCE[validIndex].values[5] = questLogIndex;
+			QUESTS_BY_DISTANCE[validIndex].values[6] = numObjectives;
+			QUESTS_BY_DISTANCE[validIndex].values[7] = duration;
+			QUESTS_BY_DISTANCE[validIndex].values[8] = elapsed;
+			QUESTS_BY_DISTANCE[validIndex].values[9] = completed;
+
+			QUEST_ID_CACHE[questID] = true;
+			validIndex = validIndex + 1;
+		end
 	end
 
 	local foundClosest = false;
@@ -201,7 +208,7 @@ TRACKER FUNCTIONS
 local GetObjectiveRow = function(self, index)
 	if(not self.Rows[index]) then 
 		local previousFrame = self.Rows[#self.Rows]
-		local yOffset = (index * (ROW_HEIGHT)) - ROW_HEIGHT
+		local yOffset = ((index * (ROW_HEIGHT)) - ROW_HEIGHT) + 3
 
 		local objective = CreateFrame("Frame", nil, self)
 		objective:SetPoint("TOPLEFT", self, "TOPLEFT", 0, -yOffset);
@@ -365,18 +372,22 @@ local SetQuestRow = function(self, index, watchIndex, title, level, icon, questI
 		icon = completed and LINE_QUEST_COMPLETE or LINE_QUEST_INCOMPLETE
 	end
 	local color = GetQuestDifficultyColor(level)
+	row:Show()
 	row.RowID = questID
 	row.Button:Show()
 	row.Badge:Show()
+
 	row.Header.Zone:SetText('')
+
 	row.Header.Level:SetTextColor(color.r, color.g, color.b)
 	row.Header.Level:SetText(level)
+
 	row.Header.Text:SetTextColor(color.r, color.g, color.b)
 	row.Header.Text:SetText(title)
+
 	row.Badge.Icon:SetTexture(icon)
 	row.Badge.Button:SetID(watchIndex)
 	row.Button:SetID(questLogIndex)
-	row:Show()
 
 	local objectives = row.Objectives;
 
@@ -413,7 +424,10 @@ local SetQuestRow = function(self, index, watchIndex, title, level, icon, questI
 end
 
 local SetZoneHeader = function(self, index, mapID)
-	if(not mapID or (mapID and mapID == 0)) then return end
+	if(not mapID or (mapID and mapID == 0)) then 
+		return 0,index
+	end
+	index = index + 1;
 	local row = self:Get(index);
 	local zoneName = GetMapNameByID(mapID);
 	ZONES_LISTED = ZONES_LISTED + 1;
@@ -427,6 +441,7 @@ local SetZoneHeader = function(self, index, mapID)
 	else
 		row.Header.Zone:SetTextColor(1,0.25,0.08)
 	end
+	row:Show()
 	row.RowID = mapID
 	row.Button:Hide()
 	row.Badge:Hide()
@@ -435,7 +450,6 @@ local SetZoneHeader = function(self, index, mapID)
 	row.Header.Zone:SetText(zoneName)
 	row.Badge.Button:SetID(0)
 	row.Button:SetID(0)
-	row:Show()
 
 	local objectives = row.Objectives;
 	local numLineObjectives = #objectives.Rows;
@@ -451,7 +465,39 @@ local SetZoneHeader = function(self, index, mapID)
 	end
 
 	objectives:SetHeight(1);
-	return mapID;
+	return mapID, index;
+end
+
+local ResetQuestBlock = function(self)
+	for x = 1, #self.Rows do
+		local row = self.Rows[x]
+		if(row) then
+			row:Show()
+			row.RowID = 0;
+			row.Header.Text:SetText('');
+			row.Header.Zone:SetText('');
+			row.Button:SetID(0);
+			row.Badge.Button:SetID(0);
+			row.Objectives:SetHeight(1);
+		end
+	end
+end
+
+local RemoveUnusedBlocks = function(self, lastIndex)
+	for x = lastIndex, #self.Rows do
+		local row = self.Rows[x]
+		if(row) then
+			row.RowID = 0;
+			row.Header.Text:SetText('');
+			row.Header.Zone:SetText('');
+			row.Button:SetID(0);
+			row.Badge.Button:SetID(0);
+			row.Objectives:SetHeight(1);
+			if(row:IsShown()) then
+				row:Hide()
+			end
+		end
+	end
 end
 
 local RefreshQuests = function(self, event, ...)
@@ -461,25 +507,30 @@ local RefreshQuests = function(self, event, ...)
 	local zoneID = 0;
 	ZONES_LISTED = 0;
 
-	if(CLOSEST) then
-		nextLine = nextLine + 1;
-		zoneID = self:SetZone(nextLine, CLOSEST.mapID)
+	--wipe(QUEST_ID_CACHE);
 
-		nextLine = nextLine + 1;
-		local watchIndex = CLOSEST.order;
+	if(CLOSEST) then
+		local watchIndex = CLOSEST.watchIndex;
 		local args = CLOSEST.values;
-		local newCount = self:Set(nextLine, watchIndex, unpack(args))
-		totalObjectives = totalObjectives + newCount;
-		if(CLOSEST.item) then
-			MOD.QuestItem:SetItem(CLOSEST.item, args[3], unpack(args))
-		--elseif(MOD.QuestItem:IsShown()) then
-		--	MOD.QuestItem:RemoveItem()
+		local questID = args[4];
+		if(questID) then
+			zoneID, nextLine = self:SetZone(nextLine, CLOSEST.mapID);
+
+			nextLine = nextLine + 1;
+			local newCount = self:Set(nextLine, watchIndex, unpack(args))
+			totalObjectives = totalObjectives + newCount;
+			if(CLOSEST.item) then
+				MOD.QuestItem:SetItem(CLOSEST.item, args[3], unpack(args))
+			--elseif(MOD.QuestItem:IsShown()) then
+			--	MOD.QuestItem:RemoveItem()
+			end
+			--QUEST_ID_CACHE[questID] = true;
 		end
 	end
 
 	for i = 1, #CACHE do
 		local questData = CACHE[i];
-		local watchIndex = questData.order;
+		local watchIndex = questData.watchIndex;
 		local args = questData.values;
 		local questID = args[4];
 		if(questID) then
@@ -487,25 +538,17 @@ local RefreshQuests = function(self, event, ...)
 				MOD.Headers["Active"]:Set(unpack(args));
 			else
 				if(zoneID ~= questData.mapID) then
-					nextLine = nextLine + 1;
-					zoneID = self:SetZone(nextLine, questData.mapID)
+					zoneID, nextLine = self:SetZone(nextLine, questData.mapID)
 				end
 				nextLine = nextLine + 1;
 				local newCount = self:Set(nextLine, watchIndex, unpack(args))
 				totalObjectives = totalObjectives + newCount;
 			end
+			--QUEST_ID_CACHE[questID] = true;
 		end
 	end
 
-	if(nextLine == 0) then
-		self:SetHeight(1);
-		return
-	end
-
-	nextLine = nextLine + 1;
-
-	local numLines = #self.Rows;
-	for x = nextLine, numLines do
+	for x = (nextLine + 1), #self.Rows do
 		local row = self.Rows[x]
 		if(row) then
 			row.RowID = 0;
@@ -513,13 +556,22 @@ local RefreshQuests = function(self, event, ...)
 			row.Header.Zone:SetText('');
 			row.Button:SetID(0);
 			row.Badge.Button:SetID(0);
+			row.Objectives:SetHeight(1);
 			if(row:IsShown()) then
 				row:Hide()
 			end
 		end
 	end
 
+	self:RemoveUnused(nextLine + 1)
+
+	if(nextLine == 0) then
+		self:SetHeight(1);
+		return
+	end
+
 	local newHeight = (nextLine * (ROW_HEIGHT + 2)) + (totalObjectives * (INNER_HEIGHT + 2)) + (INNER_HEIGHT * 2);
+
 	self:SetHeight(newHeight);
 end
 --[[ 
@@ -528,18 +580,25 @@ CORE FUNCTIONS
 ##########################################################
 ]]--
 function MOD:UpdateObjectives(event, ...)
-	self.Headers["Quests"]:Refresh(event, ...)
-	if(event == "QUEST_TURNED_IN") then
+	if(event == "QUEST_ACCEPTED" and (AUTO_QUEST_WATCH == "1")) then
+		local questLogIndex, questID = ...;
+		AddQuestWatch(questLogIndex);
+		QuestSuperTracking_OnQuestTracked(questID);
+	elseif(event == "QUEST_TURNED_IN") then
 		local questID, xp, money = ...;
-		local button = self.Headers["Active"].Block.Button;
-		local questIndex = button:GetID();
-		if(questIndex and (questIndex ~= 0)) then
-			local ActiveQuestID = select(8, GetQuestLogTitle(questIndex));
-			if(ActiveQuestID == questID) then
-				button:CloseMe()
+		if(questID) then
+			local button = self.Headers["Active"].Block.Button;
+			local questIndex = button:GetID();
+			if(questIndex and (questIndex ~= 0)) then
+				local ActiveQuestID = select(8, GetQuestLogTitle(questIndex));
+				if(ActiveQuestID == questID) then
+					button:CloseMe()
+				end
 			end
 		end
 	end
+	self.Headers["Quests"]:Reset()
+	self.Headers["Quests"]:Refresh(event, ...)
 	self:UpdateDimensions();
 end
 
@@ -583,6 +642,8 @@ function MOD:InitializeQuests()
 	quests.Set = SetQuestRow;
 	quests.SetZone = SetZoneHeader;
 	quests.Refresh = RefreshQuests;
+	quests.Reset = ResetQuestBlock;
+	quests.RemoveUnused = RemoveUnusedBlocks;
 
 	self.Headers["Quests"] = quests;
 

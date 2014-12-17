@@ -149,33 +149,36 @@ local SetPopupRow = function(self, index, title, popUpType, questID, questLogInd
 	row:Show()
 end
 
-local RefreshPopupObjective = function(self, event, ...)
-	local nextLine = 0;
-	for i = 1, GetNumAutoQuestPopUps() do
-		local questID, popUpType = GetAutoQuestPopUp(i);
-		local questLogIndex = GetQuestLogIndexByID(questID);
-		local title = GetQuestLogTitle(questLogIndex);
-		if(title and title ~= '') then
-			nextLine = nextLine + 1;
-			self:Set(nextLine, title, popUpType, questID, questLogIndex)
-		end
-	end
-
-	nextLine = nextLine + 1;
-
-	local numLines = #self.Rows;
-	for x = nextLine, numLines do
+local ResetPopupBlock = function(self)
+	for x = 1, #self.Rows do
 		local row = self.Rows[x]
 		if(row) then
 			row.RowID = 0;
 			row.Header.Text:SetText('');
 			row.Button:SetID(0);
 			row.Button.PopUpType = nil;
-			row.Badge.Icon:SetTexture(0,0,0,0)
-			if(row:IsShown()) then
-				row:Hide()
+			row.Objectives:SetHeight(1);
+		end
+	end
+end
+
+local RefreshPopupObjective = function(self, event, ...)
+	local nextLine = 0;
+	for i = 1, GetNumAutoQuestPopUps() do
+		local questID, popUpType = GetAutoQuestPopUp(i);
+		if(questID) then
+			local questLogIndex = GetQuestLogIndexByID(questID);
+			local title = GetQuestLogTitle(questLogIndex);
+			if(title and title ~= '') then
+				nextLine = nextLine + 1;
+				self:Set(nextLine, title, popUpType, questID, questLogIndex)
 			end
 		end
+	end
+
+	if(nextLine == 0) then
+		self:SetHeight(1);
+		return
 	end
 
 	local newHeight = (nextLine * (LARGE_ROW_HEIGHT + 2)) + (ROW_HEIGHT + (nextLine * 2));
@@ -191,6 +194,12 @@ end
 CORE FUNCTIONS
 ##########################################################
 ]]--
+function MOD:UpdatePopupQuests(event, ...)
+	self.Headers["Popups"]:Reset()
+	self.Headers["Popups"]:Refresh(event, ...)
+	self:UpdateDimensions();
+end
+
 local function UpdatePopupLocals(...)
 	ROW_WIDTH, ROW_HEIGHT, INNER_HEIGHT, LARGE_ROW_HEIGHT, LARGE_INNER_HEIGHT = ...;
 end
@@ -209,10 +218,13 @@ function MOD:InitializePopups()
 
 	popups.Get = GetPopUpRow;
 	popups.Set = SetPopupRow;
+	popups.Reset = ResetPopupBlock;
 	popups.Refresh = RefreshPopupObjective;
 
 	self.Headers["Popups"] = popups;
 
 	hooksecurefunc("AddAutoQuestPopUp", _hook_AutoPopUpQuests)
 	hooksecurefunc("RemoveAutoQuestPopUp", _hook_AutoPopUpQuests)
+
+	self:RegisterEvent("QUEST_AUTOCOMPLETE", self.UpdatePopupQuests);
 end

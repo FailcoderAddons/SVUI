@@ -409,6 +409,32 @@ local UpdateScenarioBonusObjectives = function(self)
 	end
 end
 
+local ResetBonusBlock = function(self)
+	for x = 1, #self.Rows do
+		local row = self.Rows[x]
+		if(row) then
+			row:Show()
+			row.RowID = 0;
+			row.Header.Text:SetText('');
+			row.Objectives:SetHeight(1);
+		end
+	end
+end
+
+local RemoveUnusedBlocks = function(self, lastIndex)
+	for x = lastIndex, #self.Rows do
+		local row = self.Rows[x]
+		if(row) then
+			row.RowID = 0;
+			row.Header.Text:SetText('');
+			row.Objectives:SetHeight(1);
+			if(row:IsShown()) then
+				row:Hide()
+			end
+		end
+	end
+end
+
 local UpdateQuestBonusObjectives = function(self)
 	local totalObjectives = 0;
 	local nextLine = 0;
@@ -425,18 +451,11 @@ local UpdateQuestBonusObjectives = function(self)
 		end
 	end
 
-	nextLine = nextLine + 1;
+	self:RemoveUnused(nextLine + 1)
 
-	local numLines = #self.Rows;
-	for x = nextLine, numLines do
-		local row = self.Rows[x]
-		if(row) then
-			row.RowID = 0;
-			row.Header.Text:SetText('');
-			if(row:IsShown()) then
-				row:Hide()
-			end
-		end
+	if(nextLine == 0) then
+		self:SetHeight(1);
+		return
 	end
 
 	local newHeight = (nextLine * (ROW_HEIGHT + 2)) + (totalObjectives * (INNER_HEIGHT + 2)) + (ROW_HEIGHT + (nextLine * 2));
@@ -475,6 +494,7 @@ CORE FUNCTIONS
 ##########################################################
 ]]--
 function MOD:UpdateBonusObjective(event, ...)
+	self.Headers["Bonus"]:Reset()
 	self.Headers["Bonus"]:Refresh(event, ...)
 	self:UpdateDimensions();
 end
@@ -490,6 +510,8 @@ function MOD:InitializeBonuses()
 	bonus.Get = GetBonusRow;
 	bonus.Set = SetBonusRow;
 	bonus.Refresh = RefreshBonusObjectives;
+	bonus.Reset = ResetBonusBlock;
+	bonus.RemoveUnused = RemoveUnusedBlocks;
 	bonus.UpdateQuests = UpdateQuestBonusObjectives;
 	bonus.UpdateScenarios = UpdateScenarioBonusObjectives;
 

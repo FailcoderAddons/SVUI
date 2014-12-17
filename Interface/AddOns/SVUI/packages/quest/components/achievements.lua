@@ -101,7 +101,7 @@ TRACKER FUNCTIONS
 local GetObjectiveRow = function(self, index)
 	if(not self.Rows[index]) then 
 		local previousFrame = self.Rows[#self.Rows]
-		local yOffset = (index * (ROW_HEIGHT)) - ROW_HEIGHT
+		local yOffset = ((index * (ROW_HEIGHT)) - ROW_HEIGHT) + 3
 
 		local objective = CreateFrame("Frame", nil, self)
 		objective:SetPoint("TOPLEFT", self, "TOPLEFT", 0, -yOffset);
@@ -283,6 +283,34 @@ local SetAchievementRow = function(self, index, title, details, icon, achievemen
 	return totalObjectives;
 end
 
+local ResetAchievementBlock = function(self)
+	for x = 1, #self.Rows do
+		local row = self.Rows[x]
+		if(row) then
+			row:Show()
+			row.RowID = 0;
+			row.Header.Text:SetText('');
+			row.Button:SetID(0);
+			row.Objectives:SetHeight(1);
+		end
+	end
+end
+
+local RemoveUnusedBlocks = function(self, lastIndex)
+	for x = lastIndex, #self.Rows do
+		local row = self.Rows[x]
+		if(row) then
+			row.RowID = 0;
+			row.Header.Text:SetText('');
+			row.Button:SetID(0);
+			row.Objectives:SetHeight(1);
+			if(row:IsShown()) then
+				row:Hide()
+			end
+		end
+	end
+end
+
 local RefreshAchievements = function(self, event, ...)
 	local trackedAchievements = { GetTrackedAchievements() };
 	local liveLines = #trackedAchievements;
@@ -301,23 +329,19 @@ local RefreshAchievements = function(self, event, ...)
 		end
 	end
 
-	nextLine = nextLine + 1;
+	self:RemoveUnused(nextLine + 1)
 
-	local numLines = #self.Rows;
-	for x = nextLine, numLines do
-		local row = self.Rows[x]
-		if(row) then
-			row.RowID = 0;
-			row.Header.Text:SetText('');
-			row.Button:SetID(0);
-			if(row:IsShown()) then
-				row:Hide()
-			end
-		end
+	if(nextLine == 0) then
+		self:SetHeight(1);
+		self.Header:SetHeight(1);
+		self.Header.Text:SetText('');
+		return
 	end
 
-	local newHeight = (liveLines * (ROW_HEIGHT + 2)) + (totalObjectives * (INNER_HEIGHT + 2)) + (ROW_HEIGHT + (liveLines * 2));
+	local newHeight = (nextLine * (ROW_HEIGHT + 2)) + (totalObjectives * (INNER_HEIGHT + 2)) + (1 + (nextLine * 2));
 	self:SetHeight(newHeight);
+	self.Header:SetHeight(INNER_HEIGHT);
+	self.Header.Text:SetText(TRACKER_HEADER_ACHIEVEMENTS);
 end
 --[[ 
 ########################################################## 
@@ -325,6 +349,7 @@ CORE FUNCTIONS
 ##########################################################
 ]]--
 function MOD:UpdateAchievements(event, ...)
+	self.Headers["Achievements"]:Reset()
 	self.Headers["Achievements"]:Refresh(event, ...)
 	self:UpdateDimensions();
 end
@@ -341,7 +366,7 @@ function MOD:InitializeAchievements()
     local achievements = CreateFrame("Frame", nil, scrollChild)
     achievements:SetWidth(ROW_WIDTH);
 	achievements:SetHeight(ROW_HEIGHT);
-	achievements:SetPoint("TOPLEFT", self.Headers["Bonus"], "BOTTOMLEFT", 0, 0);
+	achievements:SetPoint("TOPLEFT", self.Headers["Bonus"], "BOTTOMLEFT", 0, -6);
 
 	achievements.Header = CreateFrame("Frame", nil, achievements)
 	achievements.Header:SetPoint("TOPLEFT", achievements, "TOPLEFT", 2, -2);
@@ -369,6 +394,8 @@ function MOD:InitializeAchievements()
 	achievements.Get = GetAchievementRow;
 	achievements.Set = SetAchievementRow;
 	achievements.Refresh = RefreshAchievements;
+	achievements.Reset = ResetAchievementBlock;
+	achievements.RemoveUnused = RemoveUnusedBlocks;
 
 	self.Headers["Achievements"] = achievements;
 
