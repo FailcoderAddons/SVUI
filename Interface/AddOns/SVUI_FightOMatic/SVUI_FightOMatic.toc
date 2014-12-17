@@ -1,6 +1,6 @@
 ## Interface: 60000
 ## Author: Munglunch
-## Version: 5.4.05
+## Version: 5.4.051
 ## Title: |cffFF9900SVUI |r|cffFFEF00Fight-O-Matic|r
 ## Notes: Supervillain UI [|cff9911FFPvP Tools|r].
 ## SavedVariablesPerCharacter: FightOMatic_Profile, FightOMatic_Cache

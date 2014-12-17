@@ -56,37 +56,10 @@ local ROW_HEIGHT = 20;
 local INNER_HEIGHT = ROW_HEIGHT - 4;
 local LARGE_ROW_HEIGHT = ROW_HEIGHT * 2;
 local LARGE_INNER_HEIGHT = LARGE_ROW_HEIGHT - 4;
-
 local OBJ_ICON_ACTIVE = [[Interface\COMMON\Indicator-Yellow]];
 local OBJ_ICON_COMPLETE = [[Interface\COMMON\Indicator-Green]];
 local OBJ_ICON_INCOMPLETE = [[Interface\COMMON\Indicator-Gray]];
 local LINE_ACHIEVEMENT_ICON = [[Interface\ICONS\Achievement_General]];
-
-local function GetTimerTextColor(duration, elapsed)
-	local yellowPercent = .66
-	local redPercent = .33
-	
-	local percentageLeft = 1 - ( elapsed / duration )
-	if(percentageLeft > yellowPercent) then
-		return 1, 1, 1;
-	elseif(percentageLeft > redPercent) then
-		local blueOffset = (percentageLeft - redPercent) / (yellowPercent - redPercent);
-		return 1, 1, blueOffset;
-	else
-		local greenOffset = percentageLeft / redPercent;
-		return 1, greenOffset, 0;
-	end
-end
-
-local function CheckAndHideHeader(moduleHeader)
-	if(moduleHeader and not moduleHeader.added and moduleHeader:IsShown()) then
-		moduleHeader:Hide();
-		if(moduleHeader.animating) then
-			moduleHeader.animating = nil;
-			moduleHeader.HeaderOpenAnim:Stop();
-		end
-	end
-end
 --[[ 
 ########################################################## 
 SCRIPT HANDLERS
@@ -122,86 +95,139 @@ local ViewButton_OnClick = function(self, button)
 end
 --[[ 
 ########################################################## 
-HELPERS
-##########################################################
-]]--
-local function NewAchievementRow(parent, lineNumber)
-	local lastRowNumber = lineNumber - 1;
-	local previousFrame = parent.Rows[lastRowNumber]
-	local anchorFrame;
-	if(previousFrame and previousFrame.Objectives) then
-		anchorFrame = previousFrame.Objectives;
-	else
-		anchorFrame = parent.Header;
-	end
-
-	local row = CreateFrame("Frame", nil, parent)
-	row:SetPoint("TOPLEFT", anchorFrame, "BOTTOMLEFT", 0, -2);
-	row:SetPoint("TOPRIGHT", anchorFrame, "BOTTOMRIGHT", 0, -2);
-	row:SetHeight(ROW_HEIGHT);
-
-	row.Badge = CreateFrame("Frame", nil, row)
-	row.Badge:SetPoint("TOPLEFT", row, "TOPLEFT", 2, -2);
-	row.Badge:SetSize(INNER_HEIGHT, INNER_HEIGHT);
-	row.Badge:SetStylePanel("Default", "Headline")
-
-	row.Badge.Icon = row.Badge:CreateTexture(nil,"OVERLAY")
-	row.Badge.Icon:SetAllPoints(row.Badge);
-	row.Badge.Icon:SetTexture(LINE_ACHIEVEMENT_ICON)
-	row.Badge.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-
-	row.Header = CreateFrame("Frame", nil, row)
-	row.Header:SetPoint("TOPLEFT", row.Badge, "TOPRIGHT", 2, 0);
-	row.Header:SetPoint("TOPRIGHT", row, "TOPRIGHT", -2, 0);
-	row.Header:SetHeight(INNER_HEIGHT);
-	--row.Header:SetStylePanel("Default", "Headline")
-
-	row.Header.Text = row.Header:CreateFontString(nil,"OVERLAY")
-	row.Header.Text:SetFont(SV.Media.font.roboto, 13, "NONE")
-	row.Header.Text:SetTextColor(1,1,0)
-	row.Header.Text:SetShadowOffset(-1,-1)
-	row.Header.Text:SetShadowColor(0,0,0,0.5)
-	row.Header.Text:SetJustifyH('LEFT')
-	row.Header.Text:SetJustifyV('MIDDLE')
-	row.Header.Text:SetText('')
-	row.Header.Text:SetPoint("TOPLEFT", row.Header, "TOPLEFT", 4, 0);
-	row.Header.Text:SetPoint("BOTTOMRIGHT", row.Header, "BOTTOMRIGHT", 0, 0);
-
-	row.Button = CreateFrame("Button", nil, row.Header)
-	row.Button:SetAllPoints(row.Header);
-	row.Button:SetStylePanel("Button", "Headline", 1, 1, 1)
-	row.Button:SetID(0)
-	row.Button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
-	row.Button:SetScript("OnClick", ViewButton_OnClick)
-
-	row.Objectives = CreateFrame("Frame", nil, row)
-	row.Objectives:SetPoint("TOPLEFT", row, "BOTTOMLEFT", 0, 0);
-	row.Objectives:SetPoint("TOPRIGHT", row, "BOTTOMRIGHT", 0, 0);
-	row.Objectives:SetHeight(1);
-
-	row.Objectives.Rows = {}
-	row.Objectives.Add = MOD.AddObjectiveRow;
-
-	row.RowID = 0;
-
-	return row;
-end
---[[ 
-########################################################## 
 TRACKER FUNCTIONS
 ##########################################################
 ]]--
-local AddAchievementRow = function(self, index, title, details, icon, achievementID)
-	local objectivesShown = 0;
-	local nextObjective = 1;
+local GetObjectiveRow = function(self, index)
+	if(not self.Rows[index]) then 
+		local previousFrame = self.Rows[#self.Rows]
+		local yOffset = (index * (ROW_HEIGHT)) - ROW_HEIGHT
 
-	local row = self.Rows[index];
-	if(not row) then
-		self.Rows[index] = NewAchievementRow(self, index)
-		row = self.Rows[index]
-		row.RowID = achievementID
+		local objective = CreateFrame("Frame", nil, self)
+		objective:SetPoint("TOPLEFT", self, "TOPLEFT", 0, -yOffset);
+		objective:SetPoint("TOPRIGHT", self, "TOPRIGHT", 0, -yOffset);
+		objective:SetHeight(INNER_HEIGHT);
+
+		objective.Icon = objective:CreateTexture(nil,"OVERLAY")
+		objective.Icon:SetPoint("TOPLEFT", objective, "TOPLEFT", 4, -2);
+		objective.Icon:SetPoint("BOTTOMLEFT", objective, "BOTTOMLEFT", 4, 2);
+		objective.Icon:SetWidth(INNER_HEIGHT - 4);
+		objective.Icon:SetTexture(OBJ_ICON_INCOMPLETE)
+
+		objective.Bar = CreateFrame("StatusBar", nil, objective)
+		objective.Bar:SetPoint("TOPLEFT", objective.Icon, "TOPRIGHT", 4, 0);
+		objective.Bar:SetPoint("BOTTOMRIGHT", objective, "BOTTOMRIGHT", -2, 2);
+		objective.Bar:SetStatusBarTexture(SV.Media.bar.default)
+		objective.Bar:SetStatusBarColor(0.5,0,1)
+		objective.Bar:SetMinMaxValues(0, 1)
+		objective.Bar:SetValue(0)
+
+		objective.Text = objective:CreateFontString(nil,"OVERLAY")
+		objective.Text:SetPoint("TOPLEFT", objective, "TOPLEFT", INNER_HEIGHT + 6, -2);
+		objective.Text:SetPoint("TOPRIGHT", objective, "TOPRIGHT", 0, -2);
+		objective.Text:SetHeight(INNER_HEIGHT - 2)
+		objective.Text:SetFont(SV.Media.font.roboto, 12, "NONE")
+		objective.Text:SetTextColor(1,1,1)
+		objective.Text:SetShadowOffset(-1,-1)
+		objective.Text:SetShadowColor(0,0,0,0.5)
+		objective.Text:SetJustifyH('LEFT')
+		objective.Text:SetJustifyV('MIDDLE')
+		objective.Text:SetText('')
+
+		self.Rows[index] = objective;
 	end
 
+	return self.Rows[index];
+end
+
+local SetObjectiveRow = function(self, index, description, completed, duration, elapsed)
+	local objective = self:Get(index);
+	objective.Text:SetText(description)
+
+	if(completed) then
+		objective.Text:SetTextColor(0.1,0.9,0.1)
+		objective.Icon:SetTexture(OBJ_ICON_COMPLETE)
+	else
+		objective.Text:SetTextColor(1,1,1)
+		objective.Icon:SetTexture(OBJ_ICON_INCOMPLETE)
+	end
+
+	duration = duration or 1;
+	elapsed = (elapsed and elapsed <= duration) and elapsed or 0;
+	objective.Bar:SetMinMaxValues(0, duration)
+	objective.Bar:SetValue(elapsed)	
+
+	objective:Show()
+
+	return objective;
+end
+
+local GetAchievementRow = function(self, index)
+	if(not self.Rows[index]) then 
+		local previousFrame = self.Rows[#self.Rows]
+		local index = #self.Rows + 1;
+
+		local anchorFrame;
+		if(previousFrame and previousFrame.Objectives) then
+			anchorFrame = previousFrame.Objectives;
+		else
+			anchorFrame = self.Header;
+		end
+
+		local row = CreateFrame("Frame", nil, self)
+		row:SetPoint("TOPLEFT", anchorFrame, "BOTTOMLEFT", 0, -2);
+		row:SetPoint("TOPRIGHT", anchorFrame, "BOTTOMRIGHT", 0, -2);
+		row:SetHeightToScale(ROW_HEIGHT);
+		row.Badge = CreateFrame("Frame", nil, row)
+		row.Badge:SetPoint("TOPLEFT", row, "TOPLEFT", 2, -2);
+		row.Badge:SetSize(INNER_HEIGHT, INNER_HEIGHT);
+		row.Badge:SetStylePanel("Default", "Headline")
+		row.Badge.Icon = row.Badge:CreateTexture(nil,"OVERLAY")
+		row.Badge.Icon:SetAllPoints(row.Badge);
+		row.Badge.Icon:SetTexture(LINE_ACHIEVEMENT_ICON)
+		row.Badge.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+		row.Header = CreateFrame("Frame", nil, row)
+		row.Header:SetPoint("TOPLEFT", row.Badge, "TOPRIGHT", 2, 0);
+		row.Header:SetPoint("TOPRIGHT", row, "TOPRIGHT", -2, 0);
+		row.Header:SetHeightToScale(INNER_HEIGHT);
+		row.Header.Text = row.Header:CreateFontString(nil,"OVERLAY")
+		row.Header.Text:SetFont(SV.Media.font.roboto, 13, "NONE")
+		row.Header.Text:SetTextColor(1,1,0)
+		row.Header.Text:SetShadowOffset(-1,-1)
+		row.Header.Text:SetShadowColor(0,0,0,0.5)
+		row.Header.Text:SetJustifyH('LEFT')
+		row.Header.Text:SetJustifyV('MIDDLE')
+		row.Header.Text:SetText('')
+		row.Header.Text:SetPoint("TOPLEFT", row.Header, "TOPLEFT", 4, 0);
+		row.Header.Text:SetPoint("BOTTOMRIGHT", row.Header, "BOTTOMRIGHT", 0, 0);
+		row.Button = CreateFrame("Button", nil, row.Header)
+		row.Button:SetAllPoints(row.Header);
+		row.Button:SetStylePanel("Button", "Headline", 1, 1, 1)
+		row.Button:SetID(0)
+		row.Button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+		row.Button:SetScript("OnClick", ViewButton_OnClick)
+		row.Objectives = CreateFrame("Frame", nil, row)
+		row.Objectives:SetPoint("TOPLEFT", row, "BOTTOMLEFT", 0, 0);
+		row.Objectives:SetPoint("TOPRIGHT", row, "BOTTOMRIGHT", 0, 0);
+		row.Objectives:SetHeightToScale(1);
+		row.Objectives.Rows = {}
+
+		row.Objectives.Get = GetObjectiveRow;
+		row.Objectives.Set = SetObjectiveRow;
+		row.RowID = 0;
+		self.Rows[index] = row;
+		return row;
+	end
+
+	return self.Rows[index];
+end
+
+local SetAchievementRow = function(self, index, title, details, icon, achievementID)
+	local objectivesShown = 0;
+	local nextObjective = 0;
+
+	local row = self:Get(index);
+	row.RowID = achievementID
 	icon = icon or LINE_ACHIEVEMENT_ICON;
 
 	row.Header.Text:SetText(title)
@@ -232,11 +258,13 @@ local AddAchievementRow = function(self, index, title, details, icon, achievemen
 				end
 				objectivesShown = objectivesShown + 1;					
 			end
-
-			objectives:Add(i, description, completed, duration, elapsed)
 			nextObjective = nextObjective + 1;
+			objectives:Set(i, description, completed, duration, elapsed)
 		end
 	end
+
+	local objectiveHeight = (INNER_HEIGHT + 2) * nextObjective;
+	nextObjective = nextObjective + 1;
 
 	local numLineObjectives = #objectives.Rows;
 	for x = nextObjective, numLineObjectives do
@@ -250,7 +278,6 @@ local AddAchievementRow = function(self, index, title, details, icon, achievemen
 		end
 	end
 
-	local objectiveHeight = (INNER_HEIGHT + 2) * totalObjectives;
 	objectives:SetHeight(objectiveHeight + 1);
 
 	return totalObjectives;
@@ -260,19 +287,21 @@ local RefreshAchievements = function(self, event, ...)
 	local trackedAchievements = { GetTrackedAchievements() };
 	local liveLines = #trackedAchievements;
 	local totalObjectives = 0;
-	local nextLine = 1;
+	local nextLine = 0;
 
 	if(liveLines > 0) then
 		for i = 1, liveLines do
 			local achievementID = trackedAchievements[i];
 			local _, title, _, completed, _, _, _, details, _, icon, _, _, wasEarnedByMe = GetAchievementInfo(achievementID);
 			if(not wasEarnedByMe) then
-				local newCount = self:Add(i, title, details, icon, achievementID)
-				totalObjectives = totalObjectives + newCount
 				nextLine = nextLine + 1;
+				local newCount = self:Set(i, title, details, icon, achievementID)
+				totalObjectives = totalObjectives + newCount
 			end
 		end
 	end
+
+	nextLine = nextLine + 1;
 
 	local numLines = #self.Rows;
 	for x = nextLine, numLines do
@@ -296,8 +325,8 @@ CORE FUNCTIONS
 ##########################################################
 ]]--
 function MOD:UpdateAchievements(event, ...)
-	self.Achievements:Refresh(event, ...)
-	self.Tracker:Refresh()
+	self.Headers["Achievements"]:Refresh(event, ...)
+	self:UpdateDimensions();
 end
 
 local function UpdateAchievementLocals(...)
@@ -307,12 +336,12 @@ end
 SV.Events:On("QUEST_UPVALUES_UPDATED", "UpdateAchievementLocals", UpdateAchievementLocals);
 
 function MOD:InitializeAchievements()
-	local scrollChild = self.Tracker.ScrollFrame.ScrollChild;
+	local scrollChild = self.Docklet.ScrollFrame.ScrollChild;
 
     local achievements = CreateFrame("Frame", nil, scrollChild)
     achievements:SetWidth(ROW_WIDTH);
 	achievements:SetHeight(ROW_HEIGHT);
-	achievements:SetPoint("TOPLEFT", self.Bonus, "BOTTOMLEFT", 0, 0);
+	achievements:SetPoint("TOPLEFT", self.Headers["Bonus"], "BOTTOMLEFT", 0, 0);
 
 	achievements.Header = CreateFrame("Frame", nil, achievements)
 	achievements.Header:SetPoint("TOPLEFT", achievements, "TOPLEFT", 2, -2);
@@ -337,13 +366,14 @@ function MOD:InitializeAchievements()
 
 	achievements.Rows = {};
 
-	achievements.Add = AddAchievementRow;
+	achievements.Get = GetAchievementRow;
+	achievements.Set = SetAchievementRow;
 	achievements.Refresh = RefreshAchievements;
 
-	self.Achievements = achievements;
+	self.Headers["Achievements"] = achievements;
 
 	self:RegisterEvent("TRACKED_ACHIEVEMENT_UPDATE", self.UpdateAchievements);
 	self:RegisterEvent("TRACKED_ACHIEVEMENT_LIST_CHANGED", self.UpdateAchievements);
 
-	self.Achievements:Refresh()
+	self.Headers["Achievements"]:Refresh()
 end

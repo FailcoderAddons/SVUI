@@ -12,6 +12,12 @@ _____/\\\\\\\\\\\____/\\\________/\\\__/\\\________/\\\__/\\\\\\\\\\\_       #
 ##############################################################################
 S U P E R - V I L L A I N - U I   By: Munglunch                              #
 ##############################################################################
+
+QUEST TRACKER BUTTON: 
+
+Originally "ExtraQuestButton" by p3lim, 
+modified/minimally re-written for SVUI by Munglunch
+
 ########################################################## 
 LOCALIZED LUA FUNCTIONS
 ##########################################################
@@ -51,7 +57,17 @@ local MOD = SV.SVQuest;
 LOCALS
 ##########################################################
 ]]--
-local blacklist = {
+local QuestInZone = {
+	[14108] = 541,
+	[13998] = 11,
+	[25798] = 61,
+	[25799] = 61,
+	[25112] = 161,
+	[25111] = 161,
+	[24735] = 201,
+};
+
+local ItemBlackList = {
 	[113191] = true,
 	[110799] = true,
 	[109164] = true,
@@ -141,18 +157,19 @@ BUTTON INTERNALS
 ##########################################################
 ]]--
 local SetButtonItem = function(self, itemLink, texture, ...)
-	MOD.Active:Refresh(...)
-
 	if(itemLink) then
 		if(itemLink == self.itemLink and self:IsShown()) then
 			return
 		end
 
+		MOD.Headers["Active"]:Refresh('ACTIVE_QUEST_LOADED', ...)
+
 		self.Icon:SetTexture(texture)
 		self.itemID, self.itemName = string.match(itemLink, '|Hitem:(.-):.-|h%[(.+)%]|h')
 		self.itemLink = itemLink
+		self.CurrentQuest = MOD.CurrentQuest
 
-		if(blacklist[self.itemID]) then
+		if(ItemBlackList[self.itemID]) then
 			return
 		end
 	end
@@ -178,19 +195,63 @@ local SetButtonItem = function(self, itemLink, texture, ...)
 	end
 end
 
-local RemoveButtonItem = function(self)
+local RemoveButtonItem = function(self, logIndex)
+	if(logIndex and (logIndex ~= self.CurrentQuest)) then return; end
 	if(InCombatLockdown()) then
 		self.attribute = nil;
-		self.CurrentQuest = nil;
+		self.CurrentQuest = 0;
 		self:RegisterEvent('PLAYER_REGEN_ENABLED')
 	else
-		self.CurrentQuest = nil;
+		self.CurrentQuest = 0;
 		self:SetAttribute('item', nil)
 	end
 end
 
 local UpdateButton = function(self)
-	MOD:UpdateProximity()
+	local shortestDistance = 62500;
+	local currentAreaID = GetCurrentMapAreaID()
+	local closestQuest, closestLink, closestTexture, closestLevel, closestCount, closestIndex, closestDuration, closestExpiration, closestID, closestComplete;
+
+	for i = 1, GetNumQuestWatches() do
+		local questID, _, questLogIndex, numObjectives, requiredMoney, isComplete, startEvent, isAutoComplete, failureTime, timeElapsed, questType, isTask, isStory, isOnMap, hasLocalPOI = GetQuestWatchInfo(i);
+		if(questID) then
+			local title, level, suggestedGroup = GetQuestLogTitle(questLogIndex)
+			if(QuestHasPOIInfo(questID)) then
+				local link, texture, _, showCompleted = GetQuestLogSpecialItemInfo(questLogIndex)
+				local areaID = QuestInZone[questID]
+				if(areaID and (areaID == currentAreaID)) then
+					closestQuest = title
+					closestID = questID
+					closestLink = link
+					closestTexture = texture
+					closestLevel = level
+					closestCount = numObjectives
+					closestIndex = questLogIndex
+					closestDuration = failureTime
+					closestExpiration = timeElapsed
+					closestComplete = isComplete
+				elseif(onContinent and (distanceSq < shortestDistance)) then
+					shortestDistance = distanceSq
+					closestQuest = title
+					closestID = questID
+					closestLink = link
+					closestTexture = texture
+					closestLevel = level
+					closestCount = numObjectives
+					closestIndex = questLogIndex
+					closestDuration = failureTime
+					closestExpiration = timeElapsed
+					closestComplete = isComplete
+				end
+			end
+		end
+	end
+
+	if(closestLink) then
+		self:SetItem(closestLink, closestTexture, closestQuest, closestLevel, closestTexture, closestID, closestIndex, closestCount, closestDuration, closestExpiration, closestComplete)
+	elseif(self:IsShown()) then
+		self:RemoveItem()
+	end
 end
 --[[ 
 ########################################################## 
@@ -274,7 +335,7 @@ function MOD:InitializeQuestItem()
 	Button:RegisterEvent('QUEST_POI_UPDATE')
 	Button:SetScript('OnEvent', QuestButton_OnEvent)
 
-	Button:Hide()
+	--Button:Hide()
 
 	self.QuestItem = Button
 end

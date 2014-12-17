@@ -65,67 +65,6 @@ local CACHED_BONUS_DATA = {};
 local CACHED_SCENARIO_DATA = {};
 --[[ 
 ########################################################## 
-SCRIPT HANDLERS
-##########################################################
-]]--
-local ViewButton_OnClick = function(self, button)
-	local questIndex = self:GetID();
-	if(questIndex and (questIndex ~= 0)) then
-		local questID = select(8, GetQuestLogTitle(questIndex));
-	end
-end
---[[ 
-########################################################## 
-HELPERS
-##########################################################
-]]--
-local function NewBonusRow(lineNumber)
-	local parent = MOD.Bonus;
-	local lastRowNumber = lineNumber - 1;
-	local previousFrame = parent.Rows[lastRowNumber]
-
-	local row = CreateFrame("Frame", nil, parent)
-	if(previousFrame and previousFrame.Objectives) then
-		row:SetPoint("TOPLEFT", previousFrame.Objectives, "BOTTOMLEFT", 0, -2);
-		row:SetPoint("TOPRIGHT", previousFrame.Objectives, "BOTTOMRIGHT", 0, -2);
-	else
-		row:SetPoint("TOPLEFT", parent, "TOPLEFT", 0, -2);
-		row:SetPoint("TOPRIGHT", parent, "TOPRIGHT", 0, -2);
-	end
-	row:SetHeightToScale(ROW_HEIGHT);
-
-	row.Header = CreateFrame("Frame", nil, row)
-	row.Header:SetPointToScale("TOPLEFT", row, "TOPLEFT", 2, -2);
-	row.Header:SetPointToScale("TOPRIGHT", row, "TOPRIGHT", -2, -2);
-	row.Header:SetHeightToScale(INNER_HEIGHT);
-	row.Header:SetStylePanel("Default", "Headline");
-
-	row.Header.Text = row.Header:CreateFontString(nil,"OVERLAY")
-	row.Header.Text:SetFont(SV.Media.font.roboto, 13, "NONE")
-	row.Header.Text:SetTextColor(0.2,0.75,1)
-	row.Header.Text:SetShadowOffset(-1,-1)
-	row.Header.Text:SetShadowColor(0,0,0,0.5)
-	row.Header.Text:SetJustifyH('LEFT')
-	row.Header.Text:SetJustifyV('MIDDLE')
-	row.Header.Text:SetText('')
-	row.Header.Text:SetPointToScale("TOPLEFT", row.Header, "TOPLEFT", 0, 0);
-	row.Header.Text:SetPointToScale("BOTTOMRIGHT", row.Header, "BOTTOMRIGHT", 0, 0);
-
-	row.Objectives = CreateFrame("Frame", nil, row)
-	row.Objectives:SetPointToScale("TOPLEFT", row.Header, "BOTTOMLEFT", 0, -2);
-	row.Objectives:SetPointToScale("TOPRIGHT", row.Header, "BOTTOMRIGHT", 0, -2);
-	row.Objectives:SetHeightToScale(1);
-	--row.Objectives:SetStylePanel("Default", "Inset");
-
-	row.Objectives.Rows = {}
-	row.Objectives.Add = MOD.AddObjectiveRow;
-
-	row.RowID = 0;
-
-	return row;
-end
---[[ 
-########################################################## 
 DATA CACHE HANDLERS
 ##########################################################
 ]]--
@@ -243,22 +182,135 @@ local function GetScenarioBonusStep(index)
 end
 --[[ 
 ########################################################## 
+SCRIPT HANDLERS
+##########################################################
+]]--
+local ViewButton_OnClick = function(self, button)
+	local questIndex = self:GetID();
+	if(questIndex and (questIndex ~= 0)) then
+		local questID = select(8, GetQuestLogTitle(questIndex));
+	end
+end
+--[[ 
+########################################################## 
 TRACKER FUNCTIONS
 ##########################################################
 ]]--
-local AddBonusRow = function(self, questID, numObjectives)
-	local nextObjective = 1;
-	local index = #self.Rows + 1;
+local GetObjectiveRow = function(self, index)
+	if(not self.Rows[index]) then 
+		local previousFrame = self.Rows[#self.Rows]
+		local yOffset = (index * (ROW_HEIGHT)) - ROW_HEIGHT
 
-	local row = self.Rows[index];
-	if(not row) then
-		self.Rows[index] = NewBonusRow(self, index)
-		row = self.Rows[index]
-		row.RowID = questID
-	elseif(row and (row.RowID == questID)) then
-		return
+		local objective = CreateFrame("Frame", nil, self)
+		objective:SetPoint("TOPLEFT", self, "TOPLEFT", 0, -yOffset);
+		objective:SetPoint("TOPRIGHT", self, "TOPRIGHT", 0, -yOffset);
+		objective:SetHeight(INNER_HEIGHT);
+
+		objective.Icon = objective:CreateTexture(nil,"OVERLAY")
+		objective.Icon:SetPoint("TOPLEFT", objective, "TOPLEFT", 4, -2);
+		objective.Icon:SetPoint("BOTTOMLEFT", objective, "BOTTOMLEFT", 4, 2);
+		objective.Icon:SetWidth(INNER_HEIGHT - 4);
+		objective.Icon:SetTexture(OBJ_ICON_INCOMPLETE)
+
+		objective.Bar = CreateFrame("StatusBar", nil, objective)
+		objective.Bar:SetPoint("TOPLEFT", objective.Icon, "TOPRIGHT", 4, 0);
+		objective.Bar:SetPoint("BOTTOMRIGHT", objective, "BOTTOMRIGHT", -2, 2);
+		objective.Bar:SetStatusBarTexture(SV.Media.bar.default)
+		objective.Bar:SetStatusBarColor(0.5,0,1)
+		objective.Bar:SetMinMaxValues(0, 1)
+		objective.Bar:SetValue(0)
+
+		objective.Text = objective:CreateFontString(nil,"OVERLAY")
+		objective.Text:SetPoint("TOPLEFT", objective, "TOPLEFT", INNER_HEIGHT + 6, -2);
+		objective.Text:SetPoint("TOPRIGHT", objective, "TOPRIGHT", 0, -2);
+		objective.Text:SetHeight(INNER_HEIGHT - 2)
+		objective.Text:SetFont(SV.Media.font.roboto, 12, "NONE")
+		objective.Text:SetTextColor(1,1,1)
+		objective.Text:SetShadowOffset(-1,-1)
+		objective.Text:SetShadowColor(0,0,0,0.5)
+		objective.Text:SetJustifyH('LEFT')
+		objective.Text:SetJustifyV('MIDDLE')
+		objective.Text:SetText('')
+
+		self.Rows[index] = objective;
 	end
 
+	return self.Rows[index];
+end
+
+local SetObjectiveRow = function(self, index, description, completed, duration, elapsed)
+	local objective = self:Get(index);
+	objective.Text:SetText(description)
+
+	if(completed) then
+		objective.Text:SetTextColor(0.1,0.9,0.1)
+		objective.Icon:SetTexture(OBJ_ICON_COMPLETE)
+	else
+		objective.Text:SetTextColor(1,1,1)
+		objective.Icon:SetTexture(OBJ_ICON_INCOMPLETE)
+	end
+
+	duration = duration or 1;
+	elapsed = (elapsed and elapsed <= duration) and elapsed or 0;
+	objective.Bar:SetMinMaxValues(0, duration)
+	objective.Bar:SetValue(elapsed)	
+
+	objective:Show()
+
+	return objective;
+end
+
+local GetBonusRow = function(self, index)
+	if(not self.Rows[index]) then 
+		local previousFrame = self.Rows[#self.Rows]
+		local index = #self.Rows + 1;
+
+		local anchorFrame;
+		if(previousFrame and previousFrame.Objectives) then
+			anchorFrame = previousFrame.Objectives;
+		else
+			anchorFrame = self.Header;
+		end
+
+		local row = CreateFrame("Frame", nil, self)
+		row:SetPoint("TOPLEFT", anchorFrame, "BOTTOMLEFT", 0, -2);
+		row:SetPoint("TOPRIGHT", anchorFrame, "BOTTOMRIGHT", 0, -2);
+		row:SetHeightToScale(ROW_HEIGHT);
+		row.Header = CreateFrame("Frame", nil, row)
+		row.Header:SetPointToScale("TOPLEFT", row, "TOPLEFT", 2, -2);
+		row.Header:SetPointToScale("TOPRIGHT", row, "TOPRIGHT", -2, -2);
+		row.Header:SetHeightToScale(INNER_HEIGHT);
+		row.Header:SetStylePanel("Default", "Headline");
+		row.Header.Text = row.Header:CreateFontString(nil,"OVERLAY")
+		row.Header.Text:SetFont(SV.Media.font.roboto, 13, "NONE")
+		row.Header.Text:SetTextColor(0.2,0.75,1)
+		row.Header.Text:SetShadowOffset(-1,-1)
+		row.Header.Text:SetShadowColor(0,0,0,0.5)
+		row.Header.Text:SetJustifyH('LEFT')
+		row.Header.Text:SetJustifyV('MIDDLE')
+		row.Header.Text:SetText('')
+		row.Header.Text:SetPointToScale("TOPLEFT", row.Header, "TOPLEFT", 0, 0);
+		row.Header.Text:SetPointToScale("BOTTOMRIGHT", row.Header, "BOTTOMRIGHT", 0, 0);
+		row.Objectives = CreateFrame("Frame", nil, row)
+		row.Objectives:SetPointToScale("TOPLEFT", row.Header, "BOTTOMLEFT", 0, -2);
+		row.Objectives:SetPointToScale("TOPRIGHT", row.Header, "BOTTOMRIGHT", 0, -2);
+		row.Objectives:SetHeightToScale(1);
+		row.Objectives.Rows = {}
+		row.Objectives.Get = GetObjectiveRow;
+		row.Objectives.Set = SetObjectiveRow;
+		row.RowID = 0;
+		self.Rows[index] = row;
+		return row;
+	end
+
+	return self.Rows[index];
+end
+
+local SetBonusRow = function(self, index, questID, numObjectives)
+	local nextObjective = 0;
+
+	local row = self:Get(index);
+	row.RowID = questID
 	row.Header.Text:SetText(TRACKER_HEADER_OBJECTIVE .. ": " .. index)
 	row:Show()
 
@@ -267,10 +319,13 @@ local AddBonusRow = function(self, questID, numObjectives)
 	for i = 1, numObjectives do
 		local text, category, completed = GetCachedQuestObjectiveInfo(questID, i);
 		if(text and text ~= '') then
-			objectives:Add(i, text, completed, category)
 			nextObjective = nextObjective + 1;
+			objectives:Set(i, text, completed, category)
 		end
 	end
+
+	local objectiveHeight = (INNER_HEIGHT * nextObjective) + 1;
+	nextObjective = nextObjective + 1;
 
 	local numLineObjectives = #objectives.Rows;
 
@@ -285,7 +340,6 @@ local AddBonusRow = function(self, questID, numObjectives)
 		end
 	end
 
-	local objectiveHeight = (INNER_HEIGHT + 2) * numObjectives;
 	objectives:SetHeight(objectiveHeight + 1);
 end
 
@@ -357,7 +411,7 @@ end
 
 local UpdateQuestBonusObjectives = function(self)
 	local totalObjectives = 0;
-	local nextLine = 1;
+	local nextLine = 0;
 
 	local cache = GetBonusCache();
 	for i = 1, #cache do
@@ -366,10 +420,12 @@ local UpdateQuestBonusObjectives = function(self)
 		local existingTask = ENABLED_BONUS_IDS[questID];
 		if(isInArea or (isOnMap and existingTask)) then
 			nextLine = nextLine + 1;
-			local newCount = self:Add(questID, numObjectives)
+			local newCount = self:Set(nextLine, questID, numObjectives)
 			totalObjectives = totalObjectives + newCount;
 		end
 	end
+
+	nextLine = nextLine + 1;
 
 	local numLines = #self.Rows;
 	for x = nextLine, numLines do
@@ -419,23 +475,25 @@ CORE FUNCTIONS
 ##########################################################
 ]]--
 function MOD:UpdateBonusObjective(event, ...)
-	self.Bonus:Refresh(event, ...)
-	self.Tracker:Refresh()
+	self.Headers["Bonus"]:Refresh(event, ...)
+	self:UpdateDimensions();
 end
 
 function MOD:InitializeBonuses()
 	local bonus = CreateFrame("Frame", nil, scrollChild)
 	bonus:SetWidth(ROW_WIDTH);
 	bonus:SetHeight(1);
-	bonus:SetPoint("TOPLEFT", self.Quests, "BOTTOMLEFT", 0, 0);
+	bonus:SetPoint("TOPLEFT", self.Headers["Quests"], "BOTTOMLEFT", 0, 0);
 
 	bonus.Rows = {};
+
+	bonus.Get = GetBonusRow;
+	bonus.Set = SetBonusRow;
 	bonus.Refresh = RefreshBonusObjectives;
 	bonus.UpdateQuests = UpdateQuestBonusObjectives;
 	bonus.UpdateScenarios = UpdateScenarioBonusObjectives;
-	bonus.Add = AddBonusRow;
 
-	self.Bonus = bonus
+	self.Headers["Bonus"] = bonus
 
 	self:RegisterEvent("CRITERIA_COMPLETE", self.UpdateBonusObjective);
 end

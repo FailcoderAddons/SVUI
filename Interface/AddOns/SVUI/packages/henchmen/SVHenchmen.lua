@@ -97,16 +97,7 @@ local HENCHMEN_DATA = {
 		{40,"Select Rewards","Your minions will automatically select quest rewards for you", "autoquestreward"},
 		{-40,"Greed Roll","Your minions will automatically roll greed (or disenchant if available) on green quality items for you", "autoRoll"},
 		{-20,"Watch Factions","Your minions will automatically change your tracked reputation to the last faction you were awarded points for", "autorepchange"}
-	},
-	{
-		{49084,67,113,69,70,73,75}, --Rascal Bot
-		{29404,67,113,69,70,73,75}, --Macabre Marionette
-		{45613,0,5,10,69,10,69}, 	--Bishibosh
-		{34770,70,82,70,82,70,82}, 	--Gilgoblin
-		{45562,69,69,69,69,69,69}, 	--Burgle
-		{37339,60,60,60,60,60,60}, 	--Augh
-		{2323,67,113,69,70,73,75}, 	--Defias Henchman
-	}	
+	}
 }
 
 local takingOnlyCash,deletedelay,mailElapsed,childCount=false,0.5,0,-1;
@@ -126,6 +117,16 @@ local AutomatedEvents = {
 	"QUEST_DETAIL",
 	"QUEST_ACCEPT_CONFIRM",
 	"QUEST_PROGRESS"
+}
+
+MOD.YOUR_HENCHMEN = {
+	{49084,67,113,69,70,73,75}, --Rascal Bot
+	{29404,67,113,69,70,73,75}, --Macabre Marionette
+	{45613,0,5,10,69,10,69}, 	--Bishibosh
+	{34770,70,82,70,82,70,82}, 	--Gilgoblin
+	{45562,69,69,69,69,69,69}, 	--Burgle
+	{37339,60,60,60,60,60,60}, 	--Augh
+	{2323,67,113,69,70,73,75}, 	--Defias Henchman
 }
 --[[ 
 ########################################################## 
@@ -192,7 +193,7 @@ LOCAL FUNCTIONS
 ]]--
 local function UpdateHenchmanModel(hide)
 	if(not hide and not HenchmenFrameModel:IsShown()) then
-		local models = HENCHMEN_DATA[3]
+		local models = MOD.YOUR_HENCHMEN
 		local mod = random(1,#models)
 		local emod = random(2,7)
 		local id = models[mod][1]

@@ -167,6 +167,19 @@ local _hook_GarrisonMissionFrame_SetFollowerPortrait = function(portraitFrame, f
 	StyleFollowerPortrait(portraitFrame, color)
 end
 
+local _hook_GarrisonRecruitSelectFrame_UpdateRecruits = function()
+	local recruitFrame = GarrisonRecruitSelectFrame.FollowerSelection;
+	local followers = C_Garrison.GetAvailableRecruits();
+	for i=1, 3 do
+		local follower = followers[i];
+		local frame = recruitFrame["Recruit"..i];
+		if(follower)then
+			local color = ITEM_QUALITY_COLORS[follower.quality];
+			StyleFollowerPortrait(frame.PortraitFrame, color);
+		end
+	end
+end
+
 local _hook_GarrisonMissionComplete_SetFollowerLevel = function(followerFrame, level, quality)
 	local color = ITEM_QUALITY_COLORS[quality];
 	followerFrame.PortraitFrame.PortraitRing:SetVertexColor(color.r, color.g, color.b)
@@ -425,6 +438,36 @@ local function LoadGarrisonStyle()
 	--print("Test")
 	PLUGIN:ApplyScrollFrameStyle(GarrisonLandingPageListScrollFrameScrollBar)
 
+	PLUGIN:ApplyWindowStyle(GarrisonRecruiterFrame, true)
+	GarrisonRecruiterFrameInset:RemoveTextures()
+	GarrisonRecruiterFrameInset:SetStylePanel("Fixed", "Inset")
+	PLUGIN:ApplyDropdownStyle(GarrisonRecruiterFramePickThreatDropDown)
+	GarrisonRecruiterFrame.Pick.Radio1:SetStylePanel("Colored", true, -3, -3)
+	GarrisonRecruiterFrame.Pick.Radio2:SetStylePanel("Colored", true, -3, -3)
+
+	PLUGIN:ApplyWindowStyle(GarrisonRecruitSelectFrame, true)
+	GarrisonRecruitSelectFrame.FollowerSelection:RemoveTextures()
+
+	GarrisonRecruitSelectFrame.FollowerList:RemoveTextures()
+	GarrisonRecruitSelectFrame.FollowerList:SetStylePanel("Default", 'Inset', false, 4, 0, 0)
+
+	GarrisonRecruitSelectFrame.FollowerSelection.Recruit1:RemoveTextures()
+	GarrisonRecruitSelectFrame.FollowerSelection.Recruit2:RemoveTextures()
+	GarrisonRecruitSelectFrame.FollowerSelection.Recruit3:RemoveTextures()
+
+	GarrisonRecruitSelectFrame.FollowerSelection.Recruit1:SetStylePanel("Default", 'Inset')
+	GarrisonRecruitSelectFrame.FollowerSelection.Recruit2:SetStylePanel("Default", 'Inset')
+	GarrisonRecruitSelectFrame.FollowerSelection.Recruit3:SetStylePanel("Default", 'Inset')
+
+	StyleFollowerPortrait(GarrisonRecruitSelectFrame.FollowerSelection.Recruit1.PortraitFrame)
+	StyleFollowerPortrait(GarrisonRecruitSelectFrame.FollowerSelection.Recruit2.PortraitFrame)
+	StyleFollowerPortrait(GarrisonRecruitSelectFrame.FollowerSelection.Recruit3.PortraitFrame)
+
+	GarrisonRecruitSelectFrame.FollowerSelection.Recruit1.HireRecruits:SetStylePanel("Button")
+	GarrisonRecruitSelectFrame.FollowerSelection.Recruit2.HireRecruits:SetStylePanel("Button")
+	GarrisonRecruitSelectFrame.FollowerSelection.Recruit3.HireRecruits:SetStylePanel("Button")
+
+	hooksecurefunc("GarrisonRecruitSelectFrame_UpdateRecruits", _hook_GarrisonRecruitSelectFrame_UpdateRecruits)
 	--print("Test Done")
 end 
 --[[ 

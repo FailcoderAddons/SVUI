@@ -68,15 +68,6 @@ local LINE_CHALLENGE_ICON = [[Interface\ICONS\Achievement_ChallengeMode_Platinum
 SCRIPT HANDLERS
 ##########################################################
 ]]--
-local function unset_row(row)
-	row:SetHeight(1)
-	row.Header.Text:SetText('')
-	row.Header.Stage:SetText('')
-	row.Icon:SetTexture(LINE_SCENARIO_ICON)
-	row.HasData = false;
-	row:Hide()
-end
-
 local TimerBar_OnUpdate = function(self, elapsed)
 	local statusbar = self.Bar
     statusbar.elapsed = statusbar.elapsed + elapsed;
@@ -84,7 +75,7 @@ local TimerBar_OnUpdate = function(self, elapsed)
     local timeString = GetTimeStringFromSeconds(currentTime)
     local r,g,b = MOD:GetTimerTextColor(statusbar.duration, statusbar.elapsed)
     if(statusbar.elapsed <= statusbar.duration) then
-        statusbar:SetValue(currentTime)
+        statusbar:SetValue(currentTime);
         statusbar.TimeLeft:SetText(timeString);
         statusbar.TimeLeft:SetTextColor(r,g,b);
     else
@@ -93,49 +84,45 @@ local TimerBar_OnUpdate = function(self, elapsed)
 end
 --[[ 
 ########################################################## 
-HELPERS
+TRACKER FUNCTIONS
 ##########################################################
 ]]--
-local function NewScenarioObjective(parent, lineNumber)
-	local lastRowNumber = lineNumber - 1;
-	local previousFrame = parent.Rows[lastRowNumber]
-	local yOffset = (lineNumber * (ROW_HEIGHT)) - ROW_HEIGHT
+local GetScenarioObjective = function(self, index)
+	if(not self.Rows[index]) then 
+		local previousFrame = self.Rows[#self.Rows]
+		local yOffset = (index * (ROW_HEIGHT)) - ROW_HEIGHT
 
-	local objective = CreateFrame("Frame", nil, parent)
-	objective:SetPoint("TOPLEFT", parent, "TOPLEFT", 0, -yOffset);
-	objective:SetPoint("TOPRIGHT", parent, "TOPRIGHT", 0, -yOffset);
-	objective:SetHeight(INNER_HEIGHT);
-	--objective:SetStylePanel("Default")
+		local objective = CreateFrame("Frame", nil, self)
+		objective:SetPoint("TOPLEFT", self, "TOPLEFT", 0, -yOffset);
+		objective:SetPoint("TOPRIGHT", self, "TOPRIGHT", 0, -yOffset);
+		objective:SetHeight(INNER_HEIGHT);
 
-	objective.Icon = objective:CreateTexture(nil,"OVERLAY")
-	objective.Icon:SetPoint("TOPLEFT", objective, "TOPLEFT", 4, -2);
-	objective.Icon:SetPoint("BOTTOMLEFT", objective, "BOTTOMLEFT", 4, 2);
-	objective.Icon:SetWidth(INNER_HEIGHT - 4);
-	objective.Icon:SetTexture(OBJ_ICON_INCOMPLETE)
+		objective.Icon = objective:CreateTexture(nil,"OVERLAY")
+		objective.Icon:SetPoint("TOPLEFT", objective, "TOPLEFT", 4, -2);
+		objective.Icon:SetPoint("BOTTOMLEFT", objective, "BOTTOMLEFT", 4, 2);
+		objective.Icon:SetWidth(INNER_HEIGHT - 4);
+		objective.Icon:SetTexture(OBJ_ICON_INCOMPLETE)
 
-	objective.Text = objective:CreateFontString(nil,"OVERLAY")
-	objective.Text:SetPoint("TOPLEFT", objective, "TOPLEFT", INNER_HEIGHT + 6, -2);
-	objective.Text:SetPoint("TOPRIGHT", objective, "TOPRIGHT", 0, -2);
-	objective.Text:SetHeight(INNER_HEIGHT - 2)
-	objective.Text:SetFont(SV.Media.font.roboto, 12, "NONE")
-	objective.Text:SetTextColor(1,1,1)
-	objective.Text:SetShadowOffset(-1,-1)
-	objective.Text:SetShadowColor(0,0,0,0.5)
-	objective.Text:SetJustifyH('LEFT')
-	objective.Text:SetJustifyV('MIDDLE')
-	objective.Text:SetText('')
+		objective.Text = objective:CreateFontString(nil,"OVERLAY")
+		objective.Text:SetPoint("TOPLEFT", objective, "TOPLEFT", INNER_HEIGHT + 6, -2);
+		objective.Text:SetPoint("TOPRIGHT", objective, "TOPRIGHT", 0, -2);
+		objective.Text:SetHeight(INNER_HEIGHT - 2)
+		objective.Text:SetFont(SV.Media.font.roboto, 12, "NONE")
+		objective.Text:SetTextColor(1,1,1)
+		objective.Text:SetShadowOffset(-1,-1)
+		objective.Text:SetShadowColor(0,0,0,0.5)
+		objective.Text:SetJustifyH('LEFT')
+		objective.Text:SetJustifyV('MIDDLE')
+		objective.Text:SetText('')
 
-	return objective;
-end
-
-local function AddScenarioObjective(self, index, description, completed)
-	local objective = self.Rows[index];
-
-	if(not objective) then
-		self.Rows[index] = NewScenarioObjective(self, index)
-		objective = self.Rows[index]
+		self.Rows[index] = objective;
 	end
 
+	return self.Rows[index];
+end
+
+local SetScenarioObjective = function(self, index, description, completed)
+	local objective = self:Get(index);
 	objective.Text:SetText(description)
 
 	if(completed) then
@@ -150,14 +137,10 @@ local function AddScenarioObjective(self, index, description, completed)
 
 	return objective;
 end
---[[ 
-########################################################## 
-SCENARIO FUNCTIONS
-##########################################################
-]]--
+
 local SetScenarioData = function(self, title, stageName, currentStage, numStages, stageDescription, numObjectives)
 	local objectivesShown = 0;
-	local nextObjective = 1;
+	local nextObjective = 0;
 	local block = self.Block;
 
 	block.HasData = true;
@@ -174,11 +157,17 @@ local SetScenarioData = function(self, title, stageName, currentStage, numStages
 	for i = 1, numObjectives do
 		local description, criteriaType, completed, quantity, totalQuantity, flags, assetID, quantityString, criteriaID, duration, elapsed = C_Scenario.GetCriteriaInfo(i);
 		if(description) then
-			description = string.format("%d/%d %s", quantity, totalQuantity, description);
-			objectives:Add(i, description, completed, duration, elapsed)
 			nextObjective = nextObjective + 1;
+			description = ("%d/%d %s"):format(quantity, totalQuantity, description);
+			objectives:Set(i, description, completed, duration, elapsed)
 		end
 	end
+
+	local timerHeight = self.Timer:GetHeight()
+	local objectiveHeight = (INNER_HEIGHT * nextObjective) + 1;
+	local newHeight = (LARGE_ROW_HEIGHT + 2) + (nextObjective * (INNER_HEIGHT + 2));
+
+	nextObjective = nextObjective + 1;
 
 	local numLineObjectives = #objectives.Rows;
 	for x = nextObjective, numLineObjectives do
@@ -192,23 +181,31 @@ local SetScenarioData = function(self, title, stageName, currentStage, numStages
 		end
 	end
 
-	local objectiveHeight = (INNER_HEIGHT + 2) * numObjectives;
 	objectives:SetHeight(objectiveHeight + 1);
-
-	local newHeight = (LARGE_ROW_HEIGHT + 2) + (numObjectives * (INNER_HEIGHT + 2));
-	local timerHeight = self.Timer:GetHeight()
 	block:SetHeight(newHeight + timerHeight);
 
-	MOD.Tracker.ScrollFrame.ScrollBar:SetValue(0)
+	MOD.Docklet.ScrollFrame.ScrollBar:SetValue(0)
+end
+
+local UnsetScenarioData = function(self)
+	local block = self.Block;
+	block:SetHeight(1);
+	block.Header.Text:SetText('');
+	block.Header.Stage:SetText('');
+	block.Icon:SetTexture(LINE_SCENARIO_ICON);
+	block.HasData = false;
+	block:Hide();
+	self:SetHeight(1);
 end
 
 local RefreshScenarioHeight = function(self)
 	if(not self.Block.HasData) then
-		unset_row(self.Block)
+		self:Unset()
+	else
+		local h1 = self.Timer:GetHeight()
+		local h2 = self.Block:GetHeight()
+		self:SetHeight(h1 + h2 + 2)
 	end
-	local h1 = self.Timer:GetHeight()
-	local h2 = self.Block:GetHeight()
-	self:SetHeight(h1 + h2 + 2)
 end
 --[[ 
 ########################################################## 
@@ -226,8 +223,8 @@ local StartTimer = function(self, elapsed, duration, medalIndex, currWave, maxWa
 	self.Bar:SetMinMaxValues(0, self.Bar.duration);
 	self.Bar:SetValue(self.Bar.elapsed);
 	self:SetScript("OnUpdate", TimerBar_OnUpdate);
-	local blockHeight = MOD.Scenario.Block:GetHeight();
-	MOD.Scenario.Block:SetHeight(blockHeight + INNER_HEIGHT + 4);
+	local blockHeight = MOD.Headers["Scenario"].Block:GetHeight();
+	MOD.Headers["Scenario"].Block:SetHeight(blockHeight + INNER_HEIGHT + 4);
 
 	if (medalIndex < 4) then
 		self.Bar.Wave:SetFormattedText(GENERIC_FRACTION_STRING, currWave, maxWave);
@@ -245,14 +242,14 @@ local StopTimer = function(self)
 	self.Bar:SetMinMaxValues(0, self.Bar.duration);
 	self.Bar:SetValue(0);
 	self:SetScript("OnUpdate", nil);
-	local blockHeight = MOD.Scenario.Block:GetHeight();
-	MOD.Scenario.Block:SetHeight((blockHeight - timerHeight) + 1);
+	local blockHeight = MOD.Headers["Scenario"].Block:GetHeight();
+	MOD.Headers["Scenario"].Block:SetHeight((blockHeight - timerHeight) + 1);
 end
 
 local SetChallengeMedals = function(self, elapsedTime, ...)
 	self:SetHeight(INNER_HEIGHT);
 	local blockHeight = MOD.Block:GetHeight();
-	MOD.Scenario.Block:SetHeight(blockHeight + INNER_HEIGHT + 4);
+	MOD.Headers["Scenario"].Block:SetHeight(blockHeight + INNER_HEIGHT + 4);
 	self:FadeIn();
 	self.Bar:SetMinMaxValues(0, elapsedTime);
 	self.Bar:SetValue(elapsedTime);
@@ -393,8 +390,8 @@ CORE FUNCTIONS
 ##########################################################
 ]]--
 function MOD:UpdateScenarioObjective(event, ...)
-	self.Scenario:Refresh(event, ...)
-	self.Tracker:Refresh()
+	self.Headers["Scenario"]:Refresh(event, ...)
+	self:UpdateDimensions();
 end
 
 local function UpdateScenarioLocals(...)
@@ -404,14 +401,15 @@ end
 SV.Events:On("QUEST_UPVALUES_UPDATED", "UpdateScenarioLocals", UpdateScenarioLocals);
 
 function MOD:InitializeScenarios()
-	local scrollChild = self.Tracker.ScrollFrame.ScrollChild;
+	local scrollChild = self.Docklet.ScrollFrame.ScrollChild;
 
 	local scenario = CreateFrame("Frame", nil, scrollChild)
     scenario:SetWidth(ROW_WIDTH);
 	scenario:SetHeight(ROW_HEIGHT);
-	scenario:SetPoint("TOPLEFT", self.Active, "BOTTOMLEFT", 0, 0);
+	scenario:SetPoint("TOPLEFT", self.Headers["Active"], "BOTTOMLEFT", 0, 0);
 
 	scenario.Set = SetScenarioData;
+	scenario.Unset = UnsetScenarioData;
 	scenario.Refresh = RefreshScenarioObjective;
 	scenario.RefreshHeight = RefreshScenarioHeight;
 
@@ -485,7 +483,7 @@ function MOD:InitializeScenarios()
 	timer.Bar = CreateFrame("StatusBar", nil, timer);
 	timer.Bar:SetAllPoints(timer);
 	timer.Bar:SetStatusBarTexture(SV.Media.bar.default)
-	timer.Bar:SetStatusBarColor(0.5,0,1)
+	timer.Bar:SetStatusBarColor(0.5,0,1) --1,0.15,0.08
 	timer.Bar:SetMinMaxValues(0, 1)
 	timer.Bar:SetValue(0)
 
@@ -503,7 +501,7 @@ function MOD:InitializeScenarios()
 	timer.Bar.TimeLeft = timer.Bar:CreateFontString(nil,"OVERLAY");
 	timer.Bar.TimeLeft:SetPointToScale("TOPLEFT", timer.Bar.Wave, "TOPRIGHT", 4, 0);
 	timer.Bar.TimeLeft:SetPointToScale("BOTTOMRIGHT", timer.Bar, "BOTTOMRIGHT", 0, 0);
-	timer.Bar.TimeLeft:SetFont(SV.Media.font.numbers, 12, "NONE")
+	timer.Bar.TimeLeft:SetFont(SV.Media.font.numbers, 12, "OUTLINE")
 	timer.Bar.TimeLeft:SetTextColor(1,1,1)
 	timer.Bar.TimeLeft:SetShadowOffset(-1,-1)
 	timer.Bar.TimeLeft:SetShadowColor(0,0,0,0.5)
@@ -521,15 +519,16 @@ function MOD:InitializeScenarios()
 	block.Objectives:SetHeightToScale(1);
 
 	block.Objectives.Rows = {}
-	block.Objectives.Add = AddScenarioObjective;
+	block.Objectives.Set = SetScenarioObjective;
+	block.Objectives.Get = GetScenarioObjective;
 	block.HasData = false;
 
 	scenario.Timer = timer;
 	scenario.Block = block;
 
-	self.Scenario = scenario;
+	self.Headers["Scenario"] = scenario;
 
-	self.Scenario:RefreshHeight()
+	self.Headers["Scenario"]:RefreshHeight()
 
 	self:RegisterEvent("PLAYER_ENTERING_WORLD", self.UpdateScenarioObjective);
 	self:RegisterEvent("PROVING_GROUNDS_SCORE_UPDATE", self.UpdateScenarioObjective);
