@@ -89,11 +89,12 @@ local function GetCachedQuests()
 
 	for i = 1, GetNumQuestWatches() do
 		local questID, _, questLogIndex, numObjectives, requiredMoney, completed, startEvent, isAutoComplete, duration, elapsed, questType, isTask, isStory, isOnMap, hasLocalPOI = GetQuestWatchInfo(i);
-		local title, level, suggestedGroup = GetQuestLogTitle(questLogIndex)
-		local link, texture, _, showCompleted = GetQuestLogSpecialItemInfo(questLogIndex)
-		local distanceSq, onContinent = GetDistanceSqToQuest(questLogIndex)
+		local title, level, suggestedGroup, link, texture, _, showCompleted, distanceSq, onContinent = "",100;
 		local mapID,floorNumber = 0,0;
 		if(questID) then
+			title, level, suggestedGroup = GetQuestLogTitle(questLogIndex)
+			link, texture, _, showCompleted = GetQuestLogSpecialItemInfo(questLogIndex)
+			distanceSq, onContinent = GetDistanceSqToQuest(questLogIndex)
 			mapID, floorNumber = GetQuestWorldMapAreaID(questID)
 			if(QuestHasPOIInfo(questID)) then
 				local areaID = QuestInZone[questID]
@@ -151,11 +152,13 @@ local ActiveButton_OnClick = function(self, button)
 	local rowIndex = self:GetID();
 	if(rowIndex and (rowIndex ~= 0)) then
 		local questID, _, questLogIndex, numObjectives, requiredMoney, completed, startEvent, isAutoComplete, duration, elapsed, questType, isTask, isStory, isOnMap, hasLocalPOI = GetQuestWatchInfo(rowIndex);
-		local title, level, suggestedGroup = GetQuestLogTitle(questLogIndex)
-		local icon = self.Icon:GetTexture()
-		SetSuperTrackedQuestID(questID);
-		local link, texture, _, showCompleted = GetQuestLogSpecialItemInfo(questLogIndex)
-		MOD.QuestItem:SetItem(link, texture, title, level, icon, questID, questLogIndex, numObjectives, duration, elapsed)
+		if(questID) then
+			local title, level, suggestedGroup = GetQuestLogTitle(questLogIndex)
+			local icon = self.Icon:GetTexture()
+			SetSuperTrackedQuestID(questID);
+			local link, texture, _, showCompleted = GetQuestLogSpecialItemInfo(questLogIndex)
+			MOD.QuestItem:SetItem(link, texture, title, level, icon, questID, questLogIndex, numObjectives, duration, elapsed)
+		end
 	end
 end
 
@@ -168,7 +171,7 @@ local ViewButton_OnClick = function(self, button)
 			if(questLink) then
 				ChatEdit_InsertLink(questLink);
 			end
-		elseif(button ~= "RightButton") then
+		elseif(questID and button ~= "RightButton") then
 			CloseDropDownMenus();
 			if(IsModifiedClick("QUESTWATCHTOGGLE")) then
 				local superTrackedQuestID = GetSuperTrackedQuestID();
@@ -185,7 +188,7 @@ local ViewButton_OnClick = function(self, button)
 				end
 			end
 			return;
-		else
+		elseif(questID) then
 			QuestMapFrame_OpenToQuestDetails(questID);
 		end
 	end
