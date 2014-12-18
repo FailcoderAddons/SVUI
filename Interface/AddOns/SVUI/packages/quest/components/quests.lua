@@ -92,7 +92,7 @@ local function UpdateCachedQuests()
 	wipe(USED_QUESTIDS);
 
 	for i = 1, GetNumQuestWatches() do
-		local questID, _, questLogIndex, numObjectives, _, completed, _, _, duration, elapsed = GetQuestWatchInfo(i);
+		local questID, _, questLogIndex, numObjectives, _, completed, _, _, duration, elapsed, questType, isTask, isStory, isOnMap, hasLocalPOI = GetQuestWatchInfo(i);
 		if(questID and (not USED_QUESTIDS[questID])) then
 			local title, level, suggestedGroup = GetQuestLogTitle(questLogIndex)
 			local link, texture, _, showCompleted = GetQuestLogSpecialItemInfo(questLogIndex)
@@ -109,7 +109,7 @@ local function UpdateCachedQuests()
 			end
 
 			if(not CACHED_QUESTS[x]) then
-				CACHED_QUESTS[x] = { i, false, 0, 0, 0, false, {"", 100, LINE_QUEST_ICON, 0, 0, 0, 0, 0, false} };
+				CACHED_QUESTS[x] = { i, false, 0, 0, 0, false, {"", 100, LINE_QUEST_ICON, 0, 0, 0, 0, 0, false, 0} };
 			end
 
 			CACHED_QUESTS[x][1] = i;				-- quest watch index
@@ -128,6 +128,7 @@ local function UpdateCachedQuests()
 			CACHED_QUESTS[x][7][7] = duration;		-- args: quest timer duration
 			CACHED_QUESTS[x][7][8] = elapsed;		-- args: quest timer elapsed
 			CACHED_QUESTS[x][7][9] = completed;		-- args: quest is completed
+			CACHED_QUESTS[x][7][10] = questType;		-- args: quest is completed
 
 			USED_QUESTIDS[questID] = true;
 
@@ -366,7 +367,6 @@ end
 local SetObjectiveRow = function(self, index, description, completed)
 	index = index + 1;
 	local objective = self:Get(index);
-	objective.Text:SetText(description)
 
 	if(completed) then
 		objective.Text:SetTextColor(0.1,0.9,0.1)
@@ -375,7 +375,7 @@ local SetObjectiveRow = function(self, index, description, completed)
 		objective.Text:SetTextColor(1,1,1)
 		objective.Icon:SetTexture(OBJ_ICON_INCOMPLETE)
 	end
-
+	objective.Text:SetText(description);
 	objective:SetHeightToScale(INNER_HEIGHT);
 	objective:SetAlpha(1);
 
@@ -386,17 +386,19 @@ local GetQuestRow = function(self, index)
 	if(not self.Rows[index]) then 
 		local previousFrame = self.Rows[#self.Rows]
 		local index = #self.Rows + 1;
+		local yOffset = 0;
 
 		local anchorFrame;
 		if(previousFrame and previousFrame.Objectives) then
 			anchorFrame = previousFrame.Objectives;
+			yOffset = -6;
 		else
 			anchorFrame = self.Header;
 		end
 
 		local row = CreateFrame("Frame", nil, self)
-		row:SetPoint("TOPLEFT", anchorFrame, "BOTTOMLEFT", 0, -2);
-		row:SetPoint("TOPRIGHT", anchorFrame, "BOTTOMRIGHT", 0, -2);
+		row:SetPoint("TOPLEFT", anchorFrame, "BOTTOMLEFT", 0, yOffset);
+		row:SetPoint("TOPRIGHT", anchorFrame, "BOTTOMRIGHT", 0, yOffset);
 		row:SetHeightToScale(QUEST_ROW_HEIGHT);
 
 		row.Badge = CreateFrame("Frame", nil, row)
@@ -482,7 +484,7 @@ local GetQuestRow = function(self, index)
 	return self.Rows[index];
 end
 
-local SetQuestRow = function(self, index, watchIndex, title, level, icon, questID, questLogIndex, subCount, duration, elapsed, completed)
+local SetQuestRow = function(self, index, watchIndex, title, level, icon, questID, questLogIndex, subCount, duration, elapsed, completed, mapid)
 	level = level or 100;
 	index = index + 1;
 
@@ -538,7 +540,7 @@ local SetQuestRow = function(self, index, watchIndex, title, level, icon, questI
 
 	if(iscomplete) then MOD.QuestItem:RemoveItem(questLogIndex) end
 
-	fill_height = fill_height + QUEST_ROW_HEIGHT;
+	fill_height = fill_height + (QUEST_ROW_HEIGHT + 6);
 
 	return index, fill_height;
 end
@@ -570,7 +572,7 @@ local SetZoneHeader = function(self, index, mapID)
 	row.Button:SetID(0);
 	row.Button:Disable();
 	row.Badge.Button:Disable();
-	row:SetHeightToScale(QUEST_ROW_HEIGHT);
+	row:SetHeightToScale(ROW_HEIGHT);
 	row:SetAlpha(1);
 
 	local objective_block = row.Objectives;
@@ -589,7 +591,7 @@ local RefreshQuests = function(self, event, ...)
 		local args = quest[7];
 		if(args[4]) then
 			local add_height = 0;
-			if(quest[6]) then
+			if(quest[6] and (not args[9]) and (MOD.CurrentQuest == 0)) then
 				rows, zone = self:SetZone(rows, quest[3]);
 				fill_height = fill_height + QUEST_ROW_HEIGHT;
 				rows, add_height = self:Set(rows, quest[1], unpack(args))

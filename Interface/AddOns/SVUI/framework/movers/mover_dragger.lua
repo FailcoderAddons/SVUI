@@ -357,6 +357,10 @@ function Dragger:Initialize()
 	if(not SV.db.general.questWatch) then
 		UIPanels["ObjectiveTrackerFrame"] = { moving = false, snapped = false, canupdate = false, cansetpoint = false, centered = false };
 	end
+	if(SV.db.SVMap.tinyWorldMap) then
+		UIPanels["WorldMapFrame"] = { moving = false, snapped = false, canupdate = false, cansetpoint = false, centered = false };
+		WorldMapTitleButton:EnableMouse(false)
+	end
 
 	self.EventsActive = true
 

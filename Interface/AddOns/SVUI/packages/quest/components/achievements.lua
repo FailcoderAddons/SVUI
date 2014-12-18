@@ -257,7 +257,7 @@ local SetObjectiveRow = function(self, index, description, completed, duration, 
 		objective.Text:SetTextColor(1,1,1)
 		objective.Icon:SetTexture(OBJ_ICON_INCOMPLETE)
 	end
-
+	objective.Text:SetText(description);
 	objective:SetHeightToScale(INNER_HEIGHT);
 	objective:FadeIn();
 	return index;

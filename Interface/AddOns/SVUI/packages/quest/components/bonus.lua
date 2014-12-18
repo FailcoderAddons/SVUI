@@ -386,7 +386,7 @@ local SetObjectiveRow = function(self, index, description, completed, failed)
 		objective.Text:SetTextColor(1,1,1)
 		objective.Icon:SetTexture(OBJ_ICON_INCOMPLETE)
 	end
-
+	objective.Text:SetText(description);
 	objective:SetHeightToScale(INNER_HEIGHT);
 	objective:FadeIn();
 
@@ -521,7 +521,6 @@ local SetBonusRow = function(self, index, questID, subCount)
 	row:SetAlpha(1);
 
 	local objective_block = row.Objectives;
-	objective_block:Reset()
 
 	for i = 1, subCount do
 		local text, category, completed = GetCachedQuestObjectiveInfo(questID, i);
@@ -644,6 +643,7 @@ local ResetBonusBlock = function(self)
 			row.Objectives:SetHeight(1);
 			row:SetHeight(1);
 			row:SetAlpha(0);
+			row.Objectives:Reset();
 		end
 	end
 end

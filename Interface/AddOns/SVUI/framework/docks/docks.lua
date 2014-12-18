@@ -44,6 +44,7 @@ local tremove       = _G.tremove;
 local twipe 		= _G.wipe;
 --MATH
 local math      	= _G.math;
+local random 		= math.random;
 local min 			= math.min;
 local floor         = math.floor
 local ceil          = math.ceil
@@ -75,6 +76,23 @@ DOCKING
 ]]--
 local ORDER_TEMP = {};
 local ORDER_TEST = {};
+
+local GIZMO_SOUND_GOOD = {
+	{
+		[[sound\item\weapons\gun\gunload01.ogg]],
+		[[sound\item\weapons\gun\gunload02.ogg]],
+		[[sound\interface\ui_blizzardstore_buynow.ogg]]
+	},
+	{
+		[[sound\doodad\fx_electricitysparkmedium_02.ogg]],
+		[[sound\doodad\g_levermetalcustom0.ogg]],
+		[[sound\doodad\g_buttonbigredcustom0.ogg]]
+	}
+};
+
+local GIZMO_SOUND_BAD = {
+	[[sound\doodad\goblin_christmaslight_green_03.ogg]]
+};
 
 local DOCK_LOCATIONS = {
 	["BottomLeft"] = {1, "LEFT", true, "ANCHOR_TOPLEFT"},
@@ -350,6 +368,11 @@ end
 
 local DockletButton_OnClick = function(self, button)
 	--if InCombatLockdown() then return end
+	local key = random(1,3)
+	local sound1 = GIZMO_SOUND_GOOD[1][key]
+	local sound2 = GIZMO_SOUND_GOOD[2][key]
+	PlaySoundFile(sound1)
+	PlaySoundFile(sound2)
 	if(IsAltKeyDown() and (not InCombatLockdown()) and self:GetAttribute("hasDropDown") and self.GetMenuList) then
 		local list = self:GetMenuList()
 		SV.Dropdown:Open(self, list);

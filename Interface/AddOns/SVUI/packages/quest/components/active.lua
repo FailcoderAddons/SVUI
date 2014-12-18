@@ -68,6 +68,34 @@ local LINE_POPUP_OFFER = [[Interface\ICONS\Ability_Hisek_Aim]];
 SCRIPT HANDLERS
 ##########################################################
 ]]--
+local ObjectiveTimer_OnUpdate = function(self, elapsed)
+	local statusbar = self.Timer.Bar
+	local timeNow = GetTime();
+	local timeRemaining = statusbar.duration - (timeNow - statusbar.startTime);
+	statusbar:SetValue(timeRemaining);
+	if(timeRemaining < 0) then
+		-- hold at 0 for a moment
+		if(timeRemaining > -1) then
+			timeRemaining = 0;
+		else
+			self:StopTimer();
+		end
+	end
+	local r,g,b = MOD:GetTimerTextColor(statusbar.duration, statusbar.duration - timeRemaining)
+	statusbar.Label:SetText(GetTimeStringFromSeconds(timeRemaining, nil, true));
+	statusbar.Label:SetTextColor(r,g,b);
+end
+
+local ObjectiveProgressBar_OnEvent = function(self, event, ...)
+	local statusbar = self.Progress.Bar;
+	local percent = 100;
+	if(not statusbar.finished) then
+		percent = GetQuestProgressBarPercent(statusbar.questID);
+	end
+	statusbar:SetValue(percent);
+	statusbar.Label:SetFormattedText(PERCENTAGE_STRING, percent);
+end
+
 local ActiveButton_OnClick = function(self, button)
 	MOD.Headers["Active"]:Unset();
 end
@@ -116,6 +144,92 @@ end
 TRACKER FUNCTIONS
 ##########################################################
 ]]--
+local StartObjectiveTimer = function(self, duration, elapsed)
+	local timeNow = GetTime();
+	local startTime = timeNow - elapsed;
+	local timeRemaining = duration - startTime;
+	local statusbar = self.Timer.Bar;
+
+	self.Timer:FadeIn();
+	statusbar.duration = duration or 1;
+	statusbar.startTime = startTime;
+	statusbar:SetMinMaxValues(0, statusbar.duration);
+	statusbar:SetValue(timeRemaining);
+	statusbar.Label:SetText(GetTimeStringFromSeconds(duration, nil, true));
+	statusbar.Label:SetTextColor(MOD:GetTimerTextColor(duration, duration - timeRemaining));
+
+	self:SetScript("OnUpdate", ObjectiveTimer_OnUpdate);
+end
+
+local StopObjectiveTimer = function(self)
+	local statusbar = self.Timer.Bar;
+
+	self.Timer:SetAlpha(0);
+	statusbar.duration = 1;
+	statusbar.startTime = 0;
+	statusbar:SetMinMaxValues(0, statusbar.duration);
+	statusbar:SetValue(0);
+	statusbar.Label:SetText('');
+	statusbar.Label:SetTextColor(1,1,1);
+
+	self:SetScript("OnUpdate", nil);
+end
+
+local StartObjectiveProgressBar = function(self, questID, finished)
+	local statusbar = self.Progress.Bar;
+	self.Progress:FadeIn();
+	statusbar.questID = questID;
+	statusbar.finished = finished;
+	statusbar:SetMinMaxValues(0, 100);
+	local percent = 100;
+	if(not finished) then
+		percent = GetQuestProgressBarPercent(questID);
+	end
+	statusbar:SetValue(percent);
+	statusbar.Label:SetFormattedText(PERCENTAGE_STRING, percent);
+	self.Progress:RegisterEvent("QUEST_LOG_UPDATE")
+end
+
+local StopObjectiveProgressBar = function(self)
+	local statusbar = self.Progress.Bar;
+	self.Progress:SetAlpha(0);
+	statusbar:SetValue(0);
+	statusbar.Label:SetText('');
+	self.Progress:UnregisterEvent("QUEST_LOG_UPDATE")
+end
+
+local function AddStatusBar(parent)
+	local element = CreateFrame("Frame", nil, parent)
+	element:SetPoint("TOPLEFT", parent.Icon, "TOPRIGHT", 4, 0);
+	element:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", 0, 0);
+
+	element.Holder = CreateFrame("Frame", nil, element)
+	element.Holder:SetPointToScale("TOPLEFT", element, "TOPLEFT", 4, -2);
+	element.Holder:SetPointToScale("BOTTOMRIGHT", element, "BOTTOMRIGHT", -4, 2);
+	MOD:StyleStatusBar(element.Holder)
+
+	element.Bar = CreateFrame("StatusBar", nil, element.Holder);
+	element.Bar:SetAllPointsIn(element.Holder);
+	element.Bar:SetStatusBarTexture(SV.Media.bar.default)
+	element.Bar:SetStatusBarColor(0.15,0.5,1) --1,0.15,0.08
+	element.Bar:SetMinMaxValues(0, 1)
+	element.Bar:SetValue(0)
+
+	element.Bar.Label = element.Bar:CreateFontString(nil,"OVERLAY");
+	element.Bar.Label:SetAllPointsIn(element.Bar);
+	element.Bar.Label:SetFont(SV.Media.font.numbers, 12, "OUTLINE")
+	element.Bar.Label:SetTextColor(1,1,1)
+	element.Bar.Label:SetShadowOffset(-1,-1)
+	element.Bar.Label:SetShadowColor(0,0,0,0.5)
+	element.Bar.Label:SetJustifyH('CENTER')
+	element.Bar.Label:SetJustifyV('MIDDLE')
+	element.Bar.Label:SetText('')
+
+	element:SetAlpha(0);
+
+	return element;
+end
+
 local GetObjectiveRow = function(self, index)
 	if(not self.Rows[index]) then 
 		local previousFrame = self.Rows[#self.Rows]
@@ -132,13 +246,14 @@ local GetObjectiveRow = function(self, index)
 		objective.Icon:SetWidth(INNER_HEIGHT - 4);
 		objective.Icon:SetTexture(OBJ_ICON_INCOMPLETE)
 
-		objective.Bar = CreateFrame("StatusBar", nil, objective)
-		objective.Bar:SetPoint("TOPLEFT", objective.Icon, "TOPRIGHT", 4, 0);
-		objective.Bar:SetPoint("BOTTOMRIGHT", objective, "BOTTOMRIGHT", -2, 2);
-		objective.Bar:SetStatusBarTexture(SV.Media.bar.default)
-		objective.Bar:SetStatusBarColor(0.5,0,1)
-		objective.Bar:SetMinMaxValues(0, 1)
-		objective.Bar:SetValue(0)
+		objective.Progress = AddStatusBar(objective);
+		objective.StartProgress = StartObjectiveProgressBar;
+		objective.StopProgress = StopObjectiveProgressBar;
+		objective.Progress:SetScript("OnEvent", ObjectiveProgressBar_OnEvent);
+
+		objective.Timer = AddStatusBar(objective);
+		objective.StartTimer = StartObjectiveTimer;
+		objective.StopTimer = StopObjectiveTimer;
 
 		objective.Text = objective:CreateFontString(nil,"OVERLAY")
 		objective.Text:SetPoint("TOPLEFT", objective, "TOPLEFT", INNER_HEIGHT + 6, -2);
@@ -158,26 +273,64 @@ local GetObjectiveRow = function(self, index)
 	return self.Rows[index];
 end
 
-local SetObjectiveRow = function(self, index, description, completed, duration, elapsed)
+local SetObjectiveRow = function(self, index, description, completed, failed)
+	index = index + 1;
 	local objective = self:Get(index);
-	objective.Text:SetText(description)
 
-	if(completed) then
+	if(failed) then
+		objective.Text:SetTextColor(1,0,0)
+		objective.Icon:SetTexture(OBJ_ICON_INCOMPLETE)
+	elseif(completed) then
 		objective.Text:SetTextColor(0.1,0.9,0.1)
 		objective.Icon:SetTexture(OBJ_ICON_COMPLETE)
 	else
 		objective.Text:SetTextColor(1,1,1)
 		objective.Icon:SetTexture(OBJ_ICON_INCOMPLETE)
 	end
+	objective.Text:SetText(description);
+	objective:SetHeightToScale(INNER_HEIGHT);
+	objective:FadeIn();
 
-	duration = duration or 1;
-	elapsed = (elapsed and elapsed <= duration) and elapsed or 0;
-	objective.Bar:SetMinMaxValues(0, duration)
-	objective.Bar:SetValue(elapsed)	
+	return index;
+end
 
-	objective:Show()
+local SetObjectiveTimer = function(self, index, duration, elapsed)
+	index = index + 1;
+	local objective = self:Get(index);
+	objective:StartTimer(duration, elapsed)
+	objective.Text:SetText('')
+	objective:SetHeightToScale(INNER_HEIGHT);
+	objective:FadeIn();
+	return index;
+end
 
-	return objective;
+local SetObjectiveProgress = function(self, index, questID, completed)
+	index = index + 1;
+	local objective = self:Get(index);
+	objective:StartProgress(questID, completed)
+	objective.Text:SetText('')
+	objective:SetHeightToScale(INNER_HEIGHT);
+	objective:FadeIn();
+
+	return index;
+end
+
+local ResetObjectiveBlock = function(self)
+	for x = 1, #self.Rows do
+		local objective = self.Rows[x]
+		if(objective) then
+			if(not objective:IsShown()) then
+				objective:Show()
+			end
+			objective.Text:SetText('')
+			objective.Icon:SetTexture(NO_ICON)
+			objective:StopTimer();
+			objective:StopProgress();
+			objective:SetHeight(1);
+			objective:SetAlpha(0);
+		end
+	end
+	self:SetHeight(1);
 end
 
 local UnsetActiveData = function(self)
@@ -188,65 +341,57 @@ local UnsetActiveData = function(self)
 	block.Badge.Icon:SetTexture(0,0,0,0);
 	block.Button:SetID(0);
 	MOD.CurrentQuest = 0;
-	block:Hide();
+	block.Objectives:Reset();
 	self:SetHeight(1);
+	block:SetAlpha(0);
+	self:SetAlpha(0);
 	if(MOD.Headers["Quests"]) then
 		MOD:UpdateObjectives('FORCED_UPDATE')
 	end
 end
 
 local SetActiveData = function(self, title, level, icon, questID, questLogIndex, numObjectives, duration, elapsed, bypass)
-	local nextObjective = 0;
-
+	local fill_height = 0;
+	local objective_rows = 0;
 	local block = self.Block;
 	if((not bypass) and block.RowID == questID) then
 		return
 	end
 
 	icon = icon or LINE_QUEST_ICON;
-	block.RowID = questID
+	block.RowID = questID;
+	level = level or 100;
 
-	level = level or 100
-	local color = GetQuestDifficultyColor(level)
-	block.Header.Level:SetTextColor(color.r, color.g, color.b)
-	block.Header.Level:SetText(level)
-	block.Header.Text:SetText(title)
-	block.Badge.Icon:SetTexture(icon)
-	block.Button:SetID(questLogIndex)
-	block:Show()
+	local color = GetQuestDifficultyColor(level);
+	block.Header.Level:SetTextColor(color.r, color.g, color.b);
+	block.Header.Level:SetText(level);
+	block.Header.Text:SetText(title);
+	block.Badge.Icon:SetTexture(icon);
+	block.Button:SetID(questLogIndex);
 	MOD.CurrentQuest = questLogIndex;
 
-	local objectives = block.Objectives;
-
+	local objective_block = block.Objectives;
+	objective_block:Reset();
 	for i = 1, numObjectives do
 		local description, category, completed = GetQuestObjectiveInfo(questID, i);
-		if(description) then
-			nextObjective = nextObjective + 1;
-			objectives:Set(i, description, completed, duration, elapsed)
+		if(duration and elapsed and (elapsed < duration)) then
+			objective_rows = objective_block:SetTimer(objective_rows, duration, elapsed);
+			fill_height = fill_height + (INNER_HEIGHT + 2);
+		elseif(description and description ~= '') then
+			objective_rows = objective_block:Set(objective_rows, description, completed, duration, elapsed);
+			fill_height = fill_height + (INNER_HEIGHT + 2);
 		end
 	end
 
-	local objectiveHeight = (INNER_HEIGHT + 2) * nextObjective;
-	local newHeight = (LARGE_ROW_HEIGHT + 2) + (nextObjective * (INNER_HEIGHT + 2)) + 2;
-	nextObjective = nextObjective + 1;
-
-	local numLineObjectives = #objectives.Rows;
-
-	for x = nextObjective, numLineObjectives do
-		local objective = objectives.Rows[x]
-		if(objective) then
-			objective.Text:SetText('')
-			objective.Icon:SetTexture(OBJ_ICON_INCOMPLETE)
-			if(objective:IsShown()) then
-				objective:Hide()
-			end
-		end
+	if(objective_rows > 0) then
+		objective_block:SetHeightToScale(fill_height);
+		objective_block:FadeIn();
 	end
 
-	objectives:SetHeight(objectiveHeight + 1);
-	block:SetHeight(newHeight);
+	fill_height = fill_height + (LARGE_ROW_HEIGHT + 8);
+	block:SetHeightToScale(fill_height);
 
-	MOD.Docklet.ScrollFrame.ScrollBar:SetValue(0)
+	MOD.Docklet.ScrollFrame.ScrollBar:SetValue(0);
 
 	-- local link, texture, _, showCompleted = GetQuestLogSpecialItemInfo(questLogIndex)
 	-- if(link and (questLogIndex ~= MOD.CurrentQuest)) then
@@ -260,6 +405,8 @@ local RefreshActiveHeight = function(self)
 	if(self.Block.RowID == 0) then
 		self:Unset()
 	else
+		self:FadeIn();
+		self.Block:FadeIn();
 		self:SetHeight(self.Block:GetHeight())
 	end
 end
@@ -391,6 +538,7 @@ function MOD:InitializeActive()
 	block.Objectives.Rows = {}
 	block.Objectives.Get = GetObjectiveRow;
 	block.Objectives.Set = SetObjectiveRow;
+	block.Objectives.Reset = ResetObjectiveBlock;
 	block.RowID = 0;
 
 	active.Block = block;

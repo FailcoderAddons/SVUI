@@ -157,12 +157,11 @@ BUTTON INTERNALS
 ##########################################################
 ]]--
 local SetButtonItem = function(self, itemLink, texture, ...)
+	if(MOD.CurrentQuest == 0) then return end;
 	if(itemLink) then
 		if(itemLink == self.itemLink and self:IsShown()) then
 			return
 		end
-
-		MOD.Headers["Active"]:Refresh('ACTIVE_QUEST_LOADED', ...)
 
 		self.Icon:SetTexture(texture)
 		self.itemID, self.itemName = string.match(itemLink, '|Hitem:(.-):.-|h%[(.+)%]|h')
@@ -193,6 +192,8 @@ local SetButtonItem = function(self, itemLink, texture, ...)
 		self:SetAttribute('item', self.itemName)
 		UpdateCooldown(self)
 	end
+
+	MOD.Headers["Active"]:Refresh('ACTIVE_QUEST_LOADED', ...)
 end
 
 local RemoveButtonItem = function(self, logIndex)
@@ -208,7 +209,6 @@ local RemoveButtonItem = function(self, logIndex)
 end
 
 local UpdateButton = function(self)
-	if(self.CurrentQuest == MOD.CurrentQuest) then return end
 	local shortestDistance = 62500;
 	local currentAreaID = GetCurrentMapAreaID()
 	local closestQuest, closestLink, closestTexture, closestLevel, closestCount, closestIndex, closestDuration, closestExpiration, closestID, closestComplete;
@@ -248,9 +248,9 @@ local UpdateButton = function(self)
 		end
 	end
 
-	if(closestLink) then
+	if(closestLink and (MOD.CurrentQuest == 0)) then
 		self:SetItem(closestLink, closestTexture, closestQuest, closestLevel, closestTexture, closestID, closestIndex, closestCount, closestDuration, closestExpiration, closestComplete)
-	elseif(self:IsShown()) then
+	elseif(self:IsShown() and (self.CurrentQuest ~= MOD.CurrentQuest)) then
 		self:RemoveItem()
 	end
 end

@@ -78,6 +78,7 @@ local MM_WIDTH = MM_SIZE + (MM_BRDR * 2)
 local MM_HEIGHT = (MM_SIZE - (MM_OFFSET_TOP + MM_OFFSET_BOTTOM) + (MM_BRDR * 2))
 local WM_ALPHA = false;
 local SVUI_MinimapFrame = CreateFrame("Frame", "SVUI_MinimapFrame", UIParent)
+local WMCoords = CreateFrame('Frame', 'SVUI_WorldMapCoords', WorldMapFrame)
 SVUI_MinimapFrame:SetSize(MM_WIDTH, MM_HEIGHT)
 --[[ 
 ########################################################## 
@@ -285,7 +286,7 @@ local function UpdateMapCoords()
 	local xF, yF = "|cffffffffx:  |r%.1f", "|cffffffffy:  |r%.1f"
 	local skip = IsInInstance()
 	local c, d = GetPlayerMapPosition("player")
-	if(not skip and not IsIndoors() and c ~= 0 and d ~= 0) then
+	if((not skip) and (c ~= 0 and d ~= 0)) then
 		c = parsefloat(100 * c, 2)
 		d = parsefloat(100 * d, 2)
 		if(MM_XY_COORD == "SIMPLE") then
@@ -294,35 +295,36 @@ local function UpdateMapCoords()
 		if c ~= 0 and d ~= 0 then
 			SVUI_MiniMapCoords.playerXCoords:SetFormattedText(xF, c)
 			SVUI_MiniMapCoords.playerYCoords:SetFormattedText(yF, d)
-			if(SVUI_WorldMapCoords and WorldMapFrame:IsShown()) then
+			if(WorldMapFrame:IsShown()) then
 				SVUI_WorldMapCoords.playerCoords:SetText(PLAYER..":   "..c..", "..d)
 			end
 		else
 			SVUI_MiniMapCoords.playerXCoords:SetText("")
 			SVUI_MiniMapCoords.playerYCoords:SetText("")
-			if(SVUI_WorldMapCoords and WorldMapFrame:IsShown()) then
+			if(WorldMapFrame:IsShown()) then
 				SVUI_WorldMapCoords.playerCoords:SetText("")
 			end
 		end
-		if(not WorldMapFrame:IsShown() or not SVUI_WorldMapCoords) then return end 
-		local e = WorldMapDetailFrame:GetEffectiveScale()
-		local f = WorldMapDetailFrame:GetWidth()
-		local g = WorldMapDetailFrame:GetHeight()
-		local h, i = WorldMapDetailFrame:GetCenter()
-		local c, d = GetCursorPosition()
-		local j = (c / e - (h - (f / 2))) / f;
-		local k = (i + (g / 2)-d / e) / g;
-		if j >= 0 and k >= 0 and j <= 1 and k <= 1 then 
-			j = parsefloat(100 * j, 2)
-			k = parsefloat(100 * k, 2)
-			SVUI_WorldMapCoords.mouseCoords:SetText(MOUSE_LABEL..":   "..j..", "..k)
-		else 
-			SVUI_WorldMapCoords.mouseCoords:SetText("")
+		if(WorldMapFrame:IsShown()) then
+			local e = WorldMapDetailFrame:GetEffectiveScale()
+			local f = WorldMapDetailFrame:GetWidth()
+			local g = WorldMapDetailFrame:GetHeight()
+			local h, i = WorldMapDetailFrame:GetCenter()
+			local c, d = GetCursorPosition()
+			local j = (c / e - (h - (f / 2))) / f;
+			local k = (i + (g / 2)-d / e) / g;
+			if j >= 0 and k >= 0 and j <= 1 and k <= 1 then 
+				j = parsefloat(100 * j, 2)
+				k = parsefloat(100 * k, 2)
+				SVUI_WorldMapCoords.mouseCoords:SetText(MOUSE_LABEL..":   "..j..", "..k)
+			else 
+				SVUI_WorldMapCoords.mouseCoords:SetText("")
+			end
 		end
 	else
 		SVUI_MiniMapCoords.playerXCoords:SetText("")
 		SVUI_MiniMapCoords.playerYCoords:SetText("")
-		if(SVUI_WorldMapCoords and WorldMapFrame:IsShown()) then
+		if(WorldMapFrame:IsShown()) then
 			SVUI_WorldMapCoords.playerCoords:SetText("")
 		end
 	end
@@ -376,11 +378,11 @@ end
 local function AdjustMapSize()
 	if InCombatLockdown() then return end
 
-	if WORLDMAP_SETTINGS.size == WORLDMAP_FULLMAP_SIZE then 
-		SetLargeWorldMap()
-	elseif WORLDMAP_SETTINGS.size == WORLDMAP_WINDOWED_SIZE then 
-		SetSmallWorldMap()
-	end
+	-- if WORLDMAP_SETTINGS.size == WORLDMAP_FULLMAP_SIZE then 
+	-- 	SetLargeWorldMap()
+	-- elseif WORLDMAP_SETTINGS.size == WORLDMAP_WINDOWED_SIZE then 
+	-- 	SetSmallWorldMap()
+	-- end
 	
 	if SV.db.SVMap.tinyWorldMap == true then
 		BlackoutWorld:SetTexture(0,0,0,0)
@@ -400,7 +402,7 @@ local function UpdateWorldMapConfig()
 	else
 		if((not InCombatLockdown()) and (not SVUI_MiniMapCoords:IsShown())) then SVUI_MiniMapCoords:Show() end
 		UpdateMapCoords()
-		MOD.CoordTimer = SV.Timers:ExecuteLoop(UpdateMapCoords, 0.2)
+		MOD.CoordTimer = SV.Timers:ExecuteLoop(UpdateMapCoords, 0.1)
 	end
 
 	if InCombatLockdown()then return end
@@ -846,7 +848,6 @@ function MOD:Load()
 		WorldMapFrame:HookScript('OnHide', _hook_WorldMapFrame_OnHide)
 	end
 
-	local WMCoords = CreateFrame('Frame', 'SVUI_WorldMapCoords', WorldMapFrame)
 	WMCoords:SetFrameLevel(WorldMapDetailFrame:GetFrameLevel() + 1)
 	WMCoords:SetFrameStrata(WorldMapDetailFrame:GetFrameStrata())
 	WMCoords.playerCoords = WMCoords:CreateFontString(nil,'OVERLAY')
