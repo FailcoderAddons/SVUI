@@ -645,7 +645,8 @@ function SV.Setup:Minimalist()
 
 	SV.db.SVGear.enable = false;
 	SV.db.SVMap.customIcons = false;
-	SV.db.SVMap.bordersize = 1;
+	SV.db.SVMap.bordersize = 2;
+	SV.db.SVMap.bordercolor = "dark";
 	SV.db.SVMap.locationText = "HIDE";
 	SV.db.SVMap.playercoords = "HIDE";
 	SV.db.SVPlate.comicStyle = false;

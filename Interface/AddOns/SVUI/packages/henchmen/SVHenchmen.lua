@@ -208,7 +208,7 @@ local function UpdateHenchmanModel(hide)
 end
 
 function GetAllMail()
-	if GetInboxNumItems()==0 then return end 
+	if(GetInboxNumItems() == 0) then return end 
 	SVUI_GetMailButton:SetScript("OnClick",nil)
 	SVUI_GetGoldButton:SetScript("OnClick",nil)
 	baseInboxFrame_OnClick=InboxFrame_OnClick;

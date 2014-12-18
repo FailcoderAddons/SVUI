@@ -190,6 +190,9 @@ local UnsetActiveData = function(self)
 	MOD.CurrentQuest = 0;
 	block:Hide();
 	self:SetHeight(1);
+	if(MOD.Headers["Quests"]) then
+		MOD:UpdateObjectives('FORCED_UPDATE')
+	end
 end
 
 local SetActiveData = function(self, title, level, icon, questID, questLogIndex, numObjectives, duration, elapsed, bypass)
@@ -281,6 +284,24 @@ end
 CORE FUNCTIONS
 ##########################################################
 ]]--
+function MOD:CheckActiveQuest(questID, ...)
+	local currentQuestIndex = self.CurrentQuest;
+	if(currentQuestIndex and (currentQuestIndex ~= 0)) then
+		if(questID) then
+			if(select(8, GetQuestLogTitle(currentQuestIndex)) == questID) then
+				self.Headers["Active"]:Unset();
+			end
+		else
+			local questLogIndex = select(5, ...);
+			if(questLogIndex and (questLogIndex == currentQuestIndex)) then
+				self.Headers["Active"]:Set(...);
+				return true;
+			end
+		end
+	end
+	return false;
+end
+
 function MOD:UpdateActiveObjective(event, ...)
 	self.Headers["Active"]:Refresh(event, ...)
 	self:UpdateDimensions();
@@ -312,7 +333,6 @@ function MOD:InitializeActive()
 	block.Button:SetID(0)
 	block.Button.Parent = active;
 	block.Button:SetScript("OnClick", ViewButton_OnClick)
-	block.Button.CloseMe = ActiveButton_OnClick
 
 	block.Badge = CreateFrame("Frame", nil, block.Button)
 	block.Badge:SetPointToScale("TOPLEFT", block.Button, "TOPLEFT", 4, -4);

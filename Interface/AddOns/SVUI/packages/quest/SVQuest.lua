@@ -67,6 +67,41 @@ local LINE_POPUP_OFFER = [[Interface\ICONS\Ability_Hisek_Aim]];
 CORE FUNCTIONS
 ##########################################################
 ]]--
+function MOD:StyleStatusBar(bar)
+	local bgFrame = CreateFrame("Frame", nil, bar)
+	bgFrame:SetAllPointsIn(bar, -2, -2)
+	bgFrame:SetFrameLevel(bgFrame:GetFrameLevel() - 1)
+	
+	bgFrame.bg = bgFrame:CreateTexture(nil, "BACKGROUND")
+	bgFrame.bg:SetAllPoints(bgFrame)
+	bgFrame.bg:SetTexture(SV.Media.bar.default)
+  	bgFrame.bg:SetVertexColor(0,0,0,0.5)
+
+	local borderB = bgFrame:CreateTexture(nil,"OVERLAY")
+	borderB:SetTexture(0,0,0)
+	borderB:SetPoint("BOTTOMLEFT")
+	borderB:SetPoint("BOTTOMRIGHT")
+	borderB:SetHeight(2)
+
+	local borderT = bgFrame:CreateTexture(nil,"OVERLAY")
+	borderT:SetTexture(0,0,0)
+	borderT:SetPoint("TOPLEFT")
+	borderT:SetPoint("TOPRIGHT")
+	borderT:SetHeight(2)
+
+	local borderL = bgFrame:CreateTexture(nil,"OVERLAY")
+	borderL:SetTexture(0,0,0)
+	borderL:SetPoint("TOPLEFT")
+	borderL:SetPoint("BOTTOMLEFT")
+	borderL:SetWidth(2)
+
+	local borderR = bgFrame:CreateTexture(nil,"OVERLAY")
+	borderR:SetTexture(0,0,0)
+	borderR:SetPoint("TOPRIGHT")
+	borderR:SetPoint("BOTTOMRIGHT")
+	borderR:SetWidth(2)
+end
+
 function MOD:GetTimerTextColor(duration, elapsed)
 	local yellowPercent = .66
 	local redPercent = .33

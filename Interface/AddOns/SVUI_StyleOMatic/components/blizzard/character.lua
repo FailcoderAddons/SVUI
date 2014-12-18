@@ -165,9 +165,9 @@ local function PaperDoll_UpdateTabs()
 			tab.Hider:SetPointToScale("TOPLEFT", 3, -4)
 			tab.Hider:SetPointToScale("BOTTOMRIGHT", -1, 0)
 			tab.TabBg:Die()
-			if i == 1 then 
-				for i = 1, tab:GetNumRegions()do 
-					local texture = select(i, tab:GetRegions())
+			if i == 1 then
+				for x = 1, tab:GetNumRegions()do 
+					local texture = select(x, tab:GetRegions())
 					texture:SetTexCoord(0.16, 0.86, 0.16, 0.86)
 				end 
 			end 
@@ -175,7 +175,13 @@ local function PaperDoll_UpdateTabs()
 			tab.Panel:SetPointToScale("TOPLEFT", 2, -3)
 			tab.Panel:SetPointToScale("BOTTOMRIGHT", 0, -2)
 		end 
-	end 
+	end
+	PaperDollSidebarTab1:ClearAllPoints()
+	PaperDollSidebarTab1:SetPoint("BOTTOM", CharacterFrameInsetRight, "TOP", 0, 4)
+	PaperDollSidebarTab2:ClearAllPoints()
+	PaperDollSidebarTab2:SetPoint("LEFT", PaperDollSidebarTab1, "RIGHT", 4, 0)
+	PaperDollSidebarTab3:ClearAllPoints()
+	PaperDollSidebarTab3:SetPoint("LEFT", PaperDollSidebarTab2, "RIGHT", 4, 0)
 end 
 
 local function Reputation_OnShow()

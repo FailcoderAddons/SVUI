@@ -208,6 +208,7 @@ local RemoveButtonItem = function(self, logIndex)
 end
 
 local UpdateButton = function(self)
+	if(self.CurrentQuest == MOD.CurrentQuest) then return end
 	local shortestDistance = 62500;
 	local currentAreaID = GetCurrentMapAreaID()
 	local closestQuest, closestLink, closestTexture, closestLevel, closestCount, closestIndex, closestDuration, closestExpiration, closestID, closestComplete;
