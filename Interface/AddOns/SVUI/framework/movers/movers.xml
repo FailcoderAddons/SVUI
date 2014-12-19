@@ -256,7 +256,6 @@
         </Scripts>
     </Frame>
 
-    <Script file="mover_graph.lua"/>
     <Script file="mover_mentalo.lua"/>
     <Script file="mover_dragger.lua"/>
 </Ui>

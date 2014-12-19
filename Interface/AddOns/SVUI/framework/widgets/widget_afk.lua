@@ -31,6 +31,7 @@ GET ADDON DATA
 local SV = select(2, ...);
 
 SV.AFK = _G["SVUI_AFKFrame"];
+
 local AFK_SEQUENCES = {
 	[1] = 120,
 	[2] = 141,

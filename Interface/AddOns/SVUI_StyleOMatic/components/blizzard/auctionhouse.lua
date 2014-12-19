@@ -240,6 +240,7 @@ local function AuctionStyle()
 					buttonTex:SetParent(buttonItem.Panel)
 					buttonTex:SetAllPointsIn(buttonItem.Panel, 2, 2)
 					buttonTex:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+					buttonTex:SetDesaturated(false)
 				end
 
 				local highLight = button:GetHighlightTexture()
@@ -261,6 +262,7 @@ local function AuctionStyle()
 			if(buttonTex) then 
 				buttonTex:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 				buttonTex:SetAllPointsIn()
+				buttonTex:SetDesaturated(false)
 			end 
 
 			button:RemoveTextures()
@@ -292,6 +294,7 @@ local function AuctionStyle()
 			if(buttonTex) then 
 				buttonTex:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 				buttonTex:SetAllPointsIn()
+				buttonTex:SetDesaturated(false)
 			end 
 
 			button:RemoveTextures()

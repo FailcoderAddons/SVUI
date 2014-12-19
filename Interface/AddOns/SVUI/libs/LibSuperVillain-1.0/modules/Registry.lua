@@ -998,26 +998,12 @@ end
 
 -- CORE OBJECT CONSTRUCT
 
-local Core_NewScript = function(self, fn)
-    if(fn and type(fn) == "function") then
-        ScriptQueue[#ScriptQueue+1] = fn
-    end 
-end
-
-local Core_NewSubClass = function(self, schema, header)
+local addNewSubClass = function(self, schema)
     if(self[schema]) then return end
 
-    AllowedIndexes[schema] = schema
-
-    local addonName = ("SVUI [%s]"):format(schema)
-
     local obj = {
-        NameID              = addonName,
-        TitleID             = header,
+        parent              = self,
         Schema              = schema,
-        initialized         = false,
-        CombatLocked        = false,
-        ChangeDBVar         = changeDBVar,
         RegisterEvent       = registerEvent,
         UnregisterEvent     = unregisterEvent,
         RegisterUpdate      = registerUpdate,
@@ -1035,6 +1021,46 @@ local Core_NewSubClass = function(self, schema, header)
     self[schema] = obj
     
     return self[schema]
+end
+
+local Core_NewClass = function(self, schema, header)
+    if(self[schema]) then return end
+
+    AllowedIndexes[schema] = schema
+
+    local addonName = ("SVUI [%s]"):format(schema)
+
+    local obj = {
+        NameID              = addonName,
+        TitleID             = header,
+        Schema              = schema,
+        initialized         = false,
+        CombatLocked        = false,
+        ChangeDBVar         = changeDBVar,
+        RegisterEvent       = registerEvent,
+        UnregisterEvent     = unregisterEvent,
+        RegisterUpdate      = registerUpdate,
+        UnregisterUpdate    = unregisterUpdate,
+        NewSubClass         = addNewSubClass
+    }
+
+    local addonmeta = {}
+    local oldmeta = getmetatable(obj)
+    if oldmeta then
+        for k, v in pairs(oldmeta) do addonmeta[k] = v end
+    end
+    addonmeta.__tostring = rootstring
+    setmetatable( obj, addonmeta )
+
+    self[schema] = obj
+    
+    return self[schema]
+end
+
+local Core_NewScript = function(self, fn)
+    if(fn and type(fn) == "function") then
+        ScriptQueue[#ScriptQueue+1] = fn
+    end 
 end
 
 local Core_NewPackage = function(self, schema, header)
@@ -1169,7 +1195,7 @@ function lib:NewCore(gfile, efile, pfile, cfile, ffile, lfile)
 
     CoreObject.NewScript            = Core_NewScript
     CoreObject.NewPackage           = Core_NewPackage
-    CoreObject.NewSubClass          = Core_NewSubClass
+    CoreObject.NewClass             = Core_NewClass
     CoreObject.ResetData            = Core_ResetData
     CoreObject.ResetFilter          = Core_ResetFilter
 

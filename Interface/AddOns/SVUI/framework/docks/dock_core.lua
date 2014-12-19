@@ -2,20 +2,16 @@
 ##############################################################################
 _____/\\\\\\\\\\\____/\\\________/\\\__/\\\________/\\\__/\\\\\\\\\\\_       #
  ___/\\\/////////\\\_\/\\\_______\/\\\_\/\\\_______\/\\\_\/////\\\///__      #
-	__\//\\\______\///__\//\\\______/\\\__\/\\\_______\/\\\_____\/\\\_____     #
-	 ___\////\\\__________\//\\\____/\\\___\/\\\_______\/\\\_____\/\\\_____    #
-		______\////\\\________\//\\\__/\\\____\/\\\_______\/\\\_____\/\\\_____   #
-		 _________\////\\\______\//\\\/\\\_____\/\\\_______\/\\\_____\/\\\_____  #
-			__/\\\______\//\\\______\//\\\\\______\//\\\______/\\\______\/\\\_____ #
-			 _\///\\\\\\\\\\\/________\//\\\________\///\\\\\\\\\/____/\\\\\\\\\\\_#
-				___\///////////___________\///___________\/////////_____\///////////_#
+  __\//\\\______\///__\//\\\______/\\\__\/\\\_______\/\\\_____\/\\\_____     #
+   ___\////\\\__________\//\\\____/\\\___\/\\\_______\/\\\_____\/\\\_____    #
+    ______\////\\\________\//\\\__/\\\____\/\\\_______\/\\\_____\/\\\_____   #
+     _________\////\\\______\//\\\/\\\_____\/\\\_______\/\\\_____\/\\\_____  #
+      __/\\\______\//\\\______\//\\\\\______\//\\\______/\\\______\/\\\_____ #
+       _\///\\\\\\\\\\\/________\//\\\________\///\\\\\\\\\/____/\\\\\\\\\\\_#
+        ___\///////////___________\///___________\/////////_____\///////////_#
 ##############################################################################
 S U P E R - V I L L A I N - U I   By: Munglunch                              #
-##############################################################################
-########################################################## 
-LOCALIZED LUA FUNCTIONS
-##########################################################
-]]--
+############################################################################## ]]-- 
 --[[ GLOBALS ]]--
 local _G = _G;
 local unpack        = _G.unpack;
@@ -68,7 +64,6 @@ ADDON
 ]]--
 local SV = select(2, ...)
 local L = SV.L;
-local SVLib = LibSuperVillain("Registry");
 --[[ 
 ########################################################## 
 DOCKING
@@ -76,23 +71,6 @@ DOCKING
 ]]--
 local ORDER_TEMP = {};
 local ORDER_TEST = {};
-
-local GIZMO_SOUND_GOOD = {
-	{
-		[[sound\item\weapons\gun\gunload01.ogg]],
-		[[sound\item\weapons\gun\gunload02.ogg]],
-		[[sound\interface\ui_blizzardstore_buynow.ogg]]
-	},
-	{
-		[[sound\doodad\fx_electricitysparkmedium_02.ogg]],
-		[[sound\doodad\g_levermetalcustom0.ogg]],
-		[[sound\doodad\g_buttonbigredcustom0.ogg]]
-	}
-};
-
-local GIZMO_SOUND_BAD = {
-	[[sound\doodad\goblin_christmaslight_green_03.ogg]]
-};
 
 local DOCK_LOCATIONS = {
 	["BottomLeft"] = {1, "LEFT", true, "ANCHOR_TOPLEFT"},
@@ -106,7 +84,7 @@ local STAT_LOCATIONS = {
 	["TopCenter"] = {1, "LEFT", false, "ANCHOR_BOTTOMLEFT"},
 };
 
-local Dock = SV:NewSubClass("Dock", L["Docks"]);
+local Dock = SV:NewClass("Dock", L["Docks"]);
 
 Dock.Border = {};
 Dock.Registration = {};
@@ -118,6 +96,14 @@ DOCK_DROPDOWN_OPTIONS["BottomLeft"] = { text = "To BottomLeft", func = function(
 DOCK_DROPDOWN_OPTIONS["BottomRight"] = { text = "To BottomRight", func = function(button) Dock.BottomRight.Bar:Add(button) end };
 DOCK_DROPDOWN_OPTIONS["TopLeft"] = { text = "To TopLeft", func = function(button) Dock.TopLeft.Bar:Add(button) end };
 --DOCK_DROPDOWN_OPTIONS["TopRight"] = { text = "To TopRight", func = function(button) Dock.TopRight.Bar:Add(button) end };
+--[[ 
+########################################################## 
+SOUND EFFECTS
+##########################################################
+]]--
+local SoundEffect = LibSuperVillain("Sounds");
+local ButtonSound = SoundEffect:Foley("Button");
+local ErrorSound = SoundEffect:Foley("Error");
 --[[ 
 ########################################################## 
 CORE FUNCTIONS
@@ -135,23 +121,25 @@ _G.HideSuperDocks = function(self, button)
 			Dock.BottomRight:FadeIn(0.2, Dock.BottomRight:GetAlpha(), 1)
 			Dock.BottomRight.Bar:FadeIn(0.2, Dock.BottomRight.Bar:GetAlpha(), 1)
 			SV.Events:Trigger("DOCKS_FADE_IN");
+			PlaySoundFile([[sound\interface\ui_etherealwindow_open.ogg]])
 		else 
 			SV.cache.Docks.IsFaded = true;
-			Dock.BottomLeft:FadeOut(0.2, Dock.BottomLeft:GetAlpha(), 0, true)
-			Dock.BottomLeft.Bar:FadeOut(0.2, Dock.BottomLeft.Bar:GetAlpha(), 0, true)
-			Dock.BottomRight:FadeOut(0.2, Dock.BottomRight:GetAlpha(), 0, true)
-			Dock.BottomRight.Bar:FadeOut(0.2, Dock.BottomRight.Bar:GetAlpha(), 0, true)
+			Dock.BottomLeft:FadeOut(0.2, Dock.BottomLeft:GetAlpha(), 0)
+			Dock.BottomLeft.Bar:FadeOut(0.2, Dock.BottomLeft.Bar:GetAlpha(), 0)
+			Dock.BottomRight:FadeOut(0.2, Dock.BottomRight:GetAlpha(), 0)
+			Dock.BottomRight.Bar:FadeOut(0.2, Dock.BottomRight.Bar:GetAlpha(), 0)
 			SV.Events:Trigger("DOCKS_FADE_OUT");
+			PlaySoundFile([[sound\interface\ui_etherealwindow_close.ogg]])
 		end
 	end
 end
 
 function Dock:EnterFade()
 	if SV.cache.Docks.IsFaded then
-		self.BottomLeft:Show()
+		--self.BottomLeft:Show()
 		self.BottomLeft:FadeIn(0.2, self.BottomLeft:GetAlpha(), 1)
 		self.BottomLeft.Bar:FadeIn(0.2, self.BottomLeft.Bar:GetAlpha(), 1)
-		self.BottomRight:Show()
+		--self.BottomRight:Show()
 		self.BottomRight:FadeIn(0.2, self.BottomRight:GetAlpha(), 1)
 		self.BottomRight.Bar:FadeIn(0.2, self.BottomRight.Bar:GetAlpha(), 1)
 		SV.Events:Trigger("DOCKS_FADE_IN");
@@ -160,10 +148,10 @@ end
 
 function Dock:ExitFade()
 	if SV.cache.Docks.IsFaded then
-		self.BottomLeft:FadeOut(2, self.BottomLeft:GetAlpha(), 0, true)
-		self.BottomLeft.Bar:FadeOut(2, self.BottomLeft.Bar:GetAlpha(), 0, true)
-		self.BottomRight:FadeOut(2, self.BottomRight:GetAlpha(), 0, true)
-		self.BottomRight.Bar:FadeOut(2, self.BottomRight.Bar:GetAlpha(), 0, true)
+		self.BottomLeft:FadeOut(2, self.BottomLeft:GetAlpha(), 0)
+		self.BottomLeft.Bar:FadeOut(2, self.BottomLeft.Bar:GetAlpha(), 0)
+		self.BottomRight:FadeOut(2, self.BottomRight:GetAlpha(), 0)
+		self.BottomRight.Bar:FadeOut(2, self.BottomRight.Bar:GetAlpha(), 0)
 		SV.Events:Trigger("DOCKS_FADE_OUT");
 	end
 end
@@ -319,7 +307,7 @@ local DockButton_OnEnter = function(self, ...)
 	Dock:EnterFade()
 
 	self:SetPanelColor("highlight")
-	self.Icon:SetGradient(unpack(SV.Media.gradient.bizzaro))
+	self.Icon:SetGradient(unpack(SV.Media.gradient.highlight))
 
 	GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT", 0, 4)
 	GameTooltip:ClearLines()
@@ -334,7 +322,7 @@ local DockletButton_OnEnter = function(self, ...)
 	Dock:EnterFade()
 
 	self:SetPanelColor("highlight")
-	self.Icon:SetGradient(unpack(SV.Media.gradient.bizzaro))
+	self.Icon:SetGradient(unpack(SV.Media.gradient.highlight))
 
 	local tipAnchor = self:GetAttribute("tipAnchor")
 	GameTooltip:SetOwner(self, tipAnchor, 0, 4)
@@ -368,13 +356,9 @@ end
 
 local DockletButton_OnClick = function(self, button)
 	--if InCombatLockdown() then return end
-	local key = random(1,3)
-	local sound1 = GIZMO_SOUND_GOOD[1][key]
-	local sound2 = GIZMO_SOUND_GOOD[2][key]
-	PlaySoundFile(sound1)
-	PlaySoundFile(sound2)
+	ButtonSound()
 	if(IsAltKeyDown() and (not InCombatLockdown()) and self:GetAttribute("hasDropDown") and self.GetMenuList) then
-		local list = self:GetMenuList()
+		local list = self:GetMenuList();
 		SV.Dropdown:Open(self, list);
 	else
 		if self.PostClickFunction then
@@ -386,9 +370,13 @@ local DockletButton_OnClick = function(self, button)
 end
 
 local DockletButton_OnPostClick = function(self, button)
-	if InCombatLockdown() then return end
+	if InCombatLockdown() then 
+		ErrorSound()
+		return 
+	end
+	ButtonSound()
 	if(IsAltKeyDown() and self:GetAttribute("hasDropDown") and self.GetMenuList) then
-		local list = self:GetMenuList()
+		local list = self:GetMenuList();
 		SV.Dropdown:Open(self, list);
 	end
 end
@@ -413,7 +401,7 @@ local DockletRelocate = function(self, location)
 
 	if(not newParent) then return end
 
-	if(self.DockButton) then 
+	if(self.DockButton) then
 		newParent.Bar:Add(self.DockButton) 
 	end
 	
@@ -804,7 +792,7 @@ end
 local function BorderColorUpdates()
 	Dock.Border.Top:SetBackdropColor(unpack(SV.Media.color.specialdark))
 	Dock.Border.Top:SetBackdropBorderColor(0,0,0,1)
-	Dock.Border.Bottom:SetBackdropColor(unpack(SV.Media.color.special))
+	Dock.Border.Bottom:SetBackdropColor(unpack(SV.Media.color.default))
 	Dock.Border.Bottom:SetBackdropBorderColor(0,0,0,1)
 end
 
@@ -971,7 +959,7 @@ function Dock:Refresh()
 	local buttonsize = SV.db.Dock.buttonSize;
 	local spacing = SV.db.Dock.buttonSpacing;
 	local centerWidth = SV.db.Dock.dockCenterWidth;
-	local centerHeight = buttonsize * 0.7;
+	local centerHeight = SV.db.Dock.dockCenterHeight;
 
 	for location, settings in pairs(DOCK_LOCATIONS) do
 		if(location ~= "TopRight") then
@@ -1027,7 +1015,7 @@ function Dock:Initialize()
 	local buttonsize = SV.db.Dock.buttonSize;
 	local spacing = SV.db.Dock.buttonSpacing;
 	local centerWidth = SV.db.Dock.dockCenterWidth;
-	local centerHeight = buttonsize * 0.7;
+	local centerHeight = SV.db.Dock.dockCenterHeight;
 	local texture = [[Interface\AddOns\SVUI\assets\artwork\Template\BUTTON]];
 
 	-- [[ TOP AND BOTTOM BORDERS ]] --
@@ -1066,7 +1054,7 @@ function Dock:Initialize()
 		edgeSize = 1, 
 		insets = {left = 0, right = 0, top = 0, bottom = 0}
 	})
-	self.Border.Bottom:SetBackdropColor(unpack(SV.Media.color.special))
+	self.Border.Bottom:SetBackdropColor(unpack(SV.Media.color.default))
 	self.Border.Bottom:SetBackdropBorderColor(0,0,0,1)
 	self.Border.Bottom:SetFrameLevel(0)
 	self.Border.Bottom:SetFrameStrata('BACKGROUND')
@@ -1154,7 +1142,7 @@ function Dock:Initialize()
 	self.BottomCenter:SetParent(SV.Screen)
 	self.BottomCenter:ClearAllPoints()
 	self.BottomCenter:SetSize(centerWidth, centerHeight)
-	self.BottomCenter:SetPoint("BOTTOM", SV.Screen, "BOTTOM", 0, 2)
+	self.BottomCenter:SetPoint("BOTTOM", SV.Screen, "BOTTOM", 0, 0)
 
 	self.BottomCenter.Left:SetSize((centerWidth * 0.5), centerHeight)
 	self.BottomCenter.Left:SetPoint("LEFT")
@@ -1171,7 +1159,7 @@ function Dock:Initialize()
 	self.TopCenter:SetParent(SV.Screen)
 	self.TopCenter:ClearAllPoints()
 	self.TopCenter:SetSize(centerWidth, centerHeight)
-	self.TopCenter:SetPoint("TOP", SV.Screen, "TOP", 0, -2)
+	self.TopCenter:SetPoint("TOP", SV.Screen, "TOP", 0, 0)
 
 	self.TopCenter.Left:SetSize((centerWidth * 0.5), centerHeight)
 	self.TopCenter.Left:SetPoint("LEFT", self.TopCenter, "LEFT")
@@ -1186,5 +1174,3 @@ function Dock:Initialize()
 
 	self:UpdateDockBackdrops()
 end
-
-SV.Dock = Dock

@@ -42,7 +42,7 @@ GET ADDON DATA
 local SV = select(2, ...)
 local L = SV.L;
 
-local Mentalo = CreateFrame("Frame", nil)
+local Mentalo = SV:NewClass("Mentalo", L["Mentalo the Frame Mover"]);
 Mentalo.Frames = {}
 --[[
   /$$$$$$   /$$     /$$           /$$                
@@ -735,6 +735,79 @@ function Mentalo:Toggle(isConfigMode)
 end
 --[[ 
 ########################################################## 
+ALIGNMENT GRAPH
+##########################################################
+]]--
+local Graph = {}
+
+function Graph:Toggle(enabled)
+	if((not self.Grid) or (self.CellSize ~= SV.db.general.graphSize)) then
+		self:Generate()
+	end
+	if(not enabled) then
+        self.Grid:Hide()
+	else
+		self.Grid:Show()
+	end
+end
+
+function Graph:Generate()
+	local cellSize = SV.db.general.graphSize
+	self.CellSize = cellSize
+
+	self.Grid = CreateFrame('Frame', nil, UIParent)
+	self.Grid:SetAllPoints(SV.Screen) 
+
+	local size = 1 
+	local width = GetScreenWidth()
+	local ratio = width / GetScreenHeight()
+	local height = GetScreenHeight() * ratio
+
+	local wStep = width / cellSize
+	local hStep = height / cellSize
+
+	for i = 0, cellSize do 
+		local tx = self.Grid:CreateTexture(nil, 'BACKGROUND') 
+		if(i == cellSize / 2) then 
+			tx:SetTexture(0, 1, 0, 0.8) 
+		else 
+			tx:SetTexture(0, 0, 0, 0.8) 
+		end 
+		tx:SetPoint("TOPLEFT", self.Grid, "TOPLEFT", i*wStep - (size/2), 0) 
+		tx:SetPoint('BOTTOMRIGHT', self.Grid, 'BOTTOMLEFT', i*wStep + (size/2), 0) 
+	end
+
+	height = GetScreenHeight()
+	
+	do
+		local tx = self.Grid:CreateTexture(nil, 'BACKGROUND') 
+		tx:SetTexture(0, 1, 0, 0.8)
+		tx:SetPoint("TOPLEFT", self.Grid, "TOPLEFT", 0, -(height/2) + (size/2))
+		tx:SetPoint('BOTTOMRIGHT', self.Grid, 'TOPRIGHT', 0, -(height/2 + size/2))
+	end
+	
+	for i = 1, floor((height/2)/hStep) do
+		local tx = self.Grid:CreateTexture(nil, 'BACKGROUND') 
+		tx:SetTexture(0, 0, 0, 0.8)
+		
+		tx:SetPoint("TOPLEFT", self.Grid, "TOPLEFT", 0, -(height/2+i*hStep) + (size/2))
+		tx:SetPoint('BOTTOMRIGHT', self.Grid, 'TOPRIGHT', 0, -(height/2+i*hStep + size/2))
+		
+		tx = self.Grid:CreateTexture(nil, 'BACKGROUND') 
+		tx:SetTexture(0, 0, 0, 0.8)
+		
+		tx:SetPoint("TOPLEFT", self.Grid, "TOPLEFT", 0, -(height/2-i*hStep) + (size/2))
+		tx:SetPoint('BOTTOMRIGHT', self.Grid, 'TOPRIGHT', 0, -(height/2-i*hStep + size/2))
+	end
+
+	self.Grid:Hide()
+end
+
+function Graph:Initialize()
+	self:Generate()
+end
+--[[ 
+########################################################## 
 SCRIPT AND EVENT HANDLERS
 ##########################################################
 ]]--
@@ -747,15 +820,15 @@ end
 
 local XML_MentaloGridButton_OnClick = function(self)
 	local enabled = true
-	if(SV.Graph.Grid and SV.Graph.Grid:IsShown()) then
+	if(Graph.Grid and Graph.Grid:IsShown()) then
 		enabled = false
 	end
 
-	SV.Graph:Toggle(enabled)
+	Graph:Toggle(enabled)
 end
 
 local XML_MentaloLockButton_OnClick = function(self)
-	SV.Graph:Toggle()
+	Graph:Toggle()
 	Mentalo:Toggle(true)
 	if IsAddOnLoaded(SV.ConfigID)then 
 		LibStub("AceConfigDialog-3.0"):Open(SV.NameID)
@@ -841,5 +914,3 @@ function Mentalo:Initialize()
 	-- end	
 	-- PetJournalParent:SetAttribute("UIPanelLayout-defined", true);
 end
-
-SV.Mentalo = Mentalo

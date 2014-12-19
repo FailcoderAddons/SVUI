@@ -83,172 +83,11 @@ local TimerBar_OnUpdate = function(self, elapsed)
     	self:StopTimer()
     end
 end
-
-local ObjectiveTimer_OnUpdate = function(self, elapsed)
-	local statusbar = self.Timer.Bar
-	local timeNow = GetTime();
-	local timeRemaining = statusbar.duration - (timeNow - statusbar.startTime);
-	statusbar:SetValue(timeRemaining);
-	if(timeRemaining < 0) then
-		-- hold at 0 for a moment
-		if(timeRemaining > -1) then
-			timeRemaining = 0;
-		else
-			self:StopTimer();
-		end
-	end
-	local r,g,b = MOD:GetTimerTextColor(statusbar.duration, statusbar.duration - timeRemaining)
-	self.Timer.TimeLeft:SetText(GetTimeStringFromSeconds(timeRemaining, nil, true));
-	self.Timer.TimeLeft:SetTextColor(r,g,b);
-end
 --[[ 
 ########################################################## 
 TRACKER FUNCTIONS
 ##########################################################
 ]]--
-local StartObjectiveTimer = function(self, duration, elapsed)
-	local timeNow = GetTime();
-	local startTime = timeNow - elapsed;
-	local timeRemaining = duration - startTime;
-
-	self.Timer:FadeIn();
-	self.Timer.Bar.duration = duration or 1;
-	self.Timer.Bar.startTime = startTime;
-	self.Timer.Bar:SetMinMaxValues(0, self.Timer.Bar.duration);
-	self.Timer.Bar:SetValue(timeRemaining);
-	self.Timer.TimeLeft:SetText(GetTimeStringFromSeconds(duration, nil, true));
-	self.Timer.TimeLeft:SetTextColor(MOD:GetTimerTextColor(duration, duration - timeRemaining));
-
-	self:SetScript("OnUpdate", ObjectiveTimer_OnUpdate);
-end
-
-local StopObjectiveTimer = function(self)
-	self.Timer:SetAlpha(0);
-	self.Timer.Bar.duration = 1;
-	self.Timer.Bar.startTime = 0;
-	self.Timer.Bar:SetMinMaxValues(0, self.Timer.Bar.duration);
-	self.Timer.Bar:SetValue(0);
-	self.Timer.TimeLeft:SetText('');
-	self.Timer.TimeLeft:SetTextColor(1,1,1);
-
-	self:SetScript("OnUpdate", nil);
-end
-
-local function AddObjectiveTimer(parent)
-	local timer = CreateFrame("Frame", nil, parent)
-	timer:SetPoint("TOPLEFT", parent.Icon, "TOPRIGHT", 4, 0);
-	timer:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", 0, 0);
-
-	timer.Holder = CreateFrame("Frame", nil, timer)
-	timer.Holder:SetPointToScale("TOPLEFT", timer, "TOPLEFT", 4, -2);
-	timer.Holder:SetPointToScale("BOTTOMRIGHT", timer, "BOTTOMRIGHT", -4, 2);
-	MOD:StyleStatusBar(timer.Holder)
-
-	timer.Bar = CreateFrame("StatusBar", nil, timer.Holder);
-	timer.Bar:SetAllPointsIn(timer.Holder);
-	timer.Bar:SetStatusBarTexture(SV.Media.bar.default)
-	timer.Bar:SetStatusBarColor(0.5,0,1) --1,0.15,0.08
-	timer.Bar:SetMinMaxValues(0, 1)
-	timer.Bar:SetValue(0)
-
-	timer.TimeLeft = timer.Bar:CreateFontString(nil,"OVERLAY");
-	timer.TimeLeft:SetAllPointsIn(timer.Bar);
-	timer.TimeLeft:SetFont(SV.Media.font.numbers, 12, "OUTLINE")
-	timer.TimeLeft:SetTextColor(1,1,1)
-	timer.TimeLeft:SetShadowOffset(-1,-1)
-	timer.TimeLeft:SetShadowColor(0,0,0,0.5)
-	timer.TimeLeft:SetJustifyH('CENTER')
-	timer.TimeLeft:SetJustifyV('MIDDLE')
-	timer.TimeLeft:SetText('')
-
-	timer:SetAlpha(0);
-
-	return timer;
-end
-
-local ResetObjectiveBlock = function(self)
-	for x = 1, #self.Rows do
-		local objective = self.Rows[x]
-		if(objective) then
-			if(not objective:IsShown()) then
-				objective:Show()
-			end
-			objective.Text:SetText('')
-			objective.Icon:SetTexture(NO_ICON)
-			objective:SetHeight(1);
-			objective:SetAlpha(0);
-			objective:StopTimer();
-		end
-	end
-	self:SetAlpha(0);
-	self:SetHeight(1);
-end
-
-local GetScenarioObjective = function(self, index)
-	if(not self.Rows[index]) then 
-		local previousFrame = self.Rows[#self.Rows]
-		local yOffset = ((index * (ROW_HEIGHT)) - ROW_HEIGHT) + 3
-
-		local objective = CreateFrame("Frame", nil, self)
-		objective:SetPoint("TOPLEFT", self, "TOPLEFT", 0, -yOffset);
-		objective:SetPoint("TOPRIGHT", self, "TOPRIGHT", 0, -yOffset);
-		objective:SetHeightToScale(INNER_HEIGHT);
-
-		objective.Icon = objective:CreateTexture(nil,"OVERLAY")
-		objective.Icon:SetPoint("TOPLEFT", objective, "TOPLEFT", 4, -2);
-		objective.Icon:SetPoint("BOTTOMLEFT", objective, "BOTTOMLEFT", 4, 2);
-		objective.Icon:SetWidth(INNER_HEIGHT - 4);
-		objective.Icon:SetTexture(OBJ_ICON_INCOMPLETE)
-
-		objective.Timer = AddObjectiveTimer(objective);
-		objective.StartTimer = StartObjectiveTimer;
-		objective.StopTimer = StopObjectiveTimer;
-
-		objective.Text = objective:CreateFontString(nil,"OVERLAY")
-		objective.Text:SetPoint("TOPLEFT", objective, "TOPLEFT", INNER_HEIGHT + 6, -2);
-		objective.Text:SetPoint("TOPRIGHT", objective, "TOPRIGHT", 0, -2);
-		objective.Text:SetHeightToScale(INNER_HEIGHT - 2)
-		objective.Text:SetFont(SV.Media.font.roboto, 12, "NONE")
-		objective.Text:SetTextColor(1,1,1)
-		objective.Text:SetShadowOffset(-1,-1)
-		objective.Text:SetShadowColor(0,0,0,0.5)
-		objective.Text:SetJustifyH('LEFT')
-		objective.Text:SetJustifyV('MIDDLE')
-		objective.Text:SetText('')
-
-		self.Rows[index] = objective;
-	end
-
-	return self.Rows[index];
-end
-
-local SetScenarioObjective = function(self, index, description, completed, duration, elapsed)
-	index = index + 1;
-	local objective = self:Get(index);
-
-	if(completed) then
-		objective.Text:SetTextColor(0.1,0.9,0.1)
-		objective.Icon:SetTexture(OBJ_ICON_COMPLETE)
-	else
-		objective.Text:SetTextColor(1,1,1)
-		objective.Icon:SetTexture(OBJ_ICON_INCOMPLETE)
-	end
-	objective.Text:SetText(description)
-	objective:SetHeightToScale(INNER_HEIGHT);
-	objective:FadeIn();
-	return index;
-end
-
-local SetObjectiveTimer = function(self, index, duration, elapsed)
-	index = index + 1;
-	local objective = self:Get(index);
-	objective.Text:SetText('')
-	objective:SetHeightToScale(INNER_HEIGHT);
-	objective:FadeIn();
-	objective:StartTimer(duration, elapsed);
-	return index;
-end
-
 local SetScenarioData = function(self, title, stageName, currentStage, numStages, stageDescription, numObjectives)
 	local objective_rows = 0;
 	local fill_height = 0;
@@ -270,7 +109,7 @@ local SetScenarioData = function(self, title, stageName, currentStage, numStages
 			objective_rows = objective_block:SetTimer(objective_rows, duration, elapsed);
 			fill_height = fill_height + (INNER_HEIGHT + 2);
 		elseif(description and description ~= '') then
-			objective_rows = objective_block:Set(objective_rows, description, completed, duration, elapsed);
+			objective_rows = objective_block:SetInfo(objective_rows, description, completed, failed);
 			fill_height = fill_height + (INNER_HEIGHT + 2);
 		end
 	end
@@ -445,7 +284,6 @@ local UpdateAllTimers = function(self, ...)
 			end
 		end
 	end
-
 	--self:StopTimer()
 end
 
@@ -617,16 +455,11 @@ function MOD:InitializeScenarios()
 	timer:SetHeight(1);
 	timer:SetAlpha(0)
 
-	block.Objectives = CreateFrame("Frame", nil, block)
+	block.Objectives = MOD:NewObjectiveHeader(block);
 	block.Objectives:SetPointToScale("TOPLEFT", timer, "BOTTOMLEFT", -4, -4);
 	block.Objectives:SetPointToScale("TOPRIGHT", timer, "BOTTOMRIGHT", 4, -4);
 	block.Objectives:SetHeightToScale(1);
 
-	block.Objectives.Rows = {}
-	block.Objectives.Set = SetScenarioObjective;
-	block.Objectives.SetTimer = SetObjectiveTimer;
-	block.Objectives.Get = GetScenarioObjective;
-	block.Objectives.Reset = ResetObjectiveBlock;
 	block.HasData = false;
 
 	scenario.Timer = timer;

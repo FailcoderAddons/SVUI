@@ -5,4 +5,5 @@
 	<Script file="modules\Events.lua"/>
 	<Script file="modules\Timers.lua"/>
 	<Script file="modules\Animate.lua"/>
+	<Script file="modules\Sounds.lua"/>
 </Ui>

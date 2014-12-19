@@ -88,6 +88,7 @@ local function UpdateCachedQuests()
 	local s = 62500;
 	local x = 1;
 	local c = 0;
+	local li = 0;
 
 	wipe(USED_QUESTIDS);
 
@@ -97,14 +98,19 @@ local function UpdateCachedQuests()
 			local title, level, suggestedGroup = GetQuestLogTitle(questLogIndex)
 			local link, texture, _, showCompleted = GetQuestLogSpecialItemInfo(questLogIndex)
 			local distanceSq, onContinent = GetDistanceSqToQuest(questLogIndex)
-			local mapID, floorNumber = GetQuestWorldMapAreaID(questID)
+			local mapID, floorNumber = 0,0
+			if(not WorldMapFrame:IsShown()) then
+				mapID, floorNumber = GetQuestWorldMapAreaID(questID)
+			end
 			if(QuestHasPOIInfo(questID)) then
 				local areaID = QuestInZone[questID]
 				if(areaID and (areaID == CURRENT_MAP_ID)) then
 					c = x
+					li = questLogIndex
 				elseif(onContinent and (distanceSq < s)) then
 					s = distanceSq
 					c = x
+					li = questLogIndex
 				end
 			end
 
@@ -114,8 +120,10 @@ local function UpdateCachedQuests()
 
 			CACHED_QUESTS[x][1] = i;				-- quest watch index
 			CACHED_QUESTS[x][2] = link;				-- quest item link
-			CACHED_QUESTS[x][3] = mapID;			-- quest location map id
-			CACHED_QUESTS[x][4] = floorNumber;		-- quest location floor number
+			if(not WorldMapFrame:IsShown()) then
+				CACHED_QUESTS[x][3] = mapID;		-- quest location map id
+				CACHED_QUESTS[x][4] = floorNumber;	-- quest location floor number
+			end
 			CACHED_QUESTS[x][5] = distanceSq;		-- quest distance from player
 			CACHED_QUESTS[x][6] = false;			-- quest closest to player
 
@@ -138,8 +146,8 @@ local function UpdateCachedQuests()
 
 	if(c ~= 0 and CACHED_QUESTS[c]) then
 		CACHED_QUESTS[c][6] = true;
+		MOD.ClosestQuest = li;
 	end
-	MOD.ClosestQuest = c;
 
 	tsort(CACHED_QUESTS, function(a,b) return a[5] < b[5] end);
 end
@@ -278,110 +286,6 @@ local StopTimer = function(self)
 	self:SetScript("OnUpdate", nil);
 end
 
-local function AddTimerFrame(parent)
-	local timer = CreateFrame("Frame", nil, parent)
-	timer:SetPointToScale("TOPLEFT", parent, "BOTTOMLEFT", 0, 4);
-	timer:SetPointToScale("TOPRIGHT", parent, "BOTTOMRIGHT", 0, 4);
-	timer:SetHeightToScale(INNER_HEIGHT);
-
-	timer.Holder = CreateFrame("Frame", nil, timer)
-	timer.Holder:SetPointToScale("TOPLEFT", timer, "TOPLEFT", 4, -2);
-	timer.Holder:SetPointToScale("BOTTOMRIGHT", timer, "BOTTOMRIGHT", -4, 2);
-	MOD:StyleStatusBar(timer.Holder)
-
-	timer.Bar = CreateFrame("StatusBar", nil, timer.Holder);
-	timer.Bar:SetAllPointsIn(timer.Holder);
-	timer.Bar:SetStatusBarTexture(SV.Media.bar.default)
-	timer.Bar:SetStatusBarColor(0.5,0,1) --1,0.15,0.08
-	timer.Bar:SetMinMaxValues(0, 1)
-	timer.Bar:SetValue(0)
-
-	timer.TimeLeft = timer.Bar:CreateFontString(nil,"OVERLAY");
-	timer.TimeLeft:SetAllPointsIn(timer.Bar);
-	timer.TimeLeft:SetFont(SV.Media.font.numbers, 12, "OUTLINE")
-	timer.TimeLeft:SetTextColor(1,1,1)
-	timer.TimeLeft:SetShadowOffset(-1,-1)
-	timer.TimeLeft:SetShadowColor(0,0,0,0.5)
-	timer.TimeLeft:SetJustifyH('CENTER')
-	timer.TimeLeft:SetJustifyV('MIDDLE')
-	timer.TimeLeft:SetText('')
-
-	timer:SetHeight(1);
-	timer:SetAlpha(0);
-
-	return timer;
-end
-
-local ResetObjectiveBlock = function(self)
-	for x = 1, #self.Rows do
-		local objective = self.Rows[x]
-		if(objective) then
-			if(not objective:IsShown()) then
-				objective:Show()
-			end
-			objective.Text:SetText('')
-			objective.Icon:SetTexture(NO_ICON)
-			objective:SetHeight(1);
-			objective:SetAlpha(0);
-		end
-	end
-	self:SetAlpha(0);
-	self:SetHeight(1);
-end
-
-local GetObjectiveRow = function(self, index)
-	if(not self.Rows[index]) then 
-		local previousFrame = self.Rows[#self.Rows];
-		local yOffset = ((index * (INNER_HEIGHT)) - INNER_HEIGHT) + 1;
-
-		local objective = CreateFrame("Frame", nil, self)
-		objective:SetPoint("TOPLEFT", self, "TOPLEFT", QUEST_ROW_HEIGHT, -yOffset);
-		objective:SetPoint("TOPRIGHT", self, "TOPRIGHT", 0, -yOffset);
-		objective:SetHeightToScale(INNER_HEIGHT);
-
-		objective.Icon = objective:CreateTexture(nil,"OVERLAY")
-		objective.Icon:SetPoint("TOPLEFT", objective, "TOPLEFT", 4, -2);
-		objective.Icon:SetPoint("BOTTOMLEFT", objective, "BOTTOMLEFT", 4, 2);
-		objective.Icon:SetWidth(INNER_HEIGHT - 4);
-		objective.Icon:SetTexture(OBJ_ICON_INCOMPLETE)
-
-		objective.Text = objective:CreateFontString(nil,"OVERLAY")
-		objective.Text:SetPoint("TOPLEFT", objective, "TOPLEFT", INNER_HEIGHT + 6, -2);
-		objective.Text:SetPoint("TOPRIGHT", objective, "TOPRIGHT", 0, -2);
-		objective.Text:SetHeightToScale(INNER_HEIGHT - 2)
-		objective.Text:SetFont(SV.Media.font.roboto, 12, "NONE")
-		objective.Text:SetTextColor(1,1,1)
-		objective.Text:SetShadowOffset(-1,-1)
-		objective.Text:SetShadowColor(0,0,0,0.5)
-		objective.Text:SetJustifyH('LEFT')
-		objective.Text:SetJustifyV('MIDDLE')
-		objective.Text:SetText('')
-
-		self.Rows[index] = objective;
-		return objective;
-	end
-
-	return self.Rows[index];
-end
-
-local SetObjectiveRow = function(self, index, description, completed)
-	index = index + 1;
-	local objective = self:Get(index);
-
-	if(completed) then
-		objective.Text:SetTextColor(0.1,0.9,0.1)
-		objective.Icon:SetTexture(OBJ_ICON_COMPLETE)
-	else
-		objective.Text:SetTextColor(1,1,1)
-		objective.Icon:SetTexture(OBJ_ICON_INCOMPLETE)
-	end
-	objective.Text:SetText(description);
-	objective:SetHeightToScale(INNER_HEIGHT);
-	objective:SetAlpha(1);
-
-	return index;
-end
-
 local GetQuestRow = function(self, index)
 	if(not self.Rows[index]) then 
 		local previousFrame = self.Rows[#self.Rows]
@@ -462,19 +366,72 @@ local GetQuestRow = function(self, index)
 		row.Button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 		row.Button:SetScript("OnClick", ViewButton_OnClick);
 
-		row.Timer = AddTimerFrame(row);
+		row.Timer = CreateFrame("Frame", nil, row)
+		row.Timer:SetPointToScale("TOPLEFT", row, "BOTTOMLEFT", 0, 4);
+		row.Timer:SetPointToScale("TOPRIGHT", row, "BOTTOMRIGHT", 0, 4);
+		row.Timer:SetHeightToScale(INNER_HEIGHT);
+
+		row.Timer.Bar = CreateFrame("StatusBar", nil, row.Timer);
+		row.Timer.Bar:SetPointToScale("TOPLEFT", row.Timer, "TOPLEFT", 4, -2);
+		row.Timer.Bar:SetPointToScale("BOTTOMRIGHT", row.Timer, "BOTTOMRIGHT", -4, 2);
+		row.Timer.Bar:SetStatusBarTexture(SV.Media.bar.default)
+		row.Timer.Bar:SetStatusBarColor(0.5,0,1) --1,0.15,0.08
+		row.Timer.Bar:SetMinMaxValues(0, 1)
+		row.Timer.Bar:SetValue(0)
+		
+		local bgFrame = CreateFrame("Frame", nil, row.Timer.Bar)
+		bgFrame:SetAllPointsIn(row.Timer.Bar, -2, -2)
+		bgFrame:SetFrameLevel(bgFrame:GetFrameLevel() - 1)
+		
+		bgFrame.bg = bgFrame:CreateTexture(nil, "BACKGROUND")
+		bgFrame.bg:SetAllPoints(bgFrame)
+		bgFrame.bg:SetTexture(SV.Media.bar.default)
+	  	bgFrame.bg:SetVertexColor(0,0,0,0.5)
+
+		local borderB = bgFrame:CreateTexture(nil,"OVERLAY")
+		borderB:SetTexture(0,0,0)
+		borderB:SetPoint("BOTTOMLEFT")
+		borderB:SetPoint("BOTTOMRIGHT")
+		borderB:SetHeight(2)
+
+		local borderT = bgFrame:CreateTexture(nil,"OVERLAY")
+		borderT:SetTexture(0,0,0)
+		borderT:SetPoint("TOPLEFT")
+		borderT:SetPoint("TOPRIGHT")
+		borderT:SetHeight(2)
+
+		local borderL = bgFrame:CreateTexture(nil,"OVERLAY")
+		borderL:SetTexture(0,0,0)
+		borderL:SetPoint("TOPLEFT")
+		borderL:SetPoint("BOTTOMLEFT")
+		borderL:SetWidth(2)
+
+		local borderR = bgFrame:CreateTexture(nil,"OVERLAY")
+		borderR:SetTexture(0,0,0)
+		borderR:SetPoint("TOPRIGHT")
+		borderR:SetPoint("BOTTOMRIGHT")
+		borderR:SetWidth(2)
+
+		row.Timer.TimeLeft = row.Timer.Bar:CreateFontString(nil,"OVERLAY");
+		row.Timer.TimeLeft:SetAllPointsIn(row.Timer.Bar);
+		row.Timer.TimeLeft:SetFont(SV.Media.font.numbers, 12, "OUTLINE")
+		row.Timer.TimeLeft:SetTextColor(1,1,1)
+		row.Timer.TimeLeft:SetShadowOffset(-1,-1)
+		row.Timer.TimeLeft:SetShadowColor(0,0,0,0.5)
+		row.Timer.TimeLeft:SetJustifyH('CENTER')
+		row.Timer.TimeLeft:SetJustifyV('MIDDLE')
+		row.Timer.TimeLeft:SetText('')
+
+		row.Timer:SetHeight(1);
+		row.Timer:SetAlpha(0);
+
 		row.StartTimer = StartTimer;
 		row.StopTimer = StopTimer;
 
-		row.Objectives = CreateFrame("Frame", nil, row)
+		row.Objectives = MOD:NewObjectiveHeader(row);
 		row.Objectives:SetPoint("TOPLEFT", row.Timer, "BOTTOMLEFT", 0, 0);
 		row.Objectives:SetPoint("TOPRIGHT", row.Timer, "BOTTOMRIGHT", 0, 0);
 		row.Objectives:SetHeight(1);
-
-		row.Objectives.Rows = {}
-		row.Objectives.Get = GetObjectiveRow;
-		row.Objectives.Set = SetObjectiveRow;
-		row.Objectives.Reset = ResetObjectiveBlock;
 
 		row.RowID = 0;
 		self.Rows[index] = row;
@@ -521,7 +478,7 @@ local SetQuestRow = function(self, index, watchIndex, title, level, icon, questI
 		local description, category, completed = GetQuestObjectiveInfo(questID, i);
 		if not completed then iscomplete = false end
 		if(description) then
-			objective_rows = objective_block:Set(objective_rows, description, completed);
+			objective_rows = objective_block:SetInfo(objective_rows, description, completed);
 			fill_height = fill_height + (INNER_HEIGHT + 2);
 		end
 	end
@@ -635,10 +592,18 @@ local ResetQuestBlock = function(self)
 			row.Badge.Icon:SetTexture(NO_ICON);
 			row.Badge:SetAlpha(0);
 			row.Badge.Button:Disable();
-			row.Objectives:SetHeight(1);
 			row:SetHeight(1);
 			row:SetAlpha(0);
 			row.Objectives:Reset();
+		end
+	end
+end
+
+local LiteResetQuestBlock = function(self)
+	for x = 1, #self.Rows do
+		local row = self.Rows[x]
+		if(row) then
+			row.Objectives:Reset(true);
 		end
 	end
 end
@@ -651,6 +616,7 @@ function MOD:UpdateObjectives(event, ...)
 	if(event == "ZONE_CHANGED" or event == "ZONE_CHANGED_NEW_AREA") then
 		CURRENT_MAP_ID = GetCurrentMapAreaID();
 		UpdateCachedDistance();
+		self.Headers["Quests"]:LiteReset()
 	else
 		if(event == "QUEST_ACCEPTED" and (AUTO_QUEST_WATCH == "1")) then
 			local questLogIndex, questID = ...;
@@ -659,10 +625,12 @@ function MOD:UpdateObjectives(event, ...)
 		elseif(event == "QUEST_TURNED_IN") then
 			local questID, XP, Money = ...
 			self:CheckActiveQuest(questID)
+		else
+			self:UpdateBonusObjective(event, ...)
 		end
 		UpdateCachedQuests();
+		self.Headers["Quests"]:Reset()
 	end
-	self.Headers["Quests"]:Reset()
 	self.Headers["Quests"]:Refresh(event, ...)
 	self:UpdateDimensions();
 end
@@ -680,7 +648,7 @@ function MOD:InitializeQuests()
 	local quests = CreateFrame("Frame", nil, scrollChild)
 	quests:SetWidth(ROW_WIDTH);
 	quests:SetHeightToScale(ROW_HEIGHT);
-	quests:SetPoint("TOPLEFT", self.Headers["Scenario"], "BOTTOMLEFT", 0, -4);
+	quests:SetPoint("TOPLEFT", self.Headers["Bonus"], "BOTTOMLEFT", 0, -4);
 	--quests:SetStylePanel()
 
 	quests.Header = CreateFrame("Frame", nil, quests)
@@ -712,6 +680,7 @@ function MOD:InitializeQuests()
 	quests.SetZone = SetZoneHeader;
 	quests.Refresh = RefreshQuests;
 	quests.Reset = ResetQuestBlock;
+	quests.LiteReset = LiteResetQuestBlock;
 
 	self.Headers["Quests"] = quests;
 

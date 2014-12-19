@@ -67,24 +67,6 @@ local LINE_ACHIEVEMENT_ICON = [[Interface\ICONS\Achievement_General]];
 SCRIPT HANDLERS
 ##########################################################
 ]]--
-local TimerBar_OnUpdate = function(self, elapsed)
-	local statusbar = self.Timer.Bar
-	local timeNow = GetTime();
-	local timeRemaining = statusbar.duration - (timeNow - statusbar.startTime);
-	statusbar:SetValue(timeRemaining);
-	if(timeRemaining < 0) then
-		-- hold at 0 for a moment
-		if(timeRemaining > -1) then
-			timeRemaining = 0;
-		else
-			self:StopTimer();
-		end
-	end
-	local r,g,b = MOD:GetTimerTextColor(statusbar.duration, statusbar.duration - timeRemaining)
-	self.Timer.TimeLeft:SetText(GetTimeStringFromSeconds(timeRemaining, nil, true));
-	self.Timer.TimeLeft:SetTextColor(r,g,b);
-end
-
 local ViewButton_OnClick = function(self, button)
 	local achievementID = self:GetID();
 	if(achievementID and (achievementID ~= 0)) then
@@ -118,161 +100,6 @@ end
 TRACKER FUNCTIONS
 ##########################################################
 ]]--
-local StartTimer = function(self, duration, elapsed)
-	local timeNow = GetTime();
-	local startTime = timeNow - elapsed;
-	local timeRemaining = duration - startTime;
-	if(timeRemaining < 0) then
-		-- hold at 0 for a moment
-		if(timeRemaining > -1) then
-			timeRemaining = 0;
-		else
-			self:StopTimer();
-		end
-	end
-	self.Timer:SetHeightToScale(INNER_HEIGHT);
-	self.Timer:FadeIn();
-	self.Timer.Bar.duration = duration or 1;
-	self.Timer.Bar.startTime = startTime;
-	self.Timer.Bar:SetMinMaxValues(0, self.Timer.Bar.duration);
-	self.Timer.Bar:SetValue(timeRemaining);
-	self.Timer.TimeLeft:SetText(GetTimeStringFromSeconds(duration, nil, true));
-	self.Timer.TimeLeft:SetTextColor(MOD:GetTimerTextColor(duration, duration - timeRemaining));
-
-	self:SetScript("OnUpdate", TimerBar_OnUpdate);
-end
-
-local StopTimer = function(self)
-	self.Timer:SetHeight(1);
-	self.Timer:SetAlpha(0);
-	self.Timer.Bar.duration = 1;
-	self.Timer.Bar.startTime = 0;
-	self.Timer.Bar:SetMinMaxValues(0, self.Timer.Bar.duration);
-	self.Timer.Bar:SetValue(0);
-	self.Timer.TimeLeft:SetText('');
-	self.Timer.TimeLeft:SetTextColor(1,1,1);
-
-	self:SetScript("OnUpdate", nil);
-end
-
-local function AddTimerFrame(parent)
-	local timer = CreateFrame("Frame", nil, parent)
-	timer:SetPoint("TOPLEFT", parent.Icon, "TOPRIGHT", 4, 0);
-	timer:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", 0, 0);
-
-	timer.Holder = CreateFrame("Frame", nil, timer)
-	timer.Holder:SetPointToScale("TOPLEFT", timer, "TOPLEFT", 2, -1);
-	timer.Holder:SetPointToScale("BOTTOMRIGHT", timer, "BOTTOMRIGHT", -2, 1);
-	MOD:StyleStatusBar(timer.Holder)
-
-	timer.Bar = CreateFrame("StatusBar", nil, timer.Holder);
-	timer.Bar:SetAllPointsIn(timer.Holder);
-	timer.Bar:SetStatusBarTexture(SV.Media.bar.default)
-	timer.Bar:SetStatusBarColor(0.5,0,1) --1,0.15,0.08
-	timer.Bar:SetMinMaxValues(0, 1)
-	timer.Bar:SetValue(0)
-
-	timer.TimeLeft = timer.Bar:CreateFontString(nil,"OVERLAY");
-	timer.TimeLeft:SetAllPointsIn(timer.Bar);
-	timer.TimeLeft:SetFont(SV.Media.font.numbers, 12, "OUTLINE")
-	timer.TimeLeft:SetTextColor(1,1,1)
-	timer.TimeLeft:SetShadowOffset(-1,-1)
-	timer.TimeLeft:SetShadowColor(0,0,0,0.5)
-	timer.TimeLeft:SetJustifyH('CENTER')
-	timer.TimeLeft:SetJustifyV('MIDDLE')
-	timer.TimeLeft:SetText('')
-
-	timer:SetHeight(1);
-	timer:SetAlpha(0);
-
-	return timer;
-end
-
-local ResetObjectiveBlock = function(self)
-	for x = 1, #self.Rows do
-		local objective = self.Rows[x]
-		if(objective) then
-			if(not objective:IsShown()) then
-				objective:Show()
-			end
-			objective.Text:SetText('')
-			objective.Icon:SetTexture(NO_ICON)
-			objective:SetHeight(1);
-			objective:SetAlpha(0);
-			objective.Timer:SetAlpha(0);
-			--objective:StopTimer();
-		end
-	end
-	self:SetAlpha(0);
-	self:SetHeight(1);
-end
-
-local GetObjectiveRow = function(self, index)
-	if(not self.Rows[index]) then 
-		local previousFrame = self.Rows[#self.Rows];
-		local yOffset = ((index * (INNER_HEIGHT)) - INNER_HEIGHT) + 1;
-
-		local objective = CreateFrame("Frame", nil, self)
-		objective:SetPoint("TOPLEFT", self, "TOPLEFT", 0, -yOffset);
-		objective:SetPoint("TOPRIGHT", self, "TOPRIGHT", 0, -yOffset);
-		objective:SetHeightToScale(INNER_HEIGHT);
-
-		objective.Icon = objective:CreateTexture(nil,"OVERLAY")
-		objective.Icon:SetPoint("TOPLEFT", objective, "TOPLEFT", 4, -2);
-		objective.Icon:SetPoint("BOTTOMLEFT", objective, "BOTTOMLEFT", 4, 2);
-		objective.Icon:SetWidth(INNER_HEIGHT - 4);
-		objective.Icon:SetTexture(OBJ_ICON_INCOMPLETE)
-
-		objective.Timer = AddTimerFrame(objective);
-		objective.StartTimer = StartTimer;
-		objective.StopTimer = StopTimer;
-
-		objective.Text = objective:CreateFontString(nil,"OVERLAY")
-		objective.Text:SetPoint("TOPLEFT", objective, "TOPLEFT", INNER_HEIGHT + 6, -2);
-		objective.Text:SetPoint("TOPRIGHT", objective, "TOPRIGHT", 0, -2);
-		objective.Text:SetHeightToScale(INNER_HEIGHT - 2)
-		objective.Text:SetFont(SV.Media.font.roboto, 12, "NONE")
-		objective.Text:SetTextColor(1,1,1)
-		objective.Text:SetShadowOffset(-1,-1)
-		objective.Text:SetShadowColor(0,0,0,0.5)
-		objective.Text:SetJustifyH('LEFT')
-		objective.Text:SetJustifyV('MIDDLE')
-		objective.Text:SetText('')
-
-		self.Rows[index] = objective;
-		return objective;
-	end
-
-	return self.Rows[index];
-end
-
-local SetObjectiveRow = function(self, index, description, completed, duration, elapsed)
-	index = index + 1;
-	local objective = self:Get(index);
-
-	if(completed) then
-		objective.Text:SetTextColor(0.1,0.9,0.1)
-		objective.Icon:SetTexture(OBJ_ICON_COMPLETE)
-	else
-		objective.Text:SetTextColor(1,1,1)
-		objective.Icon:SetTexture(OBJ_ICON_INCOMPLETE)
-	end
-	objective.Text:SetText(description);
-	objective:SetHeightToScale(INNER_HEIGHT);
-	objective:FadeIn();
-	return index;
-end
-
-local SetObjectiveTimer = function(self, index, duration, elapsed)
-	index = index + 1;
-	local objective = self:Get(index);
-	objective:StartTimer(duration, elapsed)
-	objective.Text:SetText('')
-	objective:SetHeightToScale(INNER_HEIGHT);
-	objective:FadeIn();
-	return index;
-end
-
 local GetAchievementRow = function(self, index)
 	if(not self.Rows[index]) then 
 		local previousFrame = self.Rows[#self.Rows]
@@ -289,6 +116,7 @@ local GetAchievementRow = function(self, index)
 		row:SetPoint("TOPLEFT", anchorFrame, "BOTTOMLEFT", 0, -2);
 		row:SetPoint("TOPRIGHT", anchorFrame, "BOTTOMRIGHT", 0, -2);
 		row:SetHeightToScale(ROW_HEIGHT);
+
 		row.Badge = CreateFrame("Frame", nil, row)
 		row.Badge:SetPoint("TOPLEFT", row, "TOPLEFT", 2, -2);
 		row.Badge:SetSize(INNER_HEIGHT, INNER_HEIGHT);
@@ -297,6 +125,7 @@ local GetAchievementRow = function(self, index)
 		row.Badge.Icon:SetAllPoints(row.Badge);
 		row.Badge.Icon:SetTexture(LINE_ACHIEVEMENT_ICON)
 		row.Badge.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+
 		row.Header = CreateFrame("Frame", nil, row)
 		row.Header:SetPoint("TOPLEFT", row.Badge, "TOPRIGHT", 2, 0);
 		row.Header:SetPoint("TOPRIGHT", row, "TOPRIGHT", -2, 0);
@@ -311,22 +140,18 @@ local GetAchievementRow = function(self, index)
 		row.Header.Text:SetText('')
 		row.Header.Text:SetPoint("TOPLEFT", row.Header, "TOPLEFT", 4, 0);
 		row.Header.Text:SetPoint("BOTTOMRIGHT", row.Header, "BOTTOMRIGHT", 0, 0);
+
 		row.Button = CreateFrame("Button", nil, row.Header)
 		row.Button:SetAllPoints(row.Header);
 		row.Button:SetStylePanel("Button", "Headline", 1, 1, 1)
 		row.Button:SetID(0)
 		row.Button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 		row.Button:SetScript("OnClick", ViewButton_OnClick)
-		row.Objectives = CreateFrame("Frame", nil, row)
+
+		row.Objectives = MOD:NewObjectiveHeader(row);
 		row.Objectives:SetPoint("TOPLEFT", row, "BOTTOMLEFT", 0, 0);
 		row.Objectives:SetPoint("TOPRIGHT", row, "BOTTOMRIGHT", 0, 0);
 		row.Objectives:SetHeightToScale(1);
-		row.Objectives.Rows = {}
-
-		row.Objectives.Get = GetObjectiveRow;
-		row.Objectives.Set = SetObjectiveRow;
-		row.Objectives.SetTimer = SetObjectiveTimer;
-		row.Objectives.Reset = ResetObjectiveBlock;
 
 		row.RowID = 0;
 		self.Rows[index] = row;
@@ -377,7 +202,7 @@ local SetAchievementRow = function(self, index, title, details, icon, achievemen
 				end
 				shown_objectives = shown_objectives + 1;					
 			end
-			objective_rows = objective_block:Set(objective_rows, description, completed, duration, elapsed)
+			objective_rows = objective_block:SetInfo(objective_rows, description, completed)
 			fill_height = fill_height + (INNER_HEIGHT + 2);
 			if(duration and elapsed and elapsed < duration and (not completed)) then
 				objective_rows = objective_block:SetTimer(objective_rows, duration, elapsed);
@@ -466,7 +291,7 @@ function MOD:InitializeAchievements()
     local achievements = CreateFrame("Frame", nil, scrollChild)
     achievements:SetWidth(ROW_WIDTH);
 	achievements:SetHeightToScale(ROW_HEIGHT);
-	achievements:SetPoint("TOPLEFT", self.Headers["Bonus"], "BOTTOMLEFT", 0, -6);
+	achievements:SetPoint("TOPLEFT", self.Headers["Quests"], "BOTTOMLEFT", 0, -6);
 
 	achievements.Header = CreateFrame("Frame", nil, achievements)
 	achievements.Header:SetPoint("TOPLEFT", achievements, "TOPLEFT", 2, -2);

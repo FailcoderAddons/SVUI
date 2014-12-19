@@ -68,6 +68,7 @@ local function StyleListItem(item)
 		item.Icon:SetPoint("TOPLEFT", item, "TOPLEFT", 4, -4)
 		item.Icon:SetSize(size, size)
 		item.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+		item.Icon:SetDesaturated(false)
 		if(not item.IconSlot) then 
 			item.IconSlot = CreateFrame("Frame", nil, item)
 			item.IconSlot:SetAllPointsOut(item.Icon)
@@ -196,6 +197,7 @@ local _hook_GarrisonFollowerPage_ShowFollower = function(self, followerID)
     for i=1, #self.AbilitiesFrame.Abilities do
         local abilityFrame = self.AbilitiesFrame.Abilities[i];
         abilityFrame.IconButton.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9);
+        abilityFrame.IconButton.Icon:SetDesaturated(false)
         if(not abilityFrame.IconButton.Panel) then
 			abilityFrame.IconButton:SetStylePanel("Fixed", "Slot", true, 4)
 		end
@@ -222,6 +224,7 @@ local function StyleListButtons(listButtons)
 			frame.Icon:ClearAllPoints()
 			frame.Icon:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -3, -3)
 			frame.Icon:SetSize(size, size)
+			frame.Icon:SetDesaturated(false)
 	    end
     end
 end
@@ -432,6 +435,7 @@ local function LoadGarrisonStyle()
 		for j = 1, child:GetNumChildren() do
 			local childC = select(j, child:GetChildren())
 			childC.Icon:SetTexCoord(0.1,0.9,0.1,0.9)
+			childC.Icon:SetDesaturated(false)
 		end
 	end
 

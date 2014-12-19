@@ -321,5 +321,5 @@
         </Frames>
     </Frame>
 
-    <Script file="docks.lua"/>
+    <Script file="dock_core.lua"/>
 </Ui>

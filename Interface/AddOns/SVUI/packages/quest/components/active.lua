@@ -144,195 +144,6 @@ end
 TRACKER FUNCTIONS
 ##########################################################
 ]]--
-local StartObjectiveTimer = function(self, duration, elapsed)
-	local timeNow = GetTime();
-	local startTime = timeNow - elapsed;
-	local timeRemaining = duration - startTime;
-	local statusbar = self.Timer.Bar;
-
-	self.Timer:FadeIn();
-	statusbar.duration = duration or 1;
-	statusbar.startTime = startTime;
-	statusbar:SetMinMaxValues(0, statusbar.duration);
-	statusbar:SetValue(timeRemaining);
-	statusbar.Label:SetText(GetTimeStringFromSeconds(duration, nil, true));
-	statusbar.Label:SetTextColor(MOD:GetTimerTextColor(duration, duration - timeRemaining));
-
-	self:SetScript("OnUpdate", ObjectiveTimer_OnUpdate);
-end
-
-local StopObjectiveTimer = function(self)
-	local statusbar = self.Timer.Bar;
-
-	self.Timer:SetAlpha(0);
-	statusbar.duration = 1;
-	statusbar.startTime = 0;
-	statusbar:SetMinMaxValues(0, statusbar.duration);
-	statusbar:SetValue(0);
-	statusbar.Label:SetText('');
-	statusbar.Label:SetTextColor(1,1,1);
-
-	self:SetScript("OnUpdate", nil);
-end
-
-local StartObjectiveProgressBar = function(self, questID, finished)
-	local statusbar = self.Progress.Bar;
-	self.Progress:FadeIn();
-	statusbar.questID = questID;
-	statusbar.finished = finished;
-	statusbar:SetMinMaxValues(0, 100);
-	local percent = 100;
-	if(not finished) then
-		percent = GetQuestProgressBarPercent(questID);
-	end
-	statusbar:SetValue(percent);
-	statusbar.Label:SetFormattedText(PERCENTAGE_STRING, percent);
-	self.Progress:RegisterEvent("QUEST_LOG_UPDATE")
-end
-
-local StopObjectiveProgressBar = function(self)
-	local statusbar = self.Progress.Bar;
-	self.Progress:SetAlpha(0);
-	statusbar:SetValue(0);
-	statusbar.Label:SetText('');
-	self.Progress:UnregisterEvent("QUEST_LOG_UPDATE")
-end
-
-local function AddStatusBar(parent)
-	local element = CreateFrame("Frame", nil, parent)
-	element:SetPoint("TOPLEFT", parent.Icon, "TOPRIGHT", 4, 0);
-	element:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", 0, 0);
-
-	element.Holder = CreateFrame("Frame", nil, element)
-	element.Holder:SetPointToScale("TOPLEFT", element, "TOPLEFT", 4, -2);
-	element.Holder:SetPointToScale("BOTTOMRIGHT", element, "BOTTOMRIGHT", -4, 2);
-	MOD:StyleStatusBar(element.Holder)
-
-	element.Bar = CreateFrame("StatusBar", nil, element.Holder);
-	element.Bar:SetAllPointsIn(element.Holder);
-	element.Bar:SetStatusBarTexture(SV.Media.bar.default)
-	element.Bar:SetStatusBarColor(0.15,0.5,1) --1,0.15,0.08
-	element.Bar:SetMinMaxValues(0, 1)
-	element.Bar:SetValue(0)
-
-	element.Bar.Label = element.Bar:CreateFontString(nil,"OVERLAY");
-	element.Bar.Label:SetAllPointsIn(element.Bar);
-	element.Bar.Label:SetFont(SV.Media.font.numbers, 12, "OUTLINE")
-	element.Bar.Label:SetTextColor(1,1,1)
-	element.Bar.Label:SetShadowOffset(-1,-1)
-	element.Bar.Label:SetShadowColor(0,0,0,0.5)
-	element.Bar.Label:SetJustifyH('CENTER')
-	element.Bar.Label:SetJustifyV('MIDDLE')
-	element.Bar.Label:SetText('')
-
-	element:SetAlpha(0);
-
-	return element;
-end
-
-local GetObjectiveRow = function(self, index)
-	if(not self.Rows[index]) then 
-		local previousFrame = self.Rows[#self.Rows]
-		local yOffset = (index * (ROW_HEIGHT)) - ROW_HEIGHT
-
-		local objective = CreateFrame("Frame", nil, self)
-		objective:SetPoint("TOPLEFT", self, "TOPLEFT", 0, -yOffset);
-		objective:SetPoint("TOPRIGHT", self, "TOPRIGHT", 0, -yOffset);
-		objective:SetHeight(INNER_HEIGHT);
-
-		objective.Icon = objective:CreateTexture(nil,"OVERLAY")
-		objective.Icon:SetPoint("TOPLEFT", objective, "TOPLEFT", 4, -2);
-		objective.Icon:SetPoint("BOTTOMLEFT", objective, "BOTTOMLEFT", 4, 2);
-		objective.Icon:SetWidth(INNER_HEIGHT - 4);
-		objective.Icon:SetTexture(OBJ_ICON_INCOMPLETE)
-
-		objective.Progress = AddStatusBar(objective);
-		objective.StartProgress = StartObjectiveProgressBar;
-		objective.StopProgress = StopObjectiveProgressBar;
-		objective.Progress:SetScript("OnEvent", ObjectiveProgressBar_OnEvent);
-
-		objective.Timer = AddStatusBar(objective);
-		objective.StartTimer = StartObjectiveTimer;
-		objective.StopTimer = StopObjectiveTimer;
-
-		objective.Text = objective:CreateFontString(nil,"OVERLAY")
-		objective.Text:SetPoint("TOPLEFT", objective, "TOPLEFT", INNER_HEIGHT + 6, -2);
-		objective.Text:SetPoint("TOPRIGHT", objective, "TOPRIGHT", 0, -2);
-		objective.Text:SetHeight(INNER_HEIGHT - 2)
-		objective.Text:SetFont(SV.Media.font.roboto, 12, "NONE")
-		objective.Text:SetTextColor(1,1,1)
-		objective.Text:SetShadowOffset(-1,-1)
-		objective.Text:SetShadowColor(0,0,0,0.5)
-		objective.Text:SetJustifyH('LEFT')
-		objective.Text:SetJustifyV('MIDDLE')
-		objective.Text:SetText('')
-
-		self.Rows[index] = objective;
-	end
-
-	return self.Rows[index];
-end
-
-local SetObjectiveRow = function(self, index, description, completed, failed)
-	index = index + 1;
-	local objective = self:Get(index);
-
-	if(failed) then
-		objective.Text:SetTextColor(1,0,0)
-		objective.Icon:SetTexture(OBJ_ICON_INCOMPLETE)
-	elseif(completed) then
-		objective.Text:SetTextColor(0.1,0.9,0.1)
-		objective.Icon:SetTexture(OBJ_ICON_COMPLETE)
-	else
-		objective.Text:SetTextColor(1,1,1)
-		objective.Icon:SetTexture(OBJ_ICON_INCOMPLETE)
-	end
-	objective.Text:SetText(description);
-	objective:SetHeightToScale(INNER_HEIGHT);
-	objective:FadeIn();
-
-	return index;
-end
-
-local SetObjectiveTimer = function(self, index, duration, elapsed)
-	index = index + 1;
-	local objective = self:Get(index);
-	objective:StartTimer(duration, elapsed)
-	objective.Text:SetText('')
-	objective:SetHeightToScale(INNER_HEIGHT);
-	objective:FadeIn();
-	return index;
-end
-
-local SetObjectiveProgress = function(self, index, questID, completed)
-	index = index + 1;
-	local objective = self:Get(index);
-	objective:StartProgress(questID, completed)
-	objective.Text:SetText('')
-	objective:SetHeightToScale(INNER_HEIGHT);
-	objective:FadeIn();
-
-	return index;
-end
-
-local ResetObjectiveBlock = function(self)
-	for x = 1, #self.Rows do
-		local objective = self.Rows[x]
-		if(objective) then
-			if(not objective:IsShown()) then
-				objective:Show()
-			end
-			objective.Text:SetText('')
-			objective.Icon:SetTexture(NO_ICON)
-			objective:StopTimer();
-			objective:StopProgress();
-			objective:SetHeight(1);
-			objective:SetAlpha(0);
-		end
-	end
-	self:SetHeight(1);
-end
-
 local UnsetActiveData = function(self)
 	local block = self.Block;
 	block:SetHeight(1);
@@ -378,7 +189,7 @@ local SetActiveData = function(self, title, level, icon, questID, questLogIndex,
 			objective_rows = objective_block:SetTimer(objective_rows, duration, elapsed);
 			fill_height = fill_height + (INNER_HEIGHT + 2);
 		elseif(description and description ~= '') then
-			objective_rows = objective_block:Set(objective_rows, description, completed, duration, elapsed);
+			objective_rows = objective_block:SetInfo(objective_rows, description, completed);
 			fill_height = fill_height + (INNER_HEIGHT + 2);
 		end
 	end
@@ -530,15 +341,11 @@ function MOD:InitializeActive()
 	block.CloseButton.Parent = active;
 	block.CloseButton:SetScript("OnClick", ActiveButton_OnClick)
 
-	block.Objectives = CreateFrame("Frame", nil, block)
+	block.Objectives = MOD:NewObjectiveHeader(block);
 	block.Objectives:SetPointToScale("TOPLEFT", block.Header, "BOTTOMLEFT", 0, -2);
 	block.Objectives:SetPointToScale("TOPRIGHT", block.Header, "BOTTOMRIGHT", 0, -2);
 	block.Objectives:SetHeightToScale(1);
 
-	block.Objectives.Rows = {}
-	block.Objectives.Get = GetObjectiveRow;
-	block.Objectives.Set = SetObjectiveRow;
-	block.Objectives.Reset = ResetObjectiveBlock;
 	block.RowID = 0;
 
 	active.Block = block;

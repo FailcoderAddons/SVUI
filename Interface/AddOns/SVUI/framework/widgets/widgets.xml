@@ -171,7 +171,9 @@
         </Frames>
     </Frame>
 
-    <Frame name="SVUI_ComixFrame1" frameStrata="DIALOG">
+    <Frame name="SVUI_ComixFrame" frameStrata="DIALOG" hidden="true" />
+
+    <Frame name="SVUI_ComixPopup1" frameStrata="DIALOG">
         <Size x="100" y="100"/>
         <Anchors>
             <Anchor point="CENTER" relativePoint="CENTER" x="0" y="0" />
@@ -183,7 +185,7 @@
         </Layers>
     </Frame>
 
-    <Frame name="SVUI_ComixFrame2" frameStrata="DIALOG">
+    <Frame name="SVUI_ComixPopup2" frameStrata="DIALOG">
         <Size x="100" y="100"/>
         <Anchors>
             <Anchor point="BOTTOM" relativePoint="BOTTOM" x="0" y="100" />
@@ -195,7 +197,7 @@
         </Layers>
     </Frame>
 
-    <Frame name="SVUI_ComixFrame3" frameStrata="DIALOG">
+    <Frame name="SVUI_ComixPopup3" frameStrata="DIALOG">
         <Size x="100" y="100"/>
         <Anchors>
             <Anchor point="CENTER" relativePoint="CENTER" x="0" y="0" />

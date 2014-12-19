@@ -31,7 +31,7 @@ GET ADDON DATA
 local SV = select(2, ...)
 local L = SV.L
 
-SV.Comix = CreateFrame("Frame");
+SV.Comix = _G["SVUI_ComixFrame"];
 --[[ 
 ########################################################## 
 LOCAL VARS
@@ -77,18 +77,21 @@ local COMIX_DATA = {
 	    {210, 190, 50, 50, 220, 210, -1, 5}
 	}
 };
+
+local function ComixReadyState(state)
+	if(state == nil) then return animReady end
+	animReady = state
+end
+
+local Comix_OnUpdate = function() ComixReadyState(true) end
+local Toasty_OnUpdate = function(self) ComixReadyState(true); self.parent:SetAlpha(0) end
 --[[ 
 ########################################################## 
 CORE FUNCTIONS
 ##########################################################
 ]]--
-function SV.Comix:ReadyState(state)
-	if(state == nil) then return animReady end
-	animReady = state
-end
-
 function SV.Comix:LaunchPremiumPopup()
-	self:ReadyState(false)
+	ComixReadyState(false)
 
 	local rng = random(1, 16);
 	local coords = COMIX_DATA[1][rng];
@@ -107,7 +110,7 @@ function SV.Comix:LaunchPremiumPopup()
 end
 
 function SV.Comix:LaunchPopup()
-	self:ReadyState(false)
+	ComixReadyState(false)
 
 	local coords, step1_x, step1_y, step2_x, step2_y, size;
 	local rng = random(1, 32);
@@ -140,7 +143,7 @@ end
 
 local Comix_OnEvent = function(self, event, ...)
 	local _, subEvent, _, guid = ...;
-	if((subEvent == "PARTY_KILL" and guid == UnitGUID('player')) and self:ReadyState()) then
+	if((subEvent == "PARTY_KILL" and guid == UnitGUID('player')) and ComixReadyState()) then
 		self:LaunchPopup()
 	end  
 end
@@ -156,20 +159,16 @@ function SV.Comix:Toggle()
 end 
 
 function SV:ToastyKombat()
-	--SV.Comix:LaunchPopup("DELUXE")
 	ComixToastyPanelBG.anim[2]:SetOffset(256, -256)
 	ComixToastyPanelBG.anim[2]:SetOffset(0, 0)
 	ComixToastyPanelBG.anim:Play()
 	PlaySoundFile([[Interface\AddOns\SVUI\assets\sounds\toasty.mp3]])
 end 
 
-local Comix_OnUpdate = function() SV.Comix:ReadyState(true) end
-local Toasty_OnUpdate = function(self) SV.Comix:ReadyState(true); self.parent:SetAlpha(0) end
-
 function SV.Comix:Initialize()
-	self.Basic = _G["SVUI_ComixFrame1"]
-	self.Deluxe = _G["SVUI_ComixFrame2"]
-	self.Premium = _G["SVUI_ComixFrame3"]
+	self.Basic = _G["SVUI_ComixPopup1"]
+	self.Deluxe = _G["SVUI_ComixPopup2"]
+	self.Premium = _G["SVUI_ComixPopup3"]
 
 	self.Basic:SetParent(SV.Screen)
 	self.Basic:SetSizeToScale(128,128)
@@ -208,7 +207,7 @@ function SV.Comix:Initialize()
 	toasty:SetAlpha(0)
 	toasty.anim[4]:SetScript("OnFinished", Toasty_OnUpdate)
 
-	self:ReadyState(true)
+	ComixReadyState(true)
 
 	self:Toggle()
 end

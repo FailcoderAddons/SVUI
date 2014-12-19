@@ -427,12 +427,15 @@ do
 			ScrollIndicator:Show()
 			SV.Animate:Flash(ScrollIndicator,1,true)
 		end
-		if ( chatFrame.isDocked and FCFDock_GetSelectedWindow(GENERAL_CHAT_DOCK) ~= chatFrame ) then
+		for chatID,frame in pairs(TabsList) do
+			frame.link.IsOpen = false
+			frame.link:SetPanelColor("default")
+			frame.link.icon:SetGradient(unpack(SV.Media.gradient.icon))
+		end
+		if(chatFrame.isDocked) then
 	        self.IsOpen = true
-	        self:SetPanelColor("highlight")
-	    else
-	        self.IsOpen = false
-	        self:SetPanelColor("default")
+	        self:SetPanelColor("green")
+	        self.icon:SetGradient(unpack(SV.Media.gradient.green))
 	    end
 	end
 
@@ -580,20 +583,25 @@ do
 		tab:SetAllPoints(holder)
 		tab:SetStylePanel("Framed") 
 		tab.icon = tab:CreateTexture(nil,"BACKGROUND",nil,3)
-		tab.icon:SetSizeToScale(tabSize * 1.25, tabSize)
-		tab.icon:SetPointToScale("CENTER",tab,"CENTER",0,0)
+		tab.icon:SetAllPointsIn(tab, 6, 3)
 		tab.icon:SetTexture(ICONARTFILE)
 		if(tab.conversationIcon) then
 			tab:SetPanelColor("VERTICAL", 0.1, 0.53, 0.65, 0.6, 0.2, 1)
 			tab.icon:SetGradient("VERTICAL", 0.1, 0.53, 0.65, 0.3, 0.7, 1)
 		else
 			tab:SetPanelColor("default")
-			tab.icon:SetGradient("VERTICAL", 0.5, 0.53, 0.55, 0.8, 0.8, 1)
+			tab.icon:SetGradient(unpack(SV.Media.gradient.icon))
+		end
+		if(chatID == 1) then
+			tab.IsOpen = true
+	        tab:SetPanelColor("green")
+	        tab.icon:SetGradient(unpack(SV.Media.gradient.green))
 		end
 		tab.icon:SetAlpha(0.5)
 		tab.TText = tabText;
-		
-		--tab.SetWidth = SV.fubar
+		tab:SetAlpha(1);
+
+		tab.SetAlpha = SV.fubar
 		tab.SetHeight = SV.fubar
 		tab.SetSize = SV.fubar
 		tab.SetParent = SV.fubar

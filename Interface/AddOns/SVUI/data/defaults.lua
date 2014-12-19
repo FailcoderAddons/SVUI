@@ -479,6 +479,7 @@ SV.defaults["Dock"] = {
 	["dockRightWidth"] = 412, 
 	["dockRightHeight"] = 224,
 	["dockCenterWidth"] = defaultCenterWidth,
+	["dockCenterHeight"] = 20,
 	["buttonSize"] = 30, 
 	["buttonSpacing"] = 4, 
 	["leftDockBackdrop"] = true, 

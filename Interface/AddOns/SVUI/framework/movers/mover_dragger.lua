@@ -380,4 +380,4 @@ function Dragger:Initialize()
 	end
 end
 
-SV.Dragger = Dragger
+SV.Dragger = Dragger;

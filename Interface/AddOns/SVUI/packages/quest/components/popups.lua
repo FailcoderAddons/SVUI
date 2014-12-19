@@ -57,6 +57,7 @@ local INNER_HEIGHT = ROW_HEIGHT - 4;
 local LARGE_ROW_HEIGHT = ROW_HEIGHT * 2;
 local LARGE_INNER_HEIGHT = LARGE_ROW_HEIGHT - 4;
 
+local NO_ICON = [[Interface\AddOns\SVUI\assets\artwork\Template\EMPTY]];
 local OBJ_ICON_ACTIVE = [[Interface\COMMON\Indicator-Yellow]];
 local OBJ_ICON_COMPLETE = [[Interface\COMMON\Indicator-Green]];
 local OBJ_ICON_INCOMPLETE = [[Interface\COMMON\Indicator-Gray]];
@@ -137,16 +138,47 @@ local GetPopUpRow = function(self, index)
 end
 
 local SetPopupRow = function(self, index, title, popUpType, questID, questLogIndex)
+	index = index + 1;
+	local icon = (popUpType == 'COMPLETED') and LINE_POPUP_COMPLETE or LINE_POPUP_OFFER
 	local row = self:Get(index);
 	row.RowID = questID
-
-	local icon = (popUpType == 'COMPLETED') and LINE_POPUP_COMPLETE or LINE_POPUP_OFFER
-
+	row.Header:SetAlpha(1);
 	row.Header.Text:SetText(title)
-	row.Badge.Icon:SetTexture(icon)
-	row.Button.PopUpType = popUpType
-	row.Button:SetID(questLogIndex)
-	row:Show()
+	row.Badge.Icon:SetTexture(icon);
+	row.Badge:SetAlpha(1);
+	row.Button:Enable();
+	row.Button:SetID(questLogIndex);
+	row:SetHeightToScale(LARGE_ROW_HEIGHT);
+	row:FadeIn();
+
+	local fill_height = LARGE_ROW_HEIGHT + 6;
+
+	return index, fill_height;
+end
+
+local RefreshPopupObjective = function(self, event, ...)
+	local rows = 0;
+	local fill_height = 0;
+	for i = 1, GetNumAutoQuestPopUps() do
+		local questID, popUpType = GetAutoQuestPopUp(i);
+		if(questID) then
+			local questLogIndex = GetQuestLogIndexByID(questID);
+			local title = GetQuestLogTitle(questLogIndex);
+			if(title and title ~= '') then
+				local add_height = 0;
+				rows, add_height = self:Set(rows, title, popUpType, questID, questLogIndex)
+				fill_height = fill_height + add_height
+			end
+		end
+	end
+
+	if(rows == 0 or (fill_height <= 1)) then
+		self:SetHeight(1);
+		self:SetAlpha(0);
+	else
+		self:SetHeightToScale(fill_height + 2);
+		self:FadeIn();
+	end
 end
 
 local ResetPopupBlock = function(self)
@@ -155,37 +187,19 @@ local ResetPopupBlock = function(self)
 		if(row) then
 			row.RowID = 0;
 			row.Header.Text:SetText('');
+			row.Header:SetAlpha(0);
 			row.Button:SetID(0);
-			row.Button.PopUpType = nil;
-			row.Objectives:SetHeight(1);
+			row.Button:Disable();
+			row.Badge:SetAlpha(0);
+			row.Badge.Icon:SetTexture(NO_ICON);
+			row:SetHeight(1);
+			row:SetAlpha(0);
 		end
 	end
-end
-
-local RefreshPopupObjective = function(self, event, ...)
-	local nextLine = 0;
-	for i = 1, GetNumAutoQuestPopUps() do
-		local questID, popUpType = GetAutoQuestPopUp(i);
-		if(questID) then
-			local questLogIndex = GetQuestLogIndexByID(questID);
-			local title = GetQuestLogTitle(questLogIndex);
-			if(title and title ~= '') then
-				nextLine = nextLine + 1;
-				self:Set(nextLine, title, popUpType, questID, questLogIndex)
-			end
-		end
-	end
-
-	if(nextLine == 0) then
-		self:SetHeight(1);
-		return
-	end
-
-	local newHeight = (nextLine * (LARGE_ROW_HEIGHT + 2)) + (ROW_HEIGHT + (nextLine * 2));
-	self:SetHeight(newHeight);
 end
 
 local _hook_AutoPopUpQuests = function(...)
+	MOD.Headers["Popups"]:Reset()
 	MOD.Headers["Popups"]:Refresh(...);
 	MOD:UpdateDimensions();
 end
@@ -210,10 +224,9 @@ function MOD:InitializePopups()
 	local scrollChild = self.Docklet.ScrollFrame.ScrollChild;
 
 	local popups = CreateFrame("Frame", nil, scrollChild)
-	popups:SetWidth(ROW_WIDTH);
-	popups:SetHeight(1);
 	popups:SetPoint("TOPLEFT", scrollChild, "TOPLEFT", 0, 0);
-
+	popups:SetPoint("TOPRIGHT", scrollChild, "TOPRIGHT", 0, 0);
+	popups:SetHeight(1);
 	popups.Rows = {};
 
 	popups.Get = GetPopUpRow;
@@ -223,8 +236,8 @@ function MOD:InitializePopups()
 
 	self.Headers["Popups"] = popups;
 
-	hooksecurefunc("AddAutoQuestPopUp", _hook_AutoPopUpQuests)
-	hooksecurefunc("RemoveAutoQuestPopUp", _hook_AutoPopUpQuests)
-
 	self:RegisterEvent("QUEST_AUTOCOMPLETE", self.UpdatePopupQuests);
+
+	hooksecurefunc("AddAutoQuestPopUp", _hook_AutoPopUpQuests);
+	hooksecurefunc("RemoveAutoQuestPopUp", _hook_AutoPopUpQuests);
 end
