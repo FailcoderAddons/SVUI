@@ -73,6 +73,7 @@ local LINE_QUEST_INCOMPLETE = [[Interface\LFGFRAME\LFGICON-QUEST]];
 local CACHED_QUESTS = {};
 local USED_QUESTIDS = {};
 local CURRENT_MAP_ID = 0;
+local WORLDMAP_UPDATE = false;
 
 local QuestInZone = {
 	[14108] = 541,
@@ -92,6 +93,25 @@ local function UpdateCachedQuests()
 
 	wipe(USED_QUESTIDS);
 
+	for i = 1, #CACHED_QUESTS do
+		CACHED_QUESTS[x][1] = 0;
+		CACHED_QUESTS[x][2] = false;
+		CACHED_QUESTS[x][3] = 0;
+		CACHED_QUESTS[x][4] = 0;
+		CACHED_QUESTS[x][5] = 0;
+		CACHED_QUESTS[x][6] = false;
+		CACHED_QUESTS[x][7][1] = '';
+		CACHED_QUESTS[x][7][2] = 100;
+		CACHED_QUESTS[x][7][3] = LINE_QUEST_ICON;
+		CACHED_QUESTS[x][7][4] = 0;
+		CACHED_QUESTS[x][7][5] = 0;
+		CACHED_QUESTS[x][7][6] = 0;
+		CACHED_QUESTS[x][7][7] = 0;
+		CACHED_QUESTS[x][7][8] = 0;
+		CACHED_QUESTS[x][7][9] = false;
+		CACHED_QUESTS[x][7][10] = 0;
+	end
+
 	for i = 1, GetNumQuestWatches() do
 		local questID, _, questLogIndex, numObjectives, _, completed, _, _, duration, elapsed, questType, isTask, isStory, isOnMap, hasLocalPOI = GetQuestWatchInfo(i);
 		if(questID and (not USED_QUESTIDS[questID])) then
@@ -101,6 +121,8 @@ local function UpdateCachedQuests()
 			local mapID, floorNumber = 0,0
 			if(not WorldMapFrame:IsShown()) then
 				mapID, floorNumber = GetQuestWorldMapAreaID(questID)
+			else
+				WORLDMAP_UPDATE = true;
 			end
 			if(QuestHasPOIInfo(questID)) then
 				local areaID = QuestInZone[questID]
@@ -115,18 +137,15 @@ local function UpdateCachedQuests()
 			end
 
 			if(not CACHED_QUESTS[x]) then
-				CACHED_QUESTS[x] = { i, false, 0, 0, 0, false, {"", 100, LINE_QUEST_ICON, 0, 0, 0, 0, 0, false, 0} };
+				CACHED_QUESTS[x] = { 0, false, 0, 0, 0, false, {"", 100, LINE_QUEST_ICON, 0, 0, 0, 0, 0, false, 0} };
 			end
 
 			CACHED_QUESTS[x][1] = i;				-- quest watch index
 			CACHED_QUESTS[x][2] = link;				-- quest item link
-			if(not WorldMapFrame:IsShown()) then
-				CACHED_QUESTS[x][3] = mapID;		-- quest location map id
-				CACHED_QUESTS[x][4] = floorNumber;	-- quest location floor number
-			end
+			CACHED_QUESTS[x][3] = mapID;			-- quest location map id
+			CACHED_QUESTS[x][4] = floorNumber;		-- quest location floor number
 			CACHED_QUESTS[x][5] = distanceSq;		-- quest distance from player
 			CACHED_QUESTS[x][6] = false;			-- quest closest to player
-
 			CACHED_QUESTS[x][7][1] = title;			-- args: quest title
 			CACHED_QUESTS[x][7][2] = level;			-- args: quest level
 			CACHED_QUESTS[x][7][3] = texture;		-- args: quest item icon
@@ -136,7 +155,7 @@ local function UpdateCachedQuests()
 			CACHED_QUESTS[x][7][7] = duration;		-- args: quest timer duration
 			CACHED_QUESTS[x][7][8] = elapsed;		-- args: quest timer elapsed
 			CACHED_QUESTS[x][7][9] = completed;		-- args: quest is completed
-			CACHED_QUESTS[x][7][10] = questType;		-- args: quest is completed
+			CACHED_QUESTS[x][7][10] = questType;	-- args: quest type
 
 			USED_QUESTIDS[questID] = true;
 
@@ -149,12 +168,19 @@ local function UpdateCachedQuests()
 		MOD.ClosestQuest = li;
 	end
 
-	tsort(CACHED_QUESTS, function(a,b) return a[5] < b[5] end);
+	tsort(CACHED_QUESTS, function(a,b) 
+		if(a[5] and b[5]) then
+			return a[5] < b[5] 
+		else
+			return false
+		end
+	end);
 end
 
 local function UpdateCachedDistance()
 	local s = 62500;
 	local c = 0;
+	local li = 0;
 
 	for i = 1, #CACHED_QUESTS do
 		local data = CACHED_QUESTS[i][7];
@@ -166,9 +192,11 @@ local function UpdateCachedDistance()
 			local areaID = QuestInZone[questID]
 			if(areaID and (areaID == CURRENT_MAP_ID)) then
 				c = i
+				li = questLogIndex
 			elseif(onContinent and (distanceSq < s)) then
 				s = distanceSq
 				c = i
+				li = questLogIndex
 			end
 		end
 
@@ -176,12 +204,18 @@ local function UpdateCachedDistance()
 		CACHED_QUESTS[i][6] = false;			-- quest closest to player
 	end
 
-	if(c ~= 0) then
+	if(c ~= 0 and CACHED_QUESTS[c]) then
 		CACHED_QUESTS[c][6] = true;
+		MOD.ClosestQuest = li;
 	end
-	MOD.ClosestQuest = c;
 
-	tsort(CACHED_QUESTS, function(a,b) return a[5] < b[5] end);
+	tsort(CACHED_QUESTS, function(a,b) 
+		if(a[5] and b[5]) then
+			return a[5] < b[5] 
+		else
+			return false
+		end
+	end);
 end
 --[[ 
 ########################################################## 
@@ -441,7 +475,7 @@ local GetQuestRow = function(self, index)
 	return self.Rows[index];
 end
 
-local SetQuestRow = function(self, index, watchIndex, title, level, icon, questID, questLogIndex, subCount, duration, elapsed, completed, mapid)
+local SetQuestRow = function(self, index, watchIndex, title, level, icon, questID, questLogIndex, subCount, duration, elapsed, completed, questType)
 	level = level or 100;
 	index = index + 1;
 
@@ -475,10 +509,10 @@ local SetQuestRow = function(self, index, watchIndex, title, level, icon, questI
 	local objective_block = row.Objectives;
 
 	for i = 1, subCount do
-		local description, category, completed = GetQuestObjectiveInfo(questID, i);
-		if not completed then iscomplete = false end
+		local description, category, objective_completed = GetQuestObjectiveInfo(questID, i);
+		if not objective_completed then iscomplete = false end
 		if(description) then
-			objective_rows = objective_block:SetInfo(objective_rows, description, completed);
+			objective_rows = objective_block:SetInfo(objective_rows, description, objective_completed);
 			fill_height = fill_height + (INNER_HEIGHT + 2);
 		end
 	end
@@ -503,32 +537,25 @@ local SetQuestRow = function(self, index, watchIndex, title, level, icon, questI
 end
 
 local SetZoneHeader = function(self, index, mapID)
-	if(not mapID or (mapID and mapID == 0)) then 
-		return index,0
-	end
 	index = index + 1;
 	local row = self:Get(index);
-	local zoneName = GetMapNameByID(mapID);
-	self.ZoneCount = self.ZoneCount + 1;
-
-	if(self.ZoneCount == 1) then
-		row.Header.Zone:SetTextColor(0.15,1,0.08)
-	elseif(self.ZoneCount == 2) then
-		row.Header.Zone:SetTextColor(0.08,0.5,1)
-	else
-		row.Header.Zone:SetTextColor(1,0.25,0.08)
-	end
-
-	row.RowID = mapID;
 	row.Header.Level:SetText('');
 	row.Header.Text:SetText('');
-	row.Header.Zone:SetText(zoneName);
 	row.Badge.Icon:SetTexture(NO_ICON);
 	row.Badge.Button:SetID(0);
 	row.Badge:SetAlpha(0);
 	row.Button:SetID(0);
 	row.Button:Disable();
 	row.Badge.Button:Disable();
+	if(not mapID or (mapID and mapID == 0)) then 
+		return index,0
+	end
+	local zoneName = GetMapNameByID(mapID);
+--0.75,0.31,1
+	row.Header.Zone:SetTextColor(1,0.31,0.1)
+
+	row.RowID = mapID;
+	row.Header.Zone:SetText(zoneName);
 	row:SetHeightToScale(ROW_HEIGHT);
 	row:SetAlpha(1);
 
@@ -541,22 +568,19 @@ local RefreshQuests = function(self, event, ...)
 	local rows = 0;
 	local fill_height = 0;
 	local zone = 0;
-	self.ZoneCount = 0;
 
 	for i = 1, #CACHED_QUESTS do
 		local quest = CACHED_QUESTS[i];
 		local args = quest[7];
-		if(args[4]) then
+		if(quest[1] ~= 0 and args[4] ~= 0) then
 			local add_height = 0;
 			if(quest[6] and (not args[9]) and (MOD.CurrentQuest == 0)) then
 				rows, zone = self:SetZone(rows, quest[3]);
 				fill_height = fill_height + QUEST_ROW_HEIGHT;
 				rows, add_height = self:Set(rows, quest[1], unpack(args))
 				fill_height = fill_height + add_height;
-				if(quest[2]) then
+				if(quest[2] and quest[2] ~= '') then
 					MOD.QuestItem:SetItem(quest[2], args[3], unpack(args))
-				--elseif(MOD.QuestItem:IsShown()) then
-				--	MOD.QuestItem:RemoveItem()
 				end
 			elseif(not MOD:CheckActiveQuest(nil, unpack(args))) then
 				if(zone ~= quest[3]) then
@@ -606,6 +630,14 @@ local LiteResetQuestBlock = function(self)
 			row.Objectives:Reset(true);
 		end
 	end
+end
+
+local _hook_WorldMapFrameOnHide = function()
+	if(not WORLDMAP_UPDATE) then return end
+	UpdateCachedQuests();
+	MOD.Headers["Quests"]:Reset()
+	MOD.Headers["Quests"]:Refresh()
+	MOD:UpdateDimensions();
 end
 --[[ 
 ########################################################## 
@@ -662,7 +694,7 @@ function MOD:InitializeQuests()
 	quests.Header.Text:SetFont(SV.Media.font.dialog, 16, "OUTLINE")
 	quests.Header.Text:SetJustifyH('LEFT')
 	quests.Header.Text:SetJustifyV('MIDDLE')
-	quests.Header.Text:SetTextColor(1,0.6,0.1)
+	quests.Header.Text:SetTextColor(0.28,0.75,1)
 	quests.Header.Text:SetShadowOffset(-1,-1)
 	quests.Header.Text:SetShadowColor(0,0,0,0.5)
 	quests.Header.Text:SetText(TRACKER_HEADER_QUESTS)
@@ -674,7 +706,6 @@ function MOD:InitializeQuests()
 
 	quests.Rows = {};
 
-	quests.ZoneCount = 0;
 	quests.Get = GetQuestRow;
 	quests.Set = SetQuestRow;
 	quests.SetZone = SetZoneHeader;
@@ -694,4 +725,6 @@ function MOD:InitializeQuests()
 	self:RegisterEvent("ZONE_CHANGED", self.UpdateObjectives);
 
 	self.Headers["Quests"]:Refresh()
+
+	WorldMapFrame:HookScript("OnHide", _hook_WorldMapFrameOnHide)
 end

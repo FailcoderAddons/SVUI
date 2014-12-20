@@ -262,7 +262,7 @@ function MOD:NewObjectiveRow(header, index)
 	objective.Text:SetPoint("TOPRIGHT", objective, "TOPRIGHT", 0, -2);
 	objective.Text:SetHeightToScale(18);
 	objective.Text:SetFont(SV.Media.font.roboto, 12, "NONE");
-	objective.Text:SetTextColor(1,1,1);
+	objective.Text:SetTextColor(0.6,0.6,0.6);
 	objective.Text:SetShadowOffset(-1,-1);
 	objective.Text:SetShadowColor(0,0,0,0.5);
 	objective.Text:SetJustifyH('LEFT');
@@ -326,7 +326,7 @@ local OBJECTIVE_HEADER_SetInfo = function(self, index, ...)
 		objective.Text:SetTextColor(0.1,0.9,0.1)
 		objective.Icon:SetTexture(OBJ_ICON_COMPLETE)
 	else
-		objective.Text:SetTextColor(1,1,1)
+		objective.Text:SetTextColor(0.6,0.6,0.6)
 		objective.Icon:SetTexture(OBJ_ICON_INCOMPLETE)
 	end
 	objective.Text:SetText(description);

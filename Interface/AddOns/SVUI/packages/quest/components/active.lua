@@ -252,7 +252,7 @@ function MOD:CheckActiveQuest(questID, ...)
 		else
 			local questLogIndex = select(5, ...);
 			if(questLogIndex and (questLogIndex == currentQuestIndex)) then
-				self.Headers["Active"]:Set(...);
+				self.Headers["Active"]:Set(..., true);
 				return true;
 			end
 		end
