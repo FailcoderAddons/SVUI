@@ -742,7 +742,7 @@ local Graph = {}
 
 function Graph:Toggle(enabled)
 	if((not self.Grid) or (self.CellSize ~= SV.db.general.graphSize)) then
-		self:Generate()
+		self:UpdateDataSlots()
 	end
 	if(not enabled) then
         self.Grid:Hide()
@@ -751,7 +751,7 @@ function Graph:Toggle(enabled)
 	end
 end
 
-function Graph:Generate()
+function Graph:UpdateDataSlots()
 	local cellSize = SV.db.general.graphSize
 	self.CellSize = cellSize
 
@@ -804,7 +804,7 @@ function Graph:Generate()
 end
 
 function Graph:Initialize()
-	self:Generate()
+	self:UpdateDataSlots()
 end
 --[[ 
 ########################################################## 

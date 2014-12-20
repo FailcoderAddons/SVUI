@@ -248,6 +248,7 @@ SVUI.L          = LibSuperVillain("Linguist"):Lang();
 SVUI.Events     = LibSuperVillain("Events");
 SVUI.Animate    = LibSuperVillain("Animate");
 SVUI.Timers     = LibSuperVillain("Timers");
+SVUI.Sounds     = LibSuperVillain("Sounds");
 
 SVUI.Screen = CreateFrame("Frame", "SVUIParent", UIParent);
 SVUI.Screen:SetFrameLevel(UIParent:GetFrameLevel());

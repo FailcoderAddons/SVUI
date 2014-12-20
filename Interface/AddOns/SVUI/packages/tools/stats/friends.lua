@@ -13,7 +13,7 @@ _____/\\\\\\\\\\\____/\\\________/\\\__/\\\________/\\\__/\\\\\\\\\\\_       #
 S U P E R - V I L L A I N - U I   By: Munglunch                              #
 ##############################################################################
 
-STATS:Extend EXAMPLE USAGE: MOD:Extend(newStat,eventList,onEvents,update,click,focus,blur)
+STATS:Extend EXAMPLE USAGE: Dock:NewDataType(newStat,eventList,onEvents,update,click,focus,blur)
 
 ########################################################## 
 LOCALIZED LUA FUNCTIONS
@@ -51,7 +51,7 @@ GET ADDON DATA
 ]]--
 local SV = select(2, ...)
 local L = SV.L
-local MOD = SV.SVStats;
+local Dock = SV.Dock;
 --[[ 
 ########################################################## 
 LOCALIZED GLOBALS
@@ -237,7 +237,7 @@ local function OnEvent(self, event, ...)
 end
 
 local function Click(self, btn)
-	MOD.tooltip:Hide()
+	Dock.DataTooltip:Hide()
 
 	if btn == "RightButton" then
 		local menuCountWhispers = 0
@@ -291,7 +291,7 @@ local function Click(self, btn)
 end
 
 local function OnEnter(self)
-	MOD:Tip(self)
+	Dock:SetDataTip(self)
 	local grouped
 	local numberOfFriends, onlineFriends = GetNumFriends()
 	local totalBNet, numBNetOnline = BNGetNumFriends()
@@ -310,10 +310,10 @@ local function OnEnter(self)
 
 	local totalfriends = numberOfFriends + totalBNet
 	local zonec, classc, levelc, realmc, info
-	MOD.tooltip:AddDoubleLine(L['Friends List'], format(totalOnlineString, totalonline, totalfriends),tthead.r,tthead.g,tthead.b,tthead.r,tthead.g,tthead.b)
+	Dock.DataTooltip:AddDoubleLine(L['Friends List'], format(totalOnlineString, totalonline, totalfriends),tthead.r,tthead.g,tthead.b,tthead.r,tthead.g,tthead.b)
 	if onlineFriends > 0 then
-		MOD.tooltip:AddLine(' ')
-		MOD.tooltip:AddLine(worldOfWarcraftString)
+		Dock.DataTooltip:AddLine(' ')
+		Dock.DataTooltip:AddLine(worldOfWarcraftString)
 		for i = 1, #friendTable do
 			info = friendTable[i]
 			if info[5] then
@@ -323,7 +323,7 @@ local function OnEnter(self)
 				classc = classc or GetQuestDifficultyColor(info[2])
 				
 				if UnitInParty(info[1]) or UnitInRaid(info[1]) then grouped = 1 else grouped = 2 end
-				MOD.tooltip:AddDoubleLine(format(levelNameClassString,levelc.r*255,levelc.g*255,levelc.b*255,info[2],info[1],groupedTable[grouped]," "..info[6]),info[4],classc.r,classc.g,classc.b,zonec.r,zonec.g,zonec.b)
+				Dock.DataTooltip:AddDoubleLine(format(levelNameClassString,levelc.r*255,levelc.g*255,levelc.b*255,info[2],info[1],groupedTable[grouped]," "..info[6]),info[4],classc.r,classc.g,classc.b,zonec.r,zonec.g,zonec.b)
 			end
 		end
 	end
@@ -332,8 +332,8 @@ local function OnEnter(self)
 		local status = 0
 		for client, list in pairs(tableList) do
 			if #list > 0 then
-				MOD.tooltip:AddLine(' ')
-				MOD.tooltip:AddLine(battleNetString..' ('..client..')')			
+				Dock.DataTooltip:AddLine(' ')
+				Dock.DataTooltip:AddLine(battleNetString..' ('..client..')')			
 				for i = 1, #list do
 					info = list[i]
 					-- for x = 1, #info do
@@ -350,19 +350,19 @@ local function OnEnter(self)
 
 							if info[15] ~= '' then
 								levelc = GetQuestDifficultyColor(info[15])
-								MOD.tooltip:AddDoubleLine(format(levelNameString, levelc.r*255, levelc.g*255, levelc.b*255, info[15], classc.r*255, classc.g*255, classc.b*255, info[3], groupedTable[grouped], 255, 0, 0, statusTable[status]), info[2], 238, 238, 238, 238, 238, 238)
+								Dock.DataTooltip:AddDoubleLine(format(levelNameString, levelc.r*255, levelc.g*255, levelc.b*255, info[15], classc.r*255, classc.g*255, classc.b*255, info[3], groupedTable[grouped], 255, 0, 0, statusTable[status]), info[2], 238, 238, 238, 238, 238, 238)
 							else
 								classc = classc or RAID_CLASS_COLORS["PRIEST"]
-								MOD.tooltip:AddDoubleLine(format("|cff%02x%02x%02x%s|r", classc.r*255, classc.g*255, classc.b*255, info[3], groupedTable[grouped], 255, 0, 0, statusTable[status]), info[2], 238, 238, 238, 238, 238, 238)
+								Dock.DataTooltip:AddDoubleLine(format("|cff%02x%02x%02x%s|r", classc.r*255, classc.g*255, classc.b*255, info[3], groupedTable[grouped], 255, 0, 0, statusTable[status]), info[2], 238, 238, 238, 238, 238, 238)
 							end
 
 							if IsShiftKeyDown() then
 								if GetRealZoneText() == info[14] then zonec = activezone else zonec = inactivezone end
 								if GetRealmName() == info[10] then realmc = activezone else realmc = inactivezone end
-								MOD.tooltip:AddDoubleLine(info[14], info[10], zonec.r, zonec.g, zonec.b, realmc.r, realmc.g, realmc.b)
+								Dock.DataTooltip:AddDoubleLine(info[14], info[10], zonec.r, zonec.g, zonec.b, realmc.r, realmc.g, realmc.b)
 							end
 						else
-							MOD.tooltip:AddDoubleLine(info[3], info[2], .9, .9, .9, .9, .9, .9)
+							Dock.DataTooltip:AddDoubleLine(info[3], info[2], .9, .9, .9, .9, .9, .9)
 						end
 					end
 				end
@@ -370,7 +370,7 @@ local function OnEnter(self)
 		end
 	end	
 	
-	MOD:ShowTip()
+	Dock:ShowDataTip()
 end
 
 local FriendsColorUpdate = function()
@@ -382,4 +382,4 @@ end
 
 SV.Events:On("SVUI_COLORS_UPDATED", "FriendsColorUpdates", FriendsColorUpdate)
 
-MOD:Extend('Friends', StatEvents, OnEvent, nil, Click, OnEnter)
+Dock:NewDataType('Friends', StatEvents, OnEvent, nil, Click, OnEnter)

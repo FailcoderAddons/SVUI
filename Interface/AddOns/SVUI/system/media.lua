@@ -80,6 +80,45 @@ local function SetFont(globalName, font, fontSize, fontOutline, fontAlpha, color
 end
 --[[ 
 ########################################################## 
+DEFINE SOUND EFFECTS
+##########################################################
+]]--
+local SOUND = SV.Sounds;
+
+SOUND:Register("Buttons", [[sound\interface\uchatscrollbutton.ogg]])
+
+SOUND:Register("Levers", [[sound\interface\ui_blizzardstore_buynow.ogg]])
+SOUND:Register("Levers", [[sound\doodad\g_levermetalcustom0.ogg]])
+SOUND:Register("Levers", [[sound\item\weapons\gun\gunload01.ogg]])
+SOUND:Register("Levers", [[sound\item\weapons\gun\gunload02.ogg]])
+SOUND:Register("Levers", [[sound\creature\gyrocopter\gyrocoptergearshift2.ogg]])
+
+SOUND:Register("Gears", [[sound\creature\gyrocopter\gyrocoptergearshift3.ogg]])
+SOUND:Register("Gears", [[sound\doodad\g_buttonbigredcustom0.ogg]])
+
+SOUND:Register("Sparks", [[sound\doodad\fx_electricitysparkmedium_02.ogg]])
+SOUND:Register("Sparks", [[sound\doodad\fx_electrical_zaps01.ogg]])
+SOUND:Register("Sparks", [[sound\doodad\fx_electrical_zaps02.ogg]])
+SOUND:Register("Sparks", [[sound\doodad\fx_electrical_zaps03.ogg]])
+SOUND:Register("Sparks", [[sound\doodad\fx_electrical_zaps04.ogg]])
+SOUND:Register("Sparks", [[sound\doodad\fx_electrical_zaps05.ogg]])
+
+SOUND:Register("Static", [[sound\spells\uni_fx_radiostatic_01.ogg]])
+SOUND:Register("Static", [[sound\spells\uni_fx_radiostatic_02.ogg]])
+SOUND:Register("Static", [[sound\spells\uni_fx_radiostatic_03.ogg]])
+SOUND:Register("Static", [[sound\spells\uni_fx_radiostatic_04.ogg]])
+SOUND:Register("Static", [[sound\spells\uni_fx_radiostatic_05.ogg]])
+SOUND:Register("Static", [[sound\spells\uni_fx_radiostatic_06.ogg]])
+SOUND:Register("Static", [[sound\spells\uni_fx_radiostatic_07.ogg]])
+SOUND:Register("Static", [[sound\spells\uni_fx_radiostatic_08.ogg]])
+
+SOUND:Register("Wired", [[sound\doodad\goblin_christmaslight_green_01.ogg]])
+SOUND:Register("Wired", [[sound\doodad\goblin_christmaslight_green_02.ogg]])
+SOUND:Register("Wired", [[sound\doodad\goblin_christmaslight_green_03.ogg]])
+
+SOUND:Register("Phase", [[sound\doodad\be_scryingorb_explode.ogg]])
+--[[ 
+########################################################## 
 DEFINE SHARED MEDIA
 ##########################################################
 ]]--
@@ -295,7 +334,9 @@ function SV:RefreshSystemFonts()
   SetFont("SubZoneTextString", UNIT_NAME_FONT, fontsize*3.2, "OUTLINE")
   SetFont("PVPInfoTextString", UNIT_NAME_FONT, fontsize*1.9, "OUTLINE")
   SetFont("PVPArenaTextString", UNIT_NAME_FONT, fontsize*1.9, "OUTLINE")
-  SetFont("SystemFont_Shadow_Outline_Huge2", UNIT_NAME_FONT, fontsize*1.8, "OUTLINE")
+  SetFont("SystemFont_Shadow_Outline_Huge1", UNIT_NAME_FONT, fontsize+10, "OUTLINE")
+  SetFont("SystemFont_Shadow_Outline_Huge2", UNIT_NAME_FONT, fontsize+14, "OUTLINE")
+  SetFont("SystemFont_Shadow_Outline_Huge3", UNIT_NAME_FONT, fontsize+15, "OUTLINE")
 
   SetFont("NumberFont_OutlineThick_Mono_Small", NUMBER_TEXT_FONT, fontsize, "OUTLINE")
   SetFont("NumberFont_Outline_Huge", NUMBER_TEXT_FONT, fontsize*2, "THICKOUTLINE", 28)
@@ -316,8 +357,10 @@ function SV:RefreshSystemFonts()
   SetFont("SystemFont_Med3", STANDARD_TEXT_FONT, fontsize)
   SetFont("SystemFont_Outline_Small", STANDARD_TEXT_FONT, fontsize, "OUTLINE")
   SetFont("SystemFont_Shadow_Large", STANDARD_TEXT_FONT, fontsize+2)
-  SetFont("SystemFont_Shadow_Med1", STANDARD_TEXT_FONT, fontsize)
-  SetFont("SystemFont_Shadow_Med3", STANDARD_TEXT_FONT, fontsize)
+  SetFont("SystemFont_Shadow_Med1", STANDARD_TEXT_FONT, fontsize+2)
+  SetFont("SystemFont_Shadow_Med1_Outline", STANDARD_TEXT_FONT, fontsize+2)
+  SetFont("SystemFont_Shadow_Med2", STANDARD_TEXT_FONT, fontsize+3)
+  SetFont("SystemFont_Shadow_Med3", STANDARD_TEXT_FONT, fontsize+4)
   SetFont("SystemFont_Shadow_Small", STANDARD_TEXT_FONT, fontsize)
   SetFont("SystemFont_Small", STANDARD_TEXT_FONT, fontsize)
   SetFont("FriendsFont_Normal", STANDARD_TEXT_FONT, fontsize)
@@ -364,7 +407,9 @@ function SV:RefreshAllSystemMedia()
   SetFont("SubZoneTextString", UNIT_NAME_FONT, fontsize*3.2, "OUTLINE")
   SetFont("PVPInfoTextString", UNIT_NAME_FONT, fontsize*1.9, "OUTLINE")
   SetFont("PVPArenaTextString", UNIT_NAME_FONT, fontsize*1.9, "OUTLINE")
-  SetFont("SystemFont_Shadow_Outline_Huge2", UNIT_NAME_FONT, fontsize*1.8, "OUTLINE")
+  SetFont("SystemFont_Shadow_Outline_Huge1", UNIT_NAME_FONT, fontsize+10, "OUTLINE")
+  SetFont("SystemFont_Shadow_Outline_Huge2", UNIT_NAME_FONT, fontsize+14, "OUTLINE")
+  SetFont("SystemFont_Shadow_Outline_Huge3", UNIT_NAME_FONT, fontsize+15, "OUTLINE")
 
   SetFont("NumberFont_OutlineThick_Mono_Small", NUMBER_TEXT_FONT, fontsize, "OUTLINE")
   SetFont("NumberFont_Outline_Huge", NUMBER_TEXT_FONT, fontsize*2, "THICKOUTLINE", 28)
@@ -385,8 +430,10 @@ function SV:RefreshAllSystemMedia()
   SetFont("SystemFont_Med3", STANDARD_TEXT_FONT, fontsize)
   SetFont("SystemFont_Outline_Small", STANDARD_TEXT_FONT, fontsize, "OUTLINE")
   SetFont("SystemFont_Shadow_Large", STANDARD_TEXT_FONT, fontsize+2)
-  SetFont("SystemFont_Shadow_Med1", STANDARD_TEXT_FONT, fontsize)
-  SetFont("SystemFont_Shadow_Med3", STANDARD_TEXT_FONT, fontsize)
+  SetFont("SystemFont_Shadow_Med1", STANDARD_TEXT_FONT, fontsize+2)
+  SetFont("SystemFont_Shadow_Med1_Outline", STANDARD_TEXT_FONT, fontsize+2)
+  SetFont("SystemFont_Shadow_Med2", STANDARD_TEXT_FONT, fontsize+3)
+  SetFont("SystemFont_Shadow_Med3", STANDARD_TEXT_FONT, fontsize+4)
   SetFont("SystemFont_Shadow_Small", STANDARD_TEXT_FONT, fontsize)
   SetFont("SystemFont_Small", STANDARD_TEXT_FONT, fontsize)
   SetFont("FriendsFont_Normal", STANDARD_TEXT_FONT, fontsize)

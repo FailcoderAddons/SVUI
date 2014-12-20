@@ -13,7 +13,7 @@ _____/\\\\\\\\\\\____/\\\________/\\\__/\\\________/\\\__/\\\\\\\\\\\_       #
 S U P E R - V I L L A I N - U I   By: Munglunch                              #
 ##############################################################################
 
-STATS:Extend EXAMPLE USAGE: MOD:Extend(newStat,eventList,onEvents,update,click,focus,blur)
+STATS:Extend EXAMPLE USAGE: Dock:NewDataType(newStat,eventList,onEvents,update,click,focus,blur,load)
 
 ########################################################## 
 LOCALIZED LUA FUNCTIONS
@@ -26,7 +26,6 @@ local select 	= _G.select;
 local string 	= _G.string;
 --[[ STRING METHODS ]]--
 local match, sub, join = string.match, string.sub, string.join;
-local max = math.max;
 --[[ 
 ########################################################## 
 GET ADDON DATA
@@ -34,7 +33,7 @@ GET ADDON DATA
 ]]--
 local SV = select(2, ...)
 local L = SV.L
-local MOD = SV.SVStats;
+local Dock = SV.Dock;
 --[[ 
 ########################################################## 
 CALL TO ARMS STATS
@@ -42,62 +41,55 @@ CALL TO ARMS STATS
 ]]--
 local StatEvents = {'PLAYER_ENTERING_WORLD', 'COMBAT_LOG_EVENT_UNFILTERED', "PLAYER_LEAVE_COMBAT", 'PLAYER_REGEN_DISABLED', 'UNIT_PET'};
 
-local PlayerEvents = {["SPELL_HEAL"] = true, ["SPELL_PERIODIC_HEAL"] = true}
+local PlayerEvents = {["SWING_DAMAGE"] = true, ["RANGE_DAMAGE"] = true, ["SPELL_DAMAGE"] = true, ["SPELL_PERIODIC_DAMAGE"] = true, ["DAMAGE_SHIELD"] = true, ["DAMAGE_SPLIT"] = true, ["SPELL_EXTRA_ATTACKS"] = true}
 local playerID = UnitGUID('player')
 local petID
-local healTotal, totalHeal, totalOverHeal, lastHealAmount = 0, 0, 0, 0
+local DMGTotal, lastDMGAmount = 0, 0
 local combatTime = 0
 local timeStamp = 0
 local lastSegment = 0
 local lastPanel
-local hexColor = "FFFFFF";
+local hexColor = "FFFFFF"
 local displayString = "|cff%s%.1f|r";
 local dpsString = "%s |cff00CCFF%s|r";
-
-local join = string.join
-local max = math.max
 
 local function Reset()
 	timeStamp = 0
 	combatTime = 0
-	healTotal = 0
-	totalHeal = 0
-	totalOverHeal = 0
-	lastHealAmount = 0
-end
+	DMGTotal = 0
+	lastDMGAmount = 0
+end	
 
-local function GetHPS(self)
-	if healTotal == 0 or combatTime == 0 then
-		self.text:SetText(dpsString:format(L["HPS"], "..PAUSED"))
-		self.TText = "No Healing Done"
-		self.TText2 = "Surely there is someone \nwith an ouchie somewhere!"
+local function GetDPS(self)
+	if DMGTotal == 0 or combatTime == 0 then
+		self.text:SetText(dpsString:format(L["DPS"], "..PAUSED"))
+		self.TText = "No Damage Done"
+		self.TText2 = "Go smack something so \nthat I can do the maths!"
 	else
-		local HPS = (healTotal) / (combatTime)
-		self.text:SetFormattedText(displayString, hexColor, HPS)
-		self.TText = "HPS:"
-		self.TText2 = HPS
+		local DPS = (DMGTotal) / (combatTime)
+		self.text:SetFormattedText(displayString, hexColor, DPS)
+		self.TText = "DPS:"
+		self.TText2 = DPS
 	end
 end
 
-local function HPS_OnClick(self)
+local function DPS_OnClick(self)
 	Reset()
-	GetHPS(self)
+	GetDPS(self)
 end
 
-local function HPS_OnEnter(self)
-	MOD:Tip(self)
-	MOD.tooltip:AddDoubleLine("Healing Total:", totalHeal, 1, 1, 1)
-	MOD.tooltip:AddDoubleLine("OverHealing Total:", totalOverHeal, 1, 1, 1)
-	MOD.tooltip:AddLine(" ", 1, 1, 1)
-	MOD.tooltip:AddDoubleLine(self.TText, self.TText2, 1, 1, 1)
-	MOD.tooltip:AddLine(" ", 1, 1, 1)
-	MOD.tooltip:AddDoubleLine("[Click]", "Clear HPS", 0,1,0, 0.5,1,0.5)
-	MOD:ShowTip(true)
+local function DPS_OnEnter(self)
+	Dock:SetDataTip(self)
+	Dock.DataTooltip:AddDoubleLine("Damage Total:", DMGTotal, 1, 1, 1)
+	Dock.DataTooltip:AddLine(" ", 1, 1, 1)
+	Dock.DataTooltip:AddDoubleLine(self.TText, self.TText2, 1, 1, 1)
+	Dock.DataTooltip:AddLine(" ", 1, 1, 1)
+	Dock.DataTooltip:AddDoubleLine("[Click]", "Clear DPS", 0,1,0, 0.5,1,0.5)
+	Dock:ShowDataTip(true)
 end
 
-local function HPS_OnEvent(self, event, ...)
+local function DPS_OnEvent(self, event, ...)
 	lastPanel = self
-	
 	if event == "PLAYER_ENTERING_WORLD" then
 		playerID = UnitGUID('player')
 	elseif event == 'PLAYER_REGEN_DISABLED' or event == "PLAYER_LEAVE_COMBAT" then
@@ -107,29 +99,30 @@ local function HPS_OnEvent(self, event, ...)
 		end
 		lastSegment = now
 	elseif event == 'COMBAT_LOG_EVENT_UNFILTERED' then
-		local newTime, event, _, srcGUID, _, _, _, _, _, _, _, _, _, test, lastHealAmount, overHeal = ...
+		local newTime, event, _, srcGUID, srcName, srcFlags, sourceRaidFlags, dstGUID, dstName, dstFlags, destRaidFlags, lastDMGAmount, spellName = ...
 		if not PlayerEvents[event] then return end
 		if(srcGUID == playerID or srcGUID == petID) then
 			if timeStamp == 0 then timeStamp = newTime end
 			lastSegment = timeStamp
 			combatTime = newTime - timeStamp
-			healTotal = healTotal + (lastHealAmount - overHeal)
-			totalHeal = totalHeal + lastHealAmount
-			totalOverHeal = totalOverHeal + overHeal
+			if event ~= "SWING_DAMAGE" then
+				lastDMGAmount = select(15, ...)
+			end
+			DMGTotal = DMGTotal + lastDMGAmount
 		end
 	elseif event == UNIT_PET then
 		petID = UnitGUID("pet")
 	end
 	
-	GetHPS(self)
+	GetDPS(self)
 end
 
-local HPSColorUpdate = function()
-	hexColor = SV:HexColor("highlight");
+local DPSColorUpdate = function()
+	hexColor = SV:HexColor("highlight")
 	if lastPanel ~= nil then
-		HPS_OnEvent(lastPanel)
+		DPS_OnEvent(lastPanel)
 	end
 end
 
-SV.Events:On("SVUI_COLORS_UPDATED", "HPSColorUpdates", HPSColorUpdate)
-MOD:Extend('HPS', StatEvents, HPS_OnEvent, nil, HPS_OnClick, HPS_OnEnter)
+SV.Events:On("SVUI_COLORS_UPDATED", "DPSColorUpdates", DPSColorUpdate)
+Dock:NewDataType('DPS', StatEvents, DPS_OnEvent, nil, DPS_OnClick, DPS_OnEnter)

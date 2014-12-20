@@ -13,7 +13,7 @@ _____/\\\\\\\\\\\____/\\\________/\\\__/\\\________/\\\__/\\\\\\\\\\\_       #
 S U P E R - V I L L A I N - U I   By: Munglunch                              #
 ##############################################################################
 
-STATS:Extend EXAMPLE USAGE: MOD:Extend(newStat,eventList,onEvents,update,click,focus,blur)
+STATS:Extend EXAMPLE USAGE: Dock:NewDataType(newStat,eventList,onEvents,update,click,focus,blur)
 
 ########################################################## 
 LOCALIZED LUA FUNCTIONS
@@ -51,7 +51,7 @@ GET ADDON DATA
 ]]--
 local SV = select(2, ...)
 local L = SV.L;
-local MOD = SV.SVStats;
+local Dock = SV.Dock;
 --[[ 
 ########################################################## 
 GOLD STATS
@@ -101,69 +101,71 @@ end
 local function Gold_OnEvent(self, event,...)
 	if not IsLoggedIn() then return end 
 	local current = GetMoney()
-	recorded = MOD.Accountant[playerRealm]["gold"][playerName] or GetMoney();
+	recorded = Dock.Accountant["gold"][playerName] or GetMoney();
 	local adjusted = current - recorded;
 	if recorded > current then 
 		loss = loss - adjusted 
 	else 
 		gains = gains + adjusted 
 	end 
-	self.text:SetText(FormatCurrency(current, SV.db.SVStats.shortGold))
-	MOD.Accountant[playerRealm]["gold"][playerName] = GetMoney()
+	self.text:SetText(FormatCurrency(current, SV.db.Dock.shortGold))
+	Dock.Accountant["gold"][playerName] = GetMoney()
 end 
 
 local function Gold_OnClick(self, button)
 	if IsLeftControlKeyDown() and IsShiftKeyDown() then
-		MOD.Accountant[playerRealm]["gold"] = {};
-		MOD.Accountant[playerRealm]["gold"][playerName] = GetMoney();
+		Dock.Accountant["gold"] = {};
+		Dock.Accountant["gold"][playerName] = GetMoney();
 		Gold_OnEvent(self)
-		MOD.tooltip:Hide()
+		Dock.DataTooltip:Hide()
 	else 
 		ToggleAllBags()
 	end 
 end 
 
 local function Gold_OnEnter(self)
-	MOD:Tip(self)
-	MOD.tooltip:AddLine(L['Session:'])
-	MOD.tooltip:AddDoubleLine(L["Earned:"],FormatCurrency(gains),1,1,1,1,1,1)
-	MOD.tooltip:AddDoubleLine(L["Spent:"],FormatCurrency(loss),1,1,1,1,1,1)
+	Dock:SetDataTip(self)
+	Dock.DataTooltip:AddLine(L['Session:'])
+	Dock.DataTooltip:AddDoubleLine(L["Earned:"],FormatCurrency(gains),1,1,1,1,1,1)
+	Dock.DataTooltip:AddDoubleLine(L["Spent:"],FormatCurrency(loss),1,1,1,1,1,1)
 	if gains < loss then 
-		MOD.tooltip:AddDoubleLine(L["Deficit:"],FormatCurrency(gains - loss),1,0,0,1,1,1)
+		Dock.DataTooltip:AddDoubleLine(L["Deficit:"],FormatCurrency(gains - loss),1,0,0,1,1,1)
 	elseif (gains - loss) > 0 then 
-		MOD.tooltip:AddDoubleLine(L["Profit:"],FormatCurrency(gains - loss),0,1,0,1,1,1)
+		Dock.DataTooltip:AddDoubleLine(L["Profit:"],FormatCurrency(gains - loss),0,1,0,1,1,1)
 	end 
-	MOD.tooltip:AddLine(" ")
-	local cash = MOD.Accountant[playerRealm]["gold"][playerName];
-	MOD.tooltip:AddLine(L[playerName..": "])
-	MOD.tooltip:AddDoubleLine(L["Total: "], FormatCurrency(cash), 1,1,1,1,1,1)
-	MOD.tooltip:AddLine(" ")
+	Dock.DataTooltip:AddLine(" ")
+	local cash = Dock.Accountant["gold"][playerName];
+	Dock.DataTooltip:AddLine(L[playerName..": "])
+	Dock.DataTooltip:AddDoubleLine(L["Total: "], FormatCurrency(cash), 1,1,1,1,1,1)
+	Dock.DataTooltip:AddLine(" ")
 
-	MOD.tooltip:AddLine(L["Characters: "])
+	Dock.DataTooltip:AddLine(L["Characters: "])
 	for name,amount in pairs(serverGold)do
 		if(name ~= playerName and name ~= 'total') then
 			cash = cash + amount;
-			MOD.tooltip:AddDoubleLine(name, FormatCurrency(amount), 1,1,1,1,1,1)
+			Dock.DataTooltip:AddDoubleLine(name, FormatCurrency(amount), 1,1,1,1,1,1)
 		end
 	end 
-	MOD.tooltip:AddLine(" ")
-	MOD.tooltip:AddLine(L["Server: "])
-	MOD.tooltip:AddDoubleLine(L["Total: "], FormatCurrency(cash), 1,1,1,1,1,1)
-	MOD.tooltip:AddLine(" ")
-	MOD.tooltip:AddLine(tiptext)
-	MOD:ShowTip()
-end 
+	Dock.DataTooltip:AddLine(" ")
+	Dock.DataTooltip:AddLine(L["Server: "])
+	Dock.DataTooltip:AddDoubleLine(L["Total: "], FormatCurrency(cash), 1,1,1,1,1,1)
+	Dock.DataTooltip:AddLine(" ")
+	Dock.DataTooltip:AddLine(tiptext)
+	Dock:ShowDataTip()
+end
 
-MOD:Extend('Gold', StatEvents, Gold_OnEvent, nil, Gold_OnClick, Gold_OnEnter);
+local function Gold_OnInit(self)
+	Dock:SetAccountantData('gold', 'number', 0);
 
-function MOD:LoadServerGold()
-	local SVUI_Global = _G.SVUI_Global
 	local totalGold = 0;
-	for name,amount in pairs(self.Accountant[playerRealm]["gold"])do 
-		if self.Accountant[playerRealm]["gold"][name] then 
+	for name,amount in pairs(Dock.Accountant["gold"])do 
+		if Dock.Accountant["gold"][name] then 
 			serverGold[name] = amount;
 			totalGold = totalGold + amount
 		end 
-	end 
+	end
+
 	serverGold['total'] = totalGold;
 end
+
+Dock:NewDataType('Gold', StatEvents, Gold_OnEvent, nil, Gold_OnClick, Gold_OnEnter, nil, Gold_OnInit);

@@ -13,7 +13,7 @@ _____/\\\\\\\\\\\____/\\\________/\\\__/\\\________/\\\__/\\\\\\\\\\\_       #
 S U P E R - V I L L A I N - U I   By: Munglunch                              #
 ##############################################################################
 
-STATS:Extend EXAMPLE USAGE: MOD:Extend(newStat,eventList,onEvents,update,click,focus,blur)
+STATS:Extend EXAMPLE USAGE: Dock:NewDataType(newStat,eventList,onEvents,update,click,focus,blur)
 
 ########################################################## 
 LOCALIZED LUA FUNCTIONS
@@ -36,7 +36,7 @@ GET ADDON DATA
 ]]--
 local SV = select(2, ...)
 local L = SV.L;
-local MOD = SV.SVStats;
+local Dock = SV.Dock;
 --[[ 
 ########################################################## 
 REPUTATION STATS
@@ -67,7 +67,7 @@ local function TruncateString(value)
     end 
 end
 -- name, description, standingID, barMin, barMax, barValue, _, _, _, _, hasRep, isWatched, isChild
-function MOD:CacheRepData()
+local function CacheRepData()
 	twipe(RepMenuList)
 	for factionIndex = 1, GetNumFactions() do
 		local factionName, description, standingID, barMin, barMax, barValue, _, _, _, _, hasRep, isWatched, isChild = GetFactionInfo(factionIndex)
@@ -152,26 +152,30 @@ local function ReputationBar_OnEvent(self, ...)
 end 
 
 local function Reputation_OnEnter(self)
-	MOD:Tip(self)
+	Dock:SetDataTip(self)
 	local name, reaction, min, max, value, factionID = GetWatchedFactionInfo()
 	local friendID, _, _, _, _, _, friendTextLevel = GetFriendshipReputation(factionID);
 	if not name then
-		MOD.tooltip:AddLine("No Watched Factions")
+		Dock.DataTooltip:AddLine("No Watched Factions")
 	else
-		MOD.tooltip:AddLine(name)
-		MOD.tooltip:AddLine(' ')
-		MOD.tooltip:AddDoubleLine(STANDING..':', friendID and friendTextLevel or _G['FACTION_STANDING_LABEL'..reaction], 1, 1, 1)
-		MOD.tooltip:AddDoubleLine(REPUTATION..':', format('%d / %d (%d%%)', value - min, max - min, (value - min) / (max - min) * 100), 1, 1, 1)
+		Dock.DataTooltip:AddLine(name)
+		Dock.DataTooltip:AddLine(' ')
+		Dock.DataTooltip:AddDoubleLine(STANDING..':', friendID and friendTextLevel or _G['FACTION_STANDING_LABEL'..reaction], 1, 1, 1)
+		Dock.DataTooltip:AddDoubleLine(REPUTATION..':', format('%d / %d (%d%%)', value - min, max - min, (value - min) / (max - min) * 100), 1, 1, 1)
 	end 
-	MOD.tooltip:AddLine(" ", 1, 1, 1)
-	MOD.tooltip:AddDoubleLine("[Click]", "Change Watched Faction", 0,1,0, 0.5,1,0.5)
-	MOD:ShowTip(true)
+	Dock.DataTooltip:AddLine(" ", 1, 1, 1)
+	Dock.DataTooltip:AddDoubleLine("[Click]", "Change Watched Faction", 0,1,0, 0.5,1,0.5)
+	Dock:ShowDataTip(true)
 end 
 
 local function Reputation_OnClick(self, button)
-	MOD:CacheRepData()
+	CacheRepData()
 	SV.Dropdown:Open(self, RepMenuList) 
 end 
 
-MOD:Extend("Reputation", StatEvents, Reputation_OnEvent, nil, Reputation_OnClick, Reputation_OnEnter)
-MOD:Extend("Reputation Bar", StatEvents, ReputationBar_OnEvent, nil, Reputation_OnClick, Reputation_OnEnter)
+local function Reputation_OnInit(self)
+	CacheRepData()
+end
+
+Dock:NewDataType("Reputation", StatEvents, Reputation_OnEvent, nil, Reputation_OnClick, Reputation_OnEnter, nil, Reputation_OnInit)
+Dock:NewDataType("Reputation Bar", StatEvents, ReputationBar_OnEvent, nil, Reputation_OnClick, Reputation_OnEnter, nil, Reputation_OnInit)

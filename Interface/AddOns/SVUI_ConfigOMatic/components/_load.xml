@@ -6,7 +6,6 @@
 	<Script file='dock.lua'/>
 	<Script file='chat.lua'/>
 	<Script file='henchmen.lua'/>
-	<Script file='stat.lua'/>
 	<Include file='filters\_load.xml'/>
 	<Script file='plate.lua'/>
 	<Script file='tip.lua'/>

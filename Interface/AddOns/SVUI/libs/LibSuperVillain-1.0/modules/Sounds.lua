@@ -54,65 +54,114 @@ local lib = LibSuperVillain:NewLibrary("Sounds")
 
 if not lib then return end -- No upgrade needed
 
---[[ BUTTON SOUNDS ]]--
+--[[ DUMMY FALLBACK ]]--
 
-local BUTTON_FOLEY = {
-    SOUNDS = {
-        [[sound\item\weapons\gun\gunload01.ogg]],
-        [[sound\item\weapons\gun\gunload02.ogg]],
-        [[sound\interface\ui_blizzardstore_buynow.ogg]],
-        [[sound\doodad\fx_electricitysparkmedium_02.ogg]],
-        [[sound\doodad\g_levermetalcustom0.ogg]],
-        [[sound\doodad\g_buttonbigredcustom0.ogg]],
-        [[sound\doodad\fx_electrical_zaps01.ogg]],
-        [[sound\doodad\fx_electrical_zaps02.ogg]],
-        [[sound\doodad\fx_electrical_zaps03.ogg]],
-        [[sound\doodad\fx_electrical_zaps04.ogg]],
-        [[sound\doodad\fx_electrical_zaps05.ogg]],
-    }
-};
+local BLANK_FOLEY = function() 
+    return;
+end;
 
-function BUTTON_FOLEY:Play()
-    PlaySoundFile([[sound\interface\uchatscrollbutton.ogg]])
-    local list = self.SOUNDS;
-    local key = random(1,#list)
-    local sound = list[key]
-    PlaySoundFile(sound)
+--[[ LIB MASTER LIST ]]--
+
+lib.Master = {};
+
+-- do
+--     local DEFAULT_SOUND_TYPES = { 'button', 'error', 'window', 'misc' };
+
+--     for i = 1, #DEFAULT_SOUND_TYPES do
+--         local key = DEFAULT_SOUND_TYPES[i];
+--         lib.Master[key] = {};
+--     end
+-- end
+
+--[[ LIB TYPE CONTROLLERS ]]--
+
+lib.Effects = {};
+lib.Blends = {};
+
+--[[ LIB METHODS ]]--
+
+function lib:Register(soundType, soundFile)
+    soundType = soundType:lower();
+    if(not self.Master[soundType]) then self.Master[soundType] = {} end;
+    tinsert(self.Master[soundType], soundFile);
+end;
+
+--[[ BLENDED SOUND EFFECTS ]]--
+
+local BlendedSound_Effect = function(self)
+    local key, sound, list;
+    local bank = self.Bank;
+    local channels = self.Channels;
+    for i = 1, channels do
+        key = random(1, #bank[i]);
+        sound = bank[i][key];
+        PlaySoundFile(sound)
+    end
 end
 
-setmetatable(BUTTON_FOLEY, { __call = BUTTON_FOLEY.Play })
+function lib:Blend(blendName, ...)
+    blendName = blendName:lower();
+    if(not self.Blends[blendName]) then
+        self.Blends[blendName] = {};
+        self.Blends[blendName].Bank = {};
 
---[[ ERROR SOUNDS ]]--
+        local numChannels = select('#', ...) 
 
-local ERROR_FOLEY = {
-    SOUNDS = {
-        [[sound\spells\uni_fx_radiostatic_01.ogg]],
-        [[sound\spells\uni_fx_radiostatic_02.ogg]],
-        [[sound\spells\uni_fx_radiostatic_03.ogg]],
-        [[sound\spells\uni_fx_radiostatic_04.ogg]],
-        [[sound\spells\uni_fx_radiostatic_05.ogg]],
-        [[sound\spells\uni_fx_radiostatic_06.ogg]],
-        [[sound\spells\uni_fx_radiostatic_07.ogg]],
-        [[sound\spells\uni_fx_radiostatic_08.ogg]],
-        [[sound\doodad\goblin_christmaslight_green_01.ogg]],
-        [[sound\doodad\goblin_christmaslight_green_02.ogg]],
-        [[sound\doodad\goblin_christmaslight_green_03.ogg]]
-    }
-};
+        for i = 1, numChannels do
+            local soundType = select(i, ...)
+            soundType = soundType:lower();
+            if not soundType then break end
+            if(not self.Master[soundType]) then
+                self.Master[soundType] = {};
+            end
+            self.Blends[blendName].Bank[i] = self.Master[soundType];
+        end
 
-function ERROR_FOLEY:Play()
-    local list = self.SOUNDS;
-    local key = random(1,#list)
-    local sound = list[key]
-    PlaySoundFile(sound)
+        self.Blends[blendName].Channels = numChannels;
+        self.Blends[blendName].Foley = BlendedSound_Effect;
+
+        setmetatable(self.Blends[blendName], { __call = self.Blends[blendName].Foley })
+    end
+
+    if(self.Blends[blendName]) then
+        return self.Blends[blendName]
+    else
+        return BLANK_FOLEY
+    end
+end;
+
+--[[ STANDARD SOUND EFFECTS ]]--
+
+local StandardSound_Effect = function(self)
+    local key, sound, list;
+    local bank = self.Bank;
+    local channels = self.Channels;
+    for i = 1, channels do
+        list = bank[i];
+        key = random(1,#list);
+        sound = list[key];
+        PlaySoundFile(sound)
+    end
 end
 
-setmetatable(ERROR_FOLEY, { __call = ERROR_FOLEY.Play })
+function lib:Effect(effectName)
+    effectName = effectName:lower();
+    if(not self.Effects[effectName]) then
+        self.Effects[effectName] = {};
 
-function lib:Foley(category)
-    if(category == "Button") then
-        return BUTTON_FOLEY
-    elseif(category == "Error") then
-        return ERROR_FOLEY
+        if(not self.Master[effectName]) then
+            self.Master[effectName] = {};
+        end
+
+        self.Effects[effectName].Bank = self.Master[effectName];
+        self.Effects[effectName].Foley = StandardSound_Effect;
+
+        setmetatable(self.Effects[effectName], { __call = self.Effects[effectName].Foley })
+    end
+
+    if(self.Effects[effectName]) then
+        return self.Effects[effectName]
+    else
+        return BLANK_FOLEY
     end
 end;

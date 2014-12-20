@@ -44,7 +44,7 @@ local function CommonFontSizeUpdate()
     local smallfont = STANDARDFONTSIZE - 2;
     local largefont = STANDARDFONTSIZE + 2;
     SV.db.SVAura.fontSize = STANDARDFONTSIZE;
-    SV.db.SVStats.fontSize = STANDARDFONTSIZE;
+    SV.db.Dock.fontSize = STANDARDFONTSIZE;
     SV.db.SVUnit.fontSize = STANDARDFONTSIZE;
     SV.db.SVUnit.auraFontSize = smallfont;
 

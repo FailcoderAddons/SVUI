@@ -91,9 +91,9 @@ local function SVUIMasterCommand(msg)
 		elseif (msg == "reset" or msg == "resetui") then
 			SV:ResetAllUI()
 		elseif (msg == "bg" or msg == "pvp") then
-			local MOD = SV.SVStats
+			local MOD = SV.Dock
 			MOD.ForceHideBGStats = nil;
-			MOD:Generate()
+			MOD:UpdateDataSlots()
 			SV:AddonMessage(L['Battleground statistics will now show again if you are inside a battleground.'])
 		else
 			SV:ToggleConfig()

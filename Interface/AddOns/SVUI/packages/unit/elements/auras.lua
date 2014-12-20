@@ -124,13 +124,14 @@ local Aura_UpdateTooltip = function(self)
 end
 
 local CreateAuraIcon = function(icons, index)
+	local baseSize = icons.size or 16
 	local aura = CreateFrame("Button", nil, icons)
 	aura:RemoveTextures()
 	aura:EnableMouse(true)
 	aura:RegisterForClicks('RightButtonUp')
 
-	aura:SetWidth(icons.size or 16)
-	aura:SetHeight(icons.size or 16)
+	aura:SetWidth(baseSize)
+	aura:SetHeight(baseSize)
 
 	aura:SetBackdrop({
     	bgFile = [[Interface\BUTTONS\WHITE8X8]], 
@@ -148,6 +149,17 @@ local CreateAuraIcon = function(icons, index)
     aura:SetBackdropColor(0, 0, 0, 0)
     aura:SetBackdropBorderColor(0, 0, 0)
 
+    local font = SV.Media.font.numbers;
+    local fontSize = 10;
+    local fontOutline = "OUTLINE";
+    if(baseSize < 18) then
+    	font = SV.Media.font.pixel;
+    	fontSize = 8;
+    	fontOutline = "MONOCHROMEOUTLINE"
+    elseif(baseSize < 24) then
+    	font = SV.Media.font.roboto;
+    end
+
 	local cd = CreateFrame("Cooldown", nil, aura, "CooldownFrameTemplate");
 	cd:SetAllPointsIn(aura, 1, 1);
 	cd.noOCC = true;
@@ -156,12 +168,12 @@ local CreateAuraIcon = function(icons, index)
 	cd:SetHideCountdownNumbers(true);
 
 	local text = cd:CreateFontString(nil, 'OVERLAY');
-	text:SetFontObject(NumberFontNormal);
+	text:SetFont(font, fontSize, fontOutline);
 	text:SetPoint('CENTER', aura, 'CENTER', 1, 1);
 	text:SetJustifyH('CENTER');
 
 	local count = cd:CreateFontString(nil, "OVERLAY");
-	count:SetFontObject(NumberFontNormal);
+	count:SetFont(font, fontSize, fontOutline);
 	count:SetPoint("BOTTOMRIGHT", aura, "BOTTOMRIGHT", 3, -3);
 
 	local icon = aura:CreateTexture(nil, "BORDER");
@@ -220,17 +232,17 @@ local UpdateAuraTimer = function(self, elapsed)
 				self.nextUpdate = 0.051
 			end 
 		elseif expires < 3600 then
-			timeFormat = "|cffffffff%dm|r"
+			timeFormat = "|cffffffff%d|r|cffCC8811m|r"
 			timeLeft = ceil(expires  /  60);
 			calc = floor((expires  /  60)  +  .5);
 			self.nextUpdate = calc > 1 and ((expires - calc)  *  29.5) or (expires - 59.5);
 		elseif expires < 86400 then
-			timeFormat = "|cff66ffff%dh|r"
+			timeFormat = "|cff66ffff%d|r|cffAA5511h|r"
 			timeLeft = ceil(expires  /  3600);
 			calc = floor((expires  /  3600)  +  .5);
 			self.nextUpdate = calc > 1 and ((expires - calc)  *  1799.5) or (expires - 3570);
 		else
-			timeFormat = "|cff6666ff%dd|r"
+			timeFormat = "|cff6666ff%d|r|cff991100d|r"
 			timeLeft = ceil(expires  /  86400);
 			calc = floor((expires  /  86400)  +  .5);
 			self.nextUpdate = calc > 1 and ((expires - calc)  *  43199.5) or (expires - 86400);

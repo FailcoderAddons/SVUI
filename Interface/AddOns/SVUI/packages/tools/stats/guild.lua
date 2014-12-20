@@ -13,7 +13,7 @@ _____/\\\\\\\\\\\____/\\\________/\\\__/\\\________/\\\__/\\\\\\\\\\\_       #
 S U P E R - V I L L A I N - U I   By: Munglunch                              #
 ##############################################################################
 
-STATS:Extend EXAMPLE USAGE: MOD:Extend(newStat,eventList,onEvents,update,click,focus,blur)
+STATS:Extend EXAMPLE USAGE: Dock:NewDataType(newStat,eventList,onEvents,update,click,focus,blur)
 
 ########################################################## 
 LOCALIZED LUA FUNCTIONS
@@ -38,7 +38,7 @@ GET ADDON DATA
 ]]--
 local SV = select(2, ...)
 local L = SV.L
-local MOD = SV.SVStats;
+local Dock = SV.Dock;
 --[[ 
 ########################################################## 
 GUILD STATS
@@ -188,7 +188,7 @@ end
 
 local function Guild_OnClick(self, button)
 	if button == "RightButton" and IsInGuild() then
-		MOD.tooltip:Hide()
+		Dock.DataTooltip:Hide()
 
 
 		local classc, levelc, grouped, info
@@ -236,18 +236,18 @@ local function Guild_OnEnter(self, _, ap)
 	if not IsInGuild() then
 		return 
 	end 
-	MOD:Tip(self)
+	Dock:SetDataTip(self)
 	local aq, ar = GetNumGuildMembers()
 	if #GuildStatMembers == 0 then GetGuildStatMembers() end 
 	SortGuildStatMembers(IsShiftKeyDown())
 	local guildName, guildRankName, guildRankIndex = GetGuildInfo('player')
 	if guildName and guildRankName then
-		MOD.tooltip:AddDoubleLine(("%s "):format(guildName), guildFormattedName:format(GUILD, ar, aq), 0.4, 0.78, 1, 0.4, 0.78, 1)
-		MOD.tooltip:AddLine(guildRankName, 0.4, 0.78, 1)
+		Dock.DataTooltip:AddDoubleLine(("%s "):format(guildName), guildFormattedName:format(GUILD, ar, aq), 0.4, 0.78, 1, 0.4, 0.78, 1)
+		Dock.DataTooltip:AddLine(guildRankName, 0.4, 0.78, 1)
 	end 
 	if GuildStatMOTD ~= "" then
-		MOD.tooltip:AddLine(' ')
-		MOD.tooltip:AddLine(("%s |cffaaaaaa- |cffffffff%s"):format(GUILD_MOTD, GuildStatMOTD), 0.75, 0.9, 1, 1)
+		Dock.DataTooltip:AddLine(' ')
+		Dock.DataTooltip:AddLine(("%s |cffaaaaaa- |cffffffff%s"):format(GUILD_MOTD, GuildStatMOTD), 0.75, 0.9, 1, 1)
 	end 
 	local av = SV:HexColor(0.75,0.9,1)
 	local _, _, standingID, barMin, barMax, barValue = GetGuildFactionInfo()
@@ -255,15 +255,15 @@ local function Guild_OnEnter(self, _, ap)
 		barMax = barMax - barMin;
 		barValue = barValue - barMin;
 		barMin = 0;
-		MOD.tooltip:AddLine(guildFormattedFaction:format(COMBAT_FACTION_CHANGE, TruncateString(barValue), TruncateString(barMax), ceil(barValue / barMax * 100)))
+		Dock.DataTooltip:AddLine(guildFormattedFaction:format(COMBAT_FACTION_CHANGE, TruncateString(barValue), TruncateString(barMax), ceil(barValue / barMax * 100)))
 	end 
 	local zoneColor, classColor, questColor, member, groupFormat;
 	local counter = 0;
-	MOD.tooltip:AddLine(' ')
+	Dock.DataTooltip:AddLine(' ')
 	for X = 1, #GuildStatMembers do 
 		if((30 - counter) <= 1) then
 			if((ar - 30) > 1) then 
-				MOD.tooltip:AddLine(guildFormattedOnline:format(ar - 30), 0.75, 0.9, 1)
+				Dock.DataTooltip:AddLine(guildFormattedOnline:format(ar - 30), 0.75, 0.9, 1)
 			end 
 			break 
 		end 
@@ -280,19 +280,19 @@ local function Guild_OnEnter(self, _, ap)
 			groupFormat = ""
 		end 
 		if IsShiftKeyDown() then
-			MOD.tooltip:AddDoubleLine(("%s |cff999999-|cffffffff %s"):format(member[1], member[2]), member[4], classColor.r, classColor.g, classColor.b, zoneColor.r, zoneColor.g, zoneColor.b)
+			Dock.DataTooltip:AddDoubleLine(("%s |cff999999-|cffffffff %s"):format(member[1], member[2]), member[4], classColor.r, classColor.g, classColor.b, zoneColor.r, zoneColor.g, zoneColor.b)
 			if member[5] ~= ""then
-				MOD.tooltip:AddLine(guildFormattedNote:format(member[5]), 0.75, 0.9, 1, 1)
+				Dock.DataTooltip:AddLine(guildFormattedNote:format(member[5]), 0.75, 0.9, 1, 1)
 			end 
 			if member[6] ~= ""then
-				MOD.tooltip:AddLine(guildFormattedRank:format(member[6]), 0.3, 1, 0.3, 1)
+				Dock.DataTooltip:AddLine(guildFormattedRank:format(member[6]), 0.3, 1, 0.3, 1)
 			end 
 		else
-			MOD.tooltip:AddDoubleLine(("|cff%02x%02x%02x%d|r %s%s %s"):format(questColor.r*255, questColor.g*255, questColor.b*255, member[3], member[1], groupFormat, member[8]), member[4], classColor.r, classColor.g, classColor.b, zoneColor.r, zoneColor.g, zoneColor.b)
+			Dock.DataTooltip:AddDoubleLine(("|cff%02x%02x%02x%d|r %s%s %s"):format(questColor.r*255, questColor.g*255, questColor.b*255, member[3], member[1], groupFormat, member[8]), member[4], classColor.r, classColor.g, classColor.b, zoneColor.r, zoneColor.g, zoneColor.b)
 		end 
 		counter = counter + 1 
 	end 
-	MOD:ShowTip()
+	Dock:ShowDataTip()
 	if not ap then
 		GuildRoster()
 	end 
@@ -307,4 +307,4 @@ local GuildColorUpdate = function()
 end 
 SV.Events:On("SVUI_COLORS_UPDATED", "GuildColorUpdates", GuildColorUpdate)
 
-MOD:Extend('Guild', StatEvents, Guild_OnEvent, nil, Guild_OnClick, Guild_OnEnter)
+Dock:NewDataType('Guild', StatEvents, Guild_OnEvent, nil, Guild_OnClick, Guild_OnEnter)

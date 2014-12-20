@@ -13,7 +13,7 @@ _____/\\\\\\\\\\\____/\\\________/\\\__/\\\________/\\\__/\\\\\\\\\\\_       #
 S U P E R - V I L L A I N - U I   By: Munglunch                              #
 ##############################################################################
 
-STATS:Extend EXAMPLE USAGE: MOD:Extend(newStat,eventList,onEvents,update,click,focus,blur)
+STATS:Extend EXAMPLE USAGE: Dock:NewDataType(newStat,eventList,onEvents,update,click,focus,blur)
 
 ########################################################## 
 LOCALIZED LUA FUNCTIONS
@@ -33,7 +33,7 @@ GET ADDON DATA
 ]]--
 local SV = select(2, ...)
 local L = SV.L;
-local MOD = SV.SVStats;
+local Dock = SV.Dock;
 --[[ 
 ########################################################## 
 GOLD STATS
@@ -60,18 +60,18 @@ local function TokenInquiry(id, weekly, capped)
       else
         altStr = ("Current: %d / %d | Weekly: %d / %d"):format(amount, maxed, week, weekmax)
       end
-      MOD.tooltip:AddDoubleLine(texStr, altStr, r, g, b, r, g, b)
+      Dock.DataTooltip:AddDoubleLine(texStr, altStr, r, g, b, r, g, b)
     end
   elseif capped then
     if id == 392 or id == 395 then maxed = 4000 end
     if id == 396 then maxed = 3000 end
     if discovered then
       altStr = ("%d / %d"):format(amount, maxed)
-      MOD.tooltip:AddDoubleLine(texStr, altStr, r, g, b, r, g, b)
+      Dock.DataTooltip:AddDoubleLine(texStr, altStr, r, g, b, r, g, b)
     end
   else
     if discovered then
-      MOD.tooltip:AddDoubleLine(texStr, amount, r, g, b, r, g, b)
+      Dock.DataTooltip:AddDoubleLine(texStr, amount, r, g, b, r, g, b)
     end
   end
 end
@@ -84,11 +84,11 @@ local function TokensEventHandler(self, event,...)
     self.text:SetText(currentText)
 end 
 
-local function AddToTokenMenu(parent, id)
+local function AddToTokenMenu(parent, id, key)
 	local name, _, tex, _, _, _, _ = GetCurrencyInfo(id)
 	local itemName = "\124T"..tex..":12\124t "..name;
 	local fn = function() 
-		MOD.Accountant[playerRealm]["tokens"][playerName][parent.SlotKey] = id;
+		Dock.Accountant["tokens"][playerName][key] = id;
     parent.TokenKey = id
 		TokensEventHandler(parent)
 	end  
@@ -96,64 +96,65 @@ local function AddToTokenMenu(parent, id)
 end
 
 local function CacheTokenData(self)
-    twipe(self.TokenList)
-    local prof1, prof2, archaeology, _, cooking = GetProfessions()
+    twipe(self.TokenList);
+    local prof1, prof2, archaeology, _, cooking = GetProfessions();
+    local key = self:GetName();
     if archaeology then
-        AddToTokenMenu(self, 398)
-        AddToTokenMenu(self, 384)
-        AddToTokenMenu(self, 393)
-        AddToTokenMenu(self, 677)
-        AddToTokenMenu(self, 400)
-        AddToTokenMenu(self, 394)
-        AddToTokenMenu(self, 397)
-        AddToTokenMenu(self, 676)
-        AddToTokenMenu(self, 401)
-        AddToTokenMenu(self, 385)
-        AddToTokenMenu(self, 399)
-        AddToTokenMenu(self, 821)
-        AddToTokenMenu(self, 829)
-        AddToTokenMenu(self, 944)
+        AddToTokenMenu(self, 398, key)
+        AddToTokenMenu(self, 384, key)
+        AddToTokenMenu(self, 393, key)
+        AddToTokenMenu(self, 677, key)
+        AddToTokenMenu(self, 400, key)
+        AddToTokenMenu(self, 394, key)
+        AddToTokenMenu(self, 397, key)
+        AddToTokenMenu(self, 676, key)
+        AddToTokenMenu(self, 401, key)
+        AddToTokenMenu(self, 385, key)
+        AddToTokenMenu(self, 399, key)
+        AddToTokenMenu(self, 821, key)
+        AddToTokenMenu(self, 829, key)
+        AddToTokenMenu(self, 944, key)
     end
     if cooking then
-        AddToTokenMenu(self, 81)
-        AddToTokenMenu(self, 402)
+        AddToTokenMenu(self, 81, key)
+        AddToTokenMenu(self, 402, key)
     end
     if(prof1 == 9 or prof2 == 9) then
-        AddToTokenMenu(self, 61)
-        AddToTokenMenu(self, 361)
-        AddToTokenMenu(self, 698)
+        AddToTokenMenu(self, 61, key)
+        AddToTokenMenu(self, 361, key)
+        AddToTokenMenu(self, 698, key)
 
-        AddToTokenMenu(self, 910)
-        AddToTokenMenu(self, 999)
-        AddToTokenMenu(self, 1020)
-        AddToTokenMenu(self, 1008)
-        AddToTokenMenu(self, 1017)
+        AddToTokenMenu(self, 910, key)
+        AddToTokenMenu(self, 999, key)
+        AddToTokenMenu(self, 1020, key)
+        AddToTokenMenu(self, 1008, key)
+        AddToTokenMenu(self, 1017, key)
     end
-    AddToTokenMenu(self, 697, false, true)
-    AddToTokenMenu(self, 738)
-    AddToTokenMenu(self, 615)
-    AddToTokenMenu(self, 614)
-    AddToTokenMenu(self, 395, false, true)
-    AddToTokenMenu(self, 396, false, true)
-    AddToTokenMenu(self, 390, true)
-    AddToTokenMenu(self, 392, false, true)
-    AddToTokenMenu(self, 391)
-    AddToTokenMenu(self, 241)
-    AddToTokenMenu(self, 416)
-    AddToTokenMenu(self, 515)
-    AddToTokenMenu(self, 776)
-    AddToTokenMenu(self, 777)
-    AddToTokenMenu(self, 789)
-    AddToTokenMenu(self, 823)
-    AddToTokenMenu(self, 824)
+    AddToTokenMenu(self, 697, key)
+    AddToTokenMenu(self, 738, key)
+    AddToTokenMenu(self, 615, key)
+    AddToTokenMenu(self, 614, key)
+    AddToTokenMenu(self, 395, key)
+    AddToTokenMenu(self, 396, key)
+    AddToTokenMenu(self, 390, key)
+    AddToTokenMenu(self, 392, key)
+    AddToTokenMenu(self, 391, key)
+    AddToTokenMenu(self, 241, key)
+    AddToTokenMenu(self, 416, key)
+    AddToTokenMenu(self, 515, key)
+    AddToTokenMenu(self, 776, key)
+    AddToTokenMenu(self, 777, key)
+    AddToTokenMenu(self, 789, key)
+    AddToTokenMenu(self, 823, key)
+    AddToTokenMenu(self, 824, key)
 end
 
 local function Tokens_OnEnter(self)
-	MOD:Tip(self)
-	MOD.tooltip:AddLine(playerName .. "\'s Tokens")
+	Dock:SetDataTip(self)
+	Dock.DataTooltip:AddLine(playerName .. "\'s Tokens")
 
-	MOD.tooltip:AddLine(" ")
-	MOD.tooltip:AddLine("Common")
+	Dock.DataTooltip:AddLine(" ")
+	Dock.DataTooltip:AddLine("Common")
 	TokenInquiry(241)
 	TokenInquiry(416)
 	TokenInquiry(515)
@@ -161,8 +162,8 @@ local function Tokens_OnEnter(self)
 	TokenInquiry(777)
 	TokenInquiry(789)
 
-  MOD.tooltip:AddLine(" ")
-  MOD.tooltip:AddLine("Garrison")
+  Dock.DataTooltip:AddLine(" ")
+  Dock.DataTooltip:AddLine("Garrison")
   TokenInquiry(823)
   TokenInquiry(824)
   TokenInquiry(910)
@@ -171,8 +172,8 @@ local function Tokens_OnEnter(self)
   TokenInquiry(1008)
   TokenInquiry(1017)
 
-	MOD.tooltip:AddLine(" ")
-	MOD.tooltip:AddLine("Raiding and Dungeons")
+	Dock.DataTooltip:AddLine(" ")
+	Dock.DataTooltip:AddLine("Raiding and Dungeons")
 	TokenInquiry(697, false, true)
 	TokenInquiry(738)
 	TokenInquiry(615)
@@ -180,16 +181,16 @@ local function Tokens_OnEnter(self)
 	TokenInquiry(395, false, true)
 	TokenInquiry(396, false, true)
 
-	MOD.tooltip:AddLine(" ")
-	MOD.tooltip:AddLine("PvP")
+	Dock.DataTooltip:AddLine(" ")
+	Dock.DataTooltip:AddLine("PvP")
 	TokenInquiry(390, true)
 	TokenInquiry(392, false, true)
 	TokenInquiry(391)
 
 	local prof1, prof2, archaeology, _, cooking = GetProfessions()
 	if(archaeology or cooking or prof1 == 9 or prof2 == 9) then
-		MOD.tooltip:AddLine(" ")
-		MOD.tooltip:AddLine("Professions")
+		Dock.DataTooltip:AddLine(" ")
+		Dock.DataTooltip:AddLine("Professions")
 	end
 	if cooking then
 		TokenInquiry(81)
@@ -216,9 +217,9 @@ local function Tokens_OnEnter(self)
 		TokenInquiry(385)
 		TokenInquiry(399)
 	end
-	MOD.tooltip:AddLine(" ")
-  MOD.tooltip:AddDoubleLine("[Shift + Click]", "Change Watched Token", 0,1,0, 0.5,1,0.5)
-	MOD:ShowTip(true)
+	Dock.DataTooltip:AddLine(" ")
+  Dock.DataTooltip:AddDoubleLine("[Shift + Click]", "Change Watched Token", 0,1,0, 0.5,1,0.5)
+	Dock:ShowDataTip(true)
 end 
 
 local function Tokens_OnClick(self, button)
@@ -227,10 +228,11 @@ local function Tokens_OnClick(self, button)
 end
 
 local function Tokens_OnInit(self)
-  local key = self.SlotKey
-  MOD.Accountant[playerRealm]["tokens"][playerName][key] = MOD.Accountant[playerRealm]["tokens"][playerName][key] or 738;
-  self.TokenKey = MOD.Accountant[playerRealm]["tokens"][playerName][key]
+  Dock:SetAccountantData('tokens', 'table', {})
+  local key = self:GetName()
+  Dock.Accountant["tokens"][playerName][key] = Dock.Accountant["tokens"][playerName][key] or 738;
+  self.TokenKey = Dock.Accountant["tokens"][playerName][key]
   CacheTokenData(self);
 end
 
-MOD:Extend('Tokens', TokenEvents, TokensEventHandler, nil,  Tokens_OnClick,  Tokens_OnEnter, nil, Tokens_OnInit)
+Dock:NewDataType('Tokens', TokenEvents, TokensEventHandler, nil,  Tokens_OnClick,  Tokens_OnEnter, nil, Tokens_OnInit)

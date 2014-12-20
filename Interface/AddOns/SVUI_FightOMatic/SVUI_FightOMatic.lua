@@ -852,26 +852,26 @@ local function MakeInfoWindow()
 	leftColumn:SetSizeToScale(DATA_WIDTH, DATA_HEIGHT)
 	leftColumn:SetPointToScale("LEFT", frame, "LEFT", 0, 0)
 	leftColumn.lockedOpen = true
-	SV.SVStats:NewAnchor(leftColumn, 3, "ANCHOR_CURSOR", nil, "Transparent", true)
+	SV.Dock:NewDataHolder(leftColumn, 3, "ANCHOR_CURSOR", nil, "Transparent", true)
 	leftColumn:SetFrameLevel(0)
 
 	local rightColumn = CreateFrame("Frame", "SVUI_FightOMaticInfoRight", frame)
 	rightColumn:SetSizeToScale(DATA_WIDTH, DATA_HEIGHT)
 	rightColumn:SetPointToScale("LEFT", leftColumn, "RIGHT", 2, 0)
 	rightColumn.lockedOpen = true
-	SV.SVStats:NewAnchor(rightColumn, 3, "ANCHOR_CURSOR", nil, "Transparent", true)
+	SV.Dock:NewDataHolder(rightColumn, 3, "ANCHOR_CURSOR", nil, "Transparent", true)
 	rightColumn:SetFrameLevel(0)
 
 	PLUGIN.INFO = frame
 
 	_G["SVUI_FightOMaticTool4"].Window = PLUGIN.INFO
 
-	SV.SVStats.BGPanels = {
+	SV.Dock.BGPanels = {
 		["SVUI_FightOMaticInfoLeft"] = {top = "Honor", middle = "Kills", bottom = "Assists"},
 		["SVUI_FightOMaticInfoRight"] = {top = "Damage", middle = "Healing", bottom = "Deaths"}
 	}
 
-	SV.SVStats:Generate()
+	SV.Dock:UpdateDataSlots()
 
 	PLUGIN.INFO:Hide()
 end

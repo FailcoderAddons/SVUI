@@ -13,7 +13,7 @@ _____/\\\\\\\\\\\____/\\\________/\\\__/\\\________/\\\__/\\\\\\\\\\\_       #
 S U P E R - V I L L A I N - U I   By: Munglunch                              #
 ##############################################################################
 
-STATS:Extend EXAMPLE USAGE: MOD:Extend(newStat,eventList,onEvents,update,click,focus,blur)
+STATS:Extend EXAMPLE USAGE: Dock:NewDataType(newStat,eventList,onEvents,update,click,focus,blur)
 
 ########################################################## 
 LOCALIZED LUA FUNCTIONS
@@ -51,7 +51,7 @@ GET ADDON DATA
 ]]--
 local SV = select(2, ...)
 local L = SV.L
-local MOD = SV.SVStats;
+local Dock = SV.Dock;
 --[[ 
 ########################################################## 
 CALL TO ARMS STATS
@@ -112,7 +112,7 @@ local function CTA_OnClick()
 end 
 
 local function CTA_OnEnter(self)
-	MOD:Tip(self)
+	Dock:SetDataTip(self)
 	local counter = 0;
 	for r = 1, GetNumRandomDungeons()do
 		local isTank = false;
@@ -138,14 +138,14 @@ local function CTA_OnEnter(self)
 		if not isNormal then
 			local text = formatCTAtext(isTank,isHeal,isDPS)
 			if text ~= "" then
-				MOD.tooltip:AddDoubleLine(name..":", text, 1, 1, 1)
+				Dock.DataTooltip:AddDoubleLine(name..":", text, 1, 1, 1)
 			end 
 			if isTank or isHeal or isDPS then
 				counter = counter + 1 
 			end 
 		end
 	end 
-	MOD:ShowTip()
+	Dock:ShowDataTip()
 end 
 
 local CTAColorUpdate = function()
@@ -157,4 +157,4 @@ local CTAColorUpdate = function()
 end 
 SV.Events:On("SVUI_COLORS_UPDATED", "CTAColorUpdates", CTAColorUpdate)
 
-MOD:Extend('Call to Arms', StatEvents, CTA_OnEvent, nil, CTA_OnClick, CTA_OnEnter)
+Dock:NewDataType('Call to Arms', StatEvents, CTA_OnEvent, nil, CTA_OnClick, CTA_OnEnter)

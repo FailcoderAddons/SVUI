@@ -13,7 +13,7 @@ _____/\\\\\\\\\\\____/\\\________/\\\__/\\\________/\\\__/\\\\\\\\\\\_       #
 S U P E R - V I L L A I N - U I   By: Munglunch                              #
 ##############################################################################
 
-STATS:Extend EXAMPLE USAGE: MOD:Extend(newStat,eventList,onEvents,update,click,focus,blur)
+STATS:Extend EXAMPLE USAGE: Dock:NewDataType(newStat,eventList,onEvents,update,click,focus,blur)
 
 ########################################################## 
 LOCALIZED LUA FUNCTIONS
@@ -39,7 +39,7 @@ GET ADDON DATA
 ]]--
 local SV = select(2, ...)
 local L = SV.L;
-local MOD = SV.SVStats;
+local Dock = SV.Dock;
 --[[ 
 ########################################################## 
 SYSTEM STATS (Credit: Elv)
@@ -136,82 +136,82 @@ end
 local function OnEnter(self)
 	enteredFrame = true;
 	local cpuProfiling = false --GetCVar("scriptProfile") == "1"
-	MOD:Tip(self)
+	Dock:SetDataTip(self)
 
 	UpdateMemory()	
 	bandwidth = GetAvailableBandwidth()
 	
-	MOD.tooltip:AddDoubleLine(L['Home Latency:'], homeLatencyString:format(select(3, GetNetStats())), 0.69, 0.31, 0.31,0.84, 0.75, 0.65)
+	Dock.DataTooltip:AddDoubleLine(L['Home Latency:'], homeLatencyString:format(select(3, GetNetStats())), 0.69, 0.31, 0.31,0.84, 0.75, 0.65)
 	
 	if bandwidth ~= 0 then
 		local percent = GetDownloadedPercentage()
 		percent = percent * 100
-		MOD.tooltip:AddDoubleLine(L['Bandwidth'] , bandwidthString:format(bandwidth), 0.69, 0.31, 0.31,0.84, 0.75, 0.65)
-		MOD.tooltip:AddDoubleLine(L['Download'] , percentageString:format(percent), 0.69, 0.31, 0.31, 0.84, 0.75, 0.65)
-		MOD.tooltip:AddLine(" ")
+		Dock.DataTooltip:AddDoubleLine(L['Bandwidth'] , bandwidthString:format(bandwidth), 0.69, 0.31, 0.31,0.84, 0.75, 0.65)
+		Dock.DataTooltip:AddDoubleLine(L['Download'] , percentageString:format(percent), 0.69, 0.31, 0.31, 0.84, 0.75, 0.65)
+		Dock.DataTooltip:AddLine(" ")
 	end
 	
 	local totalCPU = nil
-	MOD.tooltip:AddDoubleLine(L['Total Memory:'], formatMem(totalMemory), 0.69, 0.31, 0.31,0.84, 0.75, 0.65)
+	Dock.DataTooltip:AddDoubleLine(L['Total Memory:'], formatMem(totalMemory), 0.69, 0.31, 0.31,0.84, 0.75, 0.65)
 	if cpuProfiling then
 		totalCPU = UpdateCPU()
-		MOD.tooltip:AddDoubleLine(L['Total CPU:'], homeLatencyString:format(totalCPU), 0.69, 0.31, 0.31,0.84, 0.75, 0.65)
+		Dock.DataTooltip:AddDoubleLine(L['Total CPU:'], homeLatencyString:format(totalCPU), 0.69, 0.31, 0.31,0.84, 0.75, 0.65)
 	end
 	
 	local red, green
 	if IsShiftKeyDown() or not cpuProfiling then
-		MOD.tooltip:AddLine(" ")
+		Dock.DataTooltip:AddLine(" ")
 		for i = 1, #memoryTable do
 			if (memoryTable[i][4]) then
 				red = memoryTable[i][3] / totalMemory
 				green = 1 - red
-				MOD.tooltip:AddDoubleLine(memoryTable[i][2], formatMem(memoryTable[i][3]), 1, 1, 1, red, green + .5, 0)
+				Dock.DataTooltip:AddDoubleLine(memoryTable[i][2], formatMem(memoryTable[i][3]), 1, 1, 1, red, green + .5, 0)
 			end						
 		end
 	end
 	
 	if cpuProfiling and not IsShiftKeyDown() then
-		MOD.tooltip:AddLine(" ")
+		Dock.DataTooltip:AddLine(" ")
 		for i = 1, #cpuTable do
 			if (cpuTable[i][4]) then
 				red = cpuTable[i][3] / totalCPU
 				green = 1 - red
-				MOD.tooltip:AddDoubleLine(cpuTable[i][2], homeLatencyString:format(cpuTable[i][3]), 1, 1, 1, red, green + .5, 0)
+				Dock.DataTooltip:AddDoubleLine(cpuTable[i][2], homeLatencyString:format(cpuTable[i][3]), 1, 1, 1, red, green + .5, 0)
 			end						
 		end
 
-		-- if(MOD.DebugList) then
-		-- 	MOD.tooltip:AddLine(" ")
-		-- 	for _,schema in pairs(MOD.DebugList) do
+		-- if(Dock.DebugList) then
+		-- 	Dock.DataTooltip:AddLine(" ")
+		-- 	for _,schema in pairs(Dock.DebugList) do
 		--         local obj = SV[schema]
 		--         if obj and obj.___eventframe then
 		--             local upTime, numEvents = GetFrameCPUUsage(obj.___eventframe)
 		--             local eventString = ("%s:"):format(schema)
 		-- 			local eventResults = ("Calls: |cffFFFF00%d|r @: |cffFFFF00%dms|r"):format(numEvents, upTime)
-		-- 			MOD.tooltip:AddDoubleLine(eventString, eventResults, 1, 0.5, 0, 1, 1, 1)
+		-- 			Dock.DataTooltip:AddDoubleLine(eventString, eventResults, 1, 0.5, 0, 1, 1, 1)
 		--         end
 		--     end
 		-- end
 
-		-- MOD.tooltip:AddLine(" ")
+		-- Dock.DataTooltip:AddLine(" ")
 		-- for i = 1, #eventTable do
 		-- 	local upTime, numEvents = GetEventCPUUsage(eventTable[i])
 		-- 	local eventString = ("%s:"):format(eventTable[i])
 		-- 	local eventResults = ("Calls: |cffFFFF00%d|r @: |cffFFFF00%dms|r"):format(numEvents, upTime)
-		-- 	MOD.tooltip:AddDoubleLine(eventString, eventResults, 1, 0.5, 0, 1, 1, 1)
+		-- 	Dock.DataTooltip:AddDoubleLine(eventString, eventResults, 1, 0.5, 0, 1, 1, 1)
 		-- end
 
 
-		MOD.tooltip:AddLine(" ")
-		MOD.tooltip:AddLine(L['(Hold Shift) Memory Usage'])
+		Dock.DataTooltip:AddLine(" ")
+		Dock.DataTooltip:AddLine(L['(Hold Shift) Memory Usage'])
 	end
 	
-	MOD.tooltip:Show()
+	Dock.DataTooltip:Show()
 end
 
 local function OnLeave(self)
 	enteredFrame = false;
-	MOD.tooltip:Hide()
+	Dock.DataTooltip:Hide()
 end
 
 local Update = function(self, t)
@@ -276,7 +276,7 @@ end
 -- 	end
 -- end
 
-MOD:Extend('System', nil, nil, Update, Click, OnEnter, OnLeave)
+Dock:NewDataType('System', nil, nil, Update, Click, OnEnter, OnLeave)
 
 --[[
 OTHER CHECKS

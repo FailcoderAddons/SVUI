@@ -13,7 +13,7 @@ _____/\\\\\\\\\\\____/\\\________/\\\__/\\\________/\\\__/\\\\\\\\\\\_       #
 S U P E R - V I L L A I N - U I   By: Munglunch                              #
 ##############################################################################
 
-STATS:Extend EXAMPLE USAGE: MOD:Extend(newStat,eventList,onEvents,update,click,focus,blur)
+STATS:Extend EXAMPLE USAGE: Dock:NewDataType(newStat,eventList,onEvents,update,click,focus,blur)
 
 ########################################################## 
 LOCALIZED LUA FUNCTIONS
@@ -52,7 +52,7 @@ GET ADDON DATA
 local SV = select(2, ...)
 local L = SV.L
 local LSM = LibStub("LibSharedMedia-3.0")
-local MOD = SV.SVStats;
+local Dock = SV.Dock;
 --[[ 
 ########################################################## 
 DURABILITY STATS
@@ -85,7 +85,7 @@ local function Durability_OnEvent(self, ...)
 		self.text:SetAllPoints(self)
 		self.text:SetJustifyH("CENTER")
 		self.barframe:Hide()
-		self.text:FontManager(LSM:Fetch("font",SV.db.SVStats.font),SV.db.SVStats.fontSize,SV.db.SVStats.fontOutline)
+		self.text:FontManager(LSM:Fetch("font",SV.db.Dock.font),SV.db.Dock.fontSize,SV.db.Dock.fontOutline)
 	end 
 	for slot,name in pairs(inventoryMap)do 
 		local slotID = GetInventorySlotInfo(slot)
@@ -106,7 +106,7 @@ local function DurabilityBar_OnEvent(self, ...)
 	if not self.barframe:IsShown() then 
 		self.barframe:Show()
 		self.barframe.icon.texture:SetTexture("Interface\\Addons\\SVUI\\assets\\artwork\\Icons\\STAT-DUR")
-		self.text:FontManager(LSM:Fetch("font",SV.db.SVStats.font),SV.db.SVStats.fontSize,"NONE")
+		self.text:FontManager(LSM:Fetch("font",SV.db.Dock.font),SV.db.Dock.fontSize,"NONE")
 	end 
 	for slot,name in pairs(inventoryMap)do 
 		local slotID = GetInventorySlotInfo(slot)
@@ -131,11 +131,11 @@ local function Durability_OnClick()
 end 
 
 local function Durability_OnEnter(self)
-	MOD:Tip(self)
+	Dock:SetDataTip(self)
 	for name,amt in pairs(equipment)do
-		MOD.tooltip:AddDoubleLine(name, format("%d%%", amt),1, 1, 1, SV:ColorGradient(amt * 0.01, 1, 0, 0, 1, 1, 0, 0, 1, 0))
+		Dock.DataTooltip:AddDoubleLine(name, format("%d%%", amt),1, 1, 1, SV:ColorGradient(amt * 0.01, 1, 0, 0, 1, 1, 0, 0, 1, 0))
 	end 
-	MOD:ShowTip()
+	Dock:ShowDataTip()
 end 
 
 local DurColorUpdate = function()
@@ -146,5 +146,5 @@ local DurColorUpdate = function()
 end 
 SV.Events:On("SVUI_COLORS_UPDATED", "DurColorUpdates", DurColorUpdate)
 
-MOD:Extend("Durability", StatEvents, Durability_OnEvent, nil, Durability_OnClick, Durability_OnEnter)
-MOD:Extend("Durability Bar", StatEvents, DurabilityBar_OnEvent, nil, Durability_OnClick, Durability_OnEnter)
+Dock:NewDataType("Durability", StatEvents, Durability_OnEvent, nil, Durability_OnClick, Durability_OnEnter)
+Dock:NewDataType("Durability Bar", StatEvents, DurabilityBar_OnEvent, nil, Durability_OnClick, Durability_OnEnter)

@@ -13,7 +13,7 @@ _____/\\\\\\\\\\\____/\\\________/\\\__/\\\________/\\\__/\\\\\\\\\\\_       #
 S U P E R - V I L L A I N - U I   By: Munglunch                              #
 ##############################################################################
 
-STATS:Extend EXAMPLE USAGE: MOD:Extend(newStat,eventList,onEvents,update,click,focus,blur)
+STATS:Extend EXAMPLE USAGE: Dock:NewDataType(newStat,eventList,onEvents,update,click,focus,blur)
 
 ########################################################## 
 LOCALIZED LUA FUNCTIONS
@@ -38,7 +38,7 @@ GET ADDON DATA
 local SV = select(2, ...)
 local L = SV.L;
 local LSM = LibStub("LibSharedMedia-3.0")
-local MOD = SV.SVStats;
+local Dock = SV.Dock;
 --[[ 
 ########################################################## 
 EXPERIENCE STATS
@@ -71,7 +71,7 @@ local function Experience_OnEvent(self, ...)
 		self.text:SetAllPoints(self)
 		self.text:SetJustifyH("CENTER")
 		self.barframe:Hide()
-		self.text:FontManager(LSM:Fetch("font",SV.db.SVStats.font),SV.db.SVStats.fontSize,SV.db.SVStats.fontOutline)
+		self.text:FontManager(LSM:Fetch("font",SV.db.Dock.font),SV.db.Dock.fontSize,SV.db.Dock.fontOutline)
 	end 
 	local f, g = getUnitXP("player")
 	local h = GetXPExhaustion()
@@ -85,15 +85,10 @@ local function Experience_OnEvent(self, ...)
 end 
 
 local function ExperienceBar_OnEvent(self, ...)
-	-- if (UnitLevel("player") == GetMaxPlayerLevel())then
-	-- 	self:Hide()
-	-- 	MOD:UnSet(self)
-	-- 	return
-	-- end
 	if (not self.barframe:IsShown())then
 		self.barframe:Show()
 		self.barframe.icon.texture:SetTexture("Interface\\Addons\\SVUI\\assets\\artwork\\Icons\\STAT-XP")
-		self.text:FontManager(LSM:Fetch("font",SV.db.SVStats.font),SV.db.SVStats.fontSize,"NONE")
+		self.text:FontManager(LSM:Fetch("font",SV.db.Dock.font),SV.db.Dock.fontSize,"NONE")
 	end
 	if not self.barframe.bar.extra:IsShown() then
 		self.barframe.bar.extra:Show()
@@ -117,26 +112,19 @@ local function ExperienceBar_OnEvent(self, ...)
 end 
 
 local function Experience_OnEnter(self)
-	MOD:Tip(self)
+	Dock:SetDataTip(self)
 	local XP, maxXP = getUnitXP("player")
 	local h = GetXPExhaustion()
-	MOD.tooltip:AddLine(L["Experience"])
-	MOD.tooltip:AddLine(" ")
+	Dock.DataTooltip:AddLine(L["Experience"])
+	Dock.DataTooltip:AddLine(" ")
 
-	MOD.tooltip:AddDoubleLine(L["XP:"], (" %d  /  %d (%d%%)"):format(XP, maxXP, (XP / maxXP) * 100), 1, 1, 1)
-	MOD.tooltip:AddDoubleLine(L["Remaining:"], (" %d (%d%% - %d "..L["Bars"]..")"):format(maxXP - XP, (maxXP - XP) / maxXP * 100, 20 * (maxXP - XP) / maxXP), 1, 1, 1)
+	Dock.DataTooltip:AddDoubleLine(L["XP:"], (" %d  /  %d (%d%%)"):format(XP, maxXP, (XP / maxXP) * 100), 1, 1, 1)
+	Dock.DataTooltip:AddDoubleLine(L["Remaining:"], (" %d (%d%% - %d "..L["Bars"]..")"):format(maxXP - XP, (maxXP - XP) / maxXP * 100, 20 * (maxXP - XP) / maxXP), 1, 1, 1)
 	if h then
-		MOD.tooltip:AddDoubleLine(L["Rested:"], format(" + %d (%d%%)", h, h / maxXP * 100), 1, 1, 1)
+		Dock.DataTooltip:AddDoubleLine(L["Rested:"], format(" + %d (%d%%)", h, h / maxXP * 100), 1, 1, 1)
 	end 
-	MOD:ShowTip()
+	Dock:ShowDataTip()
 end
 
-local function ExperienceBar_OnLoad(self)
-	if (UnitLevel("player") == GetMaxPlayerLevel()) then
-		self:Hide()
-		MOD:UnSet(self)
-	end
-end 
-
-MOD:Extend("Experience", StatEvents, Experience_OnEvent, nil, nil, Experience_OnEnter)
-MOD:Extend("Experience Bar", StatEvents, ExperienceBar_OnEvent, nil, nil, Experience_OnEnter)
+Dock:NewDataType("Experience", StatEvents, Experience_OnEvent, nil, nil, Experience_OnEnter)
+Dock:NewDataType("Experience Bar", StatEvents, ExperienceBar_OnEvent, nil, nil, Experience_OnEnter)

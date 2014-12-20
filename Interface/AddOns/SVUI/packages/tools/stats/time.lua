@@ -13,7 +13,7 @@ _____/\\\\\\\\\\\____/\\\________/\\\__/\\\________/\\\__/\\\\\\\\\\\_       #
 S U P E R - V I L L A I N - U I   By: Munglunch                              #
 ##############################################################################
 
-STATS:Extend EXAMPLE USAGE: MOD:Extend(newStat,eventList,onEvents,update,click,focus,blur)
+STATS:Extend EXAMPLE USAGE: Dock:NewDataType(newStat,eventList,onEvents,update,click,focus,blur)
 
 ########################################################## 
 LOCALIZED LUA FUNCTIONS
@@ -37,7 +37,7 @@ GET ADDON DATA
 ]]--
 local SV = select(2, ...)
 local L = SV.L
-local MOD = SV.SVStats;
+local Dock = SV.Dock;
 --[[ 
 ########################################################## 
 TIME STATS (Credit: Elv)
@@ -74,7 +74,7 @@ end
 
 local function ConvertTime(h, m)
 	local AmPm
-	if SV.db.SVStats.time24 == true then
+	if SV.db.Dock.time24 == true then
 		return h, m, -1
 	else
 		if h >= 12 then
@@ -89,7 +89,7 @@ local function ConvertTime(h, m)
 end
 
 local function CalculateTimeValues(tooltip)
-	if (tooltip and SV.db.SVStats.localtime) or (not tooltip and not SV.db.SVStats.localtime) then
+	if (tooltip and SV.db.Dock.localtime) or (not tooltip and not SV.db.Dock.localtime) then
 		return ConvertTime(GetGameTime())
 	else
 		local dateTable = date("*t")
@@ -102,7 +102,7 @@ local function Click()
 end
 
 local function OnLeave(self)
-	MOD.tooltip:Hide();
+	Dock.DataTooltip:Hide();
 	enteredFrame = false;
 end
 
@@ -113,14 +113,14 @@ local function OnEvent(self, event)
 end
 
 local function OnEnter(self)
-	MOD:Tip(self)
+	Dock:SetDataTip(self)
 
 	if(not enteredFrame) then
 		enteredFrame = true;
 		RequestRaidInfo()
 	end
 
-	MOD.tooltip:AddLine(VOICE_CHAT_BATTLEGROUND);
+	Dock.DataTooltip:AddLine(VOICE_CHAT_BATTLEGROUND);
 	for i = 1, GetNumWorldPVPAreas() do
 		_, localizedName, isActive, canQueue, startTime, canEnter = GetWorldPVPAreaInfo(i)
 		if canEnter then
@@ -131,7 +131,7 @@ local function OnEnter(self)
 			else
 				startTime = SecondsToTime(startTime, false, nil, 3)
 			end
-			MOD.tooltip:AddDoubleLine(format(formatBattleGroundInfo, localizedName), startTime, 1, 1, 1, lockoutColorNormal.r, lockoutColorNormal.g, lockoutColorNormal.b)	
+			Dock.DataTooltip:AddDoubleLine(format(formatBattleGroundInfo, localizedName), startTime, 1, 1, 1, lockoutColorNormal.r, lockoutColorNormal.g, lockoutColorNormal.b)	
 		end
 	end	
 
@@ -140,8 +140,8 @@ local function OnEnter(self)
 		name, _, reset, difficultyId, locked, extended, _, isRaid, maxPlayers, difficulty, numEncounters, encounterProgress  = GetSavedInstanceInfo(i)
 		if isRaid and (locked or extended) and name then
 			if not oneraid then
-				MOD.tooltip:AddLine(" ")
-				MOD.tooltip:AddLine(L["Saved Raid(s)"])
+				Dock.DataTooltip:AddLine(" ")
+				Dock.DataTooltip:AddLine(L["Saved Raid(s)"])
 				oneraid = true
 			end
 			if extended then 
@@ -152,9 +152,9 @@ local function OnEnter(self)
 			
 			local _, _, isHeroic, _ = GetDifficultyInfo(difficultyId)
 			if (numEncounters and numEncounters > 0) and (encounterProgress and encounterProgress > 0) then
-				MOD.tooltip:AddDoubleLine(format(lockoutInfoFormat, maxPlayers, (isHeroic and "H" or "N"), name, encounterProgress, numEncounters), SecondsToTime(reset, false, nil, 3), 1, 1, 1, lockoutColor.r, lockoutColor.g, lockoutColor.b)
+				Dock.DataTooltip:AddDoubleLine(format(lockoutInfoFormat, maxPlayers, (isHeroic and "H" or "N"), name, encounterProgress, numEncounters), SecondsToTime(reset, false, nil, 3), 1, 1, 1, lockoutColor.r, lockoutColor.g, lockoutColor.b)
 			else
-				MOD.tooltip:AddDoubleLine(format(lockoutInfoFormatNoEnc, maxPlayers, (isHeroic and "H" or "N"), name), SecondsToTime(reset, false, nil, 3), 1, 1, 1, lockoutColor.r, lockoutColor.g, lockoutColor.b)
+				Dock.DataTooltip:AddDoubleLine(format(lockoutInfoFormatNoEnc, maxPlayers, (isHeroic and "H" or "N"), name), SecondsToTime(reset, false, nil, 3), 1, 1, 1, lockoutColor.r, lockoutColor.g, lockoutColor.b)
 			end			
 		end
 	end	
@@ -164,27 +164,27 @@ local function OnEnter(self)
 		name, instanceID, reset = GetSavedWorldBossInfo(i)
 		if(reset) then
 			if(not addedLine) then
-				MOD.tooltip:AddLine(' ')
-				MOD.tooltip:AddLine(RAID_INFO_WORLD_BOSS.."(s)")
+				Dock.DataTooltip:AddLine(' ')
+				Dock.DataTooltip:AddLine(RAID_INFO_WORLD_BOSS.."(s)")
 				addedLine = true
 			end
-			MOD.tooltip:AddDoubleLine(name, SecondsToTime(reset, true, nil, 3), 1, 1, 1, 0.8, 0.8, 0.8)		
+			Dock.DataTooltip:AddDoubleLine(name, SecondsToTime(reset, true, nil, 3), 1, 1, 1, 0.8, 0.8, 0.8)		
 		end
 	end
 	
 	local timeText
 	local Hr, Min, AmPm = CalculateTimeValues(true)
 
-	MOD.tooltip:AddLine(" ")
+	Dock.DataTooltip:AddLine(" ")
 	if AmPm == -1 then
-		MOD.tooltip:AddDoubleLine(SV.db.SVStats.localtime and TIMEMANAGER_TOOLTIP_REALMTIME or TIMEMANAGER_TOOLTIP_LOCALTIME, 
+		Dock.DataTooltip:AddDoubleLine(SV.db.Dock.localtime and TIMEMANAGER_TOOLTIP_REALMTIME or TIMEMANAGER_TOOLTIP_LOCALTIME, 
 			format(europeDisplayFormat_nocolor, Hr, Min), 1, 1, 1, lockoutColorNormal.r, lockoutColorNormal.g, lockoutColorNormal.b)
 	else
-		MOD.tooltip:AddDoubleLine(SV.db.SVStats.localtime and TIMEMANAGER_TOOLTIP_REALMTIME or TIMEMANAGER_TOOLTIP_LOCALTIME,
+		Dock.DataTooltip:AddDoubleLine(SV.db.Dock.localtime and TIMEMANAGER_TOOLTIP_REALMTIME or TIMEMANAGER_TOOLTIP_LOCALTIME,
 			format(ukDisplayFormat_nocolor, Hr, Min, APM[AmPm]), 1, 1, 1, lockoutColorNormal.r, lockoutColorNormal.g, lockoutColorNormal.b)
 	end	
 	
-	MOD.tooltip:Show()
+	Dock.DataTooltip:Show()
 end
 
 local int = 3
@@ -235,4 +235,4 @@ end
 
 SV.Events:On("SVUI_COLORS_UPDATED", "TimeColorUpdates", TimeColorUpdate)
 
-MOD:Extend('Time', {"UPDATE_INSTANCE_INFO"}, OnEvent, Update, Click, OnEnter, OnLeave)
+Dock:NewDataType('Time', {"UPDATE_INSTANCE_INFO"}, OnEvent, Update, Click, OnEnter, OnLeave)

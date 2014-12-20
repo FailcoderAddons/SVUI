@@ -151,7 +151,49 @@ SV.defaults["media"] = {
             [safename(86659)] = {0.98, 0.57, 0.11}, --Guardian of Ancient Kings
         }
     }
-}
+};
+
+SV.defaults["Dock"] = {
+	["enable"] = true, 
+	["dockLeftWidth"] = 412, 
+	["dockLeftHeight"] = 224, 
+	["dockRightWidth"] = 412, 
+	["dockRightHeight"] = 224,
+	["dockCenterWidth"] = defaultCenterWidth,
+	["dockCenterHeight"] = 20,
+	["buttonSize"] = 30, 
+	["buttonSpacing"] = 4, 
+	["leftDockBackdrop"] = true, 
+	["rightDockBackdrop"] = true, 
+	["topPanel"] = true, 
+	["bottomPanel"] = true,
+	["dataFont"] = "SVUI Number Font", 
+	["dataFontSize"] = 11, 
+	["dataFontOutline"] = "OUTLINE",
+	["dataBackdrop"] = false,
+	["dataHolders"] = {
+		["SVUI_DockBottomCenter"] = {
+			[1] = "Experience Bar", 
+			[2] = "Time", 
+			[3] = "System",
+			[4] = "Gold", 
+			[5] = "Durability", 	
+			[6] = "Reputation Bar", 
+		}, 
+		["SVUI_DockTopCenter"] = {
+			[1] = "None", 
+			[2] = "None", 
+			[3] = "None",
+			[4] = "None", 
+			[5] = "None", 
+			[6] = "None", 
+		}, 
+	},
+	["shortGold"] = true,
+	["localtime"] = true, 
+	["time24"] = false, 
+	["battleground"] = true, 
+};
 
 SV.defaults["SVBar"] = {
 	["enable"] = true, 
@@ -472,22 +514,6 @@ SV.defaults["SVChat"] = {
 	["basicTools"] = true,
 };
 
-SV.defaults["Dock"] = {
-	["enable"] = true, 
-	["dockLeftWidth"] = 412, 
-	["dockLeftHeight"] = 224, 
-	["dockRightWidth"] = 412, 
-	["dockRightHeight"] = 224,
-	["dockCenterWidth"] = defaultCenterWidth,
-	["dockCenterHeight"] = 20,
-	["buttonSize"] = 30, 
-	["buttonSpacing"] = 4, 
-	["leftDockBackdrop"] = true, 
-	["rightDockBackdrop"] = true, 
-	["topPanel"] = true, 
-	["bottomPanel"] = true, 
-};
-
 SV.defaults["SVGear"] = {
 	["enable"] = true, 
 	["specialization"] = {
@@ -686,40 +712,6 @@ SV.defaults["SVPlate"] = {
 SV.defaults["SVQuest"] = {
     ["enable"] = true, 
     ["rowHeight"] = 20,
-}
-
-SV.defaults["SVStats"] = {
-	["enable"] = true, 
-	["font"] = "SVUI Number Font", 
-	["fontSize"] = 11, 
-	["fontOutline"] = "OUTLINE",
-	["showBackground"] = false,
-	["shortGold"] = true,
-	["docks"] = {
-		["SVUI_DockBottomCenterLeft"] = {
-			["left"] = "Experience Bar", 
-			["middle"] = "Time", 
-			["right"] = "System",  
-		}, 
-		["SVUI_DockBottomCenterRight"] = {
-			["left"] = "Gold", 
-			["middle"] = "Durability", 	
-			["right"] = "Reputation Bar", 
-		}, 
-		["SVUI_DockTopCenterLeft"] = {
-			["left"] = "None", 
-			["middle"] = "None", 
-			["right"] = "None",
-		},
-		["SVUI_DockTopCenterRight"] = {
-			["left"] = "None", 
-			["middle"] = "None", 
-			["right"] = "None", 
-		}, 
-	}, 
-	["localtime"] = true, 
-	["time24"] = false, 
-	["battleground"] = true, 
 };
 
 SV.defaults["SVTip"] = {
@@ -1288,9 +1280,9 @@ SV.defaults["SVUnit"] = {
 			["perrow"] = 7, 
 			["numrows"] = 1, 
 			["attachTo"] = "FRAME", 
-			["anchorPoint"] = "BOTTOMLEFT", 
-			["verticalGrowth"] = "DOWN", 
-			["horizontalGrowth"] = "RIGHT",
+			["anchorPoint"] = "TOPRIGHT", 
+			["verticalGrowth"] = "UP", 
+			["horizontalGrowth"] = "LEFT",
 			["filterWhiteList"] = 
 			{
 				friendly = false, 
@@ -1323,7 +1315,7 @@ SV.defaults["SVUnit"] = {
 			}, 
 			["useFilter"] = "", 
 			["xOffset"] =  0, 
-			["yOffset"] =  -8, 
+			["yOffset"] =  4, 
 			["sizeOverride"] = 0, 
 		}, 
 		["debuffs"] = 
@@ -1331,10 +1323,10 @@ SV.defaults["SVUnit"] = {
 			["enable"] = false, 
 			["perrow"] = 5, 
 			["numrows"] = 1, 
-			["attachTo"] = "FRAME", 
-			["anchorPoint"] = "TOPLEFT", 
+			["attachTo"] = "BUFFS", 
+			["anchorPoint"] = "TOPRIGHT", 
 			["verticalGrowth"] = "UP", 
-			["horizontalGrowth"] = "RIGHT",
+			["horizontalGrowth"] = "LEFT",
 			["filterWhiteList"] = 
 			{
 				friendly = false, 
@@ -1362,7 +1354,7 @@ SV.defaults["SVUnit"] = {
 			}, 
 			["useFilter"] = "", 
 			["xOffset"] =  0, 
-			["yOffset"] =  8, 
+			["yOffset"] =  4, 
 			["sizeOverride"] = 0, 
 		}, 
 		["icons"] = 

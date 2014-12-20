@@ -79,11 +79,6 @@ local DOCK_LOCATIONS = {
 	["TopRight"] = {-1, "RIGHT", false, "ANCHOR_BOTTOMLEFT"},
 };
 
-local STAT_LOCATIONS = {
-	["BottomCenter"] = {1, "LEFT", true, "ANCHOR_TOPLEFT"},
-	["TopCenter"] = {1, "LEFT", false, "ANCHOR_BOTTOMLEFT"},
-};
-
 local Dock = SV:NewClass("Dock", L["Docks"]);
 
 Dock.Border = {};
@@ -101,9 +96,8 @@ DOCK_DROPDOWN_OPTIONS["TopLeft"] = { text = "To TopLeft", func = function(button
 SOUND EFFECTS
 ##########################################################
 ]]--
-local SoundEffect = LibSuperVillain("Sounds");
-local ButtonSound = SoundEffect:Foley("Button");
-local ErrorSound = SoundEffect:Foley("Error");
+local ButtonSound = SV.Sounds:Blend("DockButton", "Buttons", "Levers");
+local ErrorSound = SV.Sounds:Blend("Malfunction", "Sparks", "Wired");
 --[[ 
 ########################################################## 
 CORE FUNCTIONS
@@ -121,7 +115,8 @@ _G.HideSuperDocks = function(self, button)
 			Dock.BottomRight:FadeIn(0.2, Dock.BottomRight:GetAlpha(), 1)
 			Dock.BottomRight.Bar:FadeIn(0.2, Dock.BottomRight.Bar:GetAlpha(), 1)
 			SV.Events:Trigger("DOCKS_FADE_IN");
-			PlaySoundFile([[sound\interface\ui_etherealwindow_open.ogg]])
+			PlaySoundFile([[sound\doodad\be_scryingorb_explode.ogg]])
+			--PlaySoundFile([[sound\interface\ui_etherealwindow_open.ogg]])
 		else 
 			SV.cache.Docks.IsFaded = true;
 			Dock.BottomLeft:FadeOut(0.2, Dock.BottomLeft:GetAlpha(), 0)
@@ -129,7 +124,8 @@ _G.HideSuperDocks = function(self, button)
 			Dock.BottomRight:FadeOut(0.2, Dock.BottomRight:GetAlpha(), 0)
 			Dock.BottomRight.Bar:FadeOut(0.2, Dock.BottomRight.Bar:GetAlpha(), 0)
 			SV.Events:Trigger("DOCKS_FADE_OUT");
-			PlaySoundFile([[sound\interface\ui_etherealwindow_close.ogg]])
+			PlaySoundFile([[sound\doodad\be_scryingorb_explode.ogg]])
+			--PlaySoundFile([[sound\interface\ui_etherealwindow_close.ogg]])
 		end
 	end
 end
@@ -143,6 +139,7 @@ function Dock:EnterFade()
 		self.BottomRight:FadeIn(0.2, self.BottomRight:GetAlpha(), 1)
 		self.BottomRight.Bar:FadeIn(0.2, self.BottomRight.Bar:GetAlpha(), 1)
 		SV.Events:Trigger("DOCKS_FADE_IN");
+		--PlaySoundFile([[sound\doodad\be_scryingorb_explode.ogg]])
 	end
 end 
 
@@ -153,6 +150,7 @@ function Dock:ExitFade()
 		self.BottomRight:FadeOut(2, self.BottomRight:GetAlpha(), 0)
 		self.BottomRight.Bar:FadeOut(2, self.BottomRight.Bar:GetAlpha(), 0)
 		SV.Events:Trigger("DOCKS_FADE_OUT");
+		--PlaySoundFile([[sound\doodad\be_scryingorb_explode.ogg]])
 	end
 end
 --[[ 
@@ -714,10 +712,6 @@ for location, settings in pairs(DOCK_LOCATIONS) do
 	};
 end
 
-for location, settings in pairs(STAT_LOCATIONS) do
-	Dock[location] = _G["SVUI_Dock" .. location];
-end
-
 local function SetSuperDockStyle(dock, isBottom)
 	if dock.backdrop then return end
 
@@ -958,8 +952,6 @@ end
 function Dock:Refresh()
 	local buttonsize = SV.db.Dock.buttonSize;
 	local spacing = SV.db.Dock.buttonSpacing;
-	local centerWidth = SV.db.Dock.dockCenterWidth;
-	local centerHeight = SV.db.Dock.dockCenterHeight;
 
 	for location, settings in pairs(DOCK_LOCATIONS) do
 		if(location ~= "TopRight") then
@@ -980,17 +972,11 @@ function Dock:Refresh()
 		end
 	end
 
-	self.BottomCenter:SetSize(centerWidth, centerHeight)
-	self.BottomCenter.Left:SetSize((centerWidth * 0.5), centerHeight)
-	self.BottomCenter.Right:SetSize((centerWidth * 0.5), centerHeight)
-
-	self.TopCenter:SetSize(centerWidth, centerHeight)
-	self.TopCenter.Left:SetSize((centerWidth * 0.5), centerHeight)
-	self.TopCenter.Right:SetSize((centerWidth * 0.5), centerHeight)
-
 	self:BottomBorderVisibility();
 	self:TopBorderVisibility();
 	self:UpdateDockBackdrops();
+
+	self:RefreshStats();
 
 	SV.Events:Trigger("DOCKS_UPDATED");
 end 
@@ -1014,8 +1000,6 @@ function Dock:Initialize()
 
 	local buttonsize = SV.db.Dock.buttonSize;
 	local spacing = SV.db.Dock.buttonSpacing;
-	local centerWidth = SV.db.Dock.dockCenterWidth;
-	local centerHeight = SV.db.Dock.dockCenterHeight;
 	local texture = [[Interface\AddOns\SVUI\assets\artwork\Template\BUTTON]];
 
 	-- [[ TOP AND BOTTOM BORDERS ]] --
@@ -1138,39 +1122,7 @@ function Dock:Initialize()
 		self.TopRight.Bar:Refresh()
 	end
 
-	--BOTTOM CENTER BAR
-	self.BottomCenter:SetParent(SV.Screen)
-	self.BottomCenter:ClearAllPoints()
-	self.BottomCenter:SetSize(centerWidth, centerHeight)
-	self.BottomCenter:SetPoint("BOTTOM", SV.Screen, "BOTTOM", 0, 0)
-
-	self.BottomCenter.Left:SetSize((centerWidth * 0.5), centerHeight)
-	self.BottomCenter.Left:SetPoint("LEFT")
-	SV.Mentalo:Add(self.BottomCenter.Left, L["BottomCenter Dock Left"])
-
-	self.BottomCenter.Right:SetSize((centerWidth * 0.5), centerHeight)
-	self.BottomCenter.Right:SetPoint("RIGHT")
-	SV.Mentalo:Add(self.BottomCenter.Right, L["BottomCenter Dock Right"])
-
-	SV:AddToDisplayAudit(self.BottomCenter.Left)
-	SV:AddToDisplayAudit(self.BottomCenter.Right)
-
-	--TOP CENTER BAR
-	self.TopCenter:SetParent(SV.Screen)
-	self.TopCenter:ClearAllPoints()
-	self.TopCenter:SetSize(centerWidth, centerHeight)
-	self.TopCenter:SetPoint("TOP", SV.Screen, "TOP", 0, 0)
-
-	self.TopCenter.Left:SetSize((centerWidth * 0.5), centerHeight)
-	self.TopCenter.Left:SetPoint("LEFT", self.TopCenter, "LEFT")
-	SV.Mentalo:Add(self.TopCenter.Left, L["TopCenter Dock Left"])
-
-	self.TopCenter.Right:SetSize((centerWidth * 0.5), centerHeight)
-	self.TopCenter.Right:SetPoint("LEFT", self.TopCenter.Left, "RIGHT")
-	SV.Mentalo:Add(self.TopCenter.Right, L["TopCenter Dock Right"])
-
-	SV:AddToDisplayAudit(self.TopCenter.Left)
-	SV:AddToDisplayAudit(self.TopCenter.Right)
-
 	self:UpdateDockBackdrops()
+
+	self:InitializeStats()
 end

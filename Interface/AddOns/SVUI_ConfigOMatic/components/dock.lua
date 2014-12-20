@@ -69,8 +69,81 @@ SV.Options.args.Dock.args["common"] = {
 			get = function(j)return SV.db.Dock.topPanel end,
 			set = function(key,value)MOD:ChangeDBVar(value,key[#key]);MOD:TopBorderVisibility()end
 		},
+		time24 = {
+			order = 3, 
+			type = "toggle", 
+			name = L["24-Hour Time"], 
+			desc = L["Toggle 24-hour mode for the time datatext."]
+		}, 
+		localtime = {
+			order = 4, 
+			type = "toggle", 
+			name = L["Local Time"], 
+			desc = L["If not set to true then the server time will be displayed instead."]
+		}, 
+		battleground = {
+			order = 5, 
+			type = "toggle", 
+			name = L["Battleground Texts"], 
+			desc = L["When inside a battleground display personal scoreboard information on the main datatext bars."]
+		}, 
+		dataBackdrop = {
+			order = 6, 
+			name = "Show Backgrounds", 
+			desc = L["Display statistic background textures"], 
+			type = "toggle",
+			set = function(key, value) MOD:ChangeDBVar(value, key[#key]); SV:StaticPopup_Show("RL_CLIENT") end,
+		},
+		shortGold = {
+			order = 7, 
+			type = "toggle", 
+			name = L["Shortened Gold Text"], 
+		},
+		fontGroup = {
+			order = 8, 
+			type = "group", 
+			guiInline = true, 
+			name = L["Fonts"], 
+			get = function(key)return SV.db.Dock[key[#key]] end,
+			set = function(key, value) MOD:ChangeDBVar(value, key[#key]); MOD:UpdateDataSlots() end, 
+			args = {
+				dataFont = {
+					type = "select", 
+					dialogControl = "LSM30_Font", 
+					order = 4, 
+					name = L["Font"], 
+					values = AceGUIWidgetLSMlists.font
+				}, 
+				dataFontSize = {
+					order = 5, 
+					name = L["Font Size"], 
+					type = "range", 
+					min = 6, 
+					max = 22, 
+					step = 1
+				}, 
+				dataFontOutline = {
+					order = 6, 
+					name = L["Font Outline"], 
+					desc = L["Set the font outline."], 
+					type = "select", 
+					values = {
+						["NONE"] = L["None"], 
+						["OUTLINE"] = "OUTLINE", 
+						["MONOCHROMEOUTLINE"] = "MONOCROMEOUTLINE", 
+						["THICKOUTLINE"] = "THICKOUTLINE"
+					}
+				}
+			}
+		},
+		spacer1 = {
+			order = 9, 
+			name = "", 
+			type = "description", 
+			width = "full", 
+		},
 		dockCenterWidth = {
-			order = 3,
+			order = 10,
 			type = 'range',
 			name = L['Stat Panel Width'],
 			desc = L["PANEL_DESC"], 
@@ -84,8 +157,14 @@ SV.Options.args.Dock.args["common"] = {
 				MOD:Refresh()
 			end, 
 		},
+		spacer2 = {
+			order = 11, 
+			name = "", 
+			type = "description", 
+			width = "full", 
+		},
 		buttonSize = {
-			order = 4, 
+			order = 12, 
 			type = "range", 
 			name = L["Dock Button Size"], 
 			desc = L["PANEL_DESC"], 
@@ -241,12 +320,60 @@ SV.Options.args.Dock.args["rightDockGroup"] = {
 	}
 };
 
+SV.Options.args.Dock.args["SVUI_DockTopCenter"] = {
+	order = 5,
+	type = "group", 
+	name = L["Top Dock"], 
+	guiInline = true,  
+	args = {}
+};
+
+SV.Options.args.Dock.args["SVUI_DockBottomCenter"] = {
+	order = 6,
+	type = "group", 
+	name = L["Bottom Dock"], 
+	guiInline = true, 
+	args = {}
+}
+
+
+do
+	local statValues = {[""] = "None"};
+	local configTable = SV.db.Dock.dataHolders;
+
+	for name, _ in pairs(MOD.DataTypes) do
+		statValues[name] = name;
+	end
+
+	for panelName, panelPositions in pairs(configTable) do
+		local optionTable = SV.Options.args.Dock.args; 
+		if(not _G[panelName]) then 
+			print(panelName)
+			optionTable[panelName] = nil;
+			return 
+		end 
+		if(type(panelPositions) == "table") then 
+			for i = 1, #panelPositions do 
+				local slotName = 'Slot' .. i;
+				optionTable[panelName].args[slotName] = {
+					order = i,
+					type = 'select',
+					name = 'Slot '..i,
+					values = statValues,
+					get = function(key) return SV.db.Dock.dataHolders[panelName][i] end,
+					set = function(key, value) MOD:ChangeDBVar(value, i, "dataHolders", panelName); MOD:UpdateDataSlots() end
+				}
+			end 
+		end 
+	end 
+end 
+
 if(MOD.CustomOptions) then
-	SV.Options.args.Dock.args.custom = {
-		order = 5,
-		type = 'group',
-		name = 'Custom Docks',
-		guiInline = true,
+	SV.Options.args.Dock.args["AddonDocklets"] = {
+		order = 7,
+		type = "group", 
+		name = L["Docked Addons"], 
+		guiInline = true,  
 		args = MOD.CustomOptions
-	}
+	};
 end

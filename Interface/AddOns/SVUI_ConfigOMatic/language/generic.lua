@@ -50,10 +50,8 @@ if gameLocale == "enUS" then
 	L["reset"] = "Reset Profile"
 	L["reset_desc"] = "Reset the current profile back to its default values, in case your configuration is broken, or you simply want to start over."
 	L["reset_sub"] = "Reset the current profile to the default"
-	L["SVUI_DockBottomCenterLeft"] = "Bottom Bar Right"
-	L["SVUI_DockBottomCenterRight"] = "Bottom Bar Left"
-	L["SVUI_DockTopCenterLeft"] = "Top Bar Left"
-	L["SVUI_DockTopCenterRight"] = "Top Bar Right"
+	L["SVUI_DockBottomCenter"] = "Bottom Data Dock"
+	L["SVUI_DockTopCenter"] = "Top Data Dock"
 end
 if gameLocale == "frFR" then
 	L["AURAS_DESC"] = "Configure les icônes qui apparaissent près de la Minicarte."
@@ -86,10 +84,8 @@ if gameLocale == "frFR" then
 	L["reset"] = "Réinitialiser le profil"
 	L["reset_desc"] = "Réinitialise le profil actuel au cas où votre configuration est corrompue ou si vous voulez tout simplement faire table rase."
 	L["reset_sub"] = "Réinitialise le profil actuel avec les paramètres par défaut."
-	L["SVUI_DockBottomCenterLeft"] = "Bottom Bar Right"
-	L["SVUI_DockBottomCenterRight"] = "Bottom Bar Left"
-	L["SVUI_DockTopCenterLeft"] = "Top Bar Left"
-	L["SVUI_DockTopCenterRight"] = "Top Bar Right"
+	L["SVUI_DockBottomCenter"] = "Bottom Data Dock"
+	L["SVUI_DockTopCenter"] = "Top Data Dock"
 end
 if gameLocale == "deDE" then
 	L["AURAS_DESC"] = "Konfiguriere die Symbole für die Stärkungs- und Schwächungszauber nahe der Minimap."
@@ -121,10 +117,8 @@ if gameLocale == "deDE" then
 	L["reset"] = "Profil zurücksetzen"
 	L["reset_desc"] = "Setzt das momentane Profil auf Standardwerte zurück, für den Fall das mit der Konfiguration etwas schief lief oder weil du einfach neu starten willst."
 	L["reset_sub"] = "Das aktuelle Profil auf Standard zurücksetzen."
-	L["SVUI_DockBottomCenterLeft"] = "Bottom Bar Right"
-	L["SVUI_DockBottomCenterRight"] = "Bottom Bar Left"
-	L["SVUI_DockTopCenterLeft"] = "Top Bar Left"
-	L["SVUI_DockTopCenterRight"] = "Top Bar Right"
+	L["SVUI_DockBottomCenter"] = "Bottom Data Dock"
+	L["SVUI_DockTopCenter"] = "Top Data Dock"
 end
 if gameLocale == "itIT" then
 	L["AURAS_DESC"] = "Configure the aura icons that appear near the minimap."
@@ -157,10 +151,8 @@ if gameLocale == "itIT" then
 	L["reset"] = "Reimposta Profilo"
 	L["reset_desc"] = "Riporta il tuo profilo attivo alle sue impostazioni di default, nel caso in cui la tua configurazione si sia corrotta, o semplicemente tu voglia re-inizializzarla."
 	L["reset_sub"] = "Reimposta il profilo ai suoi valori di default."
-	L["SVUI_DockBottomCenterLeft"] = "Bottom Bar Right"
-	L["SVUI_DockBottomCenterRight"] = "Bottom Bar Left"
-	L["SVUI_DockTopCenterLeft"] = "Top Bar Left"
-	L["SVUI_DockTopCenterRight"] = "Top Bar Right"
+	L["SVUI_DockBottomCenter"] = "Bottom Data Dock"
+	L["SVUI_DockTopCenter"] = "Top Data Dock"
 end
 if gameLocale == "koKR" then
 	L["AURAS_DESC"] = "Configure the aura icons that appear near the minimap."
@@ -193,10 +185,8 @@ if gameLocale == "koKR" then
 	L["reset"] = "프로필 초기화"
 	L["reset_desc"] = "단순히 다시 새롭게 구성을 원하는 경우, 현재 프로필을 기본값으로 초기화 합니다."
 	L["reset_sub"] = "현재의 프로필을 기본값으로 초기화 합니다"
-	L["SVUI_DockBottomCenterLeft"] = "Bottom Bar Right"
-	L["SVUI_DockBottomCenterRight"] = "Bottom Bar Left"
-	L["SVUI_DockTopCenterLeft"] = "Top Bar Left"
-	L["SVUI_DockTopCenterRight"] = "Top Bar Right"
+	L["SVUI_DockBottomCenter"] = "Bottom Data Dock"
+	L["SVUI_DockTopCenter"] = "Top Data Dock"
 end
 if gameLocale == "ptBR" then
 	L["AURAS_DESC"] = "Configurar os ícones das auras que aparecem perto do minimapa."
@@ -210,10 +200,8 @@ if gameLocale == "ptBR" then
 	L["TOGGLEART_DESC"] = "Ativa / Desativa a aparência deste quadro."
 	L["TOOLTIP_DESC"] = "Opções de configuração para a Tooltip."
 	L["TEXT_FORMAT_DESC"] = "Select the formatting of this text"
-	L["SVUI_DockBottomCenterLeft"] = "Bottom Bar Right"
-	L["SVUI_DockBottomCenterRight"] = "Bottom Bar Left"
-	L["SVUI_DockTopCenterLeft"] = "Top Bar Left"
-	L["SVUI_DockTopCenterRight"] = "Top Bar Right"
+	L["SVUI_DockBottomCenter"] = "Bottom Data Dock"
+	L["SVUI_DockTopCenter"] = "Top Data Dock"
 end
 if gameLocale == "ruRU" then
 	L["AURAS_DESC"] = "Настройка иконок эффектов, находящихся у миникарты."
@@ -246,10 +234,8 @@ if gameLocale == "ruRU" then
 	L["reset"] = "Сброс профиля"
 	L["reset_desc"] = "Если ваша конфигурации испорчена или если вы хотите настроить всё заново - сбросьте текущий профиль на стандартные значения."
 	L["reset_sub"] = "Сброс текущего профиля на стандартный"
-	L["SVUI_DockBottomCenterLeft"] = "Bottom Bar Right"
-	L["SVUI_DockBottomCenterRight"] = "Bottom Bar Left"
-	L["SVUI_DockTopCenterLeft"] = "Top Bar Left"
-	L["SVUI_DockTopCenterRight"] = "Top Bar Right"
+	L["SVUI_DockBottomCenter"] = "Bottom Data Dock"
+	L["SVUI_DockTopCenter"] = "Top Data Dock"
 end
 if gameLocale == "esES" or gameLocale == "esMX" then
 	L["AURAS_DESC"] = "Configura los iconos de las auras que aparecen cerca del minimapa."
@@ -282,10 +268,8 @@ if gameLocale == "esES" or gameLocale == "esMX" then
 	L["reset"] = "Reiniciar Perfil"
 	L["reset_desc"] = "Reinicia el perfil actual a los valores por defectos, en caso de que se haya estropeado la configuración o quieras volver a empezar de nuevo."
 	L["reset_sub"] = "Reinicar el perfil actual al de por defecto"
-	L["SVUI_DockBottomCenterLeft"] = "Bottom Bar Right"
-	L["SVUI_DockBottomCenterRight"] = "Bottom Bar Left"
-	L["SVUI_DockTopCenterLeft"] = "Top Bar Left"
-	L["SVUI_DockTopCenterRight"] = "Top Bar Right"
+	L["SVUI_DockBottomCenter"] = "Bottom Data Dock"
+	L["SVUI_DockTopCenter"] = "Top Data Dock"
 end
 if gameLocale == "zhTW" then
 	L["AURAS_DESC"] = "小地圖旁的光環圖示設定."
@@ -318,10 +302,8 @@ if gameLocale == "zhTW" then
 	L["reset"] = "重置設定檔"
 	L["reset_desc"] = "將當前的設定檔恢復到它的預設值，用於你的設定檔損壞，或者你只是想重來的情況。"
 	L["reset_sub"] = "將當前的設定檔恢復為預設值"
-	L["SVUI_DockBottomCenterLeft"] = "Bottom Bar Right"
-	L["SVUI_DockBottomCenterRight"] = "Bottom Bar Left"
-	L["SVUI_DockTopCenterLeft"] = "Top Bar Left"
-	L["SVUI_DockTopCenterRight"] = "Top Bar Right"
+	L["SVUI_DockBottomCenter"] = "Bottom Data Dock"
+	L["SVUI_DockTopCenter"] = "Top Data Dock"
 end
 if gameLocale == "zhCN" then
 	L["AURAS_DESC"] = "小地图旁的光环图标设置."
@@ -354,8 +336,6 @@ if gameLocale == "zhCN" then
 	L["reset"] = "重置配置文件"
 	L["reset_desc"] = "将当前的配置文件恢复到它的默认值，用于你的配置文件损坏，或者你只是想重来的情况。"
 	L["reset_sub"] = "将当前的配置文件恢复为默认值"
-	L["SVUI_DockBottomCenterLeft"] = "Bottom Bar Right"
-	L["SVUI_DockBottomCenterRight"] = "Bottom Bar Left"
-	L["SVUI_DockTopCenterLeft"] = "Top Bar Left"
-	L["SVUI_DockTopCenterRight"] = "Top Bar Right"
+	L["SVUI_DockBottomCenter"] = "Bottom Data Dock"
+	L["SVUI_DockTopCenter"] = "Top Data Dock"
 end

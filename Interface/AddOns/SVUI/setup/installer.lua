@@ -458,7 +458,7 @@ function SV.Setup:ColorTheme(style, preserve)
 	
 	if(not mungs) then
 		SV:MediaUpdate()
-		SVLib:RefreshModule('SVStats')
+		SVLib:RefreshModule('Dock')
 		SVLib:RefreshModule('SVUnit')
 		if(not preserve) then
 			SV:SavedPopup()
@@ -471,7 +471,7 @@ function SV.Setup:UnitframeLayout(style, preserve)
 
 	if not preserve then
 		SV:ResetData("SVUnit")
-		SV:ResetData("SVStats")
+		SV:ResetData("Dock")
 		if okToResetMOVE then
 			SV.Mentalo:Reset('')
 			okToResetMOVE = false
@@ -494,7 +494,7 @@ function SV.Setup:UnitframeLayout(style, preserve)
 			end
 			SV.Mentalo:SetPositions()
 		end
-		SVLib:RefreshModule('SVStats')
+		SVLib:RefreshModule('Dock')
 		SVLib:RefreshModule('SVUnit')
 		if(not preserve) then
 			SV:SavedPopup()
@@ -542,7 +542,7 @@ function SV.Setup:BarLayout(style, preserve)
 			BarShuffle()
 			SV.Mentalo:SetPositions()
 		end
-		SVLib:RefreshModule('SVStats')
+		SVLib:RefreshModule('Dock')
 		SVLib:RefreshModule('SVBar')
 		if(not preserve) then
 			SV:SavedPopup()
@@ -557,7 +557,7 @@ function SV.Setup:Auralayout(style, preserve)
 	SV.db.LAYOUT.aurastyle = style;
 
 	if(not mungs) then
-		SVLib:RefreshModule('SVStats')
+		SVLib:RefreshModule('Dock')
 		SVLib:RefreshModule('SVAura')
 		SVLib:RefreshModule('SVUnit')
 		if(not preserve) then
@@ -601,6 +601,7 @@ function SV.Setup:EZDefault()
 	SV.db.SVBag.bagTools = true;
 	SV.db.Dock.leftDockBackdrop = true;
 	SV.db.Dock.rightDockBackdrop = true;
+	SV.db.Dock.dataBackdrop = true;
 
 	SV.db.SVGear.enable = true;
 	SV.db.SVMap.customIcons = true;
@@ -608,7 +609,6 @@ function SV.Setup:EZDefault()
 	SV.db.SVMap.locationText = "";
 	SV.db.SVMap.playercoords = "";
 	SV.db.SVPlate.comicStyle = true;
-	SV.db.SVStats.showBackground = true;
 	SV.db.SVTip.comicStyle = true;
 	SV.db.SVTools.enable = true;
 	SV.db.SVUnit.comicStyle = true;
@@ -642,6 +642,7 @@ function SV.Setup:Minimalist()
 	SV.db.SVBag.bagTools = false;
 	--SV.db.Dock.leftDockBackdrop = false;
 	--SV.db.Dock.rightDockBackdrop = false;
+	SV.db.Dock.dataBackdrop = false;
 
 	SV.db.SVGear.enable = false;
 	SV.db.SVMap.customIcons = false;
@@ -650,7 +651,6 @@ function SV.Setup:Minimalist()
 	SV.db.SVMap.locationText = "HIDE";
 	SV.db.SVMap.playercoords = "HIDE";
 	SV.db.SVPlate.comicStyle = false;
-	SV.db.SVStats.showBackground = false;
 	SV.db.SVTip.comicStyle = false;
 	--SV.db.SVTools.enable = false;
 	SV.db.SVUnit.comicStyle = false;

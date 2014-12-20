@@ -13,7 +13,7 @@ _____/\\\\\\\\\\\____/\\\________/\\\__/\\\________/\\\__/\\\\\\\\\\\_       #
 S U P E R - V I L L A I N - U I   By: Munglunch                              #
 ##############################################################################
 
-STATS:Extend EXAMPLE USAGE: MOD:Extend(newStat,eventList,onEvents,update,click,focus,blur)
+STATS:Extend EXAMPLE USAGE: Dock:NewDataType(newStat,eventList,onEvents,update,click,focus,blur)
 
 ########################################################## 
 LOCALIZED LUA FUNCTIONS
@@ -51,7 +51,7 @@ GET ADDON DATA
 ]]--
 local SV = select(2, ...)
 local L = SV.L
-local MOD = SV.SVStats;
+local Dock = SV.Dock;
 --[[ 
 ########################################################## 
 BAG STATS
@@ -78,18 +78,18 @@ local function bags_click()
 end 
 
 local function bags_focus(this)
-	MOD:Tip(this)
+	Dock:SetDataTip(this)
 	for i = 1, MAX_WATCHED_TOKENS do 
 		local l, m, n, o, p = GetBackpackCurrencyInfo(i)
 		if l and i == 1 then 
-			MOD.tooltip:AddLine(CURRENCY)
-			MOD.tooltip:AddLine(" ")
+			Dock.DataTooltip:AddLine(CURRENCY)
+			Dock.DataTooltip:AddLine(" ")
 		end 
 		if l and m then 
-			MOD.tooltip:AddDoubleLine(l, m, 1, 1, 1)
+			Dock.DataTooltip:AddDoubleLine(l, m, 1, 1, 1)
 		end 
 	end 
-	MOD:ShowTip()
+	Dock:ShowDataTip()
 end 
 
 local BagsColorUpdate = function()
@@ -100,4 +100,4 @@ local BagsColorUpdate = function()
 end 
 
 SV.Events:On("SVUI_COLORS_UPDATED", "BagsColorUpdates", BagsColorUpdate)
-MOD:Extend("Bags", StatEvents,	bags_events, nil, bags_click, bags_focus);
+Dock:NewDataType("Bags", StatEvents,	bags_events, nil, bags_click, bags_focus);

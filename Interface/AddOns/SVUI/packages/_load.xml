@@ -1,5 +1,4 @@
 ﻿<Ui xmlns="http://www.blizzard.com/wow/ui/">
-	<Include file="stats\SVStats.xml"/>
     <Include file="aura\SVAura.xml"/>
     <Script file="map\SVMap.lua"/>
     <Include file="plates\SVPlate.xml"/>
