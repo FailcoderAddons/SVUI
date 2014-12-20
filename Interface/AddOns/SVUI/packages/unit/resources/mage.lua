@@ -175,9 +175,9 @@ function MOD:CreateClassBar(playerFrame)
 		charge:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\MAGE-BG-ANIMATION")
 		charge:SetBlendMode("ADD")
 		charge:SetVertexColor(0.5, 1, 1)
-		SV.Animate:Sprite(charge, 10, false, true)
+		SV.Animate:Sprite4(charge, 10, false, true)
 		charge.anim:Play()
-		SV.Animate:Sprite(sparks, 0.08, 5, true)
+		SV.Animate:Sprite4(sparks, 0.08, 5, true)
 		sparks.anim:Play()
 		bar[i].charge = charge;
 		bar[i].sparks = sparks;

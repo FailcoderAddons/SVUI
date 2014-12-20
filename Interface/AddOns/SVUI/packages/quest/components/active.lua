@@ -60,9 +60,9 @@ local LARGE_INNER_HEIGHT = LARGE_ROW_HEIGHT - 4;
 local OBJ_ICON_ACTIVE = [[Interface\COMMON\Indicator-Yellow]];
 local OBJ_ICON_COMPLETE = [[Interface\COMMON\Indicator-Green]];
 local OBJ_ICON_INCOMPLETE = [[Interface\COMMON\Indicator-Gray]];
-local LINE_QUEST_ICON = [[Interface\ICONS\Ability_Hisek_Aim]];
-local LINE_POPUP_COMPLETE = [[Interface\ICONS\Ability_Hisek_Aim]];
-local LINE_POPUP_OFFER = [[Interface\ICONS\Ability_Hisek_Aim]];
+
+local QUEST_ICON = [[Interface\AddOns\SVUI\assets\artwork\Quest\QUEST-INCOMPLETE-ICON]];
+local QUEST_ICON_COMPLETE = [[Interface\AddOns\SVUI\assets\artwork\Quest\QUEST-COMPLETE-ICON]];
 --[[ 
 ########################################################## 
 SCRIPT HANDLERS
@@ -165,11 +165,11 @@ local SetActiveData = function(self, title, level, icon, questID, questLogIndex,
 	local fill_height = 0;
 	local objective_rows = 0;
 	local block = self.Block;
-	if((not bypass) and block.RowID == questID) then
-		return
-	end
+	-- if((not bypass) and block.RowID == questID) then
+	-- 	return
+	-- end
 
-	icon = icon or LINE_QUEST_ICON;
+	icon = icon or QUEST_ICON;
 	block.RowID = questID;
 	level = level or 100;
 
@@ -299,7 +299,7 @@ function MOD:InitializeActive()
 
 	block.Badge.Icon = block.Badge:CreateTexture(nil,"OVERLAY")
 	block.Badge.Icon:SetAllPointsIn(block.Badge);
-	block.Badge.Icon:SetTexture(LINE_QUEST_ICON)
+	block.Badge.Icon:SetTexture(QUEST_ICON)
 	block.Badge.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 
 	block.Header = CreateFrame("Frame", nil, block.Button)

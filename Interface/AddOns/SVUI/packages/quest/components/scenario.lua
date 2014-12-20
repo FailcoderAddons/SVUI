@@ -61,6 +61,7 @@ local NO_ICON = [[Interface\AddOns\SVUI\assets\artwork\Template\EMPTY]];
 local OBJ_ICON_ACTIVE = [[Interface\COMMON\Indicator-Yellow]];
 local OBJ_ICON_COMPLETE = [[Interface\COMMON\Indicator-Green]];
 local OBJ_ICON_INCOMPLETE = [[Interface\COMMON\Indicator-Gray]];
+
 local LINE_FAILED_ICON = [[Interface\ICONS\Ability_Blackhand_Marked4Death]];
 local LINE_SCENARIO_ICON = [[Interface\ICONS\Icon_Scenarios]];
 local LINE_CHALLENGE_ICON = [[Interface\ICONS\Achievement_ChallengeMode_Platinum]];

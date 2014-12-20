@@ -582,7 +582,7 @@ function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss)
 			hadouken[1].overlay:SetTexture("Interface\\Addons\\SVUI\\assets\\artwork\\Unitframe\\Castbar\\SKULLS-REVERSED")
 			hadouken[1].overlay:SetVertexColor(1, 1, 1)
 
-			SV.Animate:Sprite(hadouken[1],false,false,true)
+			SV.Animate:Sprite4(hadouken[1],false,false,true)
 
 			hadouken[2] = hadouken:CreateTexture(nil, "ARTWORK")
 			hadouken[2]:SetAllPointsIn(hadouken, 4, 4)
@@ -597,7 +597,7 @@ function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss)
 			hadouken[2].overlay:SetTexture("Interface\\Addons\\SVUI\\assets\\artwork\\Unitframe\\Castbar\\CHANNEL-REVERSED")
 			hadouken[2].overlay:SetVertexColor(1, 1, 1)
 
-			SV.Animate:Sprite(hadouken[2],false,false,true)
+			SV.Animate:Sprite4(hadouken[2],false,false,true)
 
 			castbar:SetPointToScale("BOTTOMLEFT", castbarHolder, "BOTTOMLEFT", 1, 1)
 			organizer:SetPointToScale("LEFT", castbar, "RIGHT", 4, 0)
@@ -618,7 +618,7 @@ function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss)
 			hadouken[1].overlay:SetTexture("Interface\\Addons\\SVUI\\assets\\artwork\\Unitframe\\Castbar\\HADOUKEN")
 			hadouken[1].overlay:SetVertexColor(1, 1, 1)
 
-			SV.Animate:Sprite(hadouken[1],false,false,true)
+			SV.Animate:Sprite4(hadouken[1],false,false,true)
 
 			hadouken[2] = hadouken:CreateTexture(nil, "ARTWORK")
 			hadouken[2]:SetAllPointsIn(hadouken, 4, 4)
@@ -633,7 +633,7 @@ function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss)
 			hadouken[2].overlay:SetTexture("Interface\\Addons\\SVUI\\assets\\artwork\\Unitframe\\Castbar\\CHANNEL")
 			hadouken[2].overlay:SetVertexColor(1, 1, 1)
 
-			SV.Animate:Sprite(hadouken[2],false,false,true)
+			SV.Animate:Sprite4(hadouken[2],false,false,true)
 			
 			castbar:SetPointToScale("BOTTOMRIGHT", castbarHolder, "BOTTOMRIGHT", -1, 1)
 			organizer:SetPointToScale("RIGHT", castbar, "LEFT", -4, 0)

@@ -307,7 +307,7 @@ function MOD:CreateClassBar(playerFrame)
 		bar[i].underlay:SetTexture('Interface\\Addons\\SVUI\\assets\\artwork\\Unitframe\\Class\\WARLOCK-SOUL-ANIMATION')
 		bar[i].underlay:SetBlendMode('ADD')
 		bar[i].underlay:Hide()
-		SV.Animate:Sprite(bar[i].underlay,0.15,false,true)
+		SV.Animate:Sprite4(bar[i].underlay,0.15,false,true)
 
 		bar[i].backdrop:SetVertexColor(unpack(shardBGColor[1]))
 		bar[i].overlay:SetVertexColor(unpack(shardOverColor[1]))

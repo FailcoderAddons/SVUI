@@ -58,12 +58,13 @@ local LARGE_ROW_HEIGHT = ROW_HEIGHT * 2;
 local LARGE_INNER_HEIGHT = LARGE_ROW_HEIGHT - 4;
 
 local NO_ICON = [[Interface\AddOns\SVUI\assets\artwork\Template\EMPTY]];
+
 local OBJ_ICON_ACTIVE = [[Interface\COMMON\Indicator-Yellow]];
 local OBJ_ICON_COMPLETE = [[Interface\COMMON\Indicator-Green]];
 local OBJ_ICON_INCOMPLETE = [[Interface\COMMON\Indicator-Gray]];
-local LINE_QUEST_ICON = [[Interface\ICONS\Ability_Hisek_Aim]];
-local LINE_POPUP_COMPLETE = [[Interface\ICONS\Ability_Hisek_Aim]];
-local LINE_POPUP_OFFER = [[Interface\ICONS\Ability_Hisek_Aim]];
+
+local QUEST_ICON = [[Interface\AddOns\SVUI\assets\artwork\Quest\QUEST-INCOMPLETE-ICON]];
+local QUEST_ICON_COMPLETE = [[Interface\AddOns\SVUI\assets\artwork\Quest\QUEST-COMPLETE-ICON]];
 --[[ 
 ########################################################## 
 SCRIPT HANDLERS
@@ -113,7 +114,7 @@ local GetPopUpRow = function(self, index)
 		row.Badge:SetStylePanel("Fixed", "Inset")
 		row.Badge.Icon = row.Badge:CreateTexture(nil,"OVERLAY")
 		row.Badge.Icon:SetAllPointsIn(row.Badge);
-		row.Badge.Icon:SetTexture(LINE_QUEST_ICON)
+		row.Badge.Icon:SetTexture(QUEST_ICON)
 		row.Badge.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 		row.Header = CreateFrame("Frame", nil, row.Button)
 		row.Header:SetPointToScale("TOPLEFT", row.Badge, "TOPRIGHT", 4, -1);
@@ -139,7 +140,7 @@ end
 
 local SetPopupRow = function(self, index, title, popUpType, questID, questLogIndex)
 	index = index + 1;
-	local icon = (popUpType == 'COMPLETED') and LINE_POPUP_COMPLETE or LINE_POPUP_OFFER
+	local icon = (popUpType == 'COMPLETED') and QUEST_ICON_COMPLETE or QUEST_ICON
 	local row = self:Get(index);
 	row.RowID = questID
 	row.Header:SetAlpha(1);

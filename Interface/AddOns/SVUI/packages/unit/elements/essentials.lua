@@ -464,7 +464,7 @@ function MOD:SetActionPanel(frame, unit, noHealthText, noPowerText, noMiscText)
 			stunned:SetSize(96, 96)
 			stunned:SetTexture(STUNNED_ANIM)
 			stunned:SetBlendMode("ADD")
-			SV.Animate:Sprite(stunned, 0.12, false, true)
+			SV.Animate:Sprite4(stunned, 0.12, false, true)
 			stunned:Hide()
 			frame.LossOfControl.stunned = stunned
 

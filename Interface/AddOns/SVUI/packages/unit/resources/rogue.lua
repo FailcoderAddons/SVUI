@@ -149,7 +149,7 @@ function MOD:CreateRogueCombobar(targetFrame, isSmall)
 			blood:SetBlendMode("ADD")
 			cpoint.Blood = blood
 			
-			SV.Animate:SmallSprite(blood,0.08,2,true)
+			SV.Animate:Sprite8(blood,0.08,2,true)
 		else
 			coords = ICON_COORDS[1]
 			icon:SetTexCoord(coords[1],coords[2],coords[3],coords[4])

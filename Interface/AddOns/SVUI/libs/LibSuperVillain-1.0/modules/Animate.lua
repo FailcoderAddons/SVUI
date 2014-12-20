@@ -30,8 +30,8 @@ if not lib then return end -- No upgrade needed
 
 local MANAGED_ANIMATIONS = {
     ["Orbit"] = true,
-    ["Sprite"] = true,
-    ["SmallSprite"] = true,
+    ["Sprite4"] = true,
+    ["Sprite8"] = true,
     ["StopSprite"] = false,
     ["Pulse"] = false,
     ["Kapow"] = false,
@@ -86,7 +86,7 @@ local Anim_OnFinished = function(self)
     end
 end 
 
-local Sprite_OnUpdate = function(self)
+local Sprite4_OnUpdate = function(self)
     local order = self:GetOrder()
     local parent = self.parent
     local left, right;
@@ -103,7 +103,7 @@ local Sprite_OnUpdate = function(self)
     end
 end 
 
-local SmallSprite_OnUpdate = function(self)
+local Sprite8_OnUpdate = function(self)
     local order = self:GetOrder()
     local parent = self.parent
     local left, right;
@@ -248,86 +248,89 @@ local function AnimationTemplate(frame, animType, hideOnFinished, speed, special
         frame.anim[1]:SetDuration(speed)
         frame.anim:SetLooping("REPEAT")
         frame.anim:Play()
-    elseif(animType == 'Sprite') then
+    elseif(animType == 'Sprite4') then
         frame.anim[1] = SetNewAnimation(frame.anim, "Translation")
         frame.anim[1]:SetOrder(1)
         frame.anim[1]:SetDuration(speed)
-        frame.anim[1]:SetScript("OnUpdate", Sprite_OnUpdate)
+        frame.anim[1]:SetScript("OnUpdate", Sprite4_OnUpdate)
 
         frame.anim[2] = SetNewAnimation(frame.anim, "Translation")
         frame.anim[2]:SetOrder(2)
         frame.anim[2]:SetDuration(speed)
-        frame.anim[2]:SetScript("OnUpdate", Sprite_OnUpdate)
+        frame.anim[2]:SetScript("OnUpdate", Sprite4_OnUpdate)
 
         frame.anim[3] = SetNewAnimation(frame.anim, "Translation")
         frame.anim[3]:SetOrder(3)
         frame.anim[3]:SetDuration(speed)
-        frame.anim[3]:SetScript("OnUpdate", Sprite_OnUpdate)
+        frame.anim[3]:SetScript("OnUpdate", Sprite4_OnUpdate)
 
         frame.anim[4] = SetNewAnimation(frame.anim, "Translation")
         frame.anim[4]:SetOrder(4)
         frame.anim[4]:SetDuration(speed)
-        frame.anim[4]:SetScript("OnUpdate", Sprite_OnUpdate)
+        frame.anim[4]:SetScript("OnUpdate", Sprite4_OnUpdate)
 
         if special then 
             frame.anim[5] = SetNewAnimation(frame.anim, "Translation")
             frame.anim[5]:SetOrder(5)
             frame.anim[5]:SetDuration(special)
             frame.anim[5].isFadeFrame = true;
-            frame.anim[5]:SetScript("OnUpdate", Sprite_OnUpdate)
+            frame.anim[5]:SetScript("OnUpdate", Sprite4_OnUpdate)
         end 
-
-        frame.anim:SetLooping("REPEAT")
-    elseif(animType == 'SmallSprite') then
+        if(not hideOnFinished) then
+            frame.anim:SetLooping("REPEAT")
+        end
+    elseif(animType == 'Sprite8') then
         frame.anim[1] = SetNewAnimation(frame.anim, "Translation")
         frame.anim[1]:SetOrder(1)
         frame.anim[1]:SetDuration(speed)
-        frame.anim[1]:SetScript("OnUpdate", SmallSprite_OnUpdate)
+        frame.anim[1]:SetScript("OnUpdate", Sprite8_OnUpdate)
 
         frame.anim[2] = SetNewAnimation(frame.anim, "Translation")
         frame.anim[2]:SetOrder(2)
         frame.anim[2]:SetDuration(speed)
-        frame.anim[2]:SetScript("OnUpdate", SmallSprite_OnUpdate)
+        frame.anim[2]:SetScript("OnUpdate", Sprite8_OnUpdate)
 
         frame.anim[3] = SetNewAnimation(frame.anim, "Translation")
         frame.anim[3]:SetOrder(3)
         frame.anim[3]:SetDuration(speed)
-        frame.anim[3]:SetScript("OnUpdate", SmallSprite_OnUpdate)
+        frame.anim[3]:SetScript("OnUpdate", Sprite8_OnUpdate)
         
         frame.anim[4] = SetNewAnimation(frame.anim, "Translation")
         frame.anim[4]:SetOrder(4)
         frame.anim[4]:SetDuration(speed)
-        frame.anim[4]:SetScript("OnUpdate", SmallSprite_OnUpdate)
+        frame.anim[4]:SetScript("OnUpdate", Sprite8_OnUpdate)
         
         frame.anim[5] = SetNewAnimation(frame.anim, "Translation")
         frame.anim[5]:SetOrder(5)
         frame.anim[5]:SetDuration(speed)
-        frame.anim[5]:SetScript("OnUpdate", SmallSprite_OnUpdate)
+        frame.anim[5]:SetScript("OnUpdate", Sprite8_OnUpdate)
         
         frame.anim[6] = SetNewAnimation(frame.anim, "Translation")
         frame.anim[6]:SetOrder(6)
         frame.anim[6]:SetDuration(speed)
-        frame.anim[6]:SetScript("OnUpdate", SmallSprite_OnUpdate)
+        frame.anim[6]:SetScript("OnUpdate", Sprite8_OnUpdate)
         
         frame.anim[7] = SetNewAnimation(frame.anim, "Translation")
         frame.anim[7]:SetOrder(7)
         frame.anim[7]:SetDuration(speed)
-        frame.anim[7]:SetScript("OnUpdate", SmallSprite_OnUpdate)
+        frame.anim[7]:SetScript("OnUpdate", Sprite8_OnUpdate)
         
         frame.anim[8] = SetNewAnimation(frame.anim, "Translation")
         frame.anim[8]:SetOrder(8)
         frame.anim[8]:SetDuration(speed)
-        frame.anim[8]:SetScript("OnUpdate", SmallSprite_OnUpdate)
+        frame.anim[8]:SetScript("OnUpdate", Sprite8_OnUpdate)
 
         if(special) then 
             frame.anim[9] = SetNewAnimation(frame.anim, "Translation")
             frame.anim[9]:SetOrder(9)
             frame.anim[9]:SetDuration(special)
             frame.anim[9].isFadeFrame = true;
-            frame.anim[9]:SetScript("OnUpdate", Sprite_OnUpdate)
+            frame.anim[9]:SetScript("OnUpdate", Sprite4_OnUpdate)
         end 
 
-        frame.anim:SetLooping("REPEAT")
+        if(not hideOnFinished) then
+            frame.anim:SetLooping("REPEAT")
+        end
     elseif(animType == 'Pulse') then
         frame.anim:SetScript("OnPlay", Pulse_OnPlay)
 
@@ -378,16 +381,16 @@ end
 
 --[[ ANIMATED SPRITES ]]--
 
-function lib:Sprite(frame, speed, fadeTime, scriptToParent)
+function lib:Sprite4(frame, speed, fadeTime, scriptToParent)
     if not frame then return end 
     speed = speed or 0.08;
-    AnimationTemplate(frame, 'Sprite', false, speed, fadeTime, scriptToParent)
+    AnimationTemplate(frame, 'Sprite4', false, speed, fadeTime, scriptToParent)
 end 
 
-function lib:SmallSprite(frame, speed, fadeTime, scriptToParent)
+function lib:Sprite8(frame, speed, fadeTime, scriptToParent, hideOnFinished)
     if not frame then return end 
     speed = speed or 0.08;
-    AnimationTemplate(frame, 'SmallSprite', false, speed, fadeTime, scriptToParent) 
+    AnimationTemplate(frame, 'Sprite8', hideOnFinished, speed, fadeTime, scriptToParent) 
 end 
 
 function lib:StopSprite(frame)

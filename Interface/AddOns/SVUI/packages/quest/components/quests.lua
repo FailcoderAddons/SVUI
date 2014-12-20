@@ -65,10 +65,9 @@ local NO_ICON = [[Interface\AddOns\SVUI\assets\artwork\Template\EMPTY]];
 local OBJ_ICON_ACTIVE = [[Interface\COMMON\Indicator-Yellow]];
 local OBJ_ICON_COMPLETE = [[Interface\COMMON\Indicator-Green]];
 local OBJ_ICON_INCOMPLETE = [[Interface\COMMON\Indicator-Gray]];
-local LINE_QUEST_ICON = [[Interface\LFGFRAME\LFGICON-QUEST]];
 
-local LINE_QUEST_COMPLETE = [[Interface\AddOns\SVUI\assets\artwork\Quest\QUEST-COMPLETE]];
-local LINE_QUEST_INCOMPLETE = [[Interface\LFGFRAME\LFGICON-QUEST]];
+local QUEST_ICON = [[Interface\AddOns\SVUI\assets\artwork\Quest\QUEST-INCOMPLETE-ICON]];
+local QUEST_ICON_COMPLETE = [[Interface\AddOns\SVUI\assets\artwork\Quest\QUEST-COMPLETE-ICON]];
 
 local CACHED_QUESTS = {};
 local USED_QUESTIDS = {};
@@ -102,7 +101,7 @@ local function UpdateCachedQuests()
 		CACHED_QUESTS[x][6] = false;
 		CACHED_QUESTS[x][7][1] = '';
 		CACHED_QUESTS[x][7][2] = 100;
-		CACHED_QUESTS[x][7][3] = LINE_QUEST_ICON;
+		CACHED_QUESTS[x][7][3] = QUEST_ICON;
 		CACHED_QUESTS[x][7][4] = 0;
 		CACHED_QUESTS[x][7][5] = 0;
 		CACHED_QUESTS[x][7][6] = 0;
@@ -137,7 +136,7 @@ local function UpdateCachedQuests()
 			end
 
 			if(not CACHED_QUESTS[x]) then
-				CACHED_QUESTS[x] = { 0, false, 0, 0, 0, false, {"", 100, LINE_QUEST_ICON, 0, 0, 0, 0, 0, false, 0} };
+				CACHED_QUESTS[x] = { 0, false, 0, 0, 0, false, {"", 100, QUEST_ICON, 0, 0, 0, 0, 0, false, 0} };
 			end
 
 			CACHED_QUESTS[x][1] = i;				-- quest watch index
@@ -346,8 +345,8 @@ local GetQuestRow = function(self, index)
 
 		row.Badge.Icon = row.Badge:CreateTexture(nil,"OVERLAY")
 		row.Badge.Icon:SetAllPoints(row.Badge);
-		row.Badge.Icon:SetTexture(LINE_QUEST_INCOMPLETE)
-		row.Badge.Icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+		row.Badge.Icon:SetTexture(QUEST_ICON)
+		row.Badge.Icon:SetTexCoord(0.05, 0.95, 0.05, 0.95)
 
 		row.Badge.Button = CreateFrame("Button", nil, row.Badge)
 		row.Badge.Button:SetAllPoints(row.Badge);
@@ -485,7 +484,7 @@ local SetQuestRow = function(self, index, watchIndex, title, level, icon, questI
 	local row = self:Get(index);
 
 	if(not icon) then
-		icon = completed and LINE_QUEST_COMPLETE or LINE_QUEST_INCOMPLETE
+		icon = completed and QUEST_ICON_COMPLETE or QUEST_ICON
 	end
 	local color = GetQuestDifficultyColor(level);
 

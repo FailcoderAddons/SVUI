@@ -61,9 +61,6 @@ local NO_ICON = [[Interface\AddOns\SVUI\assets\artwork\Template\EMPTY]];
 local OBJ_ICON_ACTIVE = [[Interface\COMMON\Indicator-Yellow]];
 local OBJ_ICON_COMPLETE = [[Interface\COMMON\Indicator-Green]];
 local OBJ_ICON_INCOMPLETE = [[Interface\COMMON\Indicator-Gray]];
-local LINE_QUEST_ICON = [[Interface\ICONS\Ability_Hisek_Aim]];
-local LINE_POPUP_COMPLETE = [[Interface\ICONS\Ability_Hisek_Aim]];
-local LINE_POPUP_OFFER = [[Interface\ICONS\Ability_Hisek_Aim]];
 --[[ 
 ########################################################## 
 OBJECTIVE SCRIPT HANDLERS

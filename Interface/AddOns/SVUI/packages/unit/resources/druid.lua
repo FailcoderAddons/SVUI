@@ -367,7 +367,7 @@ function MOD:CreateDruidCombobar(targetFrame, isSmall)
 			blood:SetBlendMode("ADD")
 			cpoint.Blood = blood
 			
-			SV.Animate:SmallSprite(blood,0.08,2,true)
+			SV.Animate:Sprite8(blood,0.08,2,true)
 		else
 			icon:SetTexture([[Interface\Addons\SVUI\assets\artwork\Unitframe\Class\COMBO-POINT-SMALL]])
 		end

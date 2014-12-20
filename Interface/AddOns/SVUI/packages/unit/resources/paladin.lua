@@ -172,7 +172,7 @@ function MOD:CreateClassBar(playerFrame)
 		barAnimation[3]:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\MAGE-FG-ANIMATION")
 		barAnimation[3]:SetBlendMode("ADD")
 		barAnimation[3]:SetVertexColor(1, 1, 0)
-		SV.Animate:Sprite(barAnimation[3], 0.08, 2, true)
+		SV.Animate:Sprite4(barAnimation[3], 0.08, 2, true)
 
 		bar[i].swirl = barAnimation;
 		hooksecurefunc(bar[i], "SetAlpha", AlphaHook)
