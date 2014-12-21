@@ -37,7 +37,7 @@ local wipe      = _G.wipe;
 --[[ STRING METHODS ]]--
 local format = string.format;
 --[[ MATH METHODS ]]--
-local abs, ceil, floor, round = math.abs, math.ceil, math.floor, math.round;
+local abs, ceil, floor, round, maxNum = math.abs, math.ceil, math.floor, math.round, math.max;
 --[[ TABLE METHODS ]]--
 local tsort, tcopy = table.sort, table.copy;
 --[[ 
@@ -74,6 +74,8 @@ local USED_QUESTIDS = {};
 local CURRENT_MAP_ID = 0;
 local WORLDMAP_UPDATE = false;
 
+local DEFAULT_COLOR = {r = 1, g = 0.68, b = 0.1}
+
 local QuestInZone = {
 	[14108] = 541,
 	[13998] = 11,
@@ -90,75 +92,79 @@ local function UpdateCachedQuests()
 	local c = 0;
 	local li = 0;
 
+	local numWatch = GetNumQuestWatches();
+	local numCache = #CACHED_QUESTS;
+	local numItems = maxNum(numWatch, numCache)
+
 	wipe(USED_QUESTIDS);
 
-	for i = 1, #CACHED_QUESTS do
-		CACHED_QUESTS[x][1] = 0;
-		CACHED_QUESTS[x][2] = false;
-		CACHED_QUESTS[x][3] = 0;
-		CACHED_QUESTS[x][4] = 0;
-		CACHED_QUESTS[x][5] = 0;
-		CACHED_QUESTS[x][6] = false;
-		CACHED_QUESTS[x][7][1] = '';
-		CACHED_QUESTS[x][7][2] = 100;
-		CACHED_QUESTS[x][7][3] = QUEST_ICON;
-		CACHED_QUESTS[x][7][4] = 0;
-		CACHED_QUESTS[x][7][5] = 0;
-		CACHED_QUESTS[x][7][6] = 0;
-		CACHED_QUESTS[x][7][7] = 0;
-		CACHED_QUESTS[x][7][8] = 0;
-		CACHED_QUESTS[x][7][9] = false;
-		CACHED_QUESTS[x][7][10] = 0;
-	end
-
-	for i = 1, GetNumQuestWatches() do
-		local questID, _, questLogIndex, numObjectives, _, completed, _, _, duration, elapsed, questType, isTask, isStory, isOnMap, hasLocalPOI = GetQuestWatchInfo(i);
-		if(questID and (not USED_QUESTIDS[questID])) then
-			local title, level, suggestedGroup = GetQuestLogTitle(questLogIndex)
-			local link, texture, _, showCompleted = GetQuestLogSpecialItemInfo(questLogIndex)
-			local distanceSq, onContinent = GetDistanceSqToQuest(questLogIndex)
-			local mapID, floorNumber = 0,0
-			if(not WorldMapFrame:IsShown()) then
-				mapID, floorNumber = GetQuestWorldMapAreaID(questID)
-			else
-				WORLDMAP_UPDATE = true;
-			end
-			if(QuestHasPOIInfo(questID)) then
-				local areaID = QuestInZone[questID]
-				if(areaID and (areaID == CURRENT_MAP_ID)) then
-					c = x
-					li = questLogIndex
-				elseif(onContinent and (distanceSq < s)) then
-					s = distanceSq
-					c = x
-					li = questLogIndex
+	for i = 1, numItems do
+		if(numItems <= numWatch) then
+			local questID, _, questLogIndex, numObjectives, _, completed, _, _, duration, elapsed, questType, isTask, isStory, isOnMap, hasLocalPOI = GetQuestWatchInfo(i);
+			if(questID and (not USED_QUESTIDS[questID])) then
+				local title, level, suggestedGroup = GetQuestLogTitle(questLogIndex)
+				local link, texture, _, showCompleted = GetQuestLogSpecialItemInfo(questLogIndex)
+				local distanceSq, onContinent = GetDistanceSqToQuest(questLogIndex)
+				local mapID, floorNumber = 0,0
+				if(not WorldMapFrame:IsShown()) then
+					mapID, floorNumber = GetQuestWorldMapAreaID(questID)
+				else
+					WORLDMAP_UPDATE = true;
 				end
+				if(QuestHasPOIInfo(questID)) then
+					local areaID = QuestInZone[questID]
+					if(areaID and (areaID == CURRENT_MAP_ID)) then
+						c = x
+						li = questLogIndex
+					elseif(onContinent and (distanceSq < s)) then
+						s = distanceSq
+						c = x
+						li = questLogIndex
+					end
+				end
+
+				if(not CACHED_QUESTS[x]) then
+					CACHED_QUESTS[x] = { 0, false, 0, 0, 0, false, {"", 100, QUEST_ICON, 0, 0, 0, 0, 0, false, 0} };
+				end
+
+				CACHED_QUESTS[x][1] = i;				-- quest watch index
+				CACHED_QUESTS[x][2] = link;				-- quest item link
+				CACHED_QUESTS[x][3] = mapID;			-- quest location map id
+				CACHED_QUESTS[x][4] = floorNumber;		-- quest location floor number
+				CACHED_QUESTS[x][5] = distanceSq;		-- quest distance from player
+				CACHED_QUESTS[x][6] = false;			-- quest closest to player
+				CACHED_QUESTS[x][7][1] = title;			-- args: quest title
+				CACHED_QUESTS[x][7][2] = level;			-- args: quest level
+				CACHED_QUESTS[x][7][3] = texture;		-- args: quest item icon
+				CACHED_QUESTS[x][7][4] = questID;		-- args: quest id
+				CACHED_QUESTS[x][7][5] = questLogIndex;	-- args: quest log index
+				CACHED_QUESTS[x][7][6] = numObjectives;	-- args: quest objective count
+				CACHED_QUESTS[x][7][7] = duration;		-- args: quest timer duration
+				CACHED_QUESTS[x][7][8] = elapsed;		-- args: quest timer elapsed
+				CACHED_QUESTS[x][7][9] = completed;		-- args: quest is completed
+				CACHED_QUESTS[x][7][10] = questType;	-- args: quest type
+
+				USED_QUESTIDS[questID] = true;
+
+				x = x + 1;
 			end
-
-			if(not CACHED_QUESTS[x]) then
-				CACHED_QUESTS[x] = { 0, false, 0, 0, 0, false, {"", 100, QUEST_ICON, 0, 0, 0, 0, 0, false, 0} };
-			end
-
-			CACHED_QUESTS[x][1] = i;				-- quest watch index
-			CACHED_QUESTS[x][2] = link;				-- quest item link
-			CACHED_QUESTS[x][3] = mapID;			-- quest location map id
-			CACHED_QUESTS[x][4] = floorNumber;		-- quest location floor number
-			CACHED_QUESTS[x][5] = distanceSq;		-- quest distance from player
-			CACHED_QUESTS[x][6] = false;			-- quest closest to player
-			CACHED_QUESTS[x][7][1] = title;			-- args: quest title
-			CACHED_QUESTS[x][7][2] = level;			-- args: quest level
-			CACHED_QUESTS[x][7][3] = texture;		-- args: quest item icon
-			CACHED_QUESTS[x][7][4] = questID;		-- args: quest id
-			CACHED_QUESTS[x][7][5] = questLogIndex;	-- args: quest log index
-			CACHED_QUESTS[x][7][6] = numObjectives;	-- args: quest objective count
-			CACHED_QUESTS[x][7][7] = duration;		-- args: quest timer duration
-			CACHED_QUESTS[x][7][8] = elapsed;		-- args: quest timer elapsed
-			CACHED_QUESTS[x][7][9] = completed;		-- args: quest is completed
-			CACHED_QUESTS[x][7][10] = questType;	-- args: quest type
-
-			USED_QUESTIDS[questID] = true;
-
-			x = x + 1;
+		else
+			CACHED_QUESTS[i][1] = 0;
+			CACHED_QUESTS[i][2] = false;
+			CACHED_QUESTS[i][3] = 0;
+			CACHED_QUESTS[i][4] = 0;
+			CACHED_QUESTS[i][5] = 0;
+			CACHED_QUESTS[i][6] = false;
+			CACHED_QUESTS[i][7][1] = '';
+			CACHED_QUESTS[i][7][2] = 100;
+			CACHED_QUESTS[i][7][3] = QUEST_ICON;
+			CACHED_QUESTS[i][7][4] = 0;
+			CACHED_QUESTS[i][7][5] = 0;
+			CACHED_QUESTS[i][7][6] = 0;
+			CACHED_QUESTS[i][7][7] = 0;
+			CACHED_QUESTS[i][7][8] = 0;
+			CACHED_QUESTS[i][7][9] = false;
+			CACHED_QUESTS[i][7][10] = 0;
 		end
 	end
 
@@ -475,7 +481,6 @@ local GetQuestRow = function(self, index)
 end
 
 local SetQuestRow = function(self, index, watchIndex, title, level, icon, questID, questLogIndex, subCount, duration, elapsed, completed, questType)
-	level = level or 100;
 	index = index + 1;
 
 	local fill_height = 0;
@@ -486,7 +491,10 @@ local SetQuestRow = function(self, index, watchIndex, title, level, icon, questI
 	if(not icon) then
 		icon = completed and QUEST_ICON_COMPLETE or QUEST_ICON
 	end
-	local color = GetQuestDifficultyColor(level);
+	local color = DEFAULT_COLOR
+	if(level and type(level) == 'number') then
+		color = GetQuestDifficultyColor(level);
+	end
 
 	row.RowID = questID
 

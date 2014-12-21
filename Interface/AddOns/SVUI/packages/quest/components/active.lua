@@ -63,6 +63,8 @@ local OBJ_ICON_INCOMPLETE = [[Interface\COMMON\Indicator-Gray]];
 
 local QUEST_ICON = [[Interface\AddOns\SVUI\assets\artwork\Quest\QUEST-INCOMPLETE-ICON]];
 local QUEST_ICON_COMPLETE = [[Interface\AddOns\SVUI\assets\artwork\Quest\QUEST-COMPLETE-ICON]];
+
+local DEFAULT_COLOR = {r = 1, g = 0.68, b = 0.1}
 --[[ 
 ########################################################## 
 SCRIPT HANDLERS
@@ -171,9 +173,11 @@ local SetActiveData = function(self, title, level, icon, questID, questLogIndex,
 
 	icon = icon or QUEST_ICON;
 	block.RowID = questID;
-	level = level or 100;
 
-	local color = GetQuestDifficultyColor(level);
+	local color = DEFAULT_COLOR
+	if(level and type(level) == 'number') then
+		color = GetQuestDifficultyColor(level);
+	end
 	block.Header.Level:SetTextColor(color.r, color.g, color.b);
 	block.Header.Level:SetText(level);
 	block.Header.Text:SetText(title);
@@ -288,6 +292,7 @@ function MOD:InitializeActive()
 	block.Button:SetPointToScale("TOPLEFT", block, "TOPLEFT", 0, 0);
 	block.Button:SetPointToScale("BOTTOMRIGHT", block, "BOTTOMRIGHT", 0, 8);
 	block.Button:SetStylePanel("Framed", "Headline")
+	block.Button:SetPanelColor("gold")
 	block.Button:SetID(0)
 	block.Button.Parent = active;
 	block.Button:SetScript("OnClick", ViewButton_OnClick)
@@ -306,7 +311,7 @@ function MOD:InitializeActive()
 	block.Header:SetPointToScale("TOPLEFT", block.Badge, "TOPRIGHT", 4, -1);
 	block.Header:SetPointToScale("TOPRIGHT", block.Button, "TOPRIGHT", -(ROW_HEIGHT + 4), 0);
 	block.Header:SetHeightToScale(INNER_HEIGHT);
-	block.Header:SetStylePanel("Default")
+	block.Header:SetStylePanel("Default", "Headline")
 
 	block.Header.Level = block.Header:CreateFontString(nil,"OVERLAY")
 	block.Header.Level:SetFont(SV.Media.font.roboto, 10, "NONE")
