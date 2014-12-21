@@ -534,6 +534,7 @@ local SetZoneHeader = function(self, index, mapID)
 	row.Badge:SetAlpha(0);
 	row.Button:SetID(0);
 	row.Button:Disable();
+	row.Button:SetAlpha(0);
 	row.Badge.Button:Disable();
 	if(not mapID or (mapID and mapID == 0)) then 
 		return index, 4

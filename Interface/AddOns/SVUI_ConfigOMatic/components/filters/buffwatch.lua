@@ -75,8 +75,7 @@ ns.FilterOptionGroups['BuffWatch'] = function(selectedSpell)
 		type = "group", 
 		name = 'BuffWatch', 
 		guiInline = true, 
-		order = -10, 
-		childGroups = "tab", 
+		order = 4, 
 		args = {
 			addSpellID = {
 				order = 1, 
@@ -149,7 +148,7 @@ ns.FilterOptionGroups['BuffWatch'] = function(selectedSpell)
 					return tempFilterTable  
 				end, 
 				get = function(key) return selectedSpell end, 
-				set = function(key, value) ns:SetFilterOptions('BuffWatch', selectedSpell) end
+				set = function(key, value) ns:SetFilterOptions('BuffWatch', value) end
 			}
 		}
 	}
@@ -158,10 +157,11 @@ end;
 
 ns.FilterSpellGroups['BuffWatch'] = function(selectedSpell)
 	local RESULT;
+
 	if(selectedSpell) then
 		local registeredSpell;
 
-		for watchIndex, watchData in pairs(SV.filters.PetBuffWatch)do 
+		for watchIndex, watchData in pairs(SV.filters.BuffWatch)do 
 			if(watchData.id == selectedSpell) then 
 				registeredSpell = watchIndex 
 			end 
@@ -172,8 +172,9 @@ ns.FilterSpellGroups['BuffWatch'] = function(selectedSpell)
 		if(currentSpell and registeredSpell) then
 
 			RESULT = {
-				name = currentSpell.." ("..selectedSpell..")", 
+				name = currentSpell.." (Spell ID#: "..selectedSpell..")", 
 				type = "group", 
+				guiInline = true, 
 				get = function(key)return SV.filters.BuffWatch[registeredSpell][key[#key]]end, 
 				set = function(key, value)
 					SV.filters.BuffWatch[registeredSpell][key[#key]] = value;
@@ -181,12 +182,36 @@ ns.FilterSpellGroups['BuffWatch'] = function(selectedSpell)
 					MOD:UpdateGroupAuraWatch("party")
 					MOD:UpdateGroupAuraWatch("raidpet", true)
 				end, 
-				order = -10, 
+				order = 5, 
 				args = {
-					enable = {name = L["Enable"], order = 0, type = "toggle"}, 
+					enable = {
+						name = L["Enable"], 
+						width = 'full',
+						order = 0, 
+						type = "toggle"
+					},  
+					displayText = {
+						name = L["Display Text"], 
+						width = 'full',
+						type = "toggle", 
+						order = 1,
+					}, 
+					anyUnit = {
+						name = L["Show Aura From Other Players"], 
+						width = 'full',
+						order = 2, 
+						type = "toggle"
+					}, 
+					onlyShowMissing = {
+						name = L["Show When Not Active"], 
+						width = 'full',
+						order = 3, 
+						type = "toggle", 
+						disabled = function()return SV.filters.BuffWatch[registeredSpell].style == "text" end
+					},
 					point = {
 						name = L["Anchor Point"], 
-						order = 1, 
+						order = 4, 
 						type = "select", 
 						values = {
 							["TOPLEFT"] = "TOPLEFT", 
@@ -199,13 +224,11 @@ ns.FilterSpellGroups['BuffWatch'] = function(selectedSpell)
 							["BOTTOM"] = "BOTTOM"
 						}
 					}, 
-					xOffset = {order = 2, type = "range", name = L["xOffset"], min = -75, max = 75, step = 1}, 
-					yOffset = {order = 2, type = "range", name = L["yOffset"], min = -75, max = 75, step = 1}, 
-					style = {name = L["Style"], order = 3, type = "select", values = {["coloredIcon"] = L["Colored Icon"], ["texturedIcon"] = L["Textured Icon"], [""] = NONE}}, 
+					style = {name = L["Style"], order = 5, type = "select", values = {["coloredIcon"] = L["Colored Icon"], ["texturedIcon"] = L["Textured Icon"], [""] = NONE}},
 					color = {
 						name = L["Color"], 
 						type = "color", 
-						order = 4, 
+						order = 6, 
 						get = function(key)
 							local abColor = SV.filters.BuffWatch[registeredSpell][key[#key]]
 							return abColor.r,  abColor.g,  abColor.b,  abColor.a 
@@ -218,15 +241,10 @@ ns.FilterSpellGroups['BuffWatch'] = function(selectedSpell)
 							MOD:UpdateGroupAuraWatch("raidpet", true)
 						end
 					}, 
-					displayText = {
-						name = L["Display Text"], 
-						type = "toggle", 
-						order = 5
-					}, 
 					textColor = {
 						name = L["Text Color"], 
 						type = "color", 
-						order = 6, 
+						order = 7, 
 						get = function(key)
 							local abColor = SV.filters.BuffWatch[registeredSpell][key[#key]]
 							if abColor then 
@@ -243,27 +261,19 @@ ns.FilterSpellGroups['BuffWatch'] = function(selectedSpell)
 							MOD:UpdateGroupAuraWatch("party")
 							MOD:UpdateGroupAuraWatch("raidpet", true)
 						end
-					}, 
+					},
 					textThreshold = {
 						name = L["Text Threshold"], 
 						desc = L["At what point should the text be displayed. Set to -1 to disable."], 
 						type = "range", 
-						order = 6, 
+						order = 8, 
+						width = 'full', 
 						min = -1, 
 						max = 60, 
 						step = 1
 					}, 
-					anyUnit = {
-						name = L["Show Aura From Other Players"], 
-						order = 7, 
-						type = "toggle"
-					}, 
-					onlyShowMissing = {
-						name = L["Show When Not Active"], 
-						order = 8, 
-						type = "toggle", 
-						disabled = function()return SV.filters.BuffWatch[registeredSpell].style == "text" end
-					}
+					xOffset = {order = 9, type = "range", width = 'full', name = L["xOffset"], min = -75, max = 75, step = 1}, 
+					yOffset = {order = 10, type = "range", width = 'full', name = L["yOffset"], min = -75, max = 75, step = 1}, 
 				}
 			}
 		end
@@ -277,8 +287,7 @@ ns.FilterOptionGroups['PetBuffWatch'] = function(selectedSpell)
 		type = "group", 
 		name = 'PetBuffWatch', 
 		guiInline = true, 
-		order = -10, 
-		childGroups = "tab", 
+		order = 4,  
 		args = {
 			addSpellID = {
 				order = 1, 
@@ -379,7 +388,8 @@ ns.FilterSpellGroups['PetBuffWatch'] = function(selectedSpell)
 					SV.filters.PetBuffWatch[registeredSpell][key[#key]] = value;
 					MOD:SetUnitFrame("pet")
 				end, 
-				order = -10, 
+				order = 5, 
+				guiInline = true,
 				args = {
 					enable = {
 						name = L["Enable"], 

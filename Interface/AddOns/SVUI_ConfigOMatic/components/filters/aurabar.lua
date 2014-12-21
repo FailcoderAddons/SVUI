@@ -79,8 +79,22 @@ ns.FilterOptionGroups['AuraBars'] = function(selectedSpell)
 				order = 2,
 				name = L["Remove Spell"],
 				desc = L["Remove a spell from the filter."],
-				type = "input",
+				type = "select",
 				guiInline = true,
+				disabled = function() 
+					local EMPTY = true;
+					for g in pairs(SV.db.media.unitframes.spellcolor) do
+						EMPTY = false;
+					end
+					return EMPTY
+				end,
+				values = function()
+					wipe(tempFilterTable)
+					for g in pairs(SV.db.media.unitframes.spellcolor)do 
+						tempFilterTable[g] = g 
+					end 
+					return tempFilterTable 
+				end,
 				get = function(key) return "" end,
 				set = function(key, value)
 					if SV.db.media.unitframes.spellcolor[value] then 

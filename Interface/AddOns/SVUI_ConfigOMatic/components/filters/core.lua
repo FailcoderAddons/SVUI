@@ -65,6 +65,17 @@ local publicFilters = {
 	["PetBuffWatch"] = "(AuraWatch) Pet Auras",
 };
 
+local templateFilters = {
+	[""] = NONE,
+	["BlackList"] = "BlackList",
+	["WhiteList"] = "WhiteList",
+	["Raid"] = "Raid",
+	["AuraBars"] = "AuraBars",
+	["Player"] = "Player",
+	["BuffWatch"] = "BuffWatch",
+	["PetBuffWatch"] = "PetBuffWatch",
+};
+
 local NONE = _G.NONE;
 local GetSpellInfo = _G.GetSpellInfo;
 local collectgarbage = _G.collectgarbage;
@@ -111,7 +122,7 @@ SV.Options.args.filters = {
 			set = function(key, value) ns:SetFilterOptions(value) end,
 			values = function()
 				wipe(tempFilterTable)
-				tempFilterTable[""] = NONE;
+				tempFilterTable = templateFilters;
 				for g in pairs(SV.filters) do
 					if(publicFilters[g]) then 
 						tempFilterTable[g] = publicFilters[g]

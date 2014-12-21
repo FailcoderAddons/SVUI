@@ -92,9 +92,15 @@ ns.FilterOptionGroups['_NEW'] = function(filterType)
 						name = L["Remove Spell"],
 						desc = L["Remove a spell from the filter."],
 						type = "select",
+						disabled = function() 
+							local EMPTY = true;
+							for g in pairs(FILTER) do
+								EMPTY = false;
+							end
+							return EMPTY
+						end,
 						values = function()
 							wipe(tempFilterTable)
-							tempFilterTable[""] = NONE;
 							for g in pairs(FILTER) do
 								tempFilterTable[g] = g
 							end
