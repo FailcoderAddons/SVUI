@@ -160,7 +160,7 @@ local function UFMoveBottomQuadrant(toggle)
 		anchors.SVUI_PlayerCastbar_MOVE = "BOTTOMSVUIParentBOTTOM-278122"
 		anchors.SVUI_Target_MOVE = "BOTTOMSVUIParentBOTTOM278182"
 		anchors.SVUI_TargetCastbar_MOVE = "BOTTOMSVUIParentBOTTOM278122"
-		anchors.SVUI_Pet_MOVE = "BOTTOMSVUIParentBOTTOM0181"
+		--anchors.SVUI_Pet_MOVE = "BOTTOMSVUIParentBOTTOM0181"
 		anchors.SVUI_TargetTarget_MOVE = "BOTTOMSVUIParentBOTTOM0214"
 		anchors.SVUI_Focus_MOVE = "BOTTOMSVUIParentBOTTOM310432"
 		anchors.SVUI_ThreatBar_MOVE = "BOTTOMRIGHTSVUIParentBOTTOMRIGHT-495182"
@@ -169,7 +169,7 @@ local function UFMoveBottomQuadrant(toggle)
 		anchors.SVUI_PlayerCastbar_MOVE = "BOTTOMSVUIParentBOTTOM-278150"
 		anchors.SVUI_Target_MOVE = "BOTTOMSVUIParentBOTTOM278210"
 		anchors.SVUI_TargetCastbar_MOVE = "BOTTOMSVUIParentBOTTOM278150"
-		anchors.SVUI_Pet_MOVE = "BOTTOMSVUIParentBOTTOM0209"
+		--anchors.SVUI_Pet_MOVE = "BOTTOMSVUIParentBOTTOM0209"
 		anchors.SVUI_TargetTarget_MOVE = "BOTTOMSVUIParentBOTTOM0242"
 		anchors.SVUI_Focus_MOVE = "BOTTOMSVUIParentBOTTOM310432"
 		anchors.SVUI_ThreatBar_MOVE = "BOTTOMRIGHTSVUIParentBOTTOMRIGHT-495210"
@@ -181,7 +181,7 @@ local function UFMoveBottomQuadrant(toggle)
 		anchors.SVUI_PlayerCastbar_MOVE = "BOTTOMSVUIParentBOTTOM"..-c..""..(d-60);
 		anchors.SVUI_Target_MOVE = "BOTTOMSVUIParentBOTTOM"..c..""..d;
 		anchors.SVUI_TargetCastbar_MOVE = "BOTTOMSVUIParentBOTTOM"..c..""..(d-60);
-		anchors.SVUI_Pet_MOVE = "BOTTOMSVUIParentBOTTOM"..-c..""..e;
+		--anchors.SVUI_Pet_MOVE = "BOTTOMSVUIParentBOTTOM"..-c..""..e;
 		anchors.SVUI_TargetTarget_MOVE = "BOTTOMSVUIParentBOTTOM"..c..""..e;
 		anchors.SVUI_Focus_MOVE = "BOTTOMSVUIParentBOTTOM"..c..""..(d + 150);
 		anchors.SVUI_ThreatBar_MOVE = "BOTTOMRIGHTSVUIParentBOTTOMRIGHT-495"..d;

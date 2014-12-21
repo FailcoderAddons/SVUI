@@ -340,8 +340,13 @@ function MOD:RefreshUnitMedia(unitName)
 					panel.Name:SetShadowColor(0, 0, 0, 0.75)
             	else
                 	panel.Name:SetFont(LSM:Fetch("font", unitDB.name.font), unitDB.name.fontSize, unitDB.name.fontOutline)
-                	panel.Name:SetShadowOffset(2, -2)
-					panel.Name:SetShadowColor(0, 0, 0, 1)
+                	if(unitDB.name.fontOutline == 'NONE') then
+	                	panel.Name:SetShadowOffset(1, -1)
+						panel.Name:SetShadowColor(0, 0, 0, 1)
+					else	
+						panel.Name:SetShadowOffset(2, -2)
+						panel.Name:SetShadowColor(0, 0, 0, 0.75)
+					end
                 end
             end
             if(panel.Health) then
@@ -354,7 +359,7 @@ function MOD:RefreshUnitMedia(unitName)
                 panel.Misc:SetFont(CURRENT_FONT, db.fontSize, db.fontOutline)
             end
         end
-        if(self.Health and (unitDB.health and unitDB.health.enable)) then
+        if(self.Health) then
             self.Health:SetStatusBarTexture(CURRENT_BAR_TEXTURE)
         end
         if(self.Power and (unitDB.power and unitDB.power.enable)) then
@@ -869,6 +874,7 @@ function MOD:RefreshUnitLayout(frame, template)
 
 			local tempSize = (((UNIT_WIDTH + 2) - (BUFF_GRIP.spacing * (perRow - 1))) / perRow);
 			local auraSize = min(BEST_SIZE, tempSize)
+			--print(template .. ' ' .. auraSize .. ' / ' .. tempSize)
 			if(db.buffs.sizeOverride and db.buffs.sizeOverride > 0) then
 				auraSize = db.buffs.sizeOverride
 				BUFF_GRIP:SetWidth(perRow * db.buffs.sizeOverride)
@@ -900,7 +906,7 @@ function MOD:RefreshUnitLayout(frame, template)
 			DEBUFF_GRIP.num = GRID_MODE and 0 or debuffCount;
 
 			local tempSize = (((UNIT_WIDTH + 2) - (DEBUFF_GRIP.spacing * (perRow - 1))) / perRow);
-			local auraSize = min(BEST_SIZE,tempSize)
+			local auraSize = min(BEST_SIZE, tempSize)
 			if(db.debuffs.sizeOverride and db.debuffs.sizeOverride > 0) then
 				auraSize = db.debuffs.sizeOverride
 				DEBUFF_GRIP:SetWidth(perRow * db.debuffs.sizeOverride)

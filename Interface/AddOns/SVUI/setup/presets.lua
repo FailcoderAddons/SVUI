@@ -504,8 +504,6 @@ local function LoadPresetData()
 			["link"] = "SVUnit",
 			["default"] = {
 				["player"] = {
-					width = 215,
-					height = 60,
 					portrait = {
 						enable = true,
 						overlay = true,
@@ -513,8 +511,6 @@ local function LoadPresetData()
 					}
 				},
 				["target"] = {
-					width = 215,
-					height = 60,
 					portrait = {
 						enable = true,
 						overlay = true,
@@ -522,32 +518,20 @@ local function LoadPresetData()
 					}
 				},
 				["pet"] = {
-					width = 130,
-					height = 30,
 					portrait = {
 						enable = true,
 						overlay = true,
 						style = "3D",
-					},
-					name = {
-						position = "CENTER"
 					},
 				},
 				["targettarget"] = {
-					width = 130,
-					height = 30,
 					portrait = {
 						enable = true,
 						overlay = true,
 						style = "3D",
 					},
-					name = {
-						position = "CENTER"
-					},
 				},
 				["boss"] = {
-					width = 200,
-					height = 45,
 					portrait = {
 						enable = true,
 						overlay = true,
@@ -555,30 +539,15 @@ local function LoadPresetData()
 					}
 				},
 				["party"] = {
-					width = 75,
-					height = 60,
-					wrapXOffset = 9,
-					wrapYOffset = 13,
 					portrait = {
 						enable = true,
 						overlay = true,
 						style = "3D",
 					},
-					name = {
-						position = "INNERTOPLEFT"
-					},
-				},
-				["raid"] = {
-					width = 50,
-					height = 30,
-					wrapXOffset = 6,
-					wrapYOffset = 6,
 				},
 			},
 			["super"] = {
 				["player"] = {
-					width = 215,
-					height = 60,
 					portrait = {
 						enable = true,
 						overlay = true,
@@ -586,8 +555,6 @@ local function LoadPresetData()
 					}
 				},
 				["target"] = {
-					width = 215,
-					height = 60,
 					portrait = {
 						enable = true,
 						overlay = true,
@@ -595,32 +562,20 @@ local function LoadPresetData()
 					}
 				},
 				["pet"] = {
-					width = 150,
-					height = 30,
 					portrait = {
 						enable = true,
 						overlay = true,
 						style = "3D",
-					},
-					name = {
-						position = "CENTER"
 					},
 				},
 				["targettarget"] = {
-					width = 150,
-					height = 30,
 					portrait = {
-						enable = true,
+						enable = false,
 						overlay = true,
 						style = "3D",
 					},
-					name = {
-						position = "CENTER"
-					},
 				},
 				["boss"] = {
-					width = 200,
-					height = 45,
 					portrait = {
 						enable = true,
 						overlay = true,
@@ -628,164 +583,87 @@ local function LoadPresetData()
 					}
 				},
 				["party"] = {
-					width = 75,
-					height = 60,
-					wrapXOffset = 9,
-					wrapYOffset = 13,
 					portrait = {
 						enable = true,
 						overlay = true,
 						style = "3D",
 					},
-					name = {
-						position = "INNERTOPLEFT"
-					},
-				},
-				["raid"] = {
-					width = 50,
-					height = 30,
-					wrapXOffset = 6,
-					wrapYOffset = 6,
 				},
 			},
 			["simple"] = {
 				["player"] = {
-					width = 215,
-					height = 60,
 					portrait = {
 						enable = true,
 						overlay = false,
 						style = "2D",
-						width = 60, 
 					}
 				},
 				["target"] = {
-					width = 215,
-					height = 60,
 					portrait = {
 						enable = true,
 						overlay = false,
 						style = "2D",
-						width = 60,
 					}
 				},
 				["pet"] = {
-					width = 150,
-					height = 30,
 					portrait = {
 						enable = true,
 						overlay = false,
 						style = "2D",
-						width = 30,
-					},
-					name = {
-						position = "INNERLEFT"
 					},
 				},
 				["targettarget"] = {
-					width = 150,
-					height = 30,
 					portrait = {
-						enable = true,
+						enable = false,
 						overlay = false,
 						style = "2D",
-						width = 30,
-					},
-					name = {
-						position = "INNERLEFT"
 					},
 				},
 				["boss"] = {
-					width = 200,
-					height = 45,
 					portrait = {
 						enable = true,
 						overlay = false,
 						style = "2D",
-						width = 45,
 					}
 				},
 				["party"] = {
-					width = 100,
-					height = 35,
-					wrapXOffset = 9,
-					wrapYOffset = 13,
 					portrait = {
 						enable = true,
 						overlay = false,
 						style = "2D",
-						width = 35,
 					},
-					name = {
-						position = "INNERRIGHT"
-					},
-				},
-				["raid"] = {
-					width = 50,
-					height = 30,
-					wrapXOffset = 6,
-					wrapYOffset = 6,
 				},
 			},
 			["compact"] = {
 				["player"] = {
-					width = 215,
-					height = 50,
 					portrait = {
 						enable = false
 					}
 				},
 				["target"] = {
-					width = 215,
-					height = 50,
 					portrait = {
 						enable = false
 					}
 				},
 				["pet"] = {
-					width = 130,
-					height = 30,
 					portrait = {
 						enable = false
-					},
-					name = {
-						position = "CENTER"
 					},
 				},
 				["targettarget"] = {
-					width = 130,
-					height = 30,
 					portrait = {
 						enable = false
 					},
-					name = {
-						position = "CENTER"
-					},
 				},
 				["boss"] = {
-					width = 200,
-					height = 45,
 					portrait = {
 						enable = false
 					}
 				},
 				["party"] = {
-					width = 70,
-					height = 30,
-					wrapXOffset = 9,
-					wrapYOffset = 13,
 					portrait = {
 						enable = false
 					},
-					name = {
-						position = "INNERTOPLEFT"
-					},
-				},
-				["raid"] = {
-					width = 50,
-					height = 30,
-					wrapXOffset = 6,
-					wrapYOffset = 6,
 				},
 			},
 		},

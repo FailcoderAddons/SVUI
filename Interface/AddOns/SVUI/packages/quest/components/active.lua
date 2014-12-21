@@ -111,25 +111,23 @@ local ViewButton_OnClick = function(self, button)
 			if(questLink) then
 				ChatEdit_InsertLink(questLink);
 			end
-		elseif(button ~= "RightButton") then
+		elseif(questID and button ~= "RightButton") then
 			CloseDropDownMenus();
-			if(IsModifiedClick("QUESTWATCHTOGGLE")) then
-				local superTrackedQuestID = GetSuperTrackedQuestID();
+			if(IsQuestComplete(questID) and GetQuestLogIsAutoComplete(questIndex)) then
+				AutoQuestPopupTracker_RemovePopUp(questID);
+				ShowQuestComplete(questIndex);
+			else
+				QuestLogPopupDetailFrame_Show(questIndex);
+			end
+		elseif(questID) then
+			if(IsShiftKeyDown()) then
+				QuestMapFrame_OpenToQuestDetails(questID);
+			else
 				RemoveQuestWatch(questIndex);
 				if(questID == superTrackedQuestID) then
 					QuestSuperTracking_OnQuestUntracked();
 				end
-			else
-				if(IsQuestComplete(questID) and GetQuestLogIsAutoComplete(questIndex)) then
-					AutoQuestPopupTracker_RemovePopUp(questID);
-					ShowQuestComplete(questIndex);
-				else
-					QuestLogPopupDetailFrame_Show(questIndex);
-				end
 			end
-			return;
-		else
-			QuestMapFrame_OpenToQuestDetails(questID);
 		end
 	end
 end
@@ -203,7 +201,7 @@ local SetActiveData = function(self, title, level, icon, questID, questLogIndex,
 		objective_block:FadeIn();
 	end
 
-	fill_height = fill_height + (LARGE_ROW_HEIGHT + 8);
+	fill_height = fill_height + ((INNER_HEIGHT * 0.5) + LARGE_ROW_HEIGHT + 8);
 	block:SetHeightToScale(fill_height);
 
 	MOD.Docklet.ScrollFrame.ScrollBar:SetValue(0);
@@ -233,11 +231,17 @@ local RefreshActiveObjective = function(self, event, ...)
 			self:Set(...)
 		elseif(event == 'SUPER_TRACKED_QUEST_CHANGED') then
 			local questID = ...;
-			local questLogIndex = GetQuestLogIndexByID(questID)
-			local questWatchIndex = GetQuestWatchIndex(questLogIndex)
-			local title, level, suggestedGroup = GetQuestLogTitle(questLogIndex)
-			local questID, _, questLogIndex, numObjectives, requiredMoney, completed, startEvent, isAutoComplete, duration, elapsed, questType, isTask, isStory, isOnMap, hasLocalPOI = GetQuestWatchInfo(questWatchIndex);
-			self:Set(title, level, nil, questID, questLogIndex, numObjectives, duration, elapsed)
+			if(questID) then
+				local questLogIndex = GetQuestLogIndexByID(questID)
+				if(questLogIndex) then
+					local questWatchIndex = GetQuestWatchIndex(questLogIndex)
+					if(questWatchIndex) then
+						local title, level, suggestedGroup = GetQuestLogTitle(questLogIndex)
+						local questID, _, questLogIndex, numObjectives, requiredMoney, completed, startEvent, isAutoComplete, duration, elapsed, questType, isTask, isStory, isOnMap, hasLocalPOI = GetQuestWatchInfo(questWatchIndex);
+						self:Set(title, level, nil, questID, questLogIndex, numObjectives, duration, elapsed)
+					end
+				end
+			end
 		end
 	end
 end
@@ -249,6 +253,7 @@ CORE FUNCTIONS
 function MOD:CheckActiveQuest(questID, ...)
 	local currentQuestIndex = self.CurrentQuest;
 	if(currentQuestIndex and (currentQuestIndex ~= 0)) then
+		questID = questID or self.Headers["Active"].Block.RowID
 		if(questID) then
 			if(select(8, GetQuestLogTitle(currentQuestIndex)) == questID) then
 				self.Headers["Active"]:Unset();
@@ -288,6 +293,39 @@ function MOD:InitializeActive()
 	block:SetPointToScale("TOPRIGHT", active, "TOPRIGHT", -2, -4);
 	block:SetHeightToScale(LARGE_ROW_HEIGHT);
 
+	block.Top = CreateFrame("Frame", nil, block)
+	block.Top:SetPoint("TOPLEFT", block, "TOPLEFT", 2, -2);
+	block.Top:SetPoint("TOPRIGHT", block, "TOPRIGHT", -2, -2);
+	block.Top:SetHeightToScale(INNER_HEIGHT);
+
+	block.Top.Text = block.Top:CreateFontString(nil,"OVERLAY")
+	block.Top.Text:SetPoint("TOPLEFT", block.Top, "TOPLEFT", 2, 0);
+	block.Top.Text:SetPoint("BOTTOMLEFT", block.Top, "BOTTOMLEFT", 2, 0);
+	block.Top.Text:SetFont(SV.Media.font.dialog, 16, "OUTLINE")
+	block.Top.Text:SetJustifyH('LEFT')
+	block.Top.Text:SetJustifyV('MIDDLE')
+	block.Top.Text:SetTextColor(0.28,0.75,1)
+	block.Top.Text:SetShadowOffset(-1,-1)
+	block.Top.Text:SetShadowColor(0,0,0,0.5)
+	block.Top.Text:SetText("Now Tracking...")
+
+	block.CloseButton = CreateFrame("Button", nil, block.Top, "UIPanelCloseButton")
+	block.CloseButton:RemoveTextures()
+	block.CloseButton:SetStylePanel("Button", nil, 1, -7, -7, nil, "red")
+	block.CloseButton:SetFrameLevel(block.CloseButton:GetFrameLevel() + 4)
+	block.CloseButton:SetNormalTexture([[Interface\AddOns\SVUI\assets\artwork\Icons\CLOSE-BUTTON]])
+    block.CloseButton:HookScript("OnEnter", CloseButton_OnEnter)
+    block.CloseButton:HookScript("OnLeave", CloseButton_OnLeave)
+	block.CloseButton:SetPointToScale("TOPRIGHT", block.Top, "TOPRIGHT", 8, 8);
+	block.CloseButton:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+	block.CloseButton.Parent = active;
+	block.CloseButton:SetScript("OnClick", ActiveButton_OnClick)
+
+	block.Top.Divider = block.Top:CreateTexture(nil, 'BACKGROUND');
+	block.Top.Divider:SetPoint("TOPLEFT", block.Top.Text, "TOPRIGHT", -10, 0);
+	block.Top.Divider:SetPoint("BOTTOMRIGHT", block.Top, "BOTTOMRIGHT", 0, 0);
+	block.Top.Divider:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DROPDOWN-DIVIDER]]);
+
 	block.Button = CreateFrame("Button", nil, block)
 	block.Button:SetPointToScale("TOPLEFT", block, "TOPLEFT", 0, 0);
 	block.Button:SetPointToScale("BOTTOMRIGHT", block, "BOTTOMRIGHT", 0, 8);
@@ -298,7 +336,7 @@ function MOD:InitializeActive()
 	block.Button:SetScript("OnClick", ViewButton_OnClick)
 
 	block.Badge = CreateFrame("Frame", nil, block.Button)
-	block.Badge:SetPointToScale("TOPLEFT", block.Button, "TOPLEFT", 4, -4);
+	block.Badge:SetPointToScale("TOPLEFT", block.Top, "BOTTOMLEFT", 4, -4);
 	block.Badge:SetSizeToScale((LARGE_INNER_HEIGHT - 4), (LARGE_INNER_HEIGHT - 4));
 	block.Badge:SetStylePanel("Fixed", "Inset")
 
@@ -309,7 +347,7 @@ function MOD:InitializeActive()
 
 	block.Header = CreateFrame("Frame", nil, block.Button)
 	block.Header:SetPointToScale("TOPLEFT", block.Badge, "TOPRIGHT", 4, -1);
-	block.Header:SetPointToScale("TOPRIGHT", block.Button, "TOPRIGHT", -(ROW_HEIGHT + 4), 0);
+	block.Header:SetPointToScale("TOPRIGHT", block.Top, "BOTTOMRIGHT", -4, 0);
 	block.Header:SetHeightToScale(INNER_HEIGHT);
 	block.Header:SetStylePanel("Default", "Headline")
 
@@ -333,18 +371,6 @@ function MOD:InitializeActive()
 	block.Header.Text:SetText('')
 	block.Header.Text:SetPointToScale("TOPLEFT", block.Header.Level, "TOPRIGHT", 4, 0);
 	block.Header.Text:SetPointToScale("BOTTOMRIGHT", block.Header, "BOTTOMRIGHT", 0, 0);
-
-	block.CloseButton = CreateFrame("Button", nil, block.Header, "UIPanelCloseButton")
-	block.CloseButton:RemoveTextures()
-	block.CloseButton:SetStylePanel("Button", nil, 1, -7, -7, nil, "red")
-	block.CloseButton:SetFrameLevel(block.CloseButton:GetFrameLevel() + 4)
-	block.CloseButton:SetNormalTexture([[Interface\AddOns\SVUI\assets\artwork\Icons\CLOSE-BUTTON]])
-    block.CloseButton:HookScript("OnEnter", CloseButton_OnEnter)
-    block.CloseButton:HookScript("OnLeave", CloseButton_OnLeave)
-	block.CloseButton:SetPointToScale("RIGHT", block.Header, "RIGHT", (ROW_HEIGHT + 8), 0);
-	block.CloseButton:RegisterForClicks("LeftButtonUp", "RightButtonUp")
-	block.CloseButton.Parent = active;
-	block.CloseButton:SetScript("OnClick", ActiveButton_OnClick)
 
 	block.Objectives = MOD:NewObjectiveHeader(block);
 	block.Objectives:SetPointToScale("TOPLEFT", block.Header, "BOTTOMLEFT", 0, -2);

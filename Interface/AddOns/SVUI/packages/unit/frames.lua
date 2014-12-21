@@ -475,7 +475,7 @@ CONSTRUCTORS["targettarget"] = function(self, unit)
     self.Debuffs = MOD:CreateDebuffs(self, key)
     self.RaidIcon = MOD:CreateRaidIcon(self)
     self.Range = { insideAlpha = 1, outsideAlpha = 1 }
-    self:SetPointToScale("BOTTOM", SV.Screen, "BOTTOM", 0, 213)
+    self:SetPointToScale("BOTTOM", SV.Screen, "BOTTOM", 0, 192)
     SV.Mentalo:Add(self, L["TargetTarget Frame"])
 
     self.MediaUpdate = MOD.RefreshUnitMedia
@@ -526,7 +526,7 @@ CONSTRUCTORS["pet"] = function(self, unit)
     self.AuraWatch = MOD:CreateAuraWatch(self, key)
     self.RaidIcon = MOD:CreateRaidIcon(self)
     self.Range = { insideAlpha = 1, outsideAlpha = 1 }
-    self:SetPointToScale("BOTTOM", SV.Screen, "BOTTOM", 0, 182)
+    self:SetPointToScale("RIGHT", SVUI_Player, "LEFT", -2, 0)
     SV.Mentalo:Add(self, L["Pet Frame"])
     self.MediaUpdate = MOD.RefreshUnitMedia
     self.Update = UpdatePetFrame

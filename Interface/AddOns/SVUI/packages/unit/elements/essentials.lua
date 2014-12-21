@@ -479,6 +479,25 @@ function MOD:SetActionPanel(frame, unit, noHealthText, noPowerText, noMiscText)
 				end
 			end)
 		end
+	elseif(unit == 'pet') then
+		frame.ActionPanel = CreateActionPanel(frame, 2)
+
+		local info = CreateFrame("Frame", nil, frame)
+		info:SetFrameStrata("BACKGROUND")
+		info:SetFrameLevel(0)
+		info:SetPointToScale("TOPLEFT", frame.ActionPanel, "BOTTOMLEFT", -1, 1)
+		info:SetPointToScale("TOPRIGHT", frame.ActionPanel, "BOTTOMRIGHT", 1, 1)
+		info:SetHeight(30)
+
+		local bg = info:CreateTexture(nil, "BACKGROUND")
+		bg:SetAllPointsIn(info)
+		bg:SetTexture(1, 1, 1, 1)
+		bg:SetGradientAlpha("VERTICAL", 0, 0, 0, 0, 0, 0, 0, 0.7)
+
+		frame.TextGrip = CreateFrame("Frame", nil, info)
+		frame.TextGrip:SetFrameStrata("LOW")
+		frame.TextGrip:SetFrameLevel(20)
+		frame.TextGrip:SetAllPoints(info)
 	else
 		frame.ActionPanel = CreateActionPanel(frame, 2)
 		frame.TextGrip = CreateFrame("Frame", nil, frame)
@@ -559,7 +578,8 @@ function MOD:CreateHealthBar(frame, hasbg, reverse)
 	local healthBar = CreateFrame("StatusBar", nil, frame)
 	healthBar:SetFrameStrata("LOW")
 	healthBar:SetFrameLevel(4)
-	healthBar:SetStatusBarTexture(SV.Media.bar.default)
+	healthBar:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Bars\DEFAULT]]);
+	
 	if hasbg then 
 		healthBar.bg = healthBar:CreateTexture(nil, "BORDER")
 		healthBar.bg:SetAllPoints()
