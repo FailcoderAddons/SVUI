@@ -527,7 +527,7 @@ function SVUI:Initialize()
 
     self:UI_SCALE_CHANGED()
 
-    self:RefreshSystemFonts();
+    --self:RefreshSystemFonts();
     self:LoadSystemAlerts();
 
     self.Timers:Initialize();

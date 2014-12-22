@@ -144,33 +144,33 @@ end
 TRACKER FUNCTIONS
 ##########################################################
 ]]--
-local UnsetActiveData = function(self)
+local UnsetActiveData = function(self, bypass)
 	local block = self.Block;
 	block:SetHeight(1);
 	block.Header.Text:SetText('');
 	block.Header.Level:SetText('');
 	block.Badge.Icon:SetTexture(0,0,0,0);
 	block.Button:SetID(0);
+	self.ActiveQuestID = 0;
+	MOD.ActiveQuestID = self.ActiveQuestID;
 	MOD.CurrentQuest = 0;
 	block.Objectives:Reset();
 	self:SetHeight(1);
 	block:SetAlpha(0);
 	self:SetAlpha(0);
-	if(MOD.Headers["Quests"]) then
+	if(not bypass and MOD.Headers["Quests"]) then
 		MOD:UpdateObjectives('FORCED_UPDATE')
 	end
 end
 
-local SetActiveData = function(self, title, level, icon, questID, questLogIndex, numObjectives, duration, elapsed, bypass)
+local SetActiveData = function(self, title, level, icon, questID, questLogIndex, numObjectives, duration, elapsed)
+	self.ActiveQuestID = questID;
+	MOD.ActiveQuestID = self.ActiveQuestID;
 	local fill_height = 0;
 	local objective_rows = 0;
 	local block = self.Block;
-	-- if((not bypass) and block.RowID == questID) then
-	-- 	return
-	-- end
 
 	icon = icon or QUEST_ICON;
-	block.RowID = questID;
 
 	local color = DEFAULT_COLOR
 	if(level and type(level) == 'number') then
@@ -181,6 +181,7 @@ local SetActiveData = function(self, title, level, icon, questID, questLogIndex,
 	block.Header.Text:SetText(title);
 	block.Badge.Icon:SetTexture(icon);
 	block.Button:SetID(questLogIndex);
+
 	MOD.CurrentQuest = questLogIndex;
 
 	local objective_block = block.Objectives;
@@ -215,7 +216,7 @@ local SetActiveData = function(self, title, level, icon, questID, questLogIndex,
 end
 
 local RefreshActiveHeight = function(self)
-	if(self.Block.RowID == 0) then
+	if(self.ActiveQuestID == 0) then
 		self:Unset()
 	else
 		self:FadeIn();
@@ -225,13 +226,29 @@ local RefreshActiveHeight = function(self)
 end
 
 local RefreshActiveObjective = function(self, event, ...)
+	-- print('<-----ACTIVE')
+	-- print(event)
+	-- print(...)
 	if(event) then 
 		if(event == 'ACTIVE_QUEST_LOADED') then
-			self.Block.RowID = 0
+			self.ActiveQuestID = 0;
 			self:Set(...)
 		elseif(event == 'SUPER_TRACKED_QUEST_CHANGED') then
 			local questID = ...;
-			if(questID) then
+			if(questID and questID ~= self.ActiveQuestID) then
+				local questLogIndex = GetQuestLogIndexByID(questID)
+				if(questLogIndex) then
+					local questWatchIndex = GetQuestWatchIndex(questLogIndex)
+					if(questWatchIndex) then
+						local title, level, suggestedGroup = GetQuestLogTitle(questLogIndex)
+						local questID, _, questLogIndex, numObjectives, requiredMoney, completed, startEvent, isAutoComplete, duration, elapsed, questType, isTask, isStory, isOnMap, hasLocalPOI = GetQuestWatchInfo(questWatchIndex);
+						self:Set(title, level, nil, questID, questLogIndex, numObjectives, duration, elapsed)
+					end
+				end
+			end
+		elseif(event == 'FORCED_UPDATE') then
+			local questID = self.ActiveQuestID;
+			if(questID and questID ~= 0) then
 				local questLogIndex = GetQuestLogIndexByID(questID)
 				if(questLogIndex) then
 					local questWatchIndex = GetQuestWatchIndex(questLogIndex)
@@ -253,7 +270,7 @@ CORE FUNCTIONS
 function MOD:CheckActiveQuest(questID, ...)
 	local currentQuestIndex = self.CurrentQuest;
 	if(currentQuestIndex and (currentQuestIndex ~= 0)) then
-		questID = questID or self.Headers["Active"].Block.RowID
+		questID = questID or self.Headers["Active"].ActiveQuestID
 		if(questID) then
 			if(select(8, GetQuestLogTitle(currentQuestIndex)) == questID) then
 				self.Headers["Active"]:Unset();
@@ -261,7 +278,7 @@ function MOD:CheckActiveQuest(questID, ...)
 		else
 			local questLogIndex = select(5, ...);
 			if(questLogIndex and (questLogIndex == currentQuestIndex)) then
-				self.Headers["Active"]:Set(..., true);
+				self.Headers["Active"]:Set(...);
 				return true;
 			end
 		end
@@ -377,10 +394,9 @@ function MOD:InitializeActive()
 	block.Objectives:SetPointToScale("TOPRIGHT", block.Header, "BOTTOMRIGHT", 0, -2);
 	block.Objectives:SetHeightToScale(1);
 
-	block.RowID = 0;
-
 	active.Block = block;
 
+	active.ActiveQuestID = 0;
 	active.Set = SetActiveData;
 	active.Unset = UnsetActiveData;
 	active.Refresh = RefreshActiveObjective;
@@ -389,6 +405,8 @@ function MOD:InitializeActive()
 	self.Headers["Active"] = active;
 
 	self.Headers["Active"]:RefreshHeight()
+
+	self.ActiveQuestID = self.Headers["Active"].ActiveQuestID;
 
 	self:RegisterEvent("SUPER_TRACKED_QUEST_CHANGED", self.UpdateActiveObjective);
 end

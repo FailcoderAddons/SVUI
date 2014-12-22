@@ -779,8 +779,8 @@ function MOD:Load()
 	MiniMapChallengeMode:SetPointToScale("LEFT", mapHolder, "LEFT", 12, 0)
 
 	QueueStatusMinimapButton:ClearAllPoints()
-	QueueStatusMinimapButton:SetPointToScale("BOTTOMLEFT", mapHolder, "BOTTOMLEFT", 5, 4)
-	QueueStatusMinimapButton:SetStylePanel("Default", "Icon", true, 1, -7, -7)
+	QueueStatusMinimapButton:SetPointToScale("BOTTOMLEFT", mapHolder, "BOTTOMLEFT", 2, 1)
+	QueueStatusMinimapButton:SetStylePanel("Default", "Icon", true, 1, -6, -6)
 
 	QueueStatusFrame:SetClampedToScreen(true)
 	QueueStatusMinimapButtonBorder:Hide()

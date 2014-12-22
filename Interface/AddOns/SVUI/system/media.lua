@@ -369,12 +369,12 @@ function SV:RefreshSystemFonts()
   SetFont("FriendsFont_Large", STANDARD_TEXT_FONT, fontsize)
   SetFont("FriendsFont_UserText", STANDARD_TEXT_FONT, fontsize)
 
-  SetFont("GameFont_Gigantic", GIANT_TEXT_FONT, 32, "THICKOUTLINE", 32)
-  SetFont("SystemFont_Shadow_Huge1", GIANT_TEXT_FONT, 32, "OUTLINE")
-  SetFont("SystemFont_OutlineThick_Huge2", GIANT_TEXT_FONT, 32, "THICKOUTLINE")
+  SetFont("GameFont_Gigantic", GIANT_TEXT_FONT, fontsize+18, "THICKOUTLINE", 32)
+  SetFont("SystemFont_Shadow_Huge1", GIANT_TEXT_FONT, fontsize+18, "OUTLINE")
+  SetFont("SystemFont_OutlineThick_Huge2", GIANT_TEXT_FONT, fontsize+18, "THICKOUTLINE")
 
-  SetFont("SystemFont_Shadow_Huge3", DAMAGE_TEXT_FONT, 32, "THICKOUTLINE")
-  SetFont("CombatTextFont", DAMAGE_TEXT_FONT, 32, "THICKOUTLINE")
+  SetFont("SystemFont_Shadow_Huge3", DAMAGE_TEXT_FONT, fontsize+18, "THICKOUTLINE")
+  SetFont("CombatTextFont", DAMAGE_TEXT_FONT, fontsize+18, "THICKOUTLINE")
 
   local UNICODE_FONT = self.Media.font.roboto;
 
@@ -391,75 +391,7 @@ function SV:RefreshSystemFonts()
 end 
 
 function SV:RefreshAllSystemMedia()
-  local fontsize = self.db.media.fonts.size
-  local unicodesize = self.db.media.fonts.unicodeSize
-
-  local NUMBER_TEXT_FONT = LSM:Fetch("font", self.db.media.fonts.number);
-  local GIANT_TEXT_FONT = LSM:Fetch("font", self.db.media.fonts.giant);
-  STANDARD_TEXT_FONT = LSM:Fetch("font", self.db.media.fonts.default);
-  UNIT_NAME_FONT = LSM:Fetch("font", self.db.media.fonts.name);
-  DAMAGE_TEXT_FONT = LSM:Fetch("font", self.db.media.fonts.combat);
-  NAMEPLATE_FONT = STANDARD_TEXT_FONT
-  CHAT_FONT_HEIGHTS = {8,9,10,11,12,13,14,15,16,17,18,19,20}
-  UIDROPDOWNMENU_DEFAULT_TEXT_HEIGHT = fontsize
-
-  SetFont("QuestFont_Large", UNIT_NAME_FONT, fontsize+4)
-  SetFont("ZoneTextString", UNIT_NAME_FONT, fontsize*4.2, "OUTLINE")
-  SetFont("SubZoneTextString", UNIT_NAME_FONT, fontsize*3.2, "OUTLINE")
-  SetFont("PVPInfoTextString", UNIT_NAME_FONT, fontsize*1.9, "OUTLINE")
-  SetFont("PVPArenaTextString", UNIT_NAME_FONT, fontsize*1.9, "OUTLINE")
-  SetFont("SystemFont_Shadow_Outline_Huge1", UNIT_NAME_FONT, fontsize+10, "OUTLINE")
-  SetFont("SystemFont_Shadow_Outline_Huge2", UNIT_NAME_FONT, fontsize+14, "OUTLINE")
-  SetFont("SystemFont_Shadow_Outline_Huge3", UNIT_NAME_FONT, fontsize+15, "OUTLINE")
-
-  SetFont("NumberFont_OutlineThick_Mono_Small", NUMBER_TEXT_FONT, fontsize, "OUTLINE")
-  SetFont("NumberFont_Outline_Huge", NUMBER_TEXT_FONT, fontsize*2, "THICKOUTLINE", 28)
-  SetFont("NumberFont_Outline_Large", NUMBER_TEXT_FONT, fontsize+4, "OUTLINE")
-  SetFont("NumberFont_Outline_Med", NUMBER_TEXT_FONT, fontsize+2, "OUTLINE")
-  SetFont("NumberFontNormal", NUMBER_TEXT_FONT, fontsize, "OUTLINE")
-
-  SetFont("GameFontHighlight", STANDARD_TEXT_FONT, fontsize)
-  SetFont("GameFontWhite", STANDARD_TEXT_FONT, fontsize, 'OUTLINE', 1, {1,1,1})
-  SetFont("GameFontWhiteSmall", STANDARD_TEXT_FONT, fontsize, 'NONE', 1, {1,1,1})
-  SetFont("GameFontBlack", STANDARD_TEXT_FONT, fontsize, 'NONE', 1, {0,0,0})
-  SetFont("GameFontBlackSmall", STANDARD_TEXT_FONT, fontsize, 'NONE', 1, {0,0,0})
-  SetFont("GameFontNormal", STANDARD_TEXT_FONT, fontsize)
-  SetFont("QuestFont", STANDARD_TEXT_FONT, fontsize)
-  SetFont("SystemFont_Large", STANDARD_TEXT_FONT, fontsize+2)
-  SetFont("GameFontNormalMed3", STANDARD_TEXT_FONT, fontsize+1)
-  SetFont("SystemFont_Med1", STANDARD_TEXT_FONT, fontsize)
-  SetFont("SystemFont_Med3", STANDARD_TEXT_FONT, fontsize)
-  SetFont("SystemFont_Outline_Small", STANDARD_TEXT_FONT, fontsize, "OUTLINE")
-  SetFont("SystemFont_Shadow_Large", STANDARD_TEXT_FONT, fontsize+2)
-  SetFont("SystemFont_Shadow_Med1", STANDARD_TEXT_FONT, fontsize+2)
-  SetFont("SystemFont_Shadow_Med1_Outline", STANDARD_TEXT_FONT, fontsize+2)
-  SetFont("SystemFont_Shadow_Med2", STANDARD_TEXT_FONT, fontsize+3)
-  SetFont("SystemFont_Shadow_Med3", STANDARD_TEXT_FONT, fontsize+4)
-  SetFont("SystemFont_Shadow_Small", STANDARD_TEXT_FONT, fontsize)
-  SetFont("SystemFont_Small", STANDARD_TEXT_FONT, fontsize)
-  SetFont("FriendsFont_Normal", STANDARD_TEXT_FONT, fontsize)
-  SetFont("FriendsFont_Small", STANDARD_TEXT_FONT, fontsize-2)
-  SetFont("FriendsFont_Large", STANDARD_TEXT_FONT, fontsize)
-  SetFont("FriendsFont_UserText", STANDARD_TEXT_FONT, fontsize)
-
-  SetFont("GameFont_Gigantic", GIANT_TEXT_FONT, 32, "THICKOUTLINE", 32)
-  SetFont("SystemFont_Shadow_Huge1", GIANT_TEXT_FONT, 32, "OUTLINE")
-  SetFont("SystemFont_OutlineThick_Huge2", GIANT_TEXT_FONT, 32, "THICKOUTLINE")
-
-  SetFont("SystemFont_Shadow_Huge3", DAMAGE_TEXT_FONT, 32, "THICKOUTLINE")
-  SetFont("CombatTextFont", DAMAGE_TEXT_FONT, 32, "THICKOUTLINE")
-
-  local UNICODE_FONT = self.Media.font.roboto;
-
-  SetFont("GameTooltipHeader", UNICODE_FONT, unicodesize+2)
-  SetFont("Tooltip_Med", UNICODE_FONT, unicodesize)
-  SetFont("Tooltip_Small", UNICODE_FONT, unicodesize)
-  SetFont("GameFontNormalSmall", UNICODE_FONT, unicodesize)
-  SetFont("GameFontHighlightSmall", UNICODE_FONT, unicodesize)
-  SetFont("NumberFont_Shadow_Med", UNICODE_FONT, unicodesize)
-  SetFont("NumberFont_Shadow_Small", UNICODE_FONT, unicodesize)
-  SetFont("SystemFont_Tiny", UNICODE_FONT, unicodesize)
-
+  self:RefreshSystemFonts()
   self:MediaUpdate()
   self.MediaInitialized = true
 end

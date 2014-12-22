@@ -70,7 +70,6 @@ local QUEST_ICON = [[Interface\AddOns\SVUI\assets\artwork\Quest\QUEST-INCOMPLETE
 local QUEST_ICON_COMPLETE = [[Interface\AddOns\SVUI\assets\artwork\Quest\QUEST-COMPLETE-ICON]];
 
 local CACHED_QUESTS = {};
-local QUESTS_BY_LOCATION = {};
 local USED_QUESTIDS = {};
 local CURRENT_MAP_ID = 0;
 local WORLDMAP_UPDATE = false;
@@ -87,14 +86,18 @@ local QuestInZone = {
 	[24735] = 201,
 };
 
-local function UpdateCachedQuests(needsSorting)
+local function UpdateCachedQuests()
 	local s = 62500;
+	local x = 1;
 	local c = 0;
 	local li = 0;
-	if(needsSorting) then
-		wipe(QUESTS_BY_LOCATION)
-	end
-	needsSorting = needsSorting or false;
+
+	local numWatch = GetNumQuestWatches();
+	local numCache = #CACHED_QUESTS;
+	local numItems = maxNum(numWatch, numCache)
+
+	--wipe(USED_QUESTIDS);
+	wipe(CACHED_QUESTS);
 
 	for i = 1, GetNumQuestWatches() do
 		local questID, _, questLogIndex, numObjectives, _, completed, _, _, duration, elapsed, questType, isTask, isStory, isOnMap, hasLocalPOI = GetQuestWatchInfo(i);
@@ -111,42 +114,43 @@ local function UpdateCachedQuests(needsSorting)
 			if(link and QuestHasPOIInfo(questID)) then
 				local areaID = QuestInZone[questID]
 				if(areaID and (areaID == CURRENT_MAP_ID)) then
-					c = questID
+					c = x
 					li = questLogIndex
 				elseif(onContinent and (distanceSq < s)) then
 					s = distanceSq
-					c = questID
+					c = x
 					li = questLogIndex
 				end
 			end
 
-			if(not CACHED_QUESTS[questID]) then
-				CACHED_QUESTS[questID] = { 0, false, 0, 0, 0, false, {"", 100, QUEST_ICON, 0, 0, 0, 0, 0, false, 0} };
-				tinsert(QUESTS_BY_LOCATION, {distanceSq, mapID, questID});
-				needsSorting = true;
+			if(not CACHED_QUESTS[x]) then
+				CACHED_QUESTS[x] = { 0, false, 0, 0, 0, false, {"", 100, QUEST_ICON, 0, 0, 0, 0, 0, false, 0} };
 			end
 
-			CACHED_QUESTS[questID][1] = i;				-- quest watch index
-			CACHED_QUESTS[questID][2] = link;				-- quest item link
-			CACHED_QUESTS[questID][3] = mapID;			-- quest location map id
-			CACHED_QUESTS[questID][4] = floorNumber;		-- quest location floor number
-			CACHED_QUESTS[questID][5] = distanceSq;		-- quest distance from player
-			CACHED_QUESTS[questID][6] = false;			-- quest closest to player
-			CACHED_QUESTS[questID][7][1] = title;			-- args: quest title
-			CACHED_QUESTS[questID][7][2] = level;			-- args: quest level
-			CACHED_QUESTS[questID][7][3] = texture;		-- args: quest item icon
-			CACHED_QUESTS[questID][7][4] = questID;		-- args: quest id
-			CACHED_QUESTS[questID][7][5] = questLogIndex;	-- args: quest log index
-			CACHED_QUESTS[questID][7][6] = numObjectives;	-- args: quest objective count
-			CACHED_QUESTS[questID][7][7] = duration;		-- args: quest timer duration
-			CACHED_QUESTS[questID][7][8] = elapsed;		-- args: quest timer elapsed
-			CACHED_QUESTS[questID][7][9] = completed;		-- args: quest is completed
-			CACHED_QUESTS[questID][7][10] = questType;	-- args: quest type
+			CACHED_QUESTS[x][1] = i;				-- quest watch index
+			CACHED_QUESTS[x][2] = link;				-- quest item link
+			CACHED_QUESTS[x][3] = mapID;			-- quest location map id
+			CACHED_QUESTS[x][4] = floorNumber;		-- quest location floor number
+			CACHED_QUESTS[x][5] = distanceSq;		-- quest distance from player
+			CACHED_QUESTS[x][6] = false;			-- quest closest to player
+			CACHED_QUESTS[x][7][1] = title;			-- args: quest title
+			CACHED_QUESTS[x][7][2] = level;			-- args: quest level
+			CACHED_QUESTS[x][7][3] = texture;		-- args: quest item icon
+			CACHED_QUESTS[x][7][4] = questID;		-- args: quest id
+			CACHED_QUESTS[x][7][5] = questLogIndex;	-- args: quest log index
+			CACHED_QUESTS[x][7][6] = numObjectives;	-- args: quest objective count
+			CACHED_QUESTS[x][7][7] = duration;		-- args: quest timer duration
+			CACHED_QUESTS[x][7][8] = elapsed;		-- args: quest timer elapsed
+			CACHED_QUESTS[x][7][9] = completed;		-- args: quest is completed
+			CACHED_QUESTS[x][7][10] = questType;	-- args: quest type
+
 			--USED_QUESTIDS[questID] = true;
 
 			if(questID == MOD.ActiveQuestID) then
-				MOD:UpdateActiveObjective('FORCED_UPDATE', CACHED_QUESTS[questID][7])
+				MOD:UpdateActiveObjective('FORCED_UPDATE', CACHED_QUESTS[x][7])
 			end
+
+			x = x + 1;
 		end
 	end
 
@@ -155,45 +159,44 @@ local function UpdateCachedQuests(needsSorting)
 		MOD.ClosestQuest = li;
 	end
 
-	if(needsSorting) then
-		tsort(QUESTS_BY_LOCATION, function(a,b) 
-			if(a[1] and b[1]) then
-				return a[1] < b[1] 
-			else
-				return false
-			end
-		end);
-		tsort(QUESTS_BY_LOCATION, function(a,b) 
-			if(a[2] and b[2]) then
-				return a[2] < b[2] 
-			else
-				return false
-			end
-		end);
-	end
-end
-
-local function UpdateCachedDistance()
-	local s = 62500;
-	wipe(QUESTS_BY_LOCATION)
-	for questID,questData in pairs(CACHED_QUESTS) do
-		local data = questData[7];
-		local questLogIndex = data[5];
-		local distanceSq, onContinent = GetDistanceSqToQuest(questLogIndex)
-		tinsert(QUESTS_BY_LOCATION, {distanceSq, mapID, questID});
-	end
-
-	tsort(QUESTS_BY_LOCATION, function(a,b) 
-		if(a[1] and b[1]) then
-			return a[1] < b[1] 
+	tsort(CACHED_QUESTS, function(a,b) 
+		if(a[5] and b[5]) then
+			return a[5] < b[5] 
 		else
 			return false
 		end
 	end);
+	tsort(CACHED_QUESTS, function(a,b) 
+		if(a[3] and b[3]) then
+			return a[3] < b[3] 
+		else
+			return false
+		end
+	end);
+end
 
-	tsort(QUESTS_BY_LOCATION, function(a,b) 
-		if(a[2] and b[2]) then
-			return a[2] < b[2] 
+local function UpdateCachedDistance()
+	local s = 62500;
+
+	for i = 1, #CACHED_QUESTS do
+		local data = CACHED_QUESTS[i][7];
+		local questLogIndex = data[5];
+		local distanceSq, onContinent = GetDistanceSqToQuest(questLogIndex)
+
+		CACHED_QUESTS[i][5] = distanceSq;		-- quest distance from player
+		CACHED_QUESTS[i][6] = false;			-- quest closest to player
+	end
+
+	tsort(CACHED_QUESTS, function(a,b) 
+		if(a[5] and b[5]) then
+			return a[5] < b[5] 
+		else
+			return false
+		end
+	end);
+	tsort(CACHED_QUESTS, function(a,b) 
+		if(a[3] and b[3]) then
+			return a[3] < b[3] 
 		else
 			return false
 		end
@@ -217,45 +220,27 @@ local function AddCachedQuest(questLogIndex)
 				WORLDMAP_UPDATE = true;
 			end
 
-			if(not CACHED_QUESTS[questID]) then
-				CACHED_QUESTS[questID] = { 0, false, 0, 0, 0, false, {"", 100, QUEST_ICON, 0, 0, 0, 0, 0, false, 0} };
-				tinsert(QUESTS_BY_LOCATION, {distanceSq, mapID, questID});
+			if(not CACHED_QUESTS[x]) then
+				CACHED_QUESTS[x] = { 0, false, 0, 0, 0, false, {"", 100, QUEST_ICON, 0, 0, 0, 0, 0, false, 0} };
 			end
 
-			CACHED_QUESTS[questID][1] = i;				-- quest watch index
-			CACHED_QUESTS[questID][2] = link;				-- quest item link
-			CACHED_QUESTS[questID][3] = mapID;			-- quest location map id
-			CACHED_QUESTS[questID][4] = floorNumber;		-- quest location floor number
-			CACHED_QUESTS[questID][5] = distanceSq;		-- quest distance from player
-			CACHED_QUESTS[questID][6] = false;			-- quest closest to player
-			CACHED_QUESTS[questID][7][1] = title;			-- args: quest title
-			CACHED_QUESTS[questID][7][2] = level;			-- args: quest level
-			CACHED_QUESTS[questID][7][3] = texture;		-- args: quest item icon
-			CACHED_QUESTS[questID][7][4] = questID;		-- args: quest id
-			CACHED_QUESTS[questID][7][5] = questLogIndex;	-- args: quest log index
-			CACHED_QUESTS[questID][7][6] = numObjectives;	-- args: quest objective count
-			CACHED_QUESTS[questID][7][7] = duration;		-- args: quest timer duration
-			CACHED_QUESTS[questID][7][8] = elapsed;		-- args: quest timer elapsed
-			CACHED_QUESTS[questID][7][9] = completed;		-- args: quest is completed
-			CACHED_QUESTS[questID][7][10] = questType;	-- args: quest type
-
-			tsort(QUESTS_BY_LOCATION, function(a,b) 
-				if(a[1] and b[1]) then
-					return a[1] < b[1] 
-				else
-					return false
-				end
-			end);
-
-			tsort(QUESTS_BY_LOCATION, function(a,b) 
-				if(a[2] and b[2]) then
-					return a[2] < b[2] 
-				else
-					return false
-				end
-			end);
-
-			return questID;
+			CACHED_QUESTS[x][1] = i;				-- quest watch index
+			CACHED_QUESTS[x][2] = link;				-- quest item link
+			CACHED_QUESTS[x][3] = mapID;			-- quest location map id
+			CACHED_QUESTS[x][4] = floorNumber;		-- quest location floor number
+			CACHED_QUESTS[x][5] = distanceSq;		-- quest distance from player
+			CACHED_QUESTS[x][6] = false;			-- quest closest to player
+			CACHED_QUESTS[x][7][1] = title;			-- args: quest title
+			CACHED_QUESTS[x][7][2] = level;			-- args: quest level
+			CACHED_QUESTS[x][7][3] = texture;		-- args: quest item icon
+			CACHED_QUESTS[x][7][4] = questID;		-- args: quest id
+			CACHED_QUESTS[x][7][5] = questLogIndex;	-- args: quest log index
+			CACHED_QUESTS[x][7][6] = numObjectives;	-- args: quest objective count
+			CACHED_QUESTS[x][7][7] = duration;		-- args: quest timer duration
+			CACHED_QUESTS[x][7][8] = elapsed;		-- args: quest timer elapsed
+			CACHED_QUESTS[x][7][9] = completed;		-- args: quest is completed
+			CACHED_QUESTS[x][7][10] = questType;	-- args: quest type
+			return true;
 		end
 	end
 
@@ -518,7 +503,6 @@ local GetQuestRow = function(self, index)
 end
 
 local SetQuestRow = function(self, index, watchIndex, title, level, icon, questID, questLogIndex, subCount, duration, elapsed, completed, questType)
-	index = index or #self.Rows
 	index = index + 1;
 
 	local fill_height = 0;
@@ -616,42 +600,23 @@ local RefreshQuests = function(self, event, ...)
 	local fill_height = 0;
 	local zone = 0;
 
-	for i = 1, #QUESTS_BY_LOCATION do
-		local questID = QUESTS_BY_LOCATION[i][3]
-		local quest = CACHED_QUESTS[questID]
-		if(quest) then
-			local args = quest[7];
-			if(quest[1] ~= 0 and args[4] ~= 0) then
-				local add_height = 0;
-				if(quest[6] and (not args[9])) then
-					MOD.QuestItem:SetItem(quest[2], args[3], unpack(args))
-				end
-				if(zone ~= quest[3]) then
-					rows, zone = self:SetZone(rows, quest[3]);
-					fill_height = fill_height + QUEST_ROW_HEIGHT;
-				end
-				rows, add_height = self:Set(rows, quest[1], unpack(args))
-				fill_height = fill_height + add_height;
+	for i = 1, #CACHED_QUESTS do
+		local quest = CACHED_QUESTS[i];
+		local args = quest[7];
+		if(quest[1] ~= 0 and args[4] ~= 0) then
+			local add_height = 0;
+			if(quest[6] and (not args[9])) then
+				MOD.QuestItem:SetItem(quest[2], args[3], unpack(args))
 			end
+
+			if(zone ~= quest[3]) then
+				rows, zone = self:SetZone(rows, quest[3]);
+				fill_height = fill_height + QUEST_ROW_HEIGHT;
+			end
+			rows, add_height = self:Set(rows, quest[1], unpack(args))
+			fill_height = fill_height + add_height;
 		end
 	end
-
-	-- for questID,quest in pairs(CACHED_QUESTS) do
-	-- 	local args = quest[7];
-	-- 	if(quest[1] ~= 0 and args[4] ~= 0) then
-	-- 		local add_height = 0;
-	-- 		if(quest[6] and (not args[9])) then
-	-- 			MOD.QuestItem:SetItem(quest[2], args[3], unpack(args))
-	-- 		end
-	-- 		print(quest[5])
-	-- 		if(zone ~= quest[3]) then
-	-- 			rows, zone = self:SetZone(rows, quest[3]);
-	-- 			fill_height = fill_height + QUEST_ROW_HEIGHT;
-	-- 		end
-	-- 		rows, add_height = self:Set(rows, quest[1], unpack(args))
-	-- 		fill_height = fill_height + add_height;
-	-- 	end
-	-- end
 
 	if(rows == 0 or (fill_height <= 1)) then
 		self:SetHeight(1);
@@ -662,19 +627,22 @@ local RefreshQuests = function(self, event, ...)
 	end
 end
 
-local AddOneQuest = function(self, questID)
-	if(questID) then
-		local fill_height = self:GetHeight();
-		local quest = CACHED_QUESTS[questID];
-		local args = quest[7];
-		if(quest[1] ~= 0 and args[4] ~= 0) then
-			local add_height, _ = 0;
-			_, add_height = self:Set(nil, quest[1], unpack(args))
-			fill_height = fill_height + add_height;
-		end
+local AddOneQuest = function(self, event, ...)
+	-- print('<-----QUESTS')
+	-- print(event)
+	-- print(...)
+	local rows = #CACHED_QUESTS;
+	local fill_height = self:GetHeight();
 
-		self:SetHeightToScale(fill_height + 2);
+	local quest = CACHED_QUESTS[rows];
+	local args = quest[7];
+	if(quest[1] ~= 0 and args[4] ~= 0) then
+		local add_height = 0;
+		rows, add_height = self:Set(rows, quest[1], unpack(args))
+		fill_height = fill_height + add_height;
 	end
+
+	self:SetHeightToScale(fill_height + 2);
 end
 
 local ResetQuestBlock = function(self)
@@ -708,7 +676,7 @@ end
 
 local _hook_WorldMapFrameOnHide = function()
 	if(not WORLDMAP_UPDATE) then return end
-	UpdateCachedQuests(true);
+	UpdateCachedQuests();
 	MOD.Headers["Quests"]:Reset()
 	MOD.Headers["Quests"]:Refresh()
 	MOD:UpdateDimensions();
@@ -725,7 +693,6 @@ function MOD:UpdateObjectives(event, ...)
 			CURRENT_MAP_ID = GetCurrentMapAreaID();
 			UpdateCachedDistance();
 			self.Headers["Quests"]:LiteReset()
-			self.Headers["Quests"]:Refresh(event, ...)
 		end
 	elseif(event == "ZONE_CHANGED") then
 		local inMicroDungeon = IsPlayerInMicroDungeon();
@@ -735,7 +702,6 @@ function MOD:UpdateObjectives(event, ...)
 				CURRENT_MAP_ID = GetCurrentMapAreaID();
 				UpdateCachedDistance();
 				self.Headers["Quests"]:LiteReset()
-				self.Headers["Quests"]:Refresh(event, ...)
 			end
 			self.inMicroDungeon = inMicroDungeon;
 		end
@@ -751,18 +717,16 @@ function MOD:UpdateObjectives(event, ...)
 					AddQuestWatch(questLogIndex);
 					QuestSuperTracking_OnQuestTracked(questID);
 				end
-				local addedQuest = AddCachedQuest(questLogIndex)
-				if(addedQuest) then
-					self.Headers["Quests"]:AddQuest(addedQuest)
+				if(AddCachedQuest(questLogIndex)) then
+					self.Headers["Quests"]:AddQuest(event, ...)
 					self:UpdateDimensions();
 				end
 			elseif(event == "QUEST_WATCH_LIST_CHANGED") then
 				questID, isTracked = ...;
 				if(questID) then
 					local questLogIndex = GetQuestLogIndexByID(questID)
-					if(isTracked) then
-						local addedQuest = AddCachedQuest(questLogIndex)
-						self.Headers["Quests"]:AddQuest(addedQuest)
+					if(isTracked and AddCachedQuest(questLogIndex)) then
+						self.Headers["Quests"]:AddQuest(event, ...)
 					else
 						UpdateCachedQuests();
 						self.Headers["Quests"]:Refresh(event, ...)
@@ -774,9 +738,9 @@ function MOD:UpdateObjectives(event, ...)
 		elseif(event == "QUEST_TURNED_IN") then
 			self.Headers["Quests"]:Reset()
 			local questID, XP, Money = ...
-			CACHED_QUESTS[questID] = nil;
-			self:CheckActiveQuest(questID);
-			self.Headers["Quests"]:Refresh(event, ...);
+			self:CheckActiveQuest(questID)
+			UpdateCachedQuests();
+			self.Headers["Quests"]:Refresh(event, ...)
 			self:UpdateDimensions();
 			return;
 		elseif(event == "QUEST_LOG_UPDATE") then
@@ -853,7 +817,6 @@ function MOD:InitializeQuests()
 	self:RegisterEvent("ZONE_CHANGED_NEW_AREA", self.UpdateObjectives);
 	self:RegisterEvent("ZONE_CHANGED", self.UpdateObjectives);
 
-	UpdateCachedQuests(true)
 	self.Headers["Quests"]:Refresh()
 
 	WorldMapFrame:HookScript("OnHide", _hook_WorldMapFrameOnHide)

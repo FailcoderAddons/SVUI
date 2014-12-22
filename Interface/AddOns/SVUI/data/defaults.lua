@@ -35,7 +35,8 @@ local function safename(id)
     return n
 end
 
-local NAMEFONT = "SVUI Name Font";
+local NAMEFONT = "SVUI System Font";
+local NAMEFONT_SIZE = 10;
 if(GetLocale() ~= "enUS") then
 	NAMEFONT = "Roboto"
 end
@@ -750,13 +751,13 @@ SV.defaults["SVUnit"] = {
 	["disableBlizzard"] = true, 
 	["smoothbars"] = false, 
 	["statusbar"] = "SVUI MultiColorBar", 
-	["auraBarStatusbar"] = "SVUI BasicBar", 
-	["font"] = "SVUI Combat Font", 
-	["fontSize"] = 16, 
-	["fontOutline"] = "OUTLINE", 
+	["auraBarStatusbar"] = "SVUI MultiColorBar", 
+	["font"] = "SVUI Number Font", 
+	["fontSize"] = 12, 
+	["fontOutline"] = "NONE", 
 	["auraFont"] = "SVUI Alert Font", 
 	["auraFontSize"] = 12, 
-	["auraFontOutline"] = "OUTLINE", 
+	["auraFontOutline"] = "NONE", 
 	["OORAlpha"] = 0.4,
 	["groupOORAlpha"] = 0.2, 
 	["combatFadeRoles"] = true, 
@@ -836,8 +837,8 @@ SV.defaults["SVUnit"] = {
 			["tags"] = "", 
 			["xOffset"] = 0, 
 			["yOffset"] = 0, 
-			["font"] = "SVUI Number Font", 
-			["fontSize"] = 13, 
+			["font"] = NAMEFONT, 
+			["fontSize"] = NAMEFONT_SIZE, 
 			["fontOutline"] = "OUTLINE", 
 		}, 
 		["pvp"] = 
@@ -1023,12 +1024,12 @@ SV.defaults["SVUnit"] = {
 		}, 
 		["name"] = 
 		{
-			["position"] = "INNERRIGHT", 
+			["position"] = "TOPRIGHT", 
 			["tags"] = "[name:color][name:18][smartlevel]", 
 			["xOffset"] = -2, 
-			["yOffset"] = 36, 
+			["yOffset"] = 9, 
 			["font"] = NAMEFONT, 
-			["fontSize"] = 15, 
+			["fontSize"] = NAMEFONT_SIZE, 
 			["fontOutline"] = "OUTLINE", 
 		}, 
 		["portrait"] = 
@@ -1262,7 +1263,7 @@ SV.defaults["SVUnit"] = {
 			["xOffset"] = 0, 
 			["yOffset"] = 1, 
 			["font"] = NAMEFONT, 
-			["fontSize"] = 13, 
+			["fontSize"] = NAMEFONT_SIZE, 
 			["fontOutline"] = "OUTLINE", 
 		}, 
 		["portrait"] = 
@@ -1426,7 +1427,7 @@ SV.defaults["SVUnit"] = {
 			["xOffset"] = 0, 
 			["yOffset"] = 0, 
 			["font"] = NAMEFONT, 
-			["fontSize"] = 13, 
+			["fontSize"] = NAMEFONT_SIZE, 
 			["fontOutline"] = "OUTLINE", 
 		},
 		["castbar"] = 
@@ -1634,7 +1635,7 @@ SV.defaults["SVUnit"] = {
 			["yOffset"] = 0, 
 			["xOffset"] = 0, 
 			["font"] = NAMEFONT, 
-			["fontSize"] = 13, 
+			["fontSize"] = NAMEFONT_SIZE, 
 			["fontOutline"] = "OUTLINE", 
 		},
 		["buffs"] = 
@@ -1789,7 +1790,7 @@ SV.defaults["SVUnit"] = {
 			["yOffset"] = 0, 
 			["xOffset"] = 0, 
 			["font"] = NAMEFONT, 
-			["fontSize"] = 14, 
+			["fontSize"] = NAMEFONT_SIZE, 
 			["fontOutline"] = "OUTLINE", 
 		}, 
 		["portrait"] = 
@@ -1915,7 +1916,7 @@ SV.defaults["SVUnit"] = {
 			["yOffset"] = 0, 
 			["xOffset"] = 0, 
 			["font"] = NAMEFONT, 
-			["fontSize"] = 13, 
+			["fontSize"] = NAMEFONT_SIZE, 
 			["fontOutline"] = "OUTLINE", 
 		}, 
 		["buffs"] = 
@@ -2067,7 +2068,7 @@ SV.defaults["SVUnit"] = {
 			["yOffset"] = 0, 
 			["xOffset"] = 0, 
 			["font"] = NAMEFONT, 
-			["fontSize"] = 13, 
+			["fontSize"] = NAMEFONT_SIZE, 
 			["fontOutline"] = "OUTLINE", 
 		}, 
 		["buffs"] = 
@@ -2191,7 +2192,7 @@ SV.defaults["SVUnit"] = {
 			["yOffset"] = 0, 
 			["xOffset"] = 0, 
 			["font"] = NAMEFONT, 
-			["fontSize"] = 13,  
+			["fontSize"] = NAMEFONT_SIZE,  
 			["fontOutline"] = "OUTLINE", 
 		}, 
 		["portrait"] = 
@@ -2348,7 +2349,7 @@ SV.defaults["SVUnit"] = {
 			["yOffset"] = -2, 
 			["xOffset"] = 0, 
 			["font"] = NAMEFONT, 
-			["fontSize"] = 15, 
+			["fontSize"] = NAMEFONT_SIZE, 
 			["fontOutline"] = "NONE", 
 		}, 
 		["buffs"] = 
