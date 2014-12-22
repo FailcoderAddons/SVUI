@@ -327,7 +327,7 @@ local OBJECTIVE_HEADER_SetInfo = function(self, index, ...)
 		objective.Icon:SetTexture(OBJ_ICON_INCOMPLETE)
 	end
 	objective.Text:SetText(description);
-	objective:SetHeightToScale(20);
+	objective:SetHeightToScale(INNER_HEIGHT);
 	objective:FadeIn();
 
 	return index;
@@ -338,7 +338,7 @@ local OBJECTIVE_HEADER_SetTimer = function(self, index, ...)
 
 	local objective = self:Get(index);
 	objective.Text:SetText('')
-	objective:SetHeightToScale(20);
+	objective:SetHeightToScale(INNER_HEIGHT);
 	objective:FadeIn();
 
 	objective:StartTimer(...)
@@ -351,7 +351,7 @@ local OBJECTIVE_HEADER_SetProgress = function(self, index, ...)
 
 	local objective = self:Get(index);
 	objective.Text:SetText('')
-	objective:SetHeightToScale(20);
+	objective:SetHeightToScale(INNER_HEIGHT);
 	objective:FadeIn();
 
 	objective:StartProgress(...)

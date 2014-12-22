@@ -203,11 +203,13 @@ local SetAchievementRow = function(self, index, title, details, icon, achievemen
 				end
 				shown_objectives = shown_objectives + 1;					
 			end
-			objective_rows = objective_block:SetInfo(objective_rows, description, completed)
-			fill_height = fill_height + (INNER_HEIGHT + 2);
-			if(duration and elapsed and elapsed < duration and (not completed)) then
-				objective_rows = objective_block:SetTimer(objective_rows, duration, elapsed);
+			if((not completed) and description and description ~= '') then
 				fill_height = fill_height + (INNER_HEIGHT + 2);
+				objective_rows = objective_block:SetInfo(objective_rows, description, completed)
+				if(duration and elapsed and elapsed < duration) then
+					fill_height = fill_height + (INNER_HEIGHT + 2);
+					objective_rows = objective_block:SetTimer(objective_rows, duration, elapsed);
+				end
 			end
 		end
 	end

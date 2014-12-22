@@ -268,14 +268,11 @@ CORE FUNCTIONS
 ##########################################################
 ]]--
 function MOD:CheckActiveQuest(questID, ...)
-	local currentQuestIndex = self.CurrentQuest;
-	if(currentQuestIndex and (currentQuestIndex ~= 0)) then
-		questID = questID or self.Headers["Active"].ActiveQuestID
-		if(questID) then
-			if(select(8, GetQuestLogTitle(currentQuestIndex)) == questID) then
-				self.Headers["Active"]:Unset();
-			end
-		else
+	if(questID and self.Headers["Active"].ActiveQuestID == questID) then
+		self.Headers["Active"]:Unset();
+	else
+		local currentQuestIndex = self.CurrentQuest;
+		if(currentQuestIndex and (currentQuestIndex ~= 0)) then
 			local questLogIndex = select(5, ...);
 			if(questLogIndex and (questLogIndex == currentQuestIndex)) then
 				self.Headers["Active"]:Set(...);
