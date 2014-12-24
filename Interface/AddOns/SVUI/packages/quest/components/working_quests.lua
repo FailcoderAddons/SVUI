@@ -400,7 +400,7 @@ local GetQuestRow = function(self, index)
 		row.Header.Level:SetPoint("BOTTOMRIGHT", row.Header, "BOTTOMRIGHT", -4, 0);
 
 		row.Header.Text = row.Header:CreateFontString(nil,"OVERLAY")
-		row.Header.Text:SetFont(SV.Media.font.clean, 13, "NONE")
+		row.Header.Text:SetFont(SV.Media.font.default, 13, "NONE")
 		row.Header.Text:SetTextColor(1,1,0)
 		row.Header.Text:SetShadowOffset(-1,-1)
 		row.Header.Text:SetShadowColor(0,0,0,0.5)
@@ -783,7 +783,7 @@ function MOD:InitializeQuests()
 	quests.Header.Text = quests.Header:CreateFontString(nil,"OVERLAY")
 	quests.Header.Text:SetPoint("TOPLEFT", quests.Header, "TOPLEFT", 2, 0);
 	quests.Header.Text:SetPoint("BOTTOMLEFT", quests.Header, "BOTTOMLEFT", 2, 0);
-	quests.Header.Text:SetFont(SV.Media.font.dialog, 16, "OUTLINE")
+	quests.Header.Text:SetFont(SV.Media.font.narrator, 16, "OUTLINE")
 	quests.Header.Text:SetJustifyH('LEFT')
 	quests.Header.Text:SetJustifyV('MIDDLE')
 	quests.Header.Text:SetTextColor(0.28,0.75,1)

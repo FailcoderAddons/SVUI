@@ -124,7 +124,7 @@ function PLUGIN:Docklet_Omen(parent)
   OmenTitle.Panel = nil
   OmenTitle:SetStylePanel("Default", "Transparent")
   --OmenTitle:SetPanelColor("class")
-  --OmenTitle:GetFontString():SetFont(SVUI.Media.font.clean, 12, "OUTLINE")
+  --OmenTitle:GetFontString():SetFont(SVUI.Media.font.default, 12, "OUTLINE")
   OmenBarList:RemoveTextures()
   OmenAnchor:SetStylePanel("Fixed", 'Transparent')
   OmenAnchor:ClearAllPoints()

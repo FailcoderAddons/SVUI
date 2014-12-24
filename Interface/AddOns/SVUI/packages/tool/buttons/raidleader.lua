@@ -82,7 +82,7 @@ local function NewToolButton(name, parent, template, width, height, point, relat
 
 	if(textDisplay) then
 		local text = button:CreateFontString(nil,"OVERLAY")
-		text:SetFont(SV.Media.font.clean, 14, "NONE")
+		text:SetFont(SV.Media.font.default, 14, "NONE")
 		text:SetAllPoints(button)
 		text:SetJustifyH("CENTER")
 		text:SetText(textDisplay)
@@ -207,7 +207,7 @@ function MOD:LoadRaidLeaderTools()
 		markerButton:SetStylePanel("Framed") 
 
 		local markersText = markerButton:CreateFontString(nil,"OVERLAY")
-		markersText:SetFont(SV.Media.font.clean, 14, "NONE")
+		markersText:SetFont(SV.Media.font.default, 14, "NONE")
 		markersText:SetAllPoints(markerButton)
 		markersText:SetJustifyH("CENTER")
 		markersText:SetText("World Markers")

@@ -36,11 +36,14 @@ local Ace3ConfigDialog = LibStub("AceConfigDialog-3.0");
 Ace3Config:RegisterOptionsTable(SV.NameID, SV.Options);
 Ace3ConfigDialog:SetDefaultSize(SV.NameID, 890, 651);
 local AceGUI = LibStub("AceGUI-3.0", true);
-
-local sortingFunction = function(arg1, arg2) return arg1 < arg2 end 
+local AceGUIWidgetLSMlists = AceGUIWidgetLSMlists; 
+local GameTooltip = GameTooltip;
+local GetNumEquipmentSets = GetNumEquipmentSets;
+local GetEquipmentSetInfo = GetEquipmentSetInfo;
+local sortingFunction = function(arg1, arg2) return arg1 < arg2 end
 
 local function CommonFontSizeUpdate()
-    local STANDARDFONTSIZE = SV.db.media.fonts.size;
+    local STANDARDFONTSIZE = SV.db.font.default.size;
     local smallfont = STANDARDFONTSIZE - 2;
     local largefont = STANDARDFONTSIZE + 2;
     SV.db.SVAura.fontSize = STANDARDFONTSIZE;
@@ -48,8 +51,8 @@ local function CommonFontSizeUpdate()
     SV.db.SVUnit.fontSize = STANDARDFONTSIZE;
     SV.db.SVUnit.auraFontSize = smallfont;
 
-    SV.db.SVBar.fontSize = smallfont;
-    SV.db.SVPlate.fontSize = smallfont;
+    --SV.db.SVBar.fontSize = smallfont;
+    --SV.db.SVPlate.fontSize = smallfont;
     
     SV.db.SVUnit.player.health.fontSize = largefont;
     SV.db.SVUnit.player.power.fontSize = largefont;
@@ -112,7 +115,8 @@ local function GenerateFontGroup()
     	fontGroupArgs[template] = {
     		order = orderCount, 
 			type = "group", 
-			name = template, 
+			name = data.optionName, 
+			desc = data.optionDesc, 
 			guiInline = true, 
 			args = {
 				file = {
@@ -140,7 +144,6 @@ local function GenerateFontGroup()
 						["NONE"] = L["None"], 
 						["OUTLINE"] = "OUTLINE", 
 						["MONOCHROMEOUTLINE"] = "MONOCROMEOUTLINE",
-						["THINOUTLINE"] = "THINOUTLINE",
 						["THICKOUTLINE"] = "THICKOUTLINE"
 					},
 					get = function(key)

@@ -108,14 +108,14 @@ local function StyleBars(self)
 				name:SetJustifyH('LEFT')
 				name:SetShadowColor(0, 0, 0, 0)
 				name:SetPointToScale('TOPLEFT', frame, 'TOPLEFT', 0, 0)
-				name:SetFont(SV.Media.font.clean, 12, 'OUTLINE')
+				name:SetFont(SV.Media.font.default, 12, 'OUTLINE')
 				name:SetTextColor(bar.owner.options.TextColorR, bar.owner.options.TextColorG, bar.owner.options.TextColorB)
 
 				timer:ClearAllPoints()
 				timer:SetJustifyH('RIGHT')
 				timer:SetShadowColor(0, 0, 0, 0)
 				timer:SetPointToScale('TOPRIGHT', frame, 'TOPRIGHT', 0, 0)
-				timer:SetFont(SV.Media.font.clean, 12, 'OUTLINE')
+				timer:SetFont(SV.Media.font.default, 12, 'OUTLINE')
 				timer:SetTextColor(bar.owner.options.TextColorR, bar.owner.options.TextColorG, bar.owner.options.TextColorB)
 
 				if bar.owner.options.IconLeft then icon1:Show() icon1.overlay:Show() else icon1:Hide() icon1.overlay:Hide() end
@@ -190,7 +190,7 @@ local StyleBoss = function()
 		name:SetPointToScale('LEFT', bar, 'LEFT', 4, 0)
 		timer:SetPointToScale('RIGHT', bar, 'RIGHT', -4, 0)
 		name:FontManager("name")
-		timer:FontManager("clean")
+		timer:FontManager("default")
 		count = count + 1
 	end
 end

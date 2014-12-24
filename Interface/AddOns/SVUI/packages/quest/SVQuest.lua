@@ -258,7 +258,7 @@ function MOD:NewObjectiveRow(header, index)
 	objective.Text:SetPoint("TOPLEFT", objective, "TOPLEFT", 20 + 6, -2);
 	objective.Text:SetPoint("TOPRIGHT", objective, "TOPRIGHT", 0, -2);
 	objective.Text:SetHeightToScale(INNER_HEIGHT);
-	objective.Text:SetFont(SV.Media.font.clean, 11, "NONE");
+	objective.Text:SetFont(SV.Media.font.default, 11, "NONE");
 	objective.Text:SetTextColor(0.6,0.6,0.6);
 	objective.Text:SetShadowOffset(-1,-1);
 	objective.Text:SetShadowColor(0,0,0,0.5);

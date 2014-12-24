@@ -17,7 +17,8 @@ GET ADDON DATA
 ##########################################################
 ]]--
 local SV = select(2, ...)
-
+local type = type;
+local GetSpellInfo = GetSpellInfo;
 local rez = GetCVar("gxResolution");
 local defaultDockWidth = tonumber(rez:match("(%d+)x%d+")) * 0.5;
 local defaultCenterWidth = min(defaultDockWidth, 800);
@@ -89,22 +90,20 @@ SV.defaults["totems"] = {
 }
 
 SV.defaults["font"] = {
-	["default"] 	= { file = "SVUI Default Font", 	size = 13, 	outline = "OUTLINE" 	},
-	["clean"] 		= { file = "SVUI Clean Font", 		size = 11, 	outline = "OUTLINE" 	},
-    ["name"] 		= { file = NAMEFONT, 				size = 9, 	outline = "OUTLINE" 	},
-    ["title"] 		= { file = NAMEFONT, 				size = 16, 	outline = "OUTLINE" 	}, 
-    ["number"] 		= { file = "SVUI Number Font", 		size = 11, 	outline = "OUTLINE" 	},
-    ["number_big"]	= { file = "SVUI Number Font", 		size = 18, 	outline = "OUTLINE" 	},  
-    ["combat"] 		= { file = "SVUI Combat Font", 		size = 11, 	outline = "OUTLINE" 	}, 
-    ["giant"] 		= { file = "SVUI Adventure Font", 	size = 32, 	outline = "OUTLINE" 	},
-    ["zone"] 		= { file = "SVUI Zone Font", 		size = 11, 	outline = "OUTLINE" 	},
-    ["tab"] 		= { file = "SVUI Tab Font", 		size = 11, 	outline = "OUTLINE" 	},
-    ["aura"] 		= { file = "SVUI Number Font", 		size = 8,  	outline = "OUTLINE" 	},
-    ["data"] 		= { file = "SVUI Number Font", 		size = 11, 	outline = "OUTLINE" 	},
-    ["dialog"] 		= { file = "SVUI Dialog Font", 		size = 12, 	outline = "OUTLINE" 	},
-    ["narrator"]	= { file = "SVUI Narrator Font",	size = 16, 	outline = "NONE" 		},
-    ["platename"] 	= { file = NAMEFONT, 				size = 7, 	outline = "OUTLINE" 	},
-    ["plateaura"] 	= { file = "SVUI Clean Font", 		size = 7, 	outline = "OUTLINE" 	},
+	["default"] 	= { file = "SVUI Default Font", 	size = 13, 	outline = "OUTLINE", optionName = "Default", 		optionDesc = "The most commonly used font."	},
+    ["name"] 		= { file = NAMEFONT, 				size = 9, 	outline = "OUTLINE", optionName = "Names", 			optionDesc = "Used in most places that unit names appear."	},
+    ["title"] 		= { file = NAMEFONT, 				size = 16, 	outline = "OUTLINE", optionName = "Titles", 		optionDesc = "Font used to display various titles."	}, 
+    ["number"] 		= { file = "SVUI Number Font", 		size = 11, 	outline = "OUTLINE", optionName = "Numbers (Regular)", optionDesc = "Font used to display most numeric values."	},
+    ["number_big"]	= { file = "SVUI Number Font", 		size = 18, 	outline = "OUTLINE", optionName = "Numbers (Large)", optionDesc = "Font used to display larger numeric values."	},  
+    ["combat"] 		= { file = "SVUI Combat Font", 		size = 11, 	outline = "OUTLINE", optionName = "Combat", 		optionDesc = "Scrolling combat text font."	}, 
+    ["alert"] 		= { file = "SVUI Alert Font", 		size = 32, 	outline = "OUTLINE", optionName = "Alerts", 		optionDesc = "Font used for on-screen message alerts."	},
+    ["zone"] 		= { file = "SVUI Zone Font", 		size = 11, 	outline = "OUTLINE", optionName = "Zone Text",  	optionDesc = "Font used for zone names. Shown when changing zones."	},
+    ["caps"] 		= { file = "SVUI Caps Font", 		size = 11, 	outline = "OUTLINE", optionName = "Caps", 			optionDesc = "Font typically used for things like tabs and fitted headers."	},
+    ["aura"] 		= { file = "SVUI Number Font", 		size = 8,  	outline = "OUTLINE", optionName = "Auras", 			optionDesc = "Aura counts and timers use this font."	},
+    ["data"] 		= { file = "SVUI Number Font", 		size = 11, 	outline = "OUTLINE", optionName = "Docked Stats", 	optionDesc = "Font used by the bottom and top data docks."	},
+    ["narrator"]	= { file = "SVUI Narrator Font",	size = 16, 	outline = "OUTLINE", optionName = "Narratives", 	optionDesc = "Font used for things like the 'Meanwhile' tag."	},
+    ["platename"] 	= { file = NAMEFONT, 				size = 7, 	outline = "OUTLINE", optionName = "Nameplate Names", optionDesc = "Used on nameplates for unit names."	},
+    ["plateaura"] 	= { file = "SVUI Clean Font", 		size = 7, 	outline = "OUTLINE", optionName = "Nameplate Auras", optionDesc = "Used on nameplates for aura texts."	},
 }
 
 SV.defaults["media"] = {
@@ -772,10 +771,10 @@ SV.defaults["SVUnit"] = {
 	["statusbar"] = "SVUI MultiColorBar", 
 	["auraBarStatusbar"] = "SVUI MultiColorBar", 
 	["font"] = "SVUI Number Font", 
-	["fontSize"] = 12, 
+	["fontSize"] = 10, 
 	["fontOutline"] = "NONE", 
 	["auraFont"] = "SVUI Alert Font", 
-	["auraFontSize"] = 12, 
+	["auraFontSize"] = 10, 
 	["auraFontOutline"] = "NONE", 
 	["OORAlpha"] = 0.4,
 	["groupOORAlpha"] = 0.2, 

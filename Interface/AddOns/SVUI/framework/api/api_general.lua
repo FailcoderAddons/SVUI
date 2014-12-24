@@ -212,8 +212,7 @@ UPDATE CALLBACKS
 ]]--
 local function FontTemplateUpdates()
     local defaultSize = SV.db.font.default.size;
-    for i=1, #ManagedFonts do
-        local frame = ManagedFonts[i] 
+    for frame in pairs(ManagedFonts) do
         if frame then
             if(frame.___preUpdate) then
                 frame:___preUpdate()
@@ -229,7 +228,7 @@ local function FontTemplateUpdates()
                 frame:___postUpdate()
             end
         else 
-            ManagedFonts[i] = nil 
+            ManagedFonts[frame] = nil 
         end 
     end 
 end

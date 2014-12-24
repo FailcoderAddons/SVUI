@@ -131,7 +131,7 @@ local function LootHistoryStyle()
   LootHistoryFrame.ResizeButton:SetNormalTexture("")
 
   local txt = LootHistoryFrame.ResizeButton:CreateFontString(nil,"OVERLAY")
-  txt:SetFont(SV.Media.font.clean, 14, "NONE")
+  txt:SetFont(SV.Media.font.default, 14, "NONE")
   txt:SetAllPoints(LootHistoryFrame.ResizeButton)
   txt:SetJustifyH("CENTER")
   txt:SetText("RESIZE")

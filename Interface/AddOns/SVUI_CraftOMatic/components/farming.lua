@@ -286,7 +286,7 @@ do
 		button.icon:SetAllPointsIn(button,2,2)
 		if showCount then
 			button.text = button:CreateFontString(nil, "OVERLAY")
-			button.text:SetFont(SV.Media.font.action, 12, "OUTLINE")
+			button.text:SetFont(SV.Media.font.numbers, 12, "OUTLINE")
 			button.text:SetPoint("BOTTOMRIGHT", button, 1, 2)
 		end
 		button.cooldown = CreateFrame("Cooldown", ("FarmingButton"..buttonName.."%dCooldown"):format(index), button)

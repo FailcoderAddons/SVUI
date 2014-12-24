@@ -748,7 +748,7 @@ local function MakeCommWindow()
 
 	local fbText = fallback:CreateFontString(nil, "OVERLAY")
 	fbText:SetAllPoints(fallback)
-	fbText:SetFont(SV.Media.font.clean, 12, "NONE")
+	fbText:SetFont(SV.Media.font.default, 12, "NONE")
 	fbText:SetText("Nothing To Broadcast Right Now")
 
 	frame.Unavailable = fallback
@@ -802,7 +802,7 @@ local function MakeCommWindow()
 		poi.Help = help
 
 		poi.Text = poi:CreateFontString(nil,"OVERLAY")
-		poi.Text:SetFont(SV.Media.font.clean, 12, "NONE")
+		poi.Text:SetFont(SV.Media.font.default, 12, "NONE")
 		poi.Text:SetPoint("TOPLEFT", poi, "TOPLEFT", 2, 0)
 		poi.Text:SetPoint("BOTTOMRIGHT", help, "BOTTOMLEFT", -2, 0)
 		poi.Text:SetJustifyH("CENTER")
@@ -827,7 +827,7 @@ local function MakeUtilityWindow()
 
 	local fbText = frame:CreateFontString(nil, "OVERLAY")
 	fbText:SetAllPoints(frame)
-	fbText:SetFont(SV.Media.font.clean, 12, "NONE")
+	fbText:SetFont(SV.Media.font.default, 12, "NONE")
 	fbText:SetText("Utilities Coming Soon....")
 
 	PLUGIN.TOOL = frame
@@ -1106,7 +1106,7 @@ function PLUGIN:Load()
 	summary:SetFrameStrata("MEDIUM")
 	summary:SetPoint("TOPLEFT", title, "BOTTOMLEFT",0,0)
 	summary:SetPoint("BOTTOMRIGHT", title, "BOTTOMRIGHT",0,-14)
-	summary:FontManager("clean")
+	summary:FontManager("default")
 	summary:SetMaxLines(1)
 	summary:EnableMouse(false)
 	summary:SetFading(false)

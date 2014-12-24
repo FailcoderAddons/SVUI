@@ -937,7 +937,7 @@ function MOD:Load()
 	GameTooltipStatusBar:SetPoint("BOTTOMRIGHT", GameTooltip.SuperBorder, "BOTTOMRIGHT", -3, 3)
 	GameTooltipStatusBar.text = GameTooltipStatusBar:CreateFontString(nil, "OVERLAY")
 	GameTooltipStatusBar.text:SetPointToScale("CENTER", GameTooltipStatusBar, "CENTER", 0, 0)
-	GameTooltipStatusBar.text:FontManager("clean")
+	GameTooltipStatusBar.text:FontManager("default")
 
 
 	if not GameTooltipStatusBar.border then 

@@ -241,7 +241,7 @@ function PLUGIN:ApplyItemButtonStyle(frame, adjust, shrink, noScript)
 		if(countObject) then
 			countObject:SetParent(frame.Riser)
 			countObject:SetAllPoints(frame.Riser)
-			countObject:SetFont(LSM:Fetch("font", SV.db.media.fonts.number), SV.db.media.fonts.size, "OUTLINE")
+			countObject:FontManager("number")
 			countObject:SetDrawLayer("ARTWORK", 7)
 		end
 
@@ -251,7 +251,7 @@ function PLUGIN:ApplyItemButtonStyle(frame, adjust, shrink, noScript)
 
 		if(levelObject) then 
 			levelObject:SetParent(frame.Riser)
-			levelObject:SetFont(LSM:Fetch("font", SV.db.media.fonts.number), SV.db.media.fonts.size, "OUTLINE")
+			levelObject:FontManager("number")
 			levelObject:SetDrawLayer("ARTWORK", 7)
 		end
 

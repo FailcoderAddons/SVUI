@@ -157,7 +157,7 @@ local CreateAuraIcon = function(icons, index)
     	fontSize = 8;
     	fontOutline = "MONOCHROMEOUTLINE"
     elseif(baseSize < 24) then
-    	font = SV.Media.font.clean;
+    	font = SV.Media.font.default;
     end
 
 	local cd = CreateFrame("Cooldown", nil, aura, "CooldownFrameTemplate");

@@ -114,7 +114,7 @@ CHAT BUBBLES
 -- 				frame:SetFrameStrata("BACKGROUND")
 -- 			end
 -- 			if(frame.text) then
--- 				frame.text:SetFont(SV.Media.font.dialog, 10, "NONE")
+-- 				frame.text:SetFont(SV.Media.font.narrator, 10, "NONE")
 -- 				frame.text:SetShadowColor(0,0,0,1)
 -- 				frame.text:SetShadowOffset(1,-1)
 -- 			end

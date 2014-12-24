@@ -279,7 +279,7 @@ local function ModifyActionButton(parent)
 	if SV.db.SVBar.hotkeytext then 
 		hotkey:ClearAllPoints()
 		hotkey:SetAllPoints()
-		hotkey:FontManager("clean")
+		hotkey:FontManager("default")
 		hotkey:SetJustifyH("RIGHT")
     	hotkey:SetJustifyV("TOP")
 		hotkey:SetShadowOffset(1,-1)

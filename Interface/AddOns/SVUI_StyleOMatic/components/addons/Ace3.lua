@@ -236,7 +236,7 @@ local function StyleAceGUI(event, addon)
 					newButton.toggle.SetPushedTexture = NOOP;
 					newButton.toggle:SetStylePanel("Button")
 					newButton.toggleText = newButton.toggle:CreateFontString(nil, "OVERLAY")
-					newButton.toggleText:SetFont([[Interface\AddOns\SVUI\assets\fonts\Roboto.ttf]], 19)
+					newButton.toggleText:SetFont([[Interface\AddOns\SVUI\assets\fonts\Default.ttf]], 19)
 					newButton.toggleText:SetPoint("CENTER")
 					newButton.toggleText:SetText("*")
 					return newButton 

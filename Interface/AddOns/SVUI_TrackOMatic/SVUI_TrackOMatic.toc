@@ -1,6 +1,6 @@
 ## Interface: 60000
 ## Author: Munglunch
-## Version: 5.4.06
+## Version: 5.4.08
 ## Title: |cffFF9900SVUI |r|cffFFEF00Track-O-Matic|r
 ## Notes: Supervillain UI [|cff9911FFRaid & Party Member Tracking|r].
 ## SavedVariables: TrackOMatic_Global

@@ -158,17 +158,15 @@ LSM:Register("sound", "Toasty", [[Interface\AddOns\SVUI\assets\sounds\toasty.mp3
 
 LSM:Register("font","SVUI Default Font",[[Interface\AddOns\SVUI\assets\fonts\Default.ttf]],LSM.LOCALE_BIT_ruRU+LSM.LOCALE_BIT_western)
 LSM:Register("font","SVUI Pixel Font",[[Interface\AddOns\SVUI\assets\fonts\Pixel.ttf]],LSM.LOCALE_BIT_ruRU+LSM.LOCALE_BIT_western)
-LSM:Register("font","SVUI Clean Font",[[Interface\AddOns\SVUI\assets\fonts\Clean.ttf]],LSM.LOCALE_BIT_ruRU+LSM.LOCALE_BIT_western)
-LSM:Register("font","SVUI Dialog Font",[[Interface\AddOns\SVUI\assets\fonts\Dialog.ttf]])
-LSM:Register("font","SVUI Narrator Font",[[Interface\AddOns\SVUI\assets\fonts\Narrative.ttf]])
-LSM:Register("font","SVUI Number Font",[[Interface\AddOns\SVUI\assets\fonts\Numbers.ttf]])
+LSM:Register("font","SVUI Caps Font",[[Interface\AddOns\SVUI\assets\fonts\Caps.ttf]],LSM.LOCALE_BIT_ruRU+LSM.LOCALE_BIT_western)
+LSM:Register("font","SVUI Classic Font",[[Interface\AddOns\SVUI\assets\fonts\Classic.ttf]])
 LSM:Register("font","SVUI Combat Font",[[Interface\AddOns\SVUI\assets\fonts\Combat.ttf]])
-LSM:Register("font","SVUI Zone Font",[[Interface\AddOns\SVUI\assets\fonts\Zones.ttf]])
-LSM:Register("font","SVUI Tab Font",[[Interface\AddOns\SVUI\assets\fonts\Tabs.ttf]])
 LSM:Register("font","SVUI Name Font",[[Interface\AddOns\SVUI\assets\fonts\Names.ttf]])
+LSM:Register("font","SVUI Number Font",[[Interface\AddOns\SVUI\assets\fonts\Numbers.ttf]])
+LSM:Register("font","SVUI Zone Font",[[Interface\AddOns\SVUI\assets\fonts\Zone.ttf]])
+LSM:Register("font","SVUI Flash Font",[[Interface\AddOns\SVUI\assets\fonts\Flash.ttf]])
 LSM:Register("font","SVUI Alert Font",[[Interface\AddOns\SVUI\assets\fonts\Alert.ttf]])
-LSM:Register("font","SVUI Adventure Font",[[Interface\AddOns\SVUI\assets\fonts\Adventure.ttf]])
-LSM:Register("font","SVUI Caps Font",[[Interface\AddOns\SVUI\assets\fonts\CleanCaps.ttf]],LSM.LOCALE_BIT_ruRU+LSM.LOCALE_BIT_western)
+LSM:Register("font","SVUI Narrator Font",[[Interface\AddOns\SVUI\assets\fonts\Narrative.ttf]])
 --[[ 
 ########################################################## 
 CREATE AND POPULATE MEDIA DATA
@@ -221,14 +219,11 @@ do
   SV.Media["font"] = {
     ["default"]   = Shared:Fetch("font", "SVUI Default Font"),
     ["combat"]    = Shared:Fetch("font", "SVUI Combat Font"),
-    ["dialog"]    = Shared:Fetch("font", "SVUI Dialog Font"),
     ["narrator"]  = Shared:Fetch("font", "SVUI Narrator Font"),
     ["zones"]     = Shared:Fetch("font", "SVUI Zone Font"),
-    ["action"]    = Shared:Fetch("font", "SVUI Tab Font"),
     ["alert"]     = Shared:Fetch("font", "SVUI Alert Font"),
     ["numbers"]   = Shared:Fetch("font", "SVUI Number Font"),
     ["pixel"]     = Shared:Fetch("font", "SVUI Pixel Font"),
-    ["clean"]     = Shared:Fetch("font", "SVUI Clean Font"),
     ["caps"]      = Shared:Fetch("font", "SVUI Caps Font"),
     ["names"]     = NAMEFONT,
   }
@@ -332,15 +327,16 @@ end
 
 function SV:RefreshSystemFonts()
   local fontsize = self.db.font.default.size
-  local clean_fontsize = fontsize - 1;
-  local medium_fontsize = fontsize + 1;
-  local large_fontsize = fontsize + 2;
-  local giant_fontsize = fontsize + 3;
+  local highlight_fontsize = fontsize + 1;
+  local caps_fontsize = fontsize + 2;
+  local small_fontsize = fontsize - 1;
+  local large_fontsize = fontsize + 3;
+  local giant_fontsize = fontsize + 6;
 
   local NUMBER_TEXT_FONT = LSM:Fetch("font", self.db.font.number.file);
-  local GIANT_TEXT_FONT = LSM:Fetch("font", self.db.font.giant.file);
+  local ALERT_TEXT_FONT = LSM:Fetch("font", self.db.font.alert.file);
   local ZONE_TEXT_FONT = LSM:Fetch("font", self.db.font.zone.file);
-  local CLEAN_TEXT_FONT = LSM:Fetch("font", self.db.font.clean.file);
+  local CAPS_TEXT_FONT = LSM:Fetch("font", self.db.font.caps.file);
   STANDARD_TEXT_FONT = LSM:Fetch("font", self.db.font.default.file);
   UNIT_NAME_FONT = LSM:Fetch("font", self.db.font.name.file);
   DAMAGE_TEXT_FONT = LSM:Fetch("font", self.db.font.combat.file);
@@ -349,10 +345,17 @@ function SV:RefreshSystemFonts()
   CHAT_FONT_HEIGHTS = {8,9,10,11,12,13,14,15,16,17,18,19,20}
   UIDROPDOWNMENU_DEFAULT_TEXT_HEIGHT = fontsize
 
+  SetFont("Game18Font", CAPS_TEXT_FONT, 18)
+  SetFont("Game24Font", CAPS_TEXT_FONT, 24)
+  SetFont("Game27Font", CAPS_TEXT_FONT, 27)
+  SetFont("Game32Font", CAPS_TEXT_FONT, 32)
+
   SetFont("SystemFont_OutlineThick_Huge4", ZONE_TEXT_FONT, giant_fontsize, "OUTLINE");
   SetFont("SystemFont_OutlineThick_WTF", ZONE_TEXT_FONT, giant_fontsize+5, "THICKOUTLINE");
-  SetFont("SystemFont_OutlineThick_WTF2", ZONE_TEXT_FONT, giant_fontsize, "THICKOUTLINE");
+  SetFont("SystemFont_OutlineThick_WTF2", ZONE_TEXT_FONT, giant_fontsize+5, "THICKOUTLINE");
   SetFont("QuestFont_Large", ZONE_TEXT_FONT, large_fontsize);
+  SetFont("QuestFont_Huge", ZONE_TEXT_FONT, giant_fontsize);
+  SetFont("QuestFont_Super_Huge", ZONE_TEXT_FONT, giant_fontsize);
   SetFont("PVPInfoTextString", ZONE_TEXT_FONT, fontsize*1.9, "OUTLINE");
   SetFont("PVPArenaTextString", ZONE_TEXT_FONT, fontsize*1.9, "OUTLINE");
 
@@ -365,47 +368,52 @@ function SV:RefreshSystemFonts()
   SetFont("NumberFont_OutlineThick_Mono_Small", NUMBER_TEXT_FONT, fontsize, "OUTLINE")
   SetFont("NumberFont_Outline_Huge", NUMBER_TEXT_FONT, fontsize*2, "THICKOUTLINE", 28)
   SetFont("NumberFont_Outline_Large", NUMBER_TEXT_FONT, large_fontsize, "OUTLINE")
-  SetFont("NumberFont_Outline_Med", NUMBER_TEXT_FONT, medium_fontsize, "OUTLINE")
+  SetFont("NumberFont_Outline_Med", NUMBER_TEXT_FONT, fontsize, "OUTLINE")
   SetFont("NumberFontNormal", NUMBER_TEXT_FONT, fontsize, "OUTLINE")
 
-  SetFont("GameFontHighlight", STANDARD_TEXT_FONT, medium_fontsize)
+  SetFont("ReputationDetailFont", CAPS_TEXT_FONT, highlight_fontsize)
+  SetFont("GameFontHighlightSmall", CAPS_TEXT_FONT, fontsize)
+  SetFont("GameFontHighlight", CAPS_TEXT_FONT, highlight_fontsize)
+  SetFont("GameFontHighlightLeft", CAPS_TEXT_FONT, highlight_fontsize)
+  SetFont("GameFontHighlightRight", CAPS_TEXT_FONT, highlight_fontsize)
   SetFont("GameFontWhite", STANDARD_TEXT_FONT, fontsize, 'OUTLINE', 1, {1,1,1})
   SetFont("GameFontWhiteSmall", STANDARD_TEXT_FONT, fontsize, 'NONE', 1, {1,1,1})
   SetFont("GameFontBlack", STANDARD_TEXT_FONT, fontsize, 'NONE', 1, {0,0,0})
   SetFont("GameFontBlackSmall", STANDARD_TEXT_FONT, fontsize, 'NONE', 1, {0,0,0})
-  SetFont("GameFontNormal", STANDARD_TEXT_FONT, medium_fontsize)
-  SetFont("SystemFont_Large", STANDARD_TEXT_FONT, medium_fontsize)
-  SetFont("GameFontNormalMed3", STANDARD_TEXT_FONT, clean_fontsize)
-  SetFont("SystemFont_Med1", STANDARD_TEXT_FONT, medium_fontsize)
-  SetFont("SystemFont_Med3", STANDARD_TEXT_FONT, medium_fontsize)
+  SetFont("GameFontNormal", CAPS_TEXT_FONT, fontsize)
+  SetFont("SystemFont_Large", STANDARD_TEXT_FONT, caps_fontsize)
+  SetFont("SystemFont_Huge1", CAPS_TEXT_FONT, large_fontsize)
+  SetFont("SystemFont_Huge1_Outline", CAPS_TEXT_FONT, large_fontsize)
+  SetFont("GameFontNormalMed3", STANDARD_TEXT_FONT, small_fontsize)
+  SetFont("SystemFont_Med1", STANDARD_TEXT_FONT, fontsize)
+  SetFont("SystemFont_Med3", STANDARD_TEXT_FONT, fontsize)
   SetFont("SystemFont_Outline_Small", STANDARD_TEXT_FONT, fontsize, "OUTLINE")
-  SetFont("SystemFont_Shadow_Large", STANDARD_TEXT_FONT, medium_fontsize)
-  SetFont("SystemFont_Shadow_Med1", STANDARD_TEXT_FONT, medium_fontsize)
-  SetFont("SystemFont_Shadow_Med1_Outline", STANDARD_TEXT_FONT, medium_fontsize)
-  SetFont("SystemFont_Shadow_Med2", STANDARD_TEXT_FONT, large_fontsize)
-  SetFont("SystemFont_Shadow_Med3", STANDARD_TEXT_FONT, large_fontsize)
-  SetFont("SystemFont_Shadow_Small", STANDARD_TEXT_FONT, fontsize)
-  SetFont("SystemFont_Small", STANDARD_TEXT_FONT, fontsize)
-  SetFont("FriendsFont_Normal", STANDARD_TEXT_FONT, medium_fontsize)
+  SetFont("SystemFont_Shadow_Large", CAPS_TEXT_FONT, large_fontsize)
+  SetFont("SystemFont_Shadow_Med1", CAPS_TEXT_FONT, caps_fontsize)
+  SetFont("SystemFont_Shadow_Med1_Outline", CAPS_TEXT_FONT, caps_fontsize)
+  SetFont("SystemFont_Shadow_Med2", CAPS_TEXT_FONT, caps_fontsize)
+  SetFont("SystemFont_Shadow_Med3", CAPS_TEXT_FONT, caps_fontsize)
+  SetFont("SystemFont_Shadow_Small", CAPS_TEXT_FONT, fontsize)
+  SetFont("SystemFont_Small", STANDARD_TEXT_FONT, small_fontsize)
+  SetFont("FriendsFont_Normal", STANDARD_TEXT_FONT, fontsize)
   SetFont("FriendsFont_Small", STANDARD_TEXT_FONT, fontsize)
   SetFont("FriendsFont_Large", STANDARD_TEXT_FONT, large_fontsize)
-  SetFont("FriendsFont_UserText", STANDARD_TEXT_FONT, clean_fontsize)
+  SetFont("FriendsFont_UserText", STANDARD_TEXT_FONT, small_fontsize)
 
-  SetFont("GameFont_Gigantic", GIANT_TEXT_FONT, giant_fontsize, "THICKOUTLINE", 32)
-  SetFont("SystemFont_Shadow_Huge1", GIANT_TEXT_FONT, giant_fontsize, "OUTLINE")
-  SetFont("SystemFont_OutlineThick_Huge2", GIANT_TEXT_FONT, giant_fontsize, "THICKOUTLINE")
-
+  SetFont("GameFont_Gigantic", ALERT_TEXT_FONT, giant_fontsize, "THICKOUTLINE", 32)
+  SetFont("SystemFont_Shadow_Huge1", ALERT_TEXT_FONT, giant_fontsize, "OUTLINE")
+  SetFont("SystemFont_OutlineThick_Huge2", ALERT_TEXT_FONT, giant_fontsize, "THICKOUTLINE")
   SetFont("SystemFont_Shadow_Huge3", DAMAGE_TEXT_FONT, giant_fontsize, "THICKOUTLINE")
   SetFont("CombatTextFont", DAMAGE_TEXT_FONT, giant_fontsize * 3, "OUTLINE")
 
-  SetFont("GameTooltipHeader", CLEAN_TEXT_FONT, medium_fontsize)
-  SetFont("Tooltip_Med", CLEAN_TEXT_FONT, clean_fontsize)
-  SetFont("Tooltip_Small", CLEAN_TEXT_FONT, clean_fontsize)
-  SetFont("GameFontNormalSmall", CLEAN_TEXT_FONT, clean_fontsize)
-  SetFont("GameFontHighlightSmall", CLEAN_TEXT_FONT, clean_fontsize)
-  SetFont("NumberFont_Shadow_Med", CLEAN_TEXT_FONT, clean_fontsize, "OUTLINE")
-  SetFont("NumberFont_Shadow_Small", CLEAN_TEXT_FONT, clean_fontsize, "OUTLINE")
-  SetFont("SystemFont_Tiny", CLEAN_TEXT_FONT, clean_fontsize)
+  SetFont("GameTooltipHeader", STANDARD_TEXT_FONT, fontsize)
+  SetFont("Tooltip_Med", STANDARD_TEXT_FONT, small_fontsize)
+  SetFont("Tooltip_Small", STANDARD_TEXT_FONT, small_fontsize)
+  SetFont("GameFontNormalSmall", STANDARD_TEXT_FONT, small_fontsize)
+  SetFont("GameFontHighlightSmall", STANDARD_TEXT_FONT, fontsize)
+  SetFont("NumberFont_Shadow_Med", STANDARD_TEXT_FONT, small_fontsize, "OUTLINE")
+  SetFont("NumberFont_Shadow_Small", STANDARD_TEXT_FONT, small_fontsize, "OUTLINE")
+  SetFont("SystemFont_Tiny", STANDARD_TEXT_FONT, small_fontsize)
 
   self.Events:Trigger("SVUI_FONTS_UPDATED");
 end 

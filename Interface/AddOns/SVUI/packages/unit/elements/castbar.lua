@@ -61,6 +61,14 @@ local L = SV.L;
 local MOD = SV.SVUnit
 
 if(not MOD) then return end 
+
+local CASTEFFECT = [[Spells\Fel_fire_precast_high_hand.m2]]
+-- local CASTEFFECT = [[Spells\Fill_holy_cast_01.m2]]
+-- local CASTEFFECT = [[Spells\Fill_fire_cast_01.m2]]
+-- local CASTEFFECT = [[Spells\Fill_lightning_cast_01.m2]]
+-- local CASTEFFECT = [[Spells\Fill_magma_cast_01.m2]]
+-- local CASTEFFECT = [[Spells\Fill_shadow_cast_01.m2]]
+
 --[[ 
 ########################################################## 
 LOCAL VARIABLES
@@ -648,13 +656,13 @@ function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss)
 		castbar.Text:SetAllPoints(castbar)
 		castbar.Text:SetJustifyH("CENTER")
 	else
-		castbar.Time:SetFont(SV.Media.font.clean, 11)
+		castbar.Time:SetFont(SV.Media.font.default, 11)
 		castbar.Time:SetShadowOffset(1, -1)
 		castbar.Time:SetTextColor(1, 1, 1, 0.9)
 		castbar.Time:SetPoint("RIGHT", castbar, "LEFT", -1, 0)
 		castbar.Time:SetJustifyH("RIGHT")
 
-		castbar.Text:SetFont(SV.Media.font.clean, 11)
+		castbar.Text:SetFont(SV.Media.font.default, 11)
 		castbar.Text:SetShadowOffset(1, -1)
 		castbar.Text:SetTextColor(1, 1, 1, 0.9)
 		castbar.Text:SetAllPoints(castbar)
@@ -684,12 +692,12 @@ function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss)
 	castbar.bg:SetTexture(SV.Media.bar.default)
   	castbar.bg:SetVertexColor(0,0,0,0.5)
 
- --  	local effectFrame = CreateFrame("PlayerModel", nil, bgFrame)
-	-- effectFrame:SetAllPoints(bgFrame)
-	-- effectFrame:SetCamDistanceScale(0.15)
-	-- effectFrame:SetPortraitZoom(0)
-	-- effectFrame:SetModel([[Spells\Monk_travelingmist_missile.m2]])
-
+  	local effectFrame = CreateFrame("PlayerModel", nil, bgFrame)
+	effectFrame:SetAllPoints(bgFrame)
+	effectFrame:SetCamDistanceScale(0.15)
+	effectFrame:SetPortraitZoom(0)
+	effectFrame:SetModel(CASTEFFECT)
+	
 	local borderB = bgFrame:CreateTexture(nil,"OVERLAY")
 	borderB:SetTexture(0,0,0)
 	borderB:SetPoint("BOTTOMLEFT")

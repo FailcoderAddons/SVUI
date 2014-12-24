@@ -799,7 +799,7 @@ function MOD:Load()
 		FeedbackUIButton:Die()
 	end
 
-	local mwfont = SV.Media.font.dialog
+	local mwfont = SV.Media.font.narrator
 
 	local narr = CreateFrame("Frame", nil, mapHolder)
 	narr:SetPointToScale("TOPLEFT", mapHolder, "TOPLEFT", 2, -2)
@@ -811,7 +811,7 @@ function MOD:Load()
 	narr:SetParent(Minimap)
 
 	narr.Text = narr:CreateFontString(nil, "ARTWORK", nil, 7)
-	narr.Text:FontManager("dialog")
+	narr.Text:FontManager("narrator")
 	narr.Text:SetAllPoints(narr)
 	narr.Text:SetTextColor(1, 1, 1)
 	narr.Text:SetShadowColor(0, 0, 0, 0.3)
@@ -826,7 +826,7 @@ function MOD:Load()
 	zt:SetParent(Minimap)
 
 	zt.Text = zt:CreateFontString(nil, "ARTWORK", nil, 7)
-	zt.Text:FontManager("dialog", "RIGHT")
+	zt.Text:FontManager("narrator", "RIGHT")
 	zt.Text:SetPointToScale("RIGHT", zt)
 	zt.Text:SetSize(MM_WIDTH, 32)
 	zt.Text:SetTextColor(1, 1, 0)

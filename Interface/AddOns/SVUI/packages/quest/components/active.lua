@@ -321,7 +321,7 @@ function MOD:InitializeActive()
 	block.Top.Text = block.Top:CreateFontString(nil,"OVERLAY")
 	block.Top.Text:SetPoint("TOPLEFT", block.Top, "TOPLEFT", 2, 0);
 	block.Top.Text:SetPoint("BOTTOMLEFT", block.Top, "BOTTOMLEFT", 2, 0);
-	block.Top.Text:SetFont(SV.Media.font.dialog, 16, "OUTLINE")
+	block.Top.Text:SetFont(SV.Media.font.narrator, 16, "OUTLINE")
 	block.Top.Text:SetJustifyH('LEFT')
 	block.Top.Text:SetJustifyV('MIDDLE')
 	block.Top.Text:SetTextColor(0.28,0.75,1)
@@ -375,7 +375,7 @@ function MOD:InitializeActive()
 	block.Header:SetStylePanel("Default", "Headline")
 
 	block.Header.Level = block.Header:CreateFontString(nil,"OVERLAY")
-	block.Header.Level:SetFont(SV.Media.font.clean, 12, "NONE")
+	block.Header.Level:SetFont(SV.Media.font.default, 12, "NONE")
 	block.Header.Level:SetShadowOffset(-1,-1)
 	block.Header.Level:SetShadowColor(0,0,0,0.5)
 	block.Header.Level:SetJustifyH('LEFT')
@@ -385,7 +385,7 @@ function MOD:InitializeActive()
 	block.Header.Level:SetPointToScale("BOTTOMLEFT", block.Header, "BOTTOMLEFT", 4, 0);
 
 	block.Header.Text = block.Header:CreateFontString(nil,"OVERLAY")
-	block.Header.Text:SetFont(SV.Media.font.clean, 13, "NONE")
+	block.Header.Text:SetFont(SV.Media.font.default, 13, "NONE")
 	block.Header.Text:SetTextColor(1,1,0)
 	block.Header.Text:SetShadowOffset(-1,-1)
 	block.Header.Text:SetShadowColor(0,0,0,0.5)

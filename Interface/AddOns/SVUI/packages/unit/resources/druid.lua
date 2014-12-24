@@ -215,7 +215,7 @@ function MOD:CreateClassBar(playerFrame)
 	bar.Text = lunar:CreateFontString(nil, 'OVERLAY')
 	bar.Text:SetPoint("TOPLEFT", bar, "TOPLEFT", 10, 0)
 	bar.Text:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT", -10, 0)
-	bar.Text:SetFont(SV.Media.font.clean, 16, "NONE")
+	bar.Text:SetFont(SV.Media.font.default, 16, "NONE")
 	bar.Text:SetShadowOffset(0,0)
 
 	local hyper = CreateFrame("Frame",nil,playerFrame)

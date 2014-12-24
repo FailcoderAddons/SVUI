@@ -275,7 +275,7 @@ function SV:AddQuestCompass(parent)
     compass.Arrow:SetVertexColor(0.1, 0.8, 0.8)
     compass.Radar:ClearAllPoints()
     compass.Radar:SetAllPointsOut(compass.Arrow)
-    compass.Range:SetFont(SV.Media.font.clean, 10, "OUTLINE")
+    compass.Range:SetFont(SV.Media.font.default, 10, "OUTLINE")
     compass.Range:SetTextColor(1, 1, 1, 0.75)
     compass.Spin = Rotate_Arrow
     SV.Animate:Orbit(compass.Radar, 8, true)
@@ -298,7 +298,7 @@ function PLUGIN:ReLoad()
 
     frame:SetSize(frameSize, frameSize)
     frame.Arrow:SetSize(arrowSize, arrowSize)
-    frame.Range:SetFont(SV.Media.font.clean, fontSize, "OUTLINE")
+    frame.Range:SetFont(SV.Media.font.default, fontSize, "OUTLINE")
 end
 
 function PLUGIN:Load()
@@ -308,7 +308,7 @@ function PLUGIN:Load()
     if(UNIT_TRACKER) then
         UNIT_TRACKER.Border:SetGradient(unpack(SV.Media.gradient.special))
         UNIT_TRACKER.Arrow:SetVertexColor(0.1, 0.8, 0.8)
-        UNIT_TRACKER.Range:SetFont(SV.Media.font.clean, 14, "OUTLINE")
+        UNIT_TRACKER.Range:SetFont(SV.Media.font.default, 14, "OUTLINE")
         UNIT_TRACKER.Range:SetTextColor(1, 1, 1, 0.75)
         UNIT_TRACKER.Spin = Rotate_Arrow
 

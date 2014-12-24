@@ -140,11 +140,6 @@ local CBText = true;
 local CBXoffset = 0;
 local CBYoffset = 0;
 
-local AuraFont = [[Interface\AddOns\SVUI\assets\fonts\Roboto.ttf]];
-local AuraFSize = 10;
-local AuraFOutline = "MONOCHROME";
-local AuraMaxCount = 5;
-
 local AuraFont = [[Interface\AddOns\SVUI\assets\fonts\Numbers.ttf]];
 local AuraFSize = 7;
 local AuraFOutline = "OUTLINE";
@@ -1103,8 +1098,8 @@ do
 		SVUI_PLATE.health.text:FontManager("plateaura")
 		SVUI_PLATE.cast:SetSize(HBWidth, CBHeight)
 		SVUI_PLATE.cast:SetStatusBarTexture(SV.Media.bar.gradient)
-		SVUI_PLATE.cast.text:SetFont(SV.Media.font.clean, 8, "OUTLINE")
-		plate.cast.text:SetFont(SV.Media.font.clean, 8, "OUTLINE")
+		SVUI_PLATE.cast.text:SetFont(SV.Media.font.default, 8, "OUTLINE")
+		plate.cast.text:SetFont(SV.Media.font.default, 8, "OUTLINE")
 		plate.cast.icon:SetSizeToScale((CBHeight + HBHeight) + 5)
 		PLATE_REF.raidicon:ClearAllPoints()
 		SV:SetReversePoint(PLATE_REF.raidicon, RIAnchor, SVUI_PLATE.health, RIXoffset, RIYoffset)	
@@ -1472,15 +1467,6 @@ function MOD:UpdateLocals()
 	NPBaseAlpha = db.nonTargetAlpha;
 	NPCombatHide = db.combatHide;
 
-	NPFont = LSM:Fetch("font", db.font);
-	NPFSize = db.fontSize;
-	NPFOutline = db.fontOutline;
-
-	AuraFont = LSM:Fetch("font", db.auras.font);
-	AuraFSize = db.auras.fontSize;
-	AuraFOutline = db.auras.fontOutline;
-	AuraMaxCount = db.auras.numAuras;
-
 	RIAnchor = db.raidHealIcon.attachTo;
 	RIXoffset = db.raidHealIcon.xOffset;
 	RIYoffset = db.raidHealIcon.yOffset;
@@ -1524,9 +1510,15 @@ function MOD:UpdateLocals()
 	NPReactNeutral = {rc.neutral[1], rc.neutral[2], rc.neutral[3]}
 	NPReactEnemy = {rc.enemy[1], rc.enemy[2], rc.enemy[3]}
 
-	AuraFont = LSM:Fetch("font", db.auras.font);
-	AuraFSize = db.auras.fontSize;
-	AuraFOutline = db.auras.fontOutline;
+	local npnf = SV.db.font.platename;
+	NPFont = npnf.file;
+	NPFSize = npnf.size;
+	NPFOutline = npnf.outline;
+
+	local npaf = SV.db.font.plateaura;
+	AuraFont = npaf.file;
+	AuraFSize = npaf.size;
+	AuraFOutline = npaf.outline;
 	AuraMaxCount = db.auras.numAuras;
 	AuraFilterName = db.auras.additionalFilter
 	AuraFilter = SV.filters[AuraFilterName]
