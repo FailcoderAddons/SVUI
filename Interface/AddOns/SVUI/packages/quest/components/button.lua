@@ -135,6 +135,7 @@ function MOD:InitializeQuestItem()
 	Artwork:SetPoint('CENTER', -2, 2)
 	Artwork:SetSizeToScale(256, 128)
 	Artwork:SetTexture([[Interface\ExtraButton\Smash]])
+	Artwork:SetAlpha(0)
 	Button.Artwork = Artwork
 	
 	Button:RegisterEvent('UPDATE_EXTRA_ACTIONBAR')

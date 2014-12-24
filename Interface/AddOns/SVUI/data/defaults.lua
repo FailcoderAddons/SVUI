@@ -89,20 +89,22 @@ SV.defaults["totems"] = {
 }
 
 SV.defaults["font"] = {
-	["default"] 	= { file = "SVUI Default Font", 	size = 13, outline = "OUTLINE" 	},
-	["clean"] 		= { file = "SVUI Clean Font", 		size = 11, outline = "OUTLINE" 	},
-    ["name"] 		= { file = NAMEFONT, 				size = 9, outline = "OUTLINE" 	},
-    ["title"] 		= { file = NAMEFONT, 				size = 16, outline = "OUTLINE" 	}, 
-    ["number"] 		= { file = "SVUI Number Font", 		size = 11, outline = "OUTLINE" 	},
-    ["number_big"]	= { file = "SVUI Number Font", 		size = 18, outline = "OUTLINE" 	},  
-    ["combat"] 		= { file = "SVUI Combat Font", 		size = 11, outline = "OUTLINE" 	}, 
-    ["giant"] 		= { file = "SVUI Adventure Font", 	size = 32, outline = "OUTLINE" 	},
-    ["zone"] 		= { file = "SVUI Zone Font", 		size = 11, outline = "OUTLINE" 	},
-    ["tab"] 		= { file = "SVUI Tab Font", 		size = 11, outline = "OUTLINE" 	},
-    ["aura"] 		= { file = "SVUI Number Font", 		size = 8,  outline = "OUTLINE" 	},
-    ["data"] 		= { file = "SVUI Number Font", 		size = 11, outline = "OUTLINE" 	},
-    ["dialog"] 		= { file = "SVUI Dialog Font", 		size = 12, outline = "OUTLINE" 	},
-    ["narrator"]	= { file = "SVUI Narrator Font",	size = 16, outline = "NONE" 	},
+	["default"] 	= { file = "SVUI Default Font", 	size = 13, 	outline = "OUTLINE" 	},
+	["clean"] 		= { file = "SVUI Clean Font", 		size = 11, 	outline = "OUTLINE" 	},
+    ["name"] 		= { file = NAMEFONT, 				size = 9, 	outline = "OUTLINE" 	},
+    ["title"] 		= { file = NAMEFONT, 				size = 16, 	outline = "OUTLINE" 	}, 
+    ["number"] 		= { file = "SVUI Number Font", 		size = 11, 	outline = "OUTLINE" 	},
+    ["number_big"]	= { file = "SVUI Number Font", 		size = 18, 	outline = "OUTLINE" 	},  
+    ["combat"] 		= { file = "SVUI Combat Font", 		size = 11, 	outline = "OUTLINE" 	}, 
+    ["giant"] 		= { file = "SVUI Adventure Font", 	size = 32, 	outline = "OUTLINE" 	},
+    ["zone"] 		= { file = "SVUI Zone Font", 		size = 11, 	outline = "OUTLINE" 	},
+    ["tab"] 		= { file = "SVUI Tab Font", 		size = 11, 	outline = "OUTLINE" 	},
+    ["aura"] 		= { file = "SVUI Number Font", 		size = 8,  	outline = "OUTLINE" 	},
+    ["data"] 		= { file = "SVUI Number Font", 		size = 11, 	outline = "OUTLINE" 	},
+    ["dialog"] 		= { file = "SVUI Dialog Font", 		size = 12, 	outline = "OUTLINE" 	},
+    ["narrator"]	= { file = "SVUI Narrator Font",	size = 16, 	outline = "NONE" 		},
+    ["platename"] 	= { file = NAMEFONT, 				size = 7, 	outline = "OUTLINE" 	},
+    ["plateaura"] 	= { file = "SVUI Clean Font", 		size = 7, 	outline = "OUTLINE" 	},
 }
 
 SV.defaults["media"] = {

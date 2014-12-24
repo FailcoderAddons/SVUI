@@ -665,13 +665,6 @@ SV.Options.args.common = {
 								}
 							}
 						},
-						fonts = {
-							order = 3, 
-							type = "group", 
-							name = L['Fonts'], 
-							guiInline = true, 
-							args = GenerateFontGroup(), 
-						},
 					}
 				}, 
 				gear = {
@@ -889,6 +882,13 @@ SV.Options.args.common = {
 			}, 
 		}, 
 	}
+};
+SV.Options.args.fonts = {
+	order = 3, 
+	type = "group", 
+	name = L['Fonts'],
+	childGroups = "tab",
+	args = GenerateFontGroup(), 
 };
 
 

@@ -40,19 +40,10 @@
         </Scripts>
     </Frame>
 
-    <Frame name="SVUI_QuestTrackingCompass" movable="true" frameStrata="DIALOG">
-        <Size x="70" y="70"/>
-        <Anchors>
-            <Anchor point="BOTTOM" relativeTo="UIParent" relativePoint="BOTTOM" x="0" y="180" />
-        </Anchors>
+    <Frame name="SVUI_TrackingCompassTemplate" frameStrata="DIALOG" virtual="true" >
         <Layers>
-            <Layer level="BACKGROUND">
-                <Texture parentKey="BG" setAllPoints="true" file="Interface\AddOns\SVUI_TrackOMatic\artwork\DOODAD-BG"/>
-            </Layer>
             <Layer level="BORDER">
-                <Texture parentKey="Border" setAllPoints="true" file="Interface\AddOns\SVUI_TrackOMatic\artwork\DOODAD-BORDER"/>
-                <Texture parentKey="Arrow" file="Interface\AddOns\SVUI_TrackOMatic\artwork\DOODAD-ARROW">
-                    <Size x="35" y="35"/>
+                <Texture parentKey="Arrow" file="Interface\AddOns\SVUI_TrackOMatic\artwork\QUEST-COMPASS-ARROW">
                     <Anchors>
                         <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER"/>
                     </Anchors>
@@ -64,21 +55,11 @@
             <Layer level="ARTWORK">
                 <FontString parentKey="Range" inherits="GameFontNormal">
                     <Anchors>
-                        <Anchor point="TOP" relativeTo="$parent" relativePoint="BOTTOM"/>
+                        <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER"/>
                     </Anchors>
                 </FontString>
             </Layer>
         </Layers>
-        <Scripts>
-            <OnDragStart>
-                _G["SVUI_QuestTrackingCompass"].moving = true;
-                _G["SVUI_QuestTrackingCompass"]:StartMoving();
-            </OnDragStart>
-            <OnDragStop>
-                _G["SVUI_QuestTrackingCompass"].moving = nil;
-                _G["SVUI_QuestTrackingCompass"]:StopMovingOrSizing();
-            </OnDragStop>
-        </Scripts>
     </Frame>
 
     <Script file='Loader.lua'/>

@@ -94,6 +94,12 @@ function SV.GameMenu:Initialize()
 	self.ModelRight:SetFacing(6)
 	self.ModelRight:SetPosition(0,0,-0.3)
 
+	local effectFrame = CreateFrame("PlayerModel", nil, self.ModelRight)
+	effectFrame:SetAllPoints(self.ModelRight)
+	effectFrame:SetCamDistanceScale(1)
+	effectFrame:SetPortraitZoom(0)
+	effectFrame:SetModel([[Spells\Blackmagic_precast_base.m2]])
+
 	-- local splash = self:CreateTexture(nil, "OVERLAY")
 	-- splash:SetSize(600, 300)
 	-- splash:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\SPLASH-BLACK")

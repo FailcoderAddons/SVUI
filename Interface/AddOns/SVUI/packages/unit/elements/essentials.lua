@@ -382,6 +382,12 @@ function MOD:SetActionPanel(frame, unit, noHealthText, noPowerText, noMiscText)
 		bg:SetTexture(1, 1, 1, 1)
 		bg:SetGradientAlpha("VERTICAL", 0, 0, 0, 0, 0, 0, 0, 0.7)
 
+		-- local effectFrame = CreateFrame("PlayerModel", nil, info)
+		-- effectFrame:SetAllPoints(info)
+		-- effectFrame:SetCamDistanceScale(0.5)
+		-- effectFrame:SetPortraitZoom(0)
+		-- effectFrame:SetModel([[Spells\Monk_travelingmist_missile.m2]])
+
 		frame.TextGrip = CreateFrame("Frame", nil, info)
 		frame.TextGrip:SetFrameStrata("LOW")
 		frame.TextGrip:SetFrameLevel(20)

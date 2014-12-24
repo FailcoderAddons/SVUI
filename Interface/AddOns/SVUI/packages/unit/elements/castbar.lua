@@ -511,6 +511,7 @@ function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss)
 	castbar:SetFrameLevel(2)
 
 	castbar.LatencyTexture = castbar:CreateTexture(nil, "OVERLAY")
+
 	local cbName = frame:GetName().."Castbar"
 	local castbarHolder = CreateFrame("Frame", cbName, castbar)
 
@@ -539,7 +540,6 @@ function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss)
 	castbar.Text:SetDrawLayer("OVERLAY", 7)
 
 	castbar.Organizer = organizer
-
 	
 	local bgFrame = CreateFrame("Frame", nil, castbar)
 	local hadouken = CreateFrame("Frame", nil, castbar)
@@ -683,6 +683,12 @@ function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss)
 	castbar.bg:SetAllPoints(bgFrame)
 	castbar.bg:SetTexture(SV.Media.bar.default)
   	castbar.bg:SetVertexColor(0,0,0,0.5)
+
+ --  	local effectFrame = CreateFrame("PlayerModel", nil, bgFrame)
+	-- effectFrame:SetAllPoints(bgFrame)
+	-- effectFrame:SetCamDistanceScale(0.15)
+	-- effectFrame:SetPortraitZoom(0)
+	-- effectFrame:SetModel([[Spells\Monk_travelingmist_missile.m2]])
 
 	local borderB = bgFrame:CreateTexture(nil,"OVERLAY")
 	borderB:SetTexture(0,0,0)

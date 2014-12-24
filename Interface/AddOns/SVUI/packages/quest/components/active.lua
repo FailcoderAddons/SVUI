@@ -214,8 +214,8 @@ local SetActiveData = function(self, title, level, icon, questID, questLogIndex,
 		end
 	end
 
-	if(SV.StartTrackingQuest) then
-		SV:StartTrackingQuest(questID)
+	if(self.Block.Badge.PostUpdate) then
+		self.Block.Badge:PostUpdate(questID)
 	end
 
 	self:RefreshHeight()
@@ -364,6 +364,9 @@ function MOD:InitializeActive()
 	block.Badge.Icon:SetAllPointsIn(block.Badge);
 	block.Badge.Icon:SetTexture(QUEST_ICON)
 	block.Badge.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+	if(SV.AddQuestCompass) then
+		SV:AddQuestCompass(block.Badge)
+	end
 
 	block.Header = CreateFrame("Frame", nil, block.Button)
 	block.Header:SetPointToScale("TOPLEFT", block.Badge, "TOPRIGHT", 4, -1);

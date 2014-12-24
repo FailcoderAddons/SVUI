@@ -257,6 +257,7 @@ end
 
 local function LoadToolBarGarrison()
 	if((not SV.db.SVTools.garrison) or MOD.GarrisonLoaded) then return end
+	GarrisonLandingPageMinimapButton:FadeOut()
 	if(InCombatLockdown()) then 
 		MOD.GarrisonNeedsUpdate = true; 
 		MOD:RegisterEvent("PLAYER_REGEN_ENABLED"); 

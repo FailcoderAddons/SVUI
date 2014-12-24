@@ -71,7 +71,9 @@ DOCKING
 ]]--
 local ORDER_TEMP = {};
 local ORDER_TEST = {};
-local SPARK_ANIM = [[Interface\AddOns\SVUI\assets\artwork\Doodads\DOCK-SPARKS-1]];
+
+local SPARK_ANIM = [[Interface\AddOns\SVUI\assets\artwork\Doodads\DOCK-SPARKS-]];
+
 local DOCK_LOCATIONS = {
 	["BottomLeft"] = {1, "LEFT", true, "ANCHOR_TOPLEFT"},
 	["BottomRight"] = {-1, "RIGHT", true, "ANCHOR_TOPLEFT"},
@@ -354,6 +356,7 @@ end
 
 local DockletButton_OnClick = function(self, button)
 	--if InCombatLockdown() then return end
+	self.Sparks:SetTexture(SPARK_ANIM .. random(1,3))
 	self.Sparks.anim:Play()
 	ButtonSound()
 	if(IsAltKeyDown() and (not InCombatLockdown()) and self:GetAttribute("hasDropDown") and self.GetMenuList) then
@@ -676,7 +679,7 @@ local CreateBasicToolButton = function(self, displayName, texture, onclick, glob
     local sparks = button.__border:CreateTexture(nil, "OVERLAY", nil, 2)
 	sparks:SetSizeToScale(sparkSize, sparkSize)
 	sparks:SetPoint("CENTER", button, "BOTTOMRIGHT", -sparkOffset, 4)
-	sparks:SetTexture(SPARK_ANIM)
+	sparks:SetTexture(SPARK_ANIM .. 1)
 	sparks:SetVertexColor(0.7, 0.6, 0.5)
 	sparks:SetBlendMode("ADD")
 	sparks:SetAlpha(0)

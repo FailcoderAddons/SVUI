@@ -332,10 +332,9 @@ end
 
 function SV:RefreshSystemFonts()
   local fontsize = self.db.font.default.size
-  local clean_fontsize = fontsize - 2;
-  local increased_fontsize = fontsize + 1;
-  local medium_fontsize = fontsize + 2;
-  local large_fontsize = fontsize + 3;
+  local clean_fontsize = fontsize - 1;
+  local medium_fontsize = fontsize + 1;
+  local large_fontsize = fontsize + 2;
   local giant_fontsize = fontsize + 3;
 
   local NUMBER_TEXT_FONT = LSM:Fetch("font", self.db.font.number.file);
@@ -376,7 +375,7 @@ function SV:RefreshSystemFonts()
   SetFont("GameFontBlackSmall", STANDARD_TEXT_FONT, fontsize, 'NONE', 1, {0,0,0})
   SetFont("GameFontNormal", STANDARD_TEXT_FONT, medium_fontsize)
   SetFont("SystemFont_Large", STANDARD_TEXT_FONT, medium_fontsize)
-  SetFont("GameFontNormalMed3", STANDARD_TEXT_FONT, increased_fontsize)
+  SetFont("GameFontNormalMed3", STANDARD_TEXT_FONT, clean_fontsize)
   SetFont("SystemFont_Med1", STANDARD_TEXT_FONT, medium_fontsize)
   SetFont("SystemFont_Med3", STANDARD_TEXT_FONT, medium_fontsize)
   SetFont("SystemFont_Outline_Small", STANDARD_TEXT_FONT, fontsize, "OUTLINE")
@@ -390,7 +389,7 @@ function SV:RefreshSystemFonts()
   SetFont("FriendsFont_Normal", STANDARD_TEXT_FONT, medium_fontsize)
   SetFont("FriendsFont_Small", STANDARD_TEXT_FONT, fontsize)
   SetFont("FriendsFont_Large", STANDARD_TEXT_FONT, large_fontsize)
-  SetFont("FriendsFont_UserText", STANDARD_TEXT_FONT, increased_fontsize)
+  SetFont("FriendsFont_UserText", STANDARD_TEXT_FONT, clean_fontsize)
 
   SetFont("GameFont_Gigantic", GIANT_TEXT_FONT, giant_fontsize, "THICKOUTLINE", 32)
   SetFont("SystemFont_Shadow_Huge1", GIANT_TEXT_FONT, giant_fontsize, "OUTLINE")

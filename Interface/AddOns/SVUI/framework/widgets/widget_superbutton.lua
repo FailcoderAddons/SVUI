@@ -108,10 +108,16 @@ end
 
 local SuperButton_OnShow = function(self)
 	SuperButton.isActive = true;
+	if(self.Artwork) then
+		self.Artwork:SetAlpha(1)
+	end
 end
 
 local SuperButton_OnHide = function(self)
 	SuperButton.isActive = false;
+	if(self.Artwork) then
+		self.Artwork:SetAlpha(0)
+	end
 end
 
 local IsSuperButtonActive = function(self)
@@ -545,6 +551,8 @@ function SuperButton:AddAction(buttonName, updateFunc, eventFunc)
 		end
 	]]);
 
+	special:FadeOut()
+
 	self.List[buttonName] = special;
 
 	return special
@@ -630,6 +638,8 @@ function SuperButton:AddSpell(buttonName, updateFunc, eventFunc)
 		end
 	]]);
 
+	special:FadeOut()
+
 	self.List[buttonName] = special;
 
 	return special
@@ -713,6 +723,8 @@ function SuperButton:AddItem(buttonName, updateFunc, eventFunc)
 			end
 		end
 	]]);
+
+	special:FadeOut()
 
 	self.List[buttonName] = special;
 

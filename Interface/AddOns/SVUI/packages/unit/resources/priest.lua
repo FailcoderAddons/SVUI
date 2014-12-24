@@ -147,7 +147,11 @@ function MOD:CreateClassBar(playerFrame)
 			self.swirl[1].anim:Finish()
 			self.swirl[2].anim:Finish() 
 		end)
-
+		-- local effectFrame = CreateFrame("PlayerModel", nil, bar[i])
+		-- effectFrame:SetAllPointsOut(bar[i], 10, 10)
+		-- effectFrame:SetCamDistanceScale(0.1)
+		-- effectFrame:SetPortraitZoom(0)
+		-- effectFrame:SetModel([[Spells\Clearcasting_impact_chest.m2]])
 	end 
 	bar.PreUpdate = PreUpdate
 
