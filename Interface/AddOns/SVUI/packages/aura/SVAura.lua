@@ -293,11 +293,11 @@ do
 
 		aura.count = aura:CreateFontString(nil, "ARTWORK")
 		aura.count:SetPoint("BOTTOMRIGHT", (-1 + SV.db.SVAura.countOffsetH), (1 + SV.db.SVAura.countOffsetV))
-		aura.count:FontManager(font, SV.db.SVAura.fontSize, SV.db.SVAura.fontOutline)
+		aura.count:FontManager("aura")
 
 		aura.time = aura:CreateFontString(nil, "ARTWORK")
 		aura.time:SetPoint("TOP", aura, "BOTTOM", 1 + SV.db.SVAura.timeOffsetH, 0 + SV.db.SVAura.timeOffsetV)
-		aura.time:FontManager(font, SV.db.SVAura.fontSize, SV.db.SVAura.fontOutline)
+		aura.time:FontManager("aura")
 
 		aura.highlight = aura:CreateTexture(nil, "HIGHLIGHT")
 		aura.highlight:SetTexture(BASIC_TEXTURE)

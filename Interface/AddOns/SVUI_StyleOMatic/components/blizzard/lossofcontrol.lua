@@ -41,7 +41,7 @@ local _hook_LossOfControl = function(self, ...)
   self.TimeLeft.SecondsText:ClearAllPoints()
   self.TimeLeft.SecondsText:SetPoint("BOTTOM", self, 0, -80)
   self.TimeLeft.SecondsText.scrollTime = nil;
-  self.TimeLeft.SecondsText:SetFont(SV.Media.font.roboto, 20, 'OUTLINE')
+  self.TimeLeft.SecondsText:SetFont(SV.Media.font.clean, 20, 'OUTLINE')
   if self.Anim:IsPlaying() then
      self.Anim:Stop()
   end 

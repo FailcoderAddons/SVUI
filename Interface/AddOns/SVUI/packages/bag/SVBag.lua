@@ -663,7 +663,7 @@ local ContainerFrame_UpdateLayout = function(self)
 
 				if(SV.db.SVGear.misc.setoverlay and (not slot.GearInfo)) then 
 					slot.GearInfo = slot:CreateFontString(nil,"OVERLAY")
-					slot.GearInfo:FontManager(SV.Media.font.roboto, 10, "OUTLINE")
+					slot.GearInfo:FontManager("clean")
 					slot.GearInfo:SetAllPoints(slot)
 					slot.GearInfo:SetWordWrap(true)
 					slot.GearInfo:SetJustifyH('LEFT')
@@ -992,7 +992,7 @@ do
 		MainMenuBarBackpackButton:SetParent(bar)
 		MainMenuBarBackpackButton.SetParent = SV.Hidden;
 		MainMenuBarBackpackButton:ClearAllPoints()
-		MainMenuBarBackpackButtonCount:FontManager(nil, 10)
+		MainMenuBarBackpackButtonCount:FontManager("default")
 		MainMenuBarBackpackButtonCount:ClearAllPoints()
 		MainMenuBarBackpackButtonCount:SetPointToScale("BOTTOMRIGHT", MainMenuBarBackpackButton, "BOTTOMRIGHT", -1, 4)
 		MainMenuBarBackpackButton:HookScript("OnEnter", Bags_OnEnter)
@@ -1305,7 +1305,7 @@ do
 		frame.BagMenu:Hide()
 
 		frame.goldText = frame:CreateFontString(nil, "OVERLAY")
-		frame.goldText:FontManager(SV.Media.font.numbers)
+		frame.goldText:FontManager("number")
 		frame.goldText:SetPointToScale("BOTTOMRIGHT", frame.holderFrame, "TOPRIGHT", -2, 4)
 		frame.goldText:SetJustifyH("RIGHT")
 
@@ -1325,7 +1325,7 @@ do
 		frame.editBox:SetScript("OnChar", Search_OnInput)
 		frame.editBox.SearchReset = Search_OnKeyPressed
 		frame.editBox:SetText(SEARCH)
-		frame.editBox:FontManager(SV.Media.font.roboto)
+		frame.editBox:FontManager("clean")
 
 		local searchButton = CreateFrame("Button", nil, frame)
 		searchButton:RegisterForClicks("LeftButtonUp", "RightButtonUp")
@@ -1334,7 +1334,7 @@ do
 		searchButton:SetStylePanel("Button")
 		searchButton:SetScript("OnClick", Search_OnClick)
 		local searchText = searchButton:CreateFontString(nil, "OVERLAY")
-		searchText:SetFont(SV.Media.font.roboto, 12, "NONE")
+		searchText:SetFont(SV.Media.font.clean, 12, "NONE")
 		searchText:SetAllPoints(searchButton)
 		searchText:SetJustifyH("CENTER")
 		searchText:SetText("|cff9999ff"..SEARCH.."|r")
@@ -1413,7 +1413,7 @@ do
 			frame.currencyButton[h].icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 			frame.currencyButton[h].text = frame.currencyButton[h]:CreateFontString(nil, "OVERLAY")
 			frame.currencyButton[h].text:SetPointToScale("LEFT", frame.currencyButton[h], "RIGHT", 2, 0)
-			frame.currencyButton[h].text:FontManager(SV.Media.font.numbers, 18, "NONE")
+			frame.currencyButton[h].text:FontManager("number_big")
 			frame.currencyButton[h]:SetScript("OnEnter", Token_OnEnter)
 			frame.currencyButton[h]:SetScript("OnLeave", Token_OnLeave)
 			frame.currencyButton[h]:SetScript("OnClick", Token_OnClick)
@@ -1832,7 +1832,7 @@ function MOD:Load()
 
 		BagFilters.buttons[i].text = BagFilters.buttons[i]:CreateFontString(nil, 'BORDER')
 		BagFilters.buttons[i].text:SetAllPoints()
-		BagFilters.buttons[i].text:SetFont(SV.Media.font.roboto,12,"OUTLINE")
+		BagFilters.buttons[i].text:SetFont(SV.Media.font.clean,12,"OUTLINE")
 		BagFilters.buttons[i].text:SetJustifyH("LEFT")
 		BagFilters.buttons[i].text:SetText(BAG_FILTER_LABELS[i])
 
@@ -1864,7 +1864,7 @@ function MOD:Load()
 	BagFilters.buttons[clearID].hoverTex:Hide()
 	BagFilters.buttons[clearID].text = BagFilters.buttons[clearID]:CreateFontString(nil, 'BORDER')
 	BagFilters.buttons[clearID].text:SetAllPoints()
-	BagFilters.buttons[clearID].text:SetFont(SV.Media.font.roboto,12,"OUTLINE")
+	BagFilters.buttons[clearID].text:SetFont(SV.Media.font.clean,12,"OUTLINE")
 	BagFilters.buttons[clearID].text:SetJustifyH("LEFT")
 	BagFilters.buttons[clearID].text:SetText(CLEAR_ALL .. " " .. FILTERS)
 	BagFilters.buttons[clearID]:SetScript("OnEnter", DD_OnEnter)

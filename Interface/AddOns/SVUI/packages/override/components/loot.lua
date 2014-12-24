@@ -285,7 +285,7 @@ local function MakeSlots(id)
 	slot.count = slot.iconFrame:CreateFontString(nil, "OVERLAY")
 	slot.count:SetJustifyH("RIGHT")
 	slot.count:SetPointToScale("BOTTOMRIGHT", slot.iconFrame, -2, 2)
-	slot.count:SetFont(LSM:Fetch("font", "Roboto"), 12, "OUTLINE")
+	slot.count:SetFont(LSM:Fetch("font", "SVUI Clean Font"), 12, "OUTLINE")
 	slot.count:SetText(1)
 
 	slot.name = slot:CreateFontString(nil, "OVERLAY")
@@ -293,7 +293,7 @@ local function MakeSlots(id)
 	slot.name:SetPoint("LEFT", slot)
 	slot.name:SetPoint("RIGHT", slot.icon, "LEFT")
 	slot.name:SetNonSpaceWrap(true)
-	slot.name:SetFont(LSM:Fetch("font", "Roboto"), 12, "OUTLINE")
+	slot.name:SetFont(LSM:Fetch("font", "SVUI Clean Font"), 12, "OUTLINE")
 
 	slot.drop = slot:CreateTexture(nil, "ARTWORK")
 	slot.drop:SetTexture("Interface\\QuestFrame\\UI-QuestLogTitleHighlight")
@@ -329,7 +329,7 @@ local function CreateRollButton(rollFrame, type, locale, anchor)
 	rollButton:SetScript("OnClick", DoDaRoll)
 	rollButton:SetMotionScriptsWhileDisabled(true)
 	local text = rollButton:CreateFontString(nil, nil)
-	text:SetFont(LSM:Fetch("font", "Roboto"),14,"OUTLINE")
+	text:SetFont(LSM:Fetch("font", "SVUI Clean Font"),14,"OUTLINE")
 	text:SetPointToScale("CENTER", 0, ((type == 2 and 1) or (type == 0 and -1.2) or 0))
 	return rollButton, text 
 end 
@@ -641,6 +641,7 @@ PACKAGE CALL
 ##########################################################
 ]]--
 function MOD:SetLootFrames()
+	if not SV.db.SVOverride.loot then return end
 	UIPARENT_MANAGED_FRAME_POSITIONS["GroupLootContainer"] = nil;
 	LootFrame:UnregisterAllEvents();
 

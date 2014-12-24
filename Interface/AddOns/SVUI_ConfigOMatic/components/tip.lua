@@ -138,39 +138,6 @@ SV.Options.args.SVTip = {
 							width = "full", 
 							set = function(a,b)SV.db.SVTip.healthBar.height = b;GameTooltipStatusBar:SetHeightToScale(b)end
 						},
-						fontGroup = {
-							order = 2, 
-							name = L["Fonts"], 
-							type = "group", 
-							guiInline = true, 
-							args = {
-								text = {
-									order = 1, 
-									type = "toggle", 
-									name = L["Text"], 
-									set = function(a,b)SV.db.SVTip.healthBar.text = b;if b then GameTooltipStatusBar.text:Show()else GameTooltipStatusBar.text:Hide()end end
-								},
-								font = {
-									type = "select", 
-									dialogControl = "LSM30_Font", 
-									order = 2, 
-									width = "full", 
-									name = L["Font"], 
-									values = AceGUIWidgetLSMlists.font, 
-									set = function(a,b)SV.db.SVTip.healthBar.font = b;GameTooltipStatusBar.text:FontManager(LSM:Fetch("font",SV.db.SVTip.healthBar.font), SV.db.SVTip.healthBar.fontSize,"OUTLINE")end
-								},
-								fontSize = {
-									order = 3, 
-									name = L["Font Size"], 
-									type = "range", 
-									min = 6, 
-									max = 22, 
-									step = 1, 
-									width = "full", 
-									set = function(a,b)SV.db.SVTip.healthBar.fontSize = b;GameTooltipStatusBar.text:FontManager(LSM:Fetch("font",SV.db.SVTip.healthBar.font),SV.db.SVTip.healthBar.fontSize,"OUTLINE")end
-								}
-							}
-						}
 					}
 				}
 			}

@@ -52,6 +52,11 @@ SV.Options.args.Dock.args["common"] = {
 	type = "group",
 	name = "General",
 	guiInline = true,
+	get = function(key)return SV.db.Dock[key[#key]];end, 
+	set = function(key,value)
+		MOD:ChangeDBVar(value,key[#key]);
+		MOD:Refresh()
+	end, 
 	args = {
 		bottomPanel = {
 			order = 1,
@@ -73,7 +78,7 @@ SV.Options.args.Dock.args["common"] = {
 			order = 3, 
 			type = "toggle", 
 			name = L["24-Hour Time"], 
-			desc = L["Toggle 24-hour mode for the time datatext."]
+			desc = L["Toggle 24-hour mode for the time datatext."],
 		}, 
 		localtime = {
 			order = 4, 
@@ -98,43 +103,6 @@ SV.Options.args.Dock.args["common"] = {
 			order = 7, 
 			type = "toggle", 
 			name = L["Shortened Gold Text"], 
-		},
-		fontGroup = {
-			order = 8, 
-			type = "group", 
-			guiInline = true, 
-			name = L["Fonts"], 
-			get = function(key)return SV.db.Dock[key[#key]] end,
-			set = function(key, value) MOD:ChangeDBVar(value, key[#key]); MOD:UpdateDataSlots() end, 
-			args = {
-				dataFont = {
-					type = "select", 
-					dialogControl = "LSM30_Font", 
-					order = 4, 
-					name = L["Font"], 
-					values = AceGUIWidgetLSMlists.font
-				}, 
-				dataFontSize = {
-					order = 5, 
-					name = L["Font Size"], 
-					type = "range", 
-					min = 6, 
-					max = 22, 
-					step = 1
-				}, 
-				dataFontOutline = {
-					order = 6, 
-					name = L["Font Outline"], 
-					desc = L["Set the font outline."], 
-					type = "select", 
-					values = {
-						["NONE"] = L["None"], 
-						["OUTLINE"] = "OUTLINE", 
-						["MONOCHROMEOUTLINE"] = "MONOCROMEOUTLINE", 
-						["THICKOUTLINE"] = "THICKOUTLINE"
-					}
-				}
-			}
 		},
 		spacer1 = {
 			order = 9, 

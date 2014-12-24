@@ -163,7 +163,7 @@ local UnsetActiveData = function(self, bypass)
 	end
 end
 
-local SetActiveData = function(self, title, level, icon, questID, questLogIndex, numObjectives, duration, elapsed)
+local SetActiveData = function(self, title, level, icon, questID, questLogIndex, numObjectives, duration, elapsed, hasLocalPOI)
 	self.ActiveQuestID = questID;
 	MOD.ActiveQuestID = self.ActiveQuestID;
 	local fill_height = 0;
@@ -202,15 +202,21 @@ local SetActiveData = function(self, title, level, icon, questID, questLogIndex,
 		objective_block:FadeIn();
 	end
 
-	fill_height = fill_height + ((INNER_HEIGHT * 0.5) + LARGE_ROW_HEIGHT + 8);
+	fill_height = fill_height + ((INNER_HEIGHT + 4) + (LARGE_ROW_HEIGHT + 8));
 	block:SetHeightToScale(fill_height);
 
 	MOD.Docklet.ScrollFrame.ScrollBar:SetValue(0);
 
-	-- local link, texture, _, showCompleted = GetQuestLogSpecialItemInfo(questLogIndex)
-	-- if(link and (questLogIndex ~= MOD.CurrentQuest)) then
-	-- 	MOD.QuestItem:SetItem(link, texture, questLogIndex)
-	-- end
+	local link, texture, _, showCompleted = GetQuestLogSpecialItemInfo(questLogIndex)
+	if(link and (questLogIndex ~= MOD.CurrentQuest)) then
+		if(MOD.QuestItem:SetAbility(link, texture)) then
+			MOD.QuestItem.CurrentQuest = questLogIndex
+		end
+	end
+
+	if(SV.StartTrackingQuest) then
+		SV:StartTrackingQuest(questID)
+	end
 
 	self:RefreshHeight()
 end
@@ -242,7 +248,7 @@ local RefreshActiveObjective = function(self, event, ...)
 					if(questWatchIndex) then
 						local title, level, suggestedGroup = GetQuestLogTitle(questLogIndex)
 						local questID, _, questLogIndex, numObjectives, requiredMoney, completed, startEvent, isAutoComplete, duration, elapsed, questType, isTask, isStory, isOnMap, hasLocalPOI = GetQuestWatchInfo(questWatchIndex);
-						self:Set(title, level, nil, questID, questLogIndex, numObjectives, duration, elapsed)
+						self:Set(title, level, nil, questID, questLogIndex, numObjectives, duration, elapsed, hasLocalPOI)
 					end
 				end
 			end
@@ -255,7 +261,7 @@ local RefreshActiveObjective = function(self, event, ...)
 					if(questWatchIndex) then
 						local title, level, suggestedGroup = GetQuestLogTitle(questLogIndex)
 						local questID, _, questLogIndex, numObjectives, requiredMoney, completed, startEvent, isAutoComplete, duration, elapsed, questType, isTask, isStory, isOnMap, hasLocalPOI = GetQuestWatchInfo(questWatchIndex);
-						self:Set(title, level, nil, questID, questLogIndex, numObjectives, duration, elapsed)
+						self:Set(title, level, nil, questID, questLogIndex, numObjectives, duration, elapsed, hasLocalPOI)
 					end
 				end
 			end
@@ -366,7 +372,7 @@ function MOD:InitializeActive()
 	block.Header:SetStylePanel("Default", "Headline")
 
 	block.Header.Level = block.Header:CreateFontString(nil,"OVERLAY")
-	block.Header.Level:SetFont(SV.Media.font.roboto, 10, "NONE")
+	block.Header.Level:SetFont(SV.Media.font.clean, 12, "NONE")
 	block.Header.Level:SetShadowOffset(-1,-1)
 	block.Header.Level:SetShadowColor(0,0,0,0.5)
 	block.Header.Level:SetJustifyH('LEFT')
@@ -376,7 +382,7 @@ function MOD:InitializeActive()
 	block.Header.Level:SetPointToScale("BOTTOMLEFT", block.Header, "BOTTOMLEFT", 4, 0);
 
 	block.Header.Text = block.Header:CreateFontString(nil,"OVERLAY")
-	block.Header.Text:SetFont(SV.Media.font.roboto, 13, "NONE")
+	block.Header.Text:SetFont(SV.Media.font.clean, 13, "NONE")
 	block.Header.Text:SetTextColor(1,1,0)
 	block.Header.Text:SetShadowOffset(-1,-1)
 	block.Header.Text:SetShadowColor(0,0,0,0.5)

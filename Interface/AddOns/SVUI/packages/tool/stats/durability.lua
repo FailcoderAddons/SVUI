@@ -85,7 +85,7 @@ local function Durability_OnEvent(self, ...)
 		self.text:SetAllPoints(self)
 		self.text:SetJustifyH("CENTER")
 		self.barframe:Hide()
-		self.text:FontManager(LSM:Fetch("font",SV.db.Dock.font),SV.db.Dock.fontSize,SV.db.Dock.fontOutline)
+		self.text:FontManager("data")
 	end 
 	for slot,name in pairs(inventoryMap)do 
 		local slotID = GetInventorySlotInfo(slot)
@@ -106,7 +106,7 @@ local function DurabilityBar_OnEvent(self, ...)
 	if not self.barframe:IsShown() then 
 		self.barframe:Show()
 		self.barframe.icon.texture:SetTexture("Interface\\Addons\\SVUI\\assets\\artwork\\Icons\\STAT-DUR")
-		self.text:FontManager(LSM:Fetch("font",SV.db.Dock.font),SV.db.Dock.fontSize,"NONE")
+		self.text:FontManager("data")
 	end 
 	for slot,name in pairs(inventoryMap)do 
 		local slotID = GetInventorySlotInfo(slot)

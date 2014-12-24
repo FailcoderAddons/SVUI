@@ -45,7 +45,7 @@ local function StyleOmen()
   Omen.db.profile.Background.Texture = "None"
   
   --[[ Bar Settings ]]--
-  Omen.db.profile.Bar.Font = "Roboto"
+  Omen.db.profile.Bar.Font = "SVUI Clean Font"
   Omen.db.profile.Bar.FontOutline = "None"
   Omen.db.profile.Bar.FontSize = 11
   Omen.db.profile.Bar.Height = 14
@@ -98,7 +98,7 @@ function PLUGIN:Docklet_Omen(parent)
   db.profile.Background.Texture = "None"
 
   --[[ Bar Settings ]]--
-  db.profile.Bar.Font = "Roboto";
+  db.profile.Bar.Font = "SVUI Clean Font";
   db.profile.Bar.FontOutline = "None";
   db.profile.Bar.FontSize = 11;
   db.profile.Bar.Height = 14;
@@ -124,7 +124,7 @@ function PLUGIN:Docklet_Omen(parent)
   OmenTitle.Panel = nil
   OmenTitle:SetStylePanel("Default", "Transparent")
   --OmenTitle:SetPanelColor("class")
-  --OmenTitle:GetFontString():SetFont(SVUI.Media.font.roboto, 12, "OUTLINE")
+  --OmenTitle:GetFontString():SetFont(SVUI.Media.font.clean, 12, "OUTLINE")
   OmenBarList:RemoveTextures()
   OmenAnchor:SetStylePanel("Fixed", 'Transparent')
   OmenAnchor:ClearAllPoints()

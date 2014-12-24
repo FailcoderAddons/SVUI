@@ -212,7 +212,7 @@ local function PaperDollTitlesPane_OnShow()
 			btn.BgMiddle:SetTexture(0,0,0,0)
 			btn.Check:SetTexture(0,0,0,0)
 			btn.text:SetAllPointsIn(btn)
-			btn.text:SetFont(SV.Media.font.roboto,10,"NONE","LEFT")
+			btn.text:SetFont(SV.Media.font.clean,10,"NONE","LEFT")
 		end
 	end 
 end

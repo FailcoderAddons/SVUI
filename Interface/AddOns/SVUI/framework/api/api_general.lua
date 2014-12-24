@@ -45,6 +45,7 @@ GET ADDON DATA
 local SV = select(2, ...)
 local L = SV.L
 local SVLib = LibSuperVillain("Registry");
+local LSM = LibStub("LibSharedMedia-3.0");
 local STANDARD_TEXT_FONT = _G.STANDARD_TEXT_FONT;
 --[[ 
 ########################################################## 
@@ -165,32 +166,44 @@ APPENDED FONT TEMPLATING METHODS
 ]]--
 local ManagedFonts = {};
 
-local FontManager = function(self, font, fontSize, fontStyle, fontJustifyH, fontJustifyV, noUpdate)
+local FontManager = function(self, fontTemplate, fontJustifyH, preUpdateFunc, postUpdateFunc)
     if not self then return end
-    local STANDARDFONTSIZE = SV.db.media.fonts and SV.db.media.fonts.size or 12
-    font = font or [[Interface\AddOns\SVUI\assets\fonts\Default.ttf]]
-    fontSize = fontSize or STANDARDFONTSIZE;
+    local STANDARDFONTSIZE = SV.db.font and SV.db.font.default.size or 11
+
+    fontTemplate = fontTemplate or "default";
     fontJustifyH = fontJustifyH or "CENTER";
-    fontJustifyV = fontJustifyV or "MIDDLE";
-    if not font then return end
-    self.font = font;
-    self.fontSize = fontSize;
-    self.fontStyle = fontStyle;
-    self.fontJustifyH = fontJustifyH;
-    self.fontJustifyV = fontJustifyV;
-    self:SetFont(font, fontSize, fontStyle)
-    if(fontStyle and fontStyle ~= "NONE") then 
+    local template = SV.db.font[fontTemplate];
+    if(not template) then
+        print(fontTemplate)
+        return
+    end
+    
+    self.___template = fontTemplate;
+    self.___file = LSM:Fetch("font", template.file);
+    self.___size = template.size;
+    self.___style = template.outline;
+    self.___common = (template.size == STANDARDFONTSIZE);
+
+    if(preUpdateFunc and type(preUpdateFunc) == 'function') then
+        self.___preUpdate = preUpdateFunc
+    end
+
+    if(postUpdateFunc and type(postUpdateFunc) == 'function') then
+        self.___postUpdate = postUpdateFunc
+    end
+
+
+    self:SetFont(self.___file, self.___size, self.___style)
+    if(template.outline and template.outline ~= "NONE") then 
         self:SetShadowColor(0, 0, 0, 0)
     else 
         self:SetShadowColor(0, 0, 0, 0.2)
     end 
     self:SetShadowOffset(1, -1)
     self:SetJustifyH(fontJustifyH)
-    self:SetJustifyV(fontJustifyV)
-    self.useCommon = fontSize and (fontSize == STANDARDFONTSIZE);
-    if(not noUpdate) then
-        ManagedFonts[self] = true
-    end
+    self:SetJustifyV("MIDDLE")
+
+    ManagedFonts[self] = true
 end
 --[[ 
 ########################################################## 
@@ -198,12 +211,23 @@ UPDATE CALLBACKS
 ##########################################################
 ]]--
 local function FontTemplateUpdates()
-    local defaultSize = SV.db.media.fonts.size;
+    local defaultSize = SV.db.font.default.size;
     for i=1, #ManagedFonts do
         local frame = ManagedFonts[i] 
         if frame then
-            local fontSize = frame.useCommon and defaultSize or frame.fontSize
-            frame:SetFont(frame.font, fontSize, frame.fontStyle)
+            if(frame.___preUpdate) then
+                frame:___preUpdate()
+            else
+                local template = SV.db.font[frame.___template];
+                frame.___file = LSM:Fetch("font", template.file);
+                frame.___size = frame.___common and defaultSize or template.size;
+                frame.___style = template.outline;
+            end
+            frame:SetFont(frame.___file, frame.___size, frame.___style);
+
+            if(frame.___postUpdate) then
+                frame:___postUpdate()
+            end
         else 
             ManagedFonts[i] = nil 
         end 

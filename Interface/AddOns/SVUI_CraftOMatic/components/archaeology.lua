@@ -473,7 +473,7 @@ function PLUGIN:LoadArchaeologyMode()
 
 		-- Progress Text
 		local progress = bar:CreateFontString()
-		progress:SetFont(SV.Media.font.roboto, 11, "OUTLINE")
+		progress:SetFont(SV.Media.font.clean, 11, "OUTLINE")
 		progress:SetText("")
 		progress:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT", -1, 1)
 
@@ -486,7 +486,7 @@ function PLUGIN:LoadArchaeologyMode()
 		solve.bg:SetVertexColor(0.1,0.5,0)
 
 		solve.text = solve:CreateFontString(nil,"OVERLAY")
-		solve.text:SetFont(SV.Media.font.roboto, 14, "NONE")
+		solve.text:SetFont(SV.Media.font.clean, 14, "NONE")
 		solve.text:SetShadowOffset(-1,-1)
 		solve.text:SetShadowColor(0,0,0,0.5)
 		solve.text:SetText(SOLVE)

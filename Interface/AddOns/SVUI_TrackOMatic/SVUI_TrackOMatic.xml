@@ -1,5 +1,5 @@
 ﻿<Ui xmlns="http://www.blizzard.com/wow/ui/">
-	<Frame name="SVUI_TrackingDoodad" movable="true" frameStrata="DIALOG">
+	<Frame name="SVUI_UnitTrackingCompass" movable="true" frameStrata="DIALOG">
         <Size x="70" y="70"/>
         <Anchors>
             <Anchor point="CENTER" relativeTo="UIParent" relativePoint="CENTER"/>
@@ -30,12 +30,53 @@
         </Layers>
         <Scripts>
             <OnDragStart>
-                _G["SVUI_TrackingDoodad"].moving = true;
-                _G["SVUI_TrackingDoodad"]:StartMoving();
+                _G["SVUI_UnitTrackingCompass"].moving = true;
+                _G["SVUI_UnitTrackingCompass"]:StartMoving();
             </OnDragStart>
             <OnDragStop>
-                _G["SVUI_TrackingDoodad"].moving = nil;
-                _G["SVUI_TrackingDoodad"]:StopMovingOrSizing();
+                _G["SVUI_UnitTrackingCompass"].moving = nil;
+                _G["SVUI_UnitTrackingCompass"]:StopMovingOrSizing();
+            </OnDragStop>
+        </Scripts>
+    </Frame>
+
+    <Frame name="SVUI_QuestTrackingCompass" movable="true" frameStrata="DIALOG">
+        <Size x="70" y="70"/>
+        <Anchors>
+            <Anchor point="BOTTOM" relativeTo="UIParent" relativePoint="BOTTOM" x="0" y="180" />
+        </Anchors>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture parentKey="BG" setAllPoints="true" file="Interface\AddOns\SVUI_TrackOMatic\artwork\DOODAD-BG"/>
+            </Layer>
+            <Layer level="BORDER">
+                <Texture parentKey="Border" setAllPoints="true" file="Interface\AddOns\SVUI_TrackOMatic\artwork\DOODAD-BORDER"/>
+                <Texture parentKey="Arrow" file="Interface\AddOns\SVUI_TrackOMatic\artwork\DOODAD-ARROW">
+                    <Size x="35" y="35"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <Texture parentKey="Radar" setAllPoints="true" file="Interface\AddOns\SVUI_TrackOMatic\artwork\DOODAD-RADAR"/>
+            </Layer>
+            <Layer level="ARTWORK">
+                <FontString parentKey="Range" inherits="GameFontNormal">
+                    <Anchors>
+                        <Anchor point="TOP" relativeTo="$parent" relativePoint="BOTTOM"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnDragStart>
+                _G["SVUI_QuestTrackingCompass"].moving = true;
+                _G["SVUI_QuestTrackingCompass"]:StartMoving();
+            </OnDragStart>
+            <OnDragStop>
+                _G["SVUI_QuestTrackingCompass"].moving = nil;
+                _G["SVUI_QuestTrackingCompass"]:StopMovingOrSizing();
             </OnDragStop>
         </Scripts>
     </Frame>

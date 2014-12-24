@@ -278,7 +278,7 @@ local ActiveButton_OnClick = function(self, button)
 			local icon = self.Icon:GetTexture()
 			SetSuperTrackedQuestID(questID);
 			local link, texture, _, showCompleted = GetQuestLogSpecialItemInfo(questLogIndex)
-			MOD.QuestItem:SetItem(link, texture, title, level, icon, questID, questLogIndex, numObjectives, duration, elapsed)
+			MOD.QuestItem:SetAbility(link, texture, title, level, icon, questID, questLogIndex, numObjectives, duration, elapsed)
 		end
 	end
 end
@@ -400,7 +400,7 @@ local GetQuestRow = function(self, index)
 		row.Header.Level:SetPoint("BOTTOMRIGHT", row.Header, "BOTTOMRIGHT", -4, 0);
 
 		row.Header.Text = row.Header:CreateFontString(nil,"OVERLAY")
-		row.Header.Text:SetFont(SV.Media.font.roboto, 13, "NONE")
+		row.Header.Text:SetFont(SV.Media.font.clean, 13, "NONE")
 		row.Header.Text:SetTextColor(1,1,0)
 		row.Header.Text:SetShadowOffset(-1,-1)
 		row.Header.Text:SetShadowColor(0,0,0,0.5)
@@ -412,7 +412,7 @@ local GetQuestRow = function(self, index)
 
 		row.Header.Zone = row:CreateFontString(nil,"OVERLAY")
 		row.Header.Zone:SetAllPoints(row);
-		row.Header.Zone:SetFont(SV.Media.font.system, 11, "OUTLINE")
+		row.Header.Zone:SetFont(SV.Media.font.names, 11, "OUTLINE")
 		row.Header.Zone:SetJustifyH('LEFT')
 		row.Header.Zone:SetJustifyV('MIDDLE')
 		row.Header.Zone:SetTextColor(0.75,0.25,1)
@@ -606,7 +606,7 @@ local RefreshQuests = function(self, event, ...)
 		if(quest[1] ~= 0 and args[4] ~= 0) then
 			local add_height = 0;
 			if(quest[6] and (not args[9])) then
-				MOD.QuestItem:SetItem(quest[2], args[3], unpack(args))
+				MOD.QuestItem:SetAbility(quest[2], args[3], unpack(args))
 			end
 
 			if(zone ~= quest[3]) then

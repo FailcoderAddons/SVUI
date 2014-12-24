@@ -62,7 +62,7 @@ local playerGUID = UnitGUID("player")
 local _FRAMES, _PROXIMITY = {}, {}
 local minThrottle = 0.02
 local numArrows, inRange, GPS
-local Triangulate = Triangulate
+local TriangulateUnit = TriangulateUnit
 local NewHook = hooksecurefunc;
 --[[ 
 ########################################################## 
@@ -100,7 +100,7 @@ oUF.Tags.Methods["nearbyplayers:8"] = function(unit)
     if UnitIsConnected(unit)then 
         for taggedUnit, _ in pairs(taggedUnits)do 
             if not UnitIsUnit(unit, taggedUnit) and UnitIsConnected(taggedUnit)then 
-                distance = Triangulate(unit, taggedUnit, true)
+                distance = TriangulateUnit(unit, taggedUnit, true)
                 if distance and distance <= 8 then 
                     unitsInRange = unitsInRange + 1 
                 end 
@@ -116,7 +116,7 @@ oUF.Tags.Methods["nearbyplayers:10"] = function(unit)
     if UnitIsConnected(unit)then 
         for taggedUnit, _ in pairs(taggedUnits)do 
             if not UnitIsUnit(unit, taggedUnit) and UnitIsConnected(taggedUnit)then 
-                distance = Triangulate(unit, taggedUnit, true)
+                distance = TriangulateUnit(unit, taggedUnit, true)
                 if distance and distance <= 10 then 
                     unitsInRange = unitsInRange + 1 
                 end 
@@ -132,7 +132,7 @@ oUF.Tags.Methods["nearbyplayers:30"] = function(unit)
     if UnitIsConnected(unit)then 
         for taggedUnit, _ in pairs(taggedUnits)do 
             if not UnitIsUnit(unit, taggedUnit) and UnitIsConnected(taggedUnit)then 
-                distance = Triangulate(unit, taggedUnit, true)
+                distance = TriangulateUnit(unit, taggedUnit, true)
                 if distance and distance <= 30 then 
                     unitsInRange = unitsInRange + 1 
                 end 
@@ -145,7 +145,7 @@ end
 oUF.Tags.OnUpdateThrottle['distance'] = 0.25
 oUF.Tags.Methods["distance"] = function(unit)
     if not UnitIsConnected(unit) or UnitIsUnit(unit, "player")then return "" end 
-    local dst = Triangulate("player", unit, true)
+    local dst = TriangulateUnit("player", unit, true)
     if dst and dst > 0 then 
         return format("%d", dst)
     end 
@@ -327,7 +327,7 @@ local Disable = function(self)
 end
 
 function PLUGIN:EnableGPS()
-	GPS_UpdateHandler.Track = Triangulate
+	GPS_UpdateHandler.Track = TriangulateUnit
 	GPS_UpdateHandler:SetScript("OnUpdate", Update)
     oUF:AddElement('GPS', nil, Enable, Disable)
     NewHook(SV.SVUnit, "RefreshUnitLayout", RefreshGPS)

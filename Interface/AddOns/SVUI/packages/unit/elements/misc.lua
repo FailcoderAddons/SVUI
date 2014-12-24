@@ -60,7 +60,7 @@ LOCAL VARIABLES
 ##########################################################
 ]]--
 local STATE_ICON_FILE = [[Interface\Addons\SVUI\assets\artwork\Unitframe\UNIT-PLAYER-STATE]]
-local AURA_FONT = [[Interface\AddOns\SVUI\assets\fonts\Display.ttf]]
+local AURA_FONT = [[Interface\AddOns\SVUI\assets\fonts\Numbers.ttf]]
 local AURA_FONTSIZE = 10
 local AURA_OUTLINE = "OUTLINE"
 local LML_ICON_FILE = [[Interface\Addons\SVUI\assets\artwork\Unitframe\UNIT-LML]]
@@ -101,11 +101,11 @@ function MOD:CreateRaidDebuffs(frame)
 	raidDebuff.icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 	raidDebuff.icon:SetAllPointsIn(raidDebuff)
 	raidDebuff.count = raidDebuff:CreateFontString(nil, "OVERLAY")
-	raidDebuff.count:FontManager(AURA_FONT, AURA_FONTSIZE, AURA_OUTLINE)
+	raidDebuff.count:FontManager("aura")
 	raidDebuff.count:SetPoint("BOTTOMRIGHT", 0, 2)
 	raidDebuff.count:SetTextColor(1, .9, 0)
 	raidDebuff.time = raidDebuff:CreateFontString(nil, "OVERLAY")
-	raidDebuff.time:FontManager(AURA_FONT, AURA_FONTSIZE, AURA_OUTLINE)
+	raidDebuff.time:FontManager("aura")
 	raidDebuff.time:SetPoint("CENTER")
 	raidDebuff.time:SetTextColor(1, .9, 0)
 	raidDebuff:SetParent(frame.TextGrip)
@@ -355,7 +355,7 @@ function MOD:CreateExperienceRepBar(frame)
 		xp.Rested:SetStatusBarColor(1, 0, 1, 0.6)
 		xp.Value = xp:CreateFontString(nil, "TOOLTIP")
 		xp.Value:SetAllPoints(xp)
-		xp.Value:FontManager(SV.Media.font.roboto, 10, "NONE")
+		xp.Value:FontManager("clean")
 		xp.Value:SetTextColor(0.2, 0.75, 1)
 		xp.Value:SetShadowColor(0, 0, 0, 0)
 		xp.Value:SetShadowOffset(0, 0)
@@ -379,7 +379,7 @@ function MOD:CreateExperienceRepBar(frame)
 		rep.Tooltip = true;
 		rep.Value = rep:CreateFontString(nil, "TOOLTIP")
 		rep.Value:SetAllPoints(rep)
-		rep.Value:FontManager(SV.Media.font.roboto, 10, "NONE")
+		rep.Value:FontManager("clean")
 		rep.Value:SetTextColor(0.1, 1, 0.2)
 		rep.Value:SetShadowColor(0, 0, 0, 0)
 		rep.Value:SetShadowOffset(0, 0)

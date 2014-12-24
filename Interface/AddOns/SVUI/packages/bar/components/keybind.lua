@@ -487,7 +487,7 @@ function MOD:LoadKeyBinder()
   moveHandle:SetScript("OnMouseUp", onMouseUp)
 
   local moveText = moveHandle:CreateFontString("OVERLAY")
-  moveText:FontManager()
+  moveText:FontManager("default")
   moveText:SetPoint("CENTER", moveHandle, "CENTER")
   moveText:SetText("Key Binds")
 

@@ -1195,21 +1195,21 @@ function SV.Setup:Install(autoLoaded)
 		titleHolder:SetText(L["Supervillain UI Installation"])
 
 		frame.SubTitle = frame:CreateFontString(nil, "OVERLAY")
-		frame.SubTitle:SetFont(SV.Media.font.roboto, 16, "OUTLINE")
+		frame.SubTitle:SetFont(SV.Media.font.clean, 16, "OUTLINE")
 		frame.SubTitle:SetPointToScale("TOP", 0, -40)
 
 		frame.Desc1 = frame:CreateFontString(nil, "OVERLAY")
-		frame.Desc1:SetFont(SV.Media.font.roboto, 14, "OUTLINE")
+		frame.Desc1:SetFont(SV.Media.font.clean, 14, "OUTLINE")
 		frame.Desc1:SetPointToScale("TOPLEFT", 20, -75)
 		frame.Desc1:SetWidthToScale(frame:GetWidth()-40)
 
 		frame.Desc2 = frame:CreateFontString(nil, "OVERLAY")
-		frame.Desc2:SetFont(SV.Media.font.roboto, 14, "OUTLINE")
+		frame.Desc2:SetFont(SV.Media.font.clean, 14, "OUTLINE")
 		frame.Desc2:SetPointToScale("TOPLEFT", 20, -125)
 		frame.Desc2:SetWidthToScale(frame:GetWidth()-40)
 
 		frame.Desc3 = frame:CreateFontString(nil, "OVERLAY")
-		frame.Desc3:SetFont(SV.Media.font.roboto, 14, "OUTLINE")
+		frame.Desc3:SetFont(SV.Media.font.clean, 14, "OUTLINE")
 		frame.Desc3:SetPointToScale("TOPLEFT", 20, -175)
 		frame.Desc3:SetWidthToScale(frame:GetWidth()-40)
 

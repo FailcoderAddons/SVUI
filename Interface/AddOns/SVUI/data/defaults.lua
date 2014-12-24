@@ -35,10 +35,10 @@ local function safename(id)
     return n
 end
 
-local NAMEFONT = "SVUI System Font";
+local NAMEFONT = "SVUI Name Font";
 local NAMEFONT_SIZE = 10;
 if(GetLocale() ~= "enUS") then
-	NAMEFONT = "Roboto"
+	NAMEFONT = "SVUI Clean Font"
 end
 
 SV.defaults = {};
@@ -88,13 +88,30 @@ SV.defaults["totems"] = {
     ["spacing"] = 4
 }
 
+SV.defaults["font"] = {
+	["default"] 	= { file = "SVUI Default Font", 	size = 13, outline = "OUTLINE" 	},
+	["clean"] 		= { file = "SVUI Clean Font", 		size = 11, outline = "OUTLINE" 	},
+    ["name"] 		= { file = NAMEFONT, 				size = 9, outline = "OUTLINE" 	},
+    ["title"] 		= { file = NAMEFONT, 				size = 16, outline = "OUTLINE" 	}, 
+    ["number"] 		= { file = "SVUI Number Font", 		size = 11, outline = "OUTLINE" 	},
+    ["number_big"]	= { file = "SVUI Number Font", 		size = 18, outline = "OUTLINE" 	},  
+    ["combat"] 		= { file = "SVUI Combat Font", 		size = 11, outline = "OUTLINE" 	}, 
+    ["giant"] 		= { file = "SVUI Adventure Font", 	size = 32, outline = "OUTLINE" 	},
+    ["zone"] 		= { file = "SVUI Zone Font", 		size = 11, outline = "OUTLINE" 	},
+    ["tab"] 		= { file = "SVUI Tab Font", 		size = 11, outline = "OUTLINE" 	},
+    ["aura"] 		= { file = "SVUI Number Font", 		size = 8,  outline = "OUTLINE" 	},
+    ["data"] 		= { file = "SVUI Number Font", 		size = 11, outline = "OUTLINE" 	},
+    ["dialog"] 		= { file = "SVUI Dialog Font", 		size = 12, outline = "OUTLINE" 	},
+    ["narrator"]	= { file = "SVUI Narrator Font",	size = 16, outline = "NONE" 	},
+}
+
 SV.defaults["media"] = {
     ["fonts"] = {
-        ["default"] = "SVUI System Font", 
+        ["default"] = "SVUI Name Font", 
         ["name"] = NAMEFONT, 
         ["number"] = "SVUI Number Font", 
         ["combat"] = "SVUI Number Font", 
-        ["giant"] = "SVUI System Font", 
+        ["giant"] = "SVUI Name Font", 
         ["size"] = 10, 
         ["unicodeSize"] = 12, 
     }, 
@@ -198,7 +215,7 @@ SV.defaults["Dock"] = {
 
 SV.defaults["SVBar"] = {
 	["enable"] = true, 
-	["font"] = "Roboto", 
+	["font"] = "SVUI Clean Font", 
 	["fontSize"] = 11,  
 	["fontOutline"] = "OUTLINE",
 	["countFont"] = "SVUI Number Font", 
@@ -495,9 +512,9 @@ SV.defaults["SVChat"] = {
 	["tabHeight"] = 20, 
 	["tabWidth"] = 75, 
 	["tabStyled"] = true, 
-	["font"] = "Roboto", 
+	["font"] = "SVUI Clean Font", 
 	["fontOutline"] = "OUTLINE", 
-	["tabFont"] = "SVUI Action Font", 
+	["tabFont"] = "SVUI Tab Font", 
 	["tabFontSize"] = 11, 
 	["tabFontOutline"] = "OUTLINE", 
 	["url"] = true, 
@@ -733,7 +750,7 @@ SV.defaults["SVTip"] = {
 	["healthBar"] = {
 		["text"] = true, 
 		["height"] = 10, 
-		["font"] = "Roboto", 
+		["font"] = "SVUI Clean Font", 
 		["fontSize"] = 10, 
 	}, 
 };

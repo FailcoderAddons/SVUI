@@ -35,4 +35,5 @@ function SV:LoadFramework()
 	self.Comix:Initialize();
 	self.GameMenu:Initialize();
   self.AFK:Initialize();
+  self.SuperButton:Initialize();
 end

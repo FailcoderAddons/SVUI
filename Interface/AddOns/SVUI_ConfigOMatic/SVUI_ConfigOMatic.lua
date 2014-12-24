@@ -103,6 +103,80 @@ local function CommonFontSizeUpdate()
 
     SV:RefreshSystemFonts()
 end 
+
+local function GenerateFontGroup()
+    local fontGroupArgs = {};
+    local orderCount = 1;
+
+    for template, data in pairs(SV.db.font) do
+    	fontGroupArgs[template] = {
+    		order = orderCount, 
+			type = "group", 
+			name = template, 
+			guiInline = true, 
+			args = {
+				file = {
+					type = "select",
+					dialogControl = 'LSM30_Font',
+					order = 1,
+					name = L["Font File"],
+					desc = L["Set the font file to use with this font-type."],
+					values = AceGUIWidgetLSMlists.font,
+					get = function(key)
+						return SV.db.font[template][key[#key]]
+					end,
+					set = function(key,value)
+						SV.db.font[template][key[#key]] = value; 
+						SV:RefreshSystemFonts();
+						SV:StaticPopup_Show("RL_CLIENT")
+					end
+				},
+				outline = {
+					order = 2, 
+					name = L["Font Outline"], 
+					desc = L["Set the outlining to use with this font-type."], 
+					type = "select", 
+					values = {
+						["NONE"] = L["None"], 
+						["OUTLINE"] = "OUTLINE", 
+						["MONOCHROMEOUTLINE"] = "MONOCROMEOUTLINE",
+						["THINOUTLINE"] = "THINOUTLINE",
+						["THICKOUTLINE"] = "THICKOUTLINE"
+					},
+					get = function(key)
+						return SV.db.font[template][key[#key]]
+					end,
+					set = function(key,value)
+						SV.db.font[template][key[#key]] = value; 
+						SV:RefreshSystemFonts();
+						SV:StaticPopup_Show("RL_CLIENT")
+					end
+				},
+				size = {
+					order = 3,
+					name = L["Font Size"],
+					desc = L["Set the font size to use with this font-type."],
+					type = "range",
+					min = 6,
+					max = 22,
+					step = 1,
+					width = 'full',
+					get = function(key)
+						return SV.db.font[template][key[#key]]
+					end,
+					set = function(key,value)
+						SV.db.font[template][key[#key]] = value; 
+						CommonFontSizeUpdate() 
+					end
+				},
+			}
+    	}
+
+    	orderCount = orderCount + 1;
+    end
+
+    return fontGroupArgs;
+end 
 --[[ 
 ########################################################## 
 SET PACKAGE OPTIONS
@@ -542,106 +616,8 @@ SV.Options.args.common = {
 								}						
 							}
 						}, 
-						fonts = {
-							order = 2, 
-							type = "group", 
-							name = L["Fonts"], 
-							guiInline = true, 
-							args = {
-								size = {
-									order = 1,
-									name = L["Font Size"],
-									desc = L["Set/Override the global UI font size. |cffFF0000NOTE:|r |cffFF9900This WILL affect configurable fonts.|r"],
-									type = "range",
-									width = "full",
-									min = 6,
-									max = 22,
-									step = 1,
-									get = function(key)
-										return SV.db.media.fonts[key[#key]]
-									end,
-									set = function(key,value)SV.db.media.fonts[key[#key]] = value; CommonFontSizeUpdate() end
-								},
-								unicodeSize = {
-									order = 2,
-									name = L["Unicode Font Size"],
-									desc = L["Set/Override the global font size used by unstyled text. |cffFF0000(ie, Character stats, tooltips, other smaller texts)|r"],
-									type = "range",
-									width = "full",
-									min = 6,
-									max = 22,
-									step = 1,
-									get = function(key)
-										return SV.db.media.fonts[key[#key]]
-									end,
-									set = function(key,value)SV.db.media.fonts[key[#key]] = value; CommonFontSizeUpdate() end
-								},
-								fontSpacer1 = {
-									order = 3,
-									type = "description",
-									name = "",
-									desc = "",
-								},
-								fontSpacer2 = {
-									order = 4,
-									type = "description",
-									name = "",
-									desc = "",
-								},
-								default = {
-									type = "select",
-									dialogControl = 'LSM30_Font',
-									order = 5,
-									name = L["Default Font"],
-									desc = L["Set/Override the global UI font. |cff00FF00NOTE:|r |cff00FF99This WILL NOT affect configurable fonts.|r"],
-									values = AceGUIWidgetLSMlists.font,
-									get = function(j)return SV.db.media.fonts[j[#j]]end,
-									set = function(j,value)SV.db.media.fonts[j[#j]] = value;SV:RefreshSystemFonts();SV:StaticPopup_Show("RL_CLIENT")end
-								},
-								name = {
-									type = "select",
-									dialogControl = 'LSM30_Font',
-									order = 6,
-									name = L["Unit Name Font"],
-									desc = L["Set/Override the global name font. |cff00FF00NOTE:|r |cff00FF99This WILL NOT affect styled nameplates or unitframes.|r"],
-									values = AceGUIWidgetLSMlists.font,
-									get = function(j)return SV.db.media.fonts[j[#j]]end,
-									set = function(j,value)SV.db.media.fonts[j[#j]] = value;SV:RefreshSystemFonts();SV:StaticPopup_Show("RL_CLIENT")end
-								},
-								combat = {
-									type = "select",
-									dialogControl = 'LSM30_Font',
-									order = 7,
-									name = L["CombatText Font"],
-									desc = L["Set/Override the font that combat text will use. |cffFF0000NOTE:|r |cffFF9900This requires a game restart or re-log for this change to take effect.|r"],
-									values = AceGUIWidgetLSMlists.font,
-									get = function(j)return SV.db.media.fonts[j[#j]]end,
-									set = function(j,value)SV.db.media.fonts[j[#j]] = value;SV:RefreshSystemFonts();SV:StaticPopup_Show("RL_CLIENT")end
-								},
-								number = {
-									type = "select",
-									dialogControl = 'LSM30_Font',
-									order = 8,
-									name = L["Numbers Font"],
-									desc = L["Set/Override the global font used for numbers. |cff00FF00NOTE:|r |cff00FF99This WILL NOT affect all numbers.|r"],
-									values = AceGUIWidgetLSMlists.font,
-									get = function(j)return SV.db.media.fonts[j[#j]]end,
-									set = function(j,value)SV.db.media.fonts[j[#j]] = value;SV:RefreshSystemFonts();SV:StaticPopup_Show("RL_CLIENT")end
-								},
-								giant = {
-									type = "select",
-									dialogControl = 'LSM30_Font',
-									order = 9,
-									name = L["Alert Font"],
-									desc = L["Set/Override the global font used for alerts and warnings."],
-									values = AceGUIWidgetLSMlists.font,
-									get = function(j)return SV.db.media.fonts[j[#j]]end,
-									set = function(j,value)SV.db.media.fonts[j[#j]] = value;SV:RefreshSystemFonts();SV:StaticPopup_Show("RL_CLIENT")end
-								},				
-							}
-						}, 
 						colors = {
-							order = 3, 
+							order = 2, 
 							type = "group", 
 							name = L["Colors"], 
 							guiInline = true,
@@ -688,7 +664,14 @@ SV.Options.args.common = {
 									end
 								}
 							}
-						}
+						},
+						fonts = {
+							order = 3, 
+							type = "group", 
+							name = L['Fonts'], 
+							guiInline = true, 
+							args = GenerateFontGroup(), 
+						},
 					}
 				}, 
 				gear = {
@@ -907,6 +890,7 @@ SV.Options.args.common = {
 		}, 
 	}
 };
+
 
 if(SV.db.SVOverride.errorFilters) then
 	local listIndex = 1

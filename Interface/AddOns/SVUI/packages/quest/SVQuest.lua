@@ -246,7 +246,7 @@ function MOD:NewObjectiveRow(header, index)
 	local objective = CreateFrame("Frame", nil, header);
 	objective:SetPoint("TOPLEFT", header, "TOPLEFT", 22, -yOffset);
 	objective:SetPoint("TOPRIGHT", header, "TOPRIGHT", 0, -yOffset);
-	objective:SetHeightToScale(20);
+	objective:SetHeightToScale(ROW_HEIGHT);
 
 	objective.Icon = objective:CreateTexture(nil,"OVERLAY");
 	objective.Icon:SetPoint("TOPLEFT", objective, "TOPLEFT", 4, -2);
@@ -257,8 +257,8 @@ function MOD:NewObjectiveRow(header, index)
 	objective.Text = objective:CreateFontString(nil,"OVERLAY");
 	objective.Text:SetPoint("TOPLEFT", objective, "TOPLEFT", 20 + 6, -2);
 	objective.Text:SetPoint("TOPRIGHT", objective, "TOPRIGHT", 0, -2);
-	objective.Text:SetHeightToScale(18);
-	objective.Text:SetFont(SV.Media.font.roboto, 12, "NONE");
+	objective.Text:SetHeightToScale(INNER_HEIGHT);
+	objective.Text:SetFont(SV.Media.font.clean, 11, "NONE");
 	objective.Text:SetTextColor(0.6,0.6,0.6);
 	objective.Text:SetShadowOffset(-1,-1);
 	objective.Text:SetShadowColor(0,0,0,0.5);

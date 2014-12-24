@@ -116,7 +116,7 @@ local VISIBILITY_UNITS = "NONE";
 local VISIBILITY_COMBAT = false;
 local BAR_TEXT = true;
 local BAR_HEIGHT = 10;
-local BAR_FONT = "Roboto";
+local BAR_FONT = "SVUI Clean Font";
 local BAR_FONTSIZE = 10;
 
 local VisibilityTest = {
@@ -937,7 +937,7 @@ function MOD:Load()
 	GameTooltipStatusBar:SetPoint("BOTTOMRIGHT", GameTooltip.SuperBorder, "BOTTOMRIGHT", -3, 3)
 	GameTooltipStatusBar.text = GameTooltipStatusBar:CreateFontString(nil, "OVERLAY")
 	GameTooltipStatusBar.text:SetPointToScale("CENTER", GameTooltipStatusBar, "CENTER", 0, 0)
-	GameTooltipStatusBar.text:FontManager(LSM:Fetch("font", BAR_FONT), BAR_FONTSIZE, "OUTLINE")
+	GameTooltipStatusBar.text:FontManager("clean")
 
 
 	if not GameTooltipStatusBar.border then 

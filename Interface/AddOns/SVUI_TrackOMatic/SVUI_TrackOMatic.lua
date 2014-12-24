@@ -72,15 +72,15 @@ BUILD
 ##########################################################
 ]]--
 function SVUIToggleTrackingDoodad()
-    if(not SVUI_TrackingDoodad.Trackable) then
-        SVUI_TrackingDoodad.Trackable = true
+    if(not SVUI_UnitTrackingCompass.Trackable) then
+        SVUI_UnitTrackingCompass.Trackable = true
         if((UnitInParty("target") or UnitInRaid("target")) and not UnitIsUnit("target", "player")) then
-            SVUI_TrackingDoodad:Show()
+            SVUI_UnitTrackingCompass:Show()
         end
         SV:AddonMessage("Tracking Device |cff00FF00Enabled|r")
     else
-        SVUI_TrackingDoodad.Trackable = false
-        SVUI_TrackingDoodad:Hide()
+        SVUI_UnitTrackingCompass.Trackable = false
+        SVUI_UnitTrackingCompass:Hide()
         SV:AddonMessage("Tracking Device |cffFF0000Disabled|r")
     end
 end 
@@ -90,13 +90,29 @@ MAIN MOVABLE TRACKER
 ##########################################################
 ]]--
 function PLUGIN:PLAYER_TARGET_CHANGED()
-    if not SVUI_TrackingDoodad then return end
+    if not SVUI_UnitTrackingCompass then return end
     if((UnitInParty("target") or UnitInRaid("target")) and not UnitIsUnit("target", "player")) then
-        SVUI_TrackingDoodad.Trackable = true
-        SVUI_TrackingDoodad:Show()
+        SVUI_UnitTrackingCompass.Trackable = true
+        SVUI_UnitTrackingCompass:Show()
     else
-        SVUI_TrackingDoodad.Trackable = false
-        SVUI_TrackingDoodad:Hide()
+        SVUI_UnitTrackingCompass.Trackable = false
+        SVUI_UnitTrackingCompass:Hide()
+    end
+end
+
+function SV:StartTrackingQuest(questID)
+    if not SVUI_QuestTrackingCompass then return end
+    if(not WorldMapFrame:IsShown()) then
+        SetMapToCurrentZone()
+    end
+    local _, posX, posY, objective = QuestPOIGetIconInfo(questID)
+    if(not posX or not posY) then return end
+    if(questID) then
+        SVUI_QuestTrackingCompass.questID = questID
+        SVUI_QuestTrackingCompass:Show()
+    else
+        SVUI_QuestTrackingCompass.questID = nil
+        SVUI_QuestTrackingCompass:Hide()
     end
 end
 
@@ -123,10 +139,10 @@ local Rotate_Arrow = function(self, angle)
     self.Arrow:SetTexCoord(ULx, ULy, LLx, LLy, URx, URy, LRx, LRy);
 end
 
-local Tracker_OnUpdate = function(self, elapsed)
+local UnitTracker_OnUpdate = function(self, elapsed)
     if self.elapsed and self.elapsed > (self.throttle or 0.02) then
         if(self.Trackable) then
-            local distance, angle = Triangulate("target", true)
+            local distance, angle = TriangulateUnit("target", true)
             if not angle then
                 self.throttle = 4
                 self.Arrow:SetAlpha(0)
@@ -179,6 +195,64 @@ local Tracker_OnUpdate = function(self, elapsed)
         self.elapsed = (self.elapsed or 0) + elapsed
     end
 end
+
+local QuestTracker_OnUpdate = function(self, elapsed)
+    if self.elapsed and self.elapsed > (self.throttle or 0.02) then
+        if(self.questID) then
+            local distance, angle = TriangulateQuest(self.questID)
+            if not angle then
+                self.questID = nil
+                self.throttle = 4
+                self.Arrow:SetAlpha(0)
+                self.Radar:SetVertexColor(0.8,0.1,0.1,0.15)
+                -- self.Border:SetVertexColor(1,0,0,0.15)
+                self.BG:SetVertexColor(1,0,0,0.15)
+            else
+                self.throttle = 0.02
+                local range = floor(distance)
+                self:Spin(angle)
+                if(range > 25) then
+                    self.Arrow:SetAlpha(1)
+                    self.Radar:SetAlpha(1)
+                    self.Border:Show()
+                    self.BG:SetAlpha(1)
+                    if(range > 100) then
+                        self.Arrow:SetVertexColor(1,0.1,0.1,0.4)
+                        self.Radar:SetVertexColor(0.8,0.1,0.1,0.25)
+                        -- self.Border:SetVertexColor(0.5,0.2,0.1,0.25)
+                        self.BG:SetVertexColor(0.8,0.4,0.1,0.6)
+                    elseif(range > 40) then
+                        self.Arrow:SetVertexColor(1,0.8,0.1,0.6)
+                        self.Radar:SetVertexColor(0.8,0.8,0.1,0.5)
+                        -- self.Border:SetVertexColor(0.5,0.5,0.1,0.8)
+                        self.BG:SetVertexColor(0.4,0.8,0.1,0.5)
+                    else
+                        self.Arrow:SetVertexColor(0.1,1,0.8,0.9)
+                        self.Radar:SetVertexColor(0.1,0.8,0.8,0.75)
+                        -- self.Border:SetVertexColor(0.1,0.5,0.1,1)
+                        self.BG:SetVertexColor(0.1,0.8,0.1,0.75)
+                    end
+                    self.Range:SetText(range)
+                else
+                    self.Arrow:SetVertexColor(0.1,0.1,0.1,0)
+                    self.Radar:SetVertexColor(0.1,0.1,0.1,0)
+                    -- self.Border:SetVertexColor(0.1,0.1,0.1,0)
+                    self.BG:SetVertexColor(0.1,0.1,0.1,0)
+                    self.Arrow:SetAlpha(0)
+                    self.Radar:SetAlpha(0)
+                    self.Border:Hide()
+                    self.BG:SetAlpha(0)
+                    self.Range:SetText("")
+                end
+            end            
+        else
+            self:Hide()
+        end
+        self.elapsed = 0
+    else
+        self.elapsed = (self.elapsed or 0) + elapsed
+    end
+end
 --[[ 
 ########################################################## 
 CORE
@@ -188,37 +262,54 @@ function PLUGIN:ReLoad()
     local frameSize = self.db.size or 70
     local arrowSize = frameSize * 0.5
     local fontSize = self.db.fontSize or 14
-    local frame = _G["SVUI_TrackingDoodad"]
+    local frame = _G["SVUI_UnitTrackingCompass"]
 
     frame:SetSize(frameSize, frameSize)
     frame.Arrow:SetSize(arrowSize, arrowSize)
-    frame.Range:SetFont(SV.Media.font.roboto, fontSize, "OUTLINE")
+    frame.Range:SetFont(SV.Media.font.clean, fontSize, "OUTLINE")
 end
 
 function PLUGIN:Load()
-    local _TRACKER = SVUI_TrackingDoodad
-    local _TARGET = SVUI_Target
+    local UNIT_TRACKER = SVUI_UnitTrackingCompass
+    local TRACKER_TARGET = SVUI_Target
 
-    if(_TRACKER) then
-        _TRACKER.Border:SetGradient(unpack(SV.Media.gradient.special))
-        _TRACKER.Arrow:SetVertexColor(0.1, 0.8, 0.8)
-        _TRACKER.Range:SetFont(SV.Media.font.roboto, 14, "OUTLINE")
-        _TRACKER.Range:SetTextColor(1, 1, 1, 0.75)
-        _TRACKER.Spin = Rotate_Arrow
+    if(UNIT_TRACKER) then
+        UNIT_TRACKER.Border:SetGradient(unpack(SV.Media.gradient.special))
+        UNIT_TRACKER.Arrow:SetVertexColor(0.1, 0.8, 0.8)
+        UNIT_TRACKER.Range:SetFont(SV.Media.font.clean, 14, "OUTLINE")
+        UNIT_TRACKER.Range:SetTextColor(1, 1, 1, 0.75)
+        UNIT_TRACKER.Spin = Rotate_Arrow
 
-        _TRACKER:RegisterForDrag("LeftButton");
-        _TRACKER:SetScript("OnUpdate", Tracker_OnUpdate)
+        UNIT_TRACKER:RegisterForDrag("LeftButton");
+        UNIT_TRACKER:SetScript("OnUpdate", UnitTracker_OnUpdate)
 
-        SV.Animate:Orbit(_TRACKER.Radar, 8, true)
+        SV.Animate:Orbit(UNIT_TRACKER.Radar, 8, true)
 
-        _TRACKER:Hide()
+        UNIT_TRACKER:Hide()
 
-        if(_TARGET) then
-            _TRACKER:SetParent(_TARGET)
-            _TRACKER:SetPoint("LEFT", _TARGET, "RIGHT", 2, 0)
+        if(TRACKER_TARGET) then
+            UNIT_TRACKER:SetParent(TRACKER_TARGET)
+            UNIT_TRACKER:SetPoint("LEFT", TRACKER_TARGET, "RIGHT", 2, 0)
         end
 
         self:RegisterEvent("PLAYER_TARGET_CHANGED")
+    end
+
+    local QUEST_TRACKER = _G["SVUI_QuestTrackingCompass"];
+
+    if(QUEST_TRACKER) then
+        QUEST_TRACKER.Border:SetGradient(unpack(SV.Media.gradient.special))
+        QUEST_TRACKER.Arrow:SetVertexColor(0.1, 0.8, 0.8)
+        QUEST_TRACKER.Range:SetFont(SV.Media.font.clean, 14, "OUTLINE")
+        QUEST_TRACKER.Range:SetTextColor(1, 1, 1, 0.75)
+        QUEST_TRACKER.Spin = Rotate_Arrow
+
+        QUEST_TRACKER:RegisterForDrag("LeftButton");
+        QUEST_TRACKER:SetScript("OnUpdate", QuestTracker_OnUpdate)
+
+        SV.Animate:Orbit(QUEST_TRACKER.Radar, 8, true)
+
+        QUEST_TRACKER:Hide()
     end
 
     self:EnableGPS()

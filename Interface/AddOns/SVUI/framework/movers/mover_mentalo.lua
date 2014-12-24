@@ -395,25 +395,19 @@ local Movable_OnUpdate = function(self)
 	if centerY >= calc3 then 
 		anchor1 = "TOP"
 		anchor2 = "BOTTOM"
-		centerY = -4
 	else 
 		anchor1 = "BOTTOM"
 		anchor2 = "TOP"
-		centerY = 4
 	end 
 	if centerX >= calc2 then 
 		anchor1 = "RIGHT"
 		anchor2 = "LEFT"
-		centerX = -4 
 	elseif centerX <= calc1 then 
 		anchor1 = "LEFT"
 		anchor2 = "RIGHT"
-		centerX = 4
-	else 
-		centerX = 0
 	end 
 	SVUI_MentaloPrecision:ClearAllPoints()
-	SVUI_MentaloPrecision:SetPoint(anchor1, frame, anchor2, centerX, centerY)
+	SVUI_MentaloPrecision:SetPoint(anchor1, frame, anchor2, 0, 0)
 	SVUI_MentaloPrecision:SetFrameLevel(frame:GetFrameLevel() + 20)
 	Movable_OnMouseUp(frame)
 end
@@ -585,7 +579,7 @@ function Mentalo:New(frame, moveName, title, snap, dragStopFunc)
 	frame:SetPoint(anchor1, movable, anchor1, 0, 0)
 
 	local mtext = movable:CreateFontString(nil, "OVERLAY")
-	mtext:FontManager()
+	mtext:FontManager("default")
 	mtext:SetJustifyH("CENTER")
 	mtext:SetPoint("CENTER")
 	mtext:SetText(title or moveName)

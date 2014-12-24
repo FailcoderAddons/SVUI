@@ -190,41 +190,6 @@ SV.Options.args.SVPlate = {
 							step = 0.01,
 							isPercent = true
 						},
-						fontGroup = {
-							order = 100,
-							type = "group",
-							guiInline = true,
-							name = L["Fonts"],
-							args = {
-								font = {
-									type = "select",
-									dialogControl = "LSM30_Font",
-									order = 4,
-									name = L["Font"],
-									values = AceGUIWidgetLSMlists.font
-								},
-								fontSize = {
-									order = 5,
-									name = L["Font Size"],
-									type = "range",
-									min = 6,
-									max = 22,
-									step = 1
-								},
-								fontOutline = {
-									order = 6,
-									name = L["Font Outline"],
-									desc = L["Set the font outline."],
-									type = "select",
-									values = {
-										["NONE"] = L["None"],
-										["OUTLINE"] = "OUTLINE",
-										["MONOCHROMEOUTLINE"] = "MONOCROMEOUTLINE",
-										["THICKOUTLINE"] = "THICKOUTLINE"
-									}
-								}
-							}
-						},
 						reactions = {
 							order = 200,
 							type = "group",

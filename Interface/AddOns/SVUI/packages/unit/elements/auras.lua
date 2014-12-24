@@ -66,7 +66,7 @@ local MOD = SV.SVUnit
 
 if(not MOD) then return end 
 
-local AURA_FONT = [[Interface\AddOns\SVUI\assets\fonts\Display.ttf]];
+local AURA_FONT = [[Interface\AddOns\SVUI\assets\fonts\Numbers.ttf]];
 local AURA_FONTSIZE = 11;
 local AURA_OUTLINE = "OUTLINE";
 local BASIC_TEXTURE = [[Interface\AddOns\SVUI\assets\artwork\Bars\DEFAULT]];
@@ -157,7 +157,7 @@ local CreateAuraIcon = function(icons, index)
     	fontSize = 8;
     	fontOutline = "MONOCHROMEOUTLINE"
     elseif(baseSize < 24) then
-    	font = SV.Media.font.roboto;
+    	font = SV.Media.font.clean;
     end
 
 	local cd = CreateFrame("Cooldown", nil, aura, "CooldownFrameTemplate");
@@ -610,7 +610,7 @@ function MOD:CreateAuraBarHeader(frame, unit)
 	end
 	auraBarParent.PostUpdate = ColorizeAuraBars;
 	auraBarParent.barTexture = LSM:Fetch("statusbar", SV.db.SVUnit.auraBarStatusbar)
-	auraBarParent.timeFont = LSM:Fetch("font", "Roboto")
+	auraBarParent.timeFont = LSM:Fetch("font", "SVUI Clean Font")
 	auraBarParent.textFont = LSM:Fetch("font", SV.db.SVUnit.auraFont)
 	auraBarParent.textSize = SV.db.SVUnit.auraFontSize
 	auraBarParent.textOutline = SV.db.SVUnit.auraFontOutline

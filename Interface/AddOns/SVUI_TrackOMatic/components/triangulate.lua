@@ -388,7 +388,7 @@ local function GetDistance(map1, floor1, x1, y1, map2, floor2, x2, y2)
     return dist, angle;
 end
 
-function Triangulate(unit, noMapLocation)
+function TriangulateUnit(unit, noMapLocation)
     if(WorldMap and WorldMap:IsShown()) then return end
 
     local plot1, plot2, plot3, plot4, plot5, plot6, plot7, plot8;
@@ -444,5 +444,38 @@ function Triangulate(unit, noMapLocation)
         return GetDistance(plot1, plot2, plot3, plot4, plot5, plot6, plot7, plot8)
     end
 
+    return GetDistance(plot1, plot2, plot3, plot4, plot1, plot2, plot7, plot8)
+end
+
+--QuestPOIGetIconInfo(questID)
+
+function TriangulateQuest(questID)
+    if(WorldMap and WorldMap:IsShown()) then return end
+
+    local _, plot1, plot2, plot3, plot4, plot5, plot6, plot7, plot8;
+
+    plot3, plot4 = GetPlayerMapPosition("player");
+
+    if(plot3 <= 0 and plot4 <= 0) then
+        SetMapToCurrentZone();
+        plot3, plot4 = GetPlayerMapPosition("player");
+        if(plot3 <= 0 and plot4 <= 0) then
+                if(ZoomOut()) then
+                elseif(GetCurrentMapZone() ~= WORLDMAP_WORLD_ID) then
+                    SetMapZoom(GetCurrentMapContinent());
+                else
+                    SetMapZoom(WORLDMAP_WORLD_ID);
+                end
+            plot3, plot4 = GetPlayerMapPosition("player");
+            if(plot3 <= 0 and plot4 <= 0) then
+                return;
+            end
+        end
+    end
+
+    plot1 = GetCurrentMapAreaID()
+    plot2 = GetCurrentMapDungeonLevel()
+    _, plot7, plot8, _ = QuestPOIGetIconInfo(questID);
+    if((not plot7) or (not plot8)) then return 0,0 end
     return GetDistance(plot1, plot2, plot3, plot4, plot1, plot2, plot7, plot8)
 end

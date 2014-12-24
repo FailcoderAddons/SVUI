@@ -711,86 +711,18 @@ SV.Options.args.SVBar = {
 							name = L["Self Cast"], 
 							desc = L["Right-click any action button to self cast"], 
 							order = 9
-						}
-					}
-				}, 
-				fontGroup = {
-					order = 2, 
-					type = "group", 
-					disabled = function()return not SV.db.SVBar.enable end, 
-					name = L["Fonts"], 
-					args = {
-						font = {
-							type = "select", 
-							width = "full", 
-							dialogControl = "LSM30_Font", 
-							order = 1, 
-							name = L["Font"], 
-							values = AceGUIWidgetLSMlists.font
-						}, 
-						fontSize = {
-							order = 2, 
-							width = "full", 
-							name = L["Font Size"], 
-							type = "range", 
-							min = 6, 
-							max = 22, 
-							step = 1
-						}, 
-						fontOutline = {
-							order = 3, 
-							width = "full", 
-							name = L["Font Outline"], 
-							desc = L["Set the font outline."], 
-							type = "select", 
-							values = {
-								["NONE"] = L["None"], 
-								["OUTLINE"] = "OUTLINE", 
-								["MONOCHROMEOUTLINE"] = "MONOCROMEOUTLINE", 
-								["THICKOUTLINE"] = "THICKOUTLINE"
-							}
-						},
-						countFont = {
-							type = "select", 
-							width = "full", 
-							dialogControl = "LSM30_Font", 
-							order = 4, 
-							name = L["Count Font"], 
-							values = AceGUIWidgetLSMlists.font
-						}, 
-						countFontSize = {
-							order = 5, 
-							width = "full", 
-							name = L["Count Font Size"], 
-							type = "range", 
-							min = 6, 
-							max = 22, 
-							step = 1
-						}, 
-						countFontOutline = {
-							order = 6, 
-							width = "full", 
-							name = L["Count Font Outline"], 
-							desc = L["Set the font outline."], 
-							type = "select", 
-							values = {
-								["NONE"] = L["None"], 
-								["OUTLINE"] = "OUTLINE", 
-								["MONOCHROMEOUTLINE"] = "MONOCROMEOUTLINE", 
-								["THICKOUTLINE"] = "THICKOUTLINE"
-							}
 						},
 						cooldownSize = {
-							order = 7, 
+							order = 10, 
 							width = "full", 
 							name = L["Cooldown Font Size"], 
 							type = "range", 
 							min = 6, 
 							max = 22, 
 							step = 1
-						}, 
+						},
 					}
-				}
+				},
 			}
 		}
 	}

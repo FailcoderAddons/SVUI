@@ -132,7 +132,7 @@ local GetAchievementRow = function(self, index)
 		row.Header:SetPoint("TOPRIGHT", row, "TOPRIGHT", -2, 0);
 		row.Header:SetHeightToScale(INNER_HEIGHT);
 		row.Header.Text = row.Header:CreateFontString(nil,"OVERLAY")
-		row.Header.Text:SetFont(SV.Media.font.roboto, 13, "NONE")
+		row.Header.Text:SetFont(SV.Media.font.clean, 13, "NONE")
 		row.Header.Text:SetTextColor(1,1,0)
 		row.Header.Text:SetShadowOffset(-1,-1)
 		row.Header.Text:SetShadowColor(0,0,0,0.5)

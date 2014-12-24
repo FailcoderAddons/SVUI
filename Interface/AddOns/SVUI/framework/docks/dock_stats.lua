@@ -241,14 +241,10 @@ local function GetDataSlot(parent, index)
 		slot.text = slot.textframe:CreateFontString(nil, "OVERLAY", nil, 7)
 		slot.text:SetAllPoints()
 
+		slot.text:FontManager("data")
 		if(SV.db.Dock.dataBackdrop) then
-			slot.text:FontManager(LSM:Fetch("font", SV.db.Dock.dataFont), SV.db.Dock.dataFontSize, "NONE", "CENTER", "MIDDLE")
 			slot.text:SetShadowColor(0, 0, 0, 0.5)
 			slot.text:SetShadowOffset(2, -4)
-		else
-			slot.text:FontManager(LSM:Fetch("font", SV.db.Dock.dataFont), SV.db.Dock.dataFontSize, SV.db.Dock.dataFontOutline)
-			slot.text:SetJustifyH("CENTER")
-			slot.text:SetJustifyV("MIDDLE")
 		end
 
 		slot.SlotKey = i;

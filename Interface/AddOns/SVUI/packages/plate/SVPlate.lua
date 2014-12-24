@@ -926,11 +926,11 @@ do
 	  button.Icon:SetPoint("BOTTOMRIGHT",button,"BOTTOMRIGHT")
 	  button.Icon:SetTexCoord(.1, .9, .2, .8)
 	  button.TimeLeft = button:CreateFontString(nil, 'OVERLAY')
-	  button.TimeLeft:SetFont(AuraFont, AuraFSize, AuraFOutline)
+	  button.TimeLeft:FontManager("aura")
 	  button.TimeLeft:SetPoint("BOTTOMLEFT",button,"TOPLEFT",-3,-1)
 	  button.TimeLeft:SetJustifyH('CENTER') 
 	  button.Stacks = button:CreateFontString(nil,"OVERLAY")
-	  button.Stacks:SetFont(AuraFont, AuraFSize + 2, AuraFOutline)
+	  button.Stacks:FontManager("aura")
 	  button.Stacks:SetPoint("BOTTOMRIGHT",button,"BOTTOMRIGHT",3,-3)
 	  button:Hide()
 	  return button
@@ -1093,18 +1093,18 @@ do
 
 	local function UpdateThisPlate(plate)
 		if(not ProxyThisPlate(plate, true)) then return; end
-		SVUI_PLATE.name:FontManager(NPFont, NPFSize, NPFOutline)
+		SVUI_PLATE.name:FontManager("name")
 		SVUI_PLATE.name:SetTextColor(1, 1, 1)
-		SVUI_PLATE.level:FontManager(NPFont, NPFSize, NPFOutline)
+		SVUI_PLATE.level:FontManager("name")
 		if not PLATE_ARGS.scaled and not PLATE_ARGS.tiny then
 			SVUI_PLATE.health:SetSize(HBWidth, HBHeight)
 		end
 		SVUI_PLATE.health:SetStatusBarTexture(SV.Media.bar.default)
-		SVUI_PLATE.health.text:FontManager(SV.Media.font.roboto, 8, "OUTLINE")
+		SVUI_PLATE.health.text:FontManager("aura")
 		SVUI_PLATE.cast:SetSize(HBWidth, CBHeight)
 		SVUI_PLATE.cast:SetStatusBarTexture(SV.Media.bar.gradient)
-		SVUI_PLATE.cast.text:SetFont(SV.Media.font.roboto, 8, "OUTLINE")
-		plate.cast.text:SetFont(SV.Media.font.roboto, 8, "OUTLINE")
+		SVUI_PLATE.cast.text:SetFont(SV.Media.font.clean, 8, "OUTLINE")
+		plate.cast.text:SetFont(SV.Media.font.clean, 8, "OUTLINE")
 		plate.cast.icon:SetSizeToScale((CBHeight + HBHeight) + 5)
 		PLATE_REF.raidicon:ClearAllPoints()
 		SV:SetReversePoint(PLATE_REF.raidicon, RIAnchor, SVUI_PLATE.health, RIXoffset, RIYoffset)	
@@ -1114,8 +1114,8 @@ do
 		SVUI_PLATE.health.icon:SetSize(RISize, RISize)
 		for index = 1, #PLATE_AURAICONS do 
 			if PLATE_AURAICONS and PLATE_AURAICONS[index] then
-				PLATE_AURAICONS[index].TimeLeft:FontManager(AuraFont, AuraFSize, AuraFOutline)
-				PLATE_AURAICONS[index].Stacks:FontManager(AuraFont, AuraFSize, AuraFOutline)
+				PLATE_AURAICONS[index].TimeLeft:FontManager("aura")
+				PLATE_AURAICONS[index].Stacks:FontManager("aura")
 				PLATE_AURAICONS[index].Icon:SetTexCoord(.07, 0.93, .23, 0.77)
 			end
 		end

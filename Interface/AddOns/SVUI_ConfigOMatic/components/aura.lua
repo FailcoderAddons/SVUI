@@ -208,35 +208,8 @@ SV.Options.args.SVAura = {
 							step = 1, 
 							order = 1
 						},
-						font = {
-							type = "select", 
-							dialogControl = "LSM30_Font", 
-							order = 2, 
-							name = L["Font"], 
-							values = AceGUIWidgetLSMlists.font
-						},
-						fontSize = {
-							order = 3, 
-							name = L["Font Size"], 
-							type = "range", 
-							min = 6, 
-							max = 22, 
-							step = 1
-						},
-						fontOutline = {
-							order = 4, 
-							name = L["Font Outline"], 
-							desc = L["Set the font outline."], 
-							type = "select", 
-							values = {
-								["NONE"] = L["None"], 
-								["OUTLINE"] = "OUTLINE", 
-								["MONOCHROMEOUTLINE"] = "MONOCROMEOUTLINE", 
-								["THICKOUTLINE"] = "THICKOUTLINE"
-							}
-						},
 						timeOffsetH = {
-							order = 5, 
+							order = 2, 
 							name = L["Time xOffset"], 
 							type = "range", 
 							min = -60, 
@@ -244,7 +217,7 @@ SV.Options.args.SVAura = {
 							step = 1
 						},
 						timeOffsetV = {
-							order = 6, 
+							order = 3, 
 							name = L["Time yOffset"], 
 							type = "range", 
 							min = -60, 
@@ -252,7 +225,7 @@ SV.Options.args.SVAura = {
 							step = 1
 						},
 						countOffsetH = {
-							order = 7, 
+							order = 4, 
 							name = L["Count xOffset"], 
 							type = "range", 
 							min = -60, 
@@ -260,7 +233,7 @@ SV.Options.args.SVAura = {
 							step = 1
 						},
 						countOffsetV = {
-							order = 8, 
+							order = 5, 
 							name = L["Count yOffset"], 
 							type = "range", 
 							min = -60, 

@@ -222,8 +222,16 @@
         </Frames>
     </Frame>
 
+    <Frame name="SVUI_SuperButtonFrame" parent="UIParent" hidden="true">
+        <Size x="64" y="64"/>
+        <Anchors>
+            <Anchor point="BOTTOM" x="0" y="160"/>
+        </Anchors>
+    </Frame>
+
     <Script file="widget_dropdown.lua"/>
     <Script file="widget_gamemenu.lua"/>
     <Script file="widget_afk.lua"/>
     <Script file="widget_comix.lua"/>
+    <Script file="widget_superbutton.lua"/>
 </Ui>

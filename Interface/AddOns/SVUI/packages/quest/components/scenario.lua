@@ -379,7 +379,7 @@ function MOD:InitializeScenarios()
 	block.Header:SetStylePanel("Default")
 
 	block.Header.Stage = block.Header:CreateFontString(nil,"OVERLAY")
-	block.Header.Stage:SetFont(SV.Media.font.roboto, 13, "NONE")
+	block.Header.Stage:SetFont(SV.Media.font.clean, 13, "NONE")
 	block.Header.Stage:SetShadowOffset(-1,-1)
 	block.Header.Stage:SetShadowColor(0,0,0,0.5)
 	block.Header.Stage:SetJustifyH('LEFT')
@@ -389,7 +389,7 @@ function MOD:InitializeScenarios()
 	block.Header.Stage:SetPointToScale("BOTTOMLEFT", block.Header, "BOTTOMLEFT", 4, 0);
 
 	block.Header.Score = block.Header:CreateFontString(nil,"OVERLAY")
-	block.Header.Score:SetFont(SV.Media.font.roboto, 13, "NONE")
+	block.Header.Score:SetFont(SV.Media.font.clean, 13, "NONE")
 	block.Header.Score:SetTextColor(1,1,0)
 	block.Header.Score:SetShadowOffset(-1,-1)
 	block.Header.Score:SetShadowColor(0,0,0,0.5)
@@ -400,7 +400,7 @@ function MOD:InitializeScenarios()
 	block.Header.Score:SetPointToScale("BOTTOMRIGHT", block.Header, "BOTTOMRIGHT", -2, 0);
 
 	block.Header.Text = block.Header:CreateFontString(nil,"OVERLAY")
-	block.Header.Text:SetFont(SV.Media.font.roboto, 13, "NONE")
+	block.Header.Text:SetFont(SV.Media.font.clean, 13, "NONE")
 	block.Header.Text:SetTextColor(1,1,0)
 	block.Header.Text:SetShadowOffset(-1,-1)
 	block.Header.Text:SetShadowColor(0,0,0,0.5)
@@ -433,7 +433,7 @@ function MOD:InitializeScenarios()
 	timer.Bar.Wave = timer.Bar:CreateFontString(nil,"OVERLAY")
 	timer.Bar.Wave:SetPointToScale("TOPLEFT", timer.Bar, "TOPLEFT", 4, 0);
 	timer.Bar.Wave:SetPointToScale("BOTTOMLEFT", timer.Bar, "BOTTOMLEFT", 4, 0);
-	timer.Bar.Wave:SetFont(SV.Media.font.roboto, 11, "NONE")
+	timer.Bar.Wave:SetFont(SV.Media.font.clean, 11, "NONE")
 	timer.Bar.Wave:SetTextColor(1,1,0)
 	timer.Bar.Wave:SetShadowOffset(-1,-1)
 	timer.Bar.Wave:SetShadowColor(0,0,0,0.5)

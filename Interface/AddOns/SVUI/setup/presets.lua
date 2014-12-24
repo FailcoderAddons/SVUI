@@ -803,7 +803,7 @@ local function LoadPresetData()
 						},
 					},
 					["name"] = {
-						["font"] = "Roboto",
+						["font"] = "SVUI Clean Font",
 						["fontOutline"] = "NONE",
 						["position"] = "CENTER",
 						["xOffset"] = 0,
@@ -826,7 +826,7 @@ local function LoadPresetData()
 						},
 					},
 					["name"] = {
-						["font"] = "Roboto",
+						["font"] = "SVUI Clean Font",
 						["position"] = "CENTER",
 						["xOffset"] = 0,
 						["yOffset"] = 1,
