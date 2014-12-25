@@ -165,7 +165,10 @@ local Fader_OnEvent = function(self, event, arg)
 		self.mask:SetAlpha(1)
 		if self.anim:IsPlaying() then 
 			self.anim:Stop()
-		end 
+		end
+		if(self.EffectModel) then
+			self.EffectModel:SetModel(CASTEFFECT)
+		end
 	elseif event == "UNIT_SPELLCAST_CHANNEL_START" then 
 		self:SetAlpha(0)
 		self.mask:SetAlpha(1)
@@ -502,7 +505,7 @@ end
 BUILD FUNCTION
 ##########################################################
 ]]--
-function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss)
+function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss, hasModel)
 	local colors = oUF_Villain.colors;
 	local castbar = CreateFrame("StatusBar", nil, frame)
 	castbar.OnUpdate = CustomCastBarUpdate;
@@ -692,11 +695,14 @@ function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss)
 	castbar.bg:SetTexture(SV.Media.bar.default)
   	castbar.bg:SetVertexColor(0,0,0,0.5)
 
-  	local effectFrame = CreateFrame("PlayerModel", nil, bgFrame)
-	effectFrame:SetAllPoints(bgFrame)
-	effectFrame:SetCamDistanceScale(0.15)
-	effectFrame:SetPortraitZoom(0)
-	effectFrame:SetModel(CASTEFFECT)
+  	if(hasModel) then
+  		local effectFrame = CreateFrame("PlayerModel", nil, castbar)
+		effectFrame:SetAllPointsOut(castbar, 100, 100)
+		effectFrame:SetCamDistanceScale(0.5)
+		effectFrame:SetPortraitZoom(0)
+		effectFrame:SetModel(CASTEFFECT)
+		castbar.EffectModel = effectFrame
+  	end
 	
 	local borderB = bgFrame:CreateTexture(nil,"OVERLAY")
 	borderB:SetTexture(0,0,0)

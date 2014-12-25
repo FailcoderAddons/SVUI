@@ -185,13 +185,11 @@ local QuestTracker_OnUpdate = function(self, elapsed)
         if(self.questID) then
             local distance, angle = TriangulateQuest(self.questID)
             if not angle then
-                self.questID = nil
                 self.throttle = 4
                 self.Arrow:SetAlpha(0)
                 self.Radar:SetVertexColor(0.8,0.1,0.1,0.15)
                 -- self.Border:SetVertexColor(1,0,0,0.15)
-                self.BG:SetBackdropColor(1,0,0)
-                self:SetScript("OnUpdate", nil)
+                self.BG:SetVertexColor(1,0,0)
             else
                 self.throttle = 0.02
                 local range = floor(distance)
@@ -205,24 +203,24 @@ local QuestTracker_OnUpdate = function(self, elapsed)
                         self.Arrow:SetVertexColor(1,0.1,0.1,0.4)
                         self.Radar:SetVertexColor(0.8,0.1,0.1,0.25)
                         -- self.Border:SetVertexColor(0.5,0.2,0.1,0.25)
-                        self.BG:SetBackdropColor(0.8,0.4,0.1)
+                        self.BG:SetVertexColor(0.8,0.4,0.1)
                     elseif(range > 40) then
                         self.Arrow:SetVertexColor(1,0.8,0.1,0.6)
                         self.Radar:SetVertexColor(0.8,0.8,0.1,0.5)
                         -- self.Border:SetVertexColor(0.5,0.5,0.1,0.8)
-                        self.BG:SetBackdropColor(0.4,0.8,0.1)
+                        self.BG:SetVertexColor(0.4,0.8,0.1)
                     else
                         self.Arrow:SetVertexColor(0.1,1,0.8,0.9)
                         self.Radar:SetVertexColor(0.1,0.8,0.8,0.75)
                         -- self.Border:SetVertexColor(0.1,0.5,0.1,1)
-                        self.BG:SetBackdropColor(0.1,0.8,0.1)
+                        self.BG:SetVertexColor(0.1,0.8,0.1)
                     end
                     self.Range:SetText(range)
                 else
                     self.Arrow:SetVertexColor(0.1,0.1,0.1,0)
                     self.Radar:SetVertexColor(0.1,0.1,0.1,0)
                     -- self.Border:SetVertexColor(0.1,0.1,0.1,0)
-                    self.BG:SetBackdropColor(0.1,0.1,0.1)
+                    self.BG:SetVertexColor(0.1,0.1,0.1)
                     self.Arrow:SetAlpha(0)
                     self.Radar:SetAlpha(0)
                     self.Border:Hide()
@@ -232,7 +230,6 @@ local QuestTracker_OnUpdate = function(self, elapsed)
             end            
         else
             self:Hide()
-            self:SetScript("OnUpdate", nil)
         end
         self.elapsed = 0
     else
@@ -241,49 +238,49 @@ local QuestTracker_OnUpdate = function(self, elapsed)
 end
 
 local StartTrackingQuest = function(self, questID)
-    if(not WorldMapFrame:IsShown()) then
-        SetMapToCurrentZone()
-    end
-    local _, posX, posY, objective = QuestPOIGetIconInfo(questID)
-    if(not posX or not posY) then return end
     if(questID) then
+        if(not WorldMapFrame:IsShown()) then
+            SetMapToCurrentZone()
+        end
         self.questID = questID
-        self.Widget:SetScript("OnUpdate", QuestTracker_OnUpdate)
-        self:Show()
+        self.Compass:Show()
+
     else
         self.questID = nil
-        self.Widget:SetScript("OnUpdate", nil)
-        self:Hide()
+        self.Compass:Hide()
     end
 end
 
-function SV:AddQuestCompass(parent)
-    if parent.Compass then return end
-    local bg = CreateFrame("Frame", nil, parent)
-    bg:SetAllPointsIn(parent)
-    bg:SetBackdrop({
-        bgFile = [[Interface\AddOns\SVUI_TrackOMatic\artwork\QUEST-COMPASS-BG]], 
-        edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
-        tile = false, 
-        edgeSize = 1
-    })
-    bg:SetBackdropColor(0.1,0.8,0.1)
-    bg:SetBackdropBorderColor(0,0,0)
-    local compass = CreateFrame("Frame", nil, bg, "SVUI_TrackingCompassTemplate")
-    compass:SetAllPointsIn(bg)
-    compass.Arrow:SetAllPointsOut(compass,2,2)
+function SV:AddQuestCompass(parent, anchor, size)
+    if anchor.Compass then return end
+    local compass = CreateFrame("Frame", nil, parent)
+    compass:SetPoint("CENTER", anchor, "CENTER", 0, 0)
+    compass:SetSize(size, size)
+    compass:SetFrameLevel(anchor:GetFrameLevel() + 99)
+    compass.BG = compass:CreateTexture(nil, 'BACKGROUND')
+    compass.BG:SetAllPointsIn(compass)
+    compass.BG:SetTexture([[Interface\AddOns\SVUI_TrackOMatic\artwork\QUEST-COMPASS-BG]])
+    compass.BG:SetVertexColor(0.1, 0.3, 0.4)
+    compass.Arrow = compass:CreateTexture(nil, 'BORDER')
+    compass.Arrow:SetAllPoints(compass)
+    compass.Arrow:SetTexture([[Interface\AddOns\SVUI_TrackOMatic\artwork\QUEST-COMPASS-ARROW]])
     compass.Arrow:SetVertexColor(0.1, 0.8, 0.8)
-    compass.Radar:ClearAllPoints()
-    compass.Radar:SetAllPointsOut(compass.Arrow)
+    compass.Radar = compass:CreateTexture(nil, 'OVERLAY')
+    compass.Radar:SetAllPointsOut(compass,2,2)
+    compass.Radar:SetTexture([[Interface\AddOns\SVUI_TrackOMatic\artwork\DOODAD-RADAR]])
+    compass.Radar:SetVertexColor(0.1, 0.8, 0.8)
+    compass.Range = compass:CreateFontString(nil, 'ARTWORK')
+    compass.Range:SetAllPoints(compass)
     compass.Range:SetFont(SV.Media.font.default, 10, "OUTLINE")
     compass.Range:SetTextColor(1, 1, 1, 0.75)
     compass.Spin = Rotate_Arrow
     SV.Animate:Orbit(compass.Radar, 8, true)
-    compass.BG = bg
-    bg:Hide()
-    bg.PostUpdate = StartTrackingQuest
-    bg.Widget = compass
-    parent.Compass = bg
+
+    compass:SetScript("OnUpdate", QuestTracker_OnUpdate)
+    compass:Hide()
+
+    anchor.Compass = compass
+    anchor.PostUpdate = StartTrackingQuest
 end
 --[[ 
 ########################################################## 

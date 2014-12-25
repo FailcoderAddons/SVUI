@@ -471,6 +471,7 @@ function SuperButton:AddAction(buttonName, updateFunc, eventFunc)
 	local special = CreateFrame('Button', buttonName, UIParent, 'SecureActionButtonTemplate, SecureHandlerStateTemplate, SecureHandlerAttributeTemplate');
 	special:SetSizeToScale(50,50);
 	special:SetPointToScale("CENTER", self, "CENTER", 0, 0);
+	special:SetAlpha(0);
 	special:SetStylePanel("Icon");
 	special:SetScript('OnEnter', SuperActionButton_OnEnter);
 	special:SetScript('OnLeave', GameTooltip_Hide);
@@ -551,8 +552,6 @@ function SuperButton:AddAction(buttonName, updateFunc, eventFunc)
 		end
 	]]);
 
-	special:FadeOut()
-
 	self.List[buttonName] = special;
 
 	return special
@@ -562,6 +561,7 @@ function SuperButton:AddSpell(buttonName, updateFunc, eventFunc)
 	local special = CreateFrame('Button', buttonName, UIParent, 'SecureActionButtonTemplate, SecureHandlerStateTemplate, SecureHandlerAttributeTemplate');
 	special:SetSizeToScale(50,50);
 	special:SetPointToScale("CENTER", self, "CENTER", 0, 0);
+	special:SetAlpha(0);
 	special:SetStylePanel("Icon");
 	special:SetScript('OnEnter', SuperSpellButton_OnEnter);
 	special:SetScript('OnLeave', GameTooltip_Hide);
@@ -638,8 +638,6 @@ function SuperButton:AddSpell(buttonName, updateFunc, eventFunc)
 		end
 	]]);
 
-	special:FadeOut()
-
 	self.List[buttonName] = special;
 
 	return special
@@ -649,6 +647,7 @@ function SuperButton:AddItem(buttonName, updateFunc, eventFunc)
 	local special = CreateFrame('Button', buttonName, UIParent, 'SecureActionButtonTemplate, SecureHandlerStateTemplate, SecureHandlerAttributeTemplate');
 	special:SetSizeToScale(50,50);
 	special:SetPointToScale("CENTER", self, "CENTER", 0, 0);
+	special:SetAlpha(0);
 	special:SetStylePanel("Icon");
 	special:SetScript('OnEnter', SuperItemButton_OnEnter);
 	special:SetScript('OnLeave', GameTooltip_Hide);
@@ -723,8 +722,6 @@ function SuperButton:AddItem(buttonName, updateFunc, eventFunc)
 			end
 		end
 	]]);
-
-	special:FadeOut()
 
 	self.List[buttonName] = special;
 

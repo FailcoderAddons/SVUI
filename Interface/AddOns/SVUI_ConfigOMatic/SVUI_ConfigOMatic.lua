@@ -398,14 +398,6 @@ SV.Options.args.common = {
 									get = function(j)return SV.db.general.comix end,
 									set = function(j,value) SV.db.general.comix = value; SV.Comix:Toggle() end
 								},
-								bigComix = {
-									order = 1,
-									type = 'toggle',
-									name = L["Include Large Comics"],
-									disabled = function() return not SV.db.general.comix end,
-									get = function(j) return SV.db.general.bigComix end,
-									set = function(j,value) SV.db.general.bigComix = value end
-								},
 								bubbles = {
 									order = 2,
 									type = "toggle",
@@ -462,27 +454,32 @@ SV.Options.args.common = {
 									get = function(j)return SV.db.general.reactionEmote end,
 									set = function(j,value)SV.db.general.reactionEmote = value;SV:ToggleReactions()end
 								},
-								gamemenu = {
-									order = 9,
-									type = 'toggle',
-									name = L["Awesome Game Menu"],
-									get = function(j)return SV.db.general.gamemenu end,
-									set = function(j,value) SV.db.general.gamemenu = value; SV.GameMenu:Toggle() end
-								},
 								afk = {
-									order = 10,
+									order = 9,
 									type = 'toggle',
 									name = L["Awesome AFK Screen"],
 									get = function(j)return SV.db.general.afk end,
 									set = function(j,value) SV.db.general.afk = value; SV.AFK:Toggle() end
 								},
 								afkNoMove = {
-									order = 11,
+									order = 10,
 									type = 'toggle',
 									name = L["Non-Spinning AFK"],
 									desc = L["Uses the awesome AFK screen without the camera spinning."],
 									get = function(j)return SV.db.general.afkNoMove end,
 									set = function(j,value) SV.db.general.afkNoMove = value; SV.AFK:Toggle() end
+								},
+								gamemenu = {
+									order = 11,
+									type = 'select',
+									name = L["Awesome Game Menu"],
+									get = function(j)return SV.db.general.gamemenu end,
+									set = function(j,value) SV.db.general.gamemenu = value; SV:StaticPopup_Show("RL_CLIENT") end,
+									values = {
+										['NONE'] = NONE,
+										['1'] = 'You + Henchman',
+										['2'] = 'You x2',
+									}
 								},
 							}
 						},

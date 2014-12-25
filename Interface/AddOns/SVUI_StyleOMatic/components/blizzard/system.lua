@@ -471,6 +471,8 @@ local function SystemPanelQue()
 			_G["StaticPopup"..i.."ItemFrameIconTexture"]:SetAllPointsIn()
 		end
 	end
+	local CAPS_TEXT_FONT = LibStub("LibSharedMedia-3.0"):Fetch("font", SV.db.font.caps.file);
+  	local caps_fontsize = SV.db.font.caps.size;
 	for i = 1, #SystemFrameList4 do
 		local this = _G["GameMenuButton"..SystemFrameList4[i]]
 		if(this) then

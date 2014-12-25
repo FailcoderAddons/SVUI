@@ -42,6 +42,9 @@
 
     <Frame name="SVUI_TrackingCompassTemplate" frameStrata="DIALOG" virtual="true" >
         <Layers>
+            <Layer level="BACKGROUND">
+                <Texture parentKey="BG" setAllPoints="true" file="Interface\AddOns\SVUI_TrackOMatic\artwork\QUEST-COMPASS-BG"/>
+            </Layer>
             <Layer level="BORDER">
                 <Texture parentKey="Arrow" file="Interface\AddOns\SVUI_TrackOMatic\artwork\QUEST-COMPASS-ARROW">
                     <Anchors>

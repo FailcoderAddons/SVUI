@@ -67,7 +67,7 @@ local function rng()
 end
 
 local Activate = function(self)
-	if(not SV.db.general.gamemenu) then
+	if(SV.db.general.gamemenu == 'NONE') then
 		self:Toggle()
 		return
 	end
@@ -88,17 +88,25 @@ function SV.GameMenu:Initialize()
 	self.ModelLeft:SetPortraitZoom(0.05)
 	self.ModelLeft:SetPosition(0,0,-0.25)
 
-	self.ModelRight:SetDisplayInfo(49084)
-	self.ModelRight:SetRotation(-1)
-	self.ModelRight:SetCamDistanceScale(1.9)
-	self.ModelRight:SetFacing(6)
-	self.ModelRight:SetPosition(0,0,-0.3)
+	if(SV.db.general.gamemenu == '1') then
+		self.ModelRight:SetDisplayInfo(49084)
+		self.ModelRight:SetRotation(-1)
+		self.ModelRight:SetCamDistanceScale(1.9)
+		self.ModelRight:SetFacing(6)
+		self.ModelRight:SetPosition(0,0,-0.3)
+	elseif(SV.db.general.gamemenu == '2') then
+		self.ModelRight:SetUnit("player")
+		self.ModelRight:SetRotation(-1)
+		self.ModelRight:SetCamDistanceScale(1.9)
+		self.ModelRight:SetFacing(6)
+		self.ModelRight:SetPosition(0,0,-0.3)
+	end
 
-	local effectFrame = CreateFrame("PlayerModel", nil, self.ModelRight)
-	effectFrame:SetAllPoints(self.ModelRight)
-	effectFrame:SetCamDistanceScale(1)
-	effectFrame:SetPortraitZoom(0)
-	effectFrame:SetModel([[Spells\Blackmagic_precast_base.m2]])
+	-- local effectFrame = CreateFrame("PlayerModel", nil, self.ModelRight)
+	-- effectFrame:SetAllPoints(self.ModelRight)
+	-- effectFrame:SetCamDistanceScale(1)
+	-- effectFrame:SetPortraitZoom(0)
+	-- effectFrame:SetModel([[Spells\Blackmagic_precast_base.m2]])
 
 	-- local splash = self:CreateTexture(nil, "OVERLAY")
 	-- splash:SetSize(600, 300)
@@ -110,7 +118,7 @@ function SV.GameMenu:Initialize()
 end
 
 function SV.GameMenu:Toggle()
-	if(SV.db.general.gamemenu) then
+	if(SV.db.general.gamemenu ~= 'NONE') then
 		self:Show()
 		self:SetScript("OnShow", Activate)
 	else

@@ -310,11 +310,11 @@ function MOD:CreateClassBar(playerFrame)
 
 		SV.Animate:Sprite4(bar[i].underlay,0.15,false,true)
 
-		bar[i].flames = CreateFrame("PlayerModel", nil, bar[i])
-		bar[i].flames:SetAllPointsOut(bar[i], 10, 10)
-		bar[i].flames:SetCamDistanceScale(0.2)
-		bar[i].flames:SetPortraitZoom(0)
-		bar[i].flames:SetModel([[Spells\Bloodlust_state_hand.m2]])
+		-- bar[i].flames = CreateFrame("PlayerModel", nil, bar[i])
+		-- bar[i].flames:SetAllPointsOut(bar[i], 10, 10)
+		-- bar[i].flames:SetCamDistanceScale(0.2)
+		-- bar[i].flames:SetPortraitZoom(0)
+		-- bar[i].flames:SetModel([[Spells\Bloodlust_state_hand.m2]])
 
 		bar[i].backdrop:SetVertexColor(unpack(shardBGColor[1]))
 		bar[i].overlay:SetVertexColor(unpack(shardOverColor[1]))

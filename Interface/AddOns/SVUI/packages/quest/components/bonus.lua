@@ -363,8 +363,7 @@ local UpdateBonusObjectives = function(self)
 		for i = 1, #cache do
 			local questID = cache[i];
 			local isInArea, isOnMap, numObjectives = GetCachedTaskInfo(questID);
-			local existingTask = ENABLED_BONUS_IDS[questID];
-			if(isInArea or (isOnMap and existingTask)) then
+			if(isInArea) then
 				local add_height = 0;
 				rows, add_height = self:Set(rows, questID, numObjectives)
 				fill_height = fill_height + add_height;

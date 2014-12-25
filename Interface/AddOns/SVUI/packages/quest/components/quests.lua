@@ -279,7 +279,7 @@ local ActiveButton_OnClick = function(self, button)
 			local title, level, suggestedGroup, isHeader, isCollapsed, isComplete, frequency, questID, startEvent, displayQuestID, isOnMap, hasLocalPOI, isTask, isStory = GetQuestLogTitle(questLogIndex)
 			local icon = self.Icon:GetTexture()
 			SetSuperTrackedQuestID(questID);
-			MOD.Headers["Active"]:Set(title, level, icon, questID, questLogIndex, numObjectives, duration, elapsed, hasLocalPOI);
+			MOD.Headers["Active"]:Set(title, level, icon, questID, questLogIndex, numObjectives, duration, elapsed, isComplete);
 		end
 	end
 end
@@ -611,7 +611,7 @@ local RefreshQuests = function(self, event, ...)
 					rows, zone = self:SetZone(rows, zoneName);
 					fill_height = fill_height + QUEST_ROW_HEIGHT;
 				end
-				rows, add_height = self:Set(rows, unpack(quest))
+				rows, add_height = self:Set(rows, quest[1], quest[2], quest[3], quest[4], quest[5], quest[6], quest[7], quest[8], quest[9], quest[10])
 				fill_height = fill_height + add_height;
 			end
 		end

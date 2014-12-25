@@ -163,14 +163,12 @@ local UnsetActiveData = function(self, bypass)
 	end
 end
 
-local SetActiveData = function(self, title, level, icon, questID, questLogIndex, numObjectives, duration, elapsed, hasLocalPOI)
+local SetActiveData = function(self, title, level, icon, questID, questLogIndex, numObjectives, duration, elapsed, isComplete)
 	self.ActiveQuestID = questID;
 	MOD.ActiveQuestID = self.ActiveQuestID;
 	local fill_height = 0;
 	local objective_rows = 0;
 	local block = self.Block;
-
-	icon = icon or QUEST_ICON;
 
 	local color = DEFAULT_COLOR
 	if(level and type(level) == 'number') then
@@ -179,7 +177,6 @@ local SetActiveData = function(self, title, level, icon, questID, questLogIndex,
 	block.Header.Level:SetTextColor(color.r, color.g, color.b);
 	block.Header.Level:SetText(level);
 	block.Header.Text:SetText(title);
-	block.Badge.Icon:SetTexture(icon);
 	block.Button:SetID(questLogIndex);
 
 	MOD.CurrentQuest = questLogIndex;
@@ -188,6 +185,7 @@ local SetActiveData = function(self, title, level, icon, questID, questLogIndex,
 	objective_block:Reset();
 	for i = 1, numObjectives do
 		local description, category, completed = GetQuestObjectiveInfo(questID, i);
+		if(not completed) then isComplete = false end
 		if(duration and elapsed and (elapsed < duration)) then
 			objective_rows = objective_block:SetTimer(objective_rows, duration, elapsed);
 			fill_height = fill_height + (INNER_HEIGHT + 2);
@@ -206,6 +204,13 @@ local SetActiveData = function(self, title, level, icon, questID, questLogIndex,
 	block:SetHeightToScale(fill_height);
 
 	MOD.Docklet.ScrollFrame.ScrollBar:SetValue(0);
+
+	if(isComplete) then
+		icon = QUEST_ICON_COMPLETE;
+	else
+		icon = icon or QUEST_ICON;
+	end
+	block.Badge.Icon:SetTexture(icon);
 
 	local link, texture, _, showCompleted = GetQuestLogSpecialItemInfo(questLogIndex)
 	if(link and (questLogIndex ~= MOD.CurrentQuest)) then
@@ -365,7 +370,7 @@ function MOD:InitializeActive()
 	block.Badge.Icon:SetTexture(QUEST_ICON)
 	block.Badge.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 	if(SV.AddQuestCompass) then
-		SV:AddQuestCompass(block.Badge)
+		SV:AddQuestCompass(block, block.Badge, LARGE_INNER_HEIGHT)
 	end
 
 	block.Header = CreateFrame("Frame", nil, block.Button)

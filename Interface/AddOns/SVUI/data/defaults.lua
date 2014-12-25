@@ -67,7 +67,7 @@ SV.defaults["general"] = {
     ["questWatch"] = true,
     ["questHeaders"] = true,
     ["woot"] = true, 
-    ["gamemenu"] = true, 
+    ["gamemenu"] = '1',
     ["afk"] = true, 
     ["afkNoMove"] = false,
     ["pvpinterrupt"] = true, 
@@ -90,18 +90,18 @@ SV.defaults["totems"] = {
 }
 
 SV.defaults["font"] = {
-	["default"] 	= { file = "SVUI Default Font", 	size = 13, 	outline = "OUTLINE", optionName = "Default", 		optionDesc = "The most commonly used font."	},
+	["default"] 	= { file = "SVUI Default Font", 	size = 12, 	outline = "OUTLINE", optionName = "Default", 		optionDesc = "The most commonly used font."	},
     ["name"] 		= { file = NAMEFONT, 				size = 9, 	outline = "OUTLINE", optionName = "Names", 			optionDesc = "Used in most places that unit names appear."	},
     ["title"] 		= { file = NAMEFONT, 				size = 16, 	outline = "OUTLINE", optionName = "Titles", 		optionDesc = "Font used to display various titles."	}, 
     ["number"] 		= { file = "SVUI Number Font", 		size = 11, 	outline = "OUTLINE", optionName = "Numbers (Regular)", optionDesc = "Font used to display most numeric values."	},
     ["number_big"]	= { file = "SVUI Number Font", 		size = 18, 	outline = "OUTLINE", optionName = "Numbers (Large)", optionDesc = "Font used to display larger numeric values."	},  
     ["combat"] 		= { file = "SVUI Combat Font", 		size = 11, 	outline = "OUTLINE", optionName = "Combat", 		optionDesc = "Scrolling combat text font."	}, 
-    ["alert"] 		= { file = "SVUI Alert Font", 		size = 32, 	outline = "OUTLINE", optionName = "Alerts", 		optionDesc = "Font used for on-screen message alerts."	},
-    ["zone"] 		= { file = "SVUI Zone Font", 		size = 11, 	outline = "OUTLINE", optionName = "Zone Text",  	optionDesc = "Font used for zone names. Shown when changing zones."	},
-    ["caps"] 		= { file = "SVUI Caps Font", 		size = 11, 	outline = "OUTLINE", optionName = "Caps", 			optionDesc = "Font typically used for things like tabs and fitted headers."	},
+    ["alert"] 		= { file = "SVUI Alert Font", 		size = 20, 	outline = "OUTLINE", optionName = "Alerts", 		optionDesc = "Font used for on-screen message alerts."	},
+    ["zone"] 		= { file = "SVUI Zone Font", 		size = 16, 	outline = "OUTLINE", optionName = "Zone Text",  	optionDesc = "Font used for zone names. Shown when changing zones."	},
+    ["caps"] 		= { file = "SVUI Caps Font", 		size = 12, 	outline = "OUTLINE", optionName = "Caps", 			optionDesc = "Font typically used for things like tabs and fitted headers."	},
     ["aura"] 		= { file = "SVUI Number Font", 		size = 8,  	outline = "OUTLINE", optionName = "Auras", 			optionDesc = "Aura counts and timers use this font."	},
     ["data"] 		= { file = "SVUI Number Font", 		size = 11, 	outline = "OUTLINE", optionName = "Docked Stats", 	optionDesc = "Font used by the bottom and top data docks."	},
-    ["narrator"]	= { file = "SVUI Narrator Font",	size = 16, 	outline = "OUTLINE", optionName = "Narratives", 	optionDesc = "Font used for things like the 'Meanwhile' tag."	},
+    ["narrator"]	= { file = "SVUI Narrator Font",	size = 12, 	outline = "OUTLINE", optionName = "Narratives", 	optionDesc = "Font used for things like the 'Meanwhile' tag."	},
     ["platename"] 	= { file = NAMEFONT, 				size = 7, 	outline = "OUTLINE", optionName = "Nameplate Names", optionDesc = "Used on nameplates for unit names."	},
     ["plateaura"] 	= { file = "SVUI Clean Font", 		size = 7, 	outline = "OUTLINE", optionName = "Nameplate Auras", optionDesc = "Used on nameplates for aura texts."	},
 }
