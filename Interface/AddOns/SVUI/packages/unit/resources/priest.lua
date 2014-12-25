@@ -47,6 +47,7 @@ local MOD = SV.SVUnit
 if(not MOD) then return end 
 
 local ICON_FILE = [[Interface\AddOns\SVUI\assets\artwork\Unitframe\Class\PRIEST]]
+local DEFAULT_EFFECT = [[Spells\Shadow_precast_uber_hand.m2]];
 --[[ 
 ########################################################## 
 POSITIONING
@@ -115,45 +116,9 @@ function MOD:CreateClassBar(playerFrame)
 		bar[i].backdrop:SetAllPoints(bar[i])
 		bar[i].backdrop:SetTexture(ICON_FILE)
 		bar[i].backdrop:SetTexCoord(0,0.5,0,0.5)
-		local swirl = CreateFrame('Frame', nil, bar[i])
-		swirl:SetSizeToScale(30, 30)
-		swirl:SetPoint("CENTER", bar[i], "CENTER", 0, 0)
-		swirl[1] = swirl:CreateTexture(nil, "OVERLAY", nil, 2)
-		swirl[1]:SetSizeToScale(30, 30)
-		swirl[1]:SetPoint("CENTER")
-		swirl[1]:SetTexture(ICON_FILE)
-		swirl[1]:SetTexCoord(0.5,1,0.5,1)
-		swirl[1]:SetBlendMode("ADD")
-		swirl[1]:SetVertexColor(0.7, 0.5, 1)
-		SV.Animate:Orbit(swirl[1], 10, false)
-		swirl[2] = swirl:CreateTexture(nil, "OVERLAY", nil, 1)
-		swirl[2]:SetSizeToScale(30, 30)
-		swirl[2]:SetPoint("CENTER")
-		swirl[2]:SetTexture(ICON_FILE)
-		swirl[2]:SetTexCoord(0.5,1,0.5,1)
-		swirl[2]:SetBlendMode("BLEND")
-		swirl[2]:SetVertexColor(0.2, 0.08, 0.01)
-		SV.Animate:Orbit(swirl[2], 10, true)
-		bar[i].swirl = swirl;
-		bar[i]:SetScript("OnShow", function(self)
-			if not self.swirl[1].anim:IsPlaying() then
-				self.swirl[1].anim:Play()
-			end 
-			if not self.swirl[2].anim:IsPlaying() then
-				self.swirl[2].anim:Play()
-			end 
-		end)
-		bar[i]:SetScript("OnHide", function(self)
-			self.swirl[1].anim:Finish()
-			self.swirl[2].anim:Finish() 
-		end)
-		-- local effectFrame = CreateFrame("PlayerModel", nil, bar[i])
-		-- effectFrame:SetAllPointsOut(bar[i], 10, 10)
-		-- effectFrame:SetCamDistanceScale(0.1)
-		-- effectFrame:SetPortraitZoom(0)
-		-- effectFrame:SetModel([[Spells\Clearcasting_impact_chest.m2]])
+		MOD:CreateModelEffect(bar[i], 0.25, 7, DEFAULT_EFFECT, -0.21, -0.15, 0)
 	end 
-	bar.PreUpdate = PreUpdate
+	--bar.PreUpdate = PreUpdate
 
 	local classBarHolder = CreateFrame("Frame", "Player_ClassBar", bar)
 	classBarHolder:SetPointToScale("TOPLEFT", playerFrame, "BOTTOMLEFT", 0, -2)

@@ -62,11 +62,11 @@ local MOD = SV.SVUnit
 
 if(not MOD) then return end 
 
-local CASTEFFECT = [[Spells\Fel_fire_precast_high_hand.m2]]
+-- local CASTEFFECT = [[Spells\Fel_fire_precast_high_hand.m2]]
 -- local CASTEFFECT = [[Spells\Fill_holy_cast_01.m2]]
 -- local CASTEFFECT = [[Spells\Fill_fire_cast_01.m2]]
 -- local CASTEFFECT = [[Spells\Fill_lightning_cast_01.m2]]
--- local CASTEFFECT = [[Spells\Fill_magma_cast_01.m2]]
+local CASTEFFECT = [[Spells\Fill_magma_cast_01.m2]]
 -- local CASTEFFECT = [[Spells\Fill_shadow_cast_01.m2]]
 
 --[[ 
@@ -165,9 +165,6 @@ local Fader_OnEvent = function(self, event, arg)
 		self.mask:SetAlpha(1)
 		if self.anim:IsPlaying() then 
 			self.anim:Stop()
-		end
-		if(self.EffectModel) then
-			self.EffectModel:SetModel(CASTEFFECT)
 		end
 	elseif event == "UNIT_SPELLCAST_CHANNEL_START" then 
 		self:SetAlpha(0)
@@ -697,8 +694,9 @@ function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss, ha
 
   	if(hasModel) then
   		local effectFrame = CreateFrame("PlayerModel", nil, castbar)
-		effectFrame:SetAllPointsOut(castbar, 100, 100)
-		effectFrame:SetCamDistanceScale(0.5)
+		effectFrame:SetAllPointsIn(bgFrame)
+		effectFrame:SetCamDistanceScale(1)
+		effectFrame:SetPosition(4,-1,1)
 		effectFrame:SetPortraitZoom(0)
 		effectFrame:SetModel(CASTEFFECT)
 		castbar.EffectModel = effectFrame
@@ -767,7 +765,10 @@ function MOD:PostCastStart(unit, index, ...)
 	if unit == "player" or unit == "target" then 
 		CustomChannelUpdate(self, unit, index, unitDB.ticks)
 		CustomInterruptible(self, unit, db.castClassColor)
-	end  
+	end
+	if(self.EffectModel) then
+		self.EffectModel:SetModel(CASTEFFECT)
+	end 
 end 
 
 function MOD:PostCastStop(unit, ...)

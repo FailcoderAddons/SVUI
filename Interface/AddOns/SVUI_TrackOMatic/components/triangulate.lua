@@ -389,7 +389,7 @@ local function GetDistance(map1, floor1, x1, y1, map2, floor2, x2, y2)
 end
 
 function TriangulateUnit(unit, noMapLocation)
-    if(WorldMap and WorldMap:IsShown()) then return end
+    if(WorldMapFrame and WorldMapFrame:IsShown()) then return end
 
     local plot1, plot2, plot3, plot4, plot5, plot6, plot7, plot8;
 
@@ -450,7 +450,7 @@ end
 --QuestPOIGetIconInfo(questID)
 
 function TriangulateQuest(questID)
-    if(WorldMap and WorldMap:IsShown()) then return end
+    if(WorldMapFrame and WorldMapFrame:IsShown()) then return end
 
     local _, plot1, plot2, plot3, plot4, plot5, plot6, plot7, plot8;
 

@@ -99,7 +99,7 @@ SV.defaults["font"] = {
     ["alert"] 		= { file = "SVUI Alert Font", 		size = 20, 	outline = "OUTLINE", optionName = "Alerts", 		optionDesc = "Font used for on-screen message alerts."	},
     ["zone"] 		= { file = "SVUI Zone Font", 		size = 16, 	outline = "OUTLINE", optionName = "Zone Text",  	optionDesc = "Font used for zone names. Shown when changing zones."	},
     ["caps"] 		= { file = "SVUI Caps Font", 		size = 12, 	outline = "OUTLINE", optionName = "Caps", 			optionDesc = "Font typically used for things like tabs and fitted headers."	},
-    ["aura"] 		= { file = "SVUI Number Font", 		size = 8,  	outline = "OUTLINE", optionName = "Auras", 			optionDesc = "Aura counts and timers use this font."	},
+    ["aura"] 		= { file = "SVUI Number Font", 		size = 10, 	outline = "OUTLINE", optionName = "Auras", 			optionDesc = "Aura counts and timers use this font."	},
     ["data"] 		= { file = "SVUI Number Font", 		size = 11, 	outline = "OUTLINE", optionName = "Docked Stats", 	optionDesc = "Font used by the bottom and top data docks."	},
     ["narrator"]	= { file = "SVUI Narrator Font",	size = 12, 	outline = "OUTLINE", optionName = "Narratives", 	optionDesc = "Font used for things like the 'Meanwhile' tag."	},
     ["platename"] 	= { file = NAMEFONT, 				size = 7, 	outline = "OUTLINE", optionName = "Nameplate Names", optionDesc = "Used on nameplates for unit names."	},

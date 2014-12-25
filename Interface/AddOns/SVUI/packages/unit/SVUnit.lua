@@ -828,11 +828,6 @@ function MOD:RefreshUnitLayout(frame, template)
 				castbar.Organizer.Icon:Hide() 
 			end 
 		end
-
-		if castbar.EffectModel then
-			castbar.EffectModel:ClearAllPoints()
-			castbar.EffectModel:SetAllPointsOut(castbar, 0, 20)
-		end
 		
 		local cr,cg,cb
 		if(db.castbar.useCustomColor) then

@@ -48,6 +48,7 @@
     <Script file="elements\auras.lua"/>
     <Script file="elements\misc.lua"/>
 
+    <Script file="resources\all.lua"/>
     <Script file="resources\deathknight.lua"/>
     <Script file="resources\druid.lua"/>
     <Script file="resources\hunter.lua"/>
