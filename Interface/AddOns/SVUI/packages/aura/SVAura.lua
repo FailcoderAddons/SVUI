@@ -103,9 +103,6 @@ local AURA_ICONS = {
 	[[Interface\Addons\SVUI\assets\artwork\Icons\AURA-MULTISTRIKE]],
 	[[Interface\Addons\SVUI\assets\artwork\Icons\AURA-VERSATILITY]]
 };
-local AuraFont = [[Interface\AddOns\SVUI\assets\fonts\Default.ttf]];
-local AuraFSize = 8;
-local AuraFOutline = "OUTLINE";
 
 local BASIC_TEXTURE = [[Interface\AddOns\SVUI\assets\artwork\Bars\DEFAULT]];
 
@@ -272,8 +269,6 @@ do
 	end
 
 	function MOD:CreateIcon(aura)
-		local font = LSM:Fetch("font", SV.db.SVAura.font)
-
 		aura:SetBackdrop({
 			bgFile = [[Interface\BUTTONS\WHITE8X8]], 
 			tile = false, 
@@ -296,11 +291,11 @@ do
 
 		aura.count = aura:CreateFontString(nil, "ARTWORK")
 		aura.count:SetPoint("BOTTOMRIGHT", (-1 + SV.db.SVAura.countOffsetH), (1 + SV.db.SVAura.countOffsetV))
-		aura.count:SetFont(AuraFont, AuraFSize, AuraFOutline)
+		aura.count:FontManager("aura")
 
 		aura.time = aura:CreateFontString(nil, "ARTWORK")
 		aura.time:SetPoint("TOP", aura, "BOTTOM", 1 + SV.db.SVAura.timeOffsetH, 0 + SV.db.SVAura.timeOffsetV)
-		aura.time:SetFont(AuraFont, AuraFSize, AuraFOutline)
+		aura.time:FontManager("aura")
 
 		aura.highlight = aura:CreateTexture(nil, "HIGHLIGHT")
 		aura.highlight:SetTexture(BASIC_TEXTURE)
@@ -487,7 +482,6 @@ function MOD:UpdateAuraHeader(auraHeader, auraType)
 
 	local db = SV.db.SVAura[auraType]
 	local showBy = db.showBy
-	local font = LSM:Fetch("font", SV.db.SVAura.font)
 
 	if(auraType == "buffs") then 
 		auraHeader:SetAttribute("consolidateTo", SV.db.SVAura.hyperBuffs.enable == true and 1 or 0)
@@ -564,13 +558,6 @@ end
 UPDATE AND BUILD
 ##########################################################
 ]]--
-function MOD:UpdateLocals()
-	local af = SV.db.font.aura;
-	AuraFont = af.file;
-	AuraFSize = af.size;
-	AuraFOutline = af.outline;
-end
-
 function MOD:ReLoad()
 	if(InCombatLockdown()) then return end
 	local maxShown = #AURA_ICONS - 1

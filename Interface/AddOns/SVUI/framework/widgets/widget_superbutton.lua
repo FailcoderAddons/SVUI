@@ -36,16 +36,18 @@ GET ADDON DATA
 local SV = select(2, ...)
 local L = SV.L;
 local SuperButton = _G["SVUI_SuperButtonFrame"];
-SuperButton.List = {};
+SuperButton.RegisteredButtons = {};
 SuperButton.ActionBlackList = {};
 SuperButton.SpellBlackList = {};
 SuperButton.ItemBlackList = {};
+local ORDERED_LIST = {};
+local NO_ART = [[Interface\AddOns\SVUI\assets\artwork\Template\EMPTY]];
 --[[ 
 ########################################################## 
 HELPERS
 ##########################################################
 ]]--
-local function UpdateActionCooldown(self)
+local UpdateActionCooldown = function(self)
 	if(self:IsShown() and self.action) then
 		local start, duration, enable = GetActionCooldown(self.action)
 		if(duration > 0) then
@@ -57,7 +59,7 @@ local function UpdateActionCooldown(self)
 	end
 end
 
-local function UpdateSpellCooldown(self)
+local UpdateSpellCooldown = function(self)
 	if(self:IsShown() and self.spellName) then
 		local start, duration, enable = GetSpellCooldown(self.spellName)
 		if(duration > 0) then
@@ -69,7 +71,7 @@ local function UpdateSpellCooldown(self)
 	end
 end
 
-local function UpdateItemCooldown(self)
+local UpdateItemCooldown = function(self)
 	if(self:IsShown() and self.itemID) then
 		local start, duration, enable = GetItemCooldown(self.itemID)
 		if(duration > 0) then
@@ -111,6 +113,7 @@ local SuperButton_OnShow = function(self)
 	if(self.Artwork) then
 		self.Artwork:SetAlpha(1)
 	end
+	self:FadeIn()
 end
 
 local SuperButton_OnHide = function(self)
@@ -120,15 +123,34 @@ local SuperButton_OnHide = function(self)
 	end
 end
 
-local IsSuperButtonActive = function(self)
-	SuperButton.isActive = false
-	for name, frame in pairs(SuperButton.List) do
-		if(frame and frame:IsShown()) then
-			SuperButton.isActive = true
-			break;
+local GetSetPositions = function(self)
+	local highestIndex = 0;
+	local lastFrame = SuperButton;
+	for name, frame in pairs(SuperButton.RegisteredButtons) do
+		if((frame ~= self) and frame:IsShown() and (frame.___posIndex > highestIndex)) then
+			highestIndex = frame.___posIndex;
+			lastFrame = name;
 		end
 	end
-	return (not SuperButton.isActive);
+
+	self.___posIndex = highestIndex + 1;
+
+	return lastFrame;
+end
+
+local GetResetPositions = function(self)
+	self.___posIndex = 0;
+	for name, frame in pairs(SuperButton.RegisteredButtons) do
+		if((frame ~= self) and frame:IsShown() and (frame.___posIndex == 1)) then
+			tinsert(ORDERED_LIST, name)
+		end
+	end
+	for name, frame in pairs(SuperButton.RegisteredButtons) do
+		if((frame ~= self) and frame:IsShown() and (frame.___posIndex > 1)) then
+			tinsert(ORDERED_LIST, name)
+		end
+	end
+	return ORDERED_LIST;
 end
 
 local UpdateGeneric = function(self)
@@ -139,7 +161,7 @@ local SuperButtonAction_OnEvent = function(self, event)
 	if(event == 'PLAYER_REGEN_ENABLED') then
 		self:SetAttribute('action', self.attribute)
 		self:UnregisterEvent(event)
-		UpdateActionCooldown(self)
+		self:UpdateCooldown()
 	elseif(event == 'UPDATE_BINDINGS') then
 		if(self:IsShown()) then
 			self:SetAbility()
@@ -154,7 +176,7 @@ local SuperButtonSpell_OnEvent = function(self, event)
 	if(event == 'PLAYER_REGEN_ENABLED') then
 		self:SetAttribute('spell', self.attribute)
 		self:UnregisterEvent(event)
-		UpdateSpellCooldown(self)
+		self:UpdateCooldown()
 	elseif(event == 'UPDATE_BINDINGS') then
 		if(self:IsShown()) then
 			self:SetAbility()
@@ -167,38 +189,15 @@ end
 
 local SuperButtonItem_OnEvent = function(self, event)
 	if(event == 'BAG_UPDATE_COOLDOWN') then
-		UpdateItemCooldown(self)
+		self:UpdateCooldown()
 	elseif(event == 'PLAYER_REGEN_ENABLED') then
 		self:SetAttribute('item', self.attribute)
 		self:UnregisterEvent(event)
-		UpdateItemCooldown(self)
+		self:UpdateCooldown()
 	elseif(event == 'UPDATE_BINDINGS') then
 		if(self:IsShown()) then
 			self:SetAbility()
 			self:SetAttribute('binding', GetTime())
-		end
-	else
-		self:Update()
-	end
-end
---[[ 
-########################################################## 
-EXTRA ACTION SCRIPT HANDLERS
-##########################################################
-]]--
-local ExtraButton_OnEvent = function(self, event)
-	if(event == 'UPDATE_EXTRA_ACTIONBAR') then
-		local action = ExtraActionButton1:GetAttribute('action')
-		self:SetAbility(action)
-		UpdateActionCooldown(self)
-	elseif(event == 'PLAYER_REGEN_ENABLED') then
-		self:SetAttribute('action', self.attribute)
-		self:UnregisterEvent(event)
-		UpdateActionCooldown(self)
-	elseif(event == 'UPDATE_BINDINGS') then
-		if(self:IsShown()) then
-			self:SetAttribute('binding', GetTime())
-			self:SetAbility()
 		end
 	else
 		self:Update()
@@ -222,7 +221,7 @@ local SetSuperButtonAction = function(self, action)
 	end
 
 	local HotKey = self.HotKey
-	local key = GetBindingKey('EXTRAACTIONBUTTON1')
+	local key = GetBindingKey(self.___binding)
 	if(key) then
 		HotKey:SetText(GetBindingText(key, 1))
 		HotKey:Show()
@@ -238,13 +237,14 @@ local SetSuperButtonAction = function(self, action)
 		self:RegisterEvent('PLAYER_REGEN_ENABLED')
 	else
 		self:SetAttribute('action', self.action)
-		UpdateActionCooldown(self)
+		self:UpdateCooldown()
 	end
 
 	return true
 end
 
 local RemoveSuperButtonAction = function(self)
+	self:FadeOut()
 	if(InCombatLockdown()) then
 		self.attribute = nil;
 		self:RegisterEvent('PLAYER_REGEN_ENABLED')
@@ -309,7 +309,7 @@ local SetSuperButtonSpell = function(self, spellID, spellName, texture)
 	end
 
 	local HotKey = self.HotKey
-	local key = GetBindingKey('EXTRAACTIONBUTTON1')
+	local key = GetBindingKey(self.___binding)
 	if(key) then
 		HotKey:SetText(GetBindingText(key, 1))
 		HotKey:Show()
@@ -325,18 +325,19 @@ local SetSuperButtonSpell = function(self, spellID, spellName, texture)
 		self:RegisterEvent('PLAYER_REGEN_ENABLED')
 	else
 		self:SetAttribute('spell', self.spellName)
-		UpdateSpellCooldown(self)
+		self:UpdateCooldown()
 	end
 
 	return true
 end
 
 local RemoveSuperButtonSpell = function(self)
+	self:FadeOut()
 	if(InCombatLockdown()) then
 		self.attribute = nil;
-		self:RegisterEvent('PLAYER_REGEN_ENABLED')
+		self:RegisterEvent('PLAYER_REGEN_ENABLED');
 	else
-		self:SetAttribute('spell', nil)
+		self:SetAttribute('spell', nil);
 	end
 end
 
@@ -396,7 +397,7 @@ local SetSuperButtonItem = function(self, itemLink, texture)
 	end
 
 	local HotKey = self.HotKey
-	local key = GetBindingKey('EXTRAACTIONBUTTON1')
+	local key = GetBindingKey(self.___binding)
 	if(key) then
 		HotKey:SetText(GetBindingText(key, 1))
 		HotKey:Show()
@@ -412,16 +413,17 @@ local SetSuperButtonItem = function(self, itemLink, texture)
 		self:RegisterEvent('PLAYER_REGEN_ENABLED')
 	else
 		self:SetAttribute('item', self.itemName)
-		UpdateItemCooldown(self)
+		self:UpdateCooldown()
 	end
 
 	return true
 end
 
 local RemoveSuperButtonItem = function(self)
+	self:FadeOut()
 	if(InCombatLockdown()) then
 		self.attribute = nil;
-		self:RegisterEvent('PLAYER_REGEN_ENABLED')
+		self:RegisterEvent('PLAYER_REGEN_ENABLED');
 	else
 		self:SetAttribute('item', nil)
 	end
@@ -467,7 +469,19 @@ end
 CONSTRUCTS
 ##########################################################
 ]]--
-function SuperButton:AddAction(buttonName, updateFunc, eventFunc)
+function SuperButton:SetFrameReferences()
+	local listing = self.RegisteredButtons;
+	for buttonName, button in pairs(listing) do
+		button:SetFrameRef("SVUI_SuperButtonFrame", SVUI_SuperButtonFrame);
+		for name, frame in pairs(listing) do
+			if(frame ~= button) then
+				button:SetFrameRef(name, frame);
+			end
+		end
+	end
+end
+
+function SuperButton:AddAction(buttonName, updateFunc, eventFunc, bindingKey)
 	local special = CreateFrame('Button', buttonName, UIParent, 'SecureActionButtonTemplate, SecureHandlerStateTemplate, SecureHandlerAttributeTemplate');
 	special:SetSizeToScale(50,50);
 	special:SetPointToScale("CENTER", self, "CENTER", 0, 0);
@@ -478,12 +492,16 @@ function SuperButton:AddAction(buttonName, updateFunc, eventFunc)
 	special:SetScript('OnShow', SuperButton_OnShow);
 	special:SetScript('OnHide', SuperButton_OnHide);
 
+	special.___posIndex = 1;
+	special.___binding = bindingKey;
 	special.updateTimer = 0;
 	special.rangeTimer = 0;
 
-	special.IsReady = IsSuperButtonActive;
+	special.GetPositionRef = GetSetPositions;
+	special.GetResetRefList = GetResetPositions;
 	special.SetAbility = SetSuperButtonAction;
 	special.RemoveAbility = RemoveSuperButtonAction;
+	special.UpdateCooldown = UpdateActionCooldown;
 	if(updateFunc and type(updateFunc) == 'function') then
 		special.Update = updateFunc;
 	else
@@ -494,6 +512,13 @@ function SuperButton:AddAction(buttonName, updateFunc, eventFunc)
 	else
 		special:SetScript('OnEvent', SuperButtonAction_OnEvent)
 	end
+
+	local Artwork = special.Panel:CreateTexture('$parentArtwork', 'BACKGROUND')
+	Artwork:SetPoint('CENTER', -2, 2)
+	Artwork:SetSizeToScale(256, 128)
+	Artwork:SetTexture(NO_ART)
+	Artwork:SetAlpha(0)
+	special.Artwork = Artwork
 
 	local Icon = special:CreateTexture('$parentIcon', 'BACKGROUND')
 	Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
@@ -518,46 +543,57 @@ function SuperButton:AddAction(buttonName, updateFunc, eventFunc)
 	special:SetScript('OnUpdate', SuperActionButton_OnUpdate)
 	special:RegisterEvent('UPDATE_BINDINGS')
 
+
+
 	special:SetAttribute('type', 'action');
-	RegisterStateDriver(special, 'visible', [[
-		local isReady = self:CallMethod('IsReady');
-		if(isReady) then
-			return 'show'
-		else
-			return 'hide'
-		end
-	]]);
 	special:SetAttribute('_onattributechanged', [[
 		if(name == 'action') then
 			if(value and not self:IsShown()) then
+				local refName = self:CallMethod('GetPositionRef');
+				local lastFrame = self:GetFrameRef(refName);
+				if(lastFrame) then
+					self:ClearAllPoints()
+					self:SetPoint("BOTTOM", lastFrame, "TOP", 0, 8)		
+				end
 				self:Show()
 			elseif(not value) then
-				self:Hide()
-				self:ClearBindings()
-			end
-		elseif(name == 'state-visible') then
-			if(value == 'show') then
-				self:CallMethod('Update')
-			else
+				local refList = self:CallMethod('GetResetRefList');
+				local lastFrame, nextFrame;
+				if(refList) then
+					for _,refName in ipairs(refList) do
+						nextFrame = self:GetFrameRef(refName);
+						if(nextFrame) then
+							nextFrame:ClearAllPoints()
+							if(not lastFrame) then
+								lastFrame = self:GetFrameRef("SVUI_SuperButtonFrame");
+								nextFrame:SetPoint("CENTER", lastFrame, "CENTER", 0, 0);
+							else
+								nextFrame:SetPoint("BOTTOM", lastFrame, "TOP", 0, 8);
+							end	
+						end
+					end
+				end
 				self:Hide()
 				self:ClearBindings()
 			end
 		end
-		if(self:IsShown() and (name == 'action' or name == 'binding')) then
+		if(self:IsShown() and (self.___binding) and (name == 'action' or name == 'binding')) then
 			self:ClearBindings()
-			local key = GetBindingKey('EXTRAACTIONBUTTON1')
+			local key = GetBindingKey(self.___binding)
 			if(key) then
 				self:SetBindingClick(1, key, self, 'LeftButton')
 			end
 		end
 	]]);
 
-	self.List[buttonName] = special;
+	self.RegisteredButtons[buttonName] = special;
+
+	self:SetFrameReferences()
 
 	return special
 end
 
-function SuperButton:AddSpell(buttonName, updateFunc, eventFunc)
+function SuperButton:AddSpell(buttonName, updateFunc, eventFunc, bindingKey)
 	local special = CreateFrame('Button', buttonName, UIParent, 'SecureActionButtonTemplate, SecureHandlerStateTemplate, SecureHandlerAttributeTemplate');
 	special:SetSizeToScale(50,50);
 	special:SetPointToScale("CENTER", self, "CENTER", 0, 0);
@@ -568,12 +604,17 @@ function SuperButton:AddSpell(buttonName, updateFunc, eventFunc)
 	special:SetScript('OnShow', SuperButton_OnShow);
 	special:SetScript('OnHide', SuperButton_OnHide);
 
+	special.___posIndex = 1;
+	special.___binding = bindingKey;
 	special.updateTimer = 0;
 	special.rangeTimer = 0;
 
-	special.IsReady = IsSuperButtonActive;
-	special.SetAbility = SetSuperButtonSpell
-	special.RemoveAbility = RemoveSuperButtonSpell
+	special.GetPositionRef = GetSetPositions;
+	special.GetResetRefList = GetResetPositions;
+	special.SetAbility = SetSuperButtonSpell;
+	special.RemoveAbility = RemoveSuperButtonSpell;
+	special.UpdateCooldown = UpdateSpellCooldown;
+
 	if(updateFunc and type(updateFunc) == 'function') then
 		special.Update = updateFunc
 	else
@@ -584,6 +625,13 @@ function SuperButton:AddSpell(buttonName, updateFunc, eventFunc)
 	else
 		special:SetScript('OnEvent', SuperButtonSpell_OnEvent)
 	end
+
+	local Artwork = special.Panel:CreateTexture('$parentArtwork', 'BACKGROUND')
+	Artwork:SetPoint('CENTER', -2, 2)
+	Artwork:SetSizeToScale(256, 128)
+	Artwork:SetTexture(NO_ART)
+	Artwork:SetAlpha(0)
+	special.Artwork = Artwork
 
 	local Icon = special:CreateTexture('$parentIcon', 'BACKGROUND')
 	Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
@@ -605,45 +653,54 @@ function SuperButton:AddSpell(buttonName, updateFunc, eventFunc)
 	special:RegisterEvent('UPDATE_BINDINGS')
 
 	special:SetAttribute('type', 'spell');
-	RegisterStateDriver(special, 'visible', [[
-		local isReady = self:CallMethod('IsReady');
-		if(isReady) then
-			return 'show'
-		else
-			return 'hide'
-		end
-	]]);
 	special:SetAttribute('_onattributechanged', [[
 		if(name == 'spell') then
 			if(value and not self:IsShown()) then
+				local refName = self:CallMethod('GetPositionRef');
+				local lastFrame = self:GetFrameRef(refName);
+				if(lastFrame) then
+					self:ClearAllPoints()
+					self:SetPoint("BOTTOM", lastFrame, "TOP", 0, 8)		
+				end
 				self:Show()
 			elseif(not value) then
-				self:Hide()
-				self:ClearBindings()
-			end
-		elseif(name == 'state-visible') then
-			if(value == 'show') then
-				self:CallMethod('Update')
-			else
+				local refList = self:CallMethod('GetResetRefList');
+				local lastFrame, nextFrame;
+				if(refList) then
+					for _,refName in ipairs(refList) do
+						nextFrame = self:GetFrameRef(refName);
+						if(nextFrame) then
+							nextFrame:ClearAllPoints()
+							if(not lastFrame) then
+								lastFrame = self:GetFrameRef("SVUI_SuperButtonFrame");
+								nextFrame:SetPoint("CENTER", lastFrame, "CENTER", 0, 0);
+							else
+								nextFrame:SetPoint("BOTTOM", lastFrame, "TOP", 0, 8);
+							end	
+						end
+					end
+				end
 				self:Hide()
 				self:ClearBindings()
 			end
 		end
-		if(self:IsShown() and (name == 'spell' or name == 'binding')) then
+		if(self:IsShown() and (self.___binding) and (name == 'spell' or name == 'binding')) then
 			self:ClearBindings()
-			local key = GetBindingKey('EXTRAACTIONBUTTON1')
+			local key = GetBindingKey(self.___binding)
 			if(key) then
 				self:SetBindingClick(1, key, self, 'LeftButton')
 			end
 		end
 	]]);
 
-	self.List[buttonName] = special;
+	self.RegisteredButtons[buttonName] = special;
+
+	self:SetFrameReferences()
 
 	return special
 end
 
-function SuperButton:AddItem(buttonName, updateFunc, eventFunc)
+function SuperButton:AddItem(buttonName, updateFunc, eventFunc, bindingKey)
 	local special = CreateFrame('Button', buttonName, UIParent, 'SecureActionButtonTemplate, SecureHandlerStateTemplate, SecureHandlerAttributeTemplate');
 	special:SetSizeToScale(50,50);
 	special:SetPointToScale("CENTER", self, "CENTER", 0, 0);
@@ -654,12 +711,17 @@ function SuperButton:AddItem(buttonName, updateFunc, eventFunc)
 	special:SetScript('OnShow', SuperButton_OnShow);
 	special:SetScript('OnHide', SuperButton_OnHide);
 
+	special.___posIndex = 1;
+	special.___binding = bindingKey;
 	special.updateTimer = 0;
 	special.rangeTimer = 0;
 
-	special.IsReady = IsSuperButtonActive;
-	special.SetAbility = SetSuperButtonItem
-	special.RemoveAbility = RemoveSuperButtonItem
+	special.GetPositionRef = GetSetPositions;
+	special.GetResetRefList = GetResetPositions;
+	special.SetAbility = SetSuperButtonItem;
+	special.RemoveAbility = RemoveSuperButtonItem;
+	special.UpdateCooldown = UpdateItemCooldown;
+
 	if(updateFunc and type(updateFunc) == 'function') then
 		special.Update = updateFunc
 	else
@@ -670,6 +732,13 @@ function SuperButton:AddItem(buttonName, updateFunc, eventFunc)
 	else
 		special:SetScript('OnEvent', SuperButtonItem_OnEvent)
 	end
+
+	local Artwork = special.Panel:CreateTexture('$parentArtwork', 'BACKGROUND')
+	Artwork:SetPoint('CENTER', -2, 2)
+	Artwork:SetSizeToScale(256, 128)
+	Artwork:SetTexture(NO_ART)
+	Artwork:SetAlpha(0)
+	special.Artwork = Artwork
 
 	local Icon = special:CreateTexture('$parentIcon', 'BACKGROUND')
 	Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
@@ -690,40 +759,49 @@ function SuperButton:AddItem(buttonName, updateFunc, eventFunc)
 	special:RegisterEvent('UPDATE_BINDINGS')
 
 	special:SetAttribute('type', 'item');
-	RegisterStateDriver(special, 'visible', [[
-		local isReady = self:CallMethod('IsReady');
-		if(isReady) then
-			return 'show'
-		else
-			return 'hide'
-		end
-	]]);
 	special:SetAttribute('_onattributechanged', [[
 		if(name == 'item') then
 			if(value and not self:IsShown()) then
+				local refName = self:CallMethod('GetPositionRef');
+				local lastFrame = self:GetFrameRef(refName);
+				if(lastFrame) then
+					self:ClearAllPoints()
+					self:SetPoint("BOTTOM", lastFrame, "TOP", 0, 8)		
+				end
 				self:Show()
 			elseif(not value) then
-				self:Hide()
-				self:ClearBindings()
-			end
-		elseif(name == 'state-visible') then
-			if(value == 'show') then
-				self:CallMethod('Update')
-			else
+				local refList = self:CallMethod('GetResetRefList');
+				local lastFrame, nextFrame;
+				if(refList) then
+					for _,refName in ipairs(refList) do
+						nextFrame = self:GetFrameRef(refName);
+						if(nextFrame) then
+							nextFrame:ClearAllPoints()
+							if(not lastFrame) then
+								lastFrame = self:GetFrameRef("SVUI_SuperButtonFrame");
+								nextFrame:SetPoint("CENTER", lastFrame, "CENTER", 0, 0);
+							else
+								nextFrame:SetPoint("BOTTOM", lastFrame, "TOP", 0, 8);
+							end	
+						end
+					end
+				end
 				self:Hide()
 				self:ClearBindings()
 			end
 		end
-		if(self:IsShown() and (name == 'item' or name == 'binding')) then
+		if(self:IsShown() and (self.___binding) and (name == 'item' or name == 'binding')) then
 			self:ClearBindings()
-			local key = GetBindingKey('EXTRAACTIONBUTTON1')
+			local key = GetBindingKey(self.___binding)
 			if(key) then
 				self:SetBindingClick(1, key, self, 'LeftButton')
 			end
 		end
 	]]);
 
-	self.List[buttonName] = special;
+	self.RegisteredButtons[buttonName] = special;
+
+	self:SetFrameReferences()
 
 	return special
 end
@@ -736,10 +814,6 @@ function SuperButton:Initialize()
 	self:SetParent(SV.Screen)
 	self:SetPointToScale("BOTTOM", SV.Screen, "BOTTOM", 0, 325)
 	self:SetSizeToScale(50,50)
-
-	local extra = self:AddAction("SVUI_ExtraActionButton", nil, ExtraButton_OnEvent);
-	extra:RegisterEvent('UPDATE_EXTRA_ACTIONBAR')
-	ExtraActionBarFrame:UnregisterAllEvents()
 
 	SV.Mentalo:Add(self, L["Special Ability Button"])
 end

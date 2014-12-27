@@ -225,7 +225,7 @@ function SV.Dropdown:Initialize()
 	self:SetClampedToScreen(true)
 	self:SetSize(155, 94)
 
-	WorldFrame:HookScript("OnMouseUp", function()
+	WorldFrame:HookScript("OnMouseDown", function()
 		if(SV.Dropdown:IsShown()) then
 			ToggleFrame(SV.Dropdown)
 		end

@@ -229,9 +229,29 @@
         </Anchors>
     </Frame>
 
+    <Frame name="SVUI_BoozedUpFrame" parent="UIParent" setAllPoints="true">
+        <Frames>
+            <PlayerModel name="$parentScreenEffect" parentKey="ScreenEffect" frameStrata="BACKGROUND" setAllPoints="true" />
+            <PlayerModel name="$parentScreenEffect2" parentKey="ScreenEffect2" frameStrata="BACKGROUND" setAllPoints="true" />
+        </Frames>
+    </Frame>
+
+    <Frame name="SVUI_DrunkenYeeHaw" frameStrata="DIALOG">
+        <Size x="256" y="128"/>
+        <Anchors>
+            <Anchor point="CENTER" relativePoint="CENTER" x="-50" y="-50" />
+        </Anchors>
+        <Layers>
+            <Layer level="ARTWORK">
+                <Texture parentKey="tex" file="Interface\AddOns\SVUI\assets\artwork\Doodads\DRUNK-PARTYTIME" setAllPoints="true" />
+            </Layer>
+        </Layers>
+    </Frame>
+
     <Script file="widget_dropdown.lua"/>
     <Script file="widget_gamemenu.lua"/>
     <Script file="widget_afk.lua"/>
     <Script file="widget_comix.lua"/>
     <Script file="widget_superbutton.lua"/>
+    <Script file="widget_drunk.lua"/>
 </Ui>

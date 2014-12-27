@@ -71,6 +71,12 @@ local DEFAULT_EFFECT = [[Spells\Fill_holy_cast_01.m2]];
 --local DEFAULT_EFFECT = [[Spells\Fill_lightning_cast_01.m2]]
 --local DEFAULT_EFFECT = [[Spells\Fill_magma_cast_01.m2]]
 --local DEFAULT_EFFECT = [[Spells\Fill_shadow_cast_01.m2]]
+--local DEFAULT_EFFECT = [[Spells\Sprint_impact_chest.m2]]
+--local DEFAULT_EFFECT = [[Spells\Spellsteal_missile.m2]] --SetPosition(0,-1.8,0.9)
+--local DEFAULT_EFFECT = [[Spells\Warlock_destructioncharge_impact_chest.m2]]
+--local DEFAULT_EFFECT = [[Spells\Warlock_destructioncharge_impact_chest_fel.m2]]
+--local DEFAULT_EFFECT = [[Spells\Xplosion_twilight_impact_noflash.m2]]
+--local DEFAULT_EFFECT = [[Spells\Warlock_bodyofflames_medium_state_shoulder_right_purple.m2]]
 --[[ 
 ########################################################## 
 POSITIONING

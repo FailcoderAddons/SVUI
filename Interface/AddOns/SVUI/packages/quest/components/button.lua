@@ -114,8 +114,10 @@ local UpdateButton = function(self)
 	if(closestLink and (MOD.CurrentQuest == 0)) then
 		self.CurrentQuest = closestIndex;
 		self:SetAbility(closestLink, closestTexture, closestQuest, closestLevel, closestTexture, closestID, closestIndex, closestCount, closestDuration, closestExpiration, closestComplete);
+		self.Artwork:SetTexture([[Interface\ExtraButton\Smash]]);
 	elseif(self:IsShown() and (self.CurrentQuest ~= MOD.CurrentQuest)) then
 		self.CurrentQuest = 0;
+		self.Artwork:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Template\EMPTY]]);
 		self:RemoveAbility();
 	end
 end
@@ -129,15 +131,7 @@ function MOD:InitializeQuestItem()
 	SV.SuperButton.ItemBlackList[110799] = true
 	SV.SuperButton.ItemBlackList[109164] = true
 
-	local Button = SV.SuperButton:AddSpell("SVUI_QuestAutoButton", UpdateButton, QuestButton_OnEvent);
-
-	local Artwork = Button.Panel:CreateTexture('$parentArtwork', 'BACKGROUND')
-	Artwork:SetPoint('CENTER', -2, 2)
-	Artwork:SetSizeToScale(256, 128)
-	Artwork:SetTexture([[Interface\ExtraButton\Smash]])
-	Artwork:SetAlpha(0)
-	Button.Artwork = Artwork
-	
+	local Button = SV.SuperButton:AddSpell("SVUI_QuestAutoButton", UpdateButton, nil, 'SVUI_QUESTITEM');
 	Button:RegisterEvent('UPDATE_EXTRA_ACTIONBAR')
 	Button:RegisterEvent('BAG_UPDATE_COOLDOWN')
 	Button:RegisterEvent('BAG_UPDATE_DELAYED')

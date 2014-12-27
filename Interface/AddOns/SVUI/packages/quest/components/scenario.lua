@@ -313,6 +313,9 @@ local RefreshScenarioObjective = function(self, event, ...)
 					local scenariocompleted = currentStage > numStages;
 					if(not scenariocompleted) then
 						self:Set(title, stageName, currentStage, numStages, stageDescription, numObjectives)
+						if(currentStage > 1) then
+							PlaySound("UI_Scenario_Stage_End");
+						end
 					else
 						self.Timer:StopTimer()
 						self.Block.HasData = false

@@ -63,12 +63,14 @@ local MOD = SV.SVUnit
 if(not MOD) then return end 
 
 -- local CASTEFFECT = [[Spells\Fel_fire_precast_high_hand.m2]]
+-- local CASTEFFECT = [[Spells\Focused_casting_state.m2]]
 -- local CASTEFFECT = [[Spells\Fill_holy_cast_01.m2]]
 -- local CASTEFFECT = [[Spells\Fill_fire_cast_01.m2]]
--- local CASTEFFECT = [[Spells\Fill_lightning_cast_01.m2]]
-local CASTEFFECT = [[Spells\Fill_magma_cast_01.m2]]
+local CASTEFFECT = [[Spells\Xplosion_twilight_impact_noflash.m2]] --SetPosition(3,0,0)
+-- local CASTEFFECT = [[Spells\Fill_magma_cast_01.m2]]
 -- local CASTEFFECT = [[Spells\Fill_shadow_cast_01.m2]]
-
+local CASTEFFECT2 = [[Spells\Fill_arcane_precast_01.m2]]
+-- local CASTEFFECT2 = [[Spells\Spellsteal_missile.m2]] --SetPosition(0.2,-0.2,0.9)
 --[[ 
 ########################################################## 
 LOCAL VARIABLES
@@ -687,19 +689,21 @@ function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss, ha
 		end
 	end 
 
-	castbar.bg = bgFrame:CreateTexture(nil, "BACKGROUND")
+	castbar.bg = bgFrame:CreateTexture(nil, "BACKGROUND", nil, -2)
 	castbar.bg:SetAllPoints(bgFrame)
 	castbar.bg:SetTexture(SV.Media.bar.default)
   	castbar.bg:SetVertexColor(0,0,0,0.5)
 
   	if(hasModel) then
-  		local effectFrame = CreateFrame("PlayerModel", nil, castbar)
-		effectFrame:SetAllPointsIn(bgFrame)
-		effectFrame:SetCamDistanceScale(1)
-		effectFrame:SetPosition(4,-1,1)
-		effectFrame:SetPortraitZoom(0)
-		effectFrame:SetModel(CASTEFFECT)
-		castbar.EffectModel = effectFrame
+  		local modelEffect = CreateFrame("PlayerModel", nil, bgFrame)
+  		modelEffect:SetAlpha(0.75)
+  		modelEffect:SetFrameLevel(0)
+		modelEffect:SetAllPointsIn(bgFrame)
+		modelEffect:SetCamDistanceScale(0.9)
+		modelEffect:SetPosition(1,1,0)
+		modelEffect:SetPortraitZoom(0)
+		modelEffect:SetModel(CASTEFFECT)
+		castbar.EffectModel = modelEffect
   	end
 	
 	local borderB = bgFrame:CreateTexture(nil,"OVERLAY")

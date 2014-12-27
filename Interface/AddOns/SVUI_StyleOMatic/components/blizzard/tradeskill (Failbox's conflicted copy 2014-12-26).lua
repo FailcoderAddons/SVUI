@@ -44,8 +44,6 @@ local function TradeSkillStyle()
 	TradeSkillCreateAllButton:RemoveTextures(true)
 	TradeSkillViewGuildCraftersButton:RemoveTextures(true)
 
-	local curWidth,curHeight = TradeSkillFrame:GetSize()
-	TradeSkillFrame:SetSizeToScale(curWidth, curHeight + 170)
 	PLUGIN:ApplyWindowStyle(TradeSkillFrame, true, true)
 	PLUGIN:ApplyWindowStyle(TradeSkillGuildFrame)
 
@@ -56,8 +54,6 @@ local function TradeSkillStyle()
 
 	TradeSkillRankFrame:SetStylePanel("Default", "Bar", true)
 	TradeSkillRankFrame:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Bars\DEFAULT]])
-
-	TradeSkillListScrollFrame:SetSizeToScale(297, 300)
 	TradeSkillListScrollFrame:SetStylePanel("Default", "Inset")
 	TradeSkillDetailScrollFrame:SetStylePanel("Default", "Inset")
 

@@ -23,6 +23,7 @@ local unpack  = _G.unpack;
 local pairs   = _G.pairs;
 local ipairs  = _G.ipairs;
 local type    = _G.type;
+local print   = _G.print;
 local string  = _G.string;
 local math    = _G.math;
 local table   = _G.table;

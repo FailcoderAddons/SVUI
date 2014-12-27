@@ -1400,7 +1400,7 @@ function MOD:Load()
 	CreateStanceBar(self)
 	CreatePetBar(self)
 	self:InitializeMicroBar()
-	self:InitializeDraenorBar()
+	self:InitializeExtraButtons()
 	
 	self:LoadKeyBinder()
 

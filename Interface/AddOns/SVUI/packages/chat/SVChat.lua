@@ -111,7 +111,8 @@ local TIME_STAMP_MASK = "NONE";
 local ICONARTFILE = [[Interface\AddOns\SVUI\assets\artwork\Icons\DOCK-CHAT]]
 local SCROLL_ALERT = [[Interface\AddOns\SVUI\assets\artwork\Chat\CHAT-SCROLL]]
 local WHISPER_ALERT = [[Interface\AddOns\SVUI\assets\artwork\Chat\CHAT-WHISPER]]
-local THROTTLE_CACHE = {}
+local THROTTLE_CACHE = {};
+local ACTIVE_HYPER_LINK;
 --[[ 
 ########################################################## 
 INIT SETTINGS
@@ -879,7 +880,7 @@ do
 			ShowUIPanel(GameTooltip)
 			GameTooltip:SetOwner(self, "ANCHOR_CURSOR")
 			GameTooltip:SetHyperlink(refString)
-			ActiveHyperLink = self;
+			ACTIVE_HYPER_LINK = self;
 			GameTooltip:Show()
 		end
 	end
@@ -889,15 +890,15 @@ do
 		local token = refString:match("^([^:]+)")
 		if _linkTokens[token] then
 			HideUIPanel(GameTooltip)
-			ActiveHyperLink = nil;
+			ACTIVE_HYPER_LINK = nil;
 		end
 	end
 
 	local _hook_OnMessageScrollChanged = function(self)
 		if(not CHAT_HOVER_URL) then return; end
-		if(ActiveHyperLink == self) then
+		if(ACTIVE_HYPER_LINK == self) then
 			HideUIPanel(GameTooltip)
-			ActiveHyperLink = false;
+			ACTIVE_HYPER_LINK = false;
 		end
 		if(self:AtBottom() and ScrollIndicator:IsShown()) then
 			SV.Animate:StopFlash(ScrollIndicator)

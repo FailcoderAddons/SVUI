@@ -12,29 +12,46 @@ _____/\\\\\\\\\\\____/\\\________/\\\__/\\\________/\\\__/\\\\\\\\\\\_       #
 ##############################################################################
 S U P E R - V I L L A I N - U I   By: Munglunch                              #
 ##############################################################################
-########################################################## 
-LOCALIZED LUA FUNCTIONS
-##########################################################
-]]--
+--]]
 --[[ GLOBALS ]]--
 local _G = _G;
-local unpack 	= _G.unpack;
-local select 	= _G.select;
+local unpack  = _G.unpack;
+local select  = _G.select;
+--[[ ADDON ]]--
+local SV = _G.SVUI;
+local L = SV.L;
+local PLUGIN = select(2, ...);
+local Schema = PLUGIN.Schema;
 --[[ 
 ########################################################## 
-GET ADDON DATA
+DRESSUP PLUGINR
 ##########################################################
 ]]--
-local SV = select(2, ...);
+local function DressUpStyle()
+	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.dressingroom ~= true then
+		 return 
+	end
 
-function SV:LoadFramework()
-	self.Dropdown:Initialize();
-	self.Dock:Initialize();
-  self.Mentalo:Initialize();
-  self.Dragger:Initialize();
-	self.Comix:Initialize();
-  self.Drunk:Initialize();
-	self.GameMenu:Initialize();
-  self.AFK:Initialize();
-  self.SuperButton:Initialize();
-end
+	DressUpFrame:SetSizeToScale(600, 700)
+	PLUGIN:ApplyWindowStyle(DressUpFrame, true, true)
+
+	DressUpModel:ClearAllPoints()
+	DressUpModel:SetPointToScale("TOPLEFT", DressUpFrame, "TOPLEFT", 12, -76)
+	DressUpModel:SetPointToScale("BOTTOMRIGHT", DressUpFrame, "BOTTOMRIGHT", -12, 36)
+
+	DressUpModel:SetStylePanel("Fixed", "Model")
+
+	DressUpFrameCancelButton:SetPointToScale("BOTTOMRIGHT", DressUpFrame, "BOTTOMRIGHT", -12, 12)
+	DressUpFrameCancelButton:SetStylePanel("Button")
+
+	DressUpFrameResetButton:SetPointToScale("RIGHT", DressUpFrameCancelButton, "LEFT", -12, 0)
+	DressUpFrameResetButton:SetStylePanel("Button")
+
+	PLUGIN:ApplyCloseButtonStyle(DressUpFrameCloseButton, DressUpFrame.Panel)
+end 
+--[[ 
+########################################################## 
+PLUGIN LOADING
+##########################################################
+]]--
+PLUGIN:SaveCustomStyle(DressUpStyle)

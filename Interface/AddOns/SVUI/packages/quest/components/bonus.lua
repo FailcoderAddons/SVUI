@@ -377,6 +377,8 @@ local UpdateBonusObjectives = function(self)
 	else
 		self:SetHeightToScale(fill_height + 2);
 		self:FadeIn();
+		PlaySound("UI_Scenario_Stage_End");
+		--PlaySoundKitID(45142);
 	end
 end
 

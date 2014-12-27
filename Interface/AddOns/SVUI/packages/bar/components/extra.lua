@@ -36,23 +36,45 @@ GET ADDON DATA
 local SV = select(2, ...)
 local L = SV.L;
 local MOD = SV.SVBar;
+
+local DefaultExtraActionStyle = "Interface\\ExtraButton\\Default";
+--[[ 
+########################################################## 
+EXTRA ACTION BUTTON INTERNALS
+##########################################################
+]]--
+local ExtraButton_OnEvent = function(self, event)
+	if(event == 'UPDATE_EXTRA_ACTIONBAR') then
+		local action = ExtraActionButton1:GetAttribute('action')
+		self:SetAbility(action)
+		self:UpdateCooldown()
+	elseif(event == 'PLAYER_REGEN_ENABLED') then
+		self:SetAttribute('action', self.attribute)
+		self:UnregisterEvent(event)
+		self:UpdateCooldown()
+	elseif(event == 'UPDATE_BINDINGS') then
+		if(self:IsShown()) then
+			self:SetAttribute('binding', GetTime())
+			self:SetAbility()
+		end
+	else
+		self:Update()
+	end
+end
+
+local ExtraButtonUpdate = function(self)
+	if(HasExtraActionBar()) then
+		local texture = GetOverrideBarSkin() or DefaultExtraActionStyle;
+		self.Artwork:SetTexture(texture)
+	else
+		self:RemoveAbility();
+	end
+end
 --[[ 
 ########################################################## 
 DRAENOR ZONE BUTTON INTERNALS
 ##########################################################
 ]]--
-local function UpdateSpellCooldown(self)
-	if(self:IsShown() and self.spellName) then
-		local start, duration, enable = GetSpellCooldown(self.spellName)
-		if(duration > 0) then
-			self.Cooldown:SetCooldown(start, duration)
-			self.Cooldown:Show()
-		else
-			self.Cooldown:Hide()
-		end
-	end
-end
-
 local DraenorButton_OnDrag = function(self)
 	if(self.spellID) then
 		PickupSpell(DraenorZoneAbilitySpellID);
@@ -64,11 +86,11 @@ local DraenorButton_OnEvent = function(self, event)
 		if(not self.baseName) then
 			self.baseName = GetSpellInfo(DraenorZoneAbilitySpellID);
 		end
-		UpdateSpellCooldown(self)
+		self:UpdateCooldown()
 	elseif(event == 'PLAYER_REGEN_ENABLED') then
 		self:SetAttribute('spell', self.attribute)
 		self:UnregisterEvent(event)
-		UpdateSpellCooldown(self)
+		self:UpdateCooldown()
 	elseif(event == 'UPDATE_BINDINGS') then
 		if(self:IsShown()) then
 			self:SetAbility()
@@ -94,6 +116,7 @@ local DraenorButton_OnEvent = function(self, event)
 		end
 	else
 		DraenorZoneAbilityFrame.CurrentTexture = texture;
+		self:RemoveAbility();
 	end
 
 	-- if(lastState ~= self.BuffSeen) then
@@ -112,6 +135,7 @@ local DraenorButtonUpdate = function(self)
 	DraenorZoneAbilityFrame.CurrentSpell = name;
 
 	self.Icon:SetTexture(tex);
+	self.Artwork:SetTexture(DRAENOR_ZONE_SPELL_ABILITY_TEXTURES_BASE[spellID])
 
 	local charges, maxCharges, chargeStart, chargeDuration = GetSpellCharges(spellID);
 	local usesCharges = false;
@@ -140,12 +164,14 @@ end
 PACKAGE CALL
 ##########################################################
 ]]--
-function MOD:InitializeDraenorBar()
-	local draenor = SV.SuperButton:AddSpell("SVUI_DraenorZoneAbility", DraenorButtonUpdate, DraenorButton_OnEvent);
+function MOD:InitializeExtraButtons()
+	local extra = SV.SuperButton:AddAction("SVUI_ExtraActionButton", ExtraButtonUpdate, ExtraButton_OnEvent, 'EXTRAACTIONBUTTON1');
+	extra:RegisterEvent('UPDATE_EXTRA_ACTIONBAR')
+	ExtraActionBarFrame:UnregisterAllEvents()
 
+	local draenor = SV.SuperButton:AddSpell("SVUI_DraenorZoneAbility", DraenorButtonUpdate, DraenorButton_OnEvent, 'SVUI_DRAENORZONE');
 	draenor:RegisterForDrag("LeftButton")
 	draenor:SetScript('OnDragStart', DraenorButton_OnDrag)
-
 	draenor:RegisterUnitEvent("UNIT_AURA", "player");
 	draenor:RegisterEvent("SPELL_UPDATE_COOLDOWN");
 	draenor:RegisterEvent("SPELL_UPDATE_USABLE");

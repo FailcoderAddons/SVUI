@@ -77,6 +77,7 @@ SV.defaults["general"] = {
     ["sharingiscaring"] = false, 
     ["arenadrink"] = true, 
     ["stupidhat"] = true,
+    ["drunk"] = true,
     ["graphSize"] = 64,
     ["scaleAdjust"] = 0.64,
 }
