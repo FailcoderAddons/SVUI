@@ -45,6 +45,7 @@ local L = SV.L;
 if(SV.class ~= "WARLOCK") then return end 
 local MOD = SV.SVUnit
 if(not MOD) then return end 
+local DEFAULT_EFFECT = [[Spells\Corrupted_deathwing_missile.m2]];
 --[[ 
 ########################################################## 
 LOCAL FUNCTIONS

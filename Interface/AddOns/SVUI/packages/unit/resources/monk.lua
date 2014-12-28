@@ -45,6 +45,8 @@ local L = SV.L;
 if(SV.class ~= "MONK") then return end 
 local MOD = SV.SVUnit
 if(not MOD) then return end 
+
+local DEFAULT_EFFECT = [[Spells\Amberspirit_high.m2]];
 --[[ 
 ########################################################## 
 POSITIONING

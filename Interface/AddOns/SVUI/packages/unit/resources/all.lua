@@ -46,6 +46,31 @@ local MOD = SV.SVUnit
 if(not MOD) then return end 
 
 local DEFAULT_EFFECT = [[Spells\Fill_holy_cast_01.m2]];
+-- local CASTEFFECT = [[Spells\Fel_fire_precast_high_hand.m2]]
+-- local CASTEFFECT = [[Spells\Fire_precast_high_hand.m2]]
+-- local CASTEFFECT = [[Spells\Fire_precast_low_hand.m2]]
+-- local CASTEFFECT = [[Spells\Focused_casting_state.m2]]
+-- local CASTEFFECT = [[Spells\Fill_holy_cast_01.m2]]
+-- local CASTEFFECT = [[Spells\Fill_fire_cast_01.m2]]
+-- local CASTEFFECT = [[Spells\Paladin_healinghands_state_01.m2]]
+-- local CASTEFFECT = [[Spells\Fill_magma_cast_01.m2]]
+-- local CASTEFFECT = [[Spells\Fill_shadow_cast_01.m2]]
+-- local CASTEFFECT2 = [[Spells\Fill_arcane_precast_01.m2]]
+
+-- local CASTEFFECT = [[Spells\Ice_cast_low_hand.m2]]
+
+-- local CASTEFFECT = [[Spells\Immolate_state.m2]]
+-- local CASTEFFECT = [[Spells\Immolate_state_v2_illidari.m2]]
+-- local CASTEFFECT = [[Spells\Intervenetrail.m2]]
+
+-- local CASTEFFECT = [[Spells\Invisibility_impact_base.m2]]
+-- local CASTEFFECT2 = [[Spells\Fire_dot_state_chest.m2]]
+-- local CASTEFFECT2 = [[Spells\Fire_dot_state_chest_jade.m2]]
+-- local CASTEFFECT = [[Spells\Cast_arcane_01.m2]]
+-- local CASTEFFECT2 = [[Spells\Spellsteal_missile.m2]] --SetPosition(0.2,-0.2,0.9)
+
+-- local CASTEFFECT = [[Spells\Missile_bomb.m2]]
+
 --local DEFAULT_EFFECT = [[Spells\Shadow_frost_weapon_effect.m2]]; --0.25
 --local DEFAULT_EFFECT = [[Spells\Shadow_precast_high_base.m2]];
 --local DEFAULT_EFFECT = [[Spells\Shadow_precast_high_hand.m2]];
@@ -77,6 +102,47 @@ local DEFAULT_EFFECT = [[Spells\Fill_holy_cast_01.m2]];
 --local DEFAULT_EFFECT = [[Spells\Warlock_destructioncharge_impact_chest_fel.m2]]
 --local DEFAULT_EFFECT = [[Spells\Xplosion_twilight_impact_noflash.m2]]
 --local DEFAULT_EFFECT = [[Spells\Warlock_bodyofflames_medium_state_shoulder_right_purple.m2]]
+--local DEFAULT_EFFECT = [[Spells\Blink_impact_chest.m2]]
+--local DEFAULT_EFFECT = [[Spells\Christmassnowrain.m2]]
+--local DEFAULT_EFFECT = [[Spells\Detectinvis_impact_base.m2]]
+--local DEFAULT_EFFECT = [[Spells\Eastern_plaguelands_beam_effect.m2]]
+
+--local ORB_EFFECT = [[Spells\battlemasterglow_high.m2]]
+--local ORB_EFFECT = [[Spells\blueflame_low.m2]]
+--local ORB_EFFECT = [[Spells\greenflame_low.m2]]
+--local ORB_EFFECT = [[Spells\purpleglow_high.m2]]
+--local ORB_EFFECT = [[Spells\redflame_low.m2]]
+--local ORB_EFFECT = [[Spells\poisondrip.m2]]
+
+--local ORB_EFFECT = [[Spells\savageryglow_high.m2]]
+--local ORB_EFFECT = [[Spells\spellsurgeglow_high.m2]]
+--local ORB_EFFECT = [[Spells\sunfireglow_high.m2]]
+--local ORB_EFFECT = [[Spells\whiteflame_low.m2]]
+--local ORB_EFFECT = [[Spells\yellowflame_low.m2]]
+--local ORB_EFFECT = [[Spells\Food_healeffect_base.m2]]
+
+--local ORB_EFFECT = [[Spells\Bloodlust_state_hand.m2]]
+--local ORB_EFFECT = [[Spells\Deathwish_state_hand.m2]]
+--local ORB_EFFECT = [[Spells\Disenchant_precast_hand.m2]]
+--local ORB_EFFECT = [[Spells\Enchant_cast_hand.m2]]
+
+--local ORB_EFFECT = [[Spells\Eviscerate_cast_hands.m2]]
+--local ORB_EFFECT = [[Spells\Fire_blue_precast_hand.m2]]
+--local ORB_EFFECT = [[Spells\Fire_blue_precast_high_hand.m2]]
+
+--local ORB_EFFECT = [[Spells\Fire_precast_hand.m2]]
+--local ORB_EFFECT = [[Spells\Fire_precast_hand_pink.m2]]
+--local ORB_EFFECT = [[Spells\Fire_precast_hand_sha.m2]]
+--local ORB_EFFECT = [[Spells\Fire_precast_high_hand.m2]]
+--local ORB_EFFECT = [[Spells\Fire_precast_low_hand.m2]]
+
+--local ORB_EFFECT = [[Spells\Ice_precast_high_hand.m2]]
+
+--local ORB_EFFECT = [[Spells\Sand_precast_hand.m2]]
+--local ORB_EFFECT = [[Spells\Solar_precast_hand.m2]]
+--local ORB_EFFECT = [[Spells\Twilight_fire_precast_high_hand.m2]]
+--local ORB_EFFECT = [[Spells\Vengeance_state_hand.m2]]
+--local ORB_EFFECT = [[Spells\Fel_djinndeath_fire_02.m2]]
 --[[ 
 ########################################################## 
 POSITIONING

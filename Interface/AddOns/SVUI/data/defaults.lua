@@ -37,7 +37,6 @@ local function safename(id)
 end
 
 local NAMEFONT = "SVUI Name Font";
-local NAMEFONT_SIZE = 10;
 if(GetLocale() ~= "enUS") then
 	NAMEFONT = "SVUI Clean Font"
 end
@@ -857,7 +856,7 @@ SV.defaults["SVUnit"] = {
 			["xOffset"] = 0, 
 			["yOffset"] = 0, 
 			["font"] = NAMEFONT, 
-			["fontSize"] = NAMEFONT_SIZE, 
+			["fontSize"] = 10, 
 			["fontOutline"] = "OUTLINE", 
 		}, 
 		["pvp"] = 
@@ -1048,7 +1047,7 @@ SV.defaults["SVUnit"] = {
 			["xOffset"] = -2, 
 			["yOffset"] = 9, 
 			["font"] = NAMEFONT, 
-			["fontSize"] = NAMEFONT_SIZE, 
+			["fontSize"] = 10, 
 			["fontOutline"] = "OUTLINE", 
 		}, 
 		["portrait"] = 
@@ -1282,7 +1281,7 @@ SV.defaults["SVUnit"] = {
 			["xOffset"] = 0, 
 			["yOffset"] = 1, 
 			["font"] = NAMEFONT, 
-			["fontSize"] = NAMEFONT_SIZE, 
+			["fontSize"] = 10, 
 			["fontOutline"] = "OUTLINE", 
 		}, 
 		["portrait"] = 
@@ -1446,7 +1445,7 @@ SV.defaults["SVUnit"] = {
 			["xOffset"] = 0, 
 			["yOffset"] = 0, 
 			["font"] = NAMEFONT, 
-			["fontSize"] = NAMEFONT_SIZE, 
+			["fontSize"] = 10, 
 			["fontOutline"] = "OUTLINE", 
 		},
 		["castbar"] = 
@@ -1654,7 +1653,7 @@ SV.defaults["SVUnit"] = {
 			["yOffset"] = 0, 
 			["xOffset"] = 0, 
 			["font"] = NAMEFONT, 
-			["fontSize"] = NAMEFONT_SIZE, 
+			["fontSize"] = 10, 
 			["fontOutline"] = "OUTLINE", 
 		},
 		["buffs"] = 
@@ -1809,7 +1808,7 @@ SV.defaults["SVUnit"] = {
 			["yOffset"] = 0, 
 			["xOffset"] = 0, 
 			["font"] = NAMEFONT, 
-			["fontSize"] = NAMEFONT_SIZE, 
+			["fontSize"] = 10, 
 			["fontOutline"] = "OUTLINE", 
 		}, 
 		["portrait"] = 
@@ -1935,7 +1934,7 @@ SV.defaults["SVUnit"] = {
 			["yOffset"] = 0, 
 			["xOffset"] = 0, 
 			["font"] = NAMEFONT, 
-			["fontSize"] = NAMEFONT_SIZE, 
+			["fontSize"] = 10, 
 			["fontOutline"] = "OUTLINE", 
 		}, 
 		["buffs"] = 
@@ -2087,7 +2086,7 @@ SV.defaults["SVUnit"] = {
 			["yOffset"] = 0, 
 			["xOffset"] = 0, 
 			["font"] = NAMEFONT, 
-			["fontSize"] = NAMEFONT_SIZE, 
+			["fontSize"] = 10, 
 			["fontOutline"] = "OUTLINE", 
 		}, 
 		["buffs"] = 
@@ -2211,7 +2210,7 @@ SV.defaults["SVUnit"] = {
 			["yOffset"] = 0, 
 			["xOffset"] = 0, 
 			["font"] = NAMEFONT, 
-			["fontSize"] = NAMEFONT_SIZE,  
+			["fontSize"] = 10,  
 			["fontOutline"] = "OUTLINE", 
 		}, 
 		["portrait"] = 
@@ -2368,7 +2367,7 @@ SV.defaults["SVUnit"] = {
 			["yOffset"] = -2, 
 			["xOffset"] = 0, 
 			["font"] = NAMEFONT, 
-			["fontSize"] = NAMEFONT_SIZE, 
+			["fontSize"] = 10, 
 			["fontOutline"] = "NONE", 
 		}, 
 		["buffs"] = 

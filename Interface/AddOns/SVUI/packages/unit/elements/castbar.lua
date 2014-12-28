@@ -62,15 +62,8 @@ local MOD = SV.SVUnit
 
 if(not MOD) then return end 
 
--- local CASTEFFECT = [[Spells\Fel_fire_precast_high_hand.m2]]
--- local CASTEFFECT = [[Spells\Focused_casting_state.m2]]
--- local CASTEFFECT = [[Spells\Fill_holy_cast_01.m2]]
--- local CASTEFFECT = [[Spells\Fill_fire_cast_01.m2]]
-local CASTEFFECT = [[Spells\Xplosion_twilight_impact_noflash.m2]] --SetPosition(3,0,0)
--- local CASTEFFECT = [[Spells\Fill_magma_cast_01.m2]]
--- local CASTEFFECT = [[Spells\Fill_shadow_cast_01.m2]]
-local CASTEFFECT2 = [[Spells\Fill_arcane_precast_01.m2]]
--- local CASTEFFECT2 = [[Spells\Spellsteal_missile.m2]] --SetPosition(0.2,-0.2,0.9)
+local CASTEFFECT1 = [[Spells\Xplosion_twilight_impact_noflash.m2]] --SetPosition(1,1,0)
+local CASTEFFECT2 = [[Spells\Eastern_plaguelands_beam_effect.m2]] --SetPosition(0,0,0.3)
 --[[ 
 ########################################################## 
 LOCAL VARIABLES
@@ -695,15 +688,25 @@ function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss, ha
   	castbar.bg:SetVertexColor(0,0,0,0.5)
 
   	if(hasModel) then
-  		local modelEffect = CreateFrame("PlayerModel", nil, bgFrame)
-  		modelEffect:SetAlpha(0.75)
-  		modelEffect:SetFrameLevel(0)
-		modelEffect:SetAllPointsIn(bgFrame)
-		modelEffect:SetCamDistanceScale(0.9)
-		modelEffect:SetPosition(1,1,0)
-		modelEffect:SetPortraitZoom(0)
-		modelEffect:SetModel(CASTEFFECT)
-		castbar.EffectModel = modelEffect
+  		local modelEffect1 = CreateFrame("PlayerModel", nil, bgFrame)
+  		modelEffect1:SetAlpha(1)
+  		modelEffect1:SetFrameLevel(0)
+		modelEffect1:SetAllPointsIn(bgFrame)
+		modelEffect1:SetCamDistanceScale(0.9)
+		modelEffect1:SetPosition(1,-1,0)
+		modelEffect1:SetPortraitZoom(0)
+		modelEffect1:SetModel(CASTEFFECT1)
+		castbar.EffectModel1 = modelEffect1
+
+		local modelEffect2 = CreateFrame("PlayerModel", nil, castbar)
+  		modelEffect2:SetAlpha(1)
+  		--modelEffect2:SetFrameLevel(20)
+		modelEffect2:SetAllPointsIn(bgFrame, 2, 2)
+		modelEffect2:SetCamDistanceScale(0.95)
+		modelEffect2:SetPosition(0,-1,0)
+		modelEffect2:SetPortraitZoom(0)
+		modelEffect2:SetModel(CASTEFFECT2)
+		castbar.EffectModel2 = modelEffect2
   	end
 	
 	local borderB = bgFrame:CreateTexture(nil,"OVERLAY")
@@ -770,8 +773,9 @@ function MOD:PostCastStart(unit, index, ...)
 		CustomChannelUpdate(self, unit, index, unitDB.ticks)
 		CustomInterruptible(self, unit, db.castClassColor)
 	end
-	if(self.EffectModel) then
-		self.EffectModel:SetModel(CASTEFFECT)
+	if(self.EffectModel1) then
+		self.EffectModel1:SetModel(CASTEFFECT1)
+		self.EffectModel2:SetModel(CASTEFFECT2)
 	end 
 end 
 

@@ -38,8 +38,8 @@ local WORN_ITEMS = {};
 LOCAL VARS
 ##########################################################
 ]]--
-local DRUNK_EFFECT2 = [[Spells\Fill_holy_cast_01.m2]];
 local DRUNK_EFFECT = [[Spells\Largebluegreenradiationfog.m2]];
+local DRUNK_EFFECT2 = [[Spells\Monk_drunkenhaze_impact.m2]];
 local TIPSY_FILTERS = {
 	[DRUNK_MESSAGE_ITEM_SELF1] = true,
 	[DRUNK_MESSAGE_ITEM_SELF2] = true,
@@ -100,10 +100,12 @@ function SV.Drunk:LetsParty()
 	StopMusic()
 	PlayMusic([[Interface\AddOns\SVUI\assets\sounds\beer30.mp3]])
 	self:Show()
-	self.ScreenEffect:ClearModel()
-	self.ScreenEffect:SetModel(DRUNK_EFFECT)
+	self.ScreenEffect1:ClearModel()
+	self.ScreenEffect1:SetModel(DRUNK_EFFECT)
 	self.ScreenEffect2:ClearModel()
 	self.ScreenEffect2:SetModel(DRUNK_EFFECT2)
+	self.ScreenEffect3:ClearModel()
+	self.ScreenEffect3:SetModel(DRUNK_EFFECT2)
 	SV:AddonMessage("YEEEEEEEEE-HAW!!!")
 	DoEmote("dance")
 	-- SV.Timers:ExecuteTimer(PartysOver, 60)
@@ -142,16 +144,26 @@ function SV.Drunk:Initialize()
 	self:ClearAllPoints()
 	self:SetAllPoints(SV.Screen)
 
-	self.ScreenEffect:SetParent(self)
-	self.ScreenEffect:SetAllPoints(SV.Screen)
-	self.ScreenEffect:SetModel(DRUNK_EFFECT)
-	self.ScreenEffect:SetCamDistanceScale(1)
+	self.ScreenEffect1:SetParent(self)
+	self.ScreenEffect1:SetAllPoints(SV.Screen)
+	self.ScreenEffect1:SetModel(DRUNK_EFFECT)
+	self.ScreenEffect1:SetCamDistanceScale(1)
 
 	self.ScreenEffect2:SetParent(self)
-	self.ScreenEffect2:SetAllPoints(SV.Screen)
+	self.ScreenEffect2:SetPointToScale("BOTTOMLEFT", SV.Screen, "BOTTOMLEFT", 0, 0)
+	self.ScreenEffect2:SetPointToScale("TOPRIGHT", SV.Screen, "TOP", 0, 0)
+	--self.ScreenEffect2:SetSizeToScale(350, 600)
 	self.ScreenEffect2:SetModel(DRUNK_EFFECT2)
-	self.ScreenEffect2:SetCamDistanceScale(1)
-	self.ScreenEffect2:SetPosition(-0.21,-0.15,0)
+	self.ScreenEffect2:SetCamDistanceScale(0.25)
+	--self.ScreenEffect2:SetPosition(-0.21,-0.15,0)
+
+	self.ScreenEffect3:SetParent(self)
+	self.ScreenEffect3:SetPointToScale("BOTTOMRIGHT", SV.Screen, "BOTTOMRIGHT", 0, 0)
+	self.ScreenEffect3:SetPointToScale("TOPLEFT", SV.Screen, "TOP", 0, 0)
+	--self.ScreenEffect3:SetSizeToScale(350, 600)
+	self.ScreenEffect3:SetModel(DRUNK_EFFECT2)
+	self.ScreenEffect3:SetCamDistanceScale(0.25)
+	--self.ScreenEffect3:SetPosition(-0.21,-0.15,0)
 
 	self.YeeHaw = _G["SVUI_DrunkenYeeHaw"]
 	self.YeeHaw:SetParent(self)
