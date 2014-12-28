@@ -46,6 +46,11 @@ if(SV.class ~= "WARLOCK") then return end
 local MOD = SV.SVUnit
 if(not MOD) then return end 
 local DEFAULT_EFFECT = [[Spells\Corrupted_deathwing_missile.m2]];
+local specEffects = {
+	[1] = {[[Spells\Solar_precast_hand.m2]], -12, 12, 24, -24},
+	[2] = {[[Spells\Solar_precast_hand.m2]], -12, 12, 24, -24},
+	[3] = {[[Spells\Shadow_precast_uber_hand.m2]], -12, 12, 12, -12}	
+};
 --[[ 
 ########################################################## 
 LOCAL FUNCTIONS
@@ -117,6 +122,19 @@ end
 CUSTOM HANDLERS
 ##########################################################
 ]]--
+local PreUpdate = function(self, spec)
+	if(self.CurrentSpec and (self.CurrentSpec == spec)) then return end
+	local effectTable = specEffects[spec]
+	if(not effectTable) then return end
+	for i = 1, 5 do
+		self[i].EffectModel.modelFile = effectTable[1]
+		self[i].EffectModel:ClearAllPoints()
+		self[i].EffectModel:SetPoint("TOPLEFT", self[i], "TOPLEFT", effectTable[2], effectTable[3])
+		self[i].EffectModel:SetPoint("BOTTOMRIGHT", self[i], "BOTTOMRIGHT", effectTable[4], effectTable[5])
+	end
+	self.CurrentSpec = spec
+end
+
 local UpdateTextures = function(bar, spec, max)
 	if max == 0 then max = 4 end
 	if spec == SPEC_WARLOCK_DEMONOLOGY then

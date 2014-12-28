@@ -54,7 +54,7 @@ ns.FilterOptionGroups = {};
 ns.FilterSpellGroups = {};
 
 local tempFilterTable = {};
-
+local CURRENT_FILTER_TYPE = NONE;
 local publicFilters = {
 	["BlackList"] = "Blacklisted Auras",
 	["WhiteList"] = "Whitelisted Auras",
@@ -118,7 +118,7 @@ SV.Options.args.filters = {
 			order = 3,
 			type = "select",
 			name = L["Select Filter"],
-			get = function(key) return filterType end,
+			get = function(key) return CURRENT_FILTER_TYPE end,
 			set = function(key, value) ns:SetFilterOptions(value) end,
 			values = function()
 				wipe(tempFilterTable)
@@ -139,6 +139,7 @@ SV.Options.args.filters = {
 
 function ns:SetFilterOptions(filterType, selectedSpell)
 	local FILTER
+	CURRENT_FILTER_TYPE = filterType
 	if(SV.filters.Custom[filterType]) then 
 		FILTER = SV.filters.Custom[filterType] 
 	else

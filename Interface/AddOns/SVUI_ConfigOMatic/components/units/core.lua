@@ -1848,74 +1848,11 @@ SV.Options.args.SVUnit = {
 					type = "group", 
 					guiInline = true, 
 					name = L["Fonts"],
-					set = function(key, value)
-						MOD:ChangeDBVar(value, key[#key]);
-						MOD:RefreshAllUnitMedia()
-					end,
 					args = {
-						font = {
-							type = "select", 
-							dialogControl = "LSM30_Font", 
+						fontConfigButton = {
 							order = 1, 
-							name = L["Default Font"], 
-							desc = L["The font that the unitframes will use."], 
-							values = AceGUIWidgetLSMlists.font, 
-						},  
-						fontOutline = {
-							order = 2, 
-							name = L["Font Outline"], 
-							desc = L["Set the font outline."], 
-							type = "select", 
-							values = {
-								["NONE"] = L["None"], ["OUTLINE"] = "OUTLINE", ["MONOCHROMEOUTLINE"] = "MONOCROMEOUTLINE", ["THICKOUTLINE"] = "THICKOUTLINE"
-							},
-						},
-						fontSize = {
-							order = 3, 
-							name = L["Font Size"], 
-							desc = L["Set the font size for unitframes."], 
-							type = "range", 
-							min = 6, 
-							max = 22, 
-							step = 1,
-						},
-						auraFont = {
-							type = "select", 
-							dialogControl = "LSM30_Font", 
-							order = 4, 
-							name = L["Aura Font"], 
-							desc = L["The font that the aura icons and aurabar will use."], 
-							values = AceGUIWidgetLSMlists.font,
-							set = function(key, value)
-								MOD:ChangeDBVar(value, key[#key]);
-								MOD:RefreshAllUnitMedia()
-							end,
-						},  
-						auraFontOutline = {
-							order = 5, 
-							name = L["Aura Font Outline"], 
-							desc = L["Set the aura icons and aurabar font outline."], 
-							type = "select", 
-							values = {
-								["NONE"] = L["None"], ["OUTLINE"] = "OUTLINE", ["MONOCHROMEOUTLINE"] = "MONOCROMEOUTLINE", ["THICKOUTLINE"] = "THICKOUTLINE"
-							},
-							set = function(key, value)
-								MOD:ChangeDBVar(value, key[#key]);
-								MOD:RefreshAllUnitMedia()
-							end,
-						},
-						auraFontSize = {
-							order = 6, 
-							name = L["Aura Font Size"], 
-							desc = L["Set the font size for aura icons and aurabars."], 
-							type = "range", 
-							min = 6, 
-							max = 22, 
-							step = 1,
-							set = function(key, value)
-								MOD:ChangeDBVar(value, key[#key]);
-								MOD:RefreshAllUnitMedia()
-							end,
+							name = L["Set UnitFrame Fonts"], 
+							type = "execute", func = function() ns:SetToFontConfig("UnitFrame") end
 						},
 					}
 				},

@@ -284,34 +284,39 @@ local SetBonusRow = function(self, index, questID, subCount)
 	index = index + 1
 	local objective_rows = 0;
 	local fill_height = 0;
-
+	local iscomplete = true;
 	local row = self:Get(index);
-	row.RowID = questID
-	row.Header.Text:SetText(TRACKER_HEADER_BONUS_OBJECTIVES)
-	row:SetHeightToScale(ROW_HEIGHT);
-	row:FadeIn();
-
 	local objective_block = row.Objectives;
 
 	for i = 1, subCount do
-		local text, category, completed = GetCachedQuestObjectiveInfo(questID, i);
+		local text, category, objective_completed = GetCachedQuestObjectiveInfo(questID, i);
+		if not objective_completed then iscomplete = false end
 		if(text and text ~= '') then
-			objective_rows = objective_block:SetInfo(objective_rows, text, completed);
+			objective_rows = objective_block:SetInfo(objective_rows, text, objective_completed);
 			fill_height = fill_height + (INNER_HEIGHT + 2);
 		end
 		if(category and category == 'progressbar') then
-			objective_rows = objective_block:SetProgress(objective_rows, questID, completed);
+			objective_rows = objective_block:SetProgress(objective_rows, questID, objective_completed);
 			fill_height = fill_height + (INNER_HEIGHT + 2);
 		end
 	end
 
-	if(objective_rows > 0) then
-		objective_block:SetHeightToScale(fill_height);
+	if(not iscomplete) then
+		row.RowID = questID
+		row.Header.Text:SetText(TRACKER_HEADER_BONUS_OBJECTIVES)
+		row:SetHeightToScale(ROW_HEIGHT);
+		row:FadeIn();
+
+		if(objective_rows > 0) then
+			objective_block:SetHeightToScale(fill_height);
+		end
+
+		fill_height = fill_height + (ROW_HEIGHT + 2);
+
+		return index, fill_height;
+	else
+		return index, 0;
 	end
-
-	fill_height = fill_height + (ROW_HEIGHT + 2);
-
-	return index, fill_height;
 end
 
 local UpdateBonusObjectives = function(self)
@@ -363,9 +368,10 @@ local UpdateBonusObjectives = function(self)
 		for i = 1, #cache do
 			local questID = cache[i];
 			local isInArea, isOnMap, numObjectives = GetCachedTaskInfo(questID);
-			if(isInArea) then
+			local existingTask = CACHED_BONUS_DATA[questID]
+			if(isInArea or (isOnMap and existingTask)) then
 				local add_height = 0;
-				rows, add_height = self:Set(rows, questID, numObjectives)
+				rows, add_height = self:SetBonus(rows, questID, numObjectives)
 				fill_height = fill_height + add_height;
 			end
 		end
@@ -446,7 +452,7 @@ function MOD:InitializeBonuses()
 	bonus.Rows = {};
 
 	bonus.Get = GetBonusRow;
-	bonus.Set = SetBonusRow;
+	bonus.SetBonus = SetBonusRow;
 	bonus.SetCriteria = SetCriteriaRow;
 	bonus.Refresh = RefreshBonusObjectives;
 	bonus.Reset = ResetBonusBlock;

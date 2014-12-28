@@ -157,45 +157,39 @@ local function AbilityButtonHelper(index)
 	end
 end 
 
-local function ButtonUpdateHelper()
-	for i=1, SPELLS_PER_PAGE do
-		local name = "SpellButton"..i;
-		local button = _G[name];
+local ButtonUpdateHelper = function(self)
+	local name = self:GetName();
+	local icon = _G[name.."IconTexture"];
 
-		if(button and (not button.Panel)) then
-			local icon = _G[name.."IconTexture"]
-			local spellString = _G[name.."SpellName"];
-	    	local subSpellString = _G[name.."SubSpellName"];
-	    	--local highlight = _G[name.."Highlight"];
+	if(not self.Panel) then
+    	local iconTex;
 
-			if(not InCombatLockdown()) then
-				 button:SetFrameLevel(SpellBookFrame:GetFrameLevel() + 5)
-			end 
+		if(not InCombatLockdown()) then
+			self:SetFrameLevel(SpellBookFrame:GetFrameLevel() + 5)
+		end 
 
-			button:RemoveTextures() 
-			button:SetStylePanel("Default", "Slot", true, 2, 0, 0)
-
-			if(icon) then
-				icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-				icon:ClearAllPoints()
-				icon:SetAllPointsIn(button, 1, 1)
-			end
-
-			if(spellString) then 
-				spellString:SetFontObject(NumberFontNormal) 
-				spellString:SetTextColor(1,1,0) 
-			end
-
-			if(subSpellString) then 
-				subSpellString:SetFontObject(NumberFont_Shadow_Small) 
-				subSpellString:SetTextColor(0.9,0.9,0.9) 
-			end
-
-			if(button.FlyoutArrow) then
-				button.FlyoutArrow:SetTexture([[Interface\Buttons\ActionBarFlyoutButton]])
-			end
+		if(icon) then
+			iconTex = icon:GetTexture()
 		end
-	end 
+
+		self:RemoveTextures() 
+		self:SetStylePanel("Default", "Slot", true, 2, 0, 0)
+
+		if(icon) then
+			icon:SetTexture(iconTex)
+			icon:ClearAllPoints()
+			icon:SetAllPointsIn(self, 1, 1)
+		end
+
+		self.SpellName:SetFontObject(NumberFontNormal)
+
+		if(self.FlyoutArrow) then
+			self.FlyoutArrow:SetTexture([[Interface\Buttons\ActionBarFlyoutButton]])
+		end
+	end
+	if(icon) then icon:SetTexCoord(0.1, 0.9, 0.1, 0.9) end
+	self.SpellName:SetTextColor(1,1,0) 
+	self.SpellSubName:SetTextColor(0.9,0.9,0.9) 
 end 
 --[[ 
 ########################################################## 
@@ -227,8 +221,6 @@ local function SpellBookStyle()
 
 	PLUGIN:ApplyPaginationStyle(SpellBookPrevPageButton)
 	PLUGIN:ApplyPaginationStyle(SpellBookNextPageButton)
-
-	ButtonUpdateHelper()
 
 	hooksecurefunc("SpellButton_UpdateButton", ButtonUpdateHelper)
 	hooksecurefunc("SpellBook_GetCoreAbilityButton", AbilityButtonHelper)
@@ -286,8 +278,13 @@ local function SpellBookStyle()
 					button.Panel:SetAllPoints()
 				end 
 			end
-			if(button.spellString) then button.spellString:SetFontObject(NumberFontNormal) button.spellString:SetTextColor(1,1,0) end
-			if(button.subSpellString) then button.subSpellString:SetFontObject(NumberFont_Shadow_Small) button.subSpellString:SetTextColor(0.9,0.9,0.9) end
+			if(button.spellString) then 
+				button.spellString:SetFontObject(NumberFontNormal) 
+				button.spellString:SetTextColor(1,1,0) 
+			end
+			if(button.subSpellString) then
+				button.subSpellString:SetFontObject(SubSpellFont)
+			end
 		end
 	end
 

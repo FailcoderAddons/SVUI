@@ -31,16 +31,18 @@ GET ADDON DATA
 ]]--
 local SV = _G["SVUI"];
 local L = SV.L;
+local _, ns = ...;
 
 local AceGUIWidgetLSMlists = AceGUIWidgetLSMlists;
 
 local FONT_GROUP_SORT = {
-	["Default Font"] = {"default"},
-	["General Fonts"] = {"name", "number", "aura"},
-	["Large Fonts"] = {"combat", "alert", "zone", "title"},
-	["Docking Fonts"] = {"data"},
-	["NamePlate Fonts"] = {"platename", "plateaura"},
-	["Misc Fonts"] = {"narrator", "caps"},
+	{"Default", 1, {"default"}},
+	{"General", 2, {"name", "number", "aura"}},
+	{"Large", 3, {"combat", "alert", "zone", "title"}},
+	{"Docking", 4, {"data"}},
+	{"Misc", 5, {"narrator", "caps"}},
+	{"NamePlate", 6, {"platename", "plateaura"}},
+	{"UnitFrame", 7, {"unithealth", "unitpower", "unitauranumber", "unitauraname"}},
 }
 
 local function CommonFontSizeUpdate()
@@ -105,12 +107,13 @@ end
 
 local function GenerateFontGroup()
     local fontGroupArgs = {};
-    local groupCount = 1;
 
-    for groupName, groupList in pairs(FONT_GROUP_SORT) do
+    for _, listData in pairs(FONT_GROUP_SORT) do
     	local orderCount = 1;
-    	local groupIndexName = 'fontGroup' .. groupCount;
-    	fontGroupArgs[groupIndexName] = {
+    	local groupName = listData[1];
+    	local groupCount = listData[2];
+    	local groupList = listData[3];
+    	fontGroupArgs[groupName] = {
 			order = groupCount, 
 			type = "group", 
 			name = groupName,
@@ -119,17 +122,34 @@ local function GenerateFontGroup()
 		};
     	for _, template in pairs(groupList) do
     		local data = SV.db.font[template]
-	    	fontGroupArgs[groupIndexName].args[template] = {
+	    	fontGroupArgs[groupName].args[template] = {
 	    		order = orderCount, 
 				type = "group", 
-				name = data.optionName, 
-				desc = data.optionDesc, 
+				name = data.optionName,  
 				guiInline = true, 
 				args = {
+					description = {
+						order = 1, 
+						name = data.optionDesc, 
+						type = "description", 
+						width = "full", 
+					},
+					spacer1 = {
+						order = 2, 
+						name = "", 
+						type = "description", 
+						width = "full", 
+					},
+					spacer2 = {
+						order = 3, 
+						name = "", 
+						type = "description", 
+						width = "full", 
+					},
 					file = {
 						type = "select",
 						dialogControl = 'LSM30_Font',
-						order = 1,
+						order = 4,
 						name = L["Font File"],
 						desc = L["Set the font file to use with this font-type."],
 						values = AceGUIWidgetLSMlists.font,
@@ -139,11 +159,10 @@ local function GenerateFontGroup()
 						set = function(key,value)
 							SV.db.font[template][key[#key]] = value; 
 							SV:RefreshSystemFonts();
-							SV:StaticPopup_Show("RL_CLIENT")
 						end
 					},
 					outline = {
-						order = 2, 
+						order = 5, 
 						name = L["Font Outline"], 
 						desc = L["Set the outlining to use with this font-type."], 
 						type = "select", 
@@ -159,18 +178,16 @@ local function GenerateFontGroup()
 						set = function(key,value)
 							SV.db.font[template][key[#key]] = value; 
 							SV:RefreshSystemFonts();
-							SV:StaticPopup_Show("RL_CLIENT")
 						end
 					},
 					size = {
-						order = 3,
+						order = 6,
 						name = L["Font Size"],
 						desc = L["Set the font size to use with this font-type."],
 						type = "range",
 						min = 6,
 						max = 22,
 						step = 1,
-						width = 'full',
 						get = function(key)
 							return SV.db.font[template][key[#key]]
 						end,
@@ -183,7 +200,6 @@ local function GenerateFontGroup()
 	    	}
 	    	orderCount = orderCount + 1;
 	    end
-    	groupCount = groupCount + 1;
     end
 
     return fontGroupArgs;
@@ -196,3 +212,8 @@ SV.Options.args.fonts = {
 	childGroups = "tree", 
 	args = GenerateFontGroup()
 };
+
+function ns:SetToFontConfig(font)
+	font = font or "Default";
+	_G.LibStub("AceConfigDialog-3.0"):SelectGroup(SV.NameID, "fonts", font);
+end
