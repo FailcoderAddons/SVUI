@@ -2300,7 +2300,7 @@ SV.defaults["SVUnit"] = {
 		["visibility"] = "[group:raid][nogroup] hide;show", 
 		["showBy"] = "UP_RIGHT", 
 		["wrapXOffset"] = 9, 
-		["wrapYOffset"] = 13,
+		["wrapYOffset"] = 24,
 		["allowedGroup"] = {
 			[1] = true, 
 		},

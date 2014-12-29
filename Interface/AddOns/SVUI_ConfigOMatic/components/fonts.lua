@@ -192,8 +192,7 @@ local function GenerateFontGroup()
 							return SV.db.font[template][key[#key]]
 						end,
 						set = function(key,value)
-							SV.db.font[template][key[#key]] = value; 
-							CommonFontSizeUpdate() 
+							SV.db.font[template][key[#key]] = value;
 						end
 					},
 				}

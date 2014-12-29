@@ -45,11 +45,13 @@ local L = SV.L;
 if(SV.class ~= "WARLOCK") then return end 
 local MOD = SV.SVUnit
 if(not MOD) then return end 
-local DEFAULT_EFFECT = [[Spells\Corrupted_deathwing_missile.m2]];
+local DEFAULT_EFFECT = [[Spells\Bloodlust_state_hand.m2]];
+local FURYEFFECT1 = [[Spells\Warlock_destructioncharge_impact_chest.m2]] --SetPosition(0,0,0.3)
+local FURYEFFECT2 = [[Spells\Fill_fire_cast_01.m2]] --SetPosition(1,1,0)
 local specEffects = {
-	[1] = {[[Spells\Solar_precast_hand.m2]], -12, 12, 24, -24},
-	[2] = {[[Spells\Solar_precast_hand.m2]], -12, 12, 24, -24},
-	[3] = {[[Spells\Shadow_precast_uber_hand.m2]], -12, 12, 12, -12}	
+	[1] = {[[Spells\Warlock_bodyofflames_medium_state_shoulder_right_purple.m2]], -12, 12, 12, -12, 0, 0, 0.54},
+	[2] = {[[Spells\Solar_precast_hand.m2]], -12, 12, 24, -24, -0.21, -0.08, 0},
+	[3] = {[[Spells\Bloodlust_state_hand.m2]], -8, 4, 24, -24, -0.21, -0.08, 0}	
 };
 --[[ 
 ########################################################## 
@@ -57,17 +59,12 @@ LOCAL FUNCTIONS
 ##########################################################
 ]]--
 local shardColor = {
-	[1] = {0.6,0,1},
+	[1] = {0.57,0.08,1},
 	[2] = {1,0,0},
-	[3] = {1,0.5,0}
-}
-local shardUnderColor = {
-	[1] = {0.4,0.1,1},
-	[2] = {0,0,0},
-	[3] = {0.5,0.5,0.5}
+	[3] = {1,0.25,0}
 }
 local shardOverColor = {
-	[1] = {0.87,0.42,0.93},
+	[1] = {0.67,0.42,0.93},
 	[2] = {0,0,0},
 	[3] = {1,1,0}
 }
@@ -122,72 +119,56 @@ end
 CUSTOM HANDLERS
 ##########################################################
 ]]--
-local PreUpdate = function(self, spec)
-	if(self.CurrentSpec and (self.CurrentSpec == spec)) then return end
-	local effectTable = specEffects[spec]
-	if(not effectTable) then return end
-	for i = 1, 5 do
-		self[i].EffectModel.modelFile = effectTable[1]
-		self[i].EffectModel:ClearAllPoints()
-		self[i].EffectModel:SetPoint("TOPLEFT", self[i], "TOPLEFT", effectTable[2], effectTable[3])
-		self[i].EffectModel:SetPoint("BOTTOMRIGHT", self[i], "BOTTOMRIGHT", effectTable[4], effectTable[5])
-	end
-	self.CurrentSpec = spec
-end
-
-local UpdateTextures = function(bar, spec, max)
+local UpdateTextures = function(self, spec, max)
 	if max == 0 then max = 4 end
+	local effectTable = specEffects[spec]
 	if spec == SPEC_WARLOCK_DEMONOLOGY then
-		bar[1].overlay:SetTexture(0,0,0,0)
-		bar[1].underlay:SetTexture(0,0,0,0)
-		SV.Animate:StopFlash(bar[1].overlay)
-		bar[1].underlay.anim:Finish()
-
-		bar[2].overlay:SetTexture(0,0,0,0)
-		bar[2].underlay:SetTexture(0,0,0,0)
-		SV.Animate:StopFlash(bar[2].overlay)
-		bar[2].underlay.anim:Finish()
-
-		bar[3].overlay:SetTexture(0,0,0,0)
-		bar[3].underlay:SetTexture(0,0,0,0)
-		SV.Animate:StopFlash(bar[3].overlay)
-		bar[3].underlay.anim:Finish()
-
-		bar[4].overlay:SetTexture(0,0,0,0)
-		bar[4].underlay:SetTexture(0,0,0,0)
-		SV.Animate:StopFlash(bar[4].overlay)
-		bar[4].underlay.anim:Finish()
-		bar.CurrentSpec = spec
+		self[1].overlay:SetTexture(0,0,0,0)
+		self[2].overlay:SetTexture(0,0,0,0)
+		self[3].overlay:SetTexture(0,0,0,0)
+		self[4].overlay:SetTexture(0,0,0,0)
+		if(self.DemonBar.EffectModel1) then
+			self.DemonBar.EffectModel1:SetModel(FURYEFFECT1)
+			self.DemonBar.EffectModel2:SetModel(FURYEFFECT2)
+		end
+		self.CurrentSpec = spec
 	elseif spec == SPEC_WARLOCK_AFFLICTION then
 		for i = 1, max do
-			bar[i]:SetStatusBarTexture("Interface\\Addons\\SVUI\\assets\\artwork\\Unitframe\\Class\\WARLOCK-SHARD")
-			bar[i]:GetStatusBarTexture():SetHorizTile(false)
-			bar[i].backdrop:SetTexture("Interface\\Addons\\SVUI\\assets\\artwork\\Unitframe\\Class\\WARLOCK-SHARD-BG")
-			bar[i].overlay:SetTexture("Interface\\Addons\\SVUI\\assets\\artwork\\Unitframe\\Class\\WARLOCK-SHARD-FG")
-			bar[i].underlay:SetTexture('Interface\\Addons\\SVUI\\assets\\artwork\\Unitframe\\Class\\WARLOCK-SOUL-ANIMATION')
-			bar[i].backdrop:SetVertexColor(unpack(shardBGColor[spec]))
-			bar[i].overlay:SetVertexColor(unpack(shardOverColor[spec]))
-			bar[i].underlay:SetVertexColor(unpack(shardUnderColor[spec]))
+			self[i]:SetStatusBarTexture("Interface\\Addons\\SVUI\\assets\\artwork\\Unitframe\\Class\\WARLOCK-SHARD")
+			self[i]:GetStatusBarTexture():SetHorizTile(false)
+			self[i].backdrop:SetTexture("Interface\\Addons\\SVUI\\assets\\artwork\\Unitframe\\Class\\WARLOCK-SHARD-BG")
+			self[i].overlay:SetTexture("Interface\\Addons\\SVUI\\assets\\artwork\\Unitframe\\Class\\WARLOCK-SHARD-FG")
+			self[i].backdrop:SetVertexColor(unpack(shardBGColor[spec]))
+			self[i].overlay:SetVertexColor(unpack(shardOverColor[spec]))
+			self[i].EffectModel.modelFile = effectTable[1]
+			self[i].EffectModel:ClearAllPoints()
+			self[i].EffectModel:SetPoint("TOPLEFT", self[i], "TOPLEFT", effectTable[2], effectTable[3])
+			self[i].EffectModel:SetPoint("BOTTOMRIGHT", self[i], "BOTTOMRIGHT", effectTable[4], effectTable[5])
+			self[i].EffectModel:SetPosition(effectTable[6], effectTable[7], effectTable[8])
+			self[i].EffectModel:SetFrameLevel(20)
 		end
-		bar.CurrentSpec = spec
+		self.CurrentSpec = spec
 	elseif spec == SPEC_WARLOCK_DESTRUCTION then
 		for i = 1, max do
-			bar[i]:SetStatusBarTexture("Interface\\Addons\\SVUI\\assets\\artwork\\Unitframe\\Class\\WARLOCK-EMBER")
-			bar[i]:GetStatusBarTexture():SetHorizTile(false)
-			bar[i].backdrop:SetTexture("Interface\\Addons\\SVUI\\assets\\artwork\\Unitframe\\Class\\WARLOCK-EMBER")
-			bar[i].overlay:SetTexture("Interface\\Addons\\SVUI\\assets\\artwork\\Unitframe\\Class\\WARLOCK-EMBER-FG")
-			bar[i].underlay:SetTexture('Interface\\Addons\\SVUI\\assets\\artwork\\Unitframe\\Class\\WARLOCK-FIRE-ANIMATION')
+			self[i]:SetStatusBarTexture("Interface\\Addons\\SVUI\\assets\\artwork\\Unitframe\\Class\\WARLOCK-EMBER")
+			self[i]:GetStatusBarTexture():SetHorizTile(false)
+			self[i].backdrop:SetTexture("Interface\\Addons\\SVUI\\assets\\artwork\\Unitframe\\Class\\WARLOCK-EMBER")
+			self[i].overlay:SetTexture("Interface\\Addons\\SVUI\\assets\\artwork\\Unitframe\\Class\\WARLOCK-EMBER-FG")
+			self[i].EffectModel.modelFile = effectTable[1]
+			self[i].EffectModel:ClearAllPoints()
+			self[i].EffectModel:SetPoint("TOPLEFT", self[i], "TOPLEFT", effectTable[2], effectTable[3])
+			self[i].EffectModel:SetPoint("BOTTOMRIGHT", self[i], "BOTTOMRIGHT", effectTable[4], effectTable[5])
+			self[i].EffectModel:SetPosition(effectTable[6], effectTable[7], effectTable[8])
+			self[i].EffectModel:SetFrameLevel(2)
 			if GetSpecialization() == SPEC_WARLOCK_DESTRUCTION and IsSpellKnown(101508) then -- GREEN FIRE (Codex of Xeroth): 101508
-				bar[i].backdrop:SetVertexColor(0,0.15,0)
-				bar[i].overlay:SetVertexColor(0.5,1,0)
-				bar[i].underlay:SetVertexColor(0,1,0.2,0.8)
+				self[i].backdrop:SetVertexColor(0,0.15,0)
+				self[i].overlay:SetVertexColor(0.5,1,0)
 			else
-				bar[i].backdrop:SetVertexColor(unpack(shardBGColor[spec]))
-				bar[i].overlay:SetVertexColor(unpack(shardOverColor[spec]))
-				bar[i].underlay:SetVertexColor(unpack(shardUnderColor[spec]))
+				self[i].backdrop:SetVertexColor(unpack(shardBGColor[spec]))
+				self[i].overlay:SetVertexColor(unpack(shardOverColor[spec]))
 			end
 		end
-		bar.CurrentSpec = spec
+		self.CurrentSpec = spec
 	end
 end 
 
@@ -231,14 +212,12 @@ local Update = function(self, event, unit, powerType)
 				bar[i]:SetValue(power)
 				if (power >= MAX_POWER_PER_EMBER * i) then
 					bar[i].overlay:Show()
-					bar[i].underlay:Show()
+					bar[i].EffectModel:Show()
 					SV.Animate:Flash(bar[i].overlay,1,true)
-					if not bar[i].underlay.anim:IsPlaying() then bar[i].underlay.anim:Play() end
 				else
 					SV.Animate:StopFlash(bar[i].overlay)
 					bar[i].overlay:Hide()
-					bar[i].underlay.anim:Stop()
-					bar[i].underlay:Hide()
+					bar[i].EffectModel:Hide()
 				end
 			end
 		elseif ( spec == SPEC_WARLOCK_AFFLICTION ) then
@@ -260,19 +239,20 @@ local Update = function(self, event, unit, powerType)
 					bar[i]:SetValue(1)
 					bar[i]:SetAlpha(1)
 					bar[i].overlay:Show()
-					bar[i].underlay:Show()
+					bar[i].EffectModel:Show()
 					SV.Animate:Flash(bar[i].overlay,1,true)
-					if not bar[i].underlay.anim:IsPlaying() then bar[i].underlay.anim:Play() end
 				else
 					bar[i]:SetValue(0)
 					bar[i]:SetAlpha(0)
 					SV.Animate:StopFlash(bar[i].overlay)
+					bar[i].EffectModel:Hide()
 				end
 			end
 		elseif spec == SPEC_WARLOCK_DEMONOLOGY then
 			fury:SetStatusBarColor(unpack(shardColor[spec]))
 			local power = UnitPower("player", SPELL_POWER_DEMONIC_FURY)
 			local maxPower = UnitPowerMax("player", SPELL_POWER_DEMONIC_FURY)
+			local percent = (power / maxPower) * 100
 			bar.number = 1
 			if bar.CurrentSpec ~= spec then
 				UpdateTextures(bar, spec, 1)
@@ -283,6 +263,14 @@ local Update = function(self, event, unit, powerType)
 			bar[4]:Hide()
 			fury:SetMinMaxValues(0, maxPower)
 			fury:SetValue(power)
+			if(percent > 80) then
+				if(fury.EffectModel2:IsShown()) then
+					fury.EffectModel2:Show()
+					fury.EffectModel2:SetModel(FURYEFFECT2)
+				end
+			else
+				fury.EffectModel2:Hide()
+			end
 		end
 	else
 		if bar:IsShown() then 
@@ -298,6 +286,12 @@ end
 WARLOCK
 ##########################################################
 ]]--
+local EffectModel_OnShow = function(self)
+	local EFFECT = self.modelFile or DEFAULT_EFFECT;
+	self:ClearModel();
+	self:SetModel(EFFECT);
+end
+
 function MOD:CreateClassBar(playerFrame)
 	local max = 4
 	local bar = CreateFrame("Frame",nil,playerFrame)
@@ -319,25 +313,22 @@ function MOD:CreateClassBar(playerFrame)
 		bar[i].overlay:SetBlendMode("BLEND")
 		bar[i].overlay:Hide()
 
-		bar[i].underlay = bar[i]:CreateTexture(nil,'BORDER')
-		bar[i].underlay:SetHeightToScale(100)
-		bar[i].underlay:SetWidthToScale(100)
-		bar[i].underlay:SetPoint("CENTER",bar[i])
-		bar[i].underlay:SetTexture('Interface\\Addons\\SVUI\\assets\\artwork\\Unitframe\\Class\\WARLOCK-SOUL-ANIMATION')
-		bar[i].underlay:SetBlendMode('ADD')
-		bar[i].underlay:Hide()
-
-		SV.Animate:Sprite4(bar[i].underlay,0.15,false,true)
-
-		-- bar[i].flames = CreateFrame("PlayerModel", nil, bar[i])
-		-- bar[i].flames:SetAllPointsOut(bar[i], 10, 10)
-		-- bar[i].flames:SetCamDistanceScale(0.2)
-		-- bar[i].flames:SetPortraitZoom(0)
-		-- bar[i].flames:SetModel([[Spells\Bloodlust_state_hand.m2]])
+		--MOD:CreateModelEffect(bar[i], 0.23, 12, DEFAULT_EFFECT, 0, 0, 1)
+		local effectFrame = CreateFrame("PlayerModel", nil, bar[i])
+		effectFrame:SetAlpha(1)
+		effectFrame:SetAllPointsOut(bar[i], 4, 4)
+		effectFrame:SetCamDistanceScale(0.23)
+		effectFrame:SetPosition(-0.21,-0.08,0)
+		effectFrame:SetFrameLevel(2)
+		effectFrame:SetPortraitZoom(0)
+		effectFrame:SetModel(DEFAULT_EFFECT)
+		effectFrame.modelFile = DEFAULT_EFFECT
+		effectFrame:Hide()
+		effectFrame:SetScript("OnShow", EffectModel_OnShow)
+		bar[i].EffectModel = effectFrame
 
 		bar[i].backdrop:SetVertexColor(unpack(shardBGColor[1]))
 		bar[i].overlay:SetVertexColor(unpack(shardOverColor[1]))
-		bar[i].underlay:SetVertexColor(unpack(shardUnderColor[1]))
 	end 
 
 	local demonBar = CreateFrame("StatusBar",nil,bar)
@@ -376,6 +367,25 @@ function MOD:CreateClassBar(playerFrame)
     borderR:SetPoint("TOPRIGHT")
     borderR:SetPoint("BOTTOMRIGHT")
     borderR:SetWidth(2)
+
+    local modelEffect1 = CreateFrame("PlayerModel", nil, bgFrame)
+	modelEffect1:SetAlpha(0.5)
+	modelEffect1:SetAllPointsIn(bgFrame, 2, 2)
+	modelEffect1:SetCamDistanceScale(0.5)
+	modelEffect1:SetPosition(0,0,-0.2)
+	modelEffect1:SetPortraitZoom(0)
+	modelEffect1:SetModel(FURYEFFECT1)
+	demonBar.EffectModel1 = modelEffect1
+
+    local modelEffect2 = CreateFrame("PlayerModel", nil, demonBar)
+	modelEffect2:SetAlpha(1)
+	modelEffect2:SetFrameLevel(0)
+	modelEffect2:SetAllPointsIn(bgFrame)
+	modelEffect2:SetCamDistanceScale(0.5)
+	modelEffect2:SetPosition(0,-0.2,0.7)
+	modelEffect2:SetPortraitZoom(0)
+	modelEffect2:SetModel(FURYEFFECT2)
+	demonBar.EffectModel2 = modelEffect2
 
 	bar.DemonBar = demonBar;
 

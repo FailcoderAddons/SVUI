@@ -313,10 +313,11 @@ do
 end
 
 local function GetCoordinates(map, mapFloor, x, y)
-    if not map then return end
+    if not map then return 0,0 end
     if (mapFloor ~= 0) then
         map = rawget(map, mapFloor) or DUNGEON_DATA[map.origin][mapFloor];
     end
+    if not map then return 0,0 end
     x = x * map.width + map.xOffset;
     y = y * map.height + map.yOffset;
     return x, y;

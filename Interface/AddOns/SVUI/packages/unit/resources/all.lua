@@ -166,7 +166,7 @@ function MOD:CreateModelEffect(parent, zoom, outSet, modelFile, pos1, pos2, pos3
 	local effectFrame = CreateFrame("PlayerModel", nil, parent)
 	effectFrame:SetAllPointsOut(parent, outSet, outSet)
 	effectFrame:SetCamDistanceScale(zoom)
-	effectFrame:SetPosition(-0.21,-0.15,0)
+	effectFrame:SetPosition(pos1, pos2, pos3)
 	effectFrame:SetPortraitZoom(0)
 	effectFrame:SetModel(modelFile)
 	effectFrame.modelFile = modelFile
@@ -176,4 +176,4 @@ function MOD:CreateModelEffect(parent, zoom, outSet, modelFile, pos1, pos2, pos3
 	else
 		parent:SetScript("OnShow", EffectModel_OnShow)
 	end
-end 
+end

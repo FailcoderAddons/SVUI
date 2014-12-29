@@ -753,9 +753,6 @@ function MOD:UpdateObjectives(event, ...)
 			return;
 		else
 			self:UpdateBonusObjective(event, ...)
-			-- UpdateCachedQuests();
-			-- self.Headers["Quests"]:Refresh(event, ...)
-			-- self:UpdateDimensions();
 			return;
 		end
 	end

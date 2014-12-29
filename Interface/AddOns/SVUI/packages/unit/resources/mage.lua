@@ -45,6 +45,13 @@ local L = SV.L;
 if(SV.class ~= "MAGE") then return end 
 local MOD = SV.SVUnit
 if(not MOD) then return end 
+
+local DEFAULT_EFFECT = [[Spells\Fill_lightning_cast_01.m2]];
+local specEffects = {
+	[1] = {DEFAULT_EFFECT, -12, 12, 12, -12, 0, 0, 0},
+	[2] = {DEFAULT_EFFECT, -12, 12, 24, -24, -0.21, -0.08, 0},
+	[3] = {DEFAULT_EFFECT, -8, 4, 24, -24, -0.21, -0.08, 0}	
+};
 --[[ 
 ########################################################## 
 POSITIONING
@@ -71,7 +78,7 @@ local Reposition = function(self)
 		bar[i]:ClearAllPoints()
 		bar[i]:SetHeight(size)
 		bar[i]:SetWidth(size)
-		bar[i]:SetStatusBarColor(0,0.6,0.9)
+		bar[i]:SetStatusBarColor(0,0.7,1)
 		if i==1 then 
 			bar[i]:SetPoint("TOPLEFT", bar, "TOPLEFT", 0, 0)
 		else 
@@ -100,14 +107,26 @@ end
 local Update = function(self, event)
 	local unit = self.unit or 'player'
 	local bar = self.ArcaneChargeBar
-	local talentSpecialization = GetSpecialization()
-	if talentSpecialization == 1 then
-		bar:Show()
-	else
-		bar:Hide()
+	local spec = GetSpecialization()
+	if(bar.CurrentSpec ~= spec) then
+		local effectTable = specEffects[spec]
+		if spec == 1 then
+			bar:Show()
+			for i = 1, 4 do
+				bar[i].EffectModel.modelFile = effectTable[1]
+				bar[i].EffectModel:ClearAllPoints()
+				bar[i].EffectModel:SetPoint("TOPLEFT", bar[i], "TOPLEFT", effectTable[2], effectTable[3])
+				bar[i].EffectModel:SetPoint("BOTTOMRIGHT", bar[i], "BOTTOMRIGHT", effectTable[4], effectTable[5])
+				bar[i].EffectModel:SetPosition(effectTable[6], effectTable[7], effectTable[8])
+				bar[i].EffectModel:SetFrameStrata('LOW')
+				bar[i].EffectModel:SetFrameLevel(99)
+			end
+		else
+			bar:Hide()
+		end
+		bar.CurrentSpec = spec
 	end
-	
-	local arcaneCharges, maxCharges, duration, expirationTime = 0, 4
+	local arcaneCharges, duration, expirationTime = 0
 	if bar:IsShown() then		
 		for index=1, 30 do
 			local _, _, _, count, _, start, timeLeft, _, _, _, spellID = UnitDebuff(unit, index)
@@ -119,7 +138,7 @@ local Update = function(self, event)
 			end			
 		end
 
-		for i = 1, maxCharges do
+		for i = 1, 4 do
 			if duration and expirationTime then
 				bar[i]:SetMinMaxValues(0, duration)
 				bar[i].duration = duration
@@ -128,19 +147,11 @@ local Update = function(self, event)
 			if i <= arcaneCharges then
 				bar[i]:Show()
 				bar[i]:SetValue(duration)
-				if not bar[i].sparks:IsShown() then bar[i].sparks:Show()end 
-				if not bar[i].charge:IsShown() then bar[i].charge:Show()end 
 				if not bar[i].under.anim:IsPlaying()then bar[i].under.anim:Play()end 
-				if not bar[i].sparks.anim:IsPlaying()then bar[i].sparks.anim:Play()end 
-				if not bar[i].charge.anim:IsPlaying()then bar[i].charge.anim:Play()end 
 				bar[i]:SetScript('OnUpdate', UpdateBar)
 			else
 				bar[i]:SetValue(0)
 				if bar[i].under.anim:IsPlaying()then bar[i].under.anim:Stop()end 
-				if bar[i].sparks.anim:IsPlaying()then bar[i].sparks.anim:Stop()end 
-				if bar[i].charge.anim:IsPlaying()then bar[i].charge.anim:Stop()end 
-				bar[i].sparks:Hide()
-				bar[i].charge:Hide()
 				bar[i]:SetScript('OnUpdate', nil)
 				bar[i]:Hide()
 			end
@@ -159,28 +170,19 @@ function MOD:CreateClassBar(playerFrame)
 		bar[i]:GetStatusBarTexture():SetHorizTile(false)
 		bar[i]:SetOrientation("VERTICAL")
 		bar[i].noupdate = true;
+
+		local spec = GetSpecialization()
+		local effectTable = specEffects[spec]
+		MOD:CreateModelEffect(bar[i], 1.25, 12, effectTable[1], 0, 0, 0);
+		bar[i].EffectModel:SetFrameStrata('LOW')
+		bar[i].EffectModel:SetFrameLevel(99)
+
 		local under = CreateFrame("Frame", nil, bar[i])
 		under:SetAllPoints()
-		under.under = under:CreateTexture(nil, "BORDER")
+		under.under = under:CreateTexture(nil, "BACKGROUND")
 		under.under:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\ORB-BG")
-		under.bg = under:CreateTexture(nil, "BORDER")
+		under.bg = under:CreateTexture(nil, "BACKGROUND")
 		under.bg:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\ORB-BG")
-		local sparks = under:CreateTexture(nil, "OVERLAY")
-		sparks:SetAllPointsOut(under, 3, 3)
-		sparks:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\MAGE-FG-ANIMATION")
-		sparks:SetBlendMode("ADD")
-		sparks:SetVertexColor(1, 1, 0)
-		local charge = under:CreateTexture(nil, "OVERLAY", nil, 2)
-		charge:SetAllPoints(under)
-		charge:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\MAGE-BG-ANIMATION")
-		charge:SetBlendMode("ADD")
-		charge:SetVertexColor(0.5, 1, 1)
-		SV.Animate:Sprite4(charge, 10, false, true)
-		charge.anim:Play()
-		SV.Animate:Sprite4(sparks, 0.08, 5, true)
-		sparks.anim:Play()
-		bar[i].charge = charge;
-		bar[i].sparks = sparks;
 		SV.Animate:Orbit(under, 15, false)
 		bar[i].under = under;
 		bar[i].bg = under.bg;

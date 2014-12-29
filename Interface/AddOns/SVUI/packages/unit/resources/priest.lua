@@ -49,9 +49,9 @@ if(not MOD) then return end
 local ICON_FILE = [[Interface\AddOns\SVUI\assets\artwork\Unitframe\Class\PRIEST]]
 local DEFAULT_EFFECT = [[Spells\Solar_precast_hand.m2]];
 local specEffects = {
-	[1] = {[[Spells\Solar_precast_hand.m2]], -12, 12, 24, -24},
-	[2] = {[[Spells\Solar_precast_hand.m2]], -12, 12, 24, -24},
-	[3] = {[[Spells\Shadow_precast_uber_hand.m2]], -12, 12, 12, -12}	
+	[1] = {[[Spells\Solar_precast_hand.m2]], -12, 12, 12, -12, 0, 0, 0},
+	[2] = {[[Spells\Solar_precast_hand.m2]], -12, 12, 12, -12, 0, 0, 0},
+	[3] = {[[Spells\Shadow_precast_uber_hand.m2]], -12, 12, 12, -12, 0, -0.1, 0.1}	
 };
 --[[ 
 ########################################################## 
@@ -102,6 +102,7 @@ local PreUpdate = function(self, spec)
 		self[i].EffectModel:ClearAllPoints()
 		self[i].EffectModel:SetPoint("TOPLEFT", self[i], "TOPLEFT", effectTable[2], effectTable[3])
 		self[i].EffectModel:SetPoint("BOTTOMRIGHT", self[i], "BOTTOMRIGHT", effectTable[4], effectTable[5])
+		self[i].EffectModel:SetPosition(effectTable[6], effectTable[7], effectTable[8])
 	end
 	self.CurrentSpec = spec
 end 
@@ -120,11 +121,9 @@ function MOD:CreateClassBar(playerFrame)
 		bar[i].backdrop:SetAllPoints(bar[i])
 		bar[i].backdrop:SetTexture(ICON_FILE)
 		bar[i].backdrop:SetTexCoord(0,0.5,0,0.5)
-		MOD:CreateModelEffect(bar[i], 0.23, 12, DEFAULT_EFFECT, 0, 0, 1)
-
-		bar[i].EffectModel:ClearAllPoints()
-		bar[i].EffectModel:SetPoint("TOPLEFT", bar[i], "TOPLEFT", -12, 12)
-		bar[i].EffectModel:SetPoint("BOTTOMRIGHT", bar[i], "BOTTOMRIGHT", 24, -24)
+		local spec = GetSpecialization()
+		local effectTable = specEffects[spec]
+		MOD:CreateModelEffect(bar[i], 0.23, 12, effectTable[1], 0, 0, 0)
 	end 
 	bar.PreUpdate = PreUpdate
 

@@ -315,6 +315,7 @@ local SetBonusRow = function(self, index, questID, subCount)
 
 		return index, fill_height;
 	else
+		CACHED_BONUS_DATA[questID] = nil
 		return index, 0;
 	end
 end
