@@ -31,6 +31,8 @@ local assert 	= _G.assert;
 local math 		= _G.math;
 --[[ MATH METHODS ]]--
 local random = math.random;
+local CreateFrame = _G.CreateFrame;
+local GetSpecialization = _G.GetSpecialization;
 --[[ 
 ########################################################## 
 GET ADDON DATA
@@ -47,12 +49,7 @@ local MOD = SV.SVUnit
 if(not MOD) then return end 
 
 local ICON_FILE = [[Interface\AddOns\SVUI\assets\artwork\Unitframe\Class\PRIEST]]
-local DEFAULT_EFFECT = [[Spells\Solar_precast_hand.m2]];
-local specEffects = {
-	[1] = {[[Spells\Solar_precast_hand.m2]], -12, 12, 12, -12, 0, 0, 0},
-	[2] = {[[Spells\Solar_precast_hand.m2]], -12, 12, 12, -12, 0, 0, 0},
-	[3] = {[[Spells\Shadow_precast_uber_hand.m2]], -12, 12, 12, -12, 0, -0.1, 0.1}	
-};
+local specEffects = { [1] = "holy", [2] = "holy", [3] = "shadow" };
 --[[ 
 ########################################################## 
 POSITIONING
@@ -95,14 +92,9 @@ PRIEST
 ]]--
 local PreUpdate = function(self, spec)
 	if(self.CurrentSpec and (self.CurrentSpec == spec)) then return end
-	local effectTable = specEffects[spec]
-	if(not effectTable) then return end
+	local effectName = specEffects[spec]
 	for i = 1, 5 do
-		self[i].EffectModel.modelFile = effectTable[1]
-		self[i].EffectModel:ClearAllPoints()
-		self[i].EffectModel:SetPoint("TOPLEFT", self[i], "TOPLEFT", effectTable[2], effectTable[3])
-		self[i].EffectModel:SetPoint("BOTTOMRIGHT", self[i], "BOTTOMRIGHT", effectTable[4], effectTable[5])
-		self[i].EffectModel:SetPosition(effectTable[6], effectTable[7], effectTable[8])
+		self[i].FX:SetEffect(effectName)
 	end
 	self.CurrentSpec = spec
 end 
@@ -117,13 +109,15 @@ function MOD:CreateClassBar(playerFrame)
 		bar[i]:SetStatusBarTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\ORB")
 		bar[i]:GetStatusBarTexture():SetHorizTile(false)
 		bar[i].noupdate = true;
-		bar[i].backdrop = bar[i]:CreateTexture(nil, "BACKGROUND")
-		bar[i].backdrop:SetAllPoints(bar[i])
-		bar[i].backdrop:SetTexture(ICON_FILE)
-		bar[i].backdrop:SetTexCoord(0,0.5,0,0.5)
+		
+		bar[i].bg = bar[i]:CreateTexture(nil, "BACKGROUND")
+		bar[i].bg:SetAllPoints(bar[i])
+		bar[i].bg:SetTexture(ICON_FILE)
+		bar[i].bg:SetTexCoord(0,0.5,0,0.5)
+
 		local spec = GetSpecialization()
-		local effectTable = specEffects[spec]
-		MOD:CreateModelEffect(bar[i], 0.23, 12, effectTable[1], 0, 0, 0)
+		local effectName = specEffects[spec]
+		SV.SpecialFX:SetFXFrame(bar[i], effectName)
 	end 
 	bar.PreUpdate = PreUpdate
 

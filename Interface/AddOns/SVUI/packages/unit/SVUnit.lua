@@ -776,7 +776,7 @@ function MOD:RefreshUnitLayout(frame, template)
 		else
 			castWidth = db.castbar.width
 		end
-		local sparkSize = castHeight * 4;
+		local sparkSize = castHeight * 3;
 		local adjustedWidth = castWidth - 2;
 		local lazerScale = castHeight * 1.8;
 

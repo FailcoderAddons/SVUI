@@ -46,12 +46,7 @@ if(SV.class ~= "MAGE") then return end
 local MOD = SV.SVUnit
 if(not MOD) then return end 
 
-local DEFAULT_EFFECT = [[Spells\Fill_lightning_cast_01.m2]];
-local specEffects = {
-	[1] = {DEFAULT_EFFECT, -12, 12, 12, -12, 0, 0, 0},
-	[2] = {DEFAULT_EFFECT, -12, 12, 24, -24, -0.21, -0.08, 0},
-	[3] = {DEFAULT_EFFECT, -8, 4, 24, -24, -0.21, -0.08, 0}	
-};
+local specEffects = { [1] = "arcane", [2] = "none", [3] = "none" };
 --[[ 
 ########################################################## 
 POSITIONING
@@ -78,7 +73,7 @@ local Reposition = function(self)
 		bar[i]:ClearAllPoints()
 		bar[i]:SetHeight(size)
 		bar[i]:SetWidth(size)
-		bar[i]:SetStatusBarColor(0,0.7,1)
+		bar[i]:SetStatusBarColor(0.15, 0.65, 0.85)
 		if i==1 then 
 			bar[i]:SetPoint("TOPLEFT", bar, "TOPLEFT", 0, 0)
 		else 
@@ -91,72 +86,26 @@ end
 MAGE CHARGES
 ##########################################################
 ]]--
-local function UpdateBar(self, elapsed)
-	if not self.expirationTime then return end
-	self.elapsed = (self.elapsed or 0) + elapsed
-	if self.elapsed >= 0.5 then	
-		local timeLeft = self.expirationTime - GetTime()
-		if timeLeft > 0 then
-			self:SetValue(timeLeft)
+local PreUpdate = function(self, spec)
+	if(self.CurrentSpec ~= spec) then
+		local effectName = specEffects[spec]
+		if(effectName and effectName ~= 'none') then
+			if(not self:IsShown()) then
+				self:Show()
+			end
+			for i = 1, 4 do
+				self[i].FX:SetEffect(effectName)
+			end
 		else
-			self:SetScript("OnUpdate", nil)
+			self:Hide()
 		end
-	end		
+		self.CurrentSpec = spec
+	end
 end
 
-local Update = function(self, event)
-	local unit = self.unit or 'player'
-	local bar = self.ArcaneChargeBar
-	local spec = GetSpecialization()
-	if(bar.CurrentSpec ~= spec) then
-		local effectTable = specEffects[spec]
-		if spec == 1 then
-			bar:Show()
-			for i = 1, 4 do
-				bar[i].EffectModel.modelFile = effectTable[1]
-				bar[i].EffectModel:ClearAllPoints()
-				bar[i].EffectModel:SetPoint("TOPLEFT", bar[i], "TOPLEFT", effectTable[2], effectTable[3])
-				bar[i].EffectModel:SetPoint("BOTTOMRIGHT", bar[i], "BOTTOMRIGHT", effectTable[4], effectTable[5])
-				bar[i].EffectModel:SetPosition(effectTable[6], effectTable[7], effectTable[8])
-				bar[i].EffectModel:SetFrameStrata('LOW')
-				bar[i].EffectModel:SetFrameLevel(99)
-			end
-		else
-			bar:Hide()
-		end
-		bar.CurrentSpec = spec
-	end
-	local arcaneCharges, duration, expirationTime = 0
-	if bar:IsShown() then		
-		for index=1, 30 do
-			local _, _, _, count, _, start, timeLeft, _, _, _, spellID = UnitDebuff(unit, index)
-			if spellID == 36032 then
-				arcaneCharges = count or 0
-				duration = start
-				expirationTime = timeLeft
-				break
-			end			
-		end
-
-		for i = 1, 4 do
-			if duration and expirationTime then
-				bar[i]:SetMinMaxValues(0, duration)
-				bar[i].duration = duration
-				bar[i].expirationTime = expirationTime
-			end
-			if i <= arcaneCharges then
-				bar[i]:Show()
-				bar[i]:SetValue(duration)
-				if not bar[i].under.anim:IsPlaying()then bar[i].under.anim:Play()end 
-				bar[i]:SetScript('OnUpdate', UpdateBar)
-			else
-				bar[i]:SetValue(0)
-				if bar[i].under.anim:IsPlaying()then bar[i].under.anim:Stop()end 
-				bar[i]:SetScript('OnUpdate', nil)
-				bar[i]:Hide()
-			end
-		end		
-	end
+local ChargeUpdate = function(self)
+	if not self.fg:IsShown() then self.fg:Show() end
+	if not self.fg.anim:IsPlaying() then self.fg.anim:Play() end 
 end
 
 function MOD:CreateClassBar(playerFrame)
@@ -171,24 +120,25 @@ function MOD:CreateClassBar(playerFrame)
 		bar[i]:SetOrientation("VERTICAL")
 		bar[i].noupdate = true;
 
-		local spec = GetSpecialization()
-		local effectTable = specEffects[spec]
-		MOD:CreateModelEffect(bar[i], 1.25, 12, effectTable[1], 0, 0, 0);
-		bar[i].EffectModel:SetFrameStrata('LOW')
-		bar[i].EffectModel:SetFrameLevel(99)
+		bar[i].bg = bar[i]:CreateTexture(nil, "BACKGROUND")
+		bar[i].bg:SetAllPoints(bar[i])
+		bar[i].bg:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\ORB-BG");
 
-		local under = CreateFrame("Frame", nil, bar[i])
-		under:SetAllPoints()
-		under.under = under:CreateTexture(nil, "BACKGROUND")
-		under.under:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\ORB-BG")
-		under.bg = under:CreateTexture(nil, "BACKGROUND")
-		under.bg:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\ORB-BG")
-		SV.Animate:Orbit(under, 15, false)
-		bar[i].under = under;
-		bar[i].bg = under.bg;
+		bar[i].fg = bar[i]:CreateTexture(nil, "OVERLAY")
+		bar[i].fg:SetAllPoints(bar[i])
+		bar[i].fg:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\MAGE-BG-ANIMATION")
+		bar[i].fg:SetBlendMode("ADD")
+		bar[i].fg:SetVertexColor(0.5,0.6,0.6)
+		bar[i].fg:SetTexCoord(0,0.25,0,1)
+
+		--bar[i].Update = ChargeUpdate
+
+		local spec = GetSpecialization()
+		local effectName = specEffects[spec]
+		SV.SpecialFX:SetFXFrame(bar[i], effectName)
 	end 
 
-	bar.Override = Update;
+	bar.PreUpdate = PreUpdate;
 	local classBarHolder = CreateFrame("Frame", "Player_ClassBar", bar)
 	classBarHolder:SetPointToScale("TOPLEFT", playerFrame, "BOTTOMLEFT", 0, -2)
 	bar:SetPoint("TOPLEFT", classBarHolder, "TOPLEFT", 0, 0)

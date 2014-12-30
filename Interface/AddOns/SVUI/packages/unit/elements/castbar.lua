@@ -62,8 +62,8 @@ local MOD = SV.SVUnit
 
 if(not MOD) then return end 
 
-local CASTEFFECT1 = [[Spells\Xplosion_twilight_impact_noflash.m2]] --SetPosition(1,1,0)
-local CASTEFFECT2 = [[Spells\Eastern_plaguelands_beam_effect.m2]] --SetPosition(0,0,0.3)
+SV.SpecialFX:Register("castbar_fg", [[Spells\Eastern_plaguelands_beam_effect.m2]], 2, -2, -2, 2, 0.95, -1, 0)
+SV.SpecialFX:Register("castbar_bg", [[Spells\Xplosion_twilight_impact_noflash.m2]], 1, -1, -1, 1, 0.9, 0, 0)
 --[[ 
 ########################################################## 
 LOCAL VARIABLES
@@ -680,34 +680,18 @@ function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss, ha
 		else
 			organizer:SetPointToScale("RIGHT", castbar, "LEFT", -6, 0)
 		end
-	end 
+	end
+
+	if(hasModel) then
+		SV.SpecialFX:SetFXFrame(bgFrame, "castbar_bg")
+		bgFrame.FX:SetFrameLevel(0)
+  		SV.SpecialFX:SetFXFrame(castbar, "castbar_fg", nil, bgFrame)
+  	end
 
 	castbar.bg = bgFrame:CreateTexture(nil, "BACKGROUND", nil, -2)
 	castbar.bg:SetAllPoints(bgFrame)
 	castbar.bg:SetTexture(SV.Media.bar.default)
   	castbar.bg:SetVertexColor(0,0,0,0.5)
-
-  	if(hasModel) then
-  		local modelEffect1 = CreateFrame("PlayerModel", nil, bgFrame)
-  		modelEffect1:SetAlpha(1)
-  		modelEffect1:SetFrameLevel(0)
-		modelEffect1:SetAllPointsIn(bgFrame)
-		modelEffect1:SetCamDistanceScale(0.9)
-		modelEffect1:SetPosition(1,-1,0)
-		modelEffect1:SetPortraitZoom(0)
-		modelEffect1:SetModel(CASTEFFECT1)
-		castbar.EffectModel1 = modelEffect1
-
-		local modelEffect2 = CreateFrame("PlayerModel", nil, castbar)
-  		modelEffect2:SetAlpha(1)
-  		--modelEffect2:SetFrameLevel(20)
-		modelEffect2:SetAllPointsIn(bgFrame, 2, 2)
-		modelEffect2:SetCamDistanceScale(0.95)
-		modelEffect2:SetPosition(0,-1,0)
-		modelEffect2:SetPortraitZoom(0)
-		modelEffect2:SetModel(CASTEFFECT2)
-		castbar.EffectModel2 = modelEffect2
-  	end
 	
 	local borderB = bgFrame:CreateTexture(nil,"OVERLAY")
 	borderB:SetTexture(0,0,0)
@@ -772,10 +756,6 @@ function MOD:PostCastStart(unit, index, ...)
 	if unit == "player" or unit == "target" then 
 		CustomChannelUpdate(self, unit, index, unitDB.ticks)
 		CustomInterruptible(self, unit, db.castClassColor)
-	end
-	if(self.EffectModel1) then
-		self.EffectModel1:SetModel(CASTEFFECT1)
-		self.EffectModel2:SetModel(CASTEFFECT2)
 	end 
 end 
 

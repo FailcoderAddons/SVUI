@@ -17,56 +17,55 @@ local oUF = oUF or ns.oUF
 if not oUF then return end
 
 local function UpdateBar(self, elapsed)
-	if not self.expirationTime then return end
+	if not self.duration then return end
 	self.elapsed = (self.elapsed or 0) + elapsed
-	if self.elapsed >= 0.5 then	
-		local timeLeft = self.expirationTime - GetTime()
+	if self.elapsed >= 0.5 then
+		local timeLeft = (self.duration - GetTime())
 		if timeLeft > 0 then
 			self:SetValue(timeLeft)
 		else
+			self.start = nil
+			self.duration = nil
+			self:SetValue(0)
+			self:Hide()
 			self:SetScript("OnUpdate", nil)
 		end
 	end		
 end
 
-local Update = function(self, event)
-	local unit = self.unit or 'player'
+local Update = function(self, event, unit)
+	if(self.unit ~= unit) then return end
 	local bar = self.ArcaneChargeBar
-	if(bar.PreUpdate) then bar:PreUpdate(event) end
-
-	local talentSpecialization = GetSpecialization()
+	local spec = GetSpecialization()
 	
-	if talentSpecialization == 1 then
-		bar:Show()
-	else
-		bar:Hide()
-	end
+	if(bar.PreUpdate) then bar:PreUpdate(spec) end
 	
-	local arcaneCharges, maxCharges, duration, expirationTime = 0, 4
+	local arcaneCharges, start, duration = 0;
 	if bar:IsShown() then		
 		for index=1, 30 do
-			local _, _, _, count, _, start, timeLeft, _, _, _, spellID = UnitDebuff(unit, index)
+			local count, _, spellID = 0;
+			_, _, _, count, _, start, duration, _, _, _, spellID = UnitDebuff(unit, index)
 			if spellID == 36032 then
 				arcaneCharges = count or 0
-				duration = start
-				expirationTime = timeLeft
+				start = start
+				duration = duration
 				break
 			end			
 		end
 
-		for i = 1, maxCharges do
-			if duration and expirationTime then
-				bar[i]:SetMinMaxValues(0, duration)
+		for i = 1, 4 do
+			if start and duration then
+				bar[i]:SetMinMaxValues(0, start)
+				bar[i].start = start
 				bar[i].duration = duration
-				bar[i].expirationTime = expirationTime
 			end
+
 			if i <= arcaneCharges then
 				bar[i]:Show()
-				bar[i]:SetValue(duration)
+				bar[i]:SetValue(start)
 				bar[i]:SetScript('OnUpdate', UpdateBar)
 			else
 				bar[i]:SetValue(0)
-				bar[i]:SetScript('OnUpdate', nil)
 				bar[i]:Hide()
 			end
 		end		

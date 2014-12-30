@@ -45,6 +45,8 @@ local L = SV.L;
 if(SV.class ~= "PALADIN") then return end 
 local MOD = SV.SVUnit
 if(not MOD) then return end 
+
+SV.SpecialFX:Register("holypower", [[Spells\Paladin_healinghands_state_01.m2]], -12, 12, 12, -12, 0.95, 0, 0.54)
 --[[ 
 ########################################################## 
 LOCAL FUNCTIONS
@@ -74,14 +76,14 @@ local Reposition = function(self)
     bar:ClearAllPoints()
     bar:SetAllPoints(bar.Holder)
 	for i = 1, max do
-		bar[i]:ClearAllPoints()
-		bar[i]:SetHeight(size)
-		bar[i]:SetWidth(size)
+		bar[i].holder:ClearAllPoints()
+		bar[i].holder:SetHeight(size)
+		bar[i].holder:SetWidth(size)
 		bar[i]:GetStatusBarTexture():SetHorizTile(false)
 		if i==1 then 
-			bar[i]:SetPoint("TOPLEFT", bar, "TOPLEFT", 0, 0)
+			bar[i].holder:SetPoint("TOPLEFT", bar, "TOPLEFT", 0, 0)
 		else 
-			bar[i]:SetPointToScale("LEFT", bar[i - 1], "RIGHT", -1, 0) 
+			bar[i].holder:SetPointToScale("LEFT", bar[i - 1].holder, "RIGHT", -1, 0) 
 		end
 	end 
 end 
@@ -101,27 +103,16 @@ local Update = function(self, event, unit, powerType)
 			bar[i]:Hide()
 		else 
 			bar[i]:Show()
-			if(not bar[i].swirl[3].anim:IsPlaying()) then 
-				bar[i].swirl[3].anim:Play()
-			end
 		end 
 	end
 	self.MaxClassPower = maxCount
-end 
+end
 
-local AlphaHook = function(self,value)
-	self.swirl[3].anim:Finish()
+local AlphaHook = function(self, value)
 	if value < 1 then 
-		self.swirl[1].anim:Finish()
-		self.swirl[2].anim:Finish() 
-	else 
-		if(not self.swirl[1].anim:IsPlaying()) then 
-			self.swirl[1].anim:Play()
-		end 
-		if(not self.swirl[2].anim:IsPlaying()) then 
-			self.swirl[2].anim:Play()
-		end
-		self.swirl[3].anim:Play()
+		self.holder.FX:Hide()
+	elseif(not self.holder.FX:IsShown()) then
+		self.holder.FX:Show()
 	end 
 end
 --[[ 
@@ -129,53 +120,34 @@ end
 PALADIN
 ##########################################################
 ]]--
+local ShowLink = function(self) self.holder:Show() end
+local HideLink = function(self) self.holder:Hide() end
+
 function MOD:CreateClassBar(playerFrame)
 	local max = 5
 	local bar = CreateFrame("Frame", nil, playerFrame)
 	bar:SetFrameLevel(playerFrame.TextGrip:GetFrameLevel() + 30)
 
-	for i = 1, max do 
-		bar[i] = CreateFrame("StatusBar", nil, bar)
+	for i = 1, max do
+		local underlay = CreateFrame("Frame", nil, bar);
+
+		bar[i] = CreateFrame("StatusBar", nil, underlay)
+		bar[i]:SetAllPoints(underlay)
 		bar[i]:SetStatusBarTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\PALADIN-HAMMER")
 		bar[i]:GetStatusBarTexture():SetHorizTile(false)
 		bar[i]:SetStatusBarColor(0.9,0.9,0.8)
 
-		bar[i].backdrop = bar[i]:CreateTexture(nil,"BACKGROUND")
-		bar[i].backdrop:SetAllPoints(bar[i])
-		bar[i].backdrop:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\PALADIN-HAMMER")
-		bar[i].backdrop:SetVertexColor(0,0,0)
+		bar[i].bg = underlay:CreateTexture(nil,"BORDER")
+		bar[i].bg:SetAllPoints(underlay)
+		bar[i].bg:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\PALADIN-HAMMER-BG")
+		bar[i].bg:SetVertexColor(0,0,0)
 
-		local barAnimation = CreateFrame('Frame',nil,bar[i])
-		barAnimation:SetSizeToScale(40,40)
-		barAnimation:SetPoint("CENTER",bar[i],"CENTER",0,0)
-		barAnimation:SetFrameLevel(0)
-		
-		barAnimation[1] = barAnimation:CreateTexture(nil,"BACKGROUND",nil,1)
-		barAnimation[1]:SetSizeToScale(40,40)
-		barAnimation[1]:SetPoint("CENTER")
-		barAnimation[1]:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\SWIRL")
-		barAnimation[1]:SetBlendMode("ADD")
-		barAnimation[1]:SetVertexColor(0.5,0.5,0.15)
-		SV.Animate:Orbit(barAnimation[1],10)
-
-		barAnimation[2] = barAnimation:CreateTexture(nil,"BACKGROUND",nil,2)
-		barAnimation[2]:SetSizeToScale(40,40)
-		barAnimation[2]:SetPoint("CENTER")
-		barAnimation[2]:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\SWIRL")
-		barAnimation[2]:SetTexCoord(1,0,1,1,0,0,0,1)
-		barAnimation[2]:SetBlendMode("ADD")
-		barAnimation[2]:SetVertexColor(0.5,0.5,0.15)
-		SV.Animate:Orbit(barAnimation[2],10,true)
-
-		barAnimation[3] = barAnimation:CreateTexture(nil, "OVERLAY")
-		barAnimation[3]:SetAllPointsOut(barAnimation, 3, 3)
-		barAnimation[3]:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\MAGE-FG-ANIMATION")
-		barAnimation[3]:SetBlendMode("ADD")
-		barAnimation[3]:SetVertexColor(1, 1, 0)
-		SV.Animate:Sprite4(barAnimation[3], 0.08, 2, true)
-
-		bar[i].swirl = barAnimation;
+		bar[i].holder = underlay
+		bar[i]:SetScript("OnShow", ShowLink)
+		bar[i]:SetScript("OnHide", HideLink)
 		hooksecurefunc(bar[i], "SetAlpha", AlphaHook)
+
+		SV.SpecialFX:SetFXFrame(bar[i].holder, "holypower", true)
 	end 
 	bar.Override = Update;
 	

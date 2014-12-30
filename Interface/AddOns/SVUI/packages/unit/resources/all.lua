@@ -46,6 +46,41 @@ local MOD = SV.SVUnit
 if(not MOD) then return end 
 
 local DEFAULT_EFFECT = [[Spells\Fill_holy_cast_01.m2]];
+--[[ 
+########################################################## 
+POSITIONING
+##########################################################
+]]--
+local EffectModel_OnShow = function(self)
+	local EFFECT = self.EffectModel.modelFile or DEFAULT_EFFECT;
+	self.EffectModel:ClearModel();
+	self.EffectModel:SetModel(EFFECT);
+end 
+--[[ 
+########################################################## 
+PRIEST
+##########################################################
+]]--
+function MOD:CreateModelEffect(parent, zoom, outSet, modelFile, pos1, pos2, pos3)
+	modelFile = modelFile or DEFAULT_EFFECT
+	pos1 = pos1 or 0
+	pos2 = pos2 or 0
+	pos3 = pos3 or 0
+	local effectFrame = CreateFrame("PlayerModel", nil, parent)
+	effectFrame:SetAllPointsOut(parent, outSet, outSet)
+	effectFrame:SetCamDistanceScale(zoom)
+	effectFrame:SetPosition(pos1, pos2, pos3)
+	effectFrame:SetPortraitZoom(0)
+	effectFrame:SetModel(modelFile)
+	effectFrame.modelFile = modelFile
+	parent.EffectModel = effectFrame
+	if(parent:GetScript("OnShow")) then
+		parent:HookScript("OnShow", EffectModel_OnShow)
+	else
+		parent:SetScript("OnShow", EffectModel_OnShow)
+	end
+end
+
 -- local CASTEFFECT = [[Spells\Fel_fire_precast_high_hand.m2]]
 -- local CASTEFFECT = [[Spells\Fire_precast_high_hand.m2]]
 -- local CASTEFFECT = [[Spells\Fire_precast_low_hand.m2]]
@@ -143,37 +178,3 @@ local DEFAULT_EFFECT = [[Spells\Fill_holy_cast_01.m2]];
 --local ORB_EFFECT = [[Spells\Twilight_fire_precast_high_hand.m2]]
 --local ORB_EFFECT = [[Spells\Vengeance_state_hand.m2]]
 --local ORB_EFFECT = [[Spells\Fel_djinndeath_fire_02.m2]]
---[[ 
-########################################################## 
-POSITIONING
-##########################################################
-]]--
-local EffectModel_OnShow = function(self)
-	local EFFECT = self.EffectModel.modelFile or DEFAULT_EFFECT;
-	self.EffectModel:ClearModel();
-	self.EffectModel:SetModel(EFFECT);
-end 
---[[ 
-########################################################## 
-PRIEST
-##########################################################
-]]--
-function MOD:CreateModelEffect(parent, zoom, outSet, modelFile, pos1, pos2, pos3)
-	modelFile = modelFile or DEFAULT_EFFECT
-	pos1 = pos1 or 0
-	pos2 = pos2 or 0
-	pos3 = pos3 or 0
-	local effectFrame = CreateFrame("PlayerModel", nil, parent)
-	effectFrame:SetAllPointsOut(parent, outSet, outSet)
-	effectFrame:SetCamDistanceScale(zoom)
-	effectFrame:SetPosition(pos1, pos2, pos3)
-	effectFrame:SetPortraitZoom(0)
-	effectFrame:SetModel(modelFile)
-	effectFrame.modelFile = modelFile
-	parent.EffectModel = effectFrame
-	if(parent:GetScript("OnShow")) then
-		parent:HookScript("OnShow", EffectModel_OnShow)
-	else
-		parent:SetScript("OnShow", EffectModel_OnShow)
-	end
-end

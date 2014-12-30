@@ -71,83 +71,132 @@ local STANCE_OF_THE_STURY_OX_ID = 23
 
 local UnitHealthMax = UnitHealthMax
 local UnitStagger = UnitStagger
+local DEFAULT_BREW_COLOR = {0.91, 0.75, 0.25, 0.5};
 local BREW_COLORS = {
 	[124275] = {0, 1, 0, 1}, -- Light
 	[124274] = {1, 0.5, 0, 1}, -- Moderate
 	[124273] = {1, 0, 0, 1}, -- Heavy
 };
+local DEFAULT_STAGGER_COLOR = {1, 1, 1, 0.5};
 local STAGGER_COLORS = {
 	[124275] = {0.2, 0.8, 0.2, 1}, -- Light
 	[124274] = {1.0, 0.8, 0.2, 1}, -- Moderate
 	[124273] = {1.0, 0.4, 0.2, 1}, -- Heavy
 };
+local STAGGER_DEBUFFS = {
+	[124275] = true, -- Light
+	[124274] = true, -- Moderate
+	[124273] = true, -- Heavy
+};
 local staggerColor = {1, 1, 1, 0.5};
 local brewColor = {0.91, 0.75, 0.25, 0.5};
 
-local function ScanForDrunkenMaster()
-	local name, _, icon, _, _, duration, _, _, _, _, spellID, _, _, value2, value1 = UnitAura("player", DM_L["Light Stagger"], "", "HARMFUL")
-	if (not name) then 
-		name, _, icon, _, _, duration, _, _, _, _, spellID, _, _, value2, value1 = UnitAura("player", DM_L["Moderate Stagger"], "", "HARMFUL")
-		if (not name) then 
-			name, _, icon, _, _, duration, _, _, _, _, spellID, _, _, value2, value1 = UnitAura("player", DM_L["Heavy Stagger"], "", "HARMFUL")
+local function getStaggerAmount()
+	for i = 1, 40 do
+		local _, _, _, _, _, _, _, _, _, _, spellID, _, _, _, amount = 
+			UnitDebuff("player", i)
+		if STAGGER_DEBUFFS[spellID] then
+			if (spellID) then 
+				staggerColor = STAGGER_COLORS[spellID] or DEFAULT_STAGGER_COLOR
+				brewColor = BREW_COLORS[spellID] or DEFAULT_BREW_COLOR
+			else
+				staggerColor = DEFAULT_STAGGER_COLOR
+				brewColor = DEFAULT_BREW_COLOR
+			end
+			return amount
 		end
 	end
-	if (spellID) then 
-		staggerColor = STAGGER_COLORS[spellID]
-		brewColor = STAGGER_COLORS[spellID]
-	else
-		staggerColor = {1, 1, 1, 0.5}
-		brewColor = {0.91, 0.75, 0.25, 0.5}
-	end
-	if(value1 and (value1 > 0) and duration) then
-		return (value1 * floor(duration))
-	else
-		return 0
-	end
+	return 0
 end
 
 local Update = function(self, event, unit)
-	if unit and unit ~= self.unit then return; end
-	local staggerTotal = ScanForDrunkenMaster()
-
+	if(self.unit ~= unit) then return end
 	local stagger = self.DrunkenMaster
-
 	if(stagger.PreUpdate) then
 		stagger:PreUpdate()
 	end
-
-	local maxHealth = UnitHealthMax("player")
-	local staggerPercent = staggerTotal / maxHealth
-	local currentStagger = floor(staggerPercent * 100)
-
-	stagger:SetMinMaxValues(0, 50)
-	stagger:SetStatusBarColor(unpack(brewColor))
-	if currentStagger <= 50 then 
-		stagger:SetValue(currentStagger) 
-	else 
-		stagger:SetValue(50) 
+	local staggering = getStaggerAmount()
+	if staggering == 0 then
+		stagger:SetValue(0)
+		return
 	end
+
+	local health = UnitHealth("player")
+	local maxHealth = UnitHealthMax("player")
+	local staggerTotal = UnitStagger("player")
+	if staggerTotal == 0 and staggering > 0 then
+		staggerTotal = staggering * 10
+	end
+
+	local staggerPercent = staggerTotal / maxHealth * 100
+	local currentStagger = floor(staggerPercent)
+	stagger:SetMinMaxValues(0, 100)
+	stagger:SetStatusBarColor(unpack(brewColor))
+	stagger:SetValue(staggerPercent)
 
 	local icon = stagger.icon
 	if(icon) then
 		icon:SetVertexColor(unpack(staggerColor))
 	end
-	
+
 	if(stagger.PostUpdate) then
 		stagger:PostUpdate(maxHealth, currentStagger, staggerPercent)
 	end
 end
 
-local Visibility = function(self, event, unit)
+local UpdateFromLog = function(self, event, ...)
+	local stagger = self.DrunkenMaster
+	local destName = select(9, ...)
+	if destName and UnitIsUnit(destName, "player") then
+		local subevent = select(2, ...)
+		local spellId = select(12, ...)
+		if (subevent:sub(1, 10) == "SPELL_AURA" and STAGGER_DEBUFFS[spellId]) or (subevent == "SPELL_PERIODIC_DAMAGE" and spellId == 124255) then
+			if(stagger.PreUpdate) then
+				stagger:PreUpdate()
+			end
+			local staggering = getStaggerAmount()
+			if staggering == 0 then
+				stagger:SetValue(0)
+				return
+			end
+
+			local health = UnitHealth("player")
+			local maxHealth = UnitHealthMax("player")
+			local staggerTotal = UnitStagger("player")
+			if staggerTotal == 0 and staggering > 0 then
+				staggerTotal = staggering * 10
+			end
+
+			local staggerPercent = staggerTotal / maxHealth * 100
+			local currentStagger = floor(staggerPercent)
+			stagger:SetMinMaxValues(0, 100)
+			stagger:SetStatusBarColor(unpack(brewColor))
+			stagger:SetValue(staggerPercent)
+
+			local icon = stagger.icon
+			if(icon) then
+				icon:SetVertexColor(unpack(staggerColor))
+			end
+
+			if(stagger.PostUpdate) then
+				stagger:PostUpdate(maxHealth, currentStagger, staggerPercent)
+			end
+		end
+	end
+end
+
+local Visibility = function(self, event, ...)
 	if(STANCE_OF_THE_STURY_OX_ID ~= GetShapeshiftFormID() or UnitHasVehiclePlayerFrameUI("player")) then
 		if self.DrunkenMaster:IsShown() then
 			self.DrunkenMaster:Hide()
-			self:UnregisterEvent('UNIT_AURA', Update)
+			--self:UnregisterEvent('UNIT_AURA', Update)
+			self:UnregisterEvent('COMBAT_LOG_EVENT_UNFILTERED', UpdateFromLog)
 		end
 	else
 		self.DrunkenMaster:Show()
-		self:RegisterEvent('UNIT_AURA', Update)
-		return Update(self, event, unit)
+		--self:RegisterEvent('UNIT_AURA', Update)
+		self:RegisterEvent('COMBAT_LOG_EVENT_UNFILTERED', UpdateFromLog)
+		return Update(self, event, ...)
 	end
 end
 
@@ -172,6 +221,9 @@ local function Enable(self, unit)
 		if(element:IsObjectType'StatusBar' and not element:GetStatusBarTexture()) then
 			element:SetStatusBarTexture(0.91, 0.75, 0.25)
 		end
+		element:SetStatusBarColor(unpack(brewColor))
+		element:SetMinMaxValues(0, 100)
+		element:SetValue(0)
 
 		MonkStaggerBar.Hide = MonkStaggerBar.Show
 		MonkStaggerBar:UnregisterEvent'PLAYER_ENTERING_WORLD'
@@ -186,7 +238,8 @@ local function Disable(self)
 	local element = self.DrunkenMaster
 	if(element) then
 		element:Hide()
-		self:UnregisterEvent('UNIT_AURA', Update)
+		--self:UnregisterEvent('UNIT_AURA', Update)
+		self:UnregisterEvent('COMBAT_LOG_EVENT_UNFILTERED', Update)
 		self:UnregisterEvent('UNIT_DISPLAYPOWER', Path)
 		self:UnregisterEvent('UPDATE_SHAPESHIFT_FORM', Path)
 

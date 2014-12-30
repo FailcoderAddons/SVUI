@@ -44,9 +44,7 @@ assert(oUF_Villain, "SVUI was unable to locate oUF.")
 local L = SV.L;
 if(SV.class ~= "MONK") then return end 
 local MOD = SV.SVUnit
-if(not MOD) then return end 
-
-local DEFAULT_EFFECT = [[Spells\Amberspirit_high.m2]];
+if(not MOD) then return end
 --[[ 
 ########################################################## 
 POSITIONING
@@ -98,17 +96,21 @@ local function CreateDrunkenMasterBar(playerFrame)
 	stagger:SetOrientation("VERTICAL")
 	stagger:SetStatusBarTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\MONK-STAGGER-BAR")
 	stagger:GetStatusBarTexture():SetHorizTile(false)
-	stagger.backdrop = stagger:CreateTexture(nil,'BORDER',nil,1)
-	stagger.backdrop:SetAllPoints(stagger)
-	stagger.backdrop:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\MONK-STAGGER-BG")
-	stagger.backdrop:SetVertexColor(1,1,1,0.6)
+
+	stagger.bg = stagger:CreateTexture(nil,'BORDER',nil,1)
+	stagger.bg:SetAllPoints(stagger)
+	stagger.bg:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\MONK-STAGGER-BG")
+	stagger.bg:SetVertexColor(1,1,1,0.6)
+
 	stagger.overlay = stagger:CreateTexture(nil,'OVERLAY')
 	stagger.overlay:SetAllPoints(stagger)
 	stagger.overlay:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\MONK-STAGGER-FG")
 	stagger.overlay:SetVertexColor(1,1,1)
+
 	stagger.icon = stagger:CreateTexture(nil,'OVERLAY')
 	stagger.icon:SetAllPoints(stagger)
 	stagger.icon:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\MONK-STAGGER-ICON")
+
 	stagger:Hide()
 	return stagger 
 end 
@@ -136,9 +138,11 @@ function MOD:CreateClassBar(playerFrame)
 		bar[i]:SetStatusBarTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\ORB")
 		bar[i]:GetStatusBarTexture():SetHorizTile(false)
 		bar[i].noupdate = true;
-		bar[i].backdrop = bar[i]:CreateTexture(nil, "BACKGROUND")
-		bar[i].backdrop:SetAllPoints(bar[i])
-		bar[i].backdrop:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\ORB-BG")
+
+		bar[i].bg = bar[i]:CreateTexture(nil, "BACKGROUND")
+		bar[i].bg:SetAllPoints(bar[i])
+		bar[i].bg:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\ORB-BG")
+
 		bar[i].glow = bar[i]:CreateTexture(nil, "OVERLAY")
 		bar[i].glow:SetAllPoints(bar[i])
 		bar[i].glow:SetTexture(CHI_FILE)
@@ -149,8 +153,11 @@ function MOD:CreateClassBar(playerFrame)
 		bar[i].overlay:SetTexture(CHI_FILE)
 		bar[i].overlay:SetTexCoord(coords[1],coords[2],coords[3],coords[4])
 		bar[i].overlay:SetVertexColor(0, 0, 0)
+
 		bar[i]:SetScript("OnShow", StartFlash)
 		bar[i]:SetScript("OnHide", StopFlash)
+
+		SV.SpecialFX:SetFXFrame(bar[i], "chi")
 	end 
 
 	local classBarHolder = CreateFrame("Frame", "Player_ClassBar", bar)

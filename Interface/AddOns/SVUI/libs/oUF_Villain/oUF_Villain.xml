@@ -70,6 +70,7 @@
 	<Script file="plugins\oUF_ArcaneCharge\oUF_ArcaneCharge.lua"/>
 	<Script file="plugins\oUF_ActionPanel\oUF_ActionPanel.lua"/>
 	<Script file="plugins\oUF_Afflicted\oUF_Afflicted.lua"/>
+	<Script file="plugins\oUF_HunterTraps\oUF_HunterTraps.lua"/>
 	<Script file="plugins\oUF_MainTank\oUF_MainTank.lua"/>
 	<Script file="plugins\oUF_PallyPower\oUF_PallyPower.lua"/>
 	<Script file="plugins\oUF_WarlockShards\oUF_WarlockShards.lua"/>
