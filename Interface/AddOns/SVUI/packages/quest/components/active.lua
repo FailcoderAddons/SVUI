@@ -213,7 +213,7 @@ local SetActiveData = function(self, title, level, icon, questID, questLogIndex,
 	block.Badge.Icon:SetTexture(icon);
 
 	local link, texture, _, showCompleted = GetQuestLogSpecialItemInfo(questLogIndex)
-	if(link and (questLogIndex ~= MOD.CurrentQuest)) then
+	if(link) then
 		if(MOD.QuestItem:SetAbility(link, texture)) then
 			MOD.QuestItem.CurrentQuest = questLogIndex
 		end

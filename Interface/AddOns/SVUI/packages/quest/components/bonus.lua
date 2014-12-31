@@ -323,6 +323,7 @@ end
 local UpdateBonusObjectives = function(self)
 	local fill_height = 0;
 	local rows = 0;
+	local ALL_EXIST = true;
 
 	if(C_Scenario.IsInScenario()) then
 		local tblBonusSteps = C_Scenario.GetBonusSteps();
@@ -370,6 +371,9 @@ local UpdateBonusObjectives = function(self)
 			local questID = cache[i];
 			local isInArea, isOnMap, numObjectives = GetCachedTaskInfo(questID);
 			local existingTask = CACHED_BONUS_DATA[questID]
+			if(not existingTask) then
+				ALL_EXIST = false;
+			end
 			if(isInArea or (isOnMap and existingTask)) then
 				local add_height = 0;
 				rows, add_height = self:SetBonus(rows, questID, numObjectives)
@@ -384,12 +388,17 @@ local UpdateBonusObjectives = function(self)
 	else
 		self:SetHeightToScale(fill_height + 2);
 		self:FadeIn();
-		PlaySound("UI_Scenario_Stage_End");
+		if(ALL_EXIST) then
+			PlaySound("UI_Scenario_Stage_End");
+		end
 		--PlaySoundKitID(45142);
 	end
 end
 
 local RefreshBonusObjectives = function(self, event, ...)
+	-- print('BONUS-------->')
+	-- print(event)
+	-- print(...)
 	if(event == "CRITERIA_COMPLETE") then
 		local id = ...;
 		if(id > 0) then
@@ -434,6 +443,13 @@ CORE FUNCTIONS
 function MOD:UpdateBonusObjective(event, ...)
 	self.Headers["Bonus"]:Reset()
 	self.Headers["Bonus"]:Refresh(event, ...)
+	self:UpdateDimensions();
+end
+
+function MOD:RemoveBonusObjective(questID)
+	CACHED_BONUS_DATA[questID] = nil
+	self.Headers["Bonus"]:Reset()
+	self.Headers["Bonus"]:Refresh()
 	self:UpdateDimensions();
 end
 

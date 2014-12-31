@@ -131,7 +131,7 @@ function MOD:InitializeQuestItem()
 	SV.SuperButton.ItemBlackList[110799] = true
 	SV.SuperButton.ItemBlackList[109164] = true
 
-	local Button = SV.SuperButton:AddSpell("SVUI_QuestAutoButton", UpdateButton, nil, 'SVUI_QUESTITEM');
+	local Button = SV.SuperButton:AddItem("SVUI_QuestAutoButton", UpdateButton, nil, 'SVUI_QUESTITEM');
 	Button:RegisterEvent('UPDATE_EXTRA_ACTIONBAR')
 	Button:RegisterEvent('BAG_UPDATE_COOLDOWN')
 	Button:RegisterEvent('BAG_UPDATE_DELAYED')

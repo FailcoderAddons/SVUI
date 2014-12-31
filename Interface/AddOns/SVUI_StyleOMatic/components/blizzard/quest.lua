@@ -284,6 +284,30 @@ local function QuestFrameStyle()
 
 	hooksecurefunc("QuestFrame_ShowQuestPortrait", Hook_QuestNPCModel)
 
+end
+
+local function QuestChoiceFrameStyle()
+	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.quest ~= true then return end
+
+	PLUGIN:ApplyWindowStyle(QuestChoiceFrame, true, true)
+
+	local bgFrameTop = CreateFrame("Frame", nil, QuestChoiceFrame)
+	bgFrameTop:SetPoint("TOPLEFT", QuestChoiceFrame, "TOPLEFT", 42, -44)
+	bgFrameTop:SetPoint("TOPRIGHT", QuestChoiceFrame, "TOPRIGHT", -42, -44)
+	bgFrameTop:SetHeight(85)
+	bgFrameTop:SetStylePanel("Default", "Inset")
+
+	local bgFrameBottom = CreateFrame("Frame", nil, QuestChoiceFrame)
+	bgFrameBottom:SetPoint("TOPLEFT", QuestChoiceFrame, "TOPLEFT", 42, -140)
+	bgFrameBottom:SetPoint("BOTTOMRIGHT", QuestChoiceFrame, "BOTTOMRIGHT", -42, 44)
+	bgFrameBottom:SetStylePanel("Default", "Inset")
+
+
+	PLUGIN:ApplyCloseButtonStyle(QuestChoiceFrame.CloseButton)
+	--QuestChoiceFrame.Option1:SetStylePanel("Default", "Inset")
+	QuestChoiceFrame.Option1.OptionButton:SetStylePanel("Button")
+	--QuestChoiceFrame.Option2:SetStylePanel("Default", "Inset")
+	QuestChoiceFrame.Option2.OptionButton:SetStylePanel("Button")
 end 
 --[[ 
 ########################################################## 
@@ -292,3 +316,4 @@ PLUGIN LOADING
 ]]--
 PLUGIN:SaveCustomStyle(QuestFrameStyle)
 PLUGIN:SaveCustomStyle(QuestGreetingStyle)
+PLUGIN:SaveBlizzardStyle('Blizzard_QuestChoice', QuestChoiceFrameStyle)

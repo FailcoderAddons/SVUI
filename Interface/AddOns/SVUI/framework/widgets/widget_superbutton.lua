@@ -50,7 +50,7 @@ HELPERS
 local UpdateActionCooldown = function(self)
 	if(self:IsShown() and self.action) then
 		local start, duration, enable = GetActionCooldown(self.action)
-		if(duration > 0) then
+		if((start and start > 0) and (duration and duration > 0)) then
 			self.Cooldown:SetCooldown(start, duration)
 			self.Cooldown:Show()
 		else
@@ -62,7 +62,7 @@ end
 local UpdateSpellCooldown = function(self)
 	if(self:IsShown() and self.spellName) then
 		local start, duration, enable = GetSpellCooldown(self.spellName)
-		if(duration > 0) then
+		if((start and start > 0) and (duration and duration > 0)) then
 			self.Cooldown:SetCooldown(start, duration)
 			self.Cooldown:Show()
 		else
@@ -74,7 +74,7 @@ end
 local UpdateItemCooldown = function(self)
 	if(self:IsShown() and self.itemID) then
 		local start, duration, enable = GetItemCooldown(self.itemID)
-		if(duration > 0) then
+		if((start and start > 0) and (duration and duration > 0)) then
 			self.Cooldown:SetCooldown(start, duration)
 			self.Cooldown:Show()
 		else
@@ -134,7 +134,7 @@ local GetSetPositions = function(self)
 	end
 
 	self.___posIndex = highestIndex + 1;
-
+	--print(self:GetName() .. " = " .. self.___posIndex)
 	return lastFrame;
 end
 
@@ -590,6 +590,8 @@ function SuperButton:AddAction(buttonName, updateFunc, eventFunc, bindingKey)
 
 	self:SetFrameReferences()
 
+	--special:Hide()
+
 	return special
 end
 
@@ -697,6 +699,8 @@ function SuperButton:AddSpell(buttonName, updateFunc, eventFunc, bindingKey)
 
 	self:SetFrameReferences()
 
+	--special:Hide()
+
 	return special
 end
 
@@ -802,6 +806,8 @@ function SuperButton:AddItem(buttonName, updateFunc, eventFunc, bindingKey)
 	self.RegisteredButtons[buttonName] = special;
 
 	self:SetFrameReferences()
+
+	--special:Hide()
 
 	return special
 end

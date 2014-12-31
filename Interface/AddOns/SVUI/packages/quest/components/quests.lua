@@ -706,6 +706,9 @@ function MOD:UpdateObjectives(event, ...)
 			self.inMicroDungeon = inMicroDungeon;
 		end
 	else
+		-- print('QUESTS-------->')
+		-- print(event)
+		-- print(...)
 		if(event == "QUEST_ACCEPTED" or event == "QUEST_WATCH_LIST_CHANGED") then
 			local questLogIndex, questID, isTracked;
 			if(event == "QUEST_ACCEPTED") then
@@ -744,12 +747,26 @@ function MOD:UpdateObjectives(event, ...)
 			self:CheckActiveQuest(questID);
 			self.Headers["Quests"]:Refresh(event, ...);
 			self:UpdateDimensions();
+			if(questID and IsQuestTask(questID)) then
+				self:RemoveBonusObjective(questID)
+			end
 			return;
 		elseif(event == "QUEST_LOG_UPDATE") then
 			self.Headers["Quests"]:Reset()
 			UpdateCachedQuests();
 			self.Headers["Quests"]:Refresh(event, ...)
 			self:UpdateDimensions();
+			self:UpdateBonusObjective(event, ...)
+			self:UnregisterEvent("QUEST_LOG_UPDATE");
+			return;
+		elseif(event == "UNIT_QUEST_LOG_CHANGED") then
+			local unit = ...
+			if(unit ~= 'player') then return end
+			self.Headers["Quests"]:Reset()
+			UpdateCachedQuests();
+			self.Headers["Quests"]:Refresh(event, ...)
+			self:UpdateDimensions();
+			self:UpdateBonusObjective(event, ...)
 			return;
 		else
 			self:UpdateBonusObjective(event, ...)
@@ -808,6 +825,7 @@ function MOD:InitializeQuests()
 	self.Headers["Quests"] = quests;
 
 	self:RegisterEvent("QUEST_LOG_UPDATE", self.UpdateObjectives);
+	self:RegisterEvent("UNIT_QUEST_LOG_CHANGED", self.UpdateObjectives);
 	self:RegisterEvent("QUEST_WATCH_LIST_CHANGED", self.UpdateObjectives);
 	self:RegisterEvent("QUEST_ACCEPTED", self.UpdateObjectives);	
 	self:RegisterEvent("QUEST_POI_UPDATE", self.UpdateObjectives);
