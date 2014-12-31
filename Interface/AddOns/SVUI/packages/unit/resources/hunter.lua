@@ -36,17 +36,16 @@ if(SV.class ~= "HUNTER") then return end
 local MOD = SV.SVUnit
 if(not MOD) then return end 
 
-SV.SpecialFX:Register("trap_fire", [[Spells\Fel_fire_precast_high_hand.m2]], -12, 12, 12, -12, 0.5, 0, 0)
-SV.SpecialFX:Register("trap_ice", [[Spells\Fel_fire_precast_high_hand.m2]], -12, 12, 12, -12, 0.5, 0, 0)
-SV.SpecialFX:Register("trap_frost", [[Spells\Fel_fire_precast_high_hand.m2]], -12, 12, 12, -12, 0.5, 0, 0)
-SV.SpecialFX:Register("trap_snake", [[Spells\Fel_fire_precast_high_hand.m2]], -12, 12, 12, -12, 0.5, 0, 0)
-local specEffects = { [1] = "trap_fire", [2] = "trap_ice", [3] = "trap_frost", [4] = "trap_snake" };
-local trapColor = {
-	[1] = {1,0.25,0},
-	[2] = {0.1,0.9,1},
-	[3] = {0.5,1,1},
-	[4] = {0.2,0.8,0}
-}
+SV.SpecialFX:Register("trap_fire", [[Spells\Fireshot_missile.m2]], -12, 12, 12, -12, 0.4, 0, 0.2)
+SV.SpecialFX:Register("trap_ice", [[Spells\Frostshot_missile.m2]], -12, 12, 12, -12, 0.4, 0, 0.18)
+SV.SpecialFX:Register("trap_frost", [[Spells\Blindingshot_missile.m2]], -12, 12, 12, -12, 0.4, 0, 0.2)
+SV.SpecialFX:Register("trap_snake", [[Spells\Poisonshot_missile.m2]], -12, 12, 12, -12, 0.4, 0, -0.21)
+local specEffects = { 
+	[1] = "trap_fire", 
+	[2] = "trap_ice", 
+	[3] = "trap_frost"
+};
+local HAS_SNAKE_TRAP = false;
 --[[ 
 ########################################################## 
 POSITIONING
@@ -73,7 +72,6 @@ local Reposition = function(self)
 		bar[i]:ClearAllPoints()
 		bar[i]:SetHeight(size)
 		bar[i]:SetWidth(size)
-		bar[i]:SetStatusBarColor(unpack(trapColor[i]))
 		if i==1 then 
 			bar[i]:SetPoint("TOPLEFT", bar, "TOPLEFT", 0, 0)
 		else 
@@ -87,7 +85,7 @@ MAGE CHARGES
 ##########################################################
 ]]--
 local TrapUpdate = function(self, isReady)
-	if isReady then
+	if(isReady) then
 		if(not self.FX:IsShown()) then	
 			self.FX:Show()
 		end
@@ -97,8 +95,30 @@ local TrapUpdate = function(self, isReady)
 	end
 end
 
+local SnakeTrapUpdate = function(self, isReady, isSnake)
+	if(isReady) then
+		if(not self.FX:IsShown()) then	
+			self.FX:Show()
+		end
+		if((isSnake ~= nil) and (isSnake ~= HAS_SNAKE_TRAP)) then
+			if(isSnake == true) then
+				specEffects[3] = "trap_snake"
+			else
+				specEffects[3] = "trap_frost"
+			end
+			HAS_SNAKE_TRAP = isSnake
+
+			self.FX:SetEffect(specEffects[3])
+		else
+			self.FX:UpdateEffect()
+		end
+	else
+		self.FX:Hide()
+	end
+end
+
 function MOD:CreateClassBar(playerFrame)
-	local max = 4
+	local max = 3
 	local bar = CreateFrame("Frame",nil,playerFrame)
 	bar:SetFrameLevel(playerFrame.TextGrip:GetFrameLevel() + 30)
 
@@ -107,7 +127,6 @@ function MOD:CreateClassBar(playerFrame)
 		bar[i]:SetStatusBarTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\HUNTER-TRAP")
 		bar[i]:GetStatusBarTexture():SetHorizTile(false)
 		bar[i]:SetOrientation("VERTICAL")
-		bar[i]:SetStatusBarColor(unpack(trapColor[i]))
 		bar[i].noupdate = true;
 
 		bar[i].bg = bar[i]:CreateTexture(nil, "BACKGROUND")
@@ -116,9 +135,11 @@ function MOD:CreateClassBar(playerFrame)
 
 		local effectName = specEffects[i]
 		SV.SpecialFX:SetFXFrame(bar[i], effectName)
+	end
 
-		bar[i].Update = TrapUpdate
-	end 
+	bar[1].Update = TrapUpdate
+	bar[2].Update = TrapUpdate
+	bar[3].Update = SnakeTrapUpdate
 
 	local classBarHolder = CreateFrame("Frame", "Player_ClassBar", bar)
 	classBarHolder:SetPointToScale("TOPLEFT", playerFrame, "BOTTOMLEFT", 0, -2)

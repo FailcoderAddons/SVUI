@@ -17,16 +17,28 @@ local oUF = oUF or ns.oUF
 if not oUF then return end
 
 local FIRE_TRAP = GetSpellInfo(13813);
-local ICE_TRAP = GetSpellInfo(13809);
 local FROST_TRAP = GetSpellInfo(1499);
-local SNAKE_TRAP = GetSpellInfo(34600);
+local ICE_TRAP = GetSpellInfo(13809);
+local SNAKE_TRAP, SNAKE_RANK, SNAKE_ICON = GetSpellInfo(34600);
 
+local FIRE_COLOR = {1,0.25,0};
+local FROST_COLOR = {0.5,1,1};
+local ICE_COLOR = {0.1,0.9,1};
+local SNAKE_COLOR = {0.2,0.8,0};
+--/script print(IsSpellKnown(34600))
+--/script print(IsSpellKnown(13809))
 local TRAP_IDS = {
 	[1] = FIRE_TRAP, 
-	[2] = ICE_TRAP, 
-	[3] = FROST_TRAP, 
-	[4] = SNAKE_TRAP
+	[2] = FROST_TRAP, 
+	[3] = ICE_TRAP,
 };
+local TRAP_COLORS = {
+	[1] = FIRE_COLOR, 
+	[2] = FROST_COLOR, 
+	[3] = ICE_COLOR,
+};
+
+local HAS_SNAKE_TRAP = false;
 
 local function UpdateBar(self, elapsed)
 	if not self.duration then return end
@@ -35,27 +47,50 @@ local function UpdateBar(self, elapsed)
 		local timeLeft = (self.duration - (self.duration - (GetTime() - self.start))) * 1000
 		if timeLeft < self.duration then
 			self:SetValue(timeLeft)
+			self:SetStatusBarColor(unpack(TRAP_COLORS[self.colorIndex]))
 		else
+			self:SetStatusBarColor(0.9,0.9,0.9)
 			self.elapsed = 0
 			self.start = nil
 			self.duration = nil
 			self:SetScript("OnUpdate", nil)
-			self:Update(true)
+			self:Update(true, HAS_SNAKE_TRAP)
 		end
 	end		
 end
 
 local Update = function(self, event, ...)
-	local unit, spellName, _, _, spellID = ...
-	if(self.unit ~= unit or not spellID) then return end
 	local bar = self.HunterTraps
+	if(event and event == "SPELLS_CHANGED") then
+		local ice_icon = select(3, GetSpellInfo(13809));
+		if(ice_icon == SNAKE_ICON) then
+			TRAP_IDS[3] = SNAKE_TRAP
+			TRAP_COLORS[3] = SNAKE_COLOR
+			HAS_SNAKE_TRAP = true
+		else
+			TRAP_IDS[3] = ICE_TRAP
+			TRAP_COLORS[3] = ICE_COLOR
+			HAS_SNAKE_TRAP = false
+		end
+	end
+
 	if(bar.PreUpdate) then bar:PreUpdate(event) end
-	local name = GetSpellInfo(spellID)
-	local start, duration = GetSpellCooldown(spellID)
-	duration = GetSpellBaseCooldown(spellID)
+
+	local name, start, duration;
+	local unit, _, _, _, spellID = ...
+	if(unit and (self.unit ~= unit)) then
+		return 
+	end
+	if(spellID) then
+		name = GetSpellInfo(spellID)
+		start = GetSpellCooldown(spellID)
+		duration = GetSpellBaseCooldown(spellID)
+	end
+
 	if bar:IsShown() then		
-		for i = 1, 4 do
-			if(TRAP_IDS[i] == name) then
+		for i = 1, 3 do
+			--bar[i]:SetStatusBarColor(unpack(TRAP_COLORS[i]))
+			if(name and TRAP_IDS[i] == name) then
 				bar[i]:Show()
 				if((start and start > 0) and (duration and duration > 0)) then
 					bar[i]:SetMinMaxValues(0, duration)
@@ -63,7 +98,7 @@ local Update = function(self, event, ...)
 					bar[i].start = start
 					bar[i].duration = duration
 					bar[i]:SetScript('OnUpdate', UpdateBar)
-					bar[i]:Update(false)
+					bar[i]:Update(false, HAS_SNAKE_TRAP)
 				end
 			end
 		end		
@@ -87,8 +122,8 @@ local function Enable(self, unit)
 	local bar = self.HunterTraps
 
 	if(bar) then
+		self:RegisterEvent("SPELLS_CHANGED", Path)
 		self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED", Path)
-		--self:RegisterEvent('SPELL_UPDATE_USABLE', Path)
 		self:RegisterEvent("PLAYER_TALENT_UPDATE", Path)
 		self:RegisterEvent("PLAYER_ENTERING_WORLD", Path)
 		bar.__owner = self
@@ -96,12 +131,25 @@ local function Enable(self, unit)
 
 		local barWidth,barHeight = bar:GetSize()
 		local trapSize = barWidth * 0.25
-		for i = 1, 4 do
+
+		local ice_icon = select(3, GetSpellInfo(13809));
+		if(ice_icon == SNAKE_ICON) then
+			TRAP_IDS[3] = SNAKE_TRAP
+			TRAP_COLORS[3] = SNAKE_COLOR
+			HAS_SNAKE_TRAP = true
+		else
+			TRAP_IDS[3] = ICE_TRAP
+			TRAP_COLORS[3] = ICE_COLOR
+			HAS_SNAKE_TRAP = false
+		end
+		for i = 1, 3 do
 			if not bar[i] then
 				bar[i] = CreateFrame("Statusbar", nil, bar)
 				bar[i]:SetPoint("LEFT", bar, "LEFT", (trapSize * (i - 1)), 0)
 				bar[i]:SetSize(trapSize,trapSize)
 			end
+
+			bar[i].colorIndex = i;
 
 			if not bar[i]:GetStatusBarTexture() then
 				bar[i]:SetStatusBarTexture([=[Interface\TargetingFrame\UI-StatusBar]=])
@@ -109,12 +157,15 @@ local function Enable(self, unit)
 
 			bar[i]:SetFrameLevel(bar:GetFrameLevel() + 1)
 			bar[i]:GetStatusBarTexture():SetHorizTile(false)
+			bar[i]:SetStatusBarColor(0.9,0.9,0.9)
 			
 			if bar[i].bg then
-				bar[i]:SetMinMaxValues(0, 1)
-				bar[i]:SetValue(1)
 				bar[i].bg:SetAllPoints()
-			end		
+			end
+
+			bar[i]:SetMinMaxValues(0, 1)
+			bar[i]:SetValue(1)
+			bar[i]:Update(true, HAS_SNAKE_TRAP)
 		end
 		
 		return true;
@@ -125,8 +176,8 @@ local function Disable(self,unit)
 	local bar = self.HunterTraps
 
 	if(bar) then
+		self:UnregisterEvent("SPELLS_CHANGED", Path)
 		self:UnregisterEvent('UNIT_SPELLCAST_SUCCEEDED', Path)
-		--self:UnregisterEvent('SPELL_UPDATE_USABLE', Path)
 		self:UnregisterEvent("PLAYER_TALENT_UPDATE", Path)
 		self:UnregisterEvent("PLAYER_ENTERING_WORLD", Path)
 		bar:Hide()

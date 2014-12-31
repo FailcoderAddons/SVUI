@@ -48,9 +48,9 @@ if(SV.class ~= "WARLOCK") then return end
 local MOD = SV.SVUnit
 if(not MOD) then return end 
 
-SV.SpecialFX:Register("affliction", [[Spells\Warlock_bodyofflames_medium_state_shoulder_right_purple.m2]], -12, 12, 12, -12, 0.95, 0, 0.54)
-SV.SpecialFX:Register("demonbar_fg", [[Spells\Fill_fire_cast_01.m2]], 2, -2, -2, 2, 0.5, 0, -0.2)
-SV.SpecialFX:Register("demonbar_bg", [[Spells\Eastern_plaguelands_beam_effect.m2]], 1, -1, -1, 1, 0.5, -0.2, 0.7)
+SV.SpecialFX:Register("affliction", [[Spells\Warlock_bodyofflames_medium_state_shoulder_right_purple.m2]], -12, 12, 12, -12, 0.22, 0, 0.52)
+SV.SpecialFX:Register("overlay_demonbar", [[Spells\Warlock_destructioncharge_impact_chest.m2]], -20, -1, 20, -50, 0.9, 0, 0.8)
+SV.SpecialFX:Register("underlay_demonbar", [[Spells\Fill_fire_cast_01.m2]], 3, -2, -3, 2, 0.5, -0.45, 1)
 local specEffects = { [1] = "affliction", [2] = "none", [3] = "fire" };
 --[[ 
 ########################################################## 
@@ -99,9 +99,9 @@ local Reposition = function(self)
     bar:ClearAllPoints()
     bar:SetAllPoints(bar.Holder)
 
-	bar.DemonBar:ClearAllPoints()
-	bar.DemonBar:SetSizeToScale(width, (size * 1.25))
-	bar.DemonBar:SetPoint("LEFT", bar, "LEFT", 0, dbOffset) 
+	bar.DemonicFury:ClearAllPoints()
+	bar.DemonicFury:SetAllPointsIn(bar.Holder, 1, 3)
+	--bar.DemonicFury:SetPoint("LEFT", bar, "LEFT", 0, dbOffset) 
 	for i = 1, max do 
 		bar[i]:ClearAllPoints()
 		bar[i]:SetHeight(size)
@@ -159,7 +159,7 @@ end
 
 local Update = function(self, event, unit, powerType)
 	local bar = self.WarlockShards;
-	local fury = bar.DemonBar;
+	local fury = bar.DemonicFury;
 	if UnitHasVehicleUI("player") then
 		bar:Hide()
 	else
@@ -243,7 +243,7 @@ local Update = function(self, event, unit, powerType)
 			if not fury:IsShown() then 
 				fury:Show()
 			end
-			fury:SetStatusBarColor(unpack(shardColor[spec]))
+			fury.bar:SetStatusBarColor(unpack(shardColor[spec]))
 			local power = UnitPower("player", SPELL_POWER_DEMONIC_FURY)
 			local maxPower = UnitPowerMax("player", SPELL_POWER_DEMONIC_FURY)
 			local percent = (power / maxPower) * 100
@@ -255,14 +255,14 @@ local Update = function(self, event, unit, powerType)
 			bar[2]:Hide()
 			bar[3]:Hide()
 			bar[4]:Hide()
-			fury:SetMinMaxValues(0, maxPower)
-			fury:SetValue(power)
+			fury.bar:SetMinMaxValues(0, maxPower)
+			fury.bar:SetValue(power)
 			if(percent > 80) then
-				if(not fury.FX:IsShown()) then
-					fury.FX:Show()
+				if(not fury.bar.FX:IsShown()) then
+					fury.bar.FX:Show()
 				end
 			else
-				fury.FX:Hide()
+				fury.bar.FX:Hide()
 			end
 		end
 	else
@@ -283,7 +283,7 @@ WARLOCK
 ##########################################################
 ]]--
 local EffectModel_OnShow = function(self)
-	self:UpdateEffect();
+	self:SetEffect("overlay_demonbar");
 end
 
 function MOD:CreateClassBar(playerFrame)
@@ -316,18 +316,19 @@ function MOD:CreateClassBar(playerFrame)
 		bar[i].FX:SetScript("OnShow", EffectModel_OnShow)
 	end 
 
-	local demonBar = CreateFrame("StatusBar",nil,bar)
-	demonBar.noupdate = true;
-	demonBar:SetOrientation("HORIZONTAL")
-	demonBar:SetStatusBarTexture(SV.Media.bar.lazer)
+	local demonicFury = CreateFrame("Frame", nil, bar)
+	demonicFury:SetFrameStrata("BACKGROUND")
+	demonicFury:SetFrameLevel(0)
+	SV.SpecialFX:SetFXFrame(demonicFury, "underlay_demonbar")
+	demonicFury.FX:SetFrameStrata("BACKGROUND")
+	demonicFury.FX:SetFrameLevel(0)
 
-	local bgFrame = CreateFrame("Frame", nil, demonBar)
-	bgFrame:SetAllPointsIn(demonBar, 0, 8)
-	bgFrame:SetFrameLevel(bgFrame:GetFrameLevel() - 1)
+	local bgFrame = CreateFrame("Frame", nil, demonicFury)
+	bgFrame:SetAllPointsIn(demonicFury)
 
-	demonBar.bg = bgFrame:CreateTexture(nil, "BACKGROUND")
-	demonBar.bg:SetAllPoints(bgFrame)
-	demonBar.bg:SetTexture(0.2,0,0,0.5)
+	local bgTexture = bgFrame:CreateTexture(nil, "BACKGROUND")
+	bgTexture:SetAllPoints(bgFrame)
+	bgTexture:SetTexture(0.2,0,0,0.5)
 
 	local borderB = bgFrame:CreateTexture(nil,"OVERLAY")
     borderB:SetTexture(0,0,0)
@@ -353,15 +354,19 @@ function MOD:CreateClassBar(playerFrame)
     borderR:SetPoint("BOTTOMRIGHT")
     borderR:SetWidth(2)
 
-    demonBar.backdrop = bgFrame;
+    local demonBar = CreateFrame("StatusBar", nil, bgFrame)
+	demonBar.noupdate = true;
+	demonBar:SetAllPointsIn(bgFrame)
+	demonBar:SetOrientation("HORIZONTAL")
+	demonBar:SetStatusBarTexture(SV.Media.bar.glow)
 
-    SV.SpecialFX:SetFXFrame(demonBar, "demonbar_fg", true)
-	SV.SpecialFX:SetFXFrame(demonBar.backdrop, "demonbar_bg")
-	demonBar.FX:SetAnchorParent(demonBar.backdrop)
+    SV.SpecialFX:SetFXFrame(demonBar, "overlay_demonbar", true)
 	demonBar.FX:SetScript("OnShow", EffectModel_OnShow)
 
-	bar.DemonBar = demonBar;
+	demonicFury.bg = bgTexture;
+	demonicFury.bar = demonBar;
 
+	bar.DemonicFury = demonicFury;
 	bar.CurrentSpec = 0;
 	bar.Override = Update;
 

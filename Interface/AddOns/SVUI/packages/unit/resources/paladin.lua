@@ -46,7 +46,9 @@ if(SV.class ~= "PALADIN") then return end
 local MOD = SV.SVUnit
 if(not MOD) then return end 
 
-SV.SpecialFX:Register("holypower", [[Spells\Paladin_healinghands_state_01.m2]], -12, 12, 12, -12, 0.95, 0, 0.54)
+--SV.SpecialFX:Register("holypower", [[Spells\Holy_missile_low.m2]], -12, 12, 12, -12, 1.5, 0, 0)
+SV.SpecialFX:Register("holypower", [[Spells\Holylight_impact_head.m2]], -12, 12, 12, -12, 0.8, 0, -0.4)
+--SV.SpecialFX:Register("holypower", [[Spells\Paladin_healinghands_state_01.m2]], -12, 12, 12, -12, 1.2, 0, 0)
 --[[ 
 ########################################################## 
 LOCAL FUNCTIONS
@@ -62,7 +64,7 @@ local Reposition = function(self)
 	local db = SV.db.SVUnit.player
 	local bar = self.HolyPower;
 	local max = self.MaxClassPower;
-	local size = db.classbar.height
+	local size = db.classbar.height + 4;
 	local width = size * max;
 	bar.Holder:SetSizeToScale(width, size)
     if(not db.classbar.detachFromFrame) then
@@ -83,7 +85,7 @@ local Reposition = function(self)
 		if i==1 then 
 			bar[i].holder:SetPoint("TOPLEFT", bar, "TOPLEFT", 0, 0)
 		else 
-			bar[i].holder:SetPointToScale("LEFT", bar[i - 1].holder, "RIGHT", -1, 0) 
+			bar[i].holder:SetPointToScale("LEFT", bar[i - 1].holder, "RIGHT", -4, 0) 
 		end
 	end 
 end 
@@ -96,8 +98,13 @@ local Update = function(self, event, unit, powerType)
 	for i=1,maxCount do 
 		if i <= baseCount then 
 			bar[i]:SetAlpha(1)
+			if(not bar[i].holder.FX:IsShown()) then
+				bar[i].holder.FX:Show()
+				bar[i].holder.FX:UpdateEffect()
+			end
 		else 
 			bar[i]:SetAlpha(0)
+			bar[i].holder.FX:Hide()
 		end 
 		if i > maxCount then 
 			bar[i]:Hide()
@@ -106,14 +113,6 @@ local Update = function(self, event, unit, powerType)
 		end 
 	end
 	self.MaxClassPower = maxCount
-end
-
-local AlphaHook = function(self, value)
-	if value < 1 then 
-		self.holder.FX:Hide()
-	elseif(not self.holder.FX:IsShown()) then
-		self.holder.FX:Show()
-	end 
 end
 --[[ 
 ########################################################## 
@@ -130,10 +129,13 @@ function MOD:CreateClassBar(playerFrame)
 
 	for i = 1, max do
 		local underlay = CreateFrame("Frame", nil, bar);
+		SV.SpecialFX:SetFXFrame(underlay, "holypower", true)
+		underlay.FX:SetFrameStrata("BACKGROUND")
+		underlay.FX:SetFrameLevel(0)
 
 		bar[i] = CreateFrame("StatusBar", nil, underlay)
 		bar[i]:SetAllPoints(underlay)
-		bar[i]:SetStatusBarTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\PALADIN-HAMMER")
+		bar[i]:SetStatusBarTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\PALADIN-HAMMER-FG")
 		bar[i]:GetStatusBarTexture():SetHorizTile(false)
 		bar[i]:SetStatusBarColor(0.9,0.9,0.8)
 
@@ -145,9 +147,6 @@ function MOD:CreateClassBar(playerFrame)
 		bar[i].holder = underlay
 		bar[i]:SetScript("OnShow", ShowLink)
 		bar[i]:SetScript("OnHide", HideLink)
-		hooksecurefunc(bar[i], "SetAlpha", AlphaHook)
-
-		SV.SpecialFX:SetFXFrame(bar[i].holder, "holypower", true)
 	end 
 	bar.Override = Update;
 	

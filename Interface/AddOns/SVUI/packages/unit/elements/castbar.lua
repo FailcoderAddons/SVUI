@@ -62,8 +62,8 @@ local MOD = SV.SVUnit
 
 if(not MOD) then return end 
 
-SV.SpecialFX:Register("castbar_fg", [[Spells\Eastern_plaguelands_beam_effect.m2]], 2, -2, -2, 2, 0.95, -1, 0)
-SV.SpecialFX:Register("castbar_bg", [[Spells\Xplosion_twilight_impact_noflash.m2]], 1, -1, -1, 1, 0.9, 0, 0)
+SV.SpecialFX:Register("overlay_castbar", [[Spells\Eastern_plaguelands_beam_effect.m2]], 2, -2, -2, 2, 0.95, -1, 0)
+SV.SpecialFX:Register("underlay_castbar", [[Spells\Xplosion_twilight_impact_noflash.m2]], 1, -1, -1, 1, 0.9, 0, 0)
 --[[ 
 ########################################################## 
 LOCAL VARIABLES
@@ -683,9 +683,9 @@ function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss, ha
 	end
 
 	if(hasModel) then
-		SV.SpecialFX:SetFXFrame(bgFrame, "castbar_bg")
+		SV.SpecialFX:SetFXFrame(bgFrame, "underlay_castbar")
 		bgFrame.FX:SetFrameLevel(0)
-  		SV.SpecialFX:SetFXFrame(castbar, "castbar_fg", nil, bgFrame)
+  		SV.SpecialFX:SetFXFrame(castbar, "overlay_castbar", nil, bgFrame)
   	end
 
 	castbar.bg = bgFrame:CreateTexture(nil, "BACKGROUND", nil, -2)

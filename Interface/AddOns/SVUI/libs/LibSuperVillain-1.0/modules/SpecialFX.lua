@@ -51,10 +51,6 @@ local tinsert       = _G.tinsert;
 local tremove       = _G.tremove;
 local twipe         = _G.wipe;
 
---[[ LIB LOCALS ]]--
-
-local DEFAULT_EFFECT = [[Spells\Missile_bomb.m2]];
-
 --[[ LIB CONSTRUCT ]]--
 
 local lib = LibSuperVillain:NewLibrary("SpecialFX")
@@ -63,22 +59,30 @@ if not lib then return end
 
 --[[ LIB EFFECT TABLES ]]--
 
-local EFFECTS_LIST = {
+local DEFAULT_MODEL = [[Spells\Missile_bomb.m2]];
+
+local DEFAULT_EFFECT = {DEFAULT_MODEL, 0, 0, 0, 0, 0.75, 0, 0};
+
+local EFFECTS_LIST = setmetatable({
+    ["default"]     = {[[Spells\Missile_bomb.m2]], 0, 0, 0, 0, 0.75, 0, 0},
     ["holy"]        = {[[Spells\Solar_precast_hand.m2]], -12, 12, 12, -12, 0.23, 0, 0},
     ["shadow"]      = {[[Spells\Shadow_precast_uber_hand.m2]], -12, 12, 12, -12, 0.23, -0.1, 0.1},
     ["arcane"]      = {[[Spells\Cast_arcane_01.m2]], -12, 12, 12, -12, 0.25, 0, 0},
-    ["fire"]        = {[[Spells\Bloodlust_state_hand.m2]], -8, 4, 24, -24, 0.23, 0.08, 0},
+    ["fire"]        = {[[Spells\Bloodlust_state_hand.m2]], -8, 4, 24, -24, 0.23, -0.08, 0.08},
     ["frost"]       = {[[Spells\Ice_cast_low_hand.m2]], -12, 12, 12, -12, 0.23, -0.1, 0.1},
     ["chi"]         = {[[Spells\Fel_fire_precast_high_hand.m2]], -12, 12, 12, -12, 0.3, 0, 0},
     ["lightning"]   = {[[Spells\Fill_lightning_cast_01.m2]], -12, 12, 12, -12, 1.25, 0, 0},
     ["water"]       = {[[Spells\Monk_drunkenhaze_impact.m2]], -12, 12, 12, -12, 0.9, 0, 0},
     ["earth"]       = {[[Spells\Sand_precast_hand.m2]], -12, 12, 12, -12, 0.23, 0, 0},
-};
+}, { __index = function(t, k)
+  return DEFAULT_EFFECT
+end });
 
 --[[ EFFECT FRAME METHODS ]]--
 
 local EffectModel_SetAnchorParent = function(self, frame)
     self.___anchorParent = frame;
+    self:SetEffect(self.currentEffect);
 end
 
 local EffectModel_OnShow = function(self)
@@ -86,62 +90,59 @@ local EffectModel_OnShow = function(self)
 end
 
 local EffectModel_UpdateEffect = function(self)
-    local effectFile = self.modelFile;
+    local effect = self.currentEffect;
+    local effectTable = self.___fx[effect];
     self:ClearModel();
-    self:SetModel(effectFile);
+    self:SetModel(effectTable[1]);
 end
 
 local EffectModel_SetEffect = function(self, effectName)
+    --print(effectName)
+    effectName = effectName or self.currentEffect
+    --print(effectName)
     local effectTable = self.___fx[effectName];
+    --print(effectTable[1])
     local parent = self.___anchorParent;
 
     self:ClearAllPoints();
     self:SetPoint("TOPLEFT", parent, "TOPLEFT", effectTable[2], effectTable[3]);
     self:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", effectTable[4], effectTable[5]);
-    
     self:ClearModel();
     self:SetModel(effectTable[1]);
     self:SetCamDistanceScale(effectTable[6]);
     self:SetPosition(0, effectTable[7], effectTable[8]);
     self:SetPortraitZoom(0);
 
-    self.modelFile = effectTable[1];
+    self.currentEffect = effectName;
 end 
 
 --[[ LIB METHODS ]]--
 function lib:Register(effectName, modelFile, leftX, leftY, rightX, rightY, zoom, posX, posY)
     effectName = effectName:lower();
-    if(not EFFECTS_LIST[effectName]) then EFFECTS_LIST[effectName] = {} end;
-    EFFECTS_LIST[effectName][1] = modelFile or DEFAULT_EFFECT;
-    EFFECTS_LIST[effectName][2] = leftX or 0;
-    EFFECTS_LIST[effectName][3] = leftY or 0;
-    EFFECTS_LIST[effectName][4] = rightX or 0;
-    EFFECTS_LIST[effectName][5] = rightY or 0;
-    EFFECTS_LIST[effectName][6] = zoom or 1;
-    EFFECTS_LIST[effectName][7] = posX or 0;
-    EFFECTS_LIST[effectName][8] = posY or 0;
+    modelFile = modelFile or DEFAULT_MODEL;
+    leftX = leftX or 0;
+    leftY = leftY or 0;
+    rightX = rightX or 0;
+    rightY = rightY or 0;
+    zoom = zoom or 0.75;
+    posX = posX or 0;
+    posY = posY or 0;
+    rawset(EFFECTS_LIST, effectName, {modelFile, leftX, leftY, rightX, rightY, zoom, posX, posY})
 end;
 
 function lib:SetFXFrame(parent, defaultEffect, noScript, anchorParent)
+    defaultEffect = defaultEffect or "default"
     local model = CreateFrame("PlayerModel", nil, parent);
     model.___fx = {};
-    setmetatable(model.___fx, { __index = EFFECTS_LIST; });
+    setmetatable(model.___fx, { __index = EFFECTS_LIST });
     model.___anchorParent = anchorParent or parent;
     model.SetEffect = EffectModel_SetEffect;
     model.SetAnchorParent = EffectModel_SetAnchorParent;
     model.UpdateEffect = EffectModel_UpdateEffect;
-
+    model.currentEffect = defaultEffect;
     parent.FX = model;
-
-    if(defaultEffect) then
-        model:SetEffect(defaultEffect)
-    else
-        model:SetCamDistanceScale(1);
-        model:SetPosition(0, 0, 0);
-        model:SetPortraitZoom(0);
-        model:SetModel(DEFAULT_EFFECT);
-        model.modelFile = DEFAULT_EFFECT;
-    end
+    --print(defaultEffect)
+    EffectModel_SetEffect(model, defaultEffect)
 
     if(not noScript) then
         if(parent:GetScript("OnShow")) then
@@ -205,7 +206,9 @@ end
 -- [[Spells\Warlock_destructioncharge_impact_chest_fel.m2]]
 -- [[Spells\Xplosion_twilight_impact_noflash.m2]]
 -- [[Spells\Warlock_bodyofflames_medium_state_shoulder_right_purple.m2]]
+
 -- [[Spells\Blink_impact_chest.m2]]
+
 -- [[Spells\Christmassnowrain.m2]]
 -- [[Spells\Detectinvis_impact_base.m2]]
 -- [[Spells\Eastern_plaguelands_beam_effect.m2]]

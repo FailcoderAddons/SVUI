@@ -187,9 +187,18 @@ local ButtonUpdateHelper = function(self)
 			self.FlyoutArrow:SetTexture([[Interface\Buttons\ActionBarFlyoutButton]])
 		end
 	end
-	if(icon) then icon:SetTexCoord(0.1, 0.9, 0.1, 0.9) end
-	self.SpellName:SetTextColor(1,1,0) 
-	self.SpellSubName:SetTextColor(0.9,0.9,0.9) 
+
+	if(icon) then 
+		icon:SetTexCoord(0.1, 0.9, 0.1, 0.9) 
+	end
+
+	if(self.SpellName) then
+		self.SpellName:SetTextColor(1,1,0)
+	end
+	
+	if(self.SpellSubName) then
+		self.SpellSubName:SetTextColor(0.9,0.9,0.9)
+	end
 end 
 --[[ 
 ########################################################## 

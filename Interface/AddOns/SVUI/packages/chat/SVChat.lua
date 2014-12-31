@@ -771,7 +771,7 @@ do
 				end
 
 				chat:ClearAllPoints();
-				chat:SetAllPoints(MOD.Dock);
+				chat:SetAllPointsIn(MOD.Dock, 2, 2);
 				chat:SetBackdropColor(0,0,0,0);
 				chat.Panel:Hide();
 				
