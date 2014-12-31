@@ -54,6 +54,8 @@ LOCALS
 local ROW_WIDTH = 300;
 local ROW_HEIGHT = 24;
 local INNER_HEIGHT = ROW_HEIGHT - 4;
+local LARGE_ROW_HEIGHT = ROW_HEIGHT * 2;
+local LARGE_INNER_HEIGHT = LARGE_ROW_HEIGHT - 4;
 
 local NO_ICON = [[Interface\AddOns\SVUI\assets\artwork\Template\EMPTY]];
 local OBJ_ICON_ACTIVE = [[Interface\COMMON\Indicator-Yellow]];
@@ -63,9 +65,7 @@ local OBJ_ICON_INCOMPLETE = [[Interface\COMMON\Indicator-Gray]];
 local QUEST_ICON = [[Interface\AddOns\SVUI\assets\artwork\Quest\QUEST-INCOMPLETE-ICON]];
 local QUEST_ICON_COMPLETE = [[Interface\AddOns\SVUI\assets\artwork\Quest\QUEST-COMPLETE-ICON]];
 
-local ENABLED_BONUS_IDS = {};
 local CACHED_BONUS_DATA = {};
-local CACHED_SCENARIO_DATA = {};
 --[[ 
 ########################################################## 
 DATA CACHE HANDLERS
@@ -133,8 +133,6 @@ local function CacheBonusData(questID, xp, money)
 
 	if(#data.rewards <= 0) then
 		CACHED_BONUS_DATA[questID] = nil;
-	else
-		ENABLED_BONUS_IDS[questID] = true;
 	end
 end
 
@@ -315,6 +313,7 @@ local SetBonusRow = function(self, index, questID, subCount)
 
 		return index, fill_height;
 	else
+		PlaySoundKitID(45142);
 		CACHED_BONUS_DATA[questID] = nil
 		return index, 0;
 	end
@@ -345,10 +344,6 @@ local UpdateBonusObjectives = function(self)
 				end
 				if(not completed) then
 					tinsert(cachedToRemove, cachedIndex);
-				else
-					if(tContains(CACHED_SCENARIO_DATA, bonusStepIndex)) then
-						tinsert(cachedToRemove, bonusStepIndex);
-					end
 				end
 			end
 		end
@@ -364,9 +359,7 @@ local UpdateBonusObjectives = function(self)
 			fill_height = fill_height + add_height;
 		end
 	else
-		wipe(CACHED_SCENARIO_DATA);
 		local cache = GetBonusCache();
-		--print(table.dump(cache))
 		for i = 1, #cache do
 			local questID = cache[i];
 			local isInArea, isOnMap, numObjectives = GetCachedTaskInfo(questID);
@@ -388,10 +381,10 @@ local UpdateBonusObjectives = function(self)
 	else
 		self:SetHeightToScale(fill_height + 2);
 		self:FadeIn();
-		if(ALL_EXIST) then
+		if(not ALL_EXIST) then
 			PlaySound("UI_Scenario_Stage_End");
+			--PlaySoundKitID(45142);
 		end
-		--PlaySoundKitID(45142);
 	end
 end
 
@@ -406,7 +399,6 @@ local RefreshBonusObjectives = function(self, event, ...)
 			for i = 1, #tblBonusSteps do
 				local bonusStepIndex = tblBonusSteps[i];
 				local _, _, numCriteria = C_Scenario.GetStepInfo(bonusStepIndex);
-				local blockKey = -bonusStepIndex;
 				for criteriaIndex = 1, numCriteria do
 					local _, _, _, _, _, _, _, _, criteriaID = C_Scenario.GetCriteriaInfoByStep(bonusStepIndex, criteriaIndex);		
 					if(id == criteriaID) then
@@ -446,11 +438,8 @@ function MOD:UpdateBonusObjective(event, ...)
 	self:UpdateDimensions();
 end
 
-function MOD:RemoveBonusObjective(questID)
-	CACHED_BONUS_DATA[questID] = nil
-	self.Headers["Bonus"]:Reset()
-	self.Headers["Bonus"]:Refresh()
-	self:UpdateDimensions();
+function MOD:CacheBonusObjective(event, ...)
+	CacheBonusData(...)
 end
 
 local function UpdateBonusLocals(...)

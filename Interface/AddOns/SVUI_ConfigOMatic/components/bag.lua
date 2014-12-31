@@ -142,15 +142,6 @@ SV.Options.args.SVBag = {
 							desc = L["Enable/Disable Prospecting, Disenchanting and Milling buttons on the bag frame."], 
 							set = function(a,b)MOD:ChangeDBVar(b,a[#a])SV:StaticPopup_Show("RL_CLIENT")end
 						},
-						ignoreItems = {
-							order = 100, 
-							name = L["Ignore Items"], 
-							desc = L["List of items to ignore when sorting. If you wish to add multiple items you must seperate the word with a comma."], 
-							type = "input", 
-							width = "full", 
-							multiline = true, 
-							set = function(a,b) SV.db.SVBag[a[#a]] = b end
-						}
 					}
 				},
 				position = {

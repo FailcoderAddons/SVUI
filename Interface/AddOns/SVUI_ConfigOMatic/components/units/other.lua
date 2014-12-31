@@ -39,68 +39,72 @@ local _, ns = ...
 ##################################################################################################
 ##################################################################################################
 ]]
-SV.Options.args.SVUnit.args.boss = {
+SV.Options.args.SVUnit.args.commonGroup.args.boss = {
 	name = L["Boss"], 
 	type = "group", 
 	order = 1000, 
-	childGroups = "tab", 
+	childGroups = "select", 
 	get = function(l)return SV.db.SVUnit["boss"][l[#l]]end, 
 	set = function(l, m)MOD:ChangeDBVar(m, l[#l], "boss");MOD:SetEnemyFrame("boss", MAX_BOSS_FRAMES)end, 
 	args = {
 		enable = {type = "toggle", order = 1, name = L["Enable"]},
 		displayFrames = {type = "execute", order = 2, name = L["Display Frames"], desc = L["Force the frames to show, they will act as if they are the player frame."], func = function()MOD:ViewEnemyFrames("boss", 4)end}, 
-		resetSettings = {type = "execute", order = 3, name = L["Restore Defaults"], func = function(l, m)MOD:ResetUnitOptions("boss")SV.Mentalo:Reset("Boss Frames")end}, 
-		tabGroups = {
-			order = 3, 
+		resetSettings = {type = "execute", order = 3, name = L["Restore Defaults"], func = function(l, m)MOD:ResetUnitOptions("boss")SV.Mentalo:Reset("Boss Frames")end},
+		spacer1 = {
+			order = 4, 
+			name = "", 
+			type = "description", 
+			width = "full", 
+		},
+		spacer2 = {
+			order = 5, 
+			name = "", 
+			type = "description", 
+			width = "full", 
+		},
+		commonGroup = {
+			order = 6, 
 			type = "group", 
-			name = L["Unit Options"], 
-			childGroups = "tree", 
+			name = L["General Settings"], 
 			args = {
-				commonGroup = {
+				baseGroup = {
 					order = 1, 
 					type = "group", 
-					name = L["General Settings"], 
+					guiInline = true, 
+					name = L["Base Settings"],
 					args = {
-						baseGroup = {
-							order = 1, 
-							type = "group", 
-							guiInline = true, 
-							name = L["Base Settings"],
-							args = {
-								showBy = {order = 1, name = L["Growth Direction"], type = "select", values = {["UP"] = L["Up"], ["DOWN"] = L["Down"]}},
-								spacer1 = {
-									order = 2,
-									type = "description", 
-									name = "",
-								},
-								rangeCheck = {order = 3, name = L["Range Check"], desc = L["Check if you are in range to cast spells on this specific unit."], type = "toggle"}, 
-								hideonnpc = {type = "toggle", order = 4, name = L["Text Toggle On NPC"], desc = L["Power text will be hidden on NPC targets, in addition the name text will be repositioned to the power texts anchor point."], get = function(l)return SV.db.SVUnit["boss"]["power"].hideonnpc end, set = function(l, m)SV.db.SVUnit["boss"]["power"].hideonnpc = m;MOD:SetEnemyFrame("boss")end}, 
-								threatEnabled = {type = "toggle", order = 5, name = L["Show Threat"]}
-							}
+						showBy = {order = 1, name = L["Growth Direction"], type = "select", values = {["UP"] = L["Up"], ["DOWN"] = L["Down"]}},
+						spacer1 = {
+							order = 2,
+							type = "description", 
+							name = "",
 						},
-						sizeGroup = {
-							order = 2, 
-							guiInline = true, 
-							type = "group", 
-							name = L["Size Settings"], 
-							args = {
-								width = {order = 1, width = "full", name = L["Width"], type = "range", min = 50, max = 500, step = 1}, 
-								height = {order = 2, width = "full", name = L["Height"], type = "range", min = 10, max = 250, step = 1}, 
-							}
-						},
+						rangeCheck = {order = 3, name = L["Range Check"], desc = L["Check if you are in range to cast spells on this specific unit."], type = "toggle"}, 
+						hideonnpc = {type = "toggle", order = 4, name = L["Text Toggle On NPC"], desc = L["Power text will be hidden on NPC targets, in addition the name text will be repositioned to the power texts anchor point."], get = function(l)return SV.db.SVUnit["boss"]["power"].hideonnpc end, set = function(l, m)SV.db.SVUnit["boss"]["power"].hideonnpc = m;MOD:SetEnemyFrame("boss")end}, 
+						threatEnabled = {type = "toggle", order = 5, name = L["Show Threat"]}
 					}
 				},
-				misc = ns:SetMiscConfigGroup(false, MOD.SetEnemyFrame, "boss", MAX_BOSS_FRAMES),
-				health = ns:SetHealthConfigGroup(false, MOD.SetEnemyFrame, "boss", MAX_BOSS_FRAMES), 
-				power = ns:SetPowerConfigGroup(false, MOD.SetEnemyFrame, "boss", MAX_BOSS_FRAMES), 
-				name = ns:SetNameConfigGroup(MOD.SetEnemyFrame, "boss", MAX_BOSS_FRAMES), 
-				portrait = ns:SetPortraitConfigGroup(MOD.SetEnemyFrame, "boss", MAX_BOSS_FRAMES), 
-				buffs = ns:SetAuraConfigGroup(true, "buffs", false, MOD.SetEnemyFrame, "boss", MAX_BOSS_FRAMES), 
-				debuffs = ns:SetAuraConfigGroup(true, "debuffs", false, MOD.SetEnemyFrame, "boss", MAX_BOSS_FRAMES), 
-				castbar = ns:SetCastbarConfigGroup(MOD.SetEnemyFrame, "boss", MAX_BOSS_FRAMES), 
-				icons = ns:SetIconConfigGroup(MOD.SetEnemyFrame, "boss", MAX_BOSS_FRAMES)
+				sizeGroup = {
+					order = 2, 
+					guiInline = true, 
+					type = "group", 
+					name = L["Size Settings"], 
+					args = {
+						width = {order = 1, width = "full", name = L["Width"], type = "range", min = 50, max = 500, step = 1}, 
+						height = {order = 2, width = "full", name = L["Height"], type = "range", min = 10, max = 250, step = 1}, 
+					}
+				},
 			}
-		}
+		},
+		misc = ns:SetMiscConfigGroup(false, MOD.SetEnemyFrame, "boss", MAX_BOSS_FRAMES),
+		health = ns:SetHealthConfigGroup(false, MOD.SetEnemyFrame, "boss", MAX_BOSS_FRAMES), 
+		power = ns:SetPowerConfigGroup(false, MOD.SetEnemyFrame, "boss", MAX_BOSS_FRAMES), 
+		name = ns:SetNameConfigGroup(MOD.SetEnemyFrame, "boss", MAX_BOSS_FRAMES), 
+		portrait = ns:SetPortraitConfigGroup(MOD.SetEnemyFrame, "boss", MAX_BOSS_FRAMES), 
+		buffs = ns:SetAuraConfigGroup(true, "buffs", false, MOD.SetEnemyFrame, "boss", MAX_BOSS_FRAMES), 
+		debuffs = ns:SetAuraConfigGroup(true, "debuffs", false, MOD.SetEnemyFrame, "boss", MAX_BOSS_FRAMES), 
+		castbar = ns:SetCastbarConfigGroup(MOD.SetEnemyFrame, "boss", MAX_BOSS_FRAMES), 
+		icons = ns:SetIconConfigGroup(MOD.SetEnemyFrame, "boss", MAX_BOSS_FRAMES)
 	}
 }
 --[[
@@ -108,170 +112,174 @@ SV.Options.args.SVUnit.args.boss = {
 ##################################################################################################
 ##################################################################################################
 ]]
-SV.Options.args.SVUnit.args.arena = {
+SV.Options.args.SVUnit.args.commonGroup.args.arena = {
 	name = L["Arena"], 
 	type = "group", 
 	order = 1100, 
-	childGroups = "tab", 
+	childGroups = "select", 
 	get = function(l)return SV.db.SVUnit["arena"][l[#l]]end, 
 	set = function(l, m)MOD:ChangeDBVar(m, l[#l], "arena");MOD:SetEnemyFrame("arena", 5)end, 
 	args = {
 		enable = {type = "toggle", order = 1, name = L["Enable"]}, 
 		displayFrames = {type = "execute", order = 2, name = L["Display Frames"], desc = L["Force the frames to show, they will act as if they are the player frame."], func = function()MOD:ViewEnemyFrames("arena", 5)end},
-		resetSettings = {type = "execute", order = 3, name = L["Restore Defaults"], func = function(l, m)MOD:ResetUnitOptions("arena")SV.Mentalo:Reset("Arena Frames")end}, 
-		tabGroups = {
-			order = 3, 
+		resetSettings = {type = "execute", order = 3, name = L["Restore Defaults"], func = function(l, m)MOD:ResetUnitOptions("arena")SV.Mentalo:Reset("Arena Frames")end},
+		spacer1 = {
+			order = 4, 
+			name = "", 
+			type = "description", 
+			width = "full", 
+		},
+		spacer2 = {
+			order = 5, 
+			name = "", 
+			type = "description", 
+			width = "full", 
+		},
+		commonGroup = {
+			order = 6, 
 			type = "group", 
-			name = L["Unit Options"], 
-			childGroups = "tree", 
+			name = L["General Settings"], 
 			args = {
-				commonGroup = {
+				baseGroup = {
 					order = 1, 
 					type = "group", 
-					name = L["General Settings"], 
+					guiInline = true, 
+					name = L["Base Settings"],
 					args = {
-						baseGroup = {
+						showBy = {order = 1, name = L["Growth Direction"], type = "select", values = {["UP"] = L["Up"], ["DOWN"] = L["Down"]}},
+						spacer1 = {
+							order = 2,
+							type = "description", 
+							name = "",
+						},
+						predict = {order = 3, name = L["Heal Prediction"], desc = L["Show a incomming heal prediction bar on the unitframe. Also display a slightly different colored bar for incoming overheals."], type = "toggle"}, 
+						rangeCheck = {order = 4, name = L["Range Check"], desc = L["Check if you are in range to cast spells on this specific unit."], type = "toggle"}, 
+						hideonnpc = {type = "toggle", order = 5, name = L["Text Toggle On NPC"], desc = L["Power text will be hidden on NPC targets, in addition the name text will be repositioned to the power texts anchor point."], get = function(l)return SV.db.SVUnit["arena"]["power"].hideonnpc end, set = function(l, m)SV.db.SVUnit["arena"]["power"].hideonnpc = m;MOD:SetEnemyFrame("arena")end}, 
+						threatEnabled = {type = "toggle", order = 6, name = L["Show Threat"]}
+					}
+				},
+				sizeGroup = {
+					order = 2, 
+					guiInline = true, 
+					type = "group", 
+					name = L["Size Settings"], 
+					args = {
+						width = {order = 1, width = "full", name = L["Width"], type = "range", min = 50, max = 500, step = 1}, 
+						height = {order = 2, width = "full", name = L["Height"], type = "range", min = 10, max = 250, step = 1}, 
+					}
+				},
+				pvp = {
+					order = 3,
+					guiInline = true, 
+					type = "group", 
+					name = L["PVP Indicators"],  
+					args = {
+						enable = {
+							type = "toggle", 
 							order = 1, 
-							type = "group", 
-							guiInline = true, 
-							name = L["Base Settings"],
-							args = {
-								showBy = {order = 1, name = L["Growth Direction"], type = "select", values = {["UP"] = L["Up"], ["DOWN"] = L["Down"]}},
-								spacer1 = {
-									order = 2,
-									type = "description", 
-									name = "",
-								},
-								predict = {order = 3, name = L["Heal Prediction"], desc = L["Show a incomming heal prediction bar on the unitframe. Also display a slightly different colored bar for incoming overheals."], type = "toggle"}, 
-								rangeCheck = {order = 4, name = L["Range Check"], desc = L["Check if you are in range to cast spells on this specific unit."], type = "toggle"}, 
-								hideonnpc = {type = "toggle", order = 5, name = L["Text Toggle On NPC"], desc = L["Power text will be hidden on NPC targets, in addition the name text will be repositioned to the power texts anchor point."], get = function(l)return SV.db.SVUnit["arena"]["power"].hideonnpc end, set = function(l, m)SV.db.SVUnit["arena"]["power"].hideonnpc = m;MOD:SetEnemyFrame("arena")end}, 
-								threatEnabled = {type = "toggle", order = 6, name = L["Show Threat"]}
-							}
+							name = L["Enable"],
+							get = function(l)return SV.db.SVUnit.arena.pvp.enable end, 
+							set = function(l, m)MOD:ChangeDBVar(m, "enable", "arena", "pvp");MOD:SetEnemyFrame("arena", 5)end,
 						},
-						sizeGroup = {
-							order = 2, 
+						trinketGroup = {
+							order = 2,
 							guiInline = true, 
 							type = "group", 
-							name = L["Size Settings"], 
+							name = L["Trinkets"],
+							get = function(l)return SV.db.SVUnit.arena.pvp[l[#l]]end, 
+							set = function(l, m)MOD:ChangeDBVar(m, l[#l], "arena", "pvp");MOD:SetEnemyFrame("arena", 5)end,
+							disabled = function() return not SV.db.SVUnit.arena.pvp.enable end,
 							args = {
-								width = {order = 1, width = "full", name = L["Width"], type = "range", min = 50, max = 500, step = 1}, 
-								height = {order = 2, width = "full", name = L["Height"], type = "range", min = 10, max = 250, step = 1}, 
-							}
-						},
-						pvp = {
-							order = 3,
-							guiInline = true, 
-							type = "group", 
-							name = L["PVP Indicators"],  
-							args = {
-								enable = {
-									type = "toggle", 
+								trinketPosition = {
+									type = "select", 
 									order = 1, 
-									name = L["Enable"],
-									get = function(l)return SV.db.SVUnit.arena.pvp.enable end, 
-									set = function(l, m)MOD:ChangeDBVar(m, "enable", "arena", "pvp");MOD:SetEnemyFrame("arena", 5)end,
-								},
-								trinketGroup = {
-									order = 2,
-									guiInline = true, 
-									type = "group", 
-									name = L["Trinkets"],
-									get = function(l)return SV.db.SVUnit.arena.pvp[l[#l]]end, 
-									set = function(l, m)MOD:ChangeDBVar(m, l[#l], "arena", "pvp");MOD:SetEnemyFrame("arena", 5)end,
-									disabled = function() return not SV.db.SVUnit.arena.pvp.enable end,
-									args = {
-										trinketPosition = {
-											type = "select", 
-											order = 1, 
-											name = L["Position"], 
-											values = {
-												["LEFT"] = L["Left"], 
-												["RIGHT"] = L["Right"]
-											}
-										},
-										trinketSize = {
-											order = 2, 
-											type = "range", 
-											name = L["Size"], 
-											min = 10, 
-											max = 60, 
-											step = 1
-										},
-										trinketX = {
-											order = 3, 
-											type = "range", 
-											name = L["xOffset"], 
-											min = -60, 
-											max = 60, 
-											step = 1
-										},
-										trinketY = {
-											order = 4, 
-											type = "range", 
-											name = L["yOffset"], 
-											min = -60, 
-											max = 60, 
-											step = 1
-										}
+									name = L["Position"], 
+									values = {
+										["LEFT"] = L["Left"], 
+										["RIGHT"] = L["Right"]
 									}
 								},
-								specGroup = {
-									order = 3,
-									guiInline = true, 
-									type = "group", 
-									name = L["Enemy Specs"],
-									get = function(l)return SV.db.SVUnit.arena.pvp[l[#l]]end, 
-									set = function(l, m)MOD:ChangeDBVar(m, l[#l], "arena", "pvp");MOD:SetEnemyFrame("arena", 5)end,
-									disabled = function() return not SV.db.SVUnit.arena.pvp.enable end,
-									args = {
-										specPosition = {
-											type = "select", 
-											order = 1, 
-											name = L["Position"], 
-											values = {
-												["LEFT"] = L["Left"], 
-												["RIGHT"] = L["Right"]
-											}
-										},
-										specSize = {
-											order = 2, 
-											type = "range", 
-											name = L["Size"], 
-											min = 10, 
-											max = 60, 
-											step = 1
-										},
-										specX = {
-											order = 3, 
-											type = "range", 
-											name = L["xOffset"], 
-											min = -60, 
-											max = 60, 
-											step = 1
-										},
-										specY = {
-											order = 4, 
-											type = "range", 
-											name = L["yOffset"], 
-											min = -60, 
-											max = 60, 
-											step = 1
-										}
-									}
+								trinketSize = {
+									order = 2, 
+									type = "range", 
+									name = L["Size"], 
+									min = 10, 
+									max = 60, 
+									step = 1
+								},
+								trinketX = {
+									order = 3, 
+									type = "range", 
+									name = L["xOffset"], 
+									min = -60, 
+									max = 60, 
+									step = 1
+								},
+								trinketY = {
+									order = 4, 
+									type = "range", 
+									name = L["yOffset"], 
+									min = -60, 
+									max = 60, 
+									step = 1
 								}
 							}
 						},
+						specGroup = {
+							order = 3,
+							guiInline = true, 
+							type = "group", 
+							name = L["Enemy Specs"],
+							get = function(l)return SV.db.SVUnit.arena.pvp[l[#l]]end, 
+							set = function(l, m)MOD:ChangeDBVar(m, l[#l], "arena", "pvp");MOD:SetEnemyFrame("arena", 5)end,
+							disabled = function() return not SV.db.SVUnit.arena.pvp.enable end,
+							args = {
+								specPosition = {
+									type = "select", 
+									order = 1, 
+									name = L["Position"], 
+									values = {
+										["LEFT"] = L["Left"], 
+										["RIGHT"] = L["Right"]
+									}
+								},
+								specSize = {
+									order = 2, 
+									type = "range", 
+									name = L["Size"], 
+									min = 10, 
+									max = 60, 
+									step = 1
+								},
+								specX = {
+									order = 3, 
+									type = "range", 
+									name = L["xOffset"], 
+									min = -60, 
+									max = 60, 
+									step = 1
+								},
+								specY = {
+									order = 4, 
+									type = "range", 
+									name = L["yOffset"], 
+									min = -60, 
+									max = 60, 
+									step = 1
+								}
+							}
+						}
 					}
 				},
-				misc = ns:SetMiscConfigGroup(false, MOD.SetEnemyFrame, "arena", 5),
-				health = ns:SetHealthConfigGroup(false, MOD.SetEnemyFrame, "arena", 5), 
-				power = ns:SetPowerConfigGroup(false, MOD.SetEnemyFrame, "arena", 5), 
-				name = ns:SetNameConfigGroup(MOD.SetEnemyFrame, "arena", 5), 
-				buffs = ns:SetAuraConfigGroup(false, "buffs", false, MOD.SetEnemyFrame, "arena", 5), 
-				debuffs = ns:SetAuraConfigGroup(false, "debuffs", false, MOD.SetEnemyFrame, "arena", 5), 
-				castbar = ns:SetCastbarConfigGroup(MOD.SetEnemyFrame, "arena", 5)
 			}
-		}
+		},
+		misc = ns:SetMiscConfigGroup(false, MOD.SetEnemyFrame, "arena", 5),
+		health = ns:SetHealthConfigGroup(false, MOD.SetEnemyFrame, "arena", 5), 
+		power = ns:SetPowerConfigGroup(false, MOD.SetEnemyFrame, "arena", 5), 
+		name = ns:SetNameConfigGroup(MOD.SetEnemyFrame, "arena", 5), 
+		buffs = ns:SetAuraConfigGroup(false, "buffs", false, MOD.SetEnemyFrame, "arena", 5), 
+		debuffs = ns:SetAuraConfigGroup(false, "debuffs", false, MOD.SetEnemyFrame, "arena", 5), 
+		castbar = ns:SetCastbarConfigGroup(MOD.SetEnemyFrame, "arena", 5)
 	}
 }
 --[[
@@ -279,7 +287,7 @@ SV.Options.args.SVUnit.args.arena = {
 ##################################################################################################
 ##################################################################################################
 ]]
-SV.Options.args.SVUnit.args.tank = {
+SV.Options.args.SVUnit.args.commonGroup.args.tank = {
 	name = L["Tank"], 
 	type = "group", 
 	order = 1200, 
@@ -310,7 +318,7 @@ SV.Options.args.SVUnit.args.tank = {
 							set = function(key, value) 
 								MOD:ChangeDBVar(value, key[#key], "tank", "grid"); 
 								MOD:SetGroupFrame("tank");
-								SV.Options.args.SVUnit.args.tank.args.tabGroups.args.sizing = ns:SetSizeConfigGroup(value, "tank");
+								SV.Options.args.SVUnit.args.commonGroup.args.tank.args.tabGroups.args.sizing = ns:SetSizeConfigGroup(value, "tank");
 							end,
 						},
 						invertGroupingOrder = {
@@ -348,7 +356,7 @@ SV.Options.args.SVUnit.args.tank = {
 ##################################################################################################
 ##################################################################################################
 ]]
-SV.Options.args.SVUnit.args.assist = {
+SV.Options.args.SVUnit.args.commonGroup.args.assist = {
 	name = L["Assist"], 
 	type = "group", 
 	order = 1300, 
@@ -379,7 +387,7 @@ SV.Options.args.SVUnit.args.assist = {
 							set = function(key, value) 
 								MOD:ChangeDBVar(value, key[#key], "assist", "grid"); 
 								MOD:SetGroupFrame("assist");
-								SV.Options.args.SVUnit.args.assist.args.tabGroups.args.sizing = ns:SetSizeConfigGroup(value, "assist");
+								SV.Options.args.SVUnit.args.commonGroup.args.assist.args.tabGroups.args.sizing = ns:SetSizeConfigGroup(value, "assist");
 							end,
 						},
 						invertGroupingOrder = {

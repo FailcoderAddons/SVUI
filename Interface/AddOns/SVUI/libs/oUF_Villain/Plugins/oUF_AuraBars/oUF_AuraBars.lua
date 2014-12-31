@@ -184,27 +184,27 @@ local function CreateAuraBar(oUF, anchor)
 	statusBar.icon:SetPoint("TOPLEFT", statusBar.iconHolder, "TOPLEFT", 1, -1)
 	statusBar.icon:SetPoint("BOTTOMRIGHT", statusBar.iconHolder, "BOTTOMRIGHT", -1, 1)
 
-	statusBar.spelltime = statusBar:CreateFontString(nil, 'ARTWORK')
-	statusBar.spelltime:SetFont(auraBarParent.timeFont or [[Fonts\FRIZQT__.TTF]], auraBarParent.textSize or 10, auraBarParent.textOutline or "NONE")
-	statusBar.spelltime:SetTextColor(1 ,1, 1)
-	statusBar.spelltime:SetShadowOffset(1, -1)
-  	statusBar.spelltime:SetShadowColor(0, 0, 0)
-	statusBar.spelltime:SetJustifyH'RIGHT'
-	statusBar.spelltime:SetJustifyV'CENTER'
-	statusBar.spelltime:SetPoint'RIGHT'
-
-	statusBar.spellname = statusBar:CreateFontString(nil, 'ARTWORK')
-	statusBar.spellname:SetFont(auraBarParent.textFont or [[Fonts\FRIZQT__.TTF]], auraBarParent.textSize or 10, auraBarParent.textOutline or "NONE")
-	statusBar.spellname:SetTextColor(1, 1, 1)
-	statusBar.spellname:SetShadowOffset(1, -1)
-  	statusBar.spellname:SetShadowColor(0, 0, 0)
-	statusBar.spellname:SetJustifyH'LEFT'
-	statusBar.spellname:SetJustifyV'CENTER'
-	statusBar.spellname:SetPoint'LEFT'
-	statusBar.spellname:SetPoint('RIGHT', statusBar.spelltime, 'LEFT')
-
 	if auraBarParent.PostCreateBar then
 		auraBarParent.PostCreateBar(statusBar)
+	else
+		statusBar.spelltime = statusBar:CreateFontString(nil, 'ARTWORK')
+		statusBar.spelltime:SetFont(auraBarParent.timeFont or [[Fonts\FRIZQT__.TTF]], auraBarParent.textSize or 10, auraBarParent.textOutline or "NONE")
+		statusBar.spelltime:SetTextColor(1 ,1, 1)
+		statusBar.spelltime:SetShadowOffset(1, -1)
+	  	statusBar.spelltime:SetShadowColor(0, 0, 0)
+		statusBar.spelltime:SetJustifyH'RIGHT'
+		statusBar.spelltime:SetJustifyV'CENTER'
+		statusBar.spelltime:SetPoint'RIGHT'
+
+		statusBar.spellname = statusBar:CreateFontString(nil, 'ARTWORK')
+		statusBar.spellname:SetFont(auraBarParent.textFont or [[Fonts\FRIZQT__.TTF]], auraBarParent.textSize or 10, auraBarParent.textOutline or "NONE")
+		statusBar.spellname:SetTextColor(1, 1, 1)
+		statusBar.spellname:SetShadowOffset(1, -1)
+	  	statusBar.spellname:SetShadowColor(0, 0, 0)
+		statusBar.spellname:SetJustifyH'LEFT'
+		statusBar.spellname:SetJustifyV'CENTER'
+		statusBar.spellname:SetPoint'LEFT'
+		statusBar.spellname:SetPoint('RIGHT', statusBar.spelltime, 'LEFT')
 	end
 	
 	return frame

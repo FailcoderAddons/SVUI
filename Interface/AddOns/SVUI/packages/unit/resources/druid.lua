@@ -95,7 +95,7 @@ local function CreateAltMana(playerFrame, eclipse)
 	bar.bg.multiplier = 0.3;
 	bar.Text = bar.ManaBar:CreateFontString(nil, "OVERLAY")
 	bar.Text:SetAllPoints(bar.ManaBar)
-	bar.Text:SetFont(LSM:Fetch("font", SV.db.SVUnit.font), SV.db.SVUnit.fontSize, SV.db.SVUnit.fontOutline)
+	bar.Text:FontManager("unitprimary")
 	return bar 
 end 
 --[[ 

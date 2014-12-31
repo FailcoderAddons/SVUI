@@ -240,7 +240,7 @@ function PLUGIN:PLAYER_ENTERING_WORLD(event, ...)
 end
 
 function PLUGIN:ADDON_LOADED(event, addon)
-	-- print(addon)
+	--print(addon)
 	for name, fn in pairs(self.OnLoadAddons) do
 		if(addon:find(name)) then
 			self:Style(name, fn, event, addon)

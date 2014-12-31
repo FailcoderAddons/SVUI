@@ -325,7 +325,6 @@ function MOD:RefreshUnitMedia(unitName)
     if(not (db and db.enable) or not self) then return end
     local CURRENT_BAR_TEXTURE = LSM:Fetch("statusbar", db.statusbar)
     local CURRENT_AURABAR_TEXTURE = LSM:Fetch("statusbar", db.auraBarStatusbar);
-    local CURRENT_FONT = LSM:Fetch("font", db.font)
     local CURRENT_AURABAR_FONT = LSM:Fetch("font", db.auraFont);
     local CURRENT_AURABAR_FONTSIZE = db.auraFontSize
     local CURRENT_AURABAR_FONTOUTLINE = db.auraFontOutline
@@ -349,15 +348,6 @@ function MOD:RefreshUnitMedia(unitName)
 					end
                 end
             end
-            if(panel.Health) then
-                panel.Health:SetFont(CURRENT_FONT, db.fontSize, db.fontOutline)
-            end
-            if(panel.Power) then
-                panel.Power:SetFont(CURRENT_FONT, db.fontSize, db.fontOutline)
-            end
-            if(panel.Misc) then
-                panel.Misc:SetFont(CURRENT_FONT, db.fontSize, db.fontOutline)
-            end
         end
         if(self.Health) then
             self.Health:SetStatusBarTexture(CURRENT_BAR_TEXTURE)
@@ -377,9 +367,6 @@ function MOD:RefreshUnitMedia(unitName)
         if(self.AuraBars and (unitDB.aurabar and unitDB.aurabar.enable)) then
             local ab = self.AuraBars
             ab.auraBarTexture = CURRENT_AURABAR_TEXTURE
-            ab.textFont = CURRENT_AURABAR_FONT
-            ab.textSize = db.auraFontSize
-            ab.textOutline = db.auraFontOutline
             ab.buffColor = oUF_Villain.colors.buff_bars
 
 			if SV.db.SVUnit.auraBarByType then 
@@ -389,23 +376,6 @@ function MOD:RefreshUnitMedia(unitName)
 				ab.debuffColor = oUF_Villain.colors.debuff_bars
 				ab.defaultDebuffColor = nil 
 			end
-        end
-        if(self.Buffs and (unitDB.buffs and unitDB.buffs.enable)) then
-            local buffs = self.Buffs
-            buffs.textFont = CURRENT_AURABAR_FONT
-            buffs.textSize = db.auraFontSize
-            buffs.textOutline = db.auraFontOutline
-        end
-        if(self.Debuffs and (unitDB.debuffs and unitDB.debuffs.enable)) then
-            local debuffs = self.Debuffs
-            debuffs.textFont = CURRENT_AURABAR_FONT
-            debuffs.textSize = db.auraFontSize
-            debuffs.textOutline = db.auraFontOutline
-        end
-        if(self.RaidDebuffs and (unitDB.rdebuffs and unitDB.rdebuffs.enable)) then
-            local rdebuffs = self.RaidDebuffs;
-            rdebuffs.count:SetFont(CURRENT_AURABAR_FONT, db.auraFontSize, db.auraFontOutline)
-            rdebuffs.time:SetFont(CURRENT_AURABAR_FONT, db.auraFontSize, db.auraFontOutline)
         end
     end
 end

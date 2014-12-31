@@ -311,7 +311,6 @@ end
 do
 	local ConsolidatedBuff_OnUpdate = function(self, current)
 		local expires = (self.expiration - current);
-		local calc = 0;
 		self.expiration = expires;
 		self.bar:SetValue(expires)
 		if self.nextUpdate > 0 then 
@@ -323,6 +322,7 @@ do
 			return 
 		end 
 
+		local calc = 0;
 		if expires < 60 then 
 			if expires >= AURA_FADE_TIME then
 				self.nextUpdate = 0.51;

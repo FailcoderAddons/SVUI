@@ -253,6 +253,28 @@ end
 SCRIPT HANDLERS
 ##########################################################
 ]]--
+local BadgeButton_OnEnter = function(self, ...)
+	GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT", 0, 4)
+	GameTooltip:ClearLines()
+	GameTooltip:AddLine("Click to track this quest.")
+	GameTooltip:Show()
+end
+
+local RowButton_OnEnter = function(self, ...)
+	GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT", 0, 4)
+	GameTooltip:ClearLines()
+	GameTooltip:AddDoubleLine("[Left-Click]", "View the log entry for this quest.", 0, 1, 0, 1, 1, 1)
+	GameTooltip:AddLine(" ")
+	GameTooltip:AddDoubleLine("[Right-Click]", "Remove this quest from the tracker.", 0, 1, 0, 1, 1, 1)
+	GameTooltip:AddLine(" ")
+	GameTooltip:AddDoubleLine("[SHIFT+Click]", "Show this quest on the map.", 0, 1, 0, 1, 1, 1)
+	GameTooltip:Show()
+end
+
+local AnyButton_OnLeave = function(self, ...)
+	GameTooltip:Hide()
+end
+
 local TimerBar_OnUpdate = function(self, elapsed)
 	local statusbar = self.Timer.Bar
 	local timeNow = GetTime();
@@ -293,6 +315,8 @@ local ViewButton_OnClick = function(self, button)
 			if(questLink) then
 				ChatEdit_InsertLink(questLink);
 			end
+		elseif(questID and IsShiftKeyDown()) then
+			QuestMapFrame_OpenToQuestDetails(questID);
 		elseif(questID and button ~= "RightButton") then
 			CloseDropDownMenus();
 			if(IsQuestComplete(questID) and GetQuestLogIsAutoComplete(questIndex)) then
@@ -302,13 +326,9 @@ local ViewButton_OnClick = function(self, button)
 				QuestLogPopupDetailFrame_Show(questIndex);
 			end
 		elseif(questID) then
-			if(IsShiftKeyDown()) then
-				QuestMapFrame_OpenToQuestDetails(questID);
-			else
-				RemoveQuestWatch(questIndex);
-				if(questID == superTrackedQuestID) then
-					QuestSuperTracking_OnQuestUntracked();
-				end
+			RemoveQuestWatch(questIndex);
+			if(questID == superTrackedQuestID) then
+				QuestSuperTracking_OnQuestUntracked();
 			end
 		end
 	end
@@ -384,6 +404,8 @@ local GetQuestRow = function(self, index)
 		row.Badge.Button.Icon = row.Badge.Icon;
 		row.Badge.Button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 		row.Badge.Button:SetScript("OnClick", ActiveButton_OnClick)
+		row.Badge.Button:SetScript("OnEnter", BadgeButton_OnEnter)
+		row.Badge.Button:SetScript("OnLeave", AnyButton_OnLeave)
 
 		row.Header = CreateFrame("Frame", nil, row)
 		row.Header:SetPoint("TOPLEFT", row, "TOPLEFT", (QUEST_ROW_HEIGHT + 6), 0);
@@ -427,6 +449,8 @@ local GetQuestRow = function(self, index)
 		row.Button:SetID(0)
 		row.Button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 		row.Button:SetScript("OnClick", ViewButton_OnClick);
+		row.Button:SetScript("OnEnter", RowButton_OnEnter)
+		row.Button:SetScript("OnLeave", AnyButton_OnLeave)
 
 		row.Timer = CreateFrame("Frame", nil, row)
 		row.Timer:SetPointToScale("TOPLEFT", row, "BOTTOMLEFT", 0, 4);
@@ -627,6 +651,7 @@ local RefreshQuests = function(self, event, ...)
 end
 
 local AddOneQuest = function(self, questID)
+	local rows = 0;
 	if(questID) then
 		local fill_height = self:GetHeight();
 		local quest = CACHED_QUESTS[questID];
@@ -658,6 +683,7 @@ local ResetQuestBlock = function(self)
 			row.Objectives:Reset();
 		end
 	end
+	UpdateCachedQuests();
 end
 
 local LiteResetQuestBlock = function(self)
@@ -671,7 +697,6 @@ end
 
 local _hook_WorldMapFrameOnHide = function()
 	if(not WORLDMAP_UPDATE) then return end
-	UpdateCachedQuests(true);
 	MOD.Headers["Quests"]:Reset()
 	MOD.Headers["Quests"]:Refresh()
 	MOD:UpdateDimensions();
@@ -706,9 +731,6 @@ function MOD:UpdateObjectives(event, ...)
 			self.inMicroDungeon = inMicroDungeon;
 		end
 	else
-		-- print('QUESTS-------->')
-		-- print(event)
-		-- print(...)
 		if(event == "QUEST_ACCEPTED" or event == "QUEST_WATCH_LIST_CHANGED") then
 			local questLogIndex, questID, isTracked;
 			if(event == "QUEST_ACCEPTED") then
@@ -732,45 +754,39 @@ function MOD:UpdateObjectives(event, ...)
 					else
 						CACHED_QUESTS[questID] = nil;
 						self:CheckActiveQuest(questID);
-						UpdateCachedQuests(true);
+						self.Headers["Quests"]:Reset();
 						self.Headers["Quests"]:Refresh(event, ...)
 					end
 					self:UpdateDimensions();
 				end
 			end
-			return;
 		elseif(event == "QUEST_TURNED_IN") then
-			self.Headers["Quests"]:Reset()
 			local questID, XP, Money = ...
-			CACHED_QUESTS[questID] = nil;
-			UpdateCachedQuests(true);
-			self:CheckActiveQuest(questID);
-			self.Headers["Quests"]:Refresh(event, ...);
-			self:UpdateDimensions();
-			if(questID and IsQuestTask(questID)) then
-				self:RemoveBonusObjective(questID)
+			if(IsQuestTask(questID)) then
+				self:CacheBonusObjective(event, ...);
 			end
-			return;
+			if(CACHED_QUESTS[questID]) then
+				CACHED_QUESTS[questID] = nil;
+				self:CheckActiveQuest(questID);
+				self.Headers["Quests"]:Reset();
+				self.Headers["Quests"]:Refresh(event, ...);
+				self:UpdateDimensions();
+			end
 		elseif(event == "QUEST_LOG_UPDATE") then
-			self.Headers["Quests"]:Reset()
-			UpdateCachedQuests();
+			self.Headers["Quests"]:Reset();
 			self.Headers["Quests"]:Refresh(event, ...)
+			self:UpdateBonusObjective(event, ...);
 			self:UpdateDimensions();
-			self:UpdateBonusObjective(event, ...)
 			self:UnregisterEvent("QUEST_LOG_UPDATE");
-			return;
 		elseif(event == "UNIT_QUEST_LOG_CHANGED") then
 			local unit = ...
 			if(unit ~= 'player') then return end
-			self.Headers["Quests"]:Reset()
-			UpdateCachedQuests();
-			self.Headers["Quests"]:Refresh(event, ...)
+			self.Headers["Quests"]:Reset();
+			self.Headers["Quests"]:Refresh(event, ...);
+			self:UpdateBonusObjective(event, ...);
 			self:UpdateDimensions();
-			self:UpdateBonusObjective(event, ...)
-			return;
 		else
 			self:UpdateBonusObjective(event, ...)
-			return;
 		end
 	end
 end
@@ -835,7 +851,7 @@ function MOD:InitializeQuests()
 	self:RegisterEvent("ZONE_CHANGED", self.UpdateObjectives);
 
 	CacheQuestHeaders()
-	UpdateCachedQuests(true)
+	self.Headers["Quests"]:Reset()
 	self.Headers["Quests"]:Refresh()
 
 	WorldMapFrame:HookScript("OnHide", _hook_WorldMapFrameOnHide)

@@ -79,7 +79,7 @@ local PopUpButton_OnClick = function(self, button)
 		else
 			ShowQuestComplete(questID);
 		end
-		AutoQuestPopupTracker_RemovePopUp(questID);
+		MOD.Headers["Popups"]:RemovePopup(questID)
 	end
 end
 --[[ 
@@ -141,7 +141,7 @@ end
 local SetPopupRow = function(self, index, title, popUpType, questID, questLogIndex)
 	index = index + 1;
 	local icon = (popUpType == 'COMPLETED') and QUEST_ICON_COMPLETE or QUEST_ICON
-	local row = self:Get(index);
+	local row = self:GetPopup(index);
 	row.RowID = questID
 	row.Header:SetAlpha(1);
 	row.Header.Text:SetText(title)
@@ -167,7 +167,7 @@ local RefreshPopupObjective = function(self, event, ...)
 			local title = GetQuestLogTitle(questLogIndex);
 			if(title and title ~= '') then
 				local add_height = 0;
-				rows, add_height = self:Set(rows, title, popUpType, questID, questLogIndex)
+				rows, add_height = self:SetPopup(rows, title, popUpType, questID, questLogIndex)
 				fill_height = fill_height + add_height
 			end
 		end
@@ -199,10 +199,34 @@ local ResetPopupBlock = function(self)
 	end
 end
 
-local _hook_AutoPopUpQuests = function(...)
-	MOD.Headers["Popups"]:Reset()
-	MOD.Headers["Popups"]:Refresh(...);
+local AddAutoPopUp = function(self, questID, popUpType, noCheck)
+	local checkPassed = true;
+	if(not noCheck) then
+		checkPassed = AddAutoQuestPopUp(questID, popUpType)
+	end
+	if(checkPassed) then
+		self:Reset()
+		self:Refresh();
+		MOD:UpdateDimensions();
+		PlaySound("UI_AutoQuestComplete");
+	end
+end
+
+local RemoveAutoPopUp = function(self, questID, noRemove)
+	if(not noRemove) then
+		RemoveAutoQuestPopUp(questID);
+	end
+	self:Reset();
+	self:Refresh();
 	MOD:UpdateDimensions();
+end
+
+local _hook_AddAutoPopUpQuests = function(questID, popUpType)
+	MOD.Headers["Popups"]:AddPopup(questID, popUpType, true)
+end
+
+local _hook_RemoveAutoPopUpQuests = function(questID)
+	MOD.Headers["Popups"]:RemovePopup(questID, true)
 end
 --[[ 
 ########################################################## 
@@ -210,9 +234,8 @@ CORE FUNCTIONS
 ##########################################################
 ]]--
 function MOD:UpdatePopupQuests(event, ...)
-	self.Headers["Popups"]:Reset()
-	self.Headers["Popups"]:Refresh(event, ...)
-	self:UpdateDimensions();
+	local questID = ...;
+	self.Headers["Popups"]:AddPopup(questID, "COMPLETE");
 end
 
 local function UpdatePopupLocals(...)
@@ -230,8 +253,10 @@ function MOD:InitializePopups()
 	popups:SetHeight(1);
 	popups.Rows = {};
 
-	popups.Get = GetPopUpRow;
-	popups.Set = SetPopupRow;
+	popups.GetPopup = GetPopUpRow;
+	popups.SetPopup = SetPopupRow;
+	popups.AddPopup = AddAutoPopUp;
+	popups.RemovePopup = RemoveAutoPopUp;
 	popups.Reset = ResetPopupBlock;
 	popups.Refresh = RefreshPopupObjective;
 
@@ -239,6 +264,6 @@ function MOD:InitializePopups()
 
 	self:RegisterEvent("QUEST_AUTOCOMPLETE", self.UpdatePopupQuests);
 
-	hooksecurefunc("AddAutoQuestPopUp", _hook_AutoPopUpQuests);
-	hooksecurefunc("RemoveAutoQuestPopUp", _hook_AutoPopUpQuests);
+	hooksecurefunc("AutoQuestPopupTracker_AddPopUp", _hook_AddAutoPopUpQuests);
+	hooksecurefunc("AutoQuestPopupTracker_RemovePopUp", _hook_RemoveAutoPopUpQuests);
 end

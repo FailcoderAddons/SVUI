@@ -1680,10 +1680,11 @@ function ns:SetAurabarConfigGroup(isPlayer, updateFunction, unitName)
 	return configTable 
 end 
 
+
 SV.Options.args.SVUnit = {
 	type = "group", 
 	name = MOD.TitleID, 
-	childGroups = "tree", 
+	childGroups = "tab", 
 	get = function(key)
 		return SV.db.SVUnit[key[#key]]
 	end, 
@@ -1695,503 +1696,520 @@ SV.Options.args.SVUnit = {
 		enable = {
 			order = 1, 
 			type = "toggle", 
-			name = L["Enable"], 
+			name = L["Enable SVUI UnitFrames"], 
 			get = function(l)
 				return SV.db.SVUnit.enable end, 
 			set = function(l, m)
 				SV.db.SVUnit.enable = m;
 				SV:StaticPopup_Show("RL_CLIENT")
 			end
-		}, 
-		common = {
+		},
+		spacer1 = {
 			order = 2, 
-			type = "group", 
-			name = L["General"], 
-			guiInline = true, 
-			disabled = function()
-				return not SV.db.SVUnit.enable 
-			end, 
+			name = "", 
+			type = "description", 
+			width = "full", 
+		},
+		spacer2 = {
+			order = 3, 
+			name = "", 
+			type = "description", 
+			width = "full", 
+		},
+		commonGroup = {
+			order = 4, 
+			type = 'group', 
+			name = '', 
+			childGroups = "tree", 
+			disabled = function() return not SV.db.SVUnit.enable end, 
 			args = {
-				commonGroup = {
+				baseGroup = {
 					order = 1, 
 					type = "group", 
-					guiInline = true, 
 					name = L["General"], 
 					args = {
-						disableBlizzard = {
+						commonGroup = {
 							order = 1, 
-							name = L["Disable Blizzard"], 
-							desc = L["Disables the blizzard party/raid frames."], 
-							type = "toggle", 
+							type = "group", 
+							guiInline = true, 
+							name = L["General"], 
+							args = {
+								disableBlizzard = {
+									order = 1, 
+									name = L["Disable Blizzard"], 
+									desc = L["Disables the blizzard party/raid frames."], 
+									type = "toggle", 
+									get = function(key)
+										return SV.db.SVUnit.disableBlizzard 
+									end, 
+									set = function(key, value)
+										MOD:ChangeDBVar(value, "disableBlizzard");
+										SV:StaticPopup_Show("RL_CLIENT")
+									end
+								}, 
+								fastClickTarget = {
+									order = 2, 
+									name = L["Fast Clicks"], 
+									desc = L["Immediate mouse-click-targeting"], 
+									type = "toggle"
+								}, 
+								debuffHighlighting = {
+									order = 3, 
+									name = L["Debuff Highlight"], 
+									desc = L["Color the unit if there is a debuff that can be dispelled by your class."], 
+									type = "toggle"
+								},
+								xrayFocus = {
+									order = 4, 
+									name = L["X-Ray Specs"], 
+									desc = L["Use handy graphics to focus the current target, or clear the current focus"], 
+									type = "toggle"
+								},
+								OORAlpha = {
+									order = 5, 
+									name = L["Range Fading"], 
+									desc = L["The transparency of units that are out of range."], 
+									type = "range", 
+									min = 0, 
+									max = 1, 
+									step = 0.01, 
+									width = "full",
+									set = function(key, value)
+										MOD:ChangeDBVar(value, key[#key]);
+									end
+								},
+								groupOORAlpha = {
+									order = 6, 
+									name = L["Group Range Fading"], 
+									desc = L["The transparency of group units that are out of range."], 
+									type = "range", 
+									min = 0, 
+									max = 1, 
+									step = 0.01, 
+									width = "full",
+									set = function(key, value)
+										MOD:ChangeDBVar(value, key[#key]);
+									end
+								},
+							}
+						}, 
+						backgroundGroup = {
+							order = 2, 
+							type = "group", 
+							guiInline = true, 
+							name = "Unit Backgrounds (3D Portraits Only)", 
 							get = function(key)
-								return SV.db.SVUnit.disableBlizzard 
-							end, 
+								return SV.db.media.textures[key[#key]]
+							end,
 							set = function(key, value)
-								MOD:ChangeDBVar(value, "disableBlizzard");
-								SV:StaticPopup_Show("RL_CLIENT")
-							end
+								SV.db.media.textures[key[#key]] = value
+								SV:RefreshEverything(true)
+							end,
+							args = {
+								unitlarge = {
+									type = "select", 
+									dialogControl = "LSM30_Background", 
+									order = 2, 
+									name = "Unit Background", 
+									values = AceGUIWidgetLSMlists.background,
+								}, 
+								unitsmall = {
+									type = "select", 
+									dialogControl = "LSM30_Background", 
+									order = 3, 
+									name = "Small Unit Background", 
+									values = AceGUIWidgetLSMlists.background,
+								}
+							}
 						}, 
-						fastClickTarget = {
-							order = 2, 
-							name = L["Fast Clicks"], 
-							desc = L["Immediate mouse-click-targeting"], 
-							type = "toggle"
-						}, 
-						debuffHighlighting = {
+						barGroup = {
 							order = 3, 
-							name = L["Debuff Highlight"], 
-							desc = L["Color the unit if there is a debuff that can be dispelled by your class."], 
-							type = "toggle"
+							type = "group", 
+							guiInline = true, 
+							name = L["Bars"],
+							get = function(key)
+								return SV.db.SVUnit[key[#key]]
+							end,
+							set = function(key, value)
+								MOD:ChangeDBVar(value, key[#key]);
+								MOD:RefreshAllUnitMedia()
+							end,
+							args = {
+								smoothbars = {
+									type = "toggle", 
+									order = 1, 
+									name = L["Smooth Bars"], 
+									desc = L["Bars will transition smoothly."]
+								}, 
+								statusbar = {
+									type = "select", 
+									dialogControl = "LSM30_Statusbar", 
+									order = 2, 
+									name = L["StatusBar Texture"], 
+									desc = L["Main statusbar texture."], 
+									values = AceGUIWidgetLSMlists.statusbar
+								},
+								auraBarStatusbar = {
+									type = "select", 
+									dialogControl = "LSM30_Statusbar", 
+									order = 3, 
+									name = L["AuraBar Texture"], 
+									desc = L["Main statusbar texture."], 
+									values = AceGUIWidgetLSMlists.statusbar
+								},
+							}
 						},
-						xrayFocus = {
+						fontGroup = {
 							order = 4, 
-							name = L["X-Ray Specs"], 
-							desc = L["Use handy graphics to focus the current target, or clear the current focus"], 
-							type = "toggle"
+							type = "group", 
+							guiInline = true, 
+							name = L["Fonts"],
+							args = {
+								fontConfigButton = {
+									order = 1, 
+									name = L["Set UnitFrame Fonts"], 
+									type = "execute", func = function() ns:SetToFontConfig("UnitFrame") end
+								},
+							}
 						},
-						OORAlpha = {
+						allColorsGroup = {
 							order = 5, 
-							name = L["Range Fading"], 
-							desc = L["The transparency of units that are out of range."], 
-							type = "range", 
-							min = 0, 
-							max = 1, 
-							step = 0.01, 
-							width = "full",
-							set = function(key, value)
-								MOD:ChangeDBVar(value, key[#key]);
-							end
-						},
-						groupOORAlpha = {
-							order = 6, 
-							name = L["Group Range Fading"], 
-							desc = L["The transparency of group units that are out of range."], 
-							type = "range", 
-							min = 0, 
-							max = 1, 
-							step = 0.01, 
-							width = "full",
-							set = function(key, value)
-								MOD:ChangeDBVar(value, key[#key]);
-							end
-						},
-					}
-				}, 
-				backgroundGroup = {
-					order = 2, 
-					type = "group", 
-					guiInline = true, 
-					name = "Unit Backgrounds (3D Portraits Only)", 
-					get = function(key)
-						return SV.db.media.textures[key[#key]]
-					end,
-					set = function(key, value)
-						SV.db.media.textures[key[#key]] = value
-						SV:RefreshEverything(true)
-					end,
-					args = {
-						unitlarge = {
-							type = "select", 
-							dialogControl = "LSM30_Background", 
-							order = 2, 
-							name = "Unit Background", 
-							values = AceGUIWidgetLSMlists.background,
-						}, 
-						unitsmall = {
-							type = "select", 
-							dialogControl = "LSM30_Background", 
-							order = 3, 
-							name = "Small Unit Background", 
-							values = AceGUIWidgetLSMlists.background,
-						}
-					}
-				}, 
-				barGroup = {
-					order = 3, 
-					type = "group", 
-					guiInline = true, 
-					name = L["Bars"],
-					get = function(key)
-						return SV.db.SVUnit[key[#key]]
-					end,
-					set = function(key, value)
-						MOD:ChangeDBVar(value, key[#key]);
-						MOD:RefreshAllUnitMedia()
-					end,
-					args = {
-						smoothbars = {
-							type = "toggle", 
-							order = 1, 
-							name = L["Smooth Bars"], 
-							desc = L["Bars will transition smoothly."]
-						}, 
-						statusbar = {
-							type = "select", 
-							dialogControl = "LSM30_Statusbar", 
-							order = 2, 
-							name = L["StatusBar Texture"], 
-							desc = L["Main statusbar texture."], 
-							values = AceGUIWidgetLSMlists.statusbar
-						},
-						auraBarStatusbar = {
-							type = "select", 
-							dialogControl = "LSM30_Statusbar", 
-							order = 3, 
-							name = L["AuraBar Texture"], 
-							desc = L["Main statusbar texture."], 
-							values = AceGUIWidgetLSMlists.statusbar
-						},
-					}
-				},
-				fontGroup = {
-					order = 4, 
-					type = "group", 
-					guiInline = true, 
-					name = L["Fonts"],
-					args = {
-						fontConfigButton = {
-							order = 1, 
-							name = L["Set UnitFrame Fonts"], 
-							type = "execute", func = function() ns:SetToFontConfig("UnitFrame") end
-						},
-					}
-				},
-				allColorsGroup = {
-					order = 5, 
-					type = "group", 
-					guiInline = true, 
-					name = L["Colors"],
-					args = {
-						healthGroup = {
-							order = 9, 
-							type = "group", guiInline = true, 
-							name = HEALTH, 
-							args = { 
-								forceHealthColor = {
-									order = 1, 
-									type = "toggle", 
-									name = L["Overlay Health Color"], 
-									desc = L["Allow custom health colors when using portrait overlays."], 
-									get = function(key)
-										return SV.db.SVUnit[key[#key]]
-									end, 
-									set = function(key, value)
-										MOD:ChangeDBVar(value, key[#key]);
-										MOD:RefreshUnitFrames()
-									end
-								},
-								overlayAnimation = {
-									order = 2, 
-									type = "toggle", 
-									name = L["Overlay Animations"], 
-									desc = L["Toggle health animations on portrait overlays."], 
-									get = function(key)
-										return SV.db.SVUnit[key[#key]]
-									end, 
-									set = function(key, value)
-										MOD:ChangeDBVar(value, key[#key]);
-										MOD:RefreshUnitFrames()
-									end
-								},
-								health = {
-									order = 3, 
-									type = "color", 
-									name = L["Health"],
-									get = function(key)
-										local color = SV.db.media.unitframes.health
-										return color[1],color[2],color[3] 
-									end,
-									set = function(key, rValue, gValue, bValue)
-										SV.db.media.unitframes.health = {rValue, gValue, bValue}
-										MOD:RefreshAllUnitMedia()
-									end, 
-								}, 
-								tapped = {
-									order = 4, 
-									type = "color", 
-									name = L["Tapped"],
-									get = function(key)
-										local color = SV.db.media.unitframes.tapped
-										return color[1],color[2],color[3] 
-									end,
-									set = function(key, rValue, gValue, bValue)
-										SV.db.media.unitframes.tapped = {rValue, gValue, bValue}
-										MOD:RefreshAllUnitMedia()
-									end,
-								}, 
-								disconnected = {
-									order = 5, 
-									type = "color", 
-									name = L["Disconnected"],
-									get = function(key)
-										local color = SV.db.media.unitframes.disconnected
-										return color[1],color[2],color[3] 
-									end,
-									set = function(key, rValue, gValue, bValue)
-										SV.db.media.unitframes.disconnected = {rValue, gValue, bValue}
-										MOD:RefreshAllUnitMedia()
-									end,
-								}
-							}
-						}, 
-						powerGroup = {
-							order = 10, 
 							type = "group", 
 							guiInline = true, 
-							name = L["Powers"],
+							name = L["Colors"],
 							args = {
-								MANA = {
-									order = 1, 
-									name = MANA, 
-									type = "color",
-									get = function(key)
-										local color = SV.db.media.unitframes.power["MANA"]
-										return color[1],color[2],color[3] 
-									end,
-									set = function(key, rValue, gValue, bValue)
-										SV.db.media.unitframes.power["MANA"] = {rValue, gValue, bValue}
-										MOD:RefreshAllUnitMedia()
-									end, 
+								healthGroup = {
+									order = 9, 
+									type = "group", guiInline = true, 
+									name = HEALTH, 
+									args = { 
+										forceHealthColor = {
+											order = 1, 
+											type = "toggle", 
+											name = L["Overlay Health Color"], 
+											desc = L["Allow custom health colors when using portrait overlays."], 
+											get = function(key)
+												return SV.db.SVUnit[key[#key]]
+											end, 
+											set = function(key, value)
+												MOD:ChangeDBVar(value, key[#key]);
+												MOD:RefreshUnitFrames()
+											end
+										},
+										overlayAnimation = {
+											order = 2, 
+											type = "toggle", 
+											name = L["Overlay Animations"], 
+											desc = L["Toggle health animations on portrait overlays."], 
+											get = function(key)
+												return SV.db.SVUnit[key[#key]]
+											end, 
+											set = function(key, value)
+												MOD:ChangeDBVar(value, key[#key]);
+												MOD:RefreshUnitFrames()
+											end
+										},
+										health = {
+											order = 3, 
+											type = "color", 
+											name = L["Health"],
+											get = function(key)
+												local color = SV.db.media.unitframes.health
+												return color[1],color[2],color[3] 
+											end,
+											set = function(key, rValue, gValue, bValue)
+												SV.db.media.unitframes.health = {rValue, gValue, bValue}
+												MOD:RefreshAllUnitMedia()
+											end, 
+										}, 
+										tapped = {
+											order = 4, 
+											type = "color", 
+											name = L["Tapped"],
+											get = function(key)
+												local color = SV.db.media.unitframes.tapped
+												return color[1],color[2],color[3] 
+											end,
+											set = function(key, rValue, gValue, bValue)
+												SV.db.media.unitframes.tapped = {rValue, gValue, bValue}
+												MOD:RefreshAllUnitMedia()
+											end,
+										}, 
+										disconnected = {
+											order = 5, 
+											type = "color", 
+											name = L["Disconnected"],
+											get = function(key)
+												local color = SV.db.media.unitframes.disconnected
+												return color[1],color[2],color[3] 
+											end,
+											set = function(key, rValue, gValue, bValue)
+												SV.db.media.unitframes.disconnected = {rValue, gValue, bValue}
+												MOD:RefreshAllUnitMedia()
+											end,
+										}
+									}
 								}, 
-								RAGE = {
-									order = 2, 
-									name = RAGE, 
-									type = "color",
-									get = function(key)
-										local color = SV.db.media.unitframes.power["RAGE"]
-										return color[1],color[2],color[3] 
-									end,
-									set = function(key, rValue, gValue, bValue)
-										SV.db.media.unitframes.power["RAGE"] = {rValue, gValue, bValue}
-										MOD:RefreshAllUnitMedia()
-									end,
-								}, 
-								FOCUS = {
-									order = 3, 
-									name = FOCUS, 
-									type = "color",
-									get = function(key)
-										local color = SV.db.media.unitframes.power["FOCUS"]
-										return color[1],color[2],color[3] 
-									end,
-									set = function(key, rValue, gValue, bValue)
-										SV.db.media.unitframes.power["FOCUS"] = {rValue, gValue, bValue}
-										MOD:RefreshAllUnitMedia()
-									end,
-								}, 
-								ENERGY = {
-									order = 4, 
-									name = ENERGY, 
-									type = "color",
-									get = function(key)
-										local color = SV.db.media.unitframes.power["ENERGY"]
-										return color[1],color[2],color[3] 
-									end,
-									set = function(key, rValue, gValue, bValue)
-										SV.db.media.unitframes.power["ENERGY"] = {rValue, gValue, bValue}
-										MOD:RefreshAllUnitMedia()
-									end,
-								}, 
-								RUNIC_POWER = {
-									order = 5, 
-									name = RUNIC_POWER, 
-									type = "color",
-									get = function(key)
-										local color = SV.db.media.unitframes.power["RUNIC_POWER"]
-										return color[1],color[2],color[3] 
-									end,
-									set = function(key, rValue, gValue, bValue)
-										SV.db.media.unitframes.power["RUNIC_POWER"] = {rValue, gValue, bValue}
-										MOD:RefreshAllUnitMedia()
-									end,
-								}
-							}
-						}, 
-						castBars = {
-							order = 11, 
-							type = "group", 
-							guiInline = true, 
-							name = L["Castbar"],
-							args = {
-								castClassColor = {
-									order = 0, 
-									type = "toggle", 
-									name = L["Class Castbars"], 
-									desc = L["Color castbars by the class or reaction type of the unit."], 
-									get = function(key)
-										return SV.db.SVUnit[key[#key]]
-									end, 
-									set = function(key, value)
-										MOD:ChangeDBVar(value, key[#key]);
-										MOD:RefreshUnitFrames()
-									end
-								}, 
-								casting = {
-									order = 3, 
-									name = L["Interruptable"], 
-									type = "color",
-									get = function(key)
-										local color = SV.db.media.unitframes.casting
-										return color[1],color[2],color[3] 
-									end,
-									set = function(key, rValue, gValue, bValue)
-										SV.db.media.unitframes.casting = {rValue, gValue, bValue}
-										MOD:RefreshAllUnitMedia()
-									end,
-								}, 
-								spark = {
-									order = 4, 
-									name = "Spark Color", 
-									type = "color",
-									get = function(key)
-										local color = SV.db.media.unitframes.spark
-										return color[1],color[2],color[3] 
-									end,
-									set = function(key, rValue, gValue, bValue)
-										SV.db.media.unitframes.spark = {rValue, gValue, bValue}
-										MOD:RefreshAllUnitMedia()
-									end,
-								}, 
-								interrupt = {
-									order = 5, 
-									name = L["Non-Interruptable"], 
-									type = "color",
-									get = function(key)
-										local color = SV.db.media.unitframes.interrupt
-										return color[1],color[2],color[3] 
-									end,
-									set = function(key, rValue, gValue, bValue)
-										SV.db.media.unitframes.interrupt = {rValue, gValue, bValue}
-										MOD:RefreshAllUnitMedia()
-									end,
-								}
-							}
-						}, 
-						auraBars = {
-							order = 11, 
-							type = "group", 
-							guiInline = true, 
-							name = L["Aura Bars"], 
-							args = {
-								auraBarByType = {
-									order = 1, 
-									name = L["By Type"], 
-									desc = L["Color aurabar debuffs by type."], 
-									type = "toggle",
-									get = function(key)
-										return SV.db.SVUnit[key[#key]]
-									end, 
-									set = function(key, value)
-										MOD:ChangeDBVar(value, key[#key]);
-										MOD:RefreshUnitFrames()
-									end
-								}, 
-								auraBarShield = {
-									order = 2, 
-									name = L["Color Shield Buffs"], 
-									desc = L["Color all buffs that reduce incoming damage."], 
-									type = "toggle",
-									get = function(key)
-										return SV.db.SVUnit[key[#key]]
-									end, 
-									set = function(key, value)
-										MOD:ChangeDBVar(value, key[#key]);
-										MOD:RefreshUnitFrames()
-									end
-								}, 
-								buff_bars = {
+								powerGroup = {
 									order = 10, 
-									name = L["Buffs"], 
-									type = "color",
-									get = function(key)
-										local color = SV.db.media.unitframes.buff_bars
-										return color[1],color[2],color[3] 
-									end,
-									set = function(key, rValue, gValue, bValue)
-										SV.db.media.unitframes.buff_bars = {rValue, gValue, bValue}
-										MOD:RefreshAllUnitMedia()
-									end,
+									type = "group", 
+									guiInline = true, 
+									name = L["Powers"],
+									args = {
+										MANA = {
+											order = 1, 
+											name = MANA, 
+											type = "color",
+											get = function(key)
+												local color = SV.db.media.unitframes.power["MANA"]
+												return color[1],color[2],color[3] 
+											end,
+											set = function(key, rValue, gValue, bValue)
+												SV.db.media.unitframes.power["MANA"] = {rValue, gValue, bValue}
+												MOD:RefreshAllUnitMedia()
+											end, 
+										}, 
+										RAGE = {
+											order = 2, 
+											name = RAGE, 
+											type = "color",
+											get = function(key)
+												local color = SV.db.media.unitframes.power["RAGE"]
+												return color[1],color[2],color[3] 
+											end,
+											set = function(key, rValue, gValue, bValue)
+												SV.db.media.unitframes.power["RAGE"] = {rValue, gValue, bValue}
+												MOD:RefreshAllUnitMedia()
+											end,
+										}, 
+										FOCUS = {
+											order = 3, 
+											name = FOCUS, 
+											type = "color",
+											get = function(key)
+												local color = SV.db.media.unitframes.power["FOCUS"]
+												return color[1],color[2],color[3] 
+											end,
+											set = function(key, rValue, gValue, bValue)
+												SV.db.media.unitframes.power["FOCUS"] = {rValue, gValue, bValue}
+												MOD:RefreshAllUnitMedia()
+											end,
+										}, 
+										ENERGY = {
+											order = 4, 
+											name = ENERGY, 
+											type = "color",
+											get = function(key)
+												local color = SV.db.media.unitframes.power["ENERGY"]
+												return color[1],color[2],color[3] 
+											end,
+											set = function(key, rValue, gValue, bValue)
+												SV.db.media.unitframes.power["ENERGY"] = {rValue, gValue, bValue}
+												MOD:RefreshAllUnitMedia()
+											end,
+										}, 
+										RUNIC_POWER = {
+											order = 5, 
+											name = RUNIC_POWER, 
+											type = "color",
+											get = function(key)
+												local color = SV.db.media.unitframes.power["RUNIC_POWER"]
+												return color[1],color[2],color[3] 
+											end,
+											set = function(key, rValue, gValue, bValue)
+												SV.db.media.unitframes.power["RUNIC_POWER"] = {rValue, gValue, bValue}
+												MOD:RefreshAllUnitMedia()
+											end,
+										}
+									}
 								}, 
-								debuff_bars = {
+								castBars = {
 									order = 11, 
-									name = L["Debuffs"], 
-									type = "color",
-									get = function(key)
-										local color = SV.db.media.unitframes.debuff_bars
-										return color[1],color[2],color[3] 
-									end,
-									set = function(key, rValue, gValue, bValue)
-										SV.db.media.unitframes.debuff_bars = {rValue, gValue, bValue}
-										MOD:RefreshAllUnitMedia()
-									end,
+									type = "group", 
+									guiInline = true, 
+									name = L["Castbar"],
+									args = {
+										castClassColor = {
+											order = 0, 
+											type = "toggle", 
+											name = L["Class Castbars"], 
+											desc = L["Color castbars by the class or reaction type of the unit."], 
+											get = function(key)
+												return SV.db.SVUnit[key[#key]]
+											end, 
+											set = function(key, value)
+												MOD:ChangeDBVar(value, key[#key]);
+												MOD:RefreshUnitFrames()
+											end
+										}, 
+										casting = {
+											order = 3, 
+											name = L["Interruptable"], 
+											type = "color",
+											get = function(key)
+												local color = SV.db.media.unitframes.casting
+												return color[1],color[2],color[3] 
+											end,
+											set = function(key, rValue, gValue, bValue)
+												SV.db.media.unitframes.casting = {rValue, gValue, bValue}
+												MOD:RefreshAllUnitMedia()
+											end,
+										}, 
+										spark = {
+											order = 4, 
+											name = "Spark Color", 
+											type = "color",
+											get = function(key)
+												local color = SV.db.media.unitframes.spark
+												return color[1],color[2],color[3] 
+											end,
+											set = function(key, rValue, gValue, bValue)
+												SV.db.media.unitframes.spark = {rValue, gValue, bValue}
+												MOD:RefreshAllUnitMedia()
+											end,
+										}, 
+										interrupt = {
+											order = 5, 
+											name = L["Non-Interruptable"], 
+											type = "color",
+											get = function(key)
+												local color = SV.db.media.unitframes.interrupt
+												return color[1],color[2],color[3] 
+											end,
+											set = function(key, rValue, gValue, bValue)
+												SV.db.media.unitframes.interrupt = {rValue, gValue, bValue}
+												MOD:RefreshAllUnitMedia()
+											end,
+										}
+									}
 								}, 
-								shield_bars = {
+								auraBars = {
+									order = 11, 
+									type = "group", 
+									guiInline = true, 
+									name = L["Aura Bars"], 
+									args = {
+										auraBarByType = {
+											order = 1, 
+											name = L["By Type"], 
+											desc = L["Color aurabar debuffs by type."], 
+											type = "toggle",
+											get = function(key)
+												return SV.db.SVUnit[key[#key]]
+											end, 
+											set = function(key, value)
+												MOD:ChangeDBVar(value, key[#key]);
+												MOD:RefreshUnitFrames()
+											end
+										}, 
+										auraBarShield = {
+											order = 2, 
+											name = L["Color Shield Buffs"], 
+											desc = L["Color all buffs that reduce incoming damage."], 
+											type = "toggle",
+											get = function(key)
+												return SV.db.SVUnit[key[#key]]
+											end, 
+											set = function(key, value)
+												MOD:ChangeDBVar(value, key[#key]);
+												MOD:RefreshUnitFrames()
+											end
+										}, 
+										buff_bars = {
+											order = 10, 
+											name = L["Buffs"], 
+											type = "color",
+											get = function(key)
+												local color = SV.db.media.unitframes.buff_bars
+												return color[1],color[2],color[3] 
+											end,
+											set = function(key, rValue, gValue, bValue)
+												SV.db.media.unitframes.buff_bars = {rValue, gValue, bValue}
+												MOD:RefreshAllUnitMedia()
+											end,
+										}, 
+										debuff_bars = {
+											order = 11, 
+											name = L["Debuffs"], 
+											type = "color",
+											get = function(key)
+												local color = SV.db.media.unitframes.debuff_bars
+												return color[1],color[2],color[3] 
+											end,
+											set = function(key, rValue, gValue, bValue)
+												SV.db.media.unitframes.debuff_bars = {rValue, gValue, bValue}
+												MOD:RefreshAllUnitMedia()
+											end,
+										}, 
+										shield_bars = {
+											order = 12, 
+											name = L["Shield Buffs Color"], 
+											type = "color",
+											get = function(key)
+												local color = SV.db.media.unitframes.shield_bars
+												return color[1],color[2],color[3] 
+											end,
+											set = function(key, rValue, gValue, bValue)
+												SV.db.media.unitframes.shield_bars = {rValue, gValue, bValue}
+												MOD:RefreshAllUnitMedia()
+											end,
+										}
+									}
+								}, 
+								predict = {
 									order = 12, 
-									name = L["Shield Buffs Color"], 
-									type = "color",
-									get = function(key)
-										local color = SV.db.media.unitframes.shield_bars
-										return color[1],color[2],color[3] 
-									end,
-									set = function(key, rValue, gValue, bValue)
-										SV.db.media.unitframes.shield_bars = {rValue, gValue, bValue}
-										MOD:RefreshAllUnitMedia()
-									end,
-								}
-							}
-						}, 
-						predict = {
-							order = 12, 
-							name = L["Heal Prediction"], 
-							type = "group",
-							args = {
-								personal = {
-									order = 1, 
-									name = L["Personal"], 
-									type = "color", 
-									hasAlpha = true,
-									get = function(key)
-										local color = SV.db.media.unitframes.predict["personal"]
-										return color[1],color[2],color[3] 
-									end,
-									set = function(key, rValue, gValue, bValue)
-										SV.db.media.unitframes.predict["personal"] = {rValue, gValue, bValue}
-										MOD:RefreshUnitFrames()
-									end,
-								}, 
-								others = {
-									order = 2, 
-									name = L["Others"], 
-									type = "color", 
-									hasAlpha = true,
-									get = function(key)
-										local color = SV.db.media.unitframes.predict["others"]
-										return color[1],color[2],color[3] 
-									end,
-									set = function(key, rValue, gValue, bValue)
-										SV.db.media.unitframes.predict["others"] = {rValue, gValue, bValue}
-										MOD:RefreshUnitFrames()
-									end,
-								}, 
-								absorbs = {
-									order = 2, 
-									name = L["Absorbs"], 
-									type = "color", 
-									hasAlpha = true,
-									get = function(key)
-										local color = SV.db.media.unitframes.predict["absorbs"]
-										return color[1],color[2],color[3] 
-									end,
-									set = function(key, rValue, gValue, bValue)
-										SV.db.media.unitframes.predict["absorbs"] = {rValue, gValue, bValue}
-										MOD:RefreshUnitFrames()
-									end,
+									name = L["Heal Prediction"], 
+									type = "group",
+									args = {
+										personal = {
+											order = 1, 
+											name = L["Personal"], 
+											type = "color", 
+											hasAlpha = true,
+											get = function(key)
+												local color = SV.db.media.unitframes.predict["personal"]
+												return color[1],color[2],color[3] 
+											end,
+											set = function(key, rValue, gValue, bValue)
+												SV.db.media.unitframes.predict["personal"] = {rValue, gValue, bValue}
+												MOD:RefreshUnitFrames()
+											end,
+										}, 
+										others = {
+											order = 2, 
+											name = L["Others"], 
+											type = "color", 
+											hasAlpha = true,
+											get = function(key)
+												local color = SV.db.media.unitframes.predict["others"]
+												return color[1],color[2],color[3] 
+											end,
+											set = function(key, rValue, gValue, bValue)
+												SV.db.media.unitframes.predict["others"] = {rValue, gValue, bValue}
+												MOD:RefreshUnitFrames()
+											end,
+										}, 
+										absorbs = {
+											order = 2, 
+											name = L["Absorbs"], 
+											type = "color", 
+											hasAlpha = true,
+											get = function(key)
+												local color = SV.db.media.unitframes.predict["absorbs"]
+												return color[1],color[2],color[3] 
+											end,
+											set = function(key, rValue, gValue, bValue)
+												SV.db.media.unitframes.predict["absorbs"] = {rValue, gValue, bValue}
+												MOD:RefreshUnitFrames()
+											end,
+										}
+									}
 								}
 							}
 						}
 					}
-				}
-			}
+				},
+			},
 		}
-	}
+	},
 }

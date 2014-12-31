@@ -68,6 +68,17 @@ local LINE_ACHIEVEMENT_ICON = [[Interface\ICONS\Achievement_General]];
 SCRIPT HANDLERS
 ##########################################################
 ]]--
+local RowButton_OnEnter = function(self, ...)
+	GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT", 0, 4)
+	GameTooltip:ClearLines()
+	GameTooltip:AddLine("View this in the achievements window.")
+	GameTooltip:Show()
+end
+
+local RowButton_OnLeave = function(self, ...)
+	GameTooltip:Hide()
+end
+
 local ViewButton_OnClick = function(self, button)
 	local achievementID = self:GetID();
 	if(achievementID and (achievementID ~= 0)) then
@@ -148,6 +159,8 @@ local GetAchievementRow = function(self, index)
 		row.Button:SetID(0)
 		row.Button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 		row.Button:SetScript("OnClick", ViewButton_OnClick)
+		row.Button:SetScript("OnEnter", RowButton_OnEnter)
+		row.Button:SetScript("OnLeave", RowButton_OnLeave)
 
 		row.Objectives = MOD:NewObjectiveHeader(row);
 		row.Objectives:SetPoint("TOPLEFT", row, "BOTTOMLEFT", 0, 0);

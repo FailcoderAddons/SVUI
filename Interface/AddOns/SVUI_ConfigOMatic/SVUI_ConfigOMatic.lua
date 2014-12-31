@@ -34,7 +34,8 @@ local L = SV.L;
 local Ace3Config = LibStub("AceConfig-3.0");
 local Ace3ConfigDialog = LibStub("AceConfigDialog-3.0");
 Ace3Config:RegisterOptionsTable(SV.NameID, SV.Options);
-Ace3ConfigDialog:SetDefaultSize(SV.NameID, 890, 651);
+local GUIWidth = SV.LowRez and 890 or 1090
+Ace3ConfigDialog:SetDefaultSize(SV.NameID, GUIWidth, 651);
 local AceGUI = LibStub("AceGUI-3.0", true);
 local AceGUIWidgetLSMlists = AceGUIWidgetLSMlists; 
 local GameTooltip = GameTooltip;

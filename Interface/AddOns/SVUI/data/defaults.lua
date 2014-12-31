@@ -102,13 +102,15 @@ SV.defaults["font"] = {
     ["aura"] 			= {file = "SVUI Number Font", 	size = 10, 	outline = "OUTLINE", optionName = "Auras", 						optionDesc = "Aura counts and timers use this font."},
     ["data"] 			= {file = "SVUI Number Font", 	size = 11, 	outline = "OUTLINE", optionName = "Docked Stats", 				optionDesc = "Font used by the bottom and top data docks."},
     ["narrator"]		= {file = "SVUI Narrator Font",	size = 12, 	outline = "OUTLINE", optionName = "Narratives", 				optionDesc = "Font used for things like the 'Meanwhile' tag."},
-    
+    ["pixel"] 			= {file = "SVUI Pixel Font", 	size = 8, 	outline = "MONOCHROMEOUTLINE", optionName = "Pixel", 			optionDesc = "Tiniest fonts."},
     ["platename"] 		= {file = "SVUI Caps Font", 	size = 9, 	outline = "OUTLINE", optionName = "Nameplate Names", 			optionDesc = "Used on nameplates for unit names."},
     ["plateaura"] 		= {file = "SVUI Caps Font", 	size = 9, 	outline = "OUTLINE", optionName = "Nameplate Auras", 			optionDesc = "Used on nameplates for aura texts."},
-    ["unithealth"] 		= {file = "SVUI Number Font", 	size = 11, 	outline = "OUTLINE", optionName = "Unitframe Health", 			optionDesc = "Used on unit frames for health values."},
-    ["unitpower"] 		= {file = "SVUI Number Font", 	size = 11, 	outline = "OUTLINE", optionName = "Unitframe Power", 			optionDesc = "Used on unit frames for power values."},
-    ["unitauranumber"] 	= {file = "SVUI Number Font", 	size = 10, 	outline = "OUTLINE", optionName = "Unitframe Aura (Numbers)", 	optionDesc = "Used on unit frames for aura values."},
-    ["unitauraname"] 	= {file = "SVUI Alert Font", 	size = 10, 	outline = "OUTLINE", optionName = "Unitframe Aura (Names)", 	optionDesc = "Used on unit frames for aura(bars) names."},
+    ["unitprimary"] 	= {file = "SVUI Number Font", 	size = 11, 	outline = "OUTLINE", optionName = "Unitframe Values", 			optionDesc = "Used on all primary unit frames for health, power and misc values.\nUnits: player, pet, target, focus, boss and arena"},
+    ["unitsecondary"] 	= {file = "SVUI Number Font", 	size = 11, 	outline = "OUTLINE", optionName = "Unitframe Values", 			optionDesc = "Used on all non-primary unit frames for health, power and misc values.\nUnits: pettarget, targettarget, focustarget, party, raid, raidpet, tank and assist."},
+    ["unitaurabar"] 	= {file = "SVUI Alert Font", 	size = 10, 	outline = "OUTLINE", optionName = "Unitframe AuraBar", 			optionDesc = "Used on unit aurabars."},
+    ["unitaurasmall"] 	= {file = "SVUI Pixel Font", 	size = 8, 	outline = "MONOCHROMEOUTLINE", optionName = "Unitframe Aura (Small)", 	optionDesc = "Used on unit frames for auras (small scale)."},
+    ["unitauramedium"] 	= {file = "SVUI Default Font", 	size = 10, 	outline = "OUTLINE", optionName = "Unitframe Aura (Medium)", 	optionDesc = "Used on unit frames for auras (medium scale)."},
+    ["unitauralarge"] 	= {file = "SVUI Number Font", 	size = 10, 	outline = "OUTLINE", optionName = "Unitframe Aura (Large)", 	optionDesc = "Used on unit frames for auras (large scale)."},
 }
 
 SV.defaults["media"] = {

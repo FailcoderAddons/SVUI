@@ -10,9 +10,11 @@
 	<Script file='Bugsack.lua'/>
 	<Script file='Clique.lua'/>
 	<Script file='Cooline.lua'/>
+	<Script file='Details.lua'/>
 	<Script file='DBM.lua'/>
 	<Script file='DXE.lua'/>
 	<Script file='LightHeaded.lua'/>
+	<Script file='MasterPlan.lua'/>
 	<Script file='Mogit.lua'/>
 	<Script file='Omen.lua'/>
 	<Script file='Outfitter.lua'/>

@@ -229,7 +229,8 @@ local function StyleListButtons(listButtons)
     end
 end
 
-local function StyleUpdateRewards(self)
+local function StyleUpdateRewards()
+	local self = GarrisonMissionFrame
     local missionButtons = self.MissionTab.MissionList.listScroll.buttons;
     for i = 1, #missionButtons do
     	PLUGIN:ApplyItemButtonStyle(missionButtons[i])
@@ -277,7 +278,7 @@ local function LoadGarrisonStyle()
 	GarrisonBuildingFrame.BuildingList.MaterialFrame:SetStylePanel("Default", "Inset", true, 1, -5, -7)
 	GarrisonBuildingFrameTutorialButton:Die()
 
-	StyleUpdateRewards(GarrisonMissionFrame)
+	StyleUpdateRewards()
 
 	GarrisonLandingPage.FollowerTab:RemoveTextures()
 	GarrisonLandingPage.FollowerTab.AbilitiesFrame:RemoveTextures()
@@ -407,6 +408,7 @@ local function LoadGarrisonStyle()
 		end
     end
 
+    hooksecurefunc("GarrisonMissionList_UpdateMissions", StyleUpdateRewards)
     hooksecurefunc("GarrisonCapacitiveDisplayFrame_Update", _hook_ReagentUpdate)
     hooksecurefunc("GarrisonFollowerList_Update", _hook_GarrisonFollowerListUpdate)
     hooksecurefunc("GarrisonMissionFrame_SetFollowerPortrait", _hook_GarrisonMissionFrame_SetFollowerPortrait)

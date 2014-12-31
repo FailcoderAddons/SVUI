@@ -98,6 +98,21 @@ local ObjectiveProgressBar_OnEvent = function(self, event, ...)
 	statusbar.Label:SetFormattedText(PERCENTAGE_STRING, percent);
 end
 
+local ActiveButton_OnEnter = function(self, ...)
+	GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT", 0, 4)
+	GameTooltip:ClearLines()
+	GameTooltip:AddDoubleLine("[Left-Click]", "View the log entry for this quest.", 0, 1, 0, 1, 1, 1)
+	GameTooltip:AddLine(" ")
+	GameTooltip:AddDoubleLine("[Right-Click]", "Remove this quest from the tracker.", 0, 1, 0, 1, 1, 1)
+	GameTooltip:AddLine(" ")
+	GameTooltip:AddDoubleLine("[SHIFT+Click]", "Show this quest on the map.", 0, 1, 0, 1, 1, 1)
+	GameTooltip:Show()
+end
+
+local ActiveButton_OnLeave = function(self, ...)
+	GameTooltip:Hide()
+end
+
 local ActiveButton_OnClick = function(self, button)
 	MOD.Headers["Active"]:Unset();
 end
@@ -111,6 +126,8 @@ local ViewButton_OnClick = function(self, button)
 			if(questLink) then
 				ChatEdit_InsertLink(questLink);
 			end
+		elseif(questID and IsShiftKeyDown()) then
+			QuestMapFrame_OpenToQuestDetails(questID);
 		elseif(questID and button ~= "RightButton") then
 			CloseDropDownMenus();
 			if(IsQuestComplete(questID) and GetQuestLogIsAutoComplete(questIndex)) then
@@ -120,13 +137,9 @@ local ViewButton_OnClick = function(self, button)
 				QuestLogPopupDetailFrame_Show(questIndex);
 			end
 		elseif(questID) then
-			if(IsShiftKeyDown()) then
-				QuestMapFrame_OpenToQuestDetails(questID);
-			else
-				RemoveQuestWatch(questIndex);
-				if(questID == superTrackedQuestID) then
-					QuestSuperTracking_OnQuestUntracked();
-				end
+			RemoveQuestWatch(questIndex);
+			if(questID == superTrackedQuestID) then
+				QuestSuperTracking_OnQuestUntracked();
 			end
 		end
 	end
@@ -280,7 +293,7 @@ CORE FUNCTIONS
 ]]--
 function MOD:CheckActiveQuest(questID, ...)
 	if(questID and self.Headers["Active"].ActiveQuestID == questID) then
-		self.Headers["Active"]:Unset();
+		self.Headers["Active"]:Unset(true);
 	else
 		local currentQuestIndex = self.CurrentQuest;
 		if(currentQuestIndex and (currentQuestIndex ~= 0)) then
@@ -359,6 +372,8 @@ function MOD:InitializeActive()
 	block.Button:SetID(0)
 	block.Button.Parent = active;
 	block.Button:SetScript("OnClick", ViewButton_OnClick)
+	block.Button:SetScript("OnEnter", ActiveButton_OnEnter)
+	block.Button:SetScript("OnLeave", ActiveButton_OnLeave)
 
 	block.Badge = CreateFrame("Frame", nil, block.Button)
 	block.Badge:SetPointToScale("TOPLEFT", block.Top, "BOTTOMLEFT", 4, -4);

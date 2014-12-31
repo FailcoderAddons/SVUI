@@ -66,6 +66,23 @@ if(not MOD) then return end
 LOCALS
 ##########################################################
 ]]--
+local FontMapping = {
+	["player"] = "unitprimary", 
+	["target"] = "unitprimary", 
+	["targettarget"] = "unitsecondary",
+	["pet"] = "unitprimary", 
+	["pettarget"] = "unitsecondary",
+	["focus"] = "unitprimary",  
+	["focustarget"] = "unitsecondary",
+	["boss"] = "unitprimary", 
+	["arena"] = "unitprimary",
+	["party"] = "unitsecondary",
+	["raid"] = "unitsecondary",
+	["raidpet"] = "unitsecondary",
+	["tank"] = "unitsecondary",
+	["assist"] = "unitsecondary",
+};
+
 local _hook_ActionPanel_OnSizeChanged = function(self)
 	local width,height = self:GetSize()
 	local widthScale = min(128, width)
@@ -517,10 +534,10 @@ function MOD:SetActionPanel(frame, unit, noHealthText, noPowerText, noMiscText)
 
 	local reverse = unit and (unit == "target" or unit == "focus" or unit == "boss" or unit == "arena") or false;
 	local offset, direction
-
+	local fontgroup = FontMapping[unit]
 	if(not noHealthText) then
 		frame.TextGrip.Health = frame.TextGrip:CreateFontString(nil, "OVERLAY")
-		frame.TextGrip.Health:SetFont(LSM:Fetch("font", SV.db.SVUnit.font), SV.db.SVUnit.fontSize, SV.db.SVUnit.fontOutline)
+		frame.TextGrip.Health:FontManager(fontgroup)
 		offset = reverse and 2 or -2;
 		direction = reverse and "LEFT" or "RIGHT";
 		frame.TextGrip.Health:SetPointToScale(direction, frame.TextGrip, direction, offset, 0)
@@ -528,7 +545,7 @@ function MOD:SetActionPanel(frame, unit, noHealthText, noPowerText, noMiscText)
 
 	if(not noPowerText) then
 		frame.TextGrip.Power = frame.TextGrip:CreateFontString(nil, "OVERLAY")
-		frame.TextGrip.Power:SetFont(LSM:Fetch("font", SV.db.SVUnit.font), SV.db.SVUnit.fontSize, SV.db.SVUnit.fontOutline)
+		frame.TextGrip.Power:FontManager(fontgroup)
 		offset = reverse and -2 or 2;
 		direction = reverse and "RIGHT" or "LEFT";
 		frame.TextGrip.Power:SetPointToScale(direction, frame.TextGrip, direction, offset, 0)
@@ -536,7 +553,7 @@ function MOD:SetActionPanel(frame, unit, noHealthText, noPowerText, noMiscText)
 
 	if(not noMiscText) then
 		frame.TextGrip.Misc = frame.TextGrip:CreateFontString(nil, "OVERLAY")
-		frame.TextGrip.Misc:SetFont(LSM:Fetch("font", SV.db.SVUnit.font), SV.db.SVUnit.fontSize, SV.db.SVUnit.fontOutline)
+		frame.TextGrip.Misc:FontManager(fontgroup)
 		frame.TextGrip.Misc:SetPointToScale("CENTER", frame, "CENTER", 0, 0)
 	end
 
@@ -565,11 +582,6 @@ function MOD:SetActionPanel(frame, unit, noHealthText, noPowerText, noMiscText)
 
 	frame.StatusPanel.texture = frame.StatusPanel:CreateTexture(nil, "OVERLAY")
 	frame.StatusPanel.texture:SetAllPoints()
-	-- frame.StatusPanel.texture:SetTexture([[Interface\BUTTONS\WHITE8X8]])
-	-- frame.StatusPanel.texture:SetBlendMode("ADD")
-	-- frame.StatusPanel.texture:SetGradient("VERTICAL",1,1,0,1,0,0)
-	-- frame.StatusPanel.texture:SetAlpha(0)
-
 	frame.StatusPanel:SetFrameStrata("LOW")
 	frame.StatusPanel:SetFrameLevel(28)
 
@@ -690,7 +702,7 @@ function MOD:CreateAltPowerBar(frame)
 	altPower.text = altPower:CreateFontString(nil, "OVERLAY")
 	altPower.text:SetPoint("CENTER")
 	altPower.text:SetJustifyH("CENTER")
-	altPower.text:SetFont(LSM:Fetch("font", SV.db.SVUnit.font), SV.db.SVUnit.fontSize, SV.db.SVUnit.fontOutline)
+	altPower.text:FontManager("unitprimary")
 	altPower.PostUpdate = PostUpdateAltPower;
 	return altPower 
 end

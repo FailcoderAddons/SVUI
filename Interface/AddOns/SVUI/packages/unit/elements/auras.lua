@@ -149,15 +149,11 @@ local CreateAuraIcon = function(icons, index)
     aura:SetBackdropColor(0, 0, 0, 0)
     aura:SetBackdropBorderColor(0, 0, 0)
 
-    local font = SV.Media.font.numbers;
-    local fontSize = 10;
-    local fontOutline = "OUTLINE";
+    local fontgroup = "unitauralarge";
     if(baseSize < 18) then
-    	font = SV.Media.font.pixel;
-    	fontSize = 8;
-    	fontOutline = "MONOCHROMEOUTLINE"
+    	fontgroup = "unitaurasmall";
     elseif(baseSize < 24) then
-    	font = SV.Media.font.default;
+    	fontgroup = "unitauramedium";
     end
 
 	local cd = CreateFrame("Cooldown", nil, aura, "CooldownFrameTemplate");
@@ -168,12 +164,12 @@ local CreateAuraIcon = function(icons, index)
 	cd:SetHideCountdownNumbers(true);
 
 	local text = cd:CreateFontString(nil, 'OVERLAY');
-	text:SetFont(font, fontSize, fontOutline);
+	text:FontManager(fontgroup);
 	text:SetPoint('CENTER', aura, 'CENTER', 1, 1);
 	text:SetJustifyH('CENTER');
 
 	local count = cd:CreateFontString(nil, "OVERLAY");
-	count:SetFont(font, fontSize, fontOutline);
+	count:FontManager(fontgroup);
 	count:SetPoint("BOTTOMRIGHT", aura, "BOTTOMRIGHT", 3, -3);
 
 	local icon = aura:CreateTexture(nil, "BORDER");
@@ -212,44 +208,49 @@ end
 
 local UpdateAuraTimer = function(self, elapsed)
 	self.expiration = self.expiration - elapsed;
+
 	if(self.nextUpdate > 0) then 
-		self.nextUpdate = self.nextUpdate - elapsed; 
-	elseif(self.expiration <= 0) then 
+		self.nextUpdate = self.nextUpdate - elapsed;
+		return;
+	end
+
+	if(self.expiration <= 0) then 
 		self:SetScript("OnUpdate", nil)
 		self.text:SetText('')
-	else
-		local expires = self.expiration;
-		local calc, timeLeft = 0, 0;
-		local timeFormat;
-		if expires < 60 then 
-			if expires >= 4 then
-				timeLeft = floor(expires)
-				timeFormat = "|cffffff00%d|r"
-				self.nextUpdate = 0.51
-			else
-				timeLeft = expires
-				timeFormat = "|cffff0000%.1f|r"
-				self.nextUpdate = 0.051
-			end 
-		elseif expires < 3600 then
-			timeFormat = "|cffffffff%d|r|cffCC8811m|r"
-			timeLeft = ceil(expires  /  60);
-			calc = floor((expires  /  60)  +  .5);
-			self.nextUpdate = calc > 1 and ((expires - calc)  *  29.5) or (expires - 59.5);
-		elseif expires < 86400 then
-			timeFormat = "|cff66ffff%d|r|cffAA5511h|r"
-			timeLeft = ceil(expires  /  3600);
-			calc = floor((expires  /  3600)  +  .5);
-			self.nextUpdate = calc > 1 and ((expires - calc)  *  1799.5) or (expires - 3570);
-		else
-			timeFormat = "|cff6666ff%d|r|cff991100d|r"
-			timeLeft = ceil(expires  /  86400);
-			calc = floor((expires  /  86400)  +  .5);
-			self.nextUpdate = calc > 1 and ((expires - calc)  *  43199.5) or (expires - 86400);
-		end
+		return;
+	end
 
-		self.text:SetFormattedText(timeFormat, timeLeft)
-	end 
+	local expires = self.expiration;
+	local calc, timeLeft = 0, 0;
+	local timeFormat;
+	if expires < 60 then 
+		if expires >= 4 then
+			timeLeft = floor(expires)
+			timeFormat = "|cffffff00%d|r"
+			self.nextUpdate = 0.51
+		else
+			timeLeft = expires
+			timeFormat = "|cffff0000%.1f|r"
+			self.nextUpdate = 0.051
+		end 
+	elseif expires < 3600 then
+		timeFormat = "|cffffffff%d|r|cffCC8811m|r"
+		timeLeft = ceil(expires / 60);
+		calc = floor((expires / 60) + 0.5);
+		self.nextUpdate = calc > 1 and ((expires - calc) * 29.5) or (expires - 59.5);
+	elseif expires < 86400 then
+		timeFormat = "|cff66ffff%d|r|cffAA5511h|r"
+		timeLeft = ceil(expires / 3600);
+		calc = floor((expires / 3600) + 0.5);
+		self.nextUpdate = calc > 1 and ((expires - calc) * 1799.5) or (expires - 3570);
+	else
+		timeFormat = "|cff6666ff%d|r|cff991100d|r"
+		timeLeft = ceil(expires / 86400);
+		calc = floor((expires / 86400) + 0.5);
+		self.nextUpdate = calc > 1 and ((expires - calc) * 43199.5) or (expires - 86400);
+	end
+
+	self.text:SetFormattedText(timeFormat, timeLeft)
 end 
 
 local PostUpdateAuraIcon = function(self, unit, button, index, offset)
@@ -315,6 +316,24 @@ local AuraBar_OnClick = function(self)
 end
 
 local PostCreateAuraBars = function(self)
+	self.spelltime = self:CreateFontString(nil, 'ARTWORK')
+	self.spelltime:FontManager("unitauramedium")
+	self.spelltime:SetTextColor(1 ,1, 1)
+	self.spelltime:SetShadowOffset(1, -1)
+  	self.spelltime:SetShadowColor(0, 0, 0)
+	self.spelltime:SetJustifyH'RIGHT'
+	self.spelltime:SetJustifyV'CENTER'
+	self.spelltime:SetPoint'RIGHT'
+
+	self.spellname = self:CreateFontString(nil, 'ARTWORK')
+	self.spellname:FontManager("unitaurabar")
+	self.spellname:SetTextColor(1, 1, 1)
+	self.spellname:SetShadowOffset(1, -1)
+  	self.spellname:SetShadowColor(0, 0, 0)
+	self.spellname:SetJustifyH'LEFT'
+	self.spellname:SetJustifyV'CENTER'
+	self.spellname:SetPoint'LEFT'
+	self.spellname:SetPoint('RIGHT', self.spelltime, 'LEFT')
 	self.iconHolder:RegisterForClicks("RightButtonUp")
 	self.iconHolder:SetScript("OnClick", AuraBar_OnClick)
 end 
@@ -560,9 +579,6 @@ function MOD:CreateBuffs(frame, unit)
 	end
 	aura:SetFrameLevel(10)
 	aura.type = "buffs"
-	aura.textFont = LSM:Fetch("font", SV.db.SVUnit.auraFont)
-	aura.textSize = SV.db.SVUnit.auraFontSize
-	aura.textOutline = SV.db.SVUnit.auraFontOutline
 	return aura 
 end 
 
@@ -579,9 +595,6 @@ function MOD:CreateDebuffs(frame, unit)
 	end
 	aura.type = "debuffs"
 	aura:SetFrameLevel(10)
-	aura.textFont = LSM:Fetch("font", SV.db.SVUnit.auraFont)
-	aura.textSize = SV.db.SVUnit.auraFontSize
-	aura.textOutline = SV.db.SVUnit.auraFontOutline
 	return aura 
 end 
 
@@ -610,10 +623,6 @@ function MOD:CreateAuraBarHeader(frame, unit)
 	end
 	auraBarParent.PostUpdate = ColorizeAuraBars;
 	auraBarParent.barTexture = LSM:Fetch("statusbar", SV.db.SVUnit.auraBarStatusbar)
-	auraBarParent.timeFont = LSM:Fetch("font", "SVUI Clean Font")
-	auraBarParent.textFont = LSM:Fetch("font", SV.db.SVUnit.auraFont)
-	auraBarParent.textSize = SV.db.SVUnit.auraFontSize
-	auraBarParent.textOutline = SV.db.SVUnit.auraFontOutline
 	return auraBarParent 
 end 
 --[[ 
@@ -661,10 +670,6 @@ function MOD:UpdateAuraWatch(frame, key, override)
 	end  
 
 	if WATCH_CACHE then
-		local fontFile = LSM:Fetch("font", SV.db.SVUnit.auraFont)
-		local fontSize = SV.db.SVUnit.auraFontSize
-		local fontOutline = SV.db.SVUnit.auraFontOutline
-		
 		if AW.icons then 
 			for i = 1, #AW.icons do 
 				local iconTest = false;
@@ -772,9 +777,11 @@ function MOD:UpdateAuraWatch(frame, key, override)
 						watchedAura.count:SetPoint("CENTER", unpack(counterOffsets[WATCH_CACHE[i].point]))
 					end
 
-					watchedAura.count:SetFont(fontFile, fontSize, fontOutline)
-					watchedAura.text:SetFont(fontFile, fontSize, fontOutline)
-					watchedAura.text:ClearAllPoints()
+					watchedAura.count:FontManager("unitaurasmall");
+					watchedAura.text:FontManager("unitaurasmall");
+
+					watchedAura.text:ClearAllPoints();
+					
 					watchedAura.text:SetPoint(WATCH_CACHE[i].point, watchedAura, WATCH_CACHE[i].point)
 					if WATCH_CACHE[i].enabled then 
 						AW.icons[WATCH_CACHE[i].id] = watchedAura;
