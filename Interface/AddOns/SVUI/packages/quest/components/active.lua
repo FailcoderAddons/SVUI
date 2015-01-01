@@ -385,7 +385,7 @@ function MOD:InitializeActive()
 	block.Badge.Icon:SetTexture(QUEST_ICON)
 	block.Badge.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 	if(SV.AddQuestCompass) then
-		SV:AddQuestCompass(block, block.Badge, LARGE_INNER_HEIGHT)
+		SV:AddQuestCompass(block, block.Badge, (LARGE_INNER_HEIGHT - 4))
 	end
 
 	block.Header = CreateFrame("Frame", nil, block.Button)

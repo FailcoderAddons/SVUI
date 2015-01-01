@@ -439,6 +439,10 @@ function lib:CurrentProfile()
     return PROFILE_SV.SAFEDATA.GlobalKey
 end
 
+function lib:UnsetProfile()
+    PROFILE_SV.SAFEDATA.GlobalKey = nil;
+end
+
 function lib:ImportDatabase(key, noreload)
     if(not key) then return end
 

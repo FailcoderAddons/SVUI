@@ -83,13 +83,18 @@ local function RefreshProfileOptions()
 		SV.Options.args.profiles.args.save = {
 			order = 5,
 			type = "execute",
-			name = SAVE,
+			name = _G.SAVE .. " " .. L["current"] .. " |cffFFFF00" .. currentProfile .. "|r",
 			width = "full",
-			desc = function() return _G.SAVE .. " " .. L["current"] .. " |cffFFFF00" .. currentProfile .. "|r" end,
 			func = function() SVLib:ExportDatabase(currentProfile) SV:SavedPopup() RefreshProfileOptions() end,
 		}
 	else
-		SV.Options.args.profiles.args.save = nil
+		SV.Options.args.profiles.args.save = {
+			order = 5,
+			type = "execute",
+			name = "Unlink from current profile: |cffFFFF00" .. currentProfile .. "|r",
+			width = "full",
+			func = function() SVLib:UnsetProfile() SV:SavedPopup() RefreshProfileOptions() end,
+		}
 	end
 
 	SV.Options.args.profiles.args.export = {

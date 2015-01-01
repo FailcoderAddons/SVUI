@@ -252,7 +252,9 @@ end
 local Docklet_OnShow = function(self)
 	--print('Docklet_OnShow')
 	if(self.FrameLink) then
-		self.FrameLink:SetFrameLevel(10)
+		if(not InCombatLockdown()) then
+			self.FrameLink:SetFrameLevel(10)
+		end
 		self.FrameLink:FadeIn()
 	end 
 end
@@ -260,8 +262,8 @@ end
 local Docklet_OnHide = function(self)
 	--print('Docklet_OnHide')
 	if(self.FrameLink) then
-		self.FrameLink:SetFrameLevel(0)
 		if(not InCombatLockdown()) then
+			self.FrameLink:SetFrameLevel(0)
 			self.FrameLink:Hide()
 		else
 			self.FrameLink:FadeOut(0.2, 1, 0, true)
@@ -283,7 +285,9 @@ local DockButtonActivate = function(self)
 	self:SetPanelColor("green")
 	self.Icon:SetGradient(unpack(SV.Media.gradient.green))
 	if(self.FrameLink) then
-		self.FrameLink:SetFrameLevel(10)
+		if(not InCombatLockdown()) then
+			self.FrameLink:SetFrameLevel(10)
+		end
 		self.FrameLink:FadeIn()
 	end
 end 
@@ -291,8 +295,8 @@ end
 local DockButtonDeactivate = function(self)
 	--print('DockButtonDeactivate')
 	if(self.FrameLink) then
-		self.FrameLink:SetFrameLevel(0)
 		if(not InCombatLockdown()) then
+			self.FrameLink:SetFrameLevel(0)
 			self.FrameLink:Hide()
 		else
 			self.FrameLink:FadeOut(0.2, 1, 0, true)

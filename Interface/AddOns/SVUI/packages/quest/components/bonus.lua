@@ -66,6 +66,7 @@ local QUEST_ICON = [[Interface\AddOns\SVUI\assets\artwork\Quest\QUEST-INCOMPLETE
 local QUEST_ICON_COMPLETE = [[Interface\AddOns\SVUI\assets\artwork\Quest\QUEST-COMPLETE-ICON]];
 
 local CACHED_BONUS_DATA = {};
+local COMPLETED_BONUS_DATA = {};
 --[[ 
 ########################################################## 
 DATA CACHE HANDLERS
@@ -77,8 +78,10 @@ local function CacheBonusData(questID, xp, money)
 	local data = {};
 	data.objectives = {};
 	local isInArea, isOnMap, numObjectives = GetTaskInfo(questID);
+	local iscomplete = true;
 	for objectiveIndex = 1, numObjectives do
 		local text, objectiveType, finished = GetQuestObjectiveInfo(questID, objectiveIndex);
+		if not finished then iscomplete = false end
 		tinsert(data.objectives, text);
 		data.objectiveType = objectiveType;
 	end
@@ -131,8 +134,9 @@ local function CacheBonusData(questID, xp, money)
 	end
 	CACHED_BONUS_DATA[questID] = data;
 
-	if(#data.rewards <= 0) then
+	if(iscomplete or #data.rewards <= 0) then
 		CACHED_BONUS_DATA[questID] = nil;
+		COMPLETED_BONUS_DATA[questID] = true;
 	end
 end
 
@@ -313,8 +317,9 @@ local SetBonusRow = function(self, index, questID, subCount)
 
 		return index, fill_height;
 	else
+		CACHED_BONUS_DATA[questID] = nil;
+		COMPLETED_BONUS_DATA[questID] = true;
 		PlaySoundKitID(45142);
-		CACHED_BONUS_DATA[questID] = nil
 		return index, 0;
 	end
 end
@@ -362,15 +367,17 @@ local UpdateBonusObjectives = function(self)
 		local cache = GetBonusCache();
 		for i = 1, #cache do
 			local questID = cache[i];
-			local isInArea, isOnMap, numObjectives = GetCachedTaskInfo(questID);
-			local existingTask = CACHED_BONUS_DATA[questID]
-			if(not existingTask) then
-				ALL_EXIST = false;
-			end
-			if(isInArea or (isOnMap and existingTask)) then
-				local add_height = 0;
-				rows, add_height = self:SetBonus(rows, questID, numObjectives)
-				fill_height = fill_height + add_height;
+			if(not COMPLETED_BONUS_DATA[questID]) then
+				local isInArea, isOnMap, numObjectives = GetCachedTaskInfo(questID);
+				local existingTask = CACHED_BONUS_DATA[questID]
+				if(not existingTask) then
+					ALL_EXIST = false;
+				end
+				if(isInArea or (isOnMap and existingTask)) then
+					local add_height = 0;
+					rows, add_height = self:SetBonus(rows, questID, numObjectives)
+					fill_height = fill_height + add_height;
+				end
 			end
 		end
 	end
@@ -378,6 +385,7 @@ local UpdateBonusObjectives = function(self)
 	if(rows == 0 or (fill_height <= 1)) then
 		self:SetHeight(1);
 		self:SetAlpha(0);
+		self:Reset();
 	else
 		self:SetHeightToScale(fill_height + 2);
 		self:FadeIn();

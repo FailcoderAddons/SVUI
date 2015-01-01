@@ -528,6 +528,9 @@ local GetQuestRow = function(self, index)
 end
 
 local SetQuestRow = function(self, index, watchIndex, title, level, icon, questID, questLogIndex, subCount, duration, elapsed, completed, questType)
+	if(not watchIndex) then
+		return index,0
+	end
 	index = index or #self.Rows
 	index = index + 1;
 
@@ -552,9 +555,7 @@ local SetQuestRow = function(self, index, watchIndex, title, level, icon, questI
 	row.Header.Text:SetText(title)
 	row.Badge.Icon:SetTexture(icon);
 	row.Badge.Button:Enable();
-	if(watchIndex) then
-		row.Badge.Button:SetID(watchIndex);
-	end
+	row.Badge.Button:SetID(watchIndex);
 	row.Badge:SetAlpha(1);
 	row.Button:SetAlpha(1);
 	row.Button:Enable();
@@ -777,14 +778,6 @@ function MOD:UpdateObjectives(event, ...)
 			self.Headers["Quests"]:Refresh(event, ...)
 			self:UpdateBonusObjective(event, ...);
 			self:UpdateDimensions();
-			self:UnregisterEvent("QUEST_LOG_UPDATE");
-		elseif(event == "UNIT_QUEST_LOG_CHANGED") then
-			local unit = ...
-			if(unit ~= 'player') then return end
-			self.Headers["Quests"]:Reset();
-			self.Headers["Quests"]:Refresh(event, ...);
-			self:UpdateBonusObjective(event, ...);
-			self:UpdateDimensions();
 		else
 			self:UpdateBonusObjective(event, ...)
 		end
@@ -841,7 +834,6 @@ function MOD:InitializeQuests()
 	self.Headers["Quests"] = quests;
 
 	self:RegisterEvent("QUEST_LOG_UPDATE", self.UpdateObjectives);
-	self:RegisterEvent("UNIT_QUEST_LOG_CHANGED", self.UpdateObjectives);
 	self:RegisterEvent("QUEST_WATCH_LIST_CHANGED", self.UpdateObjectives);
 	self:RegisterEvent("QUEST_ACCEPTED", self.UpdateObjectives);	
 	self:RegisterEvent("QUEST_POI_UPDATE", self.UpdateObjectives);

@@ -60,6 +60,7 @@ local SV = _G["SVUI"];
 local L = SV.L;
 
 local NewHook = hooksecurefunc;
+local RadioSound = SV.Sounds:Blend("Static", "Sparks");
 --[[ 
 ########################################################## 
 GLOBAL SLASH FUNCTIONS
@@ -934,6 +935,7 @@ local FightOMaticTool_OnLeave = function(self)
 end
 
 local FightOMaticTool_OnMouseDown = function(self)
+	RadioSound()
 	PLUGIN.LOG:FadeOut(0.5, 1, 0, true)
 	PLUGIN.COMM:FadeOut(0.5, 1, 0, true)
 	PLUGIN.TOOL:FadeOut(0.5, 1, 0, true)
@@ -944,6 +946,7 @@ local FightOMaticTool_OnMouseDown = function(self)
 end
 
 local Scanner_OnMouseDown = function(self)
+	RadioSound()
 	PLUGIN.LOG:FadeOut(0.5, 1, 0, true)
 	PLUGIN.COMM:FadeOut(0.5, 1, 0, true)
 	PLUGIN.TOOL:FadeOut(0.5, 1, 0, true)

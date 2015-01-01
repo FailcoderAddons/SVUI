@@ -248,7 +248,7 @@ function SV:AddQuestCompass(parent, anchor, size)
     compass.Arrow:SetAllPoints(compass)
     compass.Arrow:SetTexture([[Interface\AddOns\SVUI_TrackOMatic\artwork\QUEST-COMPASS-ARROW]])
     compass.Range = compass:CreateFontString(nil, 'ARTWORK')
-    compass.Range:SetPoint("TOP", compass, "BOTTOM", 0, -4)
+    compass.Range:SetPoint("CENTER", compass, "CENTER", 0, 0)
     compass.Range:SetFont(SV.Media.font.default, 10, "OUTLINE")
     compass.Range:SetTextColor(1, 1, 1, 0.75)
     compass.Spin = Rotate_Arrow
