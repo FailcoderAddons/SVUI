@@ -46,5 +46,5 @@ SV.Options.args.plugins.args.pluginOptions.args[Schema].args["annoyingEmotes"] =
     desc = L["Aggravate your opponents (and team-mates) with incessant emotes"],
     type = "toggle",
     get = function(key) return PLUGIN.db.annoyingEmotes end,
-    set = function(key,value) PLUGIN:ChangeDBVar(value, key[#key]); PLUGIN:UpdateLogWindow() end
+    set = function(key,value) PLUGIN:ChangeDBVar(value, key[#key]); end
 }

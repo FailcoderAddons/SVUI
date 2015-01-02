@@ -339,12 +339,8 @@ function MOD:InitializeActive()
 	block.Top.Text = block.Top:CreateFontString(nil,"OVERLAY")
 	block.Top.Text:SetPoint("TOPLEFT", block.Top, "TOPLEFT", 2, 0);
 	block.Top.Text:SetPoint("BOTTOMLEFT", block.Top, "BOTTOMLEFT", 2, 0);
-	block.Top.Text:SetFont(SV.Media.font.narrator, 16, "OUTLINE")
-	block.Top.Text:SetJustifyH('LEFT')
-	block.Top.Text:SetJustifyV('MIDDLE')
+	block.Top.Text:FontManager("questheader", "LEFT");
 	block.Top.Text:SetTextColor(0.28,0.75,1)
-	block.Top.Text:SetShadowOffset(-1,-1)
-	block.Top.Text:SetShadowColor(0,0,0,0.5)
 	block.Top.Text:SetText("Now Tracking...")
 
 	block.CloseButton = CreateFrame("Button", nil, block.Top, "UIPanelCloseButton")
@@ -395,22 +391,14 @@ function MOD:InitializeActive()
 	block.Header:SetStylePanel("Default", "Headline")
 
 	block.Header.Level = block.Header:CreateFontString(nil,"OVERLAY")
-	block.Header.Level:SetFont(SV.Media.font.default, 12, "NONE")
-	block.Header.Level:SetShadowOffset(-1,-1)
-	block.Header.Level:SetShadowColor(0,0,0,0.5)
-	block.Header.Level:SetJustifyH('LEFT')
-	block.Header.Level:SetJustifyV('MIDDLE')
+	block.Header.Level:FontManager("questdialog", "LEFT");
 	block.Header.Level:SetText('')
 	block.Header.Level:SetPointToScale("TOPLEFT", block.Header, "TOPLEFT", 4, 0);
 	block.Header.Level:SetPointToScale("BOTTOMLEFT", block.Header, "BOTTOMLEFT", 4, 0);
 
 	block.Header.Text = block.Header:CreateFontString(nil,"OVERLAY")
-	block.Header.Text:SetFont(SV.Media.font.default, 13, "NONE")
+	block.Header.Text:FontManager("questdialog", "LEFT");
 	block.Header.Text:SetTextColor(1,1,0)
-	block.Header.Text:SetShadowOffset(-1,-1)
-	block.Header.Text:SetShadowColor(0,0,0,0.5)
-	block.Header.Text:SetJustifyH('LEFT')
-	block.Header.Text:SetJustifyV('MIDDLE')
 	block.Header.Text:SetText('')
 	block.Header.Text:SetPointToScale("TOPLEFT", block.Header.Level, "TOPRIGHT", 4, 0);
 	block.Header.Text:SetPointToScale("BOTTOMRIGHT", block.Header, "BOTTOMRIGHT", 0, 0);

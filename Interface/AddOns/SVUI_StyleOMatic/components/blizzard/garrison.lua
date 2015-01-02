@@ -81,13 +81,13 @@ end
 local function StyleFollowerPortrait(frame, color)
 	frame.PortraitRing:SetTexture(RING_TEXTURE)
 	frame.PortraitRingQuality:SetTexture('')
-	frame.LevelBorder:SetTexture('')
-	if(not frame.LevelCallout) then
-		frame.LevelCallout = frame:CreateTexture(nil, 'BORDER', 4)
-		frame.LevelCallout:SetAllPoints(frame)
-		frame.LevelCallout:SetTexture(LVL_TEXTURE)
-		frame.LevelBorder:SetDrawLayer('OVERLAY')
-	end
+	-- frame.LevelBorder:SetTexture('')
+	-- if(not frame.LevelCallout) then
+	-- 	frame.LevelCallout = frame:CreateTexture(nil, 'BORDER', 4)
+	-- 	frame.LevelCallout:SetAllPoints(frame)
+	-- 	frame.LevelCallout:SetTexture(LVL_TEXTURE)
+	-- 	frame.LevelBorder.SetAtlas = function() end
+	-- end
 	if(color) then
 		frame.PortraitRing:SetVertexColor(color.r, color.g, color.b)
 	end

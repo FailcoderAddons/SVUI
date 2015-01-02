@@ -212,12 +212,8 @@ local GetBonusRow = function(self, index)
 		row.Header:SetHeightToScale(INNER_HEIGHT);
 
 		row.Header.Text = row.Header:CreateFontString(nil,"OVERLAY")
-		row.Header.Text:SetFont(SV.Media.font.narrator, 16, "OUTLINE")
+		row.Header.Text:FontManager("questheader", "LEFT");
 		row.Header.Text:SetTextColor(0.2,0.75,1)
-		row.Header.Text:SetShadowOffset(-1,-1)
-		row.Header.Text:SetShadowColor(0,0,0,0.5)
-		row.Header.Text:SetJustifyH('LEFT')
-		row.Header.Text:SetJustifyV('MIDDLE')
 		row.Header.Text:SetText('')
 		row.Header.Text:SetPointToScale("TOPLEFT", row.Header, "TOPLEFT", 0, 0);
 		row.Header.Text:SetPointToScale("BOTTOMRIGHT", row.Header, "BOTTOMRIGHT", 0, 0);

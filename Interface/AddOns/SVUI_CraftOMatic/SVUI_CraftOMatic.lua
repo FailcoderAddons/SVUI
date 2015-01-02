@@ -306,7 +306,7 @@ function PLUGIN:ChangeModeGear()
 end
 
 function PLUGIN:UpdateLogWindow()
- 	self.LogWindow:SetFont(SV.Media.font.names, self.db.fontSize, "OUTLINE")
+ 	self.LogWindow:SetFont(SV.Media.font.dialog, self.db.fontSize, "OUTLINE")
 end
 
 function PLUGIN:SKILL_LINES_CHANGED()

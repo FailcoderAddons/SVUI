@@ -143,12 +143,8 @@ local GetAchievementRow = function(self, index)
 		row.Header:SetPoint("TOPRIGHT", row, "TOPRIGHT", -2, 0);
 		row.Header:SetHeightToScale(INNER_HEIGHT);
 		row.Header.Text = row.Header:CreateFontString(nil,"OVERLAY")
-		row.Header.Text:SetFont(SV.Media.font.default, 13, "NONE")
+		row.Header.Text:FontManager("questdialog", "LEFT");
 		row.Header.Text:SetTextColor(1,1,0)
-		row.Header.Text:SetShadowOffset(-1,-1)
-		row.Header.Text:SetShadowColor(0,0,0,0.5)
-		row.Header.Text:SetJustifyH('LEFT')
-		row.Header.Text:SetJustifyV('MIDDLE')
 		row.Header.Text:SetText('')
 		row.Header.Text:SetPoint("TOPLEFT", row.Header, "TOPLEFT", 4, 0);
 		row.Header.Text:SetPoint("BOTTOMRIGHT", row.Header, "BOTTOMRIGHT", 0, 0);
@@ -317,12 +313,8 @@ function MOD:InitializeAchievements()
 	achievements.Header.Text = achievements.Header:CreateFontString(nil,"OVERLAY")
 	achievements.Header.Text:SetPoint("TOPLEFT", achievements.Header, "TOPLEFT", 2, 0);
 	achievements.Header.Text:SetPoint("BOTTOMLEFT", achievements.Header, "BOTTOMLEFT", 2, 0);
-	achievements.Header.Text:SetFont(SV.Media.font.narrator, 16, "OUTLINE")
-	achievements.Header.Text:SetJustifyH('LEFT')
-	achievements.Header.Text:SetJustifyV('MIDDLE')
+	achievements.Header.Text:FontManager("questheader", "LEFT");
 	achievements.Header.Text:SetTextColor(0.28,0.75,1)
-	achievements.Header.Text:SetShadowOffset(-1,-1)
-	achievements.Header.Text:SetShadowColor(0,0,0,0.5)
 	achievements.Header.Text:SetText(TRACKER_HEADER_ACHIEVEMENTS)
 
 	achievements.Header.Divider = achievements.Header:CreateTexture(nil, 'BACKGROUND');

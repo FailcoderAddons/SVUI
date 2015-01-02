@@ -1,6 +1,6 @@
 ## Interface: 60000
 ## Author: Munglunch
-## Version: 5.4.08
+## Version: 5.4.1
 ## Title: |cffFF9900SVUI |r|cffFFEF00Craft-O-Matic|r
 ## Notes: Supervillain UI [|cff9911FFProfession Tools|r].
 ## SavedVariablesPerCharacter: CraftOMatic_Profile, CraftOMatic_Cache

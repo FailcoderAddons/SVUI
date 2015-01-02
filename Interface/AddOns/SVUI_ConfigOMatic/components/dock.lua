@@ -265,8 +265,8 @@ SV.Options.args.Dock.args["rightDockGroup"] = {
 		-- 			order = 1,
 		-- 			type = "toggle",
 		-- 			name = L["Enable"],
-		-- 			get = function()return SV.db.general.questWatch end,
-		-- 		 	set = function(j, value) SV.db.general.questWatch = value; SV:StaticPopup_Show("RL_CLIENT") end
+		-- 			get = function()return SV.db.SVQuest.enable end,
+		-- 		 	set = function(j, value) SV.db.SVQuest.enable = value; SV:StaticPopup_Show("RL_CLIENT") end
 		-- 		}
 		-- 	}
 		-- },
@@ -281,7 +281,7 @@ SV.Options.args.Dock.args["rightDockGroup"] = {
 		-- 			name = L["Enable"],
 		-- 			get = function()return SV.db.general.questHeaders end,
 		-- 		 	set = function(j, value) SV.db.general.questHeaders = value; SV:StaticPopup_Show("RL_CLIENT") end,
-		-- 		 	disabled = function()return (not SV.db.general.questWatch) end, 
+		-- 		 	disabled = function()return (not SV.db.SVQuest.enable) end, 
 		-- 		}
 		-- 	}
 		-- }

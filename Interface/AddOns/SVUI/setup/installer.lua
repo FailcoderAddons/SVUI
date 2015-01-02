@@ -319,13 +319,13 @@ function SV.Setup:ChatConfigs(mungs)
 
 	local ChatFrame2 = _G.ChatFrame2;
 	FCF_DockFrame(ChatFrame2)
-	FCF_SetLocked(ChatFrame2, 1)
+	FCF_SetLocked(ChatFrame2, 2)
 
 	FCF_OpenNewWindow(LOOT)
 
 	local ChatFrame3 = _G.ChatFrame3;
 	FCF_DockFrame(ChatFrame3)
-	FCF_SetLocked(ChatFrame3, 1)
+	FCF_SetLocked(ChatFrame3, 3)
 
 	for i = 1, NUM_CHAT_WINDOWS do
 		local chat = _G["ChatFrame"..i]
@@ -1190,7 +1190,7 @@ function SV.Setup:Install(autoLoaded)
 		frame.Status:SetText(CURRENT_PAGE.."  /  "..MAX_PAGE)
 
 		local titleHolder = frame:CreateFontString(nil, "OVERLAY")
-		titleHolder:SetFont(SV.Media.font.names, 22, "OUTLINE")
+		titleHolder:SetFont(SV.Media.font.dialog, 22, "OUTLINE")
 		titleHolder:SetPointToScale("TOP", 0, -5)
 		titleHolder:SetText(L["Supervillain UI Installation"])
 

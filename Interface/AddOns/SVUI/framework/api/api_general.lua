@@ -34,7 +34,7 @@ local math      = _G.math;
 local floor, abs, min, max = math.floor, math.abs, math.min, math.max;
 local parsefloat, ceil = math.parsefloat, math.ceil;
 --[[ STRING METHODS ]]--
-local lower = string.lower;
+local lower, upper = string.lower, string.upper;
 --[[ TABLE METHODS ]]--
 local tremove, tcopy, twipe, tsort, tconcat, tdump = table.remove, table.copy, table.wipe, table.sort, table.concat, table.dump;
 --[[ 
@@ -166,74 +166,90 @@ APPENDED FONT TEMPLATING METHODS
 ]]--
 local ManagedFonts = {};
 
-local FontManager = function(self, fontTemplate, fontJustifyH, preUpdateFunc, postUpdateFunc)
+local FONT_LIST_DIRTY = false;
+
+local FontManager = function(self, template, arg, sizeMod, styleOverride, colorR, colorG, colorB)
     if not self then return end
-    local STANDARDFONTSIZE = SV.db.font and SV.db.font.default.size or 11
+    template = template or "default";
+    local info = SV.db.font[template];
+    if(not info) then return end
 
-    fontTemplate = fontTemplate or "default";
-    fontJustifyH = fontJustifyH or "CENTER";
-    local template = SV.db.font[fontTemplate];
-    if(not template) then
-        print(fontTemplate)
-        return
-    end
-    
-    self.___template = fontTemplate;
-    self.___file = LSM:Fetch("font", template.file);
-    self.___size = template.size;
-    self.___style = template.outline;
-    self.___common = (template.size == STANDARDFONTSIZE);
-
-    if(preUpdateFunc and type(preUpdateFunc) == 'function') then
-        self.___preUpdate = preUpdateFunc
+    local isSystemFont = false;
+    if(arg and (arg == 'SYSTEM')) then
+        isSystemFont = true;
     end
 
-    if(postUpdateFunc and type(postUpdateFunc) == 'function') then
-        self.___postUpdate = postUpdateFunc
+    local file = LSM:Fetch("font", info.file);
+    local size = info.size;
+    local outline = info.outline;
+
+    if(styleOverride) then
+        self.___fontOutline = styleOverride;
+        outline = styleOverride;
     end
 
+    self.___fontSizeMod = sizeMod or 0;
+    self:SetFont(file, (size + self.___fontSizeMod), outline)
 
-    self:SetFont(self.___file, self.___size, self.___style)
-    if(template.outline and template.outline ~= "NONE") then 
-        self:SetShadowColor(0, 0, 0, 0)
-    else 
-        self:SetShadowColor(0, 0, 0, 0.2)
-    end 
-    self:SetShadowOffset(1, -1)
-    self:SetJustifyH(fontJustifyH)
-    self:SetJustifyV("MIDDLE")
-
-    ManagedFonts[self] = true
-end
---[[ 
-########################################################## 
-UPDATE CALLBACKS
-##########################################################
-]]--
-local function FontTemplateUpdates()
-    local defaultSize = SV.db.font.default.size;
-    for frame in pairs(ManagedFonts) do
-        if frame then
-            if(frame.___preUpdate) then
-                frame:___preUpdate()
-            else
-                local template = SV.db.font[frame.___template];
-                frame.___file = LSM:Fetch("font", template.file);
-                frame.___size = frame.___common and defaultSize or template.size;
-                frame.___style = template.outline;
-            end
-            frame:SetFont(frame.___file, frame.___size, frame.___style);
-
-            if(frame.___postUpdate) then
-                frame:___postUpdate()
-            end
+    if(not isSystemFont) then
+        if(info.outline and info.outline ~= "NONE") then 
+            self:SetShadowColor(0, 0, 0, 0)
         else 
-            ManagedFonts[frame] = nil 
+            self:SetShadowColor(0, 0, 0, 0.2)
         end 
-    end 
+        self:SetShadowOffset(1, -1)
+        self:SetJustifyH(arg or "CENTER")
+        self:SetJustifyV("MIDDLE")
+    end
+
+    if(colorR and colorG and colorB) then
+        self:SetTextColor(colorR, colorG, colorB);
+    end
+
+    if(not ManagedFonts[template]) then
+        ManagedFonts[template] = {}
+    end
+
+    ManagedFonts[template][self] = true
 end
 
-SV.Events:On("SVUI_FONTS_UPDATED", "FontTemplateUpdates", FontTemplateUpdates);
+local function UpdateFontTemplate(template)
+    template = template or "default";
+    local info = SV.db.font[template];
+    local file = LSM:Fetch("font", info.file);
+    local size = info.size;
+    local line = info.outline;
+    local list = ManagedFonts[template];
+
+    for frame in pairs(list) do
+        if frame then
+            if(frame.___fontOutline) then
+                frame:SetFont(file, (size + frame.___fontSizeMod), frame.___fontOutline);
+            else
+                frame:SetFont(file, (size + frame.___fontSizeMod), line);
+            end
+        else
+            ManagedFonts[template][frame] = nil;
+        end
+    end
+end
+
+local function UpdateAllFontTemplates()
+    for template, _ in pairs(ManagedFonts) do
+        UpdateFontTemplate(template)
+    end
+end
+
+local function UpdateFontGroup(...)
+    for i = 1, select('#', ...) do
+        local template = select(i, ...)
+        if not template then break end
+        UpdateFontTemplate(template)
+    end
+end
+
+SV.Events:On("SVUI_ALLFONTS_UPDATED", "UpdateAllFontTemplates", UpdateAllFontTemplates);
+SV.Events:On("SVUI_FONTGROUP_UPDATED", "UpdateFontGroup", UpdateFontGroup);
 --[[ 
 ########################################################## 
 SECURE FADING

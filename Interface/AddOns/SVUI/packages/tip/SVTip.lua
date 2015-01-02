@@ -116,8 +116,6 @@ local VISIBILITY_UNITS = "NONE";
 local VISIBILITY_COMBAT = false;
 local BAR_TEXT = true;
 local BAR_HEIGHT = 10;
-local BAR_FONT = "SVUI Clean Font";
-local BAR_FONTSIZE = 10;
 
 local VisibilityTest = {
 	NONE = function() return false end,
@@ -310,13 +308,14 @@ local function tiplevel(this, start)
 end
 
 local function tipbackground(this)
-	this:SetBackdropColor(0, 0, 0, 1)
+	this:SetBackdropColor(0, 0, 0, 0.8)
+	--this:SetBackdropBorderColor(0, 0, 0, 1)
 	if(this.SuperBorder) then
 		this.SuperBorder:SetBackdropColor(0, 0, 0, 0.8)
 		if(not GameTooltipStatusBar:IsShown()) then
 			this.SuperBorder:ClearAllPoints()
-			this.SuperBorder:SetPoint("TOPLEFT", this, "TOPLEFT", 0, 0)
-			this.SuperBorder:SetPoint("BOTTOMRIGHT", this, "BOTTOMRIGHT", 0, 0)
+			this.SuperBorder:SetPoint("TOPLEFT", this, "TOPLEFT", -1, 1)
+			this.SuperBorder:SetPoint("BOTTOMRIGHT", this, "BOTTOMRIGHT", 1, -1)
 		end
 	end
 end
@@ -331,13 +330,14 @@ local function tipupdate(this, color, hasStatusBar)
 		local borderColor = color or NIL_COLOR
 		local yOffset = (hasStatusBar) and mask.ToggleHeight or 0;
 		mask:ClearAllPoints()
-		mask:SetPoint("TOPLEFT", this, "TOPLEFT", 0, 0)
-		mask:SetPoint("BOTTOMRIGHT", this, "BOTTOMRIGHT", 0, yOffset)
+		mask:SetPoint("TOPLEFT", this, "TOPLEFT", -1, 1)
+		mask:SetPoint("BOTTOMRIGHT", this, "BOTTOMRIGHT", 1, yOffset)
 		mask:SetMaskBorderColor(borderColor.r, borderColor.g, borderColor.b, hasStatusBar)
 	end
 end
 
 local _hook_GameTooltip_OnTooltipSetUnit = function(self)
+	--print('SetUnit: ' .. self:GetName())
 	tipbackground(self)
 
 	local unit = select(2, self:GetUnit())
@@ -530,7 +530,7 @@ local _hook_GameTooltip_OnTooltipSetItem = function(self)
 
 		if(SPELL_IDS and (itemLink ~= nil)) then
 			self:AddLine(" ")
-			left = "|cFFCA3C3CSpell ID: |r"
+			local left = "|cFFCA3C3CSpell ID: |r"
 			local itemID = ("|cFFCA3C3C%s|r %s"):format(left, itemLink):match(":(%w+)")
 			self:AddDoubleLine("|cFFCA3C3CSpell ID: |r", itemID)
 		end
@@ -691,8 +691,8 @@ local TooltipModifierChangeHandler = function(self, event, mod)
 end 
 
 local Override_BGColor = function(self, r, g, b, a) 
-	if(((r ~= 0) and (g ~= 0) and (b ~= 0)) or (a and a ~= 0)) then
-		self:SetBackdropColor(0, 0, 0, 0)
+	if((r ~= 0) and (g ~= 0) and (b ~= 0)) then
+		self:SetBackdropColor(0, 0, 0, 0.8)
 		self.SuperBorder:SetBackdropColor(r, g, b, 0.8) 
 	end
 end
@@ -708,7 +708,7 @@ local _hook_OnTipCleared = function(self)
 end
 
 local _hook_OnTipShow = function(self)
-	--print('Show')
+	--print('Showing: ' .. self:GetName())
 	tipbackground(self)
 end
 
@@ -749,8 +749,8 @@ local function ApplyTooltipSkins()
 			end
 
 			local mask = CreateFrame("Frame", nil, tooltip)
-			mask:SetPoint("TOPLEFT", tooltip, "TOPLEFT", 0, 0)
-			mask:SetPoint("BOTTOMRIGHT", tooltip, "BOTTOMRIGHT", 0, barOffset)
+			mask:SetPoint("TOPLEFT", tooltip, "TOPLEFT", -1, 1)
+			mask:SetPoint("BOTTOMRIGHT", tooltip, "BOTTOMRIGHT", 1, barOffset)
 			mask:SetFrameLevel(0)
 			mask.ToggleHeight = barOffset
 			mask.ToggleAlpha = alpha
@@ -820,7 +820,7 @@ local function ApplyTooltipSkins()
 				tile = true,
 				tileSize = 128,
 			})
-			mask:SetBackdropColor(0, 0, 0, 1)
+			mask:SetBackdropColor(0, 0, 0, 0.8)
 			mask:SetBackdropBorderColor(0, 0, 0)
 
 			mask.SetMaskBorderColor = SetMaskBorderColor
@@ -875,11 +875,12 @@ local function ApplyTooltipSkins()
 				tile = true,
 				tileSize = 128,
 			})
-			tooltip:SetBackdropColor(0, 0, 0, 0)
-			--tooltip:SetBackdropBorderColor(0, 0, 0, 0)
+			tooltip:SetBackdropColor(0, 0, 0, 0.8)
+			--tooltip:SetBackdropBorderColor(0, 0, 0, 1)
 
 			NewHook(tooltip, "SetBackdropColor", Override_BGColor)
 			--NewHook(tooltip, "SetBackdropBorderColor", Override_BorderColor)
+			--NewHook(tooltip, "Show", _hook_OnTipShow)
 			tooltip:HookScript("OnShow", _hook_OnTipShow)
 			tooltip:HookScript("OnHide", _hook_OnTipHide)
 			tooltip:HookScript("OnSizeChanged", _hook_OnSizeChanged)
@@ -895,8 +896,6 @@ function MOD:UpdateLocals()
 	COMIC_TIPS = SV.db.SVTip.comicStyle;
 	VISIBILITY_COMBAT = SV.db.SVTip.visibility.combat;
 	BAR_HEIGHT = SV.db.SVTip.healthBar.height;
-	BAR_FONT = SV.db.SVTip.healthBar.font;
-	BAR_FONTSIZE = SV.db.SVTip.healthBar.fontSize;
 	SPELL_IDS = SV.db.SVTip.spellID;
 	ON_CURSOR = SV.db.SVTip.cursorAnchor;
 	BAR_TEXT = SV.db.SVTip.healthBar.text;
@@ -954,6 +953,7 @@ function MOD:Load()
 
 	--NewHook("GameTooltip_ShowCompareItem", _hook_GameTooltip_ShowCompareItem) -- BROKEN IN WOD, REMOVING NOW
 
+	--NewHook(GameTooltip, "AddLine", _hook_OnTipShow)
 	NewHook(GameTooltip, "SetUnitAura", _hook_OnSetUnitAura)
 	NewHook(GameTooltip, "SetUnitBuff", _hook_OnSetUnitAura)
 	NewHook(GameTooltip, "SetUnitDebuff", _hook_OnSetUnitAura)

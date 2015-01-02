@@ -525,13 +525,13 @@ function PLUGIN:Load()
 	alert:SetPoint('CENTER', UIParent, 'CENTER');
 	alert:SetFrameStrata('DIALOG');
 	alert.Text = alert:CreateFontString(nil, "OVERLAY");
-	alert.Text:SetFont(SV.Media.font.names, 12);
+	alert.Text:SetFont(SV.Media.font.dialog, 12);
 	alert.Text:SetPoint('TOP', alert, 'TOP', 0, -10);
 	alert.Accept = CreateFrame('Button', nil, alert);
 	alert.Accept:SetSize(70, 25);
 	alert.Accept:SetPoint('RIGHT', alert, 'BOTTOM', -10, 20);
 	alert.Accept.Text = alert.Accept:CreateFontString(nil, "OVERLAY");
-	alert.Accept.Text:SetFont(SV.Media.font.names, 10);
+	alert.Accept.Text:SetFont(SV.Media.font.dialog, 10);
 	alert.Accept.Text:SetPoint('CENTER');
 	alert.Accept.Text:SetText(_G.YES);
 	alert.Close = CreateFrame('Button', nil, alert);
@@ -539,7 +539,7 @@ function PLUGIN:Load()
 	alert.Close:SetPoint('LEFT', alert, 'BOTTOM', 10, 20);
 	alert.Close:SetScript('OnClick', function(this) this:GetParent():Hide() end);
 	alert.Close.Text = alert.Close:CreateFontString(nil, "OVERLAY");
-	alert.Close.Text:SetFont(SV.Media.font.names, 10);
+	alert.Close.Text:SetFont(SV.Media.font.dialog, 10);
 	alert.Close.Text:SetPoint('CENTER');
 	alert.Close.Text:SetText(_G.NO);
 	alert.Accept:SetStylePanel("Button");

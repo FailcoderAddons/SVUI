@@ -49,7 +49,7 @@ SV.Options.args.plugins.args.pluginOptions.args[Schema].args["groups"] = {
     desc = L["Use group frame GPS elements"],
     type = "toggle",
     get = function(key) return PLUGIN.db[key[#key]] end,
-    set = function(key,value) PLUGIN:ChangeDBVar(value, key[#key]); PLUGIN:UpdateLogWindow() end
+    set = function(key,value) PLUGIN:ChangeDBVar(value, key[#key]); end
 }
 
 SV.Options.args.plugins.args.pluginOptions.args[Schema].args["proximity"] = {
@@ -58,7 +58,7 @@ SV.Options.args.plugins.args.pluginOptions.args[Schema].args["proximity"] = {
     desc = L["Only point to closest low health unit"],
     type = "toggle",
     get = function(key) return PLUGIN.db[key[#key]] end,
-    set = function(key,value) PLUGIN:ChangeDBVar(value, key[#key]); PLUGIN:UpdateLogWindow() end
+    set = function(key,value) PLUGIN:ChangeDBVar(value, key[#key]); end
 }
 
 SV.Options.args.plugins.args.pluginOptions.args[Schema].args["fontSize"] = {
@@ -70,5 +70,5 @@ SV.Options.args.plugins.args.pluginOptions.args[Schema].args["fontSize"] = {
     max = 22,
     step = 1,
     get = function(key) return PLUGIN.db[key[#key]] end,
-    set = function(key,value) PLUGIN:ChangeDBVar(value, key[#key]); PLUGIN:UpdateLogWindow() end
+    set = function(key,value) PLUGIN:ChangeDBVar(value, key[#key]); end
 }

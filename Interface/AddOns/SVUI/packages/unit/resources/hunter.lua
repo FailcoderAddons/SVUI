@@ -38,7 +38,7 @@ if(not MOD) then return end
 
 SV.SpecialFX:Register("trap_fire", [[Spells\Fireshot_missile.m2]], -12, 12, 12, -12, 0.4, 0, 0.2)
 SV.SpecialFX:Register("trap_ice", [[Spells\Frostshot_missile.m2]], -12, 12, 12, -12, 0.4, 0, 0.18)
-SV.SpecialFX:Register("trap_frost", [[Spells\Blindingshot_missile.m2]], -12, 12, 12, -12, 0.4, 0, 0.2)
+SV.SpecialFX:Register("trap_frost", [[Spells\Blindingshot_missile.m2]], -12, 12, 12, -12, 0.4, -0.2, 0.3)
 SV.SpecialFX:Register("trap_snake", [[Spells\Poisonshot_missile.m2]], -12, 12, 12, -12, 0.4, 0, -0.21)
 local specEffects = { 
 	[1] = "trap_fire", 
@@ -95,25 +95,27 @@ local TrapUpdate = function(self, isReady)
 	end
 end
 
-local SnakeTrapUpdate = function(self, isReady, isSnake)
-	if(isReady) then
-		if(not self.FX:IsShown()) then	
-			self.FX:Show()
-		end
-		if((isSnake ~= nil) and (isSnake ~= HAS_SNAKE_TRAP)) then
-			if(isSnake == true) then
-				specEffects[3] = "trap_snake"
-			else
-				specEffects[3] = "trap_frost"
-			end
-			HAS_SNAKE_TRAP = isSnake
-
-			self.FX:SetEffect(specEffects[3])
+local SnakeTrapUpdate = function(self, isReady, isSnake, bypass)
+	if((isSnake ~= nil) and (isSnake ~= HAS_SNAKE_TRAP)) then
+		if(isSnake == true) then
+			specEffects[3] = "trap_snake"
 		else
-			self.FX:UpdateEffect()
+			specEffects[3] = "trap_frost"
 		end
-	else
-		self.FX:Hide()
+		HAS_SNAKE_TRAP = isSnake
+
+		self.FX:SetEffect(specEffects[3])
+	end
+
+	if(not bypass) then
+		if(isReady) then
+			if(not self.FX:IsShown()) then	
+				self.FX:Show()
+			end
+			self.FX:UpdateEffect()
+		else
+			self.FX:Hide()
+		end
 	end
 end
 

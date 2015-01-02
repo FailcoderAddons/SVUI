@@ -121,12 +121,8 @@ local GetPopUpRow = function(self, index)
 		row.Header:SetPointToScale("BOTTOMRIGHT", row.Button, "BOTTOMRIGHT", -2, 2);
 		row.Header:SetStylePanel("Default")
 		row.Header.Text = row.Header:CreateFontString(nil,"OVERLAY")
-		row.Header.Text:SetFont(SV.Media.font.default, 13, "NONE")
+		row.Header.Text:FontManager("questdialog", "LEFT");
 		row.Header.Text:SetTextColor(1,1,0)
-		row.Header.Text:SetShadowOffset(-1,-1)
-		row.Header.Text:SetShadowColor(0,0,0,0.5)
-		row.Header.Text:SetJustifyH('LEFT')
-		row.Header.Text:SetJustifyV('MIDDLE')
 		row.Header.Text:SetText('')
 		row.Header.Text:SetPointToScale("TOPLEFT", row.Header, "TOPLEFT", 0, 0);
 		row.Header.Text:SetPointToScale("BOTTOMRIGHT", row.Header, "BOTTOMRIGHT", 0, 0);

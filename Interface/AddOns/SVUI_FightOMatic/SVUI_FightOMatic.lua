@@ -607,15 +607,17 @@ local function ParseIncomingLog(timestamp, event, eGuid, eName, pGuid)
 	end
 end
 
-local function GetSourceType(guid)
+local function CheckSourceType(guid, flags)
 	if not guid then return end
-	local subStr, binStr, bitVal, srcType
-	subStr  = guid:sub(3, 5)
-	binStr  = ("0x%s"):format(subStr)
-	bitVal  = tonumber(binStr)
-	if(not bitVal) then return end
-	srcType = band(bitVal, 0x00F)
-	return srcType
+	local isHostile = false;
+	if(flags) then
+		isHostile = CombatLog_Object_IsA(flags, COMBATLOG_FILTER_HOSTILE_PLAYERS)
+	end
+	local srcType = strsub(guid, 1,6)
+	if((srcType == "Player") and (isHostile == true)) then
+		return true
+	end
+	return false
 end
 
 function PLUGIN:COMBAT_LOG_EVENT_UNFILTERED(_, timestamp, event, _, srcGUID, srcName, srcFlags, sourceRaidFlags, dstGUID, dstName, dstFlags, destRaidFlags, _, spellName)
@@ -625,9 +627,7 @@ function PLUGIN:COMBAT_LOG_EVENT_UNFILTERED(_, timestamp, event, _, srcGUID, src
 
 	if(flagged) then
 		if(srcGUID and srcName) then
-			local isHostile = CombatLog_Object_IsA(srcFlags, COMBATLOG_FILTER_HOSTILE_PLAYERS)
-			local srcType = GetSourceType(srcGUID)
-			if(srcType and (srcType == 0 or srcType == 8) and isHostile) then
+			if(CheckSourceType(srcGUID, srcFlags)) then
 				if(event == "SPELL_AURA_APPLIED" and (spellName == L["Stealth"] or spellName == L["Prowl"])) then
 					StealthAlarm(spellName, srcName)
 				end
@@ -640,9 +640,7 @@ function PLUGIN:COMBAT_LOG_EVENT_UNFILTERED(_, timestamp, event, _, srcGUID, src
 		end
 
 		if(PLUGIN.Scanning and dstGUID and dstName) then
-			local isHostile = CombatLog_Object_IsA(dstFlags, COMBATLOG_FILTER_HOSTILE_PLAYERS)
-			local srcType = GetSourceType(dstGUID)
-			if(srcType and (srcType == 0 or srcType == 8) and isHostile) then
+			if(CheckSourceType(dstGUID, dstFlags)) then
 				ParseIncomingLog(timestamp, event, dstGUID, dstName, srcGUID)
 			end
 		end
@@ -710,7 +708,7 @@ local function MakeLogWindow()
 	output:SetClampedToScreen(false)
 	output:SetFrameStrata("MEDIUM")
 	output:SetAllPoints(frame)
-	output:SetFont(SV.Media.font.names, 11, "OUTLINE")
+	output:SetFont(SV.Media.font.dialog, 11, "OUTLINE")
 	output:SetJustifyH("CENTER")
 	output:SetJustifyV("MIDDLE")
 	output:SetShadowColor(0, 0, 0, 0)

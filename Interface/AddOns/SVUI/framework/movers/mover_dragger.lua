@@ -354,7 +354,7 @@ function Dragger:Initialize()
 		self.Frames = {}
 	end
 
-	if(not SV.db.general.questWatch) then
+	if(not SV.db.SVQuest.enable) then
 		UIPanels["ObjectiveTrackerFrame"] = { moving = false, snapped = false, canupdate = false, cansetpoint = false, centered = false };
 	end
 	if(SV.db.SVMap.tinyWorldMap) then

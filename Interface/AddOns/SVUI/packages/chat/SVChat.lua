@@ -113,6 +113,7 @@ local SCROLL_ALERT = [[Interface\AddOns\SVUI\assets\artwork\Chat\CHAT-SCROLL]]
 local WHISPER_ALERT = [[Interface\AddOns\SVUI\assets\artwork\Chat\CHAT-WHISPER]]
 local THROTTLE_CACHE = {};
 local ACTIVE_HYPER_LINK;
+local TABS_DIRTY = false;
 --[[ 
 ########################################################## 
 INIT SETTINGS
@@ -354,11 +355,29 @@ end
 CORE FUNCTIONS
 ##########################################################
 ]]--
+local TabsList = {};
+
+local function AnchorInsertHighlight()
+	local lastTab = TabsList[1];
+	for chatID,frame in pairs(TabsList) do
+		if(frame and frame.isDocked) then
+			lastTab = frame
+		end
+	end
+	MOD.Dock.Highlight:ClearAllPoints();
+	if(not lastTab) then
+		MOD.Dock.Highlight:SetPoint("LEFT", MOD.Dock.Bar, "LEFT", 2, 0);
+	else
+		MOD.Dock.Highlight:SetPoint("LEFT", lastTab, "RIGHT", 6, 0);
+	end
+end
+
 do
-	local TabsList = {};
 	local TabSafety = {};
 	local refreshLocked = false;
 	local doskey = false;
+
+
 
 	local SVUI_OnHyperlinkShow = function(self, link, ...)
 		if(link:sub(1, 3) == "url") then
@@ -438,6 +457,14 @@ do
 	        self:SetPanelColor("green")
 	        self.icon:SetGradient(unpack(SV.Media.gradient.green))
 	    end
+	end
+
+	local Tab_OnDragStart = function(self)
+		MOD.Dock.Highlight:Show()
+	end
+
+	local Tab_OnDragStop = function(self)
+		MOD.Dock.Highlight:Hide()
 	end
 
 	local EditBox_OnKeyUp = function(self, button)
@@ -523,6 +550,7 @@ do
 	end
 
 	local function _repositionDockedTabs()
+		if(not MOD.Dock or not TABS_DIRTY) then return end;
 		local lastTab = TabsList[1];
 		if(lastTab) then
 			lastTab:ClearAllPoints()
@@ -533,16 +561,18 @@ do
 			if(frame and chatID ~= 1 and frame.isDocked) then
 				frame:ClearAllPoints()
 				if(not lastTab) then
-					frame:SetPointToScale("LEFT", MOD.Dock.Bar, "LEFT", 2, 0);
+					frame:SetPoint("LEFT", MOD.Dock.Bar, "LEFT", 2, 0);
 				else
-					frame:SetPointToScale("LEFT", lastTab, "RIGHT", 6, 0);
+					frame:SetPoint("LEFT", lastTab, "RIGHT", 6, 0);
 				end
 				lastTab = frame
 			end
 		end
 		local newWidth = ((MOD.Dock.Bar:GetHeight() * 1.75) + 6) * offset;
 		MOD.Dock.Bar:SetWidth(newWidth);
-	end 
+		AnchorInsertHighlight();
+		TABS_DIRTY = false;
+	end  
 
 	local function _removeTab(frame,chat)
 		if(not frame or not frame.chatID) then return end 
@@ -556,6 +586,7 @@ do
 		frame:SetParent(chat)
 		frame:ClearAllPoints()
 		frame:SetPointToScale("TOPLEFT", chat, "BOTTOMLEFT", 0, 0)
+		TABS_DIRTY = true
 		_repositionDockedTabs()
 	end
 
@@ -566,8 +597,11 @@ do
 		TabsList[chatID] = frame
 	    frame.chatID = chatID;
 	    frame:SetParent(MOD.Dock.Bar)
+	    TABS_DIRTY = true
 	    _repositionDockedTabs()
 	end
+
+	NewHook("FCFDock_UpdateTabs", _repositionDockedTabs)
 
 	local function _customTab(tab, chatID, enabled)
 		if(tab.IsStyled) then return end 
@@ -613,6 +647,8 @@ do
 		tab:SetScript("OnEnter", Tab_OnEnter);
 		tab:SetScript("OnLeave", Tab_OnLeave);
 		tab:SetScript("OnClick", Tab_OnClick);
+		tab:HookScript("OnDragStart", Tab_OnDragStart);
+		tab:HookScript("OnDragStop", Tab_OnDragStop);
 		tab.Holder = holder
 		tab.Holder.link = tab
 		tab.IsStyled = true;
@@ -624,15 +660,13 @@ do
 		local chatID = chat:GetID();
 		local tabName = chatName.."Tab";
 		local tabText = _G[chatName.."TabText"]
-		local _, fontSize = FCF_GetChatWindowInfo(chatID);
-		CHAT_FONTSIZE = fontSize
-		chat:SetFont(CHAT_FONT, CHAT_FONTSIZE, CHAT_FONTOUTLINE)
-		tabText:SetFont(TAB_FONT, TAB_FONTSIZE, TAB_FONTOUTLINE)
+		chat:FontManager("chatdialog")
+		tabText:FontManager("chattab")
 		if(not chat.Panel) then
 			chat:SetStylePanel("Default", "Transparent")
 			chat.Panel:Hide()
 		end
-		if(CHAT_FONTOUTLINE ~= 'NONE' )then
+		if(SV.db.font.chatdialog.outline ~= 'NONE' )then
 			chat:SetShadowColor(0, 0, 0, 0)
 			chat:SetShadowOffset(0, 0)
 		else
@@ -751,6 +785,7 @@ do
 			_modifyChat(chat, tabText)
 			tab.owner = chat;
 			if not chat.isDocked and chat:IsShown() then
+				--print("setting size "..id .. " = " ..CHAT_WIDTH)
 				chat:SetSize(CHAT_WIDTH, CHAT_HEIGHT)
 				chat.Panel:Show()
 				if(not TAB_SKINS) then
@@ -766,14 +801,13 @@ do
 					end
 				end
 			else
-				if id == 1 then
-					FCF_SavePositionAndDimensions(chat)
-				end
-
 				chat:ClearAllPoints();
-				chat:SetAllPointsIn(MOD.Dock, 2, 2);
+				chat:SetPoint("TOPLEFT", MOD.Dock, "TOPLEFT", 2, -2);
+				chat:SetPoint("BOTTOMRIGHT", MOD.Dock, "BOTTOMRIGHT", -2, 2);
 				chat:SetBackdropColor(0,0,0,0);
 				chat.Panel:Hide();
+
+				FCF_SavePositionAndDimensions(chat)
 				
 				if(not TAB_SKINS) then
 					tab.owner = chat;
@@ -789,7 +823,7 @@ do
 						_addTab(tab.Holder, id)
 					end
 				end
-				if chat:IsMovable()then 
+				if chat:IsMovable() then
 					chat:SetUserPlaced(true)
 				end 
 			end 
@@ -804,6 +838,27 @@ function MOD:PET_BATTLE_CLOSE()
 		if frame and _G[frameName.."Tab"]:GetText():match(PET_BATTLE_COMBAT_LOG) then
 			FCF_Close(frame)
 		end
+	end
+end
+
+local function _hook_SetTabPosition(chatFrame)
+	local chatTab = _G[chatFrame:GetName().."Tab"];
+	local frame = chatTab.Holder
+	if(frame) then
+		if(not chatFrame.isLocked) then
+			frame.isDocked = false;
+			frame:ClearAllPoints();
+			frame:SetPoint("TOPLEFT", chatFrame, "BOTTOMLEFT", 0, 0);
+			TABS_DIRTY = true;
+			AnchorInsertHighlight();
+		end
+	end
+end
+
+local function _hook_TabStopDragging(chatFrame)
+	if(MOD.Dock.Highlight:IsMouseOver(10, -10, 0, 10)) then
+		TABS_DIRTY = true;
+		FCF_DockFrame(chatFrame, chatFrame:GetID(), true);
 	end
 end
 
@@ -851,10 +906,11 @@ do
 			chat = FCF_GetCurrentChatFrame();
 		end
 		if ( not size ) then
-			size = self.value or CHAT_FONTSIZE;
+			size = self.value or SV.db.font.chatdialog.size;
 		end
-		chat:SetFont(CHAT_FONT, size, CHAT_FONTOUTLINE)
-		if(CHAT_FONTOUTLINE ~= 'NONE' )then
+		SV.db.font.chatdialog.size = size;
+		SV.Events:Trigger("SVUI_FONTGROUP_UPDATED", "chatdialog");
+		if(SV.db.font.chatdialog.outline ~= 'NONE' )then
 			chat:SetShadowColor(0, 0, 0, 0)
 			chat:SetShadowOffset(0, 0)
 		else
@@ -865,10 +921,12 @@ do
 
 	local _hook_GDMFrameSetPoint = function(self)
 		self:SetAllPoints(MOD.Dock.Bar)
+		--print("_hook_GDMScrollSetPoint")
 	end
 
 	local _hook_GDMScrollSetPoint = function(self, point, anchor, attachTo, x, y)
-		if anchor == GeneralDockManagerOverflowButton and x == 0 and y == 0 then
+		if(anchor == GeneralDockManagerOverflowButton and x == 0 and y == 0) then
+			--print("_hook_GDMScrollSetPoint " .. point .. " " .. attachTo)
 			self:SetPoint(point, anchor, attachTo, -2, -6)
 		end
 	end
@@ -956,6 +1014,8 @@ do
 		NewHook('FCF_UnDockFrame', MOD.RefreshChatFrames)
 		NewHook('FCF_DockFrame', MOD.RefreshChatFrames)
 		NewHook('FCF_OpenTemporaryWindow', MOD.RefreshChatFrames)
+		NewHook("FCF_SetTabPosition", _hook_SetTabPosition)
+		NewHook("FCF_StopDragging", _hook_TabStopDragging)
 		NewHook('ChatEdit_OnEnterPressed', _hook_ChatEditOnEnterKey)
 		NewHook('FCF_SetChatWindowFontSize', _hook_ChatFontUpdate)
 		NewHook(GeneralDockManager, 'SetPoint', _hook_GDMFrameSetPoint)
@@ -996,15 +1056,9 @@ function MOD:UpdateLocals()
 	CHAT_ALLOW_URL = SV.db.SVChat.url;
 	CHAT_HOVER_URL = SV.db.SVChat.hyperlinkHover;
 	CHAT_STICKY = SV.db.SVChat.sticky;
-	CHAT_FONT = LSM:Fetch("font", SV.db.font.default.file);
-	CHAT_FONTSIZE = SV.db.font.default.size or 11;
-	CHAT_FONTOUTLINE = SV.db.font.default.outline;
 	TAB_WIDTH = SV.db.SVChat.tabWidth;
 	TAB_HEIGHT = SV.db.SVChat.tabHeight;
 	TAB_SKINS = SV.db.SVChat.tabStyled;
-	TAB_FONT = LSM:Fetch("font", SV.db.font.caps.file);
-	TAB_FONTSIZE = SV.db.font.caps.size;
-	TAB_FONTOUTLINE = SV.db.font.caps.outline;
 	CHAT_FADING = SV.db.SVChat.fade;
 	CHAT_PSST = LSM:Fetch("sound", SV.db.SVChat.psst);
 	TIME_STAMP_MASK = SV.db.SVChat.timeStampFormat;
@@ -1020,6 +1074,18 @@ end
 
 function MOD:Load()
 	self.Dock = SV.Dock:NewAdvancedDocklet("BottomLeft", "SVUI_ChatFrameDock")
+
+	local hlSize = self.Dock.Bar:GetHeight()
+	local insertHL = CreateFrame("Frame", nil, self.Dock.Bar)
+	insertHL:SetPoint("LEFT", self.Dock.Bar, "LEFT", 0, 0)
+	insertHL:SetSize(hlSize, hlSize)
+	local insTex = insertHL:CreateTexture(nil, "OVERLAY")
+	insTex:SetAllPoints()
+	insTex:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Bars\DEFAULT]]);
+	insTex:SetGradientAlpha("HORIZONTAL",0,1,1,0.8,0,0.3,0.3,0)
+	insertHL:Hide()
+
+	self.Dock.Highlight = insertHL
 
 	ScrollIndicator:SetParent(self.Dock)
 	ScrollIndicator:SetSize(20,20)
@@ -1057,4 +1123,10 @@ function MOD:Load()
 	_G.InterfaceOptionsSocialPanelChatStyle:EnableMouse(false)
 	_G.InterfaceOptionsSocialPanelChatStyleButton:Hide()
 	_G.InterfaceOptionsSocialPanelChatStyle:SetAlpha(0)
+
+	-- NewHook(ChatFrame2, "SetPoint", function(self, a1, p, a2, x, y) 
+	-- 	if(x > 2) then
+	-- 		self:SetPoint(a1, p, a2, 2, y)
+	-- 	end  
+	-- end)
 end

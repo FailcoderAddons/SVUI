@@ -285,7 +285,7 @@ local function MakeSlots(id)
 	slot.count = slot.iconFrame:CreateFontString(nil, "OVERLAY")
 	slot.count:SetJustifyH("RIGHT")
 	slot.count:SetPointToScale("BOTTOMRIGHT", slot.iconFrame, -2, 2)
-	slot.count:SetFont(LSM:Fetch("font", "SVUI Clean Font"), 12, "OUTLINE")
+	slot.count:FontManager("lootnumber")
 	slot.count:SetText(1)
 
 	slot.name = slot:CreateFontString(nil, "OVERLAY")
@@ -293,7 +293,7 @@ local function MakeSlots(id)
 	slot.name:SetPoint("LEFT", slot)
 	slot.name:SetPoint("RIGHT", slot.icon, "LEFT")
 	slot.name:SetNonSpaceWrap(true)
-	slot.name:SetFont(LSM:Fetch("font", "SVUI Clean Font"), 12, "OUTLINE")
+	slot.name:FontManager("lootdialog")
 
 	slot.drop = slot:CreateTexture(nil, "ARTWORK")
 	slot.drop:SetTexture("Interface\\QuestFrame\\UI-QuestLogTitleHighlight")
@@ -329,7 +329,7 @@ local function CreateRollButton(rollFrame, type, locale, anchor)
 	rollButton:SetScript("OnClick", DoDaRoll)
 	rollButton:SetMotionScriptsWhileDisabled(true)
 	local text = rollButton:CreateFontString(nil, nil)
-	text:SetFont(LSM:Fetch("font", "SVUI Clean Font"),14,"OUTLINE")
+	text:FontManager("rolldialog")
 	text:SetPointToScale("CENTER", 0, ((type == 2 and 1) or (type == 0 and -1.2) or 0))
 	return rollButton, text 
 end 
@@ -383,16 +383,16 @@ local function CreateRollFrame()
 	rollFrame.need,rollFrame.greed,rollFrame.pass,rollFrame.disenchant = needText,greedText,passText,deText;
 	rollFrame.bindText = rollFrame:CreateFontString()
 	rollFrame.bindText:SetPointToScale("LEFT",passButton,"RIGHT",3,1)
-	rollFrame.bindText:SetFont(LSM:Fetch("font", "SVUI Number Font"),14,"OUTLINE")
+	rollFrame.bindText:FontManager("rollnumber")
 	rollFrame.lootText = rollFrame:CreateFontString(nil,"ARTWORK")
-	rollFrame.lootText:SetFont(LSM:Fetch("font", "SVUI Number Font"),14,"OUTLINE")
+	rollFrame.lootText:FontManager("rollnumber")
 	rollFrame.lootText:SetPointToScale("LEFT",rollFrame.bindText,"RIGHT",0,0)
 	rollFrame.lootText:SetPointToScale("RIGHT",rollFrame,"RIGHT",-5,0)
 	rollFrame.lootText:SetSizeToScale(200,10)
 	rollFrame.lootText:SetJustifyH("LEFT")
 
 	rollFrame.yourRoll = rollFrame:CreateFontString(nil,"ARTWORK")
-	rollFrame.yourRoll:SetFont(LSM:Fetch("font", "SVUI Number Font"),18,"OUTLINE")
+	rollFrame.yourRoll:FontManager("rollnumber", "CENTER", 4)
 	rollFrame.yourRoll:SetSizeToScale(22,22)
 	rollFrame.yourRoll:SetPointToScale("LEFT",rollFrame,"RIGHT",5,0)
 	rollFrame.yourRoll:SetJustifyH("CENTER")
@@ -650,7 +650,7 @@ function MOD:SetLootFrames()
 	
 	SVUI_LootFrame:SetSizeToScale(256, 64);
 	SVUI_LootFrame:SetStylePanel("Fixed", 'Transparent');
-	SVUI_LootFrame.title:SetFont(LSM:Fetch("font", "SVUI Number Font"),18,"OUTLINE")
+	SVUI_LootFrame.title:FontManager("header")
 	SV:AddToDisplayAudit(SVUI_LootFrame);
 	SVUI_LootFrame:Hide();
 

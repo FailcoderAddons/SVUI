@@ -189,7 +189,7 @@ local StyleBoss = function()
 		bar:SetHeight(22)
 		name:SetPointToScale('LEFT', bar, 'LEFT', 4, 0)
 		timer:SetPointToScale('RIGHT', bar, 'RIGHT', -4, 0)
-		name:FontManager("name")
+		name:FontManager("dialog")
 		timer:FontManager("default")
 		count = count + 1
 	end

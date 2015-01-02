@@ -314,7 +314,7 @@ CONSTRUCTORS["player"] = function(self, unit)
     self.Resting = MOD:CreateRestingIndicator(self)
     self.Combat = MOD:CreateCombatIndicator(self)
     self.PvPText = self.TextGrip:CreateFontString(nil,'OVERLAY')
-    self.PvPText:FontManager("name")
+    self.PvPText:FontManager("dialog")
     self.Afflicted = MOD:CreateAfflicted(self)
     self.HealPrediction = MOD:CreateHealPrediction(self, true)
     self.AuraBars = MOD:CreateAuraBarHeader(self, key)
@@ -909,7 +909,7 @@ CONSTRUCTORS["arena"] = function(self, unit)
         prep.SpecIcon = icon
 
         local text = prep.Health:CreateFontString(nil, "OVERLAY")
-        text:SetFont(SV.Media.font.names, 16, "OUTLINE")
+        text:SetFont(SV.Media.font.dialog, 16, "OUTLINE")
         text:SetTextColor(1, 1, 1)
         text:SetPoint("CENTER")
         prep.SpecClass = text

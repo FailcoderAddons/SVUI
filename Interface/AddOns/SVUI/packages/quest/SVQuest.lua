@@ -216,12 +216,8 @@ local OBJECTIVE_GetStatus = function(self)
 
 		status.Label = status.Bar:CreateFontString(nil,"OVERLAY");
 		status.Label:SetAllPointsIn(status.Bar);
-		status.Label:SetFont(SV.Media.font.numbers, 12, "OUTLINE")
+		status.Label:FontManager("questnumber")
 		status.Label:SetTextColor(1,1,1)
-		status.Label:SetShadowOffset(-1,-1)
-		status.Label:SetShadowColor(0,0,0,0.5)
-		status.Label:SetJustifyH('CENTER')
-		status.Label:SetJustifyV('MIDDLE')
 		status.Label:SetText('')
 
 		status:SetAlpha(0);
@@ -258,12 +254,8 @@ function MOD:NewObjectiveRow(header, index)
 	objective.Text:SetPoint("TOPLEFT", objective, "TOPLEFT", 20 + 6, -2);
 	objective.Text:SetPoint("TOPRIGHT", objective, "TOPRIGHT", 0, -2);
 	objective.Text:SetHeightToScale(INNER_HEIGHT);
-	objective.Text:SetFont(SV.Media.font.default, 11, "NONE");
+	objective.Text:FontManager("questdialog", "LEFT");
 	objective.Text:SetTextColor(0.6,0.6,0.6);
-	objective.Text:SetShadowOffset(-1,-1);
-	objective.Text:SetShadowColor(0,0,0,0.5);
-	objective.Text:SetJustifyH('LEFT');
-	objective.Text:SetJustifyV('MIDDLE');
 	objective.Text:SetText('');
 
 	objective.StartProgress = OBJECTIVE_StartProgress;
@@ -415,7 +407,7 @@ end
 
 function MOD:UpdateLocals()
 	ROW_WIDTH = self.Docklet.ScrollFrame:GetWidth();
-	ROW_HEIGHT = SV.db.SVQuest.rowHeight;
+	ROW_HEIGHT = SV.db.font.questdialog.size / 0.55;
 	INNER_HEIGHT = ROW_HEIGHT - 4;
 	LARGE_ROW_HEIGHT = ROW_HEIGHT * 2;
 	LARGE_INNER_HEIGHT = LARGE_ROW_HEIGHT - 4;

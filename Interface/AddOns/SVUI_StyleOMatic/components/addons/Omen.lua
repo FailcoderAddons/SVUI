@@ -45,7 +45,7 @@ local function StyleOmen()
   Omen.db.profile.Background.Texture = "None"
   
   --[[ Bar Settings ]]--
-  Omen.db.profile.Bar.Font = "SVUI Clean Font"
+  Omen.db.profile.Bar.Font = "SVUI Default Font"
   Omen.db.profile.Bar.FontOutline = "None"
   Omen.db.profile.Bar.FontSize = 11
   Omen.db.profile.Bar.Height = 14
@@ -98,7 +98,7 @@ function PLUGIN:Docklet_Omen(parent)
   db.profile.Background.Texture = "None"
 
   --[[ Bar Settings ]]--
-  db.profile.Bar.Font = "SVUI Clean Font";
+  db.profile.Bar.Font = "SVUI Default Font";
   db.profile.Bar.FontOutline = "None";
   db.profile.Bar.FontSize = 11;
   db.profile.Bar.Height = 14;

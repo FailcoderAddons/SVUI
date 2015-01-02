@@ -1090,12 +1090,12 @@ do
 		if(not ProxyThisPlate(plate, true)) then return; end
 		SVUI_PLATE.name:FontManager("platename")
 		SVUI_PLATE.name:SetTextColor(1, 1, 1)
-		SVUI_PLATE.level:FontManager("platename")
+		SVUI_PLATE.level:FontManager("platenumber")
 		if not PLATE_ARGS.scaled and not PLATE_ARGS.tiny then
 			SVUI_PLATE.health:SetSize(HBWidth, HBHeight)
 		end
 		SVUI_PLATE.health:SetStatusBarTexture(SV.Media.bar.default)
-		SVUI_PLATE.health.text:FontManager("plateaura")
+		SVUI_PLATE.health.text:FontManager("platenumber")
 		SVUI_PLATE.cast:SetSize(HBWidth, CBHeight)
 		SVUI_PLATE.cast:SetStatusBarTexture(SV.Media.bar.gradient)
 		SVUI_PLATE.cast.text:SetFont(SV.Media.font.default, 8, "OUTLINE")

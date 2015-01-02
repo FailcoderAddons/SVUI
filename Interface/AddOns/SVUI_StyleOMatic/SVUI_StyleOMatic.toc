@@ -1,6 +1,6 @@
 ## Interface: 60000
 ## Author: Munglunch, Azilroka, Sortokk
-## Version: 5.4.08
+## Version: 5.4.1
 ## Title: |cffFF9900SVUI |r|cffFFEF00Style-O-Matic|r
 ## Notes: Supervillain UI [|cff9911FFAddon Skins|r].
 ## SavedVariables: StyleOMatic_Global

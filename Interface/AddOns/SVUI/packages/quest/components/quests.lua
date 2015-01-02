@@ -413,34 +413,22 @@ local GetQuestRow = function(self, index)
 		row.Header:SetHeightToScale(INNER_HEIGHT);
 
 		row.Header.Level = row.Header:CreateFontString(nil,"OVERLAY")
-		row.Header.Level:SetFont(SV.Media.font.numbers, 11, "NONE")
-		row.Header.Level:SetShadowOffset(-1,-1)
-		row.Header.Level:SetShadowColor(0,0,0,0.5)
-		row.Header.Level:SetJustifyH('RIGHT')
-		row.Header.Level:SetJustifyV('MIDDLE')
+		row.Header.Level:FontManager("questnumber", "RIGHT");
 		row.Header.Level:SetText('')
 		row.Header.Level:SetPoint("TOPRIGHT", row.Header, "TOPRIGHT", -4, 0);
 		row.Header.Level:SetPoint("BOTTOMRIGHT", row.Header, "BOTTOMRIGHT", -4, 0);
 
 		row.Header.Text = row.Header:CreateFontString(nil,"OVERLAY")
-		row.Header.Text:SetFont(SV.Media.font.default, 13, "NONE")
+		row.Header.Text:FontManager("questdialog", "LEFT");
 		row.Header.Text:SetTextColor(1,1,0)
-		row.Header.Text:SetShadowOffset(-1,-1)
-		row.Header.Text:SetShadowColor(0,0,0,0.5)
-		row.Header.Text:SetJustifyH('LEFT')
-		row.Header.Text:SetJustifyV('MIDDLE')
 		row.Header.Text:SetText('')
 		row.Header.Text:SetPoint("TOPLEFT", row.Header, "TOPLEFT", 4, 0);
 		row.Header.Text:SetPoint("BOTTOMRIGHT", row.Header.Level, "BOTTOMLEFT", 0, 0);
 
 		row.Header.Zone = row:CreateFontString(nil,"OVERLAY")
 		row.Header.Zone:SetAllPoints(row);
-		row.Header.Zone:SetFont(SV.Media.font.names, 11, "OUTLINE")
-		row.Header.Zone:SetJustifyH('LEFT')
-		row.Header.Zone:SetJustifyV('MIDDLE')
+		row.Header.Zone:FontManager("questdialog", "LEFT");
 		row.Header.Zone:SetTextColor(0.75,0.25,1)
-		row.Header.Zone:SetShadowOffset(-1,-1)
-		row.Header.Zone:SetShadowColor(0,0,0,0.5)
 		row.Header.Zone:SetText("")
 
 		row.Button = CreateFrame("Button", nil, row.Header)
@@ -500,12 +488,8 @@ local GetQuestRow = function(self, index)
 
 		row.Timer.TimeLeft = row.Timer.Bar:CreateFontString(nil,"OVERLAY");
 		row.Timer.TimeLeft:SetAllPointsIn(row.Timer.Bar);
-		row.Timer.TimeLeft:SetFont(SV.Media.font.numbers, 12, "OUTLINE")
+		row.Timer.TimeLeft:FontManager("questnumber");
 		row.Timer.TimeLeft:SetTextColor(1,1,1)
-		row.Timer.TimeLeft:SetShadowOffset(-1,-1)
-		row.Timer.TimeLeft:SetShadowColor(0,0,0,0.5)
-		row.Timer.TimeLeft:SetJustifyH('CENTER')
-		row.Timer.TimeLeft:SetJustifyV('MIDDLE')
 		row.Timer.TimeLeft:SetText('')
 
 		row.Timer:SetHeight(1);
@@ -808,12 +792,8 @@ function MOD:InitializeQuests()
 	quests.Header.Text = quests.Header:CreateFontString(nil,"OVERLAY")
 	quests.Header.Text:SetPoint("TOPLEFT", quests.Header, "TOPLEFT", 2, 0);
 	quests.Header.Text:SetPoint("BOTTOMLEFT", quests.Header, "BOTTOMLEFT", 2, 0);
-	quests.Header.Text:SetFont(SV.Media.font.narrator, 16, "OUTLINE")
-	quests.Header.Text:SetJustifyH('LEFT')
-	quests.Header.Text:SetJustifyV('MIDDLE')
+	quests.Header.Text:FontManager("questheader", "LEFT");
 	quests.Header.Text:SetTextColor(0.28,0.75,1)
-	quests.Header.Text:SetShadowOffset(-1,-1)
-	quests.Header.Text:SetShadowColor(0,0,0,0.5)
 	quests.Header.Text:SetText(TRACKER_HEADER_QUESTS)
 
 	quests.Header.Divider = quests.Header:CreateTexture(nil, 'BACKGROUND');

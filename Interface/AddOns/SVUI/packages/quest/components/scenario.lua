@@ -382,33 +382,21 @@ function MOD:InitializeScenarios()
 	block.Header:SetStylePanel("Default")
 
 	block.Header.Stage = block.Header:CreateFontString(nil,"OVERLAY")
-	block.Header.Stage:SetFont(SV.Media.font.default, 13, "NONE")
-	block.Header.Stage:SetShadowOffset(-1,-1)
-	block.Header.Stage:SetShadowColor(0,0,0,0.5)
-	block.Header.Stage:SetJustifyH('LEFT')
-	block.Header.Stage:SetJustifyV('MIDDLE')
+	block.Header.Stage:FontManager("questdialog", "LEFT");
 	block.Header.Stage:SetText('')
 	block.Header.Stage:SetPointToScale("TOPLEFT", block.Header, "TOPLEFT", 4, 0);
 	block.Header.Stage:SetPointToScale("BOTTOMLEFT", block.Header, "BOTTOMLEFT", 4, 0);
 
 	block.Header.Score = block.Header:CreateFontString(nil,"OVERLAY")
-	block.Header.Score:SetFont(SV.Media.font.default, 13, "NONE")
+	block.Header.Score:FontManager("questdialog", "RIGHT");
 	block.Header.Score:SetTextColor(1,1,0)
-	block.Header.Score:SetShadowOffset(-1,-1)
-	block.Header.Score:SetShadowColor(0,0,0,0.5)
-	block.Header.Score:SetJustifyH('RIGHT')
-	block.Header.Score:SetJustifyV('MIDDLE')
 	block.Header.Score:SetText('')
 	block.Header.Score:SetPointToScale("TOPRIGHT", block.Header, "TOPRIGHT", -2, 0);
 	block.Header.Score:SetPointToScale("BOTTOMRIGHT", block.Header, "BOTTOMRIGHT", -2, 0);
 
 	block.Header.Text = block.Header:CreateFontString(nil,"OVERLAY")
-	block.Header.Text:SetFont(SV.Media.font.default, 13, "NONE")
+	block.Header.Text:FontManager("questdialog");
 	block.Header.Text:SetTextColor(1,1,0)
-	block.Header.Text:SetShadowOffset(-1,-1)
-	block.Header.Text:SetShadowColor(0,0,0,0.5)
-	block.Header.Text:SetJustifyH('CENTER')
-	block.Header.Text:SetJustifyV('MIDDLE')
 	block.Header.Text:SetText('')
 	block.Header.Text:SetPointToScale("TOPLEFT", block.Header.Stage, "TOPRIGHT", 4, 0);
 	block.Header.Text:SetPointToScale("BOTTOMRIGHT", block.Header.Score, "BOTTOMRIGHT", 0, 0);
@@ -436,23 +424,15 @@ function MOD:InitializeScenarios()
 	timer.Bar.Wave = timer.Bar:CreateFontString(nil,"OVERLAY")
 	timer.Bar.Wave:SetPointToScale("TOPLEFT", timer.Bar, "TOPLEFT", 4, 0);
 	timer.Bar.Wave:SetPointToScale("BOTTOMLEFT", timer.Bar, "BOTTOMLEFT", 4, 0);
-	timer.Bar.Wave:SetFont(SV.Media.font.default, 11, "NONE")
+	timer.Bar.Wave:FontManager("questdialog", "LEFT");
 	timer.Bar.Wave:SetTextColor(1,1,0)
-	timer.Bar.Wave:SetShadowOffset(-1,-1)
-	timer.Bar.Wave:SetShadowColor(0,0,0,0.5)
-	timer.Bar.Wave:SetJustifyH('LEFT')
-	timer.Bar.Wave:SetJustifyV('MIDDLE')
 	timer.Bar.Wave:SetText('')
 
 	timer.Bar.TimeLeft = timer.Bar:CreateFontString(nil,"OVERLAY");
 	timer.Bar.TimeLeft:SetPointToScale("TOPLEFT", timer.Bar.Wave, "TOPRIGHT", 4, 0);
 	timer.Bar.TimeLeft:SetPointToScale("BOTTOMRIGHT", timer.Bar, "BOTTOMRIGHT", 0, 0);
-	timer.Bar.TimeLeft:SetFont(SV.Media.font.numbers, 12, "OUTLINE")
+	timer.Bar.TimeLeft:FontManager("questnumber");
 	timer.Bar.TimeLeft:SetTextColor(1,1,1)
-	timer.Bar.TimeLeft:SetShadowOffset(-1,-1)
-	timer.Bar.TimeLeft:SetShadowColor(0,0,0,0.5)
-	timer.Bar.TimeLeft:SetJustifyH('CENTER')
-	timer.Bar.TimeLeft:SetJustifyV('MIDDLE')
 	timer.Bar.TimeLeft:SetText('')
 
 	timer.Icon = block.Icon;

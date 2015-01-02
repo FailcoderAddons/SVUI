@@ -171,7 +171,20 @@ function Dock:SetDataTip(stat)
 	Dock.DataTooltip:SetOwner(parent, parent.Stats.TooltipAnchor)
 	Dock.DataTooltip:ClearLines()
 	GameTooltip:Hide()
-end 
+end
+
+function Dock:SetBrokerTip(stat)
+	local parent = stat:GetParent()
+	Dock.DataTooltip:Hide()
+	Dock.DataTooltip:SetOwner(parent, "ANCHOR_CURSOR")
+	Dock.DataTooltip:ClearLines()
+	GameTooltip:Hide()
+end
+
+function Dock:PrependDataTip()
+	Dock.DataTooltip:AddDoubleLine("[Alt + Click]", "Swap Stats", 0, 1, 0, 0.5, 1, 0.5)
+	Dock.DataTooltip:AddLine(" ")
+end
 
 function Dock:ShowDataTip(noSpace)
 	if(not noSpace) then
@@ -603,24 +616,28 @@ function Dock:InitializeStats()
 
 		    if dataObj.OnTooltipShow then 
 		      	function OnEnter(self)
-					Dock:SetDataTip(self)
-					dataObj.OnTooltipShow(Dock.DataTooltip)
-					Dock:ShowDataTip()
+					dataObj.OnTooltipShow(GameTooltip)
+					-- GameTooltip:SetBackdropColor(0, 0, 0, 1)
+					-- if(GameTooltip.SuperBorder) then
+					-- 	GameTooltip.SuperBorder:SetBackdropColor(0, 0, 0, 0.8)
+					-- end
 				end
 		    end
 
 		    if dataObj.OnEnter then 
 		      	function OnEnter(self)
-					Dock:SetDataTip(self)
-					dataObj.OnEnter(Dock.DataTooltip)
-					Dock:ShowDataTip()
+					dataObj.OnEnter(self)
+					-- GameTooltip:SetBackdropColor(0, 0, 0, 1)
+					-- if(GameTooltip.SuperBorder) then
+					-- 	GameTooltip.SuperBorder:SetBackdropColor(0, 0, 0, 0.8)
+					-- end
 				end
 		    end
 
 		    if dataObj.OnLeave then 
 				function OnLeave(self)
-					dataObj.OnLeave(self)
 					Dock.DataTooltip:Hide()
+					dataObj.OnLeave(self)
 				end 
 		    end
 

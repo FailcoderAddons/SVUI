@@ -36,9 +36,9 @@ local function safename(id)
     return n
 end
 
-local NAMEFONT = "SVUI Name Font";
+local DIALOGUE_FONT = "SVUI Dialog Font";
 if(GetLocale() ~= "enUS") then
-	NAMEFONT = "SVUI Clean Font"
+	DIALOGUE_FONT = "SVUI Default Font"
 end
 
 SV.defaults = {};
@@ -63,8 +63,6 @@ SV.defaults["general"] = {
     ["bubbles"] = true, 
     ["comix"] = true,
     ["bigComix"] = false,
-    ["questWatch"] = true,
-    ["questHeaders"] = true,
     ["woot"] = true, 
     ["gamemenu"] = '1',
     ["afk"] = true, 
@@ -90,39 +88,45 @@ SV.defaults["totems"] = {
 }
 
 SV.defaults["font"] = {
-	["default"] 		= {file = "SVUI Default Font", 	size = 12, 	outline = "OUTLINE", optionName = "Default", 					optionDesc = "The most commonly used font."},
-    ["name"] 			= {file = NAMEFONT, 			size = 10, 	outline = "OUTLINE", optionName = "Names", 						optionDesc = "Used in most places that unit names appear."},
-    ["title"] 			= {file = NAMEFONT, 			size = 16, 	outline = "OUTLINE", optionName = "Titles", 					optionDesc = "Font used to display various titles."}, 
-    ["number"] 			= {file = "SVUI Number Font", 	size = 11, 	outline = "OUTLINE", optionName = "Numbers (Regular)", 			optionDesc = "Font used to display most numeric values."},
-    ["number_big"]		= {file = "SVUI Number Font", 	size = 18, 	outline = "OUTLINE", optionName = "Numbers (Large)", 			optionDesc = "Font used to display larger numeric values."},  
-    ["combat"] 			= {file = "SVUI Combat Font", 	size = 32, 	outline = "OUTLINE", optionName = "Combat", 					optionDesc = "Scrolling combat text font."}, 
-    ["alert"] 			= {file = "SVUI Alert Font", 	size = 20, 	outline = "OUTLINE", optionName = "Alerts", 					optionDesc = "Font used for on-screen message alerts."},
-    ["zone"] 			= {file = "SVUI Zone Font", 	size = 16, 	outline = "OUTLINE", optionName = "Zone Text",  				optionDesc = "Font used for zone names. Shown when changing zones."},
-    ["caps"] 			= {file = "SVUI Caps Font", 	size = 12, 	outline = "OUTLINE", optionName = "Caps", 						optionDesc = "Font typically used for things like tabs and fitted headers."},
-    ["aura"] 			= {file = "SVUI Number Font", 	size = 10, 	outline = "OUTLINE", optionName = "Auras", 						optionDesc = "Aura counts and timers use this font."},
-    ["data"] 			= {file = "SVUI Number Font", 	size = 11, 	outline = "OUTLINE", optionName = "Docked Stats", 				optionDesc = "Font used by the bottom and top data docks."},
-    ["narrator"]		= {file = "SVUI Narrator Font",	size = 12, 	outline = "OUTLINE", optionName = "Narratives", 				optionDesc = "Font used for things like the 'Meanwhile' tag."},
-    ["pixel"] 			= {file = "SVUI Pixel Font", 	size = 8, 	outline = "MONOCHROMEOUTLINE", optionName = "Pixel", 			optionDesc = "Tiniest fonts."},
-    ["platename"] 		= {file = "SVUI Caps Font", 	size = 9, 	outline = "OUTLINE", optionName = "Nameplate Names", 			optionDesc = "Used on nameplates for unit names."},
-    ["plateaura"] 		= {file = "SVUI Caps Font", 	size = 9, 	outline = "OUTLINE", optionName = "Nameplate Auras", 			optionDesc = "Used on nameplates for aura texts."},
-    ["unitprimary"] 	= {file = "SVUI Number Font", 	size = 11, 	outline = "OUTLINE", optionName = "Unitframe Values", 			optionDesc = "Used on all primary unit frames for health, power and misc values.\nUnits: player, pet, target, focus, boss and arena"},
-    ["unitsecondary"] 	= {file = "SVUI Number Font", 	size = 11, 	outline = "OUTLINE", optionName = "Unitframe Values", 			optionDesc = "Used on all non-primary unit frames for health, power and misc values.\nUnits: pettarget, targettarget, focustarget, party, raid, raidpet, tank and assist."},
-    ["unitaurabar"] 	= {file = "SVUI Alert Font", 	size = 10, 	outline = "OUTLINE", optionName = "Unitframe AuraBar", 			optionDesc = "Used on unit aurabars."},
-    ["unitaurasmall"] 	= {file = "SVUI Pixel Font", 	size = 8, 	outline = "MONOCHROMEOUTLINE", optionName = "Unitframe Aura (Small)", 	optionDesc = "Used on unit frames for auras (small scale)."},
-    ["unitauramedium"] 	= {file = "SVUI Default Font", 	size = 10, 	outline = "OUTLINE", optionName = "Unitframe Aura (Medium)", 	optionDesc = "Used on unit frames for auras (medium scale)."},
-    ["unitauralarge"] 	= {file = "SVUI Number Font", 	size = 10, 	outline = "OUTLINE", optionName = "Unitframe Aura (Large)", 	optionDesc = "Used on unit frames for auras (large scale)."},
+	["default"] 		= {file = "SVUI Default Font", 	size = 12, 	outline = "OUTLINE"},
+    ["dialog"] 			= {file = DIALOGUE_FONT, 		size = 10, 	outline = "OUTLINE"},
+    ["title"] 			= {file = DIALOGUE_FONT, 		size = 16, 	outline = "OUTLINE"}, 
+    ["number"] 			= {file = "SVUI Number Font", 	size = 11, 	outline = "OUTLINE"},
+    ["number_big"]		= {file = "SVUI Number Font", 	size = 18, 	outline = "OUTLINE"},
+    ["header"]			= {file = "SVUI Number Font", 	size = 18, 	outline = "OUTLINE"},  
+    ["combat"] 			= {file = "SVUI Combat Font", 	size = 32, 	outline = "OUTLINE"}, 
+    ["alert"] 			= {file = "SVUI Alert Font", 	size = 20, 	outline = "OUTLINE"},
+    ["zone"] 			= {file = "SVUI Zone Font", 	size = 16, 	outline = "OUTLINE"},
+    ["caps"] 			= {file = "SVUI Caps Font", 	size = 12, 	outline = "OUTLINE"},
+    ["aura"] 			= {file = "SVUI Number Font", 	size = 10, 	outline = "OUTLINE"},
+    ["data"] 			= {file = "SVUI Number Font", 	size = 11, 	outline = "OUTLINE"},
+    ["narrator"]		= {file = "SVUI Narrator Font",	size = 12, 	outline = "OUTLINE"},
+    ["pixel"] 			= {file = "SVUI Pixel Font", 	size = 8, 	outline = "MONOCHROMEOUTLINE"},
+    ["chatdialog"] 		= {file = "SVUI Default Font", 	size = 12, 	outline = "OUTLINE"},
+	["chattab"]			= {file = "SVUI Caps Font", 	size = 12, 	outline = "OUTLINE"},
+    ["lootdialog"] 		= {file = "SVUI Default Font", 	size = 14, 	outline = "OUTLINE"},
+    ["lootnumber"] 		= {file = "SVUI Number Font", 	size = 11, 	outline = "OUTLINE"},
+    ["rolldialog"] 		= {file = "SVUI Default Font", 	size = 14, 	outline = "OUTLINE"},
+    ["rollnumber"] 		= {file = "SVUI Number Font", 	size = 11, 	outline = "OUTLINE"},
+    ["bagdialog"] 		= {file = "SVUI Default Font", 	size = 11, 	outline = "OUTLINE"},
+    ["bagnumber"] 		= {file = "SVUI Number Font", 	size = 11, 	outline = "OUTLINE"},
+    ["tipdialog"] 		= {file = "SVUI Default Font", 	size = 12, 	outline = "OUTLINE"},
+    ["tipheader"] 		= {file = "SVUI Number Font", 	size = 14, 	outline = "OUTLINE"},
+    ["questdialog"] 	= {file = "SVUI Default Font", 	size = 11, 	outline = "OUTLINE"},
+    ["questheader"] 	= {file = "SVUI Narrator Font", size = 16, 	outline = "OUTLINE"}, 
+    ["questnumber"] 	= {file = "SVUI Number Font", 	size = 11, 	outline = "OUTLINE"},
+    ["platename"] 		= {file = "SVUI Caps Font", 	size = 9, 	outline = "OUTLINE"},
+    ["platenumber"] 	= {file = "SVUI Caps Font", 	size = 9, 	outline = "OUTLINE"},
+    ["plateaura"] 		= {file = "SVUI Pixel Font", 	size = 8, 	outline = "MONOCHROMEOUTLINE"},
+    ["unitprimary"] 	= {file = "SVUI Number Font", 	size = 11, 	outline = "OUTLINE"},
+    ["unitsecondary"] 	= {file = "SVUI Number Font", 	size = 11, 	outline = "OUTLINE"},
+    ["unitaurabar"] 	= {file = "SVUI Alert Font", 	size = 10, 	outline = "OUTLINE"},
+    ["unitauramedium"] 	= {file = "SVUI Default Font", 	size = 10, 	outline = "OUTLINE"},
+    ["unitauralarge"] 	= {file = "SVUI Number Font", 	size = 10, 	outline = "OUTLINE"},
+    ["unitaurasmall"] 	= {file = "SVUI Pixel Font", 	size = 8, 	outline = "MONOCHROMEOUTLINE"},
 }
 
 SV.defaults["media"] = {
-    ["fonts"] = {
-        ["default"] = "SVUI Name Font", 
-        ["name"] = NAMEFONT, 
-        ["number"] = "SVUI Number Font", 
-        ["combat"] = "SVUI Number Font", 
-        ["giant"] = "SVUI Name Font", 
-        ["size"] = 10, 
-        ["unicodeSize"] = 12, 
-    }, 
     ["textures"] = { 
         ["pattern"]      = "SVUI Backdrop 1", 
         ["comic"]        = "SVUI Comic 1", 
@@ -223,7 +227,7 @@ SV.defaults["Dock"] = {
 
 SV.defaults["SVBar"] = {
 	["enable"] = true, 
-	["font"] = "SVUI Clean Font", 
+	["font"] = "SVUI Default Font", 
 	["fontSize"] = 11,  
 	["fontOutline"] = "OUTLINE",
 	["countFont"] = "SVUI Number Font", 
@@ -520,7 +524,7 @@ SV.defaults["SVChat"] = {
 	["tabHeight"] = 20, 
 	["tabWidth"] = 75, 
 	["tabStyled"] = true, 
-	["font"] = "SVUI Clean Font", 
+	["font"] = "SVUI Default Font", 
 	["fontOutline"] = "OUTLINE", 
 	["tabFont"] = "SVUI Tab Font", 
 	["tabFontSize"] = 11, 
@@ -668,7 +672,7 @@ SV.defaults["SVPlate"] = {
 	["enable"] = true,
 	["comicStyle"] = true,
 	["filter"] = {}, 
-	["font"] = NAMEFONT, 
+	["font"] = DIALOGUE_FONT, 
 	["fontSize"] = 10, 
 	["fontOutline"] = "OUTLINE", 
 	["comboPoints"] = true, 
@@ -737,7 +741,6 @@ SV.defaults["SVPlate"] = {
 
 SV.defaults["SVQuest"] = {
     ["enable"] = true, 
-    ["rowHeight"] = 20,
 };
 
 SV.defaults["SVTip"] = {
@@ -758,7 +761,7 @@ SV.defaults["SVTip"] = {
 	["healthBar"] = {
 		["text"] = true, 
 		["height"] = 10, 
-		["font"] = "SVUI Clean Font", 
+		["font"] = "SVUI Default Font", 
 		["fontSize"] = 10, 
 	}, 
 };
@@ -862,7 +865,7 @@ SV.defaults["SVUnit"] = {
 			["tags"] = "", 
 			["xOffset"] = 0, 
 			["yOffset"] = 0, 
-			["font"] = NAMEFONT, 
+			["font"] = DIALOGUE_FONT, 
 			["fontSize"] = 10, 
 			["fontOutline"] = "OUTLINE", 
 		}, 
@@ -1053,7 +1056,7 @@ SV.defaults["SVUnit"] = {
 			["tags"] = "[name:color][name:18][smartlevel]", 
 			["xOffset"] = -2, 
 			["yOffset"] = 9, 
-			["font"] = NAMEFONT, 
+			["font"] = DIALOGUE_FONT, 
 			["fontSize"] = 10, 
 			["fontOutline"] = "OUTLINE", 
 		}, 
@@ -1287,7 +1290,7 @@ SV.defaults["SVUnit"] = {
 			["tags"] = "[name:color][name:10]", 
 			["xOffset"] = 0, 
 			["yOffset"] = 1, 
-			["font"] = NAMEFONT, 
+			["font"] = DIALOGUE_FONT, 
 			["fontSize"] = 10, 
 			["fontOutline"] = "OUTLINE", 
 		}, 
@@ -1451,7 +1454,7 @@ SV.defaults["SVUnit"] = {
 			["tags"] = "[name:color][name:15]", 
 			["xOffset"] = 0, 
 			["yOffset"] = 0, 
-			["font"] = NAMEFONT, 
+			["font"] = DIALOGUE_FONT, 
 			["fontSize"] = 10, 
 			["fontOutline"] = "OUTLINE", 
 		},
@@ -1659,7 +1662,7 @@ SV.defaults["SVUnit"] = {
 			["tags"] = "[name:color][name:15]", 
 			["yOffset"] = 0, 
 			["xOffset"] = 0, 
-			["font"] = NAMEFONT, 
+			["font"] = DIALOGUE_FONT, 
 			["fontSize"] = 10, 
 			["fontOutline"] = "OUTLINE", 
 		},
@@ -1814,7 +1817,7 @@ SV.defaults["SVUnit"] = {
 			["tags"] = "[name:color][name:8]", 
 			["yOffset"] = 0, 
 			["xOffset"] = 0, 
-			["font"] = NAMEFONT, 
+			["font"] = DIALOGUE_FONT, 
 			["fontSize"] = 10, 
 			["fontOutline"] = "OUTLINE", 
 		}, 
@@ -1940,7 +1943,7 @@ SV.defaults["SVUnit"] = {
 			["tags"] = "[name:color][name:15]", 
 			["yOffset"] = 0, 
 			["xOffset"] = 0, 
-			["font"] = NAMEFONT, 
+			["font"] = DIALOGUE_FONT, 
 			["fontSize"] = 10, 
 			["fontOutline"] = "OUTLINE", 
 		}, 
@@ -2092,7 +2095,7 @@ SV.defaults["SVUnit"] = {
 			["tags"] = "[name:color][name:15]", 
 			["yOffset"] = 0, 
 			["xOffset"] = 0, 
-			["font"] = NAMEFONT, 
+			["font"] = DIALOGUE_FONT, 
 			["fontSize"] = 10, 
 			["fontOutline"] = "OUTLINE", 
 		}, 
@@ -2216,7 +2219,7 @@ SV.defaults["SVUnit"] = {
 			["tags"] = "[name:color][name:15]", 
 			["yOffset"] = 0, 
 			["xOffset"] = 0, 
-			["font"] = NAMEFONT, 
+			["font"] = DIALOGUE_FONT, 
 			["fontSize"] = 10,  
 			["fontOutline"] = "OUTLINE", 
 		}, 
@@ -2373,7 +2376,7 @@ SV.defaults["SVUnit"] = {
 			["tags"] = "[name:color][name:10]", 
 			["yOffset"] = -2, 
 			["xOffset"] = 0, 
-			["font"] = NAMEFONT, 
+			["font"] = DIALOGUE_FONT, 
 			["fontSize"] = 10, 
 			["fontOutline"] = "NONE", 
 		}, 

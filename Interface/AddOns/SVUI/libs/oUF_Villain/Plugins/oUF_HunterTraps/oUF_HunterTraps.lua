@@ -40,7 +40,26 @@ local TRAP_COLORS = {
 
 local HAS_SNAKE_TRAP = false;
 
-local function UpdateBar(self, elapsed)
+local function UpdateTrap(self, elapsed)
+	if not self.duration then return end
+	self.elapsed = (self.elapsed or 0) + elapsed
+	if self.elapsed >= 0.5 then
+		local timeLeft = (self.duration - (self.duration - (GetTime() - self.start))) * 1000
+		if timeLeft < self.duration then
+			self:SetValue(timeLeft)
+			self:SetStatusBarColor(unpack(TRAP_COLORS[self.colorIndex]))
+		else
+			self:SetStatusBarColor(0.9,0.9,0.9)
+			self.elapsed = 0
+			self.start = nil
+			self.duration = nil
+			self:SetScript("OnUpdate", nil)
+			self:Update(true)
+		end
+	end		
+end
+
+local function UpdateSnakeTrap(self, elapsed)
 	if not self.duration then return end
 	self.elapsed = (self.elapsed or 0) + elapsed
 	if self.elapsed >= 0.5 then
@@ -72,6 +91,7 @@ local Update = function(self, event, ...)
 			TRAP_COLORS[3] = ICE_COLOR
 			HAS_SNAKE_TRAP = false
 		end
+		bar[3]:Update(nil, HAS_SNAKE_TRAP, true)
 	end
 
 	if(bar.PreUpdate) then bar:PreUpdate(event) end
@@ -97,8 +117,13 @@ local Update = function(self, event, ...)
 					bar[i]:SetValue(0)
 					bar[i].start = start
 					bar[i].duration = duration
-					bar[i]:SetScript('OnUpdate', UpdateBar)
-					bar[i]:Update(false, HAS_SNAKE_TRAP)
+					if(i == 3) then
+						bar[i]:SetScript('OnUpdate', UpdateSnakeTrap)
+						bar[i]:Update(false, HAS_SNAKE_TRAP)
+					else
+						bar[i]:SetScript('OnUpdate', UpdateTrap)
+						bar[i]:Update()
+					end
 				end
 			end
 		end		

@@ -78,8 +78,18 @@ local RefProfessionColors = {
 	[0x10000] = {222/255,13/255,65/255},
 	[0x100000] = {18/255,224/255,180/255}
 }
-
 local BagFilters = CreateFrame("Frame", "SVUI_BagFilterMenu", UIParent);
+--[[ 
+########################################################## 
+UPVALUES
+##########################################################
+]]--
+local DIALOG_FONT = [[Interface\AddOns\SVUI\assets\fonts\Default.ttf]];
+local DIALOG_FONTSIZE = 12;
+local DIALOG_FONTOUTLINE = "OUTLINE";
+local NUMBER_FONT = [[Interface\AddOns\SVUI\assets\fonts\Default.ttf]];
+local NUMBER_FONTSIZE = 12;
+local NUMBER_FONTOUTLINE = "OUTLINE";
 --[[ 
 ########################################################## 
 LOCAL FUNCTIONS
@@ -1294,7 +1304,7 @@ do
 		frame.holderFrame:SetPointToScale("BOTTOM", frame, "BOTTOM", 0, frame.bottomOffset)
 
 		frame.Title = frame:CreateFontString()
-		frame.Title:SetFontObject(NumberFont_Outline_Large)
+		frame.Title:FontManager("header")
 		frame.Title:SetText(INVENTORY_TOOLTIP)
 		frame.Title:SetPoint("TOPLEFT", frame, "TOPLEFT", 2, -2)
 		frame.Title:SetTextColor(1,0.8,0)
@@ -1305,7 +1315,7 @@ do
 		frame.BagMenu:Hide()
 
 		frame.goldText = frame:CreateFontString(nil, "OVERLAY")
-		frame.goldText:FontManager("number")
+		frame.goldText:FontManager("bagnumber")
 		frame.goldText:SetPointToScale("BOTTOMRIGHT", frame.holderFrame, "TOPRIGHT", -2, 4)
 		frame.goldText:SetJustifyH("RIGHT")
 
@@ -1325,7 +1335,7 @@ do
 		frame.editBox:SetScript("OnChar", Search_OnInput)
 		frame.editBox.SearchReset = Search_OnKeyPressed
 		frame.editBox:SetText(SEARCH)
-		frame.editBox:FontManager("default")
+		frame.editBox:FontManager("bagdialog")
 
 		local searchButton = CreateFrame("Button", nil, frame)
 		searchButton:RegisterForClicks("LeftButtonUp", "RightButtonUp")
@@ -1334,7 +1344,7 @@ do
 		searchButton:SetStylePanel("Button")
 		searchButton:SetScript("OnClick", Search_OnClick)
 		local searchText = searchButton:CreateFontString(nil, "OVERLAY")
-		searchText:SetFont(SV.Media.font.default, 12, "NONE")
+		searchText:FontManager("bagdialog", nil, 0, "NONE")
 		searchText:SetAllPoints(searchButton)
 		searchText:SetJustifyH("CENTER")
 		searchText:SetText("|cff9999ff"..SEARCH.."|r")
@@ -1413,7 +1423,7 @@ do
 			frame.currencyButton[h].icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 			frame.currencyButton[h].text = frame.currencyButton[h]:CreateFontString(nil, "OVERLAY")
 			frame.currencyButton[h].text:SetPointToScale("LEFT", frame.currencyButton[h], "RIGHT", 2, 0)
-			frame.currencyButton[h].text:FontManager("number_big")
+			frame.currencyButton[h].text:FontManager("bagnumber")
 			frame.currencyButton[h]:SetScript("OnEnter", Token_OnEnter)
 			frame.currencyButton[h]:SetScript("OnLeave", Token_OnLeave)
 			frame.currencyButton[h]:SetScript("OnClick", Token_OnClick)
@@ -1486,7 +1496,7 @@ do
 		frame.holderFrame:SetPointToScale("BOTTOM", frame, "BOTTOM", 0, frame.bottomOffset)
 
 		frame.Title = frame:CreateFontString()
-		frame.Title:SetFontObject(NumberFont_Outline_Large)
+		frame.Title:FontManager("header")
 		frame.Title:SetText(isReagent and REAGENT_BANK or BANK or "Bank")
 		frame.Title:SetPoint("TOPLEFT", frame, "TOPLEFT", 2, -2)
 		frame.Title:SetTextColor(1,0.8,0)
@@ -1790,6 +1800,15 @@ end
 BUILD FUNCTION / UPDATE
 ##########################################################
 ]]--
+function MOD:UpdateLocals()
+	DIALOG_FONT = LSM:Fetch("font", SV.db.font.bagdialog.file);
+	DIALOG_FONTSIZE = SV.db.font.bagdialog.size or 11;
+	DIALOG_FONTOUTLINE = SV.db.font.bagdialog.outline;
+	NUMBER_FONT = LSM:Fetch("font", SV.db.font.bagnumber.file);
+	NUMBER_FONTSIZE = SV.db.font.bagnumber.size;
+	NUMBER_FONTOUTLINE = SV.db.font.bagnumber.outline;
+end
+
 function MOD:ReLoad()
 	if not SV.db.SVBag.enable then return end
 	self:RefreshBagFrames()

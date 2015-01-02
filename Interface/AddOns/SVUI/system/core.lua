@@ -412,7 +412,7 @@ function SVUI:VersionCheck()
 end
 
 function SVUI:RefreshEverything(bypass)
-    self:RefreshAllSystemMedia();
+    self:MediaUpdate();
     self.Mentalo:SetPositions();
     SVLib:RefreshAll();
     if not bypass then
@@ -527,14 +527,9 @@ function SVUI:Initialize()
     SVLib:Initialize();
 
     self:UI_SCALE_CHANGED()
-
-    --self:RefreshSystemFonts();
     self:LoadSystemAlerts();
-
     self.Timers:Initialize();
-
     self:LoadFramework();
-
     self.safedata = SVLib:GetSafeData();
 
     SVLib:Launch();
