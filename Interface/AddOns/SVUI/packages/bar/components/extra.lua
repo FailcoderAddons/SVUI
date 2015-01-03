@@ -58,6 +58,12 @@ local ExtraButton_OnEvent = function(self, event)
 			self:SetAbility()
 		end
 	else
+		if(not InCombatLockdown()) then
+			local action = ExtraActionButton1:GetAttribute('action')
+			if(action) then
+				self:SetAbility(action)
+			end
+		end
 		self:Update()
 	end
 end

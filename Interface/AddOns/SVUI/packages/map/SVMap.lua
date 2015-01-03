@@ -283,7 +283,7 @@ do
 end
 
 local function UpdateMapCoords()
-	local xF, yF = "|cffffffffx:  |r%.1f", "|cffffffffy:  |r%.1f"
+	local xF, yF = "|cffFFCC00X:  |r%.1f", "|cffFFCC00Y:  |r%.1f"
 	local skip = IsInInstance()
 	local c, d = GetPlayerMapPosition("player")
 	if((not skip) and (c ~= 0 and d ~= 0)) then

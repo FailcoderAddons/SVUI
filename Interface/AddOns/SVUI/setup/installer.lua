@@ -161,7 +161,7 @@ local function UFMoveBottomQuadrant(toggle)
 		anchors.SVUI_Target_MOVE = "BOTTOMSVUIParentBOTTOM278182"
 		anchors.SVUI_TargetCastbar_MOVE = "BOTTOMSVUIParentBOTTOM278122"
 		--anchors.SVUI_Pet_MOVE = "BOTTOMSVUIParentBOTTOM0181"
-		anchors.SVUI_TargetTarget_MOVE = "BOTTOMSVUIParentBOTTOM0214"
+		anchors.SVUI_TargetTarget_MOVE = "BOTTOMSVUIParentBOTTOM0198"
 		anchors.SVUI_Focus_MOVE = "BOTTOMSVUIParentBOTTOM310432"
 		anchors.SVUI_ThreatBar_MOVE = "BOTTOMRIGHTSVUIParentBOTTOMRIGHT-495182"
 	elseif toggle == "shift" then
@@ -170,9 +170,18 @@ local function UFMoveBottomQuadrant(toggle)
 		anchors.SVUI_Target_MOVE = "BOTTOMSVUIParentBOTTOM278210"
 		anchors.SVUI_TargetCastbar_MOVE = "BOTTOMSVUIParentBOTTOM278150"
 		--anchors.SVUI_Pet_MOVE = "BOTTOMSVUIParentBOTTOM0209"
-		anchors.SVUI_TargetTarget_MOVE = "BOTTOMSVUIParentBOTTOM0242"
+		anchors.SVUI_TargetTarget_MOVE = "BOTTOMSVUIParentBOTTOM0226"
 		anchors.SVUI_Focus_MOVE = "BOTTOMSVUIParentBOTTOM310432"
 		anchors.SVUI_ThreatBar_MOVE = "BOTTOMRIGHTSVUIParentBOTTOMRIGHT-495210"
+	elseif toggle == "minimal" then
+		anchors.SVUI_Player_MOVE = "BOTTOMSVUIParentBOTTOM-278182"
+		anchors.SVUI_PlayerCastbar_MOVE = "BOTTOMSVUIParentBOTTOM-278122"
+		anchors.SVUI_Target_MOVE = "BOTTOMSVUIParentBOTTOM278182"
+		anchors.SVUI_TargetCastbar_MOVE = "BOTTOMSVUIParentBOTTOM278122"
+		--anchors.SVUI_Pet_MOVE = "BOTTOMSVUIParentBOTTOM0181"
+		anchors.SVUI_TargetTarget_MOVE = "BOTTOMSVUIParentBOTTOM0182"
+		anchors.SVUI_Focus_MOVE = "BOTTOMSVUIParentBOTTOM310432"
+		anchors.SVUI_ThreatBar_MOVE = "BOTTOMRIGHTSVUIParentBOTTOMRIGHT-495182"
 	else
 		local c = 136;
 		local d = 135;
@@ -654,6 +663,22 @@ function SV.Setup:Minimalist()
 	SV.db.SVTip.comicStyle = false;
 	--SV.db.SVTools.enable = false;
 	SV.db.SVUnit.comicStyle = false;
+
+	SV.db.SVUnit.player.height = 22;
+	SV.db.SVUnit.player.power.height = 6;
+
+	SV.db.SVUnit.target.height = 22;
+	SV.db.SVUnit.target.power.height = 6;
+	SV.db.SVUnit.targettarget.height = 22;
+	SV.db.SVUnit.targettarget.power.height = 6;
+	SV.db.SVUnit.pet.height = 22;
+	SV.db.SVUnit.pet.power.height = 6;
+	SV.db.SVUnit.focus.height = 22;
+	SV.db.SVUnit.focus.power.height = 6;
+	SV.db.SVUnit.boss.height = 22;
+	SV.db.SVUnit.boss.power.height = 6;
+
+	UFMoveBottomQuadrant("minimal")
 
 	SVLib:SaveSafeData("install_version", SV.Version)
 	StopMusic()

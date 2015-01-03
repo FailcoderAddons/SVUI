@@ -428,7 +428,7 @@ function SVUI:PLAYER_ENTERING_WORLD()
     end
     if(not self.MediaInitialized) then 
         self:RefreshAllSystemMedia() 
-    end 
+    end
     local _,instanceType = IsInInstance()
     if(instanceType == "pvp") then 
         self.BGTimer = self.Timers:ExecuteLoop(RequestBattlefieldScoreData, 5)
@@ -538,7 +538,6 @@ function SVUI:Initialize()
     self:PlayerInfoUpdate();
     self:VersionCheck()
     self:RefreshAllSystemMedia();
-
     hooksecurefunc("StaticPopup_Show", self.StaticPopup_Show)
 
     SVLib:RefreshModule("SVMap");

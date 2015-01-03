@@ -213,6 +213,8 @@ local FontManager = function(self, template, arg, sizeMod, styleOverride, colorR
     ManagedFonts[template][self] = true
 end
 
+SV.SetToFontManager = FontManager;
+
 local function UpdateFontTemplate(template)
     template = template or "default";
     local info = SV.db.font[template];

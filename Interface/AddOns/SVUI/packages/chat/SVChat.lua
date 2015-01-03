@@ -660,7 +660,7 @@ do
 		local chatID = chat:GetID();
 		local tabName = chatName.."Tab";
 		local tabText = _G[chatName.."TabText"]
-		chat:FontManager("chatdialog")
+		chat:FontManager("chatdialog", "LEFT")
 		tabText:FontManager("chattab")
 		if(not chat.Panel) then
 			chat:SetStylePanel("Default", "Transparent")

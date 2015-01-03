@@ -291,6 +291,12 @@ local function LoadGarrisonStyle()
 	GarrisonLandingPage.FollowerList:RemoveTextures()
 	GarrisonLandingPage.FollowerList:SetStylePanel("Default", 'Inset', false, 4, 0, 0)
 
+	local bgFrameTop = CreateFrame("Frame", nil, GarrisonLandingPage.Report)
+	bgFrameTop:SetPoint("TOPLEFT", GarrisonLandingPage.Report, "TOPLEFT", 38, -91)
+	bgFrameTop:SetPoint("BOTTOMRIGHT", GarrisonLandingPage.Report.List, "BOTTOMLEFT", -4, 0)
+	bgFrameTop:SetStylePanel("Default", "Paper")
+	bgFrameTop:SetPanelColor("special")
+
 	PLUGIN:ApplyTabStyle(GarrisonLandingPageTab1, nil, 10, 4)
 	PLUGIN:ApplyTabStyle(GarrisonLandingPageTab2, nil, 10, 4)
 
@@ -341,6 +347,12 @@ local function LoadGarrisonStyle()
 	GarrisonMissionFrame.MissionTab.MissionPage:SetStylePanel("Default", 'Paper', false, 4, 0, 0)
 	GarrisonMissionFrame.MissionTab.MissionPage:SetPanelColor("special")
 
+	local missionChance = GarrisonMissionFrame.MissionTab.MissionPage.RewardsFrame.Chance;
+	missionChance:FontManager("number_big")
+	local chanceLabel = GarrisonMissionFrame.MissionTab.MissionPage.RewardsFrame.ChanceLabel
+	chanceLabel:FontManager("header", nil, -4)
+	chanceLabel:ClearAllPoints()
+	chanceLabel:SetPoint("TOP", missionChance, "BOTTOM", 0, -8)
 
 	GarrisonMissionFrame.MissionTab.MissionPage.Panel:ClearAllPoints()
 	GarrisonMissionFrame.MissionTab.MissionPage.Panel:SetPoint("TOPLEFT", GarrisonMissionFrame.MissionTab.MissionPage, "TOPLEFT", 0, 4)

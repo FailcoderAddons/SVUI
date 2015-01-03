@@ -295,12 +295,13 @@ local function QuestChoiceFrameStyle()
 	bgFrameTop:SetPoint("TOPLEFT", QuestChoiceFrame, "TOPLEFT", 42, -44)
 	bgFrameTop:SetPoint("TOPRIGHT", QuestChoiceFrame, "TOPRIGHT", -42, -44)
 	bgFrameTop:SetHeight(85)
-	bgFrameTop:SetStylePanel("Default", "Inset")
+	bgFrameTop:SetStylePanel("Default", "Paper")
+	bgFrameTop:SetPanelColor("dark")
 
 	local bgFrameBottom = CreateFrame("Frame", nil, QuestChoiceFrame)
 	bgFrameBottom:SetPoint("TOPLEFT", QuestChoiceFrame, "TOPLEFT", 42, -140)
 	bgFrameBottom:SetPoint("BOTTOMRIGHT", QuestChoiceFrame, "BOTTOMRIGHT", -42, 44)
-	bgFrameBottom:SetStylePanel("Default", "Inset")
+	bgFrameBottom:SetStylePanel("Default", "Paper")
 
 
 	PLUGIN:ApplyCloseButtonStyle(QuestChoiceFrame.CloseButton)

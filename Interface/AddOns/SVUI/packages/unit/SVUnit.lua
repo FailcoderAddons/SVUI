@@ -643,8 +643,14 @@ function MOD:RefreshUnitLayout(frame, template)
 
 				POWER_GRIP:ClearAllPoints()
 				POWER_GRIP:SetHeightToScale(POWER_HEIGHT - 2)
-				POWER_GRIP:SetPointToScale(BOTTOM_ANCHOR1, frame, BOTTOM_ANCHOR1, (PORTRAIT_WIDTH - (1 * BOTTOM_MODIFIER)), 2)
-				POWER_GRIP:SetPointToScale(BOTTOM_ANCHOR2, frame, BOTTOM_ANCHOR2, (2 * BOTTOM_MODIFIER), 2)
+
+				if(not PORTRAIT_OVERLAY) then
+					POWER_GRIP:SetPointToScale(BOTTOM_ANCHOR1, frame, BOTTOM_ANCHOR1, PORTRAIT_WIDTH, 1)
+					POWER_GRIP:SetPointToScale(BOTTOM_ANCHOR2, frame, BOTTOM_ANCHOR2, (1 * BOTTOM_MODIFIER), 1)
+				else
+					POWER_GRIP:SetPointToScale(BOTTOM_ANCHOR1, frame, BOTTOM_ANCHOR1, (PORTRAIT_WIDTH - (1 * BOTTOM_MODIFIER)), 2)
+					POWER_GRIP:SetPointToScale(BOTTOM_ANCHOR2, frame, BOTTOM_ANCHOR2, (2 * BOTTOM_MODIFIER), 2)
+				end
 			elseif(frame:IsElementEnabled('Power')) then 
 				frame:DisableElement('Power')
 				POWER_GRIP:Hide()

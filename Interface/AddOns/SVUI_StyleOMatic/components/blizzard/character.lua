@@ -131,7 +131,36 @@ local function StyleCharacterSlots()
 				end
 			end
 		end 
-	end 
+	end
+
+	for i = 1, #PAPERDOLL_SIDEBARS do 
+		local tab = _G["PaperDollSidebarTab"..i]
+		if(tab and not tab.Panel) then
+			tab.Highlight:SetTexture(1, 1, 1, 0.3)
+			tab.Highlight:SetPointToScale("TOPLEFT", 3, -4)
+			tab.Highlight:SetPointToScale("BOTTOMRIGHT", -1, 0)
+			tab.Hider:SetTexture(0.4, 0.4, 0.4, 0.4)
+			tab.Hider:SetPointToScale("TOPLEFT", 3, -4)
+			tab.Hider:SetPointToScale("BOTTOMRIGHT", -1, 0)
+			tab.TabBg:Die()
+			if i == 1 then
+				for x = 1, tab:GetNumRegions()do 
+					local texture = select(x, tab:GetRegions())
+					texture:SetTexCoord(0.16, 0.86, 0.16, 0.86)
+				end 
+			end 
+			tab:SetStylePanel("Default", "Default", true, 2)
+			tab.Panel:SetPointToScale("TOPLEFT", 2, -3)
+			tab.Panel:SetPointToScale("BOTTOMRIGHT", 0, -2)
+			if(i == 1) then
+				tab:ClearAllPoints()
+				tab:SetPoint("BOTTOM", CharacterFrameInsetRight, "TOP", 0, 4)
+			else
+				tab:ClearAllPoints()
+				tab:SetPoint("LEFT",  _G["PaperDollSidebarTab"..i-1], "RIGHT", 4, 0)
+			end
+		end 
+	end
 end 
 
 local function EquipmentFlyout_OnShow()
@@ -152,37 +181,7 @@ local function EquipmentFlyout_OnShow()
 		counter = counter + 1;
 		button = _G["EquipmentFlyoutFrameButton"..counter]
 	end 
-end 
-
-local function PaperDoll_UpdateTabs()
-	for i = 1, #PAPERDOLL_SIDEBARS do 
-		local tab = _G["PaperDollSidebarTab"..i]
-		if tab then
-			tab.Highlight:SetTexture(1, 1, 1, 0.3)
-			tab.Highlight:SetPointToScale("TOPLEFT", 3, -4)
-			tab.Highlight:SetPointToScale("BOTTOMRIGHT", -1, 0)
-			tab.Hider:SetTexture(0.4, 0.4, 0.4, 0.4)
-			tab.Hider:SetPointToScale("TOPLEFT", 3, -4)
-			tab.Hider:SetPointToScale("BOTTOMRIGHT", -1, 0)
-			tab.TabBg:Die()
-			if i == 1 then
-				for x = 1, tab:GetNumRegions()do 
-					local texture = select(x, tab:GetRegions())
-					texture:SetTexCoord(0.16, 0.86, 0.16, 0.86)
-				end 
-			end 
-			tab:SetStylePanel("Default", "Default", true, 2)
-			tab.Panel:SetPointToScale("TOPLEFT", 2, -3)
-			tab.Panel:SetPointToScale("BOTTOMRIGHT", 0, -2)
-		end 
-	end
-	PaperDollSidebarTab1:ClearAllPoints()
-	PaperDollSidebarTab1:SetPoint("BOTTOM", CharacterFrameInsetRight, "TOP", 0, 4)
-	PaperDollSidebarTab2:ClearAllPoints()
-	PaperDollSidebarTab2:SetPoint("LEFT", PaperDollSidebarTab1, "RIGHT", 4, 0)
-	PaperDollSidebarTab3:ClearAllPoints()
-	PaperDollSidebarTab3:SetPoint("LEFT", PaperDollSidebarTab2, "RIGHT", 4, 0)
-end 
+end
 
 local function Reputation_OnShow()
 	for i = 1, GetNumFactions()do 
@@ -204,59 +203,55 @@ local function Reputation_OnShow()
 end
 
 local function PaperDollTitlesPane_OnShow()
-	for _,gName in pairs(PaperDollTitlesPane.buttons) do
-		local btn = _G[gName]
+	for i,btn in pairs(PaperDollTitlesPane.buttons) do
 		if(btn) then
 			btn.BgTop:SetTexture(0,0,0,0)
 			btn.BgBottom:SetTexture(0,0,0,0)
 			btn.BgMiddle:SetTexture(0,0,0,0)
-			btn.Check:SetTexture(0,0,0,0)
-			btn.text:SetAllPointsIn(btn)
-			btn.text:SetFont(SV.Media.font.default,10,"NONE","LEFT")
 		end
-	end 
+	end
+	PaperDollTitlesPane_Update()
 end
 
 local function PaperDollEquipmentManagerPane_OnShow()
-		for _,gName in pairs(PaperDollEquipmentManagerPane.buttons) do
-			local btn = _G[gName]
-			if(btn) then
-				btn.BgTop:SetTexture(0,0,0,0)
-				btn.BgBottom:SetTexture(0,0,0,0)
-				btn.BgMiddle:SetTexture(0,0,0,0)
-				btn.icon:SetSizeToScale(36, 36)
-				btn.Check:SetTexture(0,0,0,0)
-				btn.icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-				btn.icon:SetPoint("LEFT", btn, "LEFT", 4, 0)
-				if not btn.icon.bordertop then
-					 SetItemFrame(btn, btn.icon)
-				end 
-			end
+	for i,btn in pairs(PaperDollEquipmentManagerPane.buttons) do
+		if(btn) then
+			btn.BgTop:SetTexture(0,0,0,0)
+			btn.BgBottom:SetTexture(0,0,0,0)
+			btn.BgMiddle:SetTexture(0,0,0,0)
+			btn.icon:SetSizeToScale(36, 36)
+			btn.Check:SetTexture(0,0,0,0)
+			btn.icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+			btn.icon:SetPoint("LEFT", btn, "LEFT", 4, 0)
+			if not btn.icon.bordertop then
+				 SetItemFrame(btn, btn.icon)
+			end 
 		end
+	end
 
-		GearManagerDialogPopup:RemoveTextures()
-		GearManagerDialogPopup:SetStylePanel("Default", "Inset", true)
-		GearManagerDialogPopup:SetPointToScale("LEFT", PaperDollFrame, "RIGHT", 4, 0)
-		GearManagerDialogPopupScrollFrame:RemoveTextures()
-		GearManagerDialogPopupEditBox:RemoveTextures()
-		GearManagerDialogPopupEditBox:SetStylePanel("Default", 'Inset')
-		GearManagerDialogPopupOkay:SetStylePanel("Button")
-		GearManagerDialogPopupCancel:SetStylePanel("Button")
+	GearManagerDialogPopup:RemoveTextures()
+	GearManagerDialogPopup:SetStylePanel("Default", "Inset", true)
+	GearManagerDialogPopup:SetPointToScale("LEFT", PaperDollFrame, "RIGHT", 4, 0)
+	GearManagerDialogPopupScrollFrame:RemoveTextures()
+	GearManagerDialogPopupEditBox:RemoveTextures()
+	GearManagerDialogPopupEditBox:SetStylePanel("Default", 'Inset')
+	GearManagerDialogPopupOkay:SetStylePanel("Button")
+	GearManagerDialogPopupCancel:SetStylePanel("Button")
 
-		for i = 1, NUM_GEARSET_ICONS_SHOWN do 
-			local btn = _G["GearManagerDialogPopupButton"..i]
-			if(btn and (not btn.Panel)) then
-				btn:RemoveTextures()
-				btn:SetFrameLevel(btn:GetFrameLevel() + 2)
-				btn:SetStylePanel("Button")
-				if(btn.icon) then
-					btn.icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-					btn.icon:SetTexture(0,0,0,0)
-					btn.icon:SetAllPointsIn()
-				end 
+	for i = 1, NUM_GEARSET_ICONS_SHOWN do 
+		local btn = _G["GearManagerDialogPopupButton"..i]
+		if(btn and (not btn.Panel)) then
+			btn:RemoveTextures()
+			btn:SetFrameLevel(btn:GetFrameLevel() + 2)
+			btn:SetStylePanel("Button")
+			if(btn.icon) then
+				btn.icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+				btn.icon:SetTexture(0,0,0,0)
+				btn.icon:SetAllPointsIn()
 			end 
 		end 
 	end
+end
 --[[ 
 ########################################################## 
 CHARACTERFRAME PLUGINR
@@ -336,8 +331,9 @@ local function CharacterFrameStyle()
 	CharacterModelFrame:SetStylePanel("Fixed", "Model")
 	CharacterFrameExpandButton:SetFrameLevel(CharacterModelFrame:GetFrameLevel() + 5)
 
+	PaperDollTitlesPane:RemoveTextures()
+	PaperDollTitlesPaneScrollChild:RemoveTextures()
 	PaperDollTitlesPane:SetStylePanel("Default", 'Inset')
-
 	PaperDollTitlesPane:HookScript("OnShow", PaperDollTitlesPane_OnShow)
 
 	PaperDollEquipmentManagerPane:SetStylePanel("Default", 'Inset')
@@ -355,7 +351,6 @@ local function CharacterFrameStyle()
 		 PLUGIN:ApplyTabStyle(_G["CharacterFrameTab"..i])
 	end
 
-	hooksecurefunc("PaperDollFrame_UpdateSidebarTabs", PaperDoll_UpdateTabs)
 
 	ReputationFrame:RemoveTextures(true)
 	ReputationListScrollFrame:RemoveTextures()

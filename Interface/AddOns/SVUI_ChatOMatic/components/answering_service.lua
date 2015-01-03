@@ -867,11 +867,10 @@ OTHER HANDLERS
 ##########################################################
 ]]--
 local AnsweringOnClick = function()
-	if(not PLUGIN.Docklet) then return end
 	if(PLUGIN.Docklet:IsShown()) then
-		PLUGIN.Docklet:Hide()
+		PLUGIN.Docklet.DockButton:Deactivate()
 	else
-		PLUGIN.Docklet:Show()
+		PLUGIN.Docklet.DockButton:Activate()
 	end
 end
 

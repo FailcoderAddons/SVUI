@@ -285,25 +285,6 @@ function SV:HexColor(arg1,arg2,arg3)
     return hexString
 end
 
-function SV:MediaUpdate()
-  self.Media.color.default      = self.db.media.colors.default
-  self.Media.color.special      = self.db.media.colors.special
-  self.Media.color.specialdark  = self.db.media.colors.specialdark
-  self.Media.bg.pattern         = LSM:Fetch("background", self.db.media.textures.pattern)
-  self.Media.bg.comic           = LSM:Fetch("background", self.db.media.textures.comic)
-  self.Media.bg.unitlarge       = LSM:Fetch("background", self.db.media.textures.unitlarge)
-  self.Media.bg.unitsmall       = LSM:Fetch("background", self.db.media.textures.unitsmall)
-
-  local cColor1 = self.Media.color.special
-  local cColor2 = self.Media.color.default
-  local r1,g1,b1 = cColor1[1], cColor1[2], cColor1[3]
-  local r2,g2,b2 = cColor2[1], cColor2[2], cColor2[3]
-
-  self.Media.gradient.special = {"VERTICAL",r1,g1,b1,r2,g2,b2}
-
-  self.Events:Trigger("SVUI_COLORS_UPDATED");
-end
-
 local function UpdateChatFontSizes()
   _G.CHAT_FONT_HEIGHTS[1] = 8
   _G.CHAT_FONT_HEIGHTS[2] = 9
@@ -325,7 +306,8 @@ hooksecurefunc("FCF_ResetChatWindows", UpdateChatFontSizes)
 local function SetFont(globalName, template, sizeMod, styleOverride, cR, cG, cB)
   if(not template) then return end
   if(not _G[globalName]) then return end
-  _G[globalName]:FontManager(template, "SYSTEM", sizeMod, styleOverride, cR, cG, cB); 
+  styleOverride = styleOverride or "NONE"
+  SV.SetToFontManager(_G[globalName], template, "SYSTEM", sizeMod, styleOverride, cR, cG, cB);
 end
 
 function SV:SetGlobalFonts()
@@ -375,6 +357,7 @@ function SV:SetSystemFonts()
   SetFont("SystemFont_Shadow_Large", "default", 3)
 
   SetFont("QuestFont", "dialog");
+  SetFont("QuestFont_Enormous", "zone", 15, "OUTLINE");
   SetFont("SpellFont_Small", "dialog", 0, "OUTLINE", 1, 1, 1);
   SetFont("SystemFont_Shadow_Outline_Huge2", "dialog", 14, "OUTLINE");
 
@@ -412,12 +395,31 @@ function SV:SetSystemFonts()
   SetFont("GameTooltipHeader", "tipheader")
   SetFont("Tooltip_Med", "tipdialog")
   SetFont("Tooltip_Small", "tipdialog", -1)
-end 
+end
+
+function SV:MediaUpdate()
+  self.Media.color.default      = self.db.media.colors.default
+  self.Media.color.special      = self.db.media.colors.special
+  self.Media.color.specialdark  = self.db.media.colors.specialdark
+  self.Media.bg.pattern         = LSM:Fetch("background", self.db.media.textures.pattern)
+  self.Media.bg.comic           = LSM:Fetch("background", self.db.media.textures.comic)
+  self.Media.bg.unitlarge       = LSM:Fetch("background", self.db.media.textures.unitlarge)
+  self.Media.bg.unitsmall       = LSM:Fetch("background", self.db.media.textures.unitsmall)
+
+  local cColor1 = self.Media.color.special
+  local cColor2 = self.Media.color.default
+  local r1,g1,b1 = cColor1[1], cColor1[2], cColor1[3]
+  local r2,g2,b2 = cColor2[1], cColor2[2], cColor2[3]
+
+  self.Media.gradient.special = {"VERTICAL",r1,g1,b1,r2,g2,b2}
+
+  self.Events:Trigger("SVUI_COLORS_UPDATED");
+end
 
 function SV:RefreshAllSystemMedia()
   self:SetGlobalFonts();
-  self:SetSystemFonts();
   self:MediaUpdate();
+  self:SetSystemFonts();
   self.Events:Trigger("SVUI_ALLFONTS_UPDATED");
   self.MediaInitialized = true;
 end

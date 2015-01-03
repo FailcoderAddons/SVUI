@@ -99,7 +99,7 @@ local ObjectiveProgressBar_OnEvent = function(self, event, ...)
 end
 
 local ActiveButton_OnEnter = function(self, ...)
-	GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT", 0, 4)
+	GameTooltip:SetOwner(self, "ANCHOR_BOTTOMLEFT", 0, ROW_HEIGHT)
 	GameTooltip:ClearLines()
 	GameTooltip:AddDoubleLine("[Left-Click]", "View the log entry for this quest.", 0, 1, 0, 1, 1, 1)
 	GameTooltip:AddLine(" ")

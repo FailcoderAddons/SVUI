@@ -670,9 +670,6 @@ local function LoadPresetData()
 		["layouts"] = {
 			["link"] = "SVUnit",
 			["default"] = {
-				["grid"] = {
-					["enable"] = false,
-				},
 				["party"] = {
 					width = 75,
 					height = 60,
@@ -696,6 +693,9 @@ local function LoadPresetData()
 						["position"] = "INNERTOPLEFT",
 						["xOffset"] = 0,
 						["yOffset"] = 0,
+					},
+					["grid"] = {
+						["enable"] = false,
 					},
 				},
 				["raid"] = {
@@ -721,12 +721,12 @@ local function LoadPresetData()
 						["xOffset"] = 8,
 						["yOffset"] = 0,
 					},
+					["grid"] = {
+						["enable"] = false,
+					},
 				},
 			},
 			["healer"] = {
-				["grid"] = {
-					["enable"] = false,
-				},
 				["party"] = {
 					width = 75,
 					height = 60,
@@ -750,6 +750,9 @@ local function LoadPresetData()
 						["position"] = "INNERTOPLEFT",
 						["xOffset"] = 0,
 						["yOffset"] = 0,
+					},
+					["grid"] = {
+						["enable"] = false,
 					},
 				},
 				["raid"] = {
@@ -775,12 +778,12 @@ local function LoadPresetData()
 						["xOffset"] = 8,
 						["yOffset"] = 0,
 					},
+					["grid"] = {
+						["enable"] = false,
+					},
 				},
 			},
 			["dps"] = {
-				["grid"] = {
-					["enable"] = false,
-				},
 				["party"] = {
 					width = 115,
 					height = 25,
@@ -809,6 +812,9 @@ local function LoadPresetData()
 						["xOffset"] = 0,
 						["yOffset"] = 1,
 					},
+					["grid"] = {
+						["enable"] = false,
+					},
 				},
 				["raid"] = {
 					["showBy"] = "UP_RIGHT",
@@ -833,6 +839,9 @@ local function LoadPresetData()
 					},
 					["width"] = 80,
 					["height"] = 20,
+					["grid"] = {
+						["enable"] = false,
+					},
 				},
 			},
 			["grid"] = {

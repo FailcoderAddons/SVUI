@@ -225,7 +225,7 @@ local FONT_INFO = {
 local function GenerateFontGroup()
     local fontGroupArgs = {};
 
-    for _, listData in pairs(FONT_GROUP_SORT) do
+    for _, listData in pairs(FONT_INFO) do
     	local orderCount = 3;
     	local groupName = listData[1];
     	local groupCount = listData[2];
