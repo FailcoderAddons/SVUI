@@ -147,19 +147,19 @@ local function SnapStickyFrame(frameA, frameB, left, top, right, bottom)
 	end
 end
 
-function Sticky:GetStickyUpdate(frame, xoffset, yoffset, left, top, right, bottom)
+local function GetStickyUpdate(frame, xoffset, yoffset, left, top, right, bottom)
 	return function()
 		local x, y = GetCursorPosition()
 		local s = frame:GetEffectiveScale()
 		x, y = x / s, y / s
 		frame:ClearAllPoints()
 		frame:SetPoint("CENTER", UIParent, "BOTTOMLEFT", x + xoffset, y + yoffset)
-		self.StuckTo[frame] = nil
+		Sticky.StuckTo[frame] = nil
 		for i = 1, #Sticky.Frames do
 			local v = Sticky.Frames[i]
-			if(frame ~= v and frame ~= v:GetParent() and not IsShiftKeyDown() and v:IsVisible()) then
+			if(frame ~= v and frame ~= v:GetParent() and IsShiftKeyDown() and v:IsVisible()) then
 				if SnapStickyFrame(frame, v, left, top, right, bottom) then
-					self.StuckTo[frame] = v
+					Sticky.StuckTo[frame] = v
 					break
 				end
 			end
@@ -167,22 +167,22 @@ function Sticky:GetStickyUpdate(frame, xoffset, yoffset, left, top, right, botto
 	end
 end
 
-function Sticky:StartMoving(frame, left, top, right, bottom)
+local function StickyStartMoving(frame, left, top, right, bottom)
 	local x, y = GetCursorPosition()
 	local aX, aY = frame:GetCenter()
 	local aS = frame:GetEffectiveScale()
 	aX, aY = aX * aS, aY * aS
 	local xoffset, yoffset = (aX - x), (aY - y)
-	self.scripts[frame] = frame:GetScript("OnUpdate")
-	frame:SetScript("OnUpdate", Sticky.GetStickyUpdate(Sticky, frame, xoffset, yoffset, left, top, right, bottom))
+	Sticky.scripts[frame] = frame:GetScript("OnUpdate")
+	frame:SetScript("OnUpdate", GetStickyUpdate(frame, xoffset, yoffset, left, top, right, bottom))
 end
 
-function Sticky:StopMoving(frame)
-	frame:SetScript("OnUpdate", self.scripts[frame])
-	self.scripts[frame] = nil
-	if self.StuckTo[frame] then
-		local frame2 = self.StuckTo[frame]
-		self.StuckTo[frame] = nil
+local function StickyStopMoving(frame)
+	frame:SetScript("OnUpdate", Sticky.scripts[frame])
+	Sticky.scripts[frame] = nil
+	if Sticky.StuckTo[frame] then
+		local frame2 = Sticky.StuckTo[frame]
+		Sticky.StuckTo[frame] = nil
 		return true, frame2
 	else
 		return false, nil
@@ -424,7 +424,7 @@ end
 local Movable_OnDragStart = function(self)
 	if InCombatLockdown() then SV:AddonMessage(ERR_NOT_IN_COMBAT)return end 
 	if SV.db.general.stickyFrames then 
-		Sticky:StartMoving(self, self.snapOffset)
+		StickyStartMoving(self, self.snapOffset, -2)
 	else 
 		self:StartMoving()
 	end 
@@ -439,7 +439,7 @@ local Movable_OnDragStop = function(self)
 	if InCombatLockdown()then SV:AddonMessage(ERR_NOT_IN_COMBAT)return end 
 	TheHand.UserHeld = false;
 	if SV.db.general.stickyFrames then 
-		Sticky:StopMoving(self)
+		StickyStopMoving(self)
 	else 
 		self:StopMovingOrSizing()
 	end 
@@ -516,7 +516,7 @@ local Movable_OnLeave = function(self)
 end
 
 local Movable_OnMouseDown = function(self, arg)
-	if arg == "RightButton"then 
+	if arg == "RightButton" then 
 		TheHand.UserHeld = false;
 		if(CurrentFrameTarget == self and not SVUI_MentaloPrecision:IsShown()) then
 			Movable_OnUpdate()
@@ -525,7 +525,7 @@ local Movable_OnMouseDown = function(self, arg)
 			SVUI_MentaloPrecision:Hide()
 		end
 		if SV.db.general.stickyFrames then 
-			Sticky:StopMoving(self)
+			StickyStopMoving(self)
 		else 
 			self:StopMovingOrSizing()
 		end 
@@ -540,7 +540,7 @@ end
 CONSTRUCTS
 ##########################################################
 ]]--
-function Mentalo:New(frame, moveName, title, snap, dragStopFunc)
+function Mentalo:New(frame, moveName, title, snap, dragStopFunc, callbackOnEnter)
 	if(not frame or (self.Frames[moveName] ~= nil)) then return end
 
 	self.Frames[moveName] = {
@@ -570,7 +570,7 @@ function Mentalo:New(frame, moveName, title, snap, dragStopFunc)
 	end 
 
 	movable:SetPoint(anchor1, anchorParent, anchor2, xPos, yPos)
-	movable:SetStylePanel("Fixed", "Transparent")
+	movable:SetStylePanel("!_Frame", "Transparent")
 	movable:SetAlpha(0.4)
 
 	frame:SetScript("OnSizeChanged", Movable_OnSizeChanged)
@@ -579,7 +579,7 @@ function Mentalo:New(frame, moveName, title, snap, dragStopFunc)
 	frame:SetPoint(anchor1, movable, anchor1, 0, 0)
 
 	local mtext = movable:CreateFontString(nil, "OVERLAY")
-	mtext:FontManager("default")
+	mtext:SetFontObject(SVUI_Font_Default)
 	mtext:SetJustifyH("CENTER")
 	mtext:SetPoint("CENTER")
 	mtext:SetText(title or moveName)
@@ -600,7 +600,7 @@ function Mentalo:New(frame, moveName, title, snap, dragStopFunc)
 	movable:SetMovable(true)
 	movable:Hide()
 
-	if(dragStopFunc and (type(dragStopFunc) == "function")) then 
+	if(dragStopFunc and (type(dragStopFunc) == "function") and callbackOnEnter) then 
 		movable:RegisterEvent("PLAYER_ENTERING_WORLD")
 		movable:SetScript("OnEvent", function(this, event)
 			local point = Pinpoint(this)
@@ -630,14 +630,14 @@ function Mentalo:ChangeSnapOffset(frameName, snapOffset)
 	_G[frameName].snapOffset = snapOffset or -2;
 end 
 
-function Mentalo:Add(frame, title, snapOffset, dragStopFunc, overrideName)
+function Mentalo:Add(frame, title, snapOffset, dragStopFunc, overrideName, callbackOnEnter)
 	if(not frame or (not overrideName and not frame:GetName())) then return end
 	local frameName = overrideName or frame:GetName()
 	local moveName = ("%s_MOVE"):format(frameName) 
-	self:New(frame, moveName, title, snapOffset, dragStopFunc)
+	self:New(frame, moveName, title, snapOffset, dragStopFunc, callbackOnEnter)
 end
 
-function Mentalo:Reset(request)
+function Mentalo:Reset(request, bypass)
 	if(request == "" or request == nil) then 
 		for frameName, frameData in pairs(self.Frames) do 
 			local frame = _G[frameName];
@@ -645,8 +645,10 @@ function Mentalo:Reset(request)
 				local u, v, w, x, y = split("\031", frameData.point)
 				frame:ClearAllPoints()
 				frame:SetPoint(u, v, w, x, y)
-				if(frameData.postdrag and (type(frameData.postdrag) == "function")) then 
-					frameData.postdrag(frame, Pinpoint(frame))
+				if(not bypass) then
+					if(frameData.postdrag and (type(frameData.postdrag) == "function")) then 
+						frameData.postdrag(frame, Pinpoint(frame))
+					end
 				end
 			end
 			if(SV.cache.Anchors and SV.cache.Anchors[frameName]) then 
@@ -660,8 +662,10 @@ function Mentalo:Reset(request)
 				local u, v, w, x, y = split("\031", frameData.point)
 				frame:ClearAllPoints()
 				frame:SetPoint(u, v, w, x, y) 
-				if (frameData.postdrag and (type(frameData.postdrag) == "function"))then 
-					frameData.postdrag(frame, Pinpoint(frame))
+				if(not bypass) then
+					if(frameData.postdrag and (type(frameData.postdrag) == "function")) then 
+						frameData.postdrag(frame, Pinpoint(frame))
+					end
 				end
 				if(SV.cache.Anchors and SV.cache.Anchors[frameName]) then 
 					SV.cache.Anchors[frameName] = nil 
@@ -874,7 +878,7 @@ Initialize
 function Mentalo:Initialize()
 	SV.cache.Anchors = SV.cache.Anchors or {}
 	
-	SVUI_Mentalo:SetStylePanel("Fixed", "Component")
+	SVUI_Mentalo:SetStylePanel("!_Frame", "Heavy")
 	SVUI_Mentalo:SetPanelColor("yellow")
 	SVUI_Mentalo:RegisterForDrag("LeftButton")
 	SVUI_Mentalo:RegisterEvent("PLAYER_REGEN_DISABLED")
@@ -883,7 +887,7 @@ function Mentalo:Initialize()
 	SVUI_MentaloGridButton:SetScript("OnClick", XML_MentaloGridButton_OnClick)
 	SVUI_MentaloLockButton:SetScript("OnClick", XML_MentaloLockButton_OnClick)
 
-	SVUI_MentaloPrecision:SetStylePanel("Default", "Transparent")
+	SVUI_MentaloPrecision:SetStylePanel("Frame", "Transparent")
 	SVUI_MentaloPrecision:EnableMouse(true)
 
 	SVUI_MentaloPrecisionSetX:SetStylePanel("Editbox")

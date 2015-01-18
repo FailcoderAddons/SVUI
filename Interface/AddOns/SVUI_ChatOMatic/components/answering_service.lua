@@ -446,7 +446,7 @@ LOCAL FUNCTIONS
 ##########################################################
 ]]--
 local function ServiceMessage(msg) 
-    local msgFrom = PLUGIN.db.prefix == true and "Minion Answering Service" or "";
+    local msgFrom = PLUGIN.db.general.prefix == true and "Minion Answering Service" or "";
     print("|cffffcc1a" .. msgFrom .. ":|r", msg) 
 end
 
@@ -694,7 +694,7 @@ do
 		if(not outbound) then
 			outbound = PhraseSearch(sInput, mapkey, data)
 		end
-		if(PLUGIN.db.prefix == true) then 
+		if(PLUGIN.db.general.prefix == true) then 
 			return ("%s's Answering Service: %s"):format(PlayersName, outbound) 
 		else
 			return outbound
@@ -737,7 +737,7 @@ function PLUGIN:AddCaller(caller)
 			btn.Text:SetText(caller);
 			PhoneLines[caller].Line = x
 			call_answered = true
-			if self.db.autoAnswer == true then
+			if self.db.general.autoAnswer == true then
 				PhoneLines[caller].InUse = true;
 				btn:SetPanelColor("green");
 				self.Docklet.DockButton:SetPanelColor("green");
@@ -904,7 +904,7 @@ function PLUGIN:EnableAnsweringService()
 
 	self.Docklet = SV.Dock:NewDocklet("BottomLeft", "SVUI_ChatOMaticDock", "Answering Service", ICON_FILE, AnsweringOnClick)
 	self.Docklet:SetFrameStrata("HIGH")
-	self.Docklet:SetStylePanel("Default")
+	self.Docklet:SetStylePanel("Frame")
 
 	local title = self.Docklet:CreateFontString("HenchmenOperatorText") 
 	title:SetPoint("TOPLEFT", self.Docklet, "TOPLEFT", 0, -2)
@@ -923,7 +923,7 @@ function PLUGIN:EnableAnsweringService()
 		phLn:SetHeight(20) 
 		phLn:RegisterForClicks("AnyUp")
 		phLn:SetScript("OnClick", PhoneLineClick)
-		phLn:SetStylePanel("Fixed", "Button")
+		phLn:SetStylePanel("!_Frame", "Button")
 		phLn.Text = phLn:CreateFontString() 
 		phLn.Text:SetPoint("TOPLEFT", phLn, "TOPLEFT", 0, 0)
 		phLn.Text:SetPoint("TOPRIGHT", phLn, "TOPRIGHT", 0, 0)   
@@ -938,7 +938,7 @@ function PLUGIN:EnableAnsweringService()
 	--self.Docklet:Hide()
 
 	local strMsg
-	if self.db.autoAnswer == true then
+	if self.db.general.autoAnswer == true then
 		strMsg = "The Henchmen Operators Are Screening Your Calls.."
 	else
 		strMsg = "The Henchmen Operators Are Standing By.."

@@ -23,8 +23,8 @@ local SV = select(2, ...)
 --[[ SHAMAN FILTERS ]]--
 
 SV.filterdefaults["BuffWatch"] = {
-    {-- Riptide
-        ["enabled"] = true, 
+    ["61295"] = {-- Riptide
+        ["enable"] = true, 
         ["id"] = 61295, 
         ["point"] = "TOPRIGHT", 
         ["color"] = {["r"] = 0.7, ["g"] = 0.3, ["b"] = 0.7}, 
@@ -37,8 +37,8 @@ SV.filterdefaults["BuffWatch"] = {
         ['xOffset'] = 0, 
         ['yOffset'] = 0
     },
-    {-- Earth Shield
-        ["enabled"] = true, 
+    ["974"] = {-- Earth Shield
+        ["enable"] = true, 
         ["id"] = 974, 
         ["point"] = "BOTTOMLEFT", 
         ["color"] = {["r"] = 0.2, ["g"] = 0.7, ["b"] = 0.2}, 
@@ -51,8 +51,8 @@ SV.filterdefaults["BuffWatch"] = {
         ['xOffset'] = 0, 
         ['yOffset'] = 0
     },
-    {-- Earthliving
-        ["enabled"] = true, 
+    ["51945"] = {-- Earthliving
+        ["enable"] = true, 
         ["id"] = 51945, 
         ["point"] = "BOTTOMRIGHT", 
         ["color"] = {["r"] = 0.7, ["g"] = 0.4, ["b"] = 0.4}, 

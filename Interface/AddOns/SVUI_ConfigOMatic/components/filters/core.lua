@@ -36,6 +36,7 @@ local getmetatable  = _G.getmetatable;
 local setmetatable  = _G.setmetatable;
 local tinsert 	 =  _G.tinsert;
 local table 	 =  _G.table;
+local wipe       =  _G.wipe;
 --[[ TABLE METHODS ]]--
 local tsort = table.sort;
 --[[ 
@@ -53,37 +54,43 @@ local _, ns = ...;
 ns.FilterOptionGroups = {};
 ns.FilterSpellGroups = {};
 
-local tempFilterTable = {};
+local allFilterTable, userFilterTable = {},{};
 local CURRENT_FILTER_TYPE = NONE;
-local publicFilters = {
-	["BlackList"] = "Blacklisted Auras",
-	["WhiteList"] = "Whitelisted Auras",
-	["Raid"] = "Consolidated Auras",
-	["AuraBars"] = "Aura Bars",
-	["Player"] = "Player Auras",
-	["BuffWatch"] = "(AuraWatch) Player Auras",
-	["PetBuffWatch"] = "(AuraWatch) Pet Auras",
-};
-
-local templateFilters = {
-	[""] = NONE,
-	["BlackList"] = "BlackList",
-	["WhiteList"] = "WhiteList",
-	["Raid"] = "Raid",
-	["AuraBars"] = "AuraBars",
-	["Player"] = "Player",
-	["BuffWatch"] = "BuffWatch",
-	["PetBuffWatch"] = "PetBuffWatch",
-};
 
 local NONE = _G.NONE;
 local GetSpellInfo = _G.GetSpellInfo;
 local collectgarbage = _G.collectgarbage;
 
+local function GetUserFilterList()
+	wipe(userFilterTable);
+
+	userFilterTable[""] = NONE;
+	for filter in pairs(SV.filters.Custom) do
+		userFilterTable[filter] = filter
+	end
+	return userFilterTable 
+end
+local function GetAllFilterList()
+	wipe(allFilterTable);
+
+	allFilterTable[""] = NONE;
+	allFilterTable["BlackList"] = "Blacklist";
+	allFilterTable["WhiteList"] = "Whitelist";
+	allFilterTable["Raid"] = "Consolidated";
+	allFilterTable["AuraBars"] = "AuraBars";
+	allFilterTable["Player"] = "Player";
+	allFilterTable["BuffWatch"] = "AuraWatch";
+	allFilterTable["PetBuffWatch"] = "PetAuraWatch";
+	for filter in pairs(SV.filters.Custom) do
+		allFilterTable[filter] = filter
+	end
+	return allFilterTable 
+end
+
 SV.Options.args.filters = {
 	type = "group",
-	name = L["Filters"],
-	order = -10,
+	name = L["Aura Filters"],
+	order = 9997,
 	args = {	
 		createFilter = {	
 			order = 1,
@@ -92,7 +99,14 @@ SV.Options.args.filters = {
 			type = "input",
 			get = function(key) return "" end,
 			set = function(key, value)
-				SV.filters.Custom[value] = {}
+				if(not value or (value and value == '')) then 
+					SV:AddonMessage(L["Not a usable filter name"])
+				elseif(SV.filters.Custom[value]) then 
+					SV:AddonMessage(L["Filter already exists"])
+				else
+					SV.filters.Custom[value] = {};
+					ns:SetFilterOptions(value);
+				end
 			end
 		},
 		deleteFilter = {
@@ -105,14 +119,7 @@ SV.Options.args.filters = {
 				SV.filters.Custom[value] = nil;
 				SV.Options.args.filters.args.filterGroup = nil  
 			end,
-			values = function()
-				wipe(tempFilterTable)
-				tempFilterTable[""] = NONE;
-				for g in pairs(SV.filters.Custom) do 
-					tempFilterTable[g] = g
-				end 
-				return tempFilterTable 
-			end
+			values = GetUserFilterList()
 		},
 		selectFilter = {
 			order = 3,
@@ -120,19 +127,7 @@ SV.Options.args.filters = {
 			name = L["Select Filter"],
 			get = function(key) return CURRENT_FILTER_TYPE end,
 			set = function(key, value) ns:SetFilterOptions(value) end,
-			values = function()
-				wipe(tempFilterTable)
-				tempFilterTable = templateFilters;
-				for g in pairs(SV.filters) do
-					if(publicFilters[g]) then 
-						tempFilterTable[g] = publicFilters[g]
-					end
-				end
-				for g in pairs(SV.filters.Custom) do 
-					tempFilterTable[g] = g
-				end
-				return tempFilterTable 
-			end
+			values = GetAllFilterList()
 		}
 	}
 };

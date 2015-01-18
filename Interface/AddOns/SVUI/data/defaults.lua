@@ -20,18 +20,15 @@ local SV = select(2, ...)
 local type = type;
 local GetSpellInfo = GetSpellInfo;
 local rez = GetCVar("gxResolution");
-local defaultDockWidth = tonumber(rez:match("(%d+)x%d+")) * 0.5;
+local baseHeight = tonumber(rez:match("%d+x(%d+)"))
+local baseWidth = tonumber(rez:match("(%d+)x%d+"))
+local defaultDockWidth = baseWidth * 0.5;
 local defaultCenterWidth = min(defaultDockWidth, 800);
 
 local function safename(id)
     local n = GetSpellInfo(id)  
     if not n then
-        if type(id) == "string" then
-            n = id
-        else
-            --SV:Debugger('|cffFF9900SVUI:|r Spell not found: (#ID) '..id)
-            n = "Voodoo Doll";
-        end
+        return false
     end
     return n
 end
@@ -51,10 +48,17 @@ SV.defaults["LAYOUT"] = {
     aurastyle = "default"
 }
 
+SV.defaults["screen"] = {
+	["autoScale"] = true,
+    ["multiMonitor"] = false,
+    ["advanced"] = false,
+    ["scaleAdjust"] = 0.64,
+    ["forcedWidth"] = baseWidth,
+    ["forcedHeight"] = baseHeight,
+}
+
 SV.defaults["general"] = {
     ["cooldown"] = true, 
-    ["autoScale"] = true,
-    ["multiMonitor"] = false,
     ["saveDraggable"] = false,
     ["taintLog"] = false, 
     ["stickyFrames"] = true, 
@@ -76,7 +80,6 @@ SV.defaults["general"] = {
     ["stupidhat"] = true,
     ["drunk"] = true,
     ["graphSize"] = 64,
-    ["scaleAdjust"] = 0.64,
 }
 
 SV.defaults["totems"] = {
@@ -86,102 +89,6 @@ SV.defaults["totems"] = {
     ["size"] = 40, 
     ["spacing"] = 4
 }
-
-SV.defaults["font"] = {
-	["default"] 		= {file = "SVUI Default Font", 	size = 12, 	outline = "OUTLINE"},
-    ["dialog"] 			= {file = DIALOGUE_FONT, 		size = 10, 	outline = "OUTLINE"},
-    ["title"] 			= {file = DIALOGUE_FONT, 		size = 16, 	outline = "OUTLINE"}, 
-    ["number"] 			= {file = "SVUI Number Font", 	size = 11, 	outline = "OUTLINE"},
-    ["number_big"]		= {file = "SVUI Number Font", 	size = 18, 	outline = "OUTLINE"},
-    ["header"]			= {file = "SVUI Number Font", 	size = 18, 	outline = "OUTLINE"},  
-    ["combat"] 			= {file = "SVUI Combat Font", 	size = 32, 	outline = "OUTLINE"}, 
-    ["alert"] 			= {file = "SVUI Alert Font", 	size = 20, 	outline = "OUTLINE"},
-    ["zone"] 			= {file = "SVUI Zone Font", 	size = 16, 	outline = "OUTLINE"},
-    ["caps"] 			= {file = "SVUI Caps Font", 	size = 12, 	outline = "OUTLINE"},
-    ["aura"] 			= {file = "SVUI Number Font", 	size = 10, 	outline = "OUTLINE"},
-    ["data"] 			= {file = "SVUI Number Font", 	size = 11, 	outline = "OUTLINE"},
-    ["narrator"]		= {file = "SVUI Narrator Font",	size = 12, 	outline = "OUTLINE"},
-    ["pixel"] 			= {file = "SVUI Pixel Font", 	size = 8, 	outline = "MONOCHROMEOUTLINE"},
-    ["chatdialog"] 		= {file = "SVUI Default Font", 	size = 12, 	outline = "OUTLINE"},
-	["chattab"]			= {file = "SVUI Caps Font", 	size = 12, 	outline = "OUTLINE"},
-    ["lootdialog"] 		= {file = "SVUI Default Font", 	size = 14, 	outline = "OUTLINE"},
-    ["lootnumber"] 		= {file = "SVUI Number Font", 	size = 11, 	outline = "OUTLINE"},
-    ["rolldialog"] 		= {file = "SVUI Default Font", 	size = 14, 	outline = "OUTLINE"},
-    ["rollnumber"] 		= {file = "SVUI Number Font", 	size = 11, 	outline = "OUTLINE"},
-    ["bagdialog"] 		= {file = "SVUI Default Font", 	size = 11, 	outline = "OUTLINE"},
-    ["bagnumber"] 		= {file = "SVUI Number Font", 	size = 11, 	outline = "OUTLINE"},
-    ["tipdialog"] 		= {file = "SVUI Default Font", 	size = 12, 	outline = "NONE"},
-    ["tipheader"] 		= {file = "SVUI Default Font", 	size = 14, 	outline = "NONE"},
-    ["questdialog"] 	= {file = "SVUI Default Font", 	size = 12, 	outline = "OUTLINE"},
-    ["questheader"] 	= {file = "SVUI Caps Font", 	size = 16, 	outline = "OUTLINE"}, 
-    ["questnumber"] 	= {file = "SVUI Number Font", 	size = 11, 	outline = "OUTLINE"},
-    ["platename"] 		= {file = "SVUI Caps Font", 	size = 9, 	outline = "OUTLINE"},
-    ["platenumber"] 	= {file = "SVUI Caps Font", 	size = 9, 	outline = "OUTLINE"},
-    ["plateaura"] 		= {file = "SVUI Caps Font", 	size = 9, 	outline = "OUTLINE"},
-    ["unitprimary"] 	= {file = "SVUI Number Font", 	size = 11, 	outline = "OUTLINE"},
-    ["unitsecondary"] 	= {file = "SVUI Number Font", 	size = 11, 	outline = "OUTLINE"},
-    ["unitaurabar"] 	= {file = "SVUI Alert Font", 	size = 10, 	outline = "OUTLINE"},
-    ["unitauramedium"] 	= {file = "SVUI Default Font", 	size = 10, 	outline = "OUTLINE"},
-    ["unitauralarge"] 	= {file = "SVUI Number Font", 	size = 10, 	outline = "OUTLINE"},
-    ["unitaurasmall"] 	= {file = "SVUI Pixel Font", 	size = 8, 	outline = "MONOCHROMEOUTLINE"},
-}
-
-SV.defaults["media"] = {
-    ["textures"] = { 
-        ["pattern"]      = "SVUI Backdrop 1", 
-        ["comic"]        = "SVUI Comic 1", 
-        ["unitlarge"]    = "SVUI Unit BG 3", 
-        ["unitsmall"]    = "SVUI Small BG 3"
-    }, 
-    ["colors"] = {
-        ["default"]      = {0.2, 0.2, 0.2, 1}, 
-        ["special"]      = {0.37, 0.32, 0.29, 1}, 
-        ["specialdark"]  = {0.37, 0.32, 0.29, 1}, 
-    }, 
-    ["unitframes"] = {
-        ["health"]       = {0.3, 0.5, 0.3}, 
-        ["power"]        = {
-            ["MANA"]         = {0.41, 0.85, 1}, 
-            ["RAGE"]         = {1, 0.31, 0.31}, 
-            ["FOCUS"]        = {1, 0.63, 0.27}, 
-            ["ENERGY"]       = {0.85, 0.83, 0.25}, 
-            ["RUNES"]        = {0.55, 0.57, 0.61}, 
-            ["RUNIC_POWER"] = {0, 0.82, 1}, 
-            ["FUEL"]         = {0, 0.75, 0.75}
-        }, 
-        ["reaction"]     = {
-            [1] = {0.92, 0.15, 0.15}, 
-            [2] = {0.92, 0.15, 0.15}, 
-            [3] = {0.92, 0.15, 0.15}, 
-            [4] = {0.85, 0.85, 0.13}, 
-            [5] = {0.19, 0.85, 0.13}, 
-            [6] = {0.19, 0.85, 0.13}, 
-            [7] = {0.19, 0.85, 0.13}, 
-            [8] = {0.19, 0.85, 0.13}, 
-        },
-        ["tapped"]           = {0.55, 0.57, 0.61}, 
-        ["disconnected"]     = {0.84, 0.75, 0.65}, 
-        ["casting"]          = {0, 0.92, 1}, 
-        ["spark"]            = {0, 0.42, 1}, 
-        ["interrupt"]        = {0.78, 0, 1}, 
-        ["shield_bars"]      = {0.56, 0.4, 0.62}, 
-        ["buff_bars"]        = {0.31, 0.31, 0.31}, 
-        ["debuff_bars"]      = {0.8, 0.1, 0.1}, 
-        ["predict"]          = {
-            ["personal"]         = {0, 1, 0.5, 0.25}, 
-            ["others"]           = {0, 1, 0, 0.25}, 
-            ["absorbs"]          = {1, 1, 0, 0.25}
-        }, 
-        ["spellcolor"] = {
-            [safename(2825)] = {0.98, 0.57, 0.11},  --Bloodlust
-            [safename(32182)] = {0.98, 0.57, 0.11}, --Heroism
-            [safename(80353)] = {0.98, 0.57, 0.11}, --Time Warp
-            [safename(90355)] = {0.98, 0.57, 0.11}, --Ancient Hysteria
-            --[safename(84963)] = {0.98, 0.57, 0.11}, --Inquisition
-            [safename(86659)] = {0.98, 0.57, 0.11}, --Guardian of Ancient Kings
-        }
-    }
-};
 
 SV.defaults["Dock"] = {
 	["enable"] = true, 
@@ -201,23 +108,27 @@ SV.defaults["Dock"] = {
 	["dataFontSize"] = 11, 
 	["dataFontOutline"] = "OUTLINE",
 	["dataBackdrop"] = false,
-	["dataHolders"] = {
-		["SVUI_DockBottomCenter"] = {
+	["statSlots"] = {
+		["SVUI_StatDockBottomLeft"] = {
 			[1] = "Experience Bar", 
 			[2] = "Time", 
 			[3] = "System",
-			[4] = "Gold", 
-			[5] = "Durability", 	
-			[6] = "Reputation Bar", 
+		},
+		["SVUI_StatDockBottomRight"] = {
+			[1] = "Gold", 
+			[2] = "Durability", 	
+			[3] = "Reputation Bar", 
 		}, 
-		["SVUI_DockTopCenter"] = {
+		["SVUI_StatDockTopLeft"] = {
 			[1] = "None", 
 			[2] = "None", 
 			[3] = "None",
-			[4] = "None", 
-			[5] = "None", 
-			[6] = "None", 
 		}, 
+		["SVUI_StatDockTopRight"] = {
+			[1] = "None", 
+			[2] = "None", 
+			[3] = "None",
+		},
 	},
 	["shortGold"] = true,
 	["localtime"] = true, 
@@ -803,11 +714,11 @@ SV.defaults["SVUnit"] = {
 	["auraBarShield"] = true, 
 	["castClassColor"] = false, 
 	["xrayFocus"] = true,
+	["resolveBar"] = true,
 	["player"] = {
 		["enable"] = true, 
 		["width"] = 215, 
 		["height"] = 40, 
-		["lowmana"] = 30, 
 		["combatfade"] = false, 
 		["predict"] = false, 
 		["threatEnabled"] = true, 
@@ -854,7 +765,6 @@ SV.defaults["SVUnit"] = {
 			["xOffset"] = 0, 
 			["yOffset"] = 0,
 			["detachedWidth"] = 250, 
-			["attachTextToPower"] = false, 
 			["druidMana"] = true,
 			["fontSize"] = 11,
 			["classColor"] = false,
@@ -882,11 +792,10 @@ SV.defaults["SVUnit"] = {
 		["portrait"] = 
 		{
 			["enable"] = true, 
-			["width"] = 50, 
-			["overlay"] = true, 
+			["width"] = 50,
 			["camDistanceScale"] = 1.4, 
 			["rotation"] = 0, 
-			["style"] = "3D", 
+			["style"] = "3DOVERLAY", 
 		}, 
 		["buffs"] = 
 		{
@@ -962,8 +871,7 @@ SV.defaults["SVUnit"] = {
 		}, 
 		["classbar"] = 
 		{
-			["enable"] = true, 
-			["slideLeft"] = true, 
+			["enable"] = true,
 			["inset"] = "inset", 
 			["height"] = 25, 
 			["detachFromFrame"] = false,
@@ -981,16 +889,16 @@ SV.defaults["SVUnit"] = {
 			["combatIcon"] = {
 				["enable"] = true, 
 				["size"] = 26, 
-				["attachTo"] = "INNERTOPRIGHT", 
-				["xOffset"] = 8, 
-				["yOffset"] = 8, 
+				["attachTo"] = "TOPRIGHT", 
+				["xOffset"] = 28, 
+				["yOffset"] = 2, 
 			}, 
 			["restIcon"] = {
 				["enable"] = true, 
 				["size"] = 22, 
-				["attachTo"] = "INNERTOPRIGHT", 
-				["xOffset"] = 8, 
-				["yOffset"] = 8, 
+				["attachTo"] = "INNERBOTTOMRIGHT", 
+				["xOffset"] = 0, 
+				["yOffset"] = 0, 
 			}, 
 		}, 
 		["stagger"] = 
@@ -1046,7 +954,6 @@ SV.defaults["SVUnit"] = {
 			["hideonnpc"] = true, 
 			["xOffset"] = 0, 
 			["yOffset"] = 0, 
-			["attachTextToPower"] = false,
 			["fontSize"] = 11,
 			["classColor"] = false,
 		}, 
@@ -1067,7 +974,7 @@ SV.defaults["SVUnit"] = {
 			["overlay"] = true, 
 			["rotation"] = 0, 
 			["camDistanceScale"] = 1.4, 
-			["style"] = "3D", 
+			["style"] = "3DOVERLAY", 
 		}, 
 		["buffs"] = 
 		{
@@ -1301,7 +1208,7 @@ SV.defaults["SVUnit"] = {
 			["overlay"] = true, 
 			["rotation"] = 0, 
 			["camDistanceScale"] = 1, 
-			["style"] = "3D", 
+			["style"] = "3DOVERLAY", 
 		}, 
 		["buffs"] = 
 		{
@@ -1553,6 +1460,11 @@ SV.defaults["SVUnit"] = {
 			["xOffset"] = -4, 
 			["yOffset"] = 0, 
 			["sizeOverride"] = 0, 
+		},
+		["auraWatch"] = 
+		{
+			["enable"] = true, 
+			["size"] = 8, 
 		}, 
 		["aurabar"] = 
 		{
@@ -1828,7 +1740,7 @@ SV.defaults["SVUnit"] = {
 			["overlay"] = true, 
 			["rotation"] = 0, 
 			["camDistanceScale"] = 1, 
-			["style"] = "3D", 
+			["style"] = "3DOVERLAY", 
 		}, 
 		["buffs"] = 
 		{
@@ -2087,7 +1999,7 @@ SV.defaults["SVUnit"] = {
 			["overlay"] = true, 
 			["rotation"] = 0, 
 			["camDistanceScale"] = 1, 
-			["style"] = "3D", 
+			["style"] = "3DOVERLAY", 
 		}, 
 		["name"] = 
 		{
@@ -2230,7 +2142,7 @@ SV.defaults["SVUnit"] = {
 			["overlay"] = true, 
 			["rotation"] = 0, 
 			["camDistanceScale"] = 1, 
-			["style"] = "3D", 
+			["style"] = "3DOVERLAY", 
 		}, 
 		["buffs"] = 
 		{
@@ -2483,7 +2395,7 @@ SV.defaults["SVUnit"] = {
 			["overlay"] = true, 
 			["rotation"] = 0, 
 			["camDistanceScale"] = 1, 
-			["style"] = "3D", 
+			["style"] = "3DOVERLAY", 
 		}, 
 	},
 	["raid"] = {

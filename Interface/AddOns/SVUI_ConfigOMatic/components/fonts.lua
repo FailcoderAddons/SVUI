@@ -39,35 +39,43 @@ local FONT_INFO = {
 	{"System Dialog", 1, "The most commonly used fonts.",
 		{
 			["default"] = {
+				order = 1,
 				name = "Default",
 				desc = "Standard font for the majority of uses."
 			},
 			["dialog"] = {
+				order = 2,
 				name = "Dialog",
 				desc = "Font used in places that story text appears. (ie.. quest text)"
 			},
 			["combat"] = {
+				order = 3,
 				name = "Combat",
 				desc = "Scrolling combat text font."
 			}, 
 	    	["alert"] = {
-	    		name = "Alerts",
+	    		order = 4,
+				name = "Alerts",
 	    		desc = "Font used for on-screen message alerts."
 	    	},
 	    	["zone"] = {
-	    		name = "Zone Text",
+	    		order = 5,
+				name = "Zone Text",
 	    		desc = "Font used for zone names. Shown when changing zones."
 	    	},
 	    	["title"] = {
-	    		name = "Titles",
+	    		order = 6,
+				name = "Titles",
 	    		desc = "Font used to display various titles."
 	    	},
 	    	["header"] = {
-	    		name = "Frame Headers",
+	    		order = 7,
+				name = "Frame Headers",
 	    		desc = "Font used to large names at the top of some frames."
 	    	},
 	    	["caps"] = {
-	    		name = "Caps",
+	    		order = 8,
+				name = "Caps",
 	    		desc = "Font typically used for things like tabs and fitted headers."
 	    	},
 		},
@@ -75,14 +83,17 @@ local FONT_INFO = {
 	{"System Numeric", 2, "These fonts are used for many number values.", 
 		{
 			["number"] = {
+				order = 1,
 				name = "Numbers (Regular)",
 				desc = "Font used to display most numeric values."
 			},
 			["number_big"] = {
-	    		name = "Numbers (Large)",
+	    		order = 2,
+				name = "Numbers (Large)",
 	    		desc = "Font used to display larger numeric values."
 	    	},
 			["aura"]   = {
+				order = 3,
 				name = "Auras",
 				desc = "Aura counts and timers use this font."
 			},
@@ -91,10 +102,12 @@ local FONT_INFO = {
 	{"Chat", 3, "Fonts used for the chat frame.", 
 		{
 			["chatdialog"] = {
+				order = 1,
 				name = "Chat",
 				desc = "Font used for chat text."
 			},
 			["chattab"] = {
+				order = 2,
 				name = "Chat Tabs",
 				desc = "Font used for chat tab labels."
 			},
@@ -103,14 +116,17 @@ local FONT_INFO = {
 	{"QuestTracker", 4, "Fonts used in the SVUI Quest Tracker.", 
 		{
 			["questdialog"] = {
+				order = 1,
 				name = "Quest Tracker Dialog",
 				desc = "Default font used in the quest tracker"
 			},
 		    ["questheader"] = {
+				order = 2,
 				name = "Quest Tracker Titles",
 				desc = "Font used in the quest tracker for listing headers."
 			}, 
 		    ["questnumber"] = {
+				order = 3,
 				name = "Quest Tracker Numbers",
 				desc = "Font used in the quest tracker to display numeric values."
 			},
@@ -119,14 +135,17 @@ local FONT_INFO = {
 	{"NamePlate", 5, "Fonts used in name plates.", 
 		{
 			["platename"] = {
+				order = 1,
 				name = "Nameplate Names",
 				desc = "Used on nameplates for unit names."
 			},
 			["platenumber"] = {
+				order = 2,
 				name = "Nameplate Numbers",
 				desc = "Used on nameplates for health and level numbers."
 			},
 		    ["plateaura"] = {
+				order = 3,
 				name = "Nameplate Auras",
 				desc = "Used on nameplates for aura texts."
 			},
@@ -135,26 +154,32 @@ local FONT_INFO = {
 	{"UnitFrame", 6, "Fonts used in unit frames.", 
 		{
 			["unitaurabar"] = {
+				order = 1,
 				name = "Unitframe AuraBar",
 				desc = "Used on unit aurabars."
 			},
 		    ["unitauramedium"] = {
+				order = 2,
 				name = "Unitframe Aura (Medium)",
 				desc = "Used on unit frames for auras (medium scale)."
 			},
 		    ["unitauralarge"] = {
+				order = 3,
 				name = "Unitframe Aura (Large)",
 				desc = "Used on unit frames for auras (large scale)."
 			},
 		    ["unitaurasmall"] = {
+				order = 4,
 				name = "Unitframe Aura (Small)",
 				desc = "Used on unit frames for auras (small scale)."
 			},
 		    ["unitprimary"] = {
+				order = 5,
 				name = "Unitframe Values",
 				desc = "Used on all primary unit frames for health, power and misc values.\nUnits: player, pet, target, focus, boss and arena"
 			},
 		    ["unitsecondary"] = {
+				order = 6,
 				name = "Unitframe Values",
 				desc = "Used on all non-primary unit frames for health, power and misc values.\nUnits: pettarget, targettarget, focustarget, party, raid, raidpet, tank and assist."
 			},
@@ -163,10 +188,12 @@ local FONT_INFO = {
 	{"Bags", 7, "Fonts used in bag slots.", 
 		{
 			["bagdialog"] = {
+				order = 1,
 				name = "Bag Slot Dialog",
 				desc = "Default font used in bag and bank slots"
 			},
 		    ["bagnumber"] = {
+				order = 2,
 				name = "Bag Slot Numbers",
 				desc = "Font used in bag and bank slots to display numeric values."
 			},
@@ -175,10 +202,12 @@ local FONT_INFO = {
 	{"Tooltip", 8, "Fonts used in tooltips.", 
 		{
 			["tipdialog"] = {
+				order = 1,
 				name = "Tooltip Dialog",
 				desc = "Default font used in tooltips"
 			},
 		    ["tipheader"] = {
+				order = 2,
 				name = "Tooltip Headers",
 				desc = "Font used in tooltips to display large names."
 			},
@@ -187,18 +216,22 @@ local FONT_INFO = {
 	{"Loot", 9, "Fonts used in loot frames.", 
 		{
 			["lootdialog"] = {
+				order = 1,
 				name = "Loot Frame Dialog",
 				desc = "Default font used in the loot frame"
 			},
 		    ["lootnumber"] = {
+				order = 2,
 				name = "Loot Frame Numbers",
 				desc = "Font used in the loot frame to display numeric values."
 			},
 			["rolldialog"] = {
+				order = 3,
 				name = "Roll Frame Dialog",
 				desc = "Default font used in the loot-roll frame"
 			},
 		    ["rollnumber"] = {
+				order = 4,
 				name = "Roll Frame Numbers",
 				desc = "Font used in the loot-roll frame to display numeric values."
 			},
@@ -207,15 +240,18 @@ local FONT_INFO = {
 	{"Misc", 10, "Fonts used in various places including the docks.", 
 		{
 			["data"] = {
+				order = 1,
 				name = "Docked Stats",
 				desc = "Font used by the bottom and top data docks."
 			},
 	    	["narrator"] = {
-	    		name = "Narratives",
+	    		order = 2,
+				name = "Narratives",
 	    		desc = "Font used for things like the 'Meanwhile' tag."
 	    	},
 	    	["pixel"] = {
-	    		name = "Pixel",
+	    		order = 3,
+				name = "Pixel",
 	    		desc = "Tiniest fonts."
 	    	}, 
 		},
@@ -225,7 +261,7 @@ local FONT_INFO = {
 local function GenerateFontGroup()
     local fontGroupArgs = {};
 
-    for _, listData in pairs(FONT_INFO) do
+    for _, listData in ipairs(FONT_INFO) do
     	local orderCount = 3;
     	local groupName = listData[1];
     	local groupCount = listData[2];
@@ -252,7 +288,7 @@ local function GenerateFontGroup()
 		};
     	for template, info in pairs(groupList) do
 	    	fontGroupArgs[groupName].args[template] = {
-	    		order = orderCount, 
+	    		order = orderCount + info.order, 
 				type = "group",
 				guiInline = true,
 				name = info.name,
@@ -308,13 +344,11 @@ local function GenerateFontGroup()
 						desc = L["Set the font size to use with this font-type."],
 						type = "range",
 						min = 6,
-						max = 22,
+						max = 64,
 						step = 1,
-						width = 'full',
 					},
 				}
 	    	}
-	    	orderCount = orderCount + 1;
 	    end
     end
 
@@ -322,7 +356,7 @@ local function GenerateFontGroup()
 end 
 
 SV.Options.args.fonts = {
-	order = 3, 
+	order = 4, 
 	type = "group", 
 	name = L['Fonts'],
 	childGroups = "tab", 

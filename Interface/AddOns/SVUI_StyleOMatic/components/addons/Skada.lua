@@ -54,7 +54,7 @@ local function skada_panel_loader(dock, window)
   local bgroup = window.bargroup.backdrop;
   if bgroup then 
     bgroup:Show()
-    bgroup:SetStylePanel("Fixed", 'Transparent', true) 
+    bgroup:SetStylePanel("!_Frame", 'Transparent', true) 
   end
 
   dock.FrameLink = window;
@@ -113,7 +113,7 @@ local function StyleSkada()
       panelAnchor = skada.button
       skada.button:SetHeightToScale(22)
       skada.button:RemoveTextures()
-      skada.button:SetStylePanel("Default", "Transparent")
+      skada.button:SetStylePanel("Frame", "Transparent")
       --skada.button:SetPanelColor("class")
       local titleFont = skada.button:GetFontString()
       titleFont:SetFont(SVUI.Media.font.dialog, 13, "NONE")
@@ -121,7 +121,7 @@ local function StyleSkada()
       titleFont:SetShadowOffset(1, -1)
     end
 
-    skada:SetStylePanel("Default", "Transparent")
+    skada:SetStylePanel("Frame", "Transparent")
     skada.Panel:ClearAllPoints()
     skada.Panel:SetPoint('TOPLEFT', panelAnchor, 'TOPLEFT', -3, 3)
     skada.Panel:SetPoint('BOTTOMRIGHT', skada, 'BOTTOMRIGHT', 3, -3)

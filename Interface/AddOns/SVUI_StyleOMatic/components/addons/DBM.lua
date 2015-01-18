@@ -55,7 +55,7 @@ local function StyleBars(self)
 				if not icon1.overlay then
 					icon1.overlay = CreateFrame('Frame', '$parentIcon1Overlay', tbar)
 					icon1.overlay:SetSizeToScale(28)
-					icon1.overlay:SetStylePanel("Default", "Button")
+					icon1.overlay:SetStylePanel("Frame", "Button")
 					icon1.overlay:SetFrameLevel(0)
 					icon1.overlay:SetPointToScale('BOTTOMRIGHT', frame, 'BOTTOMLEFT', -4, 0)
 				end
@@ -63,7 +63,7 @@ local function StyleBars(self)
 				if not icon2.overlay then
 					icon2.overlay = CreateFrame('Frame', '$parentIcon2Overlay', tbar)
 					icon2.overlay:SetSizeToScale(28)
-					icon2.overlay:SetStylePanel("Default", "Button")
+					icon2.overlay:SetStylePanel("Frame", "Button")
 					icon2.overlay:SetFrameLevel(0)
 					icon2.overlay:SetPointToScale('BOTTOMLEFT', frame, 'BOTTOMRIGHT', 4, 0)
 				end
@@ -100,7 +100,7 @@ local function StyleBars(self)
 				tbar:SetWidth(sharedWidth)
 				tbar:SetHeight(10)
 				tbar:SetPointToScale('BOTTOMLEFT', frame, 'BOTTOMLEFT', 0, 0)
-				tbar:SetStylePanel("Default", "Bar")
+				tbar:SetStylePanel("Frame", "Bar")
 
 				name:ClearAllPoints()
 				name:SetHeight(8)
@@ -141,7 +141,7 @@ local StyleBossTitle = function()
 	if not anchor.styled then
 		local header = {anchor:GetRegions()}
 		if header[1]:IsObjectType('FontString') then
-			header[1]:FontManager("default")
+			header[1]:SetFontObject(SVUI_Font_Default)
 			header[1]:SetTextColor(1, 1, 1)
 			header[1]:SetShadowColor(0, 0, 0, 0)
 			anchor.styled = true	
@@ -175,7 +175,7 @@ local StyleBoss = function()
 				bar:SetPointToScale('TOPLEFT', prev, 'TOPLEFT', 0, -(22 + 4))
 			end
 		end
-		bar:SetStylePanel("Fixed", 'Transparent')
+		bar:SetStylePanel("!_Frame", 'Transparent')
 		background:SetNormalTexture(nil)
 		progress:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]])
 		progress:ClearAllPoints()
@@ -189,8 +189,8 @@ local StyleBoss = function()
 		bar:SetHeight(22)
 		name:SetPointToScale('LEFT', bar, 'LEFT', 4, 0)
 		timer:SetPointToScale('RIGHT', bar, 'RIGHT', -4, 0)
-		name:FontManager("dialog")
-		timer:FontManager("default")
+		name:SetFontObject(SpellFont_Small)
+		timer:SetFontObject(SVUI_Font_Default)
 		count = count + 1
 	end
 end
@@ -210,15 +210,15 @@ local function StyleDBM(event, addon)
 	if((not RangeSet) and DBMRangeCheck and (not DBM_SavedOptions['DontShowRangeFrame'])) then
 		DBM.RangeCheck:Show()
 		DBM.RangeCheck:Hide()
-		DBMRangeCheck:HookScript('OnShow', function(self) self:SetStylePanel("Fixed", 'Transparent') end)
-		DBMRangeCheckRadar:SetStylePanel("Fixed", 'Transparent')
+		DBMRangeCheck:HookScript('OnShow', function(self) self:SetStylePanel("!_Frame", 'Transparent') end)
+		DBMRangeCheckRadar:SetStylePanel("!_Frame", 'Transparent')
 		RangeSet = true
 	end
 
 	if((not InfoSet) and DBMInfoFrame and (not DBM_SavedOptions['DontShowInfoFrame'])) then
 		DBM.InfoFrame:Show(5, 'test')
 		DBM.InfoFrame:Hide()
-		DBMInfoFrame:HookScript('OnShow', function(self) self:SetStylePanel("Fixed", 'Transparent') end)
+		DBMInfoFrame:HookScript('OnShow', function(self) self:SetStylePanel("!_Frame", 'Transparent') end)
 		InfoSet = true
 	end
 

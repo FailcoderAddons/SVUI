@@ -65,13 +65,13 @@ function PLUGIN:ApplyFrameStyle(this, template, noStripping, fullStripping)
 	if(not this or (this and this.Panel)) then return end  
 	if not noStripping then this:RemoveTextures(fullStripping) end
 	template = template or "Transparent"
-	this:SetStylePanel("Default", template)
+	this:SetStylePanel("Frame", template)
 end 
 
 function PLUGIN:ApplyAdjustedFrameStyle(this, template, xTopleft, yTopleft, xBottomright, yBottomright)
 	if(not this or (this and this.Panel)) then return end
 	template = template or "Transparent"
-	this:SetStylePanel("Default", template)
+	this:SetStylePanel("Frame", template)
 	this.Panel:SetPoint("TOPLEFT", this, "TOPLEFT", xTopleft, yTopleft)
 	this.Panel:SetPoint("BOTTOMRIGHT", this, "BOTTOMRIGHT", xBottomright, yBottomright)
 end 
@@ -80,31 +80,31 @@ function PLUGIN:ApplyFixedFrameStyle(this, template, noStripping, fullStripping)
 	if(not this or (this and this.Panel)) then return end  
 	if not noStripping then this:RemoveTextures(fullStripping) end
 	template = template or "Transparent"
-    this:SetStylePanel("Fixed", template)
+    this:SetStylePanel("!_Frame", template)
 end
 
 function PLUGIN:ApplyWindowStyle(this, action, fullStrip)
 	if(not this or (this and this.Panel)) then return end
-	local template = action and "Action" or "Halftone"
+	local template = action and "Composite2" or "Composite1"
 	local baselevel = this:GetFrameLevel()
 	if(baselevel < 1) then 
 		this:SetFrameLevel(1)
 	end
 	
 	this:RemoveTextures(fullStrip)
-	this:SetStylePanel("Default", template)
+	this:SetStylePanel("Frame", template)
 end
 
 function PLUGIN:ApplyAdjustedWindowStyle(this, action, fullStrip, padding, xOffset, yOffset)
 	if(not this or (this and this.Panel)) then return end
-	local template = action and "Action" or "Halftone"
+	local template = action and "Composite2" or "Composite1"
 	local baselevel = this:GetFrameLevel()
 	if(baselevel < 1) then 
 		this:SetFrameLevel(1)
 	end
 	
 	this:RemoveTextures(fullStrip)
-	this:SetStylePanel("Default", template, false, padding, xOffset, yOffset)
+	this:SetStylePanel("Frame", template, false, padding, xOffset, yOffset)
 end 
 
 function PLUGIN:ApplyWindowHolder(this, fullStrip)
@@ -115,7 +115,7 @@ function PLUGIN:ApplyWindowHolder(this, fullStrip)
 	end
 	
 	this:RemoveTextures(fullStrip)
-	this:SetStylePanel("Default", "Blackout")
+	this:SetStylePanel("Frame", "Blackout")
 end
 --[[ 
 ########################################################## 
@@ -202,9 +202,9 @@ function PLUGIN:ApplyItemButtonStyle(frame, adjust, shrink, noScript)
 
 	if(not frame.Panel) then
 		if shrink then 
-			frame:SetStylePanel("Default", "Button", true, 1, -1, -1)
+			frame:SetStylePanel("Frame", "Button", true, 1, -1, -1)
 		else
-			frame:SetStylePanel("Fixed", "Button")
+			frame:SetStylePanel("!_Frame", "Button")
 		end
 	end
 
@@ -225,7 +225,7 @@ function PLUGIN:ApplyItemButtonStyle(frame, adjust, shrink, noScript)
 
 			frame.IconShadow = CreateFrame("Frame", nil, frame)
 			frame.IconShadow:SetAllPointsOut(iconObject)
-			frame.IconShadow:SetStylePanel("Icon", true, 2, 0, 0)
+			frame.IconShadow:SetStylePanel("Icon", 2, 0, 0)
 
 			--iconObject:SetParent(frame.IconShadow)
 		end
@@ -241,7 +241,7 @@ function PLUGIN:ApplyItemButtonStyle(frame, adjust, shrink, noScript)
 		if(countObject) then
 			countObject:SetParent(frame.Riser)
 			countObject:SetAllPoints(frame.Riser)
-			countObject:FontManager("number")
+			countObject:SetFontObject(SVUI_Font_Number)
 			countObject:SetDrawLayer("ARTWORK", 7)
 		end
 
@@ -251,7 +251,7 @@ function PLUGIN:ApplyItemButtonStyle(frame, adjust, shrink, noScript)
 
 		if(levelObject) then 
 			levelObject:SetParent(frame.Riser)
-			levelObject:FontManager("number")
+			levelObject:SetFontObject(SVUI_Font_Number)
 			levelObject:SetDrawLayer("ARTWORK", 7)
 		end
 
@@ -334,7 +334,7 @@ function PLUGIN:ApplyScrollFrameStyle(this, scale, yOffset)
 			this.ScrollBG = CreateFrame("Frame", nil, this)
 			this.ScrollBG:SetPoint("TOPLEFT", upButton, "BOTTOMLEFT", 0, -1)
 			this.ScrollBG:SetPoint("BOTTOMRIGHT", downButton, "TOPRIGHT", 0, 1)
-			this.ScrollBG:SetStylePanel("Fixed", "Transparent")
+			this.ScrollBG:SetStylePanel("!_Frame", "Transparent")
 		end 
 
 		if(this:GetThumbTexture()) then 
@@ -365,7 +365,7 @@ function PLUGIN:ApplyScrollBarStyle(this)
 
 	this:RemoveTextures()
 	this:SetBackdrop(nil)
-	this:SetStylePanel("Fixed", "Component")
+	this:SetStylePanel("!_Frame", "Heavy")
     this:SetBackdropBorderColor(0.2,0.2,0.2)
 	this:SetThumbTexture("Interface\\Buttons\\UI-ScrollBar-Knob")
 
@@ -449,7 +449,7 @@ function PLUGIN:ApplyTabStyle(this, addBackground, xOffset, yOffset)
 		yOffset = yOffset or 3
 		this.backdrop = CreateFrame("Frame", nil, this)
 		this.backdrop:SetAllPointsIn(this, xOffset, yOffset)
-		this.backdrop:SetStylePanel("Fixed", "Component", true)
+		this.backdrop:SetStylePanel("!_Frame", "Heavy", true)
 		this.backdrop:SetPanelColor("dark")
 
 		if(this:GetFrameLevel() > 0) then
@@ -487,8 +487,7 @@ function PLUGIN:ApplyPaginationStyle(button, isVertical)
 	button:SetHighlightTexture(0,0,0,0)
 	button:SetDisabledTexture("")
 
-	button:SetStylePanel("Button")
-	button:SetSizeToScale((button:GetWidth() - 7), (button:GetHeight() - 7))
+	button:SetStylePanel("!_Button", nil, 1, -7, -7)
 
 	if not button.icon then 
 		button.icon = button:CreateTexture(nil,'ARTWORK')
@@ -589,7 +588,7 @@ function PLUGIN:ApplyDropdownStyle(this, width)
 		local bg = CreateFrame("Frame", nil, this)
 		bg:SetPointToScale("TOPLEFT", this, "TOPLEFT", 18, -2)
 		bg:SetPointToScale("BOTTOMRIGHT", ddButton, "BOTTOMRIGHT", 2, -2)
-		bg:SetStylePanel("Default", "Blackout")
+		bg:SetStylePanel("Frame", "Blackout")
 		bg:SetBackdropBorderColor(0,0,0)
 		this.Panel = bg
 	end

@@ -55,22 +55,62 @@ local NONE = _G.NONE;
 local GetSpellInfo = _G.GetSpellInfo;
 local collectgarbage = _G.collectgarbage;
 
-local function CacheWatchedBuffs(data)
-	wipe(watchedBuffs)
-	for _, watchData in pairs(data)do 
-		tinsert(watchedBuffs, watchData)
-	end
-end
+local DEFAULT_COLOR = {["r"] = 1, ["g"] = 0, ["b"] = 0};
+local STYLE_SELECT = {["coloredIcon"] = L["Colored Icon"], ["texturedIcon"] = L["Textured Icon"], [""] = NONE};
+local POSITION_SELECT = {
+	["TOPLEFT"] = "TOPLEFT", 
+	["TOPRIGHT"] = "TOPRIGHT", 
+	["BOTTOMLEFT"] = "BOTTOMLEFT", 
+	["BOTTOMRIGHT"] = "BOTTOMRIGHT", 
+	["LEFT"] = "LEFT", 
+	["RIGHT"] = "RIGHT", 
+	["TOP"] = "TOP", 
+	["BOTTOM"] = "BOTTOM"
+};
 
 if(not SV.filters.PetBuffWatch) then 
 	SV.filters.PetBuffWatch = {}
 end
+
 if(not SV.filters.BuffWatch) then 
 	SV.filters.BuffWatch = {}
-end 
+end
+
+local function CacheWatchedBuffs(data)
+	wipe(watchedBuffs)
+	for spellID, watchData in pairs(data) do 
+		tinsert(watchedBuffs, watchData)
+	end
+end
+
+local function SetWatchedBuff(stringID, id, data, enable, point, color, anyUnit)
+	if(not data[id]) then
+		data[stringID] = {["enable"] = enable, ["id"] = id, ["point"] = point, ["color"] = color, ["anyUnit"] = anyUnit}
+	else
+		data[stringID]["id"] = id;
+		data[stringID]["enable"] = enable;
+		data[stringID]["point"] = point;
+		data[stringID]["color"] = color;
+		data[stringID]["anyUnit"] = anyUnit;
+	end
+end
+
+local function UpdateBuffWatch()
+	MOD:SetUnitFrame("focus")
+	MOD:SetGroupFrame("raid")
+	MOD:SetGroupFrame("party") 
+end
+
+local function UpdatePetBuffWatch()
+	MOD:SetUnitFrame("pet")
+	MOD:SetGroupFrame("raidpet")
+end
 
 ns.FilterOptionGroups['BuffWatch'] = function(selectedSpell)
-	CacheWatchedBuffs(SV.filters.BuffWatch)
+	local FILTER = SV.filters.BuffWatch;
+
+	--CacheWatchedBuffs(SV.filters.BuffWatch)
+
 	local RESULT = {
 		type = "group", 
 		name = 'BuffWatch', 
@@ -84,16 +124,15 @@ ns.FilterOptionGroups['BuffWatch'] = function(selectedSpell)
 				type = "input", 
 				get = function(key)return""end, 
 				set = function(key, value)
-					if(not tonumber(value)) then 
+					local spellID = tonumber(value);
+					if(not spellID) then 
 						SV:AddonMessage(L["Value must be a number"])
-					elseif(not GetSpellInfo(value)) then 
+					elseif(not GetSpellInfo(spellID)) then 
 						SV:AddonMessage(L["Not valid spell id"])
-					else 
-						tinsert(SV.filters.BuffWatch, {["enable"] = true, ["id"] = tonumber(value), ["point"] = "TOPRIGHT", ["color"] = {["r"] = 1, ["g"] = 0, ["b"] = 0}, ["anyUnit"] = false})
-						MOD:UpdateGroupAuraWatch("raid")
-						MOD:UpdateGroupAuraWatch("party")
-						MOD:UpdateGroupAuraWatch("raidpet", true)
-						ns:SetFilterOptions('BuffWatch')
+					else
+						SetWatchedBuff(value, spellID, FILTER, true, "TOPRIGHT", DEFAULT_COLOR, false)
+						UpdateBuffWatch()
+						ns:SetFilterOptions('BuffWatch', spellID)
 					end 
 				end
 			}, 
@@ -104,31 +143,27 @@ ns.FilterOptionGroups['BuffWatch'] = function(selectedSpell)
 				type = "input", 
 				get = function(key)return""end, 
 				set = function(key, value)
-					if not tonumber(value)then 
+					local spellID = tonumber(value);
+					if(not spellID) then 
 						SV:AddonMessage(L["Value must be a number"])
-					elseif not GetSpellInfo(value)then 
+					elseif(not GetSpellInfo(spellID)) then 
 						SV:AddonMessage(L["Not valid spell id"])
 					else 
-						local p;
-						for q, r in pairs(SV.filters.BuffWatch)do 
-							if r["id"] == tonumber(value) then 
-								p = r;
-								if SV.filters.BuffWatch[q]then 
-									SV.filters.BuffWatch[q].enable = false;
-								else 
-									SV.filters.BuffWatch[q] = nil 
-								end 
+						local temp;
+						for id, data in pairs(FILTER) do 
+							if(tonumber(id) == spellID) then 
+								temp = data;
+								FILTER[id] = nil  
 							end 
 						end 
-						if p == nil then 
+						if temp == nil then 
 							SV:AddonMessage(L["Spell not found in list."])
 						else 
-							ns:SetFilterOptions()
+							ns:SetFilterOptions('BuffWatch')
 						end 
 					end
-					MOD:UpdateGroupAuraWatch("raid")
-					MOD:UpdateGroupAuraWatch("party")
-					MOD:UpdateGroupAuraWatch("raidpet", true)
+					UpdateBuffWatch("raid")
+					UpdateBuffWatch("party")
 					ns:SetFilterOptions('BuffWatch')
 				end
 			}, 
@@ -137,12 +172,13 @@ ns.FilterOptionGroups['BuffWatch'] = function(selectedSpell)
 				type = "select", 
 				order = 3, 
 				values = function()
-					CacheWatchedBuffs(SV.filters.BuffWatch)
+					--CacheWatchedBuffs(SV.filters.BuffWatch)
 					wipe(tempFilterTable)
-					for _, watchData in pairs(watchedBuffs)do 
-						if(watchData.id) then 
-							local name = GetSpellInfo(watchData.id)
-							tempFilterTable[watchData.id] = name 
+					for id, watchData in pairs(FILTER) do
+						local spellID = tonumber(id)
+						local name = GetSpellInfo(spellID)
+						if(name) then 
+							tempFilterTable[spellID] = name 
 						end 
 					end 
 					return tempFilterTable  
@@ -157,13 +193,14 @@ end;
 
 ns.FilterSpellGroups['BuffWatch'] = function(selectedSpell)
 	local RESULT;
+	local FILTER = SV.filters.BuffWatch;
 
 	if(selectedSpell) then
 		local registeredSpell;
 
-		for watchIndex, watchData in pairs(SV.filters.BuffWatch)do 
-			if(watchData.id == selectedSpell) then 
-				registeredSpell = watchIndex 
+		for id, watchData in pairs(FILTER)do 
+			if(tonumber(id) == selectedSpell) then 
+				registeredSpell = id 
 			end 
 		end
 
@@ -175,12 +212,10 @@ ns.FilterSpellGroups['BuffWatch'] = function(selectedSpell)
 				name = currentSpell.." (Spell ID#: "..selectedSpell..")", 
 				type = "group", 
 				guiInline = true, 
-				get = function(key)return SV.filters.BuffWatch[registeredSpell][key[#key]]end, 
+				get = function(key) return FILTER[registeredSpell][key[#key]] end, 
 				set = function(key, value)
 					SV.filters.BuffWatch[registeredSpell][key[#key]] = value;
-					MOD:UpdateGroupAuraWatch("raid")
-					MOD:UpdateGroupAuraWatch("party")
-					MOD:UpdateGroupAuraWatch("raidpet", true)
+					UpdateBuffWatch();
 				end, 
 				order = 5, 
 				args = {
@@ -207,38 +242,32 @@ ns.FilterSpellGroups['BuffWatch'] = function(selectedSpell)
 						width = 'full',
 						order = 3, 
 						type = "toggle", 
-						disabled = function()return SV.filters.BuffWatch[registeredSpell].style == "text" end
+						disabled = function() return FILTER[registeredSpell].style == "text" end
 					},
 					point = {
 						name = L["Anchor Point"], 
 						order = 4, 
 						type = "select", 
-						values = {
-							["TOPLEFT"] = "TOPLEFT", 
-							["TOPRIGHT"] = "TOPRIGHT", 
-							["BOTTOMLEFT"] = "BOTTOMLEFT", 
-							["BOTTOMRIGHT"] = "BOTTOMRIGHT", 
-							["LEFT"] = "LEFT", 
-							["RIGHT"] = "RIGHT", 
-							["TOP"] = "TOP", 
-							["BOTTOM"] = "BOTTOM"
-						}
+						values = POSITION_SELECT
 					}, 
-					style = {name = L["Style"], order = 5, type = "select", values = {["coloredIcon"] = L["Colored Icon"], ["texturedIcon"] = L["Textured Icon"], [""] = NONE}},
+					style = {
+						name = L["Style"], 
+						order = 5, 
+						type = "select", 
+						values = STYLE_SELECT
+					},
 					color = {
 						name = L["Color"], 
 						type = "color", 
 						order = 6, 
 						get = function(key)
-							local abColor = SV.filters.BuffWatch[registeredSpell][key[#key]]
+							local abColor = FILTER[registeredSpell][key[#key]]
 							return abColor.r,  abColor.g,  abColor.b,  abColor.a 
 						end, 
 						set = function(key, r, g, b)
-							local abColor = SV.filters.BuffWatch[registeredSpell][key[#key]]
+							local abColor = FILTER[registeredSpell][key[#key]]
 							abColor.r,  abColor.g,  abColor.b = r, g, b;
-							MOD:UpdateGroupAuraWatch("raid")
-							MOD:UpdateGroupAuraWatch("party")
-							MOD:UpdateGroupAuraWatch("raidpet", true)
+							UpdateBuffWatch()
 						end
 					}, 
 					textColor = {
@@ -246,7 +275,7 @@ ns.FilterSpellGroups['BuffWatch'] = function(selectedSpell)
 						type = "color", 
 						order = 7, 
 						get = function(key)
-							local abColor = SV.filters.BuffWatch[registeredSpell][key[#key]]
+							local abColor = FILTER[registeredSpell][key[#key]]
 							if abColor then 
 								return abColor.r,  abColor.g,  abColor.b,  abColor.a 
 							else 
@@ -254,12 +283,10 @@ ns.FilterSpellGroups['BuffWatch'] = function(selectedSpell)
 							end 
 						end, 
 						set = function(key, r, g, b)
-							SV.filters.BuffWatch[registeredSpell][key[#key]] = SV.filters.BuffWatch[registeredSpell][key[#key]] or {}
-							local abColor = SV.filters.BuffWatch[registeredSpell][key[#key]]
+							FILTER[registeredSpell][key[#key]] = FILTER[registeredSpell][key[#key]] or {}
+							local abColor = FILTER[registeredSpell][key[#key]]
 							abColor.r,  abColor.g,  abColor.b = r, g, b;
-							MOD:UpdateGroupAuraWatch("raid")
-							MOD:UpdateGroupAuraWatch("party")
-							MOD:UpdateGroupAuraWatch("raidpet", true)
+							UpdateBuffWatch()
 						end
 					},
 					textThreshold = {
@@ -282,7 +309,8 @@ ns.FilterSpellGroups['BuffWatch'] = function(selectedSpell)
 end;
 
 ns.FilterOptionGroups['PetBuffWatch'] = function(selectedSpell)
-	CacheWatchedBuffs(SV.filters.PetBuffWatch)
+	--CacheWatchedBuffs(SV.filters.PetBuffWatch)
+	local FILTER = SV.filters.PetBuffWatch;
 	local RESULT = {
 		type = "group", 
 		name = 'PetBuffWatch', 
@@ -296,14 +324,15 @@ ns.FilterOptionGroups['PetBuffWatch'] = function(selectedSpell)
 				type = "input", 
 				get = function(key) return "" end, 
 				set = function(key, value)
-					if not tonumber(value) then 
+					local spellID = tonumber(value);
+					if(not spellID) then 
 						SV:AddonMessage(L["Value must be a number"])
-					elseif(not GetSpellInfo(value)) then 
+					elseif(not GetSpellInfo(spellID)) then 
 						SV:AddonMessage(L["Not valid spell id"])
-					else 
-						tinsert(SV.filters.PetBuffWatch, {["enable"] = true, ["id"] = tonumber(value), ["point"] = "TOPRIGHT", ["color"] = {["r"] = 1, ["g"] = 0, ["b"] = 0}, ["anyUnit"] = true})
-						MOD:SetUnitFrame("pet")
-						ns:SetFilterOptions('PetBuffWatch', selectedSpell)
+					else  
+						SetWatchedBuff(value, spellID, FILTER, true, "TOPRIGHT", DEFAULT_COLOR, true)
+						UpdatePetBuffWatch()
+						ns:SetFilterOptions('PetBuffWatch', spellID)
 					end 
 				end
 			}, 
@@ -314,30 +343,27 @@ ns.FilterOptionGroups['PetBuffWatch'] = function(selectedSpell)
 				type = "input", 
 				get = function(key) return "" end, 
 				set = function(key, value)
-					if not tonumber(value)then 
+					local spellID = tonumber(value);
+					if(not spellID) then 
 						SV:AddonMessage(L["Value must be a number"])
-					elseif not GetSpellInfo(value) then 
+					elseif(not GetSpellInfo(spellID)) then 
 						SV:AddonMessage(L["Not valid spell id"])
-					else 
-						local p;
-						for q, r in pairs(SV.filters.PetBuffWatch)do 
-							if r["id"] == tonumber(value) then 
-								p = r;
-								if SV.filters.PetBuffWatch[q] then 
-									SV.filters.PetBuffWatch[q].enable = false;
-								else 
-									SV.filters.PetBuffWatch[q] = nil 
-								end 
+					else  
+						local success = false;
+						for id, data in pairs(FILTER) do 
+							if(tonumber(id) == spellID) then 
+								success = true;
+								data.enable = false; 
 							end 
 						end 
-						if p == nil then 
+						if not success then 
 							SV:AddonMessage(L["Spell not found in list."])
 						else 
 							ns:SetFilterOptions()
 						end 
 					end 
-					MOD:SetUnitFrame("pet")
-					ns:SetFilterOptions('PetBuffWatch', selectedSpell)
+					UpdatePetBuffWatch()
+					ns:SetFilterOptions('PetBuffWatch', value)
 				end
 			}, 
 			selectSpell = {
@@ -345,18 +371,19 @@ ns.FilterOptionGroups['PetBuffWatch'] = function(selectedSpell)
 				type = "select", 
 				order = 3, 
 				values = function()
-					CacheWatchedBuffs(SV.filters.PetBuffWatch)
+					--CacheWatchedBuffs(FILTER)
 					wipe(tempFilterTable)
-					for _, watchData in pairs(watchedBuffs)do 
-						if(watchData.id) then 
-							local name = GetSpellInfo(watchData.id)
-							tempFilterTable[watchData.id] = name 
+					for id, watchData in pairs(FILTER) do
+						local spellID = tonumber(id)
+						local name = GetSpellInfo(spellID)
+						if(name) then 
+							tempFilterTable[spellID] = name 
 						end 
 					end 
-					return tempFilterTable 
+					return tempFilterTable
 				end, 
 				get = function(key) return selectedSpell end, 
-				set = function(key, value) ns:SetFilterOptions('PetBuffWatch', selectedSpell) end
+				set = function(key, value) ns:SetFilterOptions('PetBuffWatch', value) end
 			}
 		}
 	};
@@ -366,13 +393,14 @@ end;
 
 ns.FilterSpellGroups['PetBuffWatch'] = function(selectedSpell)
 	local RESULT;
+	local FILTER = SV.filters.PetBuffWatch;
 
 	if(selectedSpell) then
 		local registeredSpell;
 
-		for watchIndex, watchData in pairs(SV.filters.PetBuffWatch)do 
-			if(watchData.id == selectedSpell) then 
-				registeredSpell = watchIndex 
+		for id, watchData in pairs(FILTER)do 
+			if(tonumber(id) == selectedSpell) then 
+				registeredSpell = id 
 			end 
 		end
 
@@ -383,10 +411,10 @@ ns.FilterSpellGroups['PetBuffWatch'] = function(selectedSpell)
 			RESULT = {
 				name = currentSpell.." ("..selectedSpell..")", 
 				type = "group", 
-				get = function(key)return SV.filters.PetBuffWatch[registeredSpell][key[#key]] end, 
+				get = function(key)return FILTER[registeredSpell][key[#key]] end, 
 				set = function(key, value)
-					SV.filters.PetBuffWatch[registeredSpell][key[#key]] = value;
-					MOD:SetUnitFrame("pet")
+					FILTER[registeredSpell][key[#key]] = value;
+					UpdatePetBuffWatch()
 				end, 
 				order = 5, 
 				guiInline = true,
@@ -400,16 +428,7 @@ ns.FilterSpellGroups['PetBuffWatch'] = function(selectedSpell)
 						name = L["Anchor Point"], 
 						order = 1, 
 						type = "select", 
-						values = {
-							["TOPLEFT"] = "TOPLEFT", 
-							["TOPRIGHT"] = "TOPRIGHT", 
-							["BOTTOMLEFT"] = "BOTTOMLEFT", 
-							["BOTTOMRIGHT"] = "BOTTOMRIGHT", 
-							["LEFT"] = "LEFT", 
-							["RIGHT"] = "RIGHT", 
-							["TOP"] = "TOP", 
-							["BOTTOM"] = "BOTTOM"
-						}
+						values = POSITION_SELECT
 					}, 
 					xOffset = {order = 2, type = "range", name = L["xOffset"], min = -75, max = 75, step = 1}, 
 					yOffset = {order = 2, type = "range", name = L["yOffset"], min = -75, max = 75, step = 1}, 
@@ -417,20 +436,21 @@ ns.FilterSpellGroups['PetBuffWatch'] = function(selectedSpell)
 						name = L["Style"], 
 						order = 3, 
 						type = "select", 
-						values = {["coloredIcon"] = L["Colored Icon"], ["texturedIcon"] = L["Textured Icon"], [""] = NONE}
+						values = STYLE_SELECT
+
 					}, 
 					color = {
 						name = L["Color"], 
 						type = "color", 
 						order = 4, 
 						get = function(key)
-							local abColor = SV.filters.PetBuffWatch[registeredSpell][key[#key]]
+							local abColor = FILTER[registeredSpell][key[#key]]
 							return abColor.r,  abColor.g,  abColor.b,  abColor.a 
 						end, 
 						set = function(key, r, g, b)
-							local abColor = SV.filters.PetBuffWatch[registeredSpell][key[#key]]
+							local abColor = FILTER[registeredSpell][key[#key]]
 							abColor.r,  abColor.g,  abColor.b = r, g, b;
-							MOD:SetUnitFrame("pet")
+							UpdatePetBuffWatch()
 						end
 					}, 
 					displayText = {
@@ -443,7 +463,7 @@ ns.FilterSpellGroups['PetBuffWatch'] = function(selectedSpell)
 						type = "color",
 						order = 6,
 						get = function(key)
-							local abColor = SV.filters.PetBuffWatch[registeredSpell][key[#key]]
+							local abColor = FILTER[registeredSpell][key[#key]]
 							if abColor then 
 								return abColor.r,abColor.g,abColor.b,abColor.a 
 							else 
@@ -451,9 +471,9 @@ ns.FilterSpellGroups['PetBuffWatch'] = function(selectedSpell)
 							end 
 						end,
 						set = function(key, r, g, b)
-							local abColor = SV.filters.PetBuffWatch[registeredSpell][key[#key]]
+							local abColor = FILTER[registeredSpell][key[#key]]
 							abColor.r,abColor.g,abColor.b = r, g, b;
-							MOD:SetUnitFrame("pet")
+							UpdatePetBuffWatch()
 						end
 					},
 					textThreshold = {
@@ -474,7 +494,7 @@ ns.FilterSpellGroups['PetBuffWatch'] = function(selectedSpell)
 						name = L["Show When Not Active"],
 						order = 8,
 						type = "toggle",
-						disabled = function()return SV.filters.PetBuffWatch[registeredSpell].style == "text"end
+						disabled = function() return FILTER[registeredSpell].style == "text" end
 					}
 				}
 			}

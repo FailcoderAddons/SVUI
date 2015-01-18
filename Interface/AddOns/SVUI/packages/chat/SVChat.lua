@@ -96,15 +96,9 @@ local CHAT_THROTTLE = 45;
 local CHAT_ALLOW_URL = true;
 local CHAT_HOVER_URL = true;
 local CHAT_STICKY = true;
-local CHAT_FONT = [[Interface\AddOns\SVUI\assets\fonts\Default.ttf]];
-local CHAT_FONTSIZE = 12;
-local CHAT_FONTOUTLINE = "OUTLINE";
 local TAB_WIDTH = 75;
 local TAB_HEIGHT = 20;
 local TAB_SKINS = true;
-local TAB_FONT = [[Interface\AddOns\SVUI\assets\fonts\Caps.ttf]];
-local TAB_FONTSIZE = 11;
-local TAB_FONTOUTLINE = "OUTLINE";
 local CHAT_FADING = false;
 local CHAT_PSST = [[Interface\AddOns\SVUI\assets\sounds\whisper.mp3]];
 local TIME_STAMP_MASK = "NONE";
@@ -112,6 +106,7 @@ local ICONARTFILE = [[Interface\AddOns\SVUI\assets\artwork\Icons\DOCK-CHAT]]
 local SCROLL_ALERT = [[Interface\AddOns\SVUI\assets\artwork\Chat\CHAT-SCROLL]]
 local WHISPER_ALERT = [[Interface\AddOns\SVUI\assets\artwork\Chat\CHAT-WHISPER]]
 local THROTTLE_CACHE = {};
+local COPY_LINES = {};
 local ACTIVE_HYPER_LINK;
 local TABS_DIRTY = false;
 --[[ 
@@ -145,7 +140,13 @@ LOCAL FUNCTIONS
 ##########################################################
 ]]--
 local ScrollIndicator = CreateFrame("Frame", nil)
-
+local HighLight_OnUpdate = function(self)
+	if(self:IsMouseOver(50, -2, 0, 50)) then
+		self.texture:SetGradientAlpha("HORIZONTAL",0,1,0,0.8,0,0.3,0,0)
+	else
+		self.texture:SetGradientAlpha("HORIZONTAL",0,1,1,0.8,0,0.3,0.3,0)
+	end
+end
 do
 	local EmoteCount = 39;
 	local EmotePatterns = {
@@ -273,10 +274,16 @@ do
 		return msg
 	end
 
+	local function _getlink(this, prefix, text, color)
+	    text = tostring(text)
+	    local colorstring = ("|cff%s%s|r"):format(color or "ffffff", tostring(this))
+	    return format("|H%s:%s|h%s|h", prefix, text, colorstring)
+	end
+
 	local function _parse(arg1, arg2, arg3)
 		internalTest = true;
 		local prefix = (" [%s]"):format(arg2)
-		local slink = prefix:link("url", arg2, "0099FF")
+		local slink = _getlink(prefix, "url", arg2, "0099FF")
 		return ("%s "):format(slink)
 	end
 
@@ -290,7 +297,12 @@ do
 		if not internalTest then text = text:gsub("(%s?)([%w_-]+%.?[%w_-]+%.[%w_-]+:%d%d%d?%d?%d?)(%s?)", _parse) end 
 		if not internalTest then text = text:gsub("(%s?)(%a+://[%w_/%.%?%%=~&-'%-]+)(%s?)", _parse) end 
 		if not internalTest then text = text:gsub("(%s?)(www%.[%w_/%.%?%%=~&-'%-]+)(%s?)", _parse) end 
-		if not internalTest then text = text:gsub("(%s?)([_%w-%.~-]+@[_%w-]+%.[_%w-%.]+)(%s?)", _parse) end 
+		if not internalTest then text = text:gsub("(%s?)([_%w-%.~-]+@[_%w-]+%.[_%w-%.]+)(%s?)", _parse) end
+		if(self.___isFaded) then
+			for i=1, 8 do
+				text = text:gsub("|TInterface\\TargetingFrame\\UI%-RaidTargetingIcon_"..i..":0|t", "")
+			end
+		end
 		self.TempAddMessage(self, _concatTimeStamp(text), ...)
 	end
 
@@ -461,10 +473,12 @@ do
 
 	local Tab_OnDragStart = function(self)
 		MOD.Dock.Highlight:Show()
+		MOD.Dock.Highlight:SetScript("OnUpdate", HighLight_OnUpdate)
 	end
 
 	local Tab_OnDragStop = function(self)
 		MOD.Dock.Highlight:Hide()
+		MOD.Dock.Highlight:SetScript("OnUpdate", nil)
 	end
 
 	local EditBox_OnKeyUp = function(self, button)
@@ -575,13 +589,15 @@ do
 	end  
 
 	local function _removeTab(frame,chat)
-		if(not frame or not frame.chatID) then return end 
+		if(not frame) then return end 
 		local name = frame:GetName();
-		if(not TabSafety[name]) then return end 
+		--if(not TabSafety[name]) then return end 
 		TabSafety[name] = false;
-		local chatID = frame.chatID;
-		if(TabsList[chatID]) then
-			TabsList[chatID] = nil;
+		if(frame.chatID) then
+			local chatID = frame.chatID;
+			if(TabsList[chatID]) then
+				TabsList[chatID] = nil;
+			end
 		end
 		frame:SetParent(chat)
 		frame:ClearAllPoints()
@@ -616,7 +632,7 @@ do
 		tab:SetParent(holder)
 		tab:ClearAllPoints()
 		tab:SetAllPoints(holder)
-		tab:SetStylePanel("Framed") 
+		tab:SetStylePanel("HeavyButton") 
 		tab.icon = tab:CreateTexture(nil,"BACKGROUND",nil,3)
 		tab.icon:SetAllPointsIn(tab, 6, 3)
 		tab.icon:SetTexture(ICONARTFILE)
@@ -660,10 +676,10 @@ do
 		local chatID = chat:GetID();
 		local tabName = chatName.."Tab";
 		local tabText = _G[chatName.."TabText"]
-		chat:FontManager("chatdialog", "LEFT")
-		tabText:FontManager("chattab")
+		SV:FontManager(chat, "chatdialog", "LEFT")
+		SV:FontManager(tabText, "chattab")
 		if(not chat.Panel) then
-			chat:SetStylePanel("Default", "Transparent")
+			chat:SetStylePanel("Frame", "Transparent")
 			chat.Panel:Hide()
 		end
 		if(SV.db.font.chatdialog.outline ~= 'NONE' )then
@@ -723,7 +739,7 @@ do
 			_G[editBoxName.."FocusLeft"]:Die()
 			_G[editBoxName.."FocusMid"]:Die()
 			_G[editBoxName.."FocusRight"]:Die()
-			editBox:SetStylePanel("Default", "Headline", true, 2, -2, -3)
+			editBox:SetStylePanel("Frame", "Lite", true, 2, -2, -3)
 			editBox:SetAltArrowKeyMode(false)
 			editBox:SetAllPoints(MOD.Dock.Parent.Alert)
 			editBox:HookScript("OnEditFocusGained", EditBox_OnEditFocusGained)
@@ -746,6 +762,31 @@ do
 			alticon:SetTexture(WHISPER_ALERT)
 			alert:Hide()
 			chat.WhisperAlert = alert
+
+			--copy chat button
+			chat.button = CreateFrame('Frame', format("SVUI_CopyChatButton%d", id), chat)
+			chat.button:SetAlpha(0.35)
+			chat.button:SetSizeToScale(38, 18)
+			chat.button:SetPoint('TOPRIGHT', chat, 'TOPRIGHT', 0, 0)
+			chat.button:SetStylePanel('Frame', 'Lite')
+			
+			chat.button.Title = chat.button:CreateFontString()
+			chat.button.Title:SetFontObject(SVUI_Font_ChatTab)
+			chat.button.Title:SetText("copy")
+			chat.button.Title:SetAllPointsIn(chat.button)
+			chat.button.Title:SetTextColor(1,0.8,0)
+			
+			chat.button:SetScript("OnMouseUp", function(self, btn)
+				if btn == "RightButton" and id == 1 then
+					ToggleFrame(ChatMenu)
+				else
+					MOD:CopyChat(chat)
+				end
+			end)
+			
+			chat.button:SetScript("OnEnter", function(self) self:FadeIn() end)
+			chat.button:SetScript("OnLeave", function(self) self:FadeOut() end)
+			chat.button:FadeOut()
 
 			chat.InitConfig = true
 		end
@@ -788,12 +829,12 @@ do
 				--print("setting size "..id .. " = " ..CHAT_WIDTH)
 				chat:SetSize(CHAT_WIDTH, CHAT_HEIGHT)
 				chat.Panel:Show()
+				tab.owner = chat;
 				if(not TAB_SKINS) then
 					tab.isDocked = chat.isDocked;
 					tab:SetParent(chat)
 					_modifyTab(tab, true)
 				else
-					tab.owner = chat;
 					tab.isDocked = false;
 					if(tab.Holder) then
 						tab.Holder.isDocked = false;
@@ -808,14 +849,12 @@ do
 				chat.Panel:Hide();
 
 				FCF_SavePositionAndDimensions(chat)
-				
+				tab.owner = chat;
 				if(not TAB_SKINS) then
-					tab.owner = chat;
 					tab.isDocked = chat.isDocked;
 					tab:SetParent(MOD.Dock.Bar)
 					_modifyTab(tab, false)
 				else
-					tab.owner = chat;
 					tab.isDocked = true;
 					local arg3 = (chat.inUse or chat.isDocked or chat.isTemporary)
 					if(tab.Holder and arg3) then
@@ -856,7 +895,7 @@ local function _hook_SetTabPosition(chatFrame)
 end
 
 local function _hook_TabStopDragging(chatFrame)
-	if(MOD.Dock.Highlight:IsMouseOver(10, -10, 0, 10)) then
+	if(MOD.Dock.Highlight:IsMouseOver(50, -2, 0, 50)) then
 		TABS_DIRTY = true;
 		FCF_DockFrame(chatFrame, chatFrame:GetID(), true);
 	end
@@ -963,6 +1002,7 @@ do
 			ScrollIndicator:Hide()
 		elseif(not self:AtBottom() and not ScrollIndicator:IsShown()) then
 			ScrollIndicator:Show()
+			ScrollIndicator.parent = self
 			SV.Animate:Flash(ScrollIndicator,1,true)
 		end
 	end
@@ -1037,17 +1077,80 @@ do
 	end
 end
 
+local ScrollFullButton = function(self)
+	if(not self.parent) then return end
+	self.parent:ScrollToBottom()
+	self:Hide()
+end
+
+local function removeIconFromLine(text)
+	for i=1, 8 do
+		text = gsub(text, "|TInterface\\TargetingFrame\\UI%-RaidTargetingIcon_"..i..":0|t", "")
+	end
+	text = gsub(text, "(|TInterface(.*)|t)", "")
+	return text
+end
+
+function MOD:FadeLines(frame)
+	for i = select("#", frame:GetRegions()), 1, -1 do
+		local region = select(i, frame:GetRegions())
+		if region:GetObjectType() == "FontString" then
+			local line = tostring(region:GetText())
+			local newtext = removeIconFromLine(line)
+			region:SetText(newtext)
+			region:SetAlpha(0)
+		end
+	end
+	frame.___isFaded = true;
+end
+
+function MOD:ShowLines(frame)
+	for i = select("#", frame:GetRegions()), 1, -1 do
+		local region = select(i, frame:GetRegions())
+		if region:GetObjectType() == "FontString" then
+			region:SetAlpha(1)
+		end
+	end
+	frame.___isFaded = nil;
+end
+
+function MOD:GetLines(...)
+	local index = 1
+	for i = select("#", ...), 1, -1 do
+		local region = select(i, ...)
+		if region:GetObjectType() == "FontString" then
+			local line = tostring(region:GetText())
+			COPY_LINES[index] = removeIconFromLine(line)
+			index = index + 1
+		end
+	end
+	return index - 1
+end
+
+function MOD:CopyChat(frame)
+	if not SVUI_CopyChatFrame:IsShown() then
+		SVUI_CopyChatFrame:Show()
+		local lineCt = self:GetLines(frame:GetRegions())
+		local text = tconcat(COPY_LINES, "\n", 1, lineCt)
+		SVUI_CopyChatFrameEditBox:SetText(text)
+	else
+		SVUI_CopyChatFrame:Hide()
+	end
+end
+
 local function DockFadeInChat()
 	local activeChatFrame = FCFDock_GetSelectedWindow(GENERAL_CHAT_DOCK)
+	MOD:ShowLines(activeChatFrame)
 	activeChatFrame:FadeIn(0.2, activeChatFrame:GetAlpha(), 1)
 end
-SV.Events:On("DOCKS_FADE_IN", "DockFadeInChat", DockFadeInChat);
+SV.Events:On("DOCK_LEFT_FADE_IN", "DockFadeInChat", DockFadeInChat);
 
 local function DockFadeOutChat()
 	local activeChatFrame = FCFDock_GetSelectedWindow(GENERAL_CHAT_DOCK)
+	MOD:FadeLines(activeChatFrame)
 	activeChatFrame:FadeOut(2, activeChatFrame:GetAlpha(), 0, true)
 end
-SV.Events:On("DOCKS_FADE_OUT", "DockFadeOutChat", DockFadeOutChat);
+SV.Events:On("DOCK_LEFT_FADE_OUT", "DockFadeOutChat", DockFadeOutChat);
 
 function MOD:UpdateLocals()
 	CHAT_WIDTH = (SV.db.Dock.dockLeftWidth or 350) - 10;
@@ -1083,6 +1186,7 @@ function MOD:Load()
 	insTex:SetAllPoints()
 	insTex:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Bars\DEFAULT]]);
 	insTex:SetGradientAlpha("HORIZONTAL",0,1,1,0.8,0,0.3,0.3,0)
+	insertHL.texture = insTex
 	insertHL:Hide()
 
 	self.Dock.Highlight = insertHL
@@ -1091,11 +1195,13 @@ function MOD:Load()
 	ScrollIndicator:SetSize(20,20)
 	ScrollIndicator:SetPoint("BOTTOMRIGHT", self.Dock, "BOTTOMRIGHT", 6, 0)
 	ScrollIndicator:SetFrameStrata("HIGH")
-	ScrollIndicator.icon = ScrollIndicator:CreateTexture(nil, "OVERLAY")
+	ScrollIndicator:EnableMouse(true)
+	ScrollIndicator.icon = ScrollIndicator:CreateTexture(nil, "BACKGROUND")
 	ScrollIndicator.icon:SetAllPoints()
 	ScrollIndicator.icon:SetTexture(SCROLL_ALERT)
 	ScrollIndicator.icon:SetBlendMode("ADD")
 	ScrollIndicator:Hide()
+	ScrollIndicator:SetScript("OnMouseDown", ScrollFullButton)
 
 	self:RegisterEvent('UPDATE_CHAT_WINDOWS', 'RefreshChatFrames')
 	self:RegisterEvent('UPDATE_FLOATING_CHAT_WINDOWS', 'RefreshChatFrames')
@@ -1108,7 +1214,7 @@ function MOD:Load()
 
 	_G.GeneralDockManagerOverflowButton:ClearAllPoints()
 	_G.GeneralDockManagerOverflowButton:SetPoint('BOTTOMRIGHT', self.Dock.Bar, 'BOTTOMRIGHT', -2, 2)
-	_G.GeneralDockManagerOverflowButtonList:SetStylePanel("Fixed", 'Transparent')
+	_G.GeneralDockManagerOverflowButtonList:SetStylePanel("!_Frame", 'Transparent')
 	_G.GeneralDockManager:SetAllPoints(self.Dock.Bar)
 
 	SetAllChatHooks()
@@ -1124,9 +1230,59 @@ function MOD:Load()
 	_G.InterfaceOptionsSocialPanelChatStyleButton:Hide()
 	_G.InterfaceOptionsSocialPanelChatStyle:SetAlpha(0)
 
-	-- NewHook(ChatFrame2, "SetPoint", function(self, a1, p, a2, x, y) 
-	-- 	if(x > 2) then
-	-- 		self:SetPoint(a1, p, a2, 2, y)
-	-- 	end  
-	-- end)
+	NewHook(ChatFrame2, "SetPoint", function(self, a1, p, a2, x, y) 
+		if(x > 2) then
+			self:SetPoint(a1, p, a2, 2, y)
+		end  
+	end)
+
+
+	local frame = CreateFrame("Frame", "SVUI_CopyChatFrame", self.Dock)
+	--frame:SetStylePanel('Frame', 'Transparent')
+	frame:SetPoint('BOTTOMLEFT', self.Dock, 'TOPLEFT', 0, 0)
+	frame:SetPoint('BOTTOMRIGHT', self.Dock, 'TOPRIGHT', 0, 0)
+	frame:SetHeight(self.Dock:GetHeight())
+	frame:Hide()
+	frame:EnableMouse(true)
+	frame:SetFrameStrata("DIALOG")
+	SV.Dock:SetSuperDockStyle(frame)
+
+	frame.Title = frame:CreateFontString()
+	frame.Title:SetFontObject(SVUI_Font_Header)
+	frame.Title:SetJustifyH('LEFT')
+	frame.Title:SetText("Copy Chat")
+	frame.Title:SetPoint("TOPLEFT", frame, "TOPLEFT", 4, 4)
+	frame.Title:SetTextColor(1,0.8,0)
+
+	local scrollArea = CreateFrame("ScrollFrame", "SVUI_CopyChatScrollFrame", frame, "UIPanelScrollFrameTemplate")
+	scrollArea:SetPoint("TOPLEFT", frame, "TOPLEFT", 8, -30)
+	scrollArea:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -30, 8)
+
+	local editBox = CreateFrame("EditBox", "SVUI_CopyChatFrameEditBox", frame)
+	editBox:SetMultiLine(true)
+	editBox:SetMaxLetters(99999)
+	editBox:EnableMouse(true)
+	editBox:SetAutoFocus(false)
+	editBox:SetFontObject(SVUI_Font_Chat)
+	editBox:SetJustifyH('LEFT')
+	editBox:SetWidth(scrollArea:GetWidth())
+	editBox:SetHeight(200)
+	editBox:SetScript("OnEscapePressed", function() SVUI_CopyChatFrame:Hide() end)
+
+	scrollArea:SetScrollChild(editBox)
+
+	editBox:SetScript("OnTextChanged", function(self, userInput)
+		if userInput then return end
+		local _, max = SVUI_CopyChatScrollFrameScrollBar:GetMinMaxValues()
+		for i=1, max do
+			ScrollFrameTemplate_OnMouseWheel(SVUI_CopyChatScrollFrame, -1)
+		end
+	end)		
+
+	local close = CreateFrame("Button", "SVUI_CopyChatFrameCloseButton", frame, "UIPanelCloseButton")
+	close:SetPoint("TOPRIGHT")
+	close:SetFrameLevel(close:GetFrameLevel() + 1)
+	close:EnableMouse(true)
+
+	tinsert(UISpecialFrames, "SVUI_CopyChatFrame")
 end

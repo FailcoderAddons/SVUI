@@ -30,7 +30,7 @@ FRAME PLUGINR
 local function MerchantStyle()
 	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.merchant ~= true then return end 
 	MerchantFrame:RemoveTextures(true)
-	MerchantFrame:SetStylePanel("Default", "Halftone", false, nil, 2, 4)
+	MerchantFrame:SetStylePanel("Frame", "Composite1", false, nil, 2, 4)
 	local level = MerchantFrame:GetFrameLevel()
 	if(level > 0) then 
 		MerchantFrame:SetFrameLevel(level - 1)
@@ -38,7 +38,7 @@ local function MerchantStyle()
 		MerchantFrame:SetFrameLevel(0)
 	end
 	MerchantBuyBackItem:RemoveTextures(true)
-	MerchantBuyBackItem:SetStylePanel("Default", "Inset", true, 2, 2, 3)
+	MerchantBuyBackItem:SetStylePanel("Frame", "Inset", true, 2, 2, 3)
 	MerchantBuyBackItem.Panel:SetFrameLevel(MerchantBuyBackItem.Panel:GetFrameLevel() + 1)
 	MerchantBuyBackItemItemButton:RemoveTextures()
 	MerchantBuyBackItemItemButton:SetStylePanel("Button")
@@ -47,7 +47,7 @@ local function MerchantStyle()
 	MerchantFrameInset:RemoveTextures()
 	MerchantMoneyBg:RemoveTextures()
 	MerchantMoneyInset:RemoveTextures()
-	MerchantFrameInset:SetStylePanel("Default", "Inset")
+	MerchantFrameInset:SetStylePanel("Frame", "Inset")
 	MerchantFrameInset.Panel:SetFrameLevel(MerchantFrameInset.Panel:GetFrameLevel() + 1)
 	PLUGIN:ApplyDropdownStyle(MerchantFrameLootFilter)
 	for b = 1, 2 do
@@ -57,7 +57,7 @@ local function MerchantStyle()
 		local d = _G["MerchantItem"..b.."ItemButton"]
 		local e = _G["MerchantItem"..b.."ItemButtonIconTexture"]
 		local o = _G["MerchantItem"..b]o:RemoveTextures(true)
-		o:SetStylePanel("Fixed", "Inset")
+		o:SetStylePanel("!_Frame", "Inset")
 		d:RemoveTextures()
 		d:SetStylePanel("Button")
 		d:SetPointToScale("TOPLEFT", o, "TOPLEFT", 4, -4)

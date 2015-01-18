@@ -203,7 +203,7 @@ local AllowElement = function(self)
 
     self:SetScript("OnUpdate", nil)
     self.forceShowAuras = true;
-
+    self:EnableMouse(false)
     UnregisterUnitWatch(self)
     RegisterUnitWatch(self, true)
 
@@ -218,7 +218,7 @@ local RestrictElement = function(self)
 
     self.forceShowAuras = nil
     self.isForced = nil
-
+    self:EnableMouse(true)
     UnregisterUnitWatch(self)
     RegisterUnitWatch(self)
 
@@ -286,7 +286,6 @@ local PartyUnitUpdate = function(self)
             self:SetSizeToScale(UNIT_WIDTH, UNIT_HEIGHT) 
         end 
         MOD:RefreshUnitLayout(self, "party")
-        MOD:UpdateAuraWatch(self, "party")
     end 
     self:EnableElement('ReadyCheck')
     self:UpdateAllElements()
@@ -423,7 +422,6 @@ local RaidUnitUpdate = function(self)
     end
 
     MOD.RefreshUnitMedia(self, token)
-    MOD:UpdateAuraWatch(self, token)
     MOD:RefreshUnitLayout(self, token)
 
     if(token ~= "raidpet") then

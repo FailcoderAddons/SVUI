@@ -216,7 +216,7 @@ local OBJECTIVE_GetStatus = function(self)
 
 		status.Label = status.Bar:CreateFontString(nil,"OVERLAY");
 		status.Label:SetAllPointsIn(status.Bar);
-		status.Label:FontManager("questnumber")
+		status.Label:SetFontObject(SVUI_Font_Quest_Number)
 		status.Label:SetTextColor(1,1,1)
 		status.Label:SetText('')
 
@@ -254,7 +254,8 @@ function MOD:NewObjectiveRow(header, index)
 	objective.Text:SetPoint("TOPLEFT", objective, "TOPLEFT", 20 + 6, -2);
 	objective.Text:SetPoint("TOPRIGHT", objective, "TOPRIGHT", 0, -2);
 	objective.Text:SetHeightToScale(INNER_HEIGHT);
-	objective.Text:FontManager("questdialog", "LEFT");
+	objective.Text:SetFontObject(SVUI_Font_Quest);
+	objective.Text:SetJustifyH('LEFT')
 	objective.Text:SetTextColor(0.6,0.6,0.6);
 	objective.Text:SetText('');
 
@@ -434,7 +435,7 @@ function MOD:Load()
 	scrollBar:SetPoint("TOPRIGHT", self.Docklet, "TOPRIGHT", -4, -2);
 	scrollBar:SetBackdrop({bgFile = bgTex, edgeFile = bdTex, edgeSize = 4, insets = {left = 3, right = 3, top = 3, bottom = 3}});
 	scrollBar:SetFrameLevel(6)
-	scrollBar:SetStylePanel("Fixed", "Transparent", true);
+	scrollBar:SetStylePanel("!_Frame", "Transparent", true);
 	scrollBar:SetThumbTexture("Interface\\Buttons\\UI-ScrollBar-Knob");
 	scrollBar:SetOrientation("VERTICAL");
 	scrollBar:SetValueStep(5);
@@ -477,7 +478,7 @@ function MOD:Load()
 	self:InitializePopups()
 	self:InitializeActive()
 	self:InitializeScenarios()
-	self:InitializeQuestItem()
+	--self:InitializeQuestItem()
 	self:InitializeBonuses()
 	self:InitializeQuests()
 	self:InitializeAchievements()

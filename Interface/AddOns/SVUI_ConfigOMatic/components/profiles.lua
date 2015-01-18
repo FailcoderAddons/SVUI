@@ -38,7 +38,7 @@ local playerName = UnitName("player")
 local profileKey = ("%s - %s"):format(playerName, playerRealm)
 
 SV.Options.args.profiles = {
-	order = 9999,
+	order = 9998,
 	type = "group", 
 	name = L["Profiles"], 
 	childGroups = "tab", 

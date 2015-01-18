@@ -3,6 +3,10 @@ local _G = _G;
 --LUA
 local unpack        = _G.unpack;
 local select        = _G.select;
+
+local class = select(2, UnitClass("player"));
+if(class ~= "ROGUE") then return end;
+
 local assert        = _G.assert;
 local error         = _G.error;
 local print         = _G.print;
@@ -24,14 +28,9 @@ local wipe          = _G.wipe;
 local GetShapeshiftForm         = _G.GetShapeshiftForm;
 local UnitHasVehicleUI 			= _G.UnitHasVehicleUI;
 local UnitBuff         			= _G.UnitBuff;
-local CombatText_AddMessage 	= _G.CombatText_AddMessage;
-local CombatText_StandardScroll = _G.CombatText_StandardScroll;
 local MAX_COMBO_POINTS      	= _G.MAX_COMBO_POINTS;
 local GetSpellInfo      		= _G.GetSpellInfo;
 local GetComboPoints  			= _G.GetComboPoints;
-
-local class = select(2, UnitClass("player"));
-if(class ~= "ROGUE" and class ~= "DRUID") then return end
 
 local parent, ns = ...
 local oUF = ns.oUF
@@ -62,21 +61,10 @@ local function UpdateGuile()
 	end
 end
 
-local function FivePointsAlarm(frame, points)
-	if not CombatText_AddMessage then return end
-	if(points == 5 and not frame.ALERTED) then
-		CombatText_AddMessage("5 Points", CombatText_StandardScroll, 0.1, 0.5, 1, "crit")
-		frame.ALERTED = true
-	elseif(frame.ALERTED and points < 5) then
-		frame.ALERTED = false
-	end
-end 
-
 local Update = function(self, event, unit)
 	if(unit == 'pet') then return end
 	local bar = self.HyperCombo;
-	local cpoints = bar.CPoints;
-	local tracker = bar.Tracking;
+	local cpoints = bar.Combo;
 
 	if(bar.PreUpdate) then
 		bar:PreUpdate()
@@ -84,10 +72,12 @@ local Update = function(self, event, unit)
 
 	local current = 0
 	if(UnitHasVehicleUI'player') then
-		current = GetComboPoints('vehicle', 'target')
+		current = GetComboPoints('vehicle')
 	else
-		current = GetComboPoints('player', 'target')
+		current = GetComboPoints('player')
 	end
+
+	local anti = select(4, UnitBuff("player", ANTICIPATION)) -- Anticipation stacks
 
 	if(cpoints) then
 		for i=1, MAX_COMBO_POINTS do
@@ -102,55 +92,25 @@ local Update = function(self, event, unit)
 					bar.PointHide(cpoints[i], i)
 				end
 			end
+			if(cpoints[i].Anticipation) then
+				anti = anti or 0
+				if(i <= anti and (current > 0)) then
+					cpoints[i].Anticipation:Show()
+				else
+					cpoints[i].Anticipation:Hide()
+				end
+			end
 		end
 	end
 
-	if(class == "ROGUE") then
-		if(tracker) then
-			if(current > 0) then
-				tracker.Text:SetText(current)
-				tracker.Text:SetTextColor(unpack(TextColors[current]))
-				FivePointsAlarm(tracker, current)
-			else
-				tracker.Text:SetText("0")
-				tracker.Text:SetTextColor(0.3,0.3,0.3)
-			end
-		end
-
-		local anticipation = bar.Anticipation;
-		if(anticipation) then
-			local anti = select(4, UnitBuff("player", ANTICIPATION)) -- Anticipation stacks
-			if(anti and anti > 0) then
-				anticipation.Text:SetText(anti)
-				anticipation.Text:SetTextColor(unpack(TextColors[anti]))
-			else
-				anticipation.Text:SetText("")
-			end
-		end
-		local guile = bar.Guile;
-		if(guile) then
-			local insight = UpdateGuile()
-			if(insight and insight > 0) then
-				guile.Text:SetText(insight)
-				guile.Text:SetTextColor(unpack(TextColors[insight]))
-			else
-				guile.Text:SetText("")
-			end
-		end
-	else
-		if(tracker) then
-			if(GetShapeshiftForm() == 3) then
-				if(current > 0) then
-					tracker.Text:SetText(current)
-					tracker.Text:SetTextColor(unpack(TextColors[current]))
-					FivePointsAlarm(tracker, current)
-				else
-					tracker.Text:SetText("0")
-					tracker.Text:SetTextColor(0.3,0.3,0.3)
-				end
-			else
-				tracker.Text:SetText("")
-			end
+	local guile = bar.Guile;
+	if(guile) then
+		local insight = UpdateGuile()
+		if(insight and insight > 0) then
+			guile:SetText(insight)
+			guile:SetTextColor(unpack(TextColors[insight]))
+		else
+			guile:SetText("")
 		end
 	end
 
@@ -163,16 +123,6 @@ local Path = function(self, ...)
 	return (self.HyperCombo.Override or Update) (self, ...)
 end
 
--- local Tracker = function(self, ...)
--- 	local bar = self.HyperCombo
--- 	if(UnitHasVehicleUI'player') then
--- 		bar.LAST_COMBO_POINTS = GetComboPoints('vehicle', 'target')
--- 	else
--- 		bar.LAST_COMBO_POINTS = GetComboPoints('player', 'target')
--- 	end
--- 	return Path(self, ...)
--- end
-
 local ForceUpdate = function(element)
 	return Path(element.__owner, 'ForceUpdate', element.__owner.unit)
 end
@@ -182,14 +132,12 @@ local Enable = function(self)
 	if(bar) then
 		bar.__owner = self
 		bar.ForceUpdate = ForceUpdate
-		bar.EXISTING_COMBO_POINTS = 0
-		bar.LAST_COMBO_POINTS = 0
 
 		self:RegisterEvent('UNIT_COMBO_POINTS', Path, true)
 		self:RegisterEvent('PLAYER_TARGET_CHANGED', Path, true)
 		self:RegisterEvent('UNIT_AURA', Path, true)
 		
-		local cpoints = bar.CPoints;
+		local cpoints = bar.Combo;
 		if(cpoints) then
 			for index = 1, MAX_COMBO_POINTS do
 				local cpoint = cpoints[index]
@@ -206,7 +154,7 @@ end
 local Disable = function(self)
 	local bar = self.HyperCombo
 	if(bar) then
-		local cpoints = bar.CPoints;
+		local cpoints = bar.Combo;
 		if(cpoints) then
 			for index = 1, MAX_COMBO_POINTS do
 				cpoints[index]:Hide()

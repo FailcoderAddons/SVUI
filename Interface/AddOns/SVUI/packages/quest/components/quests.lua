@@ -61,18 +61,20 @@ local INNER_HEIGHT = ROW_HEIGHT - 4;
 local LARGE_ROW_HEIGHT = ROW_HEIGHT * 2;
 local LARGE_INNER_HEIGHT = LARGE_ROW_HEIGHT - 4;
 
-local NO_ICON = [[Interface\AddOns\SVUI\assets\artwork\Template\EMPTY]];
+local NO_ART = [[Interface\AddOns\SVUI\assets\artwork\Template\EMPTY]];
 local OBJ_ICON_ACTIVE = [[Interface\COMMON\Indicator-Yellow]];
 local OBJ_ICON_COMPLETE = [[Interface\COMMON\Indicator-Green]];
 local OBJ_ICON_INCOMPLETE = [[Interface\COMMON\Indicator-Gray]];
 
 local QUEST_ICON = [[Interface\AddOns\SVUI\assets\artwork\Quest\QUEST-INCOMPLETE-ICON]];
 local QUEST_ICON_COMPLETE = [[Interface\AddOns\SVUI\assets\artwork\Quest\QUEST-COMPLETE-ICON]];
+local QUEST_BORDER = [[Interface\ExtraButton\Smash]];
 
 local CACHED_QUESTS = {};
 local QUESTS_BY_LOCATION = {};
 local QUEST_HEADER_MAP = {};
 local USED_QUESTIDS = {};
+local TICKERS, ACTIVE_ITEMS, SWAP_ITEMS = {}, {}, {};
 local CURRENT_MAP_ID = 0;
 local WORLDMAP_UPDATE = false;
 
@@ -87,7 +89,308 @@ local QuestInZone = {
 	[25111] = 161,
 	[24735] = 201,
 };
+local ItemBlacklist = {
+	[113191] = true,
+	[110799] = true,
+	[109164] = true,
+};
+--[[ 
+########################################################## 
+ITEM BAR/BUTTON CONSTRUCT
+##########################################################
+]]--
+local ItemBar = _G["SVUI_QuestItemBar"];
+ItemBar.Buttons = {};
 
+local ItemBar_OnEvent = function(self, event)
+    if(event == 'PLAYER_REGEN_ENABLED' and self.needsUpdate) then
+        self:Update()
+        self:UnregisterEvent("PLAYER_REGEN_ENABLED")
+    end
+end
+ItemBar:SetScript('OnEvent', ItemBar_OnEvent);
+
+local CreateQuestItemButton;
+do
+    --[[ HANDLERS ]]--
+
+    local Button_UpdateCooldown = function(self)
+        if(self:IsShown() and self.itemID) then
+            local start, duration, enable = GetItemCooldown(self.itemID)
+            if((start and start > 0) and (duration and duration > 0)) then
+                self.Cooldown:SetCooldown(start, duration)
+                self.Cooldown:Show()
+            else
+                self.Cooldown:Hide()
+            end
+        end
+    end
+
+    local Button_OnEnter = function(self)
+        if(self.itemID) then
+            GameTooltip:SetOwner(self, 'ANCHOR_LEFT')
+            GameTooltip:SetHyperlink(self.itemLink)
+        end
+        if(self.___overflow) then
+            self:FadeIn()
+        end
+    end
+
+    local Button_OnLeave = function(self)
+    	GameTooltip_Hide()
+        if(self.___overflow) then
+            self:FadeOut()
+        end
+    end
+
+    local Button_OnEvent = function(self, event)
+        if(event == 'BAG_UPDATE_COOLDOWN') then
+            self:UpdateCooldown()
+        elseif(event == 'PLAYER_REGEN_ENABLED') then
+            self:SetAttribute('item', self.attribute)
+            self:UnregisterEvent(event)
+            self:UpdateCooldown()
+        --else
+            --self:Update()
+        end
+    end
+
+    local Button_SetItem = function(self, itemLink, texture, completed)
+    	if(completed) then
+    		self:ClearUsage()
+    		return
+    	end
+        if(itemLink) then
+            if(ACTIVE_ITEMS[itemLink] or ((itemLink == self.itemLink) and self:IsShown())) then
+                return
+            end
+            ACTIVE_ITEMS[itemLink] = self:GetID();
+            self.Icon:SetTexture(texture)
+            self.itemID, self.itemName = string.match(itemLink, '|Hitem:(.-):.-|h%[(.+)%]|h')
+            self.itemLink = itemLink
+
+            if(ItemBlacklist[self.itemID]) then
+                return
+            end
+            self:FadeIn()
+        end
+
+        if(InCombatLockdown()) then
+            self.attribute = self.itemName
+            self:RegisterEvent('PLAYER_REGEN_ENABLED')
+        else
+            self:SetAttribute('item', self.itemName)
+            self:UpdateCooldown()
+        end
+
+        return true
+    end
+
+    local Button_ClearItem = function(self)
+        --self:FadeOut()
+        if(InCombatLockdown()) then
+            self.attribute = nil;
+            self:RegisterEvent('PLAYER_REGEN_ENABLED');
+        else
+            self:SetAttribute('item', nil)
+        end
+    end
+
+    local Button_UpdateItem = function(self)
+		local numItems = 0
+		local shortestDistance = 62500
+		local closestQuestLink, closestQuestTexture
+		local activeQuestLink, activeQuestTexture
+
+		for index = 1, GetNumQuestWatches() do
+			local questID, _, questIndex, _, _, isComplete = GetQuestWatchInfo(index)
+			if(questID and QuestHasPOIInfo(questID)) then
+				local link, texture, _, showCompleted = GetQuestLogSpecialItemInfo(questIndex)
+				if(link) then
+					local areaID = QuestInZone[questID]
+					if questIndex == MOD.CurrentQuest then
+						activeQuestLink = link
+						activeQuestTexture = texture
+					end
+					if(areaID and areaID == GetCurrentMapAreaID()) then
+						closestQuestLink = link
+						closestQuestTexture = texture
+					elseif(not isComplete or (isComplete and showCompleted)) then
+						local distanceSq, onContinent = GetDistanceSqToQuest(questIndex)
+						if(onContinent and distanceSq < shortestDistance) then
+							shortestDistance = distanceSq
+							closestQuestLink = link
+							closestQuestTexture = texture
+						end
+					end
+
+					numItems = numItems + 1
+				end
+			end
+		end
+
+		if(closestQuestLink) then
+			self:SetUsage(closestQuestLink, closestQuestTexture);
+		elseif(activeQuestLink) then
+			self:SetUsage(activeQuestLink, activeQuestTexture);
+		end
+
+		local name = self:GetName();
+		if(numItems > 0 and not TICKERS[name]) then
+			TICKERS[name] = C_Timer.NewTicker(30, function()
+				self:Update()
+			end)
+		elseif(numItems == 0 and TICKERS[name]) then
+			TICKERS[name]:Cancel()
+			TICKERS[name] = nil
+		end
+	end
+
+    --[[ METHOD ]]--
+
+    CreateQuestItemButton = function(index)
+    	local buttonName = "SVUI_QuestButton" .. index
+        local itembutton = CreateFrame('Button', buttonName, UIParent, 'SecureActionButtonTemplate, SecureHandlerStateTemplate, SecureHandlerAttributeTemplate');
+        itembutton:SetStylePanel("Icon");
+        itembutton:SetSizeToScale(28, 28);
+        itembutton:SetID(index);
+        itembutton.___overflow = false;
+        itembutton.SetUsage = Button_SetItem;
+        itembutton.ClearUsage = Button_ClearItem;
+        itembutton.Update = Button_UpdateItem;
+        itembutton.UpdateCooldown = Button_UpdateCooldown;
+
+        local Icon = itembutton:CreateTexture('$parentIcon', 'BACKGROUND')
+        Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+        Icon:SetAllPoints()
+        itembutton.Icon = Icon
+
+        local Cooldown = CreateFrame('Cooldown', '$parentCooldown', itembutton, 'CooldownFrameTemplate')
+        Cooldown:ClearAllPoints()
+        Cooldown:SetPoint('TOPRIGHT', -2, -3)
+        Cooldown:SetPoint('BOTTOMLEFT', 2, 1)
+        Cooldown:Hide()
+        itembutton.Cooldown = Cooldown
+
+        --RegisterStateDriver(itembutton, 'visible', '[petbattle] hide; show')
+        itembutton:SetAttribute('type', 'item');
+        itembutton:SetAttribute('_onattributechanged', [[
+            if(name == 'item') then
+                if(value and not self:IsShown()) then
+                    self:Show()
+                elseif(not value) then
+                    self:Hide()
+                end
+            end
+        ]]);
+
+        itembutton:SetScript('OnEnter', Button_OnEnter);
+        itembutton:SetScript('OnLeave', Button_OnLeave);
+
+        itembutton:RegisterEvent('UPDATE_EXTRA_ACTIONBAR');
+		itembutton:RegisterEvent('BAG_UPDATE_COOLDOWN');
+		itembutton:RegisterEvent('BAG_UPDATE_DELAYED');
+		itembutton:RegisterEvent('WORLD_MAP_UPDATE');
+		itembutton:RegisterEvent('QUEST_LOG_UPDATE');
+		itembutton:RegisterEvent('QUEST_POI_UPDATE');
+        itembutton:SetScript('OnEvent', Button_OnEvent);
+
+        return itembutton
+    end
+
+    function ItemBar:SetQuestItem(itemLink, texture, completed)
+    	if(not itemLink) then return end
+    	local savedIndex = ACTIVE_ITEMS[itemLink]
+    	if(savedIndex and self.Buttons[savedIndex]) then
+    		self.Buttons[savedIndex]:SetUsage(itemLink, texture, completed)
+    		return
+    	end
+
+		local maxIndex = #self.Buttons;
+		for i = 1, maxIndex do
+			if(not self.Buttons[i]:GetAttribute('item')) then
+	    		self.Buttons[i]:SetUsage(itemLink, texture, completed)
+	    		return
+	    	end
+		end
+
+		local index = maxIndex + 1
+		self.Buttons[index] = CreateQuestItemButton(index)
+		self.Buttons[index]:SetUsage(itemLink, texture, completed)
+	end
+end
+
+function ItemBar:Reset()
+	local maxIndex = #self.Buttons;
+	for i = 1, maxIndex do
+		local button = self.Buttons[i];
+		button:ClearUsage();
+	end
+end
+
+function ItemBar:Update()
+	if(InCombatLockdown()) then
+		self:RegisterEvent("PLAYER_REGEN_ENABLED")
+		self.needsUpdate = true
+		return
+	end
+	wipe(SWAP_ITEMS);
+	local maxIndex = #self.Buttons;
+	local firstButton = self.Buttons[1];
+	local itemLink = firstButton.itemLink;
+	firstButton:ClearAllPoints();
+	firstButton:SetPoint("TOP", self, "TOP", 0, -2);
+
+	if(itemLink and ACTIVE_ITEMS[itemLink]) then
+		SWAP_ITEMS[itemLink] = 1
+	end
+
+	local lastButton, totalShown, button = firstButton, 1;
+
+	for i = 2, maxIndex do
+		button = self.Buttons[i];
+		itemLink = button.itemLink;
+
+		button:ClearAllPoints();
+		if(button:IsShown()) then
+			totalShown = totalShown + 1;
+			if(totalShown > 5) then
+				if(totalShown == 6) then
+					button:SetPoint("BOTTOM", firstButton, "TOP", 0, 2)
+				else
+					button:SetPoint("BOTTOM", lastButton, "TOP", 0, 2)
+				end
+				button.___overflow = true;
+				button:FadeOut();
+			else
+				button:SetPoint("TOP", lastButton, "BOTTOM", 0, -2)
+				button.___overflow = false;
+				button:FadeIn();
+			end
+			lastButton = button
+
+			if(itemLink) then
+				if(ACTIVE_ITEMS[itemLink]) then
+					SWAP_ITEMS[itemLink] = i
+				end
+			else
+				button:ClearUsage()
+			end
+		end
+	end
+
+	wipe(ACTIVE_ITEMS);
+	for k,v in pairs(SWAP_ITEMS) do
+		ACTIVE_ITEMS[k] = v
+	end
+
+	self.needsUpdate = nil
+end
+--[[ 
+########################################################## 
+QUEST CACHING
+##########################################################
+]]--
 local function CacheQuestHeaders()
 	wipe(QUEST_HEADER_MAP)
 
@@ -117,21 +420,22 @@ local function UpdateCachedQuests(needsSorting)
 		if(questID) then  -- and (not USED_QUESTIDS[questID])
 			local distanceSq, onContinent = GetDistanceSqToQuest(questLogIndex)
 			local title, level, suggestedGroup, isHeader, isCollapsed, isComplete, frequency, questID, startEvent, displayQuestID, isOnMap, hasLocalPOI, isTask, isStory = GetQuestLogTitle(questLogIndex)
+			local link, texture, _, showCompleted = GetQuestLogSpecialItemInfo(questLogIndex)
 			if(not CACHED_QUESTS[questID]) then
-				local link, texture, _, showCompleted = GetQuestLogSpecialItemInfo(questLogIndex)
-				-- local mapID, floorNumber = 0,0
-				-- if(not WorldMapFrame:IsShown()) then
-				-- 	mapID, floorNumber = GetQuestWorldMapAreaID(questID)
-				-- else
-				-- 	WORLDMAP_UPDATE = true;
-				-- end
-
 				CACHED_QUESTS[questID] = {i, title, level, texture, questID, questLogIndex, numObjectives, duration, elapsed, completed, questType, link};
 			else
+				CACHED_QUESTS[questID][1] = i;	            -- args: quest watch index
+				CACHED_QUESTS[questID][2] = title;	        -- args: quest title
+				CACHED_QUESTS[questID][3] = level;	        -- args: quest level
+				CACHED_QUESTS[questID][4] = texture;	    -- args: quest item icon
+				CACHED_QUESTS[questID][5] = questID;	    -- args: quest id
+				CACHED_QUESTS[questID][6] = questLogIndex;	-- args: quest log index
 				CACHED_QUESTS[questID][7] = numObjectives;	-- args: quest objective count
 				CACHED_QUESTS[questID][8] = duration;		-- args: quest timer duration
 				CACHED_QUESTS[questID][9] = elapsed;		-- args: quest timer elapsed
 				CACHED_QUESTS[questID][10] = completed;		-- args: quest is completed
+				CACHED_QUESTS[questID][11] = questType;	    -- args: quest type
+				CACHED_QUESTS[questID][12] = link;	        -- args: quest item link
 			end
 
 			if(questID == MOD.ActiveQuestID) then
@@ -390,7 +694,7 @@ local GetQuestRow = function(self, index)
 		row.Badge = CreateFrame("Frame", nil, row)
 		row.Badge:SetPoint("TOPLEFT", row, "TOPLEFT", 0, 0);
 		row.Badge:SetSizeToScale(QUEST_ROW_HEIGHT, QUEST_ROW_HEIGHT);
-		row.Badge:SetStylePanel("Default", "Headline")
+		row.Badge:SetStylePanel("Frame", "Lite")
 
 		row.Badge.Icon = row.Badge:CreateTexture(nil,"OVERLAY")
 		row.Badge.Icon:SetAllPoints(row.Badge);
@@ -413,13 +717,15 @@ local GetQuestRow = function(self, index)
 		row.Header:SetHeightToScale(INNER_HEIGHT);
 
 		row.Header.Level = row.Header:CreateFontString(nil,"OVERLAY")
-		row.Header.Level:FontManager("questnumber", "RIGHT");
+		row.Header.Level:SetFontObject(SVUI_Font_Quest_Number);
+		row.Header.Level:SetJustifyH('RIGHT')
 		row.Header.Level:SetText('')
 		row.Header.Level:SetPoint("TOPRIGHT", row.Header, "TOPRIGHT", -4, 0);
 		row.Header.Level:SetPoint("BOTTOMRIGHT", row.Header, "BOTTOMRIGHT", -4, 0);
 
 		row.Header.Text = row.Header:CreateFontString(nil,"OVERLAY")
-		row.Header.Text:FontManager("questdialog", "LEFT");
+		row.Header.Text:SetFontObject(SVUI_Font_Quest);
+		row.Header.Text:SetJustifyH('LEFT')
 		row.Header.Text:SetTextColor(1,1,0)
 		row.Header.Text:SetText('')
 		row.Header.Text:SetPoint("TOPLEFT", row.Header, "TOPLEFT", 4, 0);
@@ -427,13 +733,14 @@ local GetQuestRow = function(self, index)
 
 		row.Header.Zone = row:CreateFontString(nil,"OVERLAY")
 		row.Header.Zone:SetAllPoints(row);
-		row.Header.Zone:FontManager("questdialog", "LEFT");
+		row.Header.Zone:SetFontObject(SVUI_Font_Quest);
+		row.Header.Zone:SetJustifyH('LEFT')
 		row.Header.Zone:SetTextColor(0.75,0.25,1)
 		row.Header.Zone:SetText("")
 
 		row.Button = CreateFrame("Button", nil, row.Header)
 		row.Button:SetAllPoints(row.Header);
-		row.Button:SetStylePanel("Button", "Headline", 1, 1, 1)
+		row.Button:SetStylePanel("Button", "Lite", 1, 1, 1)
 		row.Button:SetID(0)
 		row.Button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 		row.Button:SetScript("OnClick", ViewButton_OnClick);
@@ -488,7 +795,7 @@ local GetQuestRow = function(self, index)
 
 		row.Timer.TimeLeft = row.Timer.Bar:CreateFontString(nil,"OVERLAY");
 		row.Timer.TimeLeft:SetAllPointsIn(row.Timer.Bar);
-		row.Timer.TimeLeft:FontManager("questnumber");
+		row.Timer.TimeLeft:SetFontObject(SVUI_Font_Quest_Number);
 		row.Timer.TimeLeft:SetTextColor(1,1,1)
 		row.Timer.TimeLeft:SetText('')
 
@@ -554,14 +861,14 @@ local SetQuestRow = function(self, index, watchIndex, title, level, icon, questI
 		local description, category, objective_completed = GetQuestObjectiveInfo(questID, i);
 		if not objective_completed then iscomplete = false end
 		if(description) then
-			fill_height = fill_height + (INNER_HEIGHT + 2);
+			fill_height = fill_height + (INNER_HEIGHT + 4);
 			objective_rows = objective_block:SetInfo(objective_rows, description, objective_completed);
 		end
 	end
 
 	if(duration) then
 		if(elapsed and elapsed < duration) then
-			fill_height = fill_height + (INNER_HEIGHT + 2);
+			fill_height = fill_height + (INNER_HEIGHT + 4);
 			row:StartTimer(duration, elapsed)
 		end
 	end
@@ -570,8 +877,6 @@ local SetQuestRow = function(self, index, watchIndex, title, level, icon, questI
 		objective_block:SetHeightToScale(fill_height);
 		objective_block:FadeIn();
 	end
-
-	if(iscomplete) then MOD.QuestItem:RemoveAbility(questLogIndex) end
 
 	fill_height = fill_height + (QUEST_ROW_HEIGHT + 6);
 
@@ -583,14 +888,13 @@ local SetZoneHeader = function(self, index, zoneName)
 	local row = self:Get(index);
 	row.Header.Level:SetText('');
 	row.Header.Text:SetText('');
-	row.Badge.Icon:SetTexture(NO_ICON);
+	row.Badge.Icon:SetTexture(NO_ART);
 	row.Badge.Button:SetID(0);
 	row.Badge:SetAlpha(0);
 	row.Button:SetID(0);
 	row.Button:Disable();
 	row.Button:SetAlpha(0);
 	row.Badge.Button:Disable();
---0.75,0.31,1
 	row.Header.Zone:SetTextColor(1,0.31,0.1)
 	row.Header.Zone:SetText(zoneName);
 	row:SetHeightToScale(ROW_HEIGHT);
@@ -602,9 +906,6 @@ local SetZoneHeader = function(self, index, zoneName)
 end
 
 local RefreshQuests = function(self, event, ...)
-	-- print('<-----QUESTS')
-	-- print(event)
-	-- print(...)
 	local rows = 0;
 	local fill_height = 0;
 	local zone = 0;
@@ -620,8 +921,11 @@ local RefreshQuests = function(self, event, ...)
 					rows, zone = self:SetZone(rows, zoneName);
 					fill_height = fill_height + QUEST_ROW_HEIGHT;
 				end
-				rows, add_height = self:Set(rows, quest[1], quest[2], quest[3], quest[4], quest[5], quest[6], quest[7], quest[8], quest[9], quest[10])
+				rows, add_height = self:Set(rows, unpack(quest))
 				fill_height = fill_height + add_height;
+				if(quest[12]) then
+					ItemBar:SetQuestItem(quest[12], quest[4], quest[10])
+				end
 			end
 		end
 	end
@@ -633,6 +937,8 @@ local RefreshQuests = function(self, event, ...)
 		self:SetHeightToScale(fill_height + 2);
 		self:FadeIn();
 	end
+
+	ItemBar:Update()
 end
 
 local AddOneQuest = function(self, questID)
@@ -640,14 +946,19 @@ local AddOneQuest = function(self, questID)
 	if(questID) then
 		local fill_height = self:GetHeight();
 		local quest = CACHED_QUESTS[questID];
-		if(quest[1] and quest[1] ~= '') then
+		if(quest[2] and quest[2] ~= '') then
 			local add_height = 0;
 			rows, add_height = self:Set(rows, unpack(quest))
 			fill_height = fill_height + add_height;
+			if(quest[12]) then
+				ItemBar:SetQuestItem(quest[12], quest[4], quest[10])
+			end
 		end
 
 		self:SetHeightToScale(fill_height + 2);
 	end
+
+	ItemBar:Update()
 end
 
 local ResetQuestBlock = function(self)
@@ -660,7 +971,7 @@ local ResetQuestBlock = function(self)
 			row.Button:SetID(0);
 			row.Button:Disable();
 			row.Badge.Button:SetID(0);
-			row.Badge.Icon:SetTexture(NO_ICON);
+			row.Badge.Icon:SetTexture(NO_ART);
 			row.Badge:SetAlpha(0);
 			row.Badge.Button:Disable();
 			row:SetHeight(1);
@@ -753,6 +1064,7 @@ function MOD:UpdateObjectives(event, ...)
 			if(CACHED_QUESTS[questID]) then
 				CACHED_QUESTS[questID] = nil;
 				self:CheckActiveQuest(questID);
+				ItemBar:Reset();
 				self.Headers["Quests"]:Reset();
 				self.Headers["Quests"]:Refresh(event, ...);
 				self:UpdateDimensions();
@@ -776,8 +1088,20 @@ end
 SV.Events:On("QUEST_UPVALUES_UPDATED", "UpdateQuestLocals", UpdateQuestLocals);
 
 function MOD:InitializeQuests()
-	local scrollChild = self.Docklet.ScrollFrame.ScrollChild;
+	local barWidth = 32;
+	local barHeight = barWidth * 5;
+	ItemBar:SetParent(SV.Screen);
+	ItemBar:SetPointToScale("TOPRIGHT", SV.Dock.BottomRight, "TOPLEFT", -4, 0);
+	ItemBar:SetWidth(barWidth);
+	ItemBar:SetHeight(barHeight);
+	ItemBar:SetStylePanel("Frame")
+	SV.Mentalo:Add(ItemBar, L["Quest Items"]);
+	for i = 1, 5 do
+		ItemBar.Buttons[i] = CreateQuestItemButton(i)
+	end
+	--ItemBar:Update()
 
+	local scrollChild = self.Docklet.ScrollFrame.ScrollChild;
 	local quests = CreateFrame("Frame", nil, scrollChild)
 	quests:SetWidth(ROW_WIDTH);
 	quests:SetHeightToScale(ROW_HEIGHT);
@@ -792,7 +1116,8 @@ function MOD:InitializeQuests()
 	quests.Header.Text = quests.Header:CreateFontString(nil,"OVERLAY")
 	quests.Header.Text:SetPoint("TOPLEFT", quests.Header, "TOPLEFT", 2, 0);
 	quests.Header.Text:SetPoint("BOTTOMLEFT", quests.Header, "BOTTOMLEFT", 2, 0);
-	quests.Header.Text:FontManager("questheader", "LEFT");
+	quests.Header.Text:SetFontObject(SVUI_Font_Quest_Header);
+	quests.Header.Text:SetJustifyH('LEFT')
 	quests.Header.Text:SetTextColor(0.28,0.75,1)
 	quests.Header.Text:SetText(TRACKER_HEADER_QUESTS)
 
@@ -822,6 +1147,7 @@ function MOD:InitializeQuests()
 	self:RegisterEvent("ZONE_CHANGED_NEW_AREA", self.UpdateObjectives);
 	self:RegisterEvent("ZONE_CHANGED", self.UpdateObjectives);
 
+	ItemBar:Reset();
 	CacheQuestHeaders()
 	self.Headers["Quests"]:Reset()
 	self.Headers["Quests"]:Refresh()

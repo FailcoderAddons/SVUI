@@ -46,7 +46,7 @@ local function StyleCoolLine()
 	CoolLine.updatelook()
 	PLUGIN:ApplyFrameStyle(CoolLine,"Transparent")
 	CoolLine.Panel:SetAllPoints(CoolLine)
-	SV:AddToDisplayAudit(CoolLine)
+	SV:ManageVisibility(CoolLine)
 
 	if PLUGIN:IsAddonReady("DockletCoolLine") then
 		if not CoolLineDB.vertical then

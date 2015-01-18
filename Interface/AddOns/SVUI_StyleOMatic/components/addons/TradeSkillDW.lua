@@ -41,7 +41,7 @@ TSDW
 local function StyleTradeSkillDW()
 	assert(TradeSkillDW_QueueFrame, "AddOn Not Loaded")
 
-	TradeSkillFrame:SetStylePanel("Default", "Action")
+	TradeSkillFrame:SetStylePanel("Frame", "Composite2")
 	TradeSkillListScrollFrame:RemoveTextures(true)
 	TradeSkillDetailScrollFrame:RemoveTextures(true)
 	TradeSkillFrameInset:RemoveTextures(true)
@@ -64,7 +64,7 @@ local function StyleTradeSkillDW()
 	end)
 	
 	TradeSkillFrame:SetHeightToScale(TradeSkillFrame:GetHeight() + 12)
-	TradeSkillRankFrame:SetStylePanel("Default", 'Transparent')
+	TradeSkillRankFrame:SetStylePanel("Frame", 'Transparent')
 	TradeSkillRankFrame:SetStatusBarTexture(SV.Media.bar.default)
 	TradeSkillCreateButton:SetStylePanel("Button")
 	TradeSkillCancelButton:SetStylePanel("Button")

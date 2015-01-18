@@ -180,14 +180,14 @@ SV.Options.args.SVMap = {
 					name = L["Mouse Over"], 
 					desc = L["Hidden unless you mouse over the frame."], 
 					type = "toggle",
-					set = function(a,b)MOD:ChangeDBVar(b,a[#a],"minimapbar")MOD:UpdateMinimapButtonSettings()end,
+					set = function(a,b) MOD:ChangeDBVar(b,a[#a],"minimapbar") MOD:UpdateMinimapButtonSettings(true) end,
 				},
 				styleType = {
 					order = 3,
 					type = 'select',
 					name = L['Button Bar Layout'],
 					desc = L['Change settings for how the minimap buttons are styled.'],
-					set = function(a,b)MOD:ChangeDBVar(b,a[#a],"minimapbar")MOD:UpdateMinimapButtonSettings()end,
+					set = function(a,b) MOD:ChangeDBVar(b,a[#a],"minimapbar") MOD:UpdateMinimapButtonSettings(true) end,
 					disabled = function()return not SV.db.SVMap.minimapbar.enable end,
 					values = {
 						['NOANCHOR'] = L['No Anchor Bar'],
@@ -204,7 +204,7 @@ SV.Options.args.SVMap = {
 					max = 40,
 					step = 1,
 					width = "full",
-					set = function(a,b)MOD:ChangeDBVar(b,a[#a],"minimapbar")MOD:UpdateMinimapButtonSettings()end,
+					set = function(a,b)MOD:ChangeDBVar(b,a[#a],"minimapbar")MOD:UpdateMinimapButtonSettings(true) end,
 					disabled = function()return not SV.db.SVMap.minimapbar.enable or SV.db.SVMap.minimapbar.styleType == 'NOANCHOR'end
 				},
 			}

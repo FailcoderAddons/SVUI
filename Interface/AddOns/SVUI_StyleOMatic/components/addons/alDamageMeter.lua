@@ -59,7 +59,7 @@ function PLUGIN:Docklet_alDamageMeter(parent)
   dmconf.width=parentFrame:GetWidth()
   alDamageMeterFrame:ClearAllPoints()
   alDamageMeterFrame:SetAllPoints(parent)
-  alDamageMeterFrame.backdrop:SetStylePanel("Fixed", 'Transparent',true)
+  alDamageMeterFrame.backdrop:SetStylePanel("!_Frame", 'Transparent',true)
   alDamageMeterFrame.bg:Die()
   alDamageMeterFrame:SetFrameStrata('LOW')
 

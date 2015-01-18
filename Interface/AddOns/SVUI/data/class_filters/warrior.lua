@@ -23,8 +23,8 @@ local SV = select(2, ...)
 --[[ WARRIOR FILTERS ]]--
 
 SV.filterdefaults["BuffWatch"] = {
-    {-- Vigilance
-        ["enabled"] = true, 
+    ["114030"] = {-- Vigilance
+        ["enable"] = true, 
         ["id"] = 114030, 
         ["point"] = "TOPLEFT", 
         ["color"] = {["r"] = 0.2, ["g"] = 0.2, ["b"] = 1},
@@ -37,8 +37,8 @@ SV.filterdefaults["BuffWatch"] = {
         ['xOffset'] = 0, 
         ['yOffset'] = 0
     },
-    {-- Intervene
-        ["enabled"] = true, 
+    ["3411"] = {-- Intervene
+        ["enable"] = true, 
         ["id"] = 3411, 
         ["point"] = "TOPRIGHT", 
         ["color"] = {["r"] = 0.89, ["g"] = 0.09, ["b"] = 0.05},
@@ -51,8 +51,8 @@ SV.filterdefaults["BuffWatch"] = {
         ['xOffset'] = 0, 
         ['yOffset'] = 0
     },
-    {-- Safe Guard
-        ["enabled"] = true, 
+    ["114029"] = {-- Safe Guard
+        ["enable"] = true, 
         ["id"] = 114029, 
         ["point"] = "TOPRIGHT", 
         ["color"] = {["r"] = 0.89, ["g"] = 0.09, ["b"] = 0.05},

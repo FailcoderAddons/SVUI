@@ -31,7 +31,7 @@ local function WorldStateStyle()
 	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.bgscore ~= true then return end 
 	WorldStateScoreScrollFrame:RemoveTextures()
 	WorldStateScoreFrame:RemoveTextures()
-	WorldStateScoreFrame:SetStylePanel("Default", "Halftone")
+	WorldStateScoreFrame:SetStylePanel("Frame", "Composite1")
 	PLUGIN:ApplyCloseButtonStyle(WorldStateScoreFrameCloseButton)
 	PLUGIN:ApplyScrollFrameStyle(WorldStateScoreScrollFrameScrollBar)
 	WorldStateScoreFrameInset:SetAlpha(0)

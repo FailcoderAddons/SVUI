@@ -58,7 +58,7 @@ local LootHistoryFrame_OnUpdate = function(self)
       frame.Icon:SetTexture(Icon)
       frame.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 
-      frame:SetStylePanel("Fixed", "Button")
+      frame:SetStylePanel("!_Frame", "Button")
       frame.Panel:SetAllPointsOut(frame.Icon)
       frame.Icon:SetParent(frame.Panel)
 
@@ -78,7 +78,7 @@ local _hook_MasterLootFrame_OnShow = function()
     item:RemoveTextures()
     icon:SetTexture(tex)
     icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-    item:SetStylePanel("Default", "Pattern")
+    item:SetStylePanel("Frame", "Pattern")
     item.Panel:SetAllPointsOut(icon)
     item:SetBackdropBorderColor(colors.r, colors.g, colors.b)
   end 
@@ -89,7 +89,7 @@ local _hook_MasterLootFrame_OnShow = function()
         if child:GetPushedTexture() then
           PLUGIN:ApplyCloseButtonStyle(child)
         else
-          child:SetStylePanel("Fixed")
+          child:SetStylePanel("!_Frame")
           child:SetStylePanel("Button")
         end 
         child.isStyled = true 
@@ -114,16 +114,16 @@ local function LootHistoryStyle()
   LootHistoryFrame:SetFrameStrata('HIGH')
 
   MissingLootFrame:RemoveTextures()
-  MissingLootFrame:SetStylePanel("Default", "Pattern")
+  MissingLootFrame:SetStylePanel("Frame", "Pattern")
 
   PLUGIN:ApplyCloseButtonStyle(MissingLootFramePassButton)
   hooksecurefunc("MissingLootFrame_Show", MissingLootFrame_OnShow)
   LootHistoryFrame:RemoveTextures()
   PLUGIN:ApplyCloseButtonStyle(LootHistoryFrame.CloseButton)
   LootHistoryFrame:RemoveTextures()
-  LootHistoryFrame:SetStylePanel("Fixed", 'Transparent')
+  LootHistoryFrame:SetStylePanel("!_Frame", 'Transparent')
   PLUGIN:ApplyCloseButtonStyle(LootHistoryFrame.ResizeButton)
-  LootHistoryFrame.ResizeButton:SetStylePanel("Fixed")
+  LootHistoryFrame.ResizeButton:SetStylePanel("!_Frame")
   LootHistoryFrame.ResizeButton:SetWidthToScale(LootHistoryFrame:GetWidth())
   LootHistoryFrame.ResizeButton:SetHeightToScale(19)
   LootHistoryFrame.ResizeButton:ClearAllPoints()
@@ -141,7 +141,7 @@ local function LootHistoryStyle()
   hooksecurefunc("LootHistoryFrame_FullUpdate", LootHistoryFrame_OnUpdate)
 
   MasterLooterFrame:RemoveTextures()
-  MasterLooterFrame:SetStylePanel("Fixed")
+  MasterLooterFrame:SetStylePanel("!_Frame")
   MasterLooterFrame:SetFrameStrata('FULLSCREEN_DIALOG')
 
   hooksecurefunc("MasterLooterFrame_Show", _hook_MasterLootFrame_OnShow)

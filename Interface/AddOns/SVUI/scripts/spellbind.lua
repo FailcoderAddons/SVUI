@@ -434,12 +434,12 @@ local function LoadSpellBinder()
 
 	SVUI_SpellBinderInset:RemoveTextures()
 
-	SpellBinder:SetStylePanel("Default", "Action")
+	SpellBinder:SetStylePanel("Frame", "Composite2")
 	SpellBinder.Panel:SetPoint("TOPLEFT", -18, 0)
 	SpellBinder.Panel:SetPoint("BOTTOMRIGHT", 0, 0)
 
 	SpellBinder.list:RemoveTextures()
-	SpellBinder.list:SetStylePanel("Default", "Inset")
+	SpellBinder.list:SetStylePanel("Frame", "Inset")
 
 	SpellBinder.tab:RemoveTextures()
 	SpellBinder.tab:SetStylePanel("Button")

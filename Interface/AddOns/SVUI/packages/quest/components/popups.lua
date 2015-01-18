@@ -75,9 +75,9 @@ local PopUpButton_OnClick = function(self, button)
 	if(questIndex and (questIndex ~= 0) and self.PopUpType) then
 		local questID = select(8, GetQuestLogTitle(questIndex));
 		if(self.PopUpType == "OFFER") then
-			ShowQuestOffer(questID);
+			ShowQuestOffer(questIndex);
 		else
-			ShowQuestComplete(questID);
+			ShowQuestComplete(questIndex);
 		end
 		MOD.Headers["Popups"]:RemovePopup(questID)
 	end
@@ -102,8 +102,8 @@ local GetPopUpRow = function(self, index)
 		row:SetHeightToScale(LARGE_ROW_HEIGHT);
 		row.Button = CreateFrame("Button", nil, row)
 		row.Button:SetPointToScale("TOPLEFT", row, "TOPLEFT", 0, 0);
-		row.Button:SetPointToScale("BOTTOMRIGHT", row, "BOTTOMRIGHT", 0, 8);
-		row.Button:SetStylePanel("Framed", "FramedTop")
+		row.Button:SetPointToScale("BOTTOMRIGHT", row, "BOTTOMRIGHT", 0, 0);
+		row.Button:SetStylePanel("HeavyButton", true)
 		row.Button:SetPanelColor("yellow")
 		row.Button:SetID(0)
 		row.Button.PopUpType = nil;
@@ -111,7 +111,7 @@ local GetPopUpRow = function(self, index)
 		row.Badge = CreateFrame("Frame", nil, row.Button)
 		row.Badge:SetPointToScale("TOPLEFT", row.Button, "TOPLEFT", 4, -4);
 		row.Badge:SetSizeToScale((LARGE_INNER_HEIGHT - 4), (LARGE_INNER_HEIGHT - 4));
-		row.Badge:SetStylePanel("Fixed", "Inset")
+		row.Badge:SetStylePanel("!_Frame", "Inset")
 		row.Badge.Icon = row.Badge:CreateTexture(nil,"OVERLAY")
 		row.Badge.Icon:SetAllPointsIn(row.Badge);
 		row.Badge.Icon:SetTexture(QUEST_ICON)
@@ -119,9 +119,10 @@ local GetPopUpRow = function(self, index)
 		row.Header = CreateFrame("Frame", nil, row.Button)
 		row.Header:SetPointToScale("TOPLEFT", row.Badge, "TOPRIGHT", 4, -1);
 		row.Header:SetPointToScale("BOTTOMRIGHT", row.Button, "BOTTOMRIGHT", -2, 2);
-		row.Header:SetStylePanel("Default")
+		row.Header:SetStylePanel("Frame")
 		row.Header.Text = row.Header:CreateFontString(nil,"OVERLAY")
-		row.Header.Text:FontManager("questdialog", "LEFT");
+		row.Header.Text:SetFontObject(SVUI_Font_Quest);
+		row.Header.Text:SetJustifyH('LEFT')
 		row.Header.Text:SetTextColor(1,1,0)
 		row.Header.Text:SetText('')
 		row.Header.Text:SetPointToScale("TOPLEFT", row.Header, "TOPLEFT", 0, 0);
@@ -144,6 +145,7 @@ local SetPopupRow = function(self, index, title, popUpType, questID, questLogInd
 	row.Badge.Icon:SetTexture(icon);
 	row.Badge:SetAlpha(1);
 	row.Button:Enable();
+	row.Button.PopUpType = popUpType;
 	row.Button:SetID(questLogIndex);
 	row:SetHeightToScale(LARGE_ROW_HEIGHT);
 	row:FadeIn();

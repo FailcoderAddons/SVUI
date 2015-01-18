@@ -115,7 +115,7 @@ local function PetJournalStyle()
 	MountJournalSearchBox:SetStylePanel("Editbox")
 
 	PLUGIN:ApplyScrollFrameStyle(MountJournalListScrollFrameScrollBar)
-	MountJournal.MountDisplay:SetStylePanel("Fixed", "Model")
+	MountJournal.MountDisplay:SetStylePanel("!_Frame", "Model")
 
 	local buttons = MountJournal.ListScrollFrame.buttons
 	for i = 1, #buttons do
@@ -195,10 +195,10 @@ local function PetJournalStyle()
 		PLUGIN:ApplyItemButtonStyle(pjPet, nil, nil, true)
 		pjPet.setButton:RemoveTextures()
 		_G['PetJournalLoadoutPet'..b..'HealthFrame'].healthBar:RemoveTextures()
-		_G['PetJournalLoadoutPet'..b..'HealthFrame'].healthBar:SetStylePanel("Default", 'Default')
+		_G['PetJournalLoadoutPet'..b..'HealthFrame'].healthBar:SetStylePanel("Frame", 'Default')
 		_G['PetJournalLoadoutPet'..b..'HealthFrame'].healthBar:SetStatusBarTexture(SV.Media.bar.default)
 		_G['PetJournalLoadoutPet'..b..'XPBar']:RemoveTextures()
-		_G['PetJournalLoadoutPet'..b..'XPBar']:SetStylePanel("Default", 'Default')
+		_G['PetJournalLoadoutPet'..b..'XPBar']:SetStylePanel("Frame", 'Default')
 		_G['PetJournalLoadoutPet'..b..'XPBar']:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]])
 		_G['PetJournalLoadoutPet'..b..'XPBar']:SetFrameLevel(_G['PetJournalLoadoutPet'..b..'XPBar']:GetFrameLevel()+2)
 		for v = 1, 3 do 
@@ -251,39 +251,39 @@ local function PetJournalStyle()
 	R.BorderBottom:SetTexture(0,0,0,0)
 	R.BorderBottomRight:SetTexture(0,0,0,0)
 	R.BorderBottomLeft:SetTexture(0,0,0,0)
-	R:SetStylePanel("Fixed", "Transparent", true)
+	R:SetStylePanel("!_Frame", "Transparent", true)
 
 	for b = 1, 6 do 
 		local S = _G['PetJournalPetCardSpell'..b]
 		S:SetFrameLevel(S:GetFrameLevel() + 2)
 		S:DisableDrawLayer('BACKGROUND')
-		S:SetStylePanel("Default", 'Transparent')
+		S:SetStylePanel("Frame", 'Transparent')
 		S.Panel:SetAllPoints()
 		S.icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 		S.icon:SetAllPointsIn(S.Panel)
 	end
 
 	PetJournalPetCardHealthFrame.healthBar:RemoveTextures()
-	PetJournalPetCardHealthFrame.healthBar:SetStylePanel("Default", 'Default')
+	PetJournalPetCardHealthFrame.healthBar:SetStylePanel("Frame", 'Default')
 	PetJournalPetCardHealthFrame.healthBar:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]])
 	PetJournalPetCardXPBar:RemoveTextures()
-	PetJournalPetCardXPBar:SetStylePanel("Default", 'Default')
+	PetJournalPetCardXPBar:SetStylePanel("Frame", 'Default')
 	PetJournalPetCardXPBar:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]])
 
 	PLUGIN:ApplyTabStyle(PetJournalParentTab3)
 	ToyBox:RemoveTextures()
-	ToyBoxProgressBar:SetStylePanel("Default", "Bar", true)
+	ToyBoxProgressBar:SetStylePanel("Frame", "Bar", true)
 	ToyBoxSearchBox:SetStylePanel("Editbox")
 	ToyBoxFilterButton:RemoveTextures()
 	ToyBoxFilterButton:SetStylePanel("Button")
 	ToyBoxIconsFrame:RemoveTextures()
-	ToyBoxIconsFrame:SetStylePanel("Fixed", 'Model')
+	ToyBoxIconsFrame:SetStylePanel("!_Frame", 'Model')
 
 	MountJournalFilterButton:RemoveTextures()
 	MountJournalFilterButton:SetStylePanel("Button")
 
 	MountJournal.SummonRandomFavoriteButton:RemoveTextures()
-	MountJournal.SummonRandomFavoriteButton:SetStylePanel("Slot", true, 2, 0, 0, 0.5)
+	MountJournal.SummonRandomFavoriteButton:SetStylePanel("Slot", 2, 0, 0, 0.5)
 	MountJournal.SummonRandomFavoriteButton.texture:SetTexture([[Interface\ICONS\ACHIEVEMENT_GUILDPERK_MOUNTUP]])
 	MountJournal.SummonRandomFavoriteButton.texture:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 

@@ -52,6 +52,7 @@ local tempFilterTable = {};
 local NONE = _G.NONE;
 
 ns.FilterOptionGroups['AuraBars'] = function(selectedSpell)
+	local FILTER = SV.filters.AuraBars;
 	local RESULT = {
 		type = "group",
 		name = 'AuraBars',
@@ -66,8 +67,13 @@ ns.FilterOptionGroups['AuraBars'] = function(selectedSpell)
 				guiInline = true,
 				get = function(key) return "" end,
 				set = function(key, value)
-					if not SV.db.media.unitframes.spellcolor[value] then 
-						SV.db.media.unitframes.spellcolor[value] = false 
+					local spellID = tonumber(value);
+					if(not spellID) then 
+						SV:AddonMessage(L["Value must be a number"])
+					elseif(not GetSpellInfo(spellID)) then 
+						SV:AddonMessage(L["Not valid spell id"])
+					elseif not FILTER[spellID] then 
+						FILTER[spellID] = false 
 					end 
 					MOD:SetUnitFrame("player")
 					MOD:SetUnitFrame("target")
@@ -83,26 +89,27 @@ ns.FilterOptionGroups['AuraBars'] = function(selectedSpell)
 				guiInline = true,
 				disabled = function() 
 					local EMPTY = true;
-					for g in pairs(SV.db.media.unitframes.spellcolor) do
+					for g in pairs(FILTER) do
 						EMPTY = false;
 					end
 					return EMPTY
 				end,
 				values = function()
 					wipe(tempFilterTable)
-					for g in pairs(SV.db.media.unitframes.spellcolor)do 
-						tempFilterTable[g] = g 
-					end 
+					for id, filterData in pairs(FILTER) do
+						if(type(id) == 'string') then
+							local spellID = tonumber(id)
+							local auraName = GetSpellInfo(spellID)
+							if(auraName) then
+								tempFilterTable[id] = auraName
+							end
+						end
+					end
 					return tempFilterTable 
 				end,
 				get = function(key) return "" end,
 				set = function(key, value)
-					if SV.db.media.unitframes.spellcolor[value] then 
-						SV.db.media.unitframes.spellcolor[value] = false;
-						SV:AddonMessage(L["You may not remove a spell from a default filter that is not customly added. Setting spell to false instead."])
-					else 
-						SV.db.media.unitframes.spellcolor[value] = nil 
-					end
+					FILTER[value] = nil 
 					MOD:SetUnitFrame("player")
 					MOD:SetUnitFrame("target")
 					MOD:SetUnitFrame("focus")
@@ -121,8 +128,10 @@ ns.FilterOptionGroups['AuraBars'] = function(selectedSpell)
 				values = function()
 					wipe(tempFilterTable)
 					tempFilterTable[""] = NONE;
-					for g in pairs(SV.db.media.unitframes.spellcolor)do 
-						tempFilterTable[g] = g 
+					for stringID,color in pairs(FILTER) do
+						local spellID = tonumber(stringID)
+						local auraName = GetSpellInfo(spellID)
+						tempFilterTable[stringID] = auraName 
 					end 
 					return tempFilterTable 
 				end
@@ -134,9 +143,10 @@ ns.FilterOptionGroups['AuraBars'] = function(selectedSpell)
 end;
 
 ns.FilterSpellGroups['AuraBars'] = function(selectedSpell)
+	local FILTER = SV.filters.AuraBars;
 	local RESULT;
 
-	if(selectedSpell and (SV.db.media.unitframes.spellcolor[selectedSpell] ~= nil)) then
+	if(selectedSpell and (FILTER[selectedSpell] ~= nil)) then
 		RESULT = {
 			type = "group",
 			name = selectedSpell,
@@ -148,19 +158,15 @@ ns.FilterSpellGroups['AuraBars'] = function(selectedSpell)
 					type = "color",
 					order = 1,
 					get = function(key)
-						local abColor = SV.db.media.unitframes.spellcolor[selectedSpell]
-						if type(abColor) == "boolean"then 
+						local abColor = FILTER[selectedSpell]
+						if type(abColor) == "boolean" then 
 							return 0, 0, 0, 1 
 						else 
 							return abColor[1], abColor[2], abColor[3], abColor[4] 
 						end 
 					end,
 					set = function(key, r, g, b)
-						if type(SV.db.media.unitframes.spellcolor[selectedSpell]) ~= "table"then 
-							SV.db.media.unitframes.spellcolor[selectedSpell] = {}
-						end 
-						local abColor = {r, g, b}
-						SV.db.media.unitframes.spellcolor[selectedSpell] = abColor
+						FILTER[selectedSpell] = {r, g, b}
 						MOD:SetUnitFrame("player")
 						MOD:SetUnitFrame("target")
 						MOD:SetUnitFrame("focus")
@@ -171,7 +177,7 @@ ns.FilterSpellGroups['AuraBars'] = function(selectedSpell)
 					order = 2,
 					name = L["Restore Defaults"],
 					func = function(key, value)
-						SV.db.media.unitframes.spellcolor[selectedSpell] = false;
+						FILTER[selectedSpell] = false;
 						MOD:SetUnitFrame("player")
 						MOD:SetUnitFrame("target")
 						MOD:SetUnitFrame("focus")

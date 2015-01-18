@@ -45,7 +45,7 @@ local function GossipStyle()
 			ItemTextPageText:SetTextColor(1, 1, 1)
 		end 
 	end)
-	ItemTextFrame:SetStylePanel("Default", "Pattern")
+	ItemTextFrame:SetStylePanel("Frame", "Pattern")
 	ItemTextFrameInset:Die()
 	PLUGIN:ApplyScrollFrameStyle(ItemTextScrollFrameScrollBar)
 	PLUGIN:ApplyCloseButtonStyle(ItemTextFrameCloseButton)
@@ -54,8 +54,8 @@ local function GossipStyle()
 	for s, t in pairs(r)do 
 		_G[t]:RemoveTextures()
 	end 
-	GossipFrame:SetStylePanel("Default", "Halftone")
-	GossipGreetingScrollFrame:SetStylePanel("Fixed", "Inset", true)
+	GossipFrame:SetStylePanel("Frame", "Composite1")
+	GossipGreetingScrollFrame:SetStylePanel("!_Frame", "Inset", true)
 	GossipGreetingScrollFrame.spellTex = GossipGreetingScrollFrame:CreateTexture(nil, "ARTWORK")
 	GossipGreetingScrollFrame.spellTex:SetTexture([[Interface\QuestFrame\QuestBG]])
 	GossipGreetingScrollFrame.spellTex:SetPoint("TOPLEFT", 2, -2)
@@ -68,7 +68,7 @@ local function GossipStyle()
 
 	NPCFriendshipStatusBar:RemoveTextures()
 	NPCFriendshipStatusBar:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]])
-	NPCFriendshipStatusBar:SetStylePanel("Default", "Bar")
+	NPCFriendshipStatusBar:SetStylePanel("Frame", "Bar")
 
 	NPCFriendshipStatusBar:ClearAllPoints()
 	NPCFriendshipStatusBar:SetPoint("TOPLEFT", GossipFrame, "TOPLEFT", 58, -34)

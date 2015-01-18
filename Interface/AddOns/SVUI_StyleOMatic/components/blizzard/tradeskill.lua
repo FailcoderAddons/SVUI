@@ -59,16 +59,16 @@ local function TradeSkillStyle()
 
 	TradeSkillGuildFrame:SetPointToScale("BOTTOMLEFT", TradeSkillFrame, "BOTTOMRIGHT", 3, 19)
 	TradeSkillGuildFrameContainer:RemoveTextures()
-	TradeSkillGuildFrameContainer:SetStylePanel("Default", "Inset")
+	TradeSkillGuildFrameContainer:SetStylePanel("Frame", "Inset")
 	PLUGIN:ApplyCloseButtonStyle(TradeSkillGuildFrameCloseButton)
 
-	TradeSkillRankFrame:SetStylePanel("Default", "Bar", true)
+	TradeSkillRankFrame:SetStylePanel("Frame", "Bar", true)
 	TradeSkillRankFrame:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Bars\DEFAULT]])
 
 	TradeSkillListScrollFrame:SetSizeToScale(327, 290)
-	TradeSkillListScrollFrame:SetStylePanel("Default", "Inset")
+	TradeSkillListScrollFrame:SetStylePanel("Frame", "Inset")
 	TradeSkillDetailScrollFrame:SetSizeToScale(327, 180)
-	TradeSkillDetailScrollFrame:SetStylePanel("Default", "Inset")
+	TradeSkillDetailScrollFrame:SetStylePanel("Frame", "Inset")
 
 	TradeSkillCreateButton:SetStylePanel("Button")
 	TradeSkillCancelButton:SetStylePanel("Button")
@@ -93,12 +93,12 @@ local function TradeSkillStyle()
 	TradeSkillIncrementButton:SetPointToScale("RIGHT", TradeSkillCreateButton, "LEFT", -13, 0)
 	PLUGIN:ApplyCloseButtonStyle(TradeSkillFrameCloseButton)
 
-	TradeSkillSkillIcon:SetStylePanel("Fixed", "Slot") 
+	TradeSkillSkillIcon:SetStylePanel("!_Frame", "Slot") 
 
 	local internalTest = false;
 
 	hooksecurefunc("TradeSkillFrame_SetSelection", function(_)
-		TradeSkillSkillIcon:SetStylePanel("Fixed", "Slot") 
+		TradeSkillSkillIcon:SetStylePanel("!_Frame", "Slot") 
 		if TradeSkillSkillIcon:GetNormalTexture() then
 			TradeSkillSkillIcon:GetNormalTexture():SetTexCoord(0.1, 0.9, 0.1, 0.9)
 		end 
@@ -116,7 +116,7 @@ local function TradeSkillStyle()
 					 a2:SetFrameLevel(0)
 				end 
 				a2:SetAllPointsOut(icon)
-				a2:SetStylePanel("Fixed", "Slot")
+				a2:SetStylePanel("!_Frame", "Slot")
 				icon:SetParent(a2)
 				icon.backdrop = a2 
 			end 

@@ -56,14 +56,14 @@ local function StyleBars(self)
 
 				if not icon1.overlay then
 					icon1.overlay = CreateFrame('Frame', '$parentIcon1Overlay', tbar)
-					icon1.overlay:SetStylePanel("Fixed")
+					icon1.overlay:SetStylePanel("!_Frame")
 					icon1.overlay:SetFrameLevel(0)
 					icon1.overlay:SetSizeToScale(22)
 					icon1.overlay:SetPointToScale('BOTTOMRIGHT', frame, 'BOTTOMLEFT', -2, 0)
 				end
 				if not icon2.overlay then
 					icon2.overlay = CreateFrame('Frame', '$parentIcon2Overlay', tbar)
-					icon2.overlay:SetStylePanel("Fixed")
+					icon2.overlay:SetStylePanel("!_Frame")
 					icon2.overlay:SetFrameLevel(0)
 					icon2.overlay:SetSizeToScale(22)
 					icon2.overlay:SetPointToScale('BOTTOMLEFT', frame, 'BOTTOMRIGHT', 2, 0)
@@ -99,7 +99,7 @@ local function StyleBars(self)
 				texture:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]])
 				tbar:SetAllPointsIn(frame)
 
-				frame:SetStylePanel("Fixed")
+				frame:SetStylePanel("!_Frame")
 
 				name:ClearAllPoints()
 				name:SetWidth(165)
@@ -174,7 +174,7 @@ local StyleBoss = function()
 				bar:SetPointToScale('TOPLEFT', prev, 'TOPLEFT', 0, -26)
 			end
 		end
-		bar:SetStylePanel("Fixed", 'Transparent')
+		bar:SetStylePanel("!_Frame", 'Transparent')
 		background:SetNormalTexture(nil)
 		progress:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]])
 		progress:ClearAllPoints()
@@ -198,7 +198,7 @@ end
 
 local _hook_OnShow = function(self)
 	if(not self.Panel) then
-		self:SetStylePanel("Fixed", 'Transparent')
+		self:SetStylePanel("!_Frame", 'Transparent')
 	end
 end
 
@@ -215,7 +215,7 @@ local function StyleVEM(event, addon)
 			VEM.RangeCheck:Show()
 			VEM.RangeCheck:Hide()
 			VEMRangeCheck:HookScript('OnShow', _hook_OnShow)
-			VEMRangeCheckRadar:SetStylePanel("Fixed", 'Transparent')
+			VEMRangeCheckRadar:SetStylePanel("!_Frame", 'Transparent')
 		end
 
 		if not VEM_SavedOptions['DontShowInfoFrame'] then

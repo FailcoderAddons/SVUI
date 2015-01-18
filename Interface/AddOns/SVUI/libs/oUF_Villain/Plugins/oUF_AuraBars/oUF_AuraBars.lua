@@ -318,7 +318,7 @@ local function Update(self, event, unit)
 		local frame = bars[index]
 		
 		if not frame then
-			frame = CreateAuraBar(self, index == 1 and auraBars or bars[index - 1])
+			frame = (auraBars.CreateAuraBar or CreateAuraBar) (self, index == 1 and auraBars or bars[index - 1])
 			bars[index] = frame
 		end
 

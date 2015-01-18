@@ -63,7 +63,7 @@ local function BindingStyle()
 
 	PLUGIN:ApplyScrollFrameStyle(KeyBindingFrameScrollFrameScrollBar)
 	KeyBindingFrame:RemoveTextures()
-	KeyBindingFrame:SetStylePanel("Default", "Halftone")
+	KeyBindingFrame:SetStylePanel("Frame", "Composite1")
 end
 --[[ 
 ########################################################## 

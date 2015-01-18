@@ -24,12 +24,7 @@ local filterClass = playerClass or "NONE";
 local function safename(id)
     local n = GetSpellInfo(id)  
     if not n then
-        if type(id) == "string" then
-            n = id
-        else
-            --SV:Debugger('|cffFF9900SVUI:|r Spell not found: (#ID) '..id)
-            n = "Voodoo Doll";
-        end
+        return false
     end
     return n
 end
@@ -52,6 +47,8 @@ local FilterIDs = {
     ["Raid"] = [[116281,116784,116417,116942,116161,117708,118303,118048,118135,117878,117949,116835,116778,116525,122761,122760,122740,123812,123180,123474,122835,123081,122125,121885,121949,117436,118091,117519,122752,123011,116161,123121,119985,119086,119775,122151,138349,137371,136767,137641,137359,137972,136903,136753,137633,137731,133767,133768,136050,138569,134691,137440,137408,137360,135000,143436,143579,147383,146124,144851,144358,144774,147207,144215,143990,144330,143494,142990,143919,143766,143773,146589,143777,143385,143974,145183]]
 };
 
+local InitAuraBars = [[2825,32182,80353,90355,86659]]
+
 SV.filterdefaults["BlackList"] = {};
 SV.filterdefaults["WhiteList"] = {};
 SV.filterdefaults["Defense"] = {};
@@ -65,11 +62,37 @@ for k, x in pairs(FilterIDs) do
     local src = {};
     for id in x:gmatch("([^,]+)") do
         if(id) then
-            local saved
-            local n = safename(id);
-            saved = {['enable'] = true, ['priority'] = 0, ['isDefault'] = true}
-            src[n] = saved
+            local spellID = tonumber(id);
+            local n = safename(spellID);
+            if(n) then
+                src[id] = {['enable'] = true, ['id'] = spellID, ['priority'] = 0, ['isDefault'] = true}
+            end
         end 
     end
     SV.filterdefaults[k] = src
+end
+
+for id in InitAuraBars:gmatch("([^,]+)") do
+    if(id) then
+        local spellID = tonumber(id);
+        if(safename(spellID)) then
+            SV.filterdefaults["AuraBars"][id] = {0.98, 0.57, 0.11}
+        end
+    end
+end
+
+function SV:SanitizeFilters()
+    local filter = SV.filters.BuffWatch
+    for id, watchData in pairs(filter) do
+        if((not watchData.id) or (tonumber(id) ~= watchData.id)) then 
+            SV.filters.BuffWatch[id] = nil
+        end 
+    end
+
+    filter = SV.filters.PetBuffWatch
+    for id, watchData in pairs(filter) do
+        if((not watchData.id) or (tonumber(id) ~= watchData.id)) then 
+            SV.filters.PetBuffWatch[id] = nil
+        end 
+    end
 end

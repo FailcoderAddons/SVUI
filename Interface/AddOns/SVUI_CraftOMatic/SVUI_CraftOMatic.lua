@@ -107,11 +107,6 @@ local FARM_ICON = [[Interface\AddOns\SVUI_CraftOMatic\artwork\LABORER-FARMING]]
 LOCAL FUNCTIONS
 ##########################################################
 ]]--
-local function SendModeMessage(...)
-	if not CombatText_AddMessage then return end 
-	CombatText_AddMessage(...)
-end 
-
 local function onMouseWheel(self, delta)
 	if (delta > 0) then
 		self:ScrollUp()
@@ -131,6 +126,141 @@ local function CheckForDoubleClick()
 	end
 	lastClickTime = GetTime()
 	return false
+end
+--[[ 
+########################################################## 
+CHAT LOG PARSING FUNCTIONS (from LibDeformat  by:ckknight)
+##########################################################
+]]--
+local ChatDeFormat;
+do
+    local FORMAT_SEQUENCES = {
+        ["s"] = ".+",    
+        ["c"] = ".",
+        ["%d*d"] = "%%-?%%d+",
+        ["[fg]"] = "%%-?%%d+%%.?%%d*",
+        ["%%%.%d[fg]"] = "%%-?%%d+%%.?%%d*",
+    }
+
+    local STRING_BASED_SEQUENCES = {
+        ["s"] = true,
+        ["c"] = true,
+    }
+
+    local cache = setmetatable({}, {__mode='k'})
+
+    local function _deformat(pattern)
+        local func = cache[pattern]
+        if func then return func end
+        local unpattern = '^' .. pattern:gsub("([%(%)%.%*%+%-%[%]%?%^%$%%])", "%%%1") .. '$'
+        local number_indexes = {}
+        local index_translation = nil
+        local highest_index
+        if not pattern:find("%%1%$") then
+            local i = 0
+            while true do
+                i = i + 1
+                local first_index
+                local first_sequence
+                for sequence in pairs(FORMAT_SEQUENCES) do
+                    local index = unpattern:find("%%%%" .. sequence)
+                    if index and (not first_index or index < first_index) then
+                        first_index = index
+                        first_sequence = sequence
+                    end
+                end
+                if not first_index then
+                    break
+                end
+                unpattern = unpattern:gsub("%%%%" .. first_sequence, "(" .. FORMAT_SEQUENCES[first_sequence] .. ")", 1)
+                number_indexes[i] = not STRING_BASED_SEQUENCES[first_sequence]
+            end
+            highest_index = i - 1
+        else
+            local i = 0
+            while true do
+                i = i + 1
+                local found_sequence
+                for sequence in pairs(FORMAT_SEQUENCES) do
+                    if unpattern:find("%%%%" .. i .. "%%%$" .. sequence) then
+                        found_sequence = sequence
+                        break
+                    end
+                end
+                if not found_sequence then
+                    break
+                end
+                unpattern = unpattern:gsub("%%%%" .. i .. "%%%$" .. found_sequence, "(" .. FORMAT_SEQUENCES[found_sequence] .. ")", 1)
+                number_indexes[i] = not STRING_BASED_SEQUENCES[found_sequence]
+            end
+            highest_index = i - 1
+            i = 0
+            index_translation = {}
+            pattern:gsub("%%(%d)%$", function(w)
+                i = i + 1
+                index_translation[i] = tonumber(w)
+            end)
+        end
+        if highest_index == 0 then
+            cache[pattern] = SV.fubar
+        else
+            local t = {}
+            t[#t+1] = [=[
+                return function(text)
+                    local ]=]
+            for i = 1, highest_index do
+                if i ~= 1 then
+                    t[#t+1] = ", "
+                end
+                t[#t+1] = "a"
+                if not index_translation then
+                    t[#t+1] = i
+                else
+                    t[#t+1] = index_translation[i]
+                end
+            end
+            t[#t+1] = [=[ = text:match(]=]
+            t[#t+1] = ("%q"):format(unpattern)
+            t[#t+1] = [=[)
+                if not a1 then
+                    return ]=]
+            for i = 1, highest_index do
+                if i ~= 1 then
+                    t[#t+1] = ", "
+                end
+                t[#t+1] = "nil"
+            end
+            t[#t+1] = "\n"
+            t[#t+1] = [=[
+                end
+            ]=]
+            t[#t+1] = "return "
+            for i = 1, highest_index do
+                if i ~= 1 then
+                    t[#t+1] = ", "
+                end
+                t[#t+1] = "a"
+                t[#t+1] = i
+                if number_indexes[i] then
+                    t[#t+1] = "+0"
+                end
+            end
+            t[#t+1] = "\n"
+            t[#t+1] = [=[
+                end
+            ]=]
+            t = table.concat(t, "")
+            cache[pattern] = assert(loadstring(t))()
+        end
+        return cache[pattern]
+    end
+
+    ChatDeFormat = function(text, pattern)
+        if((type(text) == "string") and (type(pattern) == "string")) then
+            return _deformat(pattern)(text)
+        end
+        return false;
+    end
 end
 --[[ 
 ########################################################## 
@@ -223,15 +353,15 @@ function PLUGIN:ModeLootLoader(mode, msg, info)
 end
 
 function PLUGIN:CheckForModeLoot(msg)
-  	local item, amt = SV:DeFormat(msg, LOOT_ITEM_CREATED_SELF)
+  	local item, amt = ChatDeFormat(msg, LOOT_ITEM_CREATED_SELF)
 	if not item then
-	  item = SV:DeFormat(msg, LOOT_ITEM_SELF_MULTIPLE)
+	  item = ChatDeFormat(msg, LOOT_ITEM_SELF_MULTIPLE)
 	  	if not item then
-		  item = SV:DeFormat(msg, LOOT_ITEM_SELF)
+		  item = ChatDeFormat(msg, LOOT_ITEM_SELF)
 		  	if not item then
-		      	item = SV:DeFormat(msg, LOOT_ITEM_PUSHED_SELF_MULTIPLE)
+		      	item = ChatDeFormat(msg, LOOT_ITEM_PUSHED_SELF_MULTIPLE)
 		      	if not item then
-		        	item, amt = SV:DeFormat(msg, LOOT_ITEM_PUSHED_SELF)
+		        	item, amt = ChatDeFormat(msg, LOOT_ITEM_PUSHED_SELF)
 		        	--print(item)
 		      	end
 		    end
@@ -273,7 +403,7 @@ function PLUGIN:EndJobModes()
 	--if self.Docklet:IsShown() then self.Docklet.DockButton:Click() end
 	self:ChangeModeGear()
 	self.ModeAlert:Hide();
-	SendModeMessage("Mode Disabled", CombatText_StandardScroll, 1, 0.35, 0);
+	SV:SCTMessage("Mode Disabled", CombatText_StandardScroll, 1, 0.35, 0);
 	PlaySound("UndeadExploration");
 	self:CraftingReset()
 end
@@ -306,7 +436,7 @@ function PLUGIN:ChangeModeGear()
 end
 
 function PLUGIN:UpdateLogWindow()
- 	self.LogWindow:SetFont(SV.Media.font.dialog, self.db.fontSize, "OUTLINE")
+ 	self.LogWindow:SetFont(SV.Media.font.dialog, self.db.general.fontSize, "OUTLINE")
 end
 
 function PLUGIN:SKILL_LINES_CHANGED()
@@ -509,7 +639,7 @@ function PLUGIN:Load()
 	title:SetFrameStrata("MEDIUM")
 	title:SetPoint("TOPLEFT",ModeLogsFrame,"TOPLEFT",0,0)
 	title:SetPoint("BOTTOMRIGHT",ModeLogsFrame,"TOPRIGHT",0,-20)
-	title:FontManager("title")
+	title:SetFontObject(SystemFont_Shadow_Outline_Large)
 	title:SetMaxLines(1)
 	title:EnableMouseWheel(false)
 	title:SetFading(false)
@@ -533,7 +663,7 @@ function PLUGIN:Load()
 	log:SetFrameStrata("MEDIUM")
 	log:SetPoint("TOPLEFT",title,"BOTTOMLEFT",0,0)
 	log:SetPoint("BOTTOMRIGHT",ModeLogsFrame,"BOTTOMRIGHT",0,0)
-	log:FontManager("default")
+	log:SetFontObject(SVUI_Font_Default)
 	log:SetJustifyH("CENTER")
 	log:SetJustifyV("MIDDLE")
 	log:SetShadowColor(0, 0, 0, 0)

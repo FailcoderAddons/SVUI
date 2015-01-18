@@ -30,6 +30,8 @@ local Schema = PLUGIN.Schema;
 HELPERS
 ##########################################################
 ]]--
+local NO_TEXTURE = [[Interface\AddOns\SVUI\assets\artwork\Template\EMPTY]];
+
 local VoidStorageList = {
   "VoidStorageBorderFrame",
   "VoidStorageDepositFrame",
@@ -89,17 +91,36 @@ local function ChangeTabHelper(this)
   this:SetPointToScale(a,b,c,1,e)
 end
 
+local SlotBorderColor_Hook = function(self, ...)
+  local parent = self:GetParent()
+  if(parent) then
+    parent:SetBackdropBorderColor(...)
+  end
+end
+local SlotBorder_OnHide = function(self, ...)
+  local parent = self:GetParent()
+  if(parent) then
+    parent:SetBackdropBorderColor(0,0,0,0.5)
+  end
+end
+
 local function VoidSlotStyler(name, index)
   local gName = ("%sButton%d"):format(name, index)
   local button = _G[gName]
   local icon = _G[gName .. "IconTexture"]
   local bg = _G[gName .. "Bg"]
   if(button) then
+    local border = button.IconBorder
     if(bg) then bg:Hide() end
-    button:SetStylePanel("Slot", true, 2, 0, 0)
+    button:SetStylePanel("Slot", 2, 0, 0)
     if(icon) then
       icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-      icon:SetAllPointsIn()
+      icon:SetAllPointsIn(button)
+    end
+    if(border) then
+      border:SetTexture(NO_TEXTURE)
+      hooksecurefunc(border, "Hide", SlotBorder_OnHide)
+      hooksecurefunc(border, "SetVertexColor", SlotBorderColor_Hook)
     end
   end
 end
@@ -124,7 +145,7 @@ local function VoidStorageStyle()
   end
 
   VoidStoragePurchaseFrame:SetFrameStrata('DIALOG')
-  VoidStoragePurchaseFrame:SetStylePanel("Fixed", "Button", true)
+  VoidStoragePurchaseFrame:SetStylePanel("!_Frame", "Button", true)
   VoidStorageFrameMarbleBg:Die()
   VoidStorageFrameLines:Die()
 
@@ -136,11 +157,11 @@ local function VoidStorageStyle()
 
   PLUGIN:ApplyCloseButtonStyle(VoidStorageBorderFrame.CloseButton)
 
-  VoidItemSearchBox:SetStylePanel("Default", "Inset")
+  VoidItemSearchBox:SetStylePanel("Frame", "Inset")
   VoidItemSearchBox.Panel:SetPointToScale("TOPLEFT", 10, -1)
   VoidItemSearchBox.Panel:SetPointToScale("BOTTOMRIGHT", 4, 1)
 
-  for i=1, 9 do
+  for i = 1, 9 do
     VoidSlotStyler("VoidStorageDeposit", i)
     VoidSlotStyler("VoidStorageWithdraw", i)
   end 

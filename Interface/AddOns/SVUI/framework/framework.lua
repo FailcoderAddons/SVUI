@@ -36,5 +36,4 @@ function SV:LoadFramework()
   self.Drunk:Initialize();
 	self.GameMenu:Initialize();
   self.AFK:Initialize();
-  self.SuperButton:Initialize();
 end

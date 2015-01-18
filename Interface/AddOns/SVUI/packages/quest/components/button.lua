@@ -66,59 +66,59 @@ local QuestInZone = {
 	[25111] = 161,
 	[24735] = 201,
 };
+local QUEST_BORDER = [[Interface\AddOns\SVUI\assets\artwork\Quest\QUEST-BORDER]];
 --[[ 
 ########################################################## 
 BUTTON INTERNALS
 ##########################################################
 ]]--
+local ticker;
 local UpdateButton = function(self)
-	local shortestDistance = 62500;
-	local currentAreaID = GetCurrentMapAreaID()
-	local closestQuest, closestLink, closestTexture, closestLevel, closestCount, closestIndex, closestDuration, closestExpiration, closestID, closestComplete;
+	local numItems = 0
+	local shortestDistance = 62500
+	local closestQuestLink, closestQuestTexture
+	local activeQuestLink, activeQuestTexture
 
-	for i = 1, GetNumQuestWatches() do
-		local questID, _, questLogIndex, numObjectives, requiredMoney, isComplete, startEvent, isAutoComplete, failureTime, timeElapsed, questType, isTask, isStory, isOnMap, hasLocalPOI = GetQuestWatchInfo(i);
-		if(questID) then
-			local title, level, suggestedGroup = GetQuestLogTitle(questLogIndex)
-			if(QuestHasPOIInfo(questID)) then
-				local link, texture, _, showCompleted = GetQuestLogSpecialItemInfo(questLogIndex)
+	for index = 1, GetNumQuestWatches() do
+		local questID, _, questIndex, _, _, isComplete = GetQuestWatchInfo(index)
+		if(questID and QuestHasPOIInfo(questID)) then
+			local link, texture, _, showCompleted = GetQuestLogSpecialItemInfo(questIndex)
+			if(link) then
 				local areaID = QuestInZone[questID]
-				if(areaID and (areaID == currentAreaID)) then
-					closestQuest = title
-					closestID = questID
-					closestLink = link
-					closestTexture = texture
-					closestLevel = level
-					closestCount = numObjectives
-					closestIndex = questLogIndex
-					closestDuration = failureTime
-					closestExpiration = timeElapsed
-					closestComplete = isComplete
-				elseif(onContinent and (distanceSq < shortestDistance)) then
-					shortestDistance = distanceSq
-					closestQuest = title
-					closestID = questID
-					closestLink = link
-					closestTexture = texture
-					closestLevel = level
-					closestCount = numObjectives
-					closestIndex = questLogIndex
-					closestDuration = failureTime
-					closestExpiration = timeElapsed
-					closestComplete = isComplete
+				if questIndex == MOD.CurrentQuest then
+					activeQuestLink = link
+					activeQuestTexture = texture
 				end
+				if(areaID and areaID == GetCurrentMapAreaID()) then
+					closestQuestLink = link
+					closestQuestTexture = texture
+				elseif(not isComplete or (isComplete and showCompleted)) then
+					local distanceSq, onContinent = GetDistanceSqToQuest(questIndex)
+					if(onContinent and distanceSq < shortestDistance) then
+						shortestDistance = distanceSq
+						closestQuestLink = link
+						closestQuestTexture = texture
+					end
+				end
+
+				numItems = numItems + 1
 			end
 		end
 	end
 
-	if(closestLink and (MOD.CurrentQuest == 0)) then
-		self.CurrentQuest = closestIndex;
-		self:SetAbility(closestLink, closestTexture, closestQuest, closestLevel, closestTexture, closestID, closestIndex, closestCount, closestDuration, closestExpiration, closestComplete);
-		self.Artwork:SetTexture([[Interface\ExtraButton\Smash]]);
-	elseif(self:IsShown() and (self.CurrentQuest ~= MOD.CurrentQuest)) then
-		self.CurrentQuest = 0;
-		self.Artwork:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Template\EMPTY]]);
-		self:RemoveAbility();
+	if(closestQuestLink) then
+		self:SetUsage(closestQuestLink, closestQuestTexture);
+	elseif(activeQuestLink) then
+		self:SetUsage(activeQuestLink, activeQuestTexture);
+	end
+
+	if(numItems > 0 and not ticker) then
+		ticker = C_Timer.NewTicker(30, function()
+			self:Update()
+		end)
+	elseif(numItems == 0 and ticker) then
+		ticker:Cancel()
+		ticker = nil
 	end
 end
 --[[ 
@@ -127,17 +127,23 @@ PACKAGE CALL
 ##########################################################
 ]]--
 function MOD:InitializeQuestItem()
-	SV.SuperButton.ItemBlackList[113191] = true
-	SV.SuperButton.ItemBlackList[110799] = true
-	SV.SuperButton.ItemBlackList[109164] = true
+	SVUI_QuestItemBar:SetParent(SV.Screen)
+	SVUI_QuestItemBar:SetPointToScale("BOTTOM", SV.Screen, "BOTTOM", 0, 250)
+	SVUI_QuestItemBar:SetSizeToScale(40,40)
 
-	local Button = SV.SuperButton:AddItem("SVUI_QuestAutoButton", UpdateButton, nil, 'SVUI_QUESTITEM');
-	Button:RegisterEvent('UPDATE_EXTRA_ACTIONBAR')
-	Button:RegisterEvent('BAG_UPDATE_COOLDOWN')
-	Button:RegisterEvent('BAG_UPDATE_DELAYED')
-	Button:RegisterEvent('WORLD_MAP_UPDATE')
-	Button:RegisterEvent('QUEST_LOG_UPDATE')
-	Button:RegisterEvent('QUEST_POI_UPDATE')
+	SV.Mentalo:Add(SVUI_QuestItemBar, L["Quest Item Button"])
 
-	self.QuestItem = Button
+	local questitem = SV:CreateSecureButton("item", "SVUI_QuestItemBar", "SVUI_QuestAutoItemButton", UpdateButton);
+	questitem.ArtFile = QUEST_BORDER;
+	questitem.blacklist[113191] = true
+	questitem.blacklist[110799] = true
+	questitem.blacklist[109164] = true
+	questitem:RegisterEvent('UPDATE_EXTRA_ACTIONBAR')
+	questitem:RegisterEvent('BAG_UPDATE_COOLDOWN')
+	questitem:RegisterEvent('BAG_UPDATE_DELAYED')
+	questitem:RegisterEvent('WORLD_MAP_UPDATE')
+	questitem:RegisterEvent('QUEST_LOG_UPDATE')
+	questitem:RegisterEvent('QUEST_POI_UPDATE')
+
+	self.QuestItem = questitem
 end

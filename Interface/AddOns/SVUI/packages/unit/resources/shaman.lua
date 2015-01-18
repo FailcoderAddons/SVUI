@@ -63,6 +63,10 @@ local totemTextures = {
 POSITIONING
 ##########################################################
 ]]--
+local OnMove = function()
+	SV.db.SVUnit.player.classbar.detachFromFrame = true
+end
+
 local Reposition = function(self)
 	local db = SV.db.SVUnit.player
 	local bar = self.TotemBars
@@ -117,7 +121,7 @@ function MOD:CreateClassBar(playerFrame)
 	classBarHolder:SetPointToScale("TOPLEFT", playerFrame, "BOTTOMLEFT", 0, -2)
 	bar:SetPoint("TOPLEFT", classBarHolder, "TOPLEFT", 0, 0)
 	bar.Holder = classBarHolder
-	SV.Mentalo:Add(bar.Holder, L["Classbar"])
+	SV.Mentalo:Add(bar.Holder, L["Classbar"], nil, OnMove)
 
 	playerFrame.MaxClassPower = totemMax;
 	playerFrame.ClassBarRefresh = Reposition;

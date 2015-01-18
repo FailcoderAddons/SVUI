@@ -179,29 +179,6 @@ function table.copy(targetTable,deepCopy,mergeTable)
     return replacementTable 
 end
 
-function string.trim(this)
-    return find(this, '^%s*$') and '' or match(this, '^%s*(.*%S)')
-end
-
-function string.color(this, color)
-    return format("|cff%s%s|r", color, this)
-end
-
-function string.link(this, prefix, text, color)
-    text = tostring(text)
-    local colorstring = tostring(this):color(color or "ffffff")
-    return format("|H%s:%s|h%s|h", prefix, text, colorstring)
-end
-
-function string.explode(this, delim)
-    local pattern = format("([^%s]+)", delim)
-    local res = {}
-    for line in this:gmatch(pattern) do
-        tinsert(res, line)
-    end
-    return res
-end
-
 --DATABASE LOCAL HELPERS
 
 local function copydefaults(d, s)

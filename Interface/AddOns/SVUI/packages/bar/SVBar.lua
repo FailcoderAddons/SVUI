@@ -86,12 +86,20 @@ end
 
 local Bar_OnEnter = function(self)
 	if(self._fade) then
+		for i=1, self.maxButtons do
+			self.buttons[i].cd:SetSwipeColor(0, 0, 0, 1)
+			self.buttons[i].cd:SetDrawBling(true)
+		end
 		self:FadeIn(0.2, self:GetAlpha(), self._alpha)
 	end
 end 
 
 local Bar_OnLeave = function(self)
 	if(self._fade) then
+		for i=1, self.maxButtons do
+			self.buttons[i].cd:SetSwipeColor(0, 0, 0, 0)
+			self.buttons[i].cd:SetDrawBling(false)
+		end
 		self:FadeOut(1, self:GetAlpha(), 0)
 	end
 end
@@ -160,12 +168,14 @@ local function SaveActionButton(parent)
 	local button = parent:GetName()
 	local cooldown = _G[button.."Cooldown"]
 	cooldown.SizeOverride = SV.db.SVBar.cooldownSize
+	-- cooldown:SetSwipeColor(0, 0, 0, 0)
+	-- cooldown:SetDrawBling(false)
 	if(not parent.cd) then
 		parent.cd = cooldown;
 	end
 	MOD:FixKeybindText(parent)
 	MOD.ButtonCache[parent] = true 
-	parent:SetStylePanel("Slot", true, 2, 0, 0, 0.75, true)
+	parent:SetStylePanel("Slot", 2, 0, 0, 0.75, true)
 	parent:SetCheckedTexture("")
 end 
 
@@ -268,25 +278,22 @@ local function ModifyActionButton(parent)
 		count:ClearAllPoints()
 		count:SetPoint("BOTTOMRIGHT",1,1)
 		count:SetShadowOffset(1,-1)
-		count:FontManager("number")
+		count:SetFontObject(SVUI_Font_Number)
 	end 
 	if icon then 
 		icon:SetTexCoord(.1,.9,.1,.9)
-		--icon:SetGradient("VERTICAL",.5,.5,.5,1,1,1)
 		icon:SetAllPointsIn(button)
 	end 
 	if shine then shine:SetAllPoints()end 
 	if SV.db.SVBar.hotkeytext then 
 		hotkey:ClearAllPoints()
 		hotkey:SetAllPoints()
-		hotkey:FontManager("default")
+		hotkey:SetFontObject(SVUI_Font_Default)
 		hotkey:SetJustifyH("RIGHT")
     	hotkey:SetJustifyV("TOP")
 		hotkey:SetShadowOffset(1,-1)
 	end 
-	-- if parent.style then 
-	-- 	parent.style:SetDrawLayer('BACKGROUND',-7)
-	-- end 
+
 	parent.FlyoutUpdateFunc = SetFlyoutButton;
 	MOD:FixKeybindText(parent)
 end 
@@ -443,8 +450,8 @@ function MOD:SetBarConfigData(bar)
 	local thisBinding = bar.binding;
 	local buttonList = bar.buttons;
 	local config = bar.config
-	config.hideElements.macro = db.macrotext;
-	config.hideElements.hotkey = db.hotkeytext;
+	config.hideElements.macro = (not db.macrotext);
+	config.hideElements.hotkey = (not db.hotkeytext);
 	config.showGrid = db.showGrid;
 	config.clickOnDown = db.keyDown;
 	config.colors.range = db.unc
@@ -536,23 +543,15 @@ do
 	local Button_OnEnter = function(self)
 		local parent = self:GetParent()
 		if parent and parent._fade then
-			if(self.cd) then
-				self.cd:SetSwipeColor(0, 0, 0, 1)
-				self.cd:SetDrawBling(true)
-			end
-			parent:FadeIn(0.2, parent:GetAlpha(), parent._alpha)
+			Bar_OnEnter(parent)
 		end
 	end 
 
 	local Button_OnLeave = function(self)
-		local parent = self:GetParent()
 		GameTooltip:Hide()
+		local parent = self:GetParent()
 		if parent and parent._fade then
-			if(self.cd) then
-				self.cd:SetSwipeColor(0, 0, 0, 0)
-				self.cd:SetDrawBling(false)
-			end
-			parent:FadeOut(1, parent:GetAlpha(), 0)
+			Bar_OnLeave(parent)
 		end
 	end 
 
@@ -562,6 +561,7 @@ do
 		local hideByScale = id == "Pet" and true or false;
 		local isStance = id == "Stance" and true or false;
 		local button,lastButton,lastRow;
+
 		for i=1, max do 
 			button = bar.buttons[i]
 			lastButton = bar.buttons[i - 1]
@@ -573,18 +573,6 @@ do
 
 			if(selfcast) then
 				button:SetAttribute("unit2", "player")
-			end
-
-			if(bar._fade) then
-				if button.cd then
-					button.cd:SetSwipeColor(0, 0, 0, 0)
-					button.cd:SetDrawBling(false)
-				end
-			else
-				if button.cd then
-					button.cd:SetSwipeColor(0, 0, 0, 1)
-					button.cd:SetDrawBling(true)
-				end
 			end
 
 			if(not button._hookFade) then
@@ -656,7 +644,9 @@ do
 	      		ModifyActionButton(button);
 	      		SaveActionButton(button);
 	    	end
-		end 
+		end
+
+		if(bar._fade) then Bar_OnLeave(bar) end
 	end 
 
 	local function _getPage(bar, defaultPage, condition)
@@ -701,7 +691,7 @@ do
 
 		if max < cols then cols = max end 
 		if rows < 1 then rows = 1 end
-
+		bar.maxButtons = max;
 		bar:SetWidthToScale(space  +  (size  *  cols)  +  ((space  *  (cols - 1))  +  space));
 		bar:SetHeightToScale((space  +  (size  *  rows))  +  ((space  *  (rows - 1))  +  space));
 		bar.backdrop:ClearAllPoints()
@@ -715,11 +705,8 @@ do
 			bar.backdrop:Hide()
 		end 
 
-		if(not bar._hookFade) then 
-			bar:HookScript('OnEnter', Bar_OnEnter)
-			bar:HookScript('OnLeave', Bar_OnLeave)
-			bar._hookFade = true;
-		end 
+		bar:SetScript('OnEnter', Bar_OnEnter)
+		bar:SetScript('OnLeave', Bar_OnLeave)
 
 		if(db.mouseover == true) then 
 			bar:SetAlpha(0)
@@ -911,7 +898,7 @@ CreateActionBars = function(self)
 		bg:SetAllPoints()
 		bg:SetFrameLevel(0)
 		thisBar:SetFrameLevel(5)
-		bg:SetStylePanel("Default", "Component")
+		bg:SetStylePanel("Frame", "Heavy")
 		bg:SetPanelColor("dark")
 		thisBar.backdrop = bg
 
@@ -1100,7 +1087,7 @@ do
 	  local bg = CreateFrame("Frame", nil, stanceBar)
 	  bg:SetAllPoints();
 	  bg:SetFrameLevel(0);
-	  bg:SetStylePanel("Default", "Component")
+	  bg:SetStylePanel("Frame", "Heavy")
 	  bg:SetPanelColor("dark")
 	  stanceBar.backdrop = bg;
 
@@ -1221,7 +1208,7 @@ do
 		local bg = CreateFrame("Frame", nil, petBar)
 		bg:SetAllPoints();
 		bg:SetFrameLevel(0);
-		bg:SetStylePanel("Default", "Component")
+		bg:SetStylePanel("Frame", "Heavy")
 		bg:SetPanelColor("dark")
 		petBar.backdrop = bg;
 		for i = 1, NUM_PET_ACTION_SLOTS do 
@@ -1253,6 +1240,39 @@ do
 
 		SV.Mentalo:Add(petBar, L["Pet Bar"])
 	end 
+end
+
+local CreateExtraBar = function(self)
+	local specialBar = CreateFrame("Frame", "SVUI_SpecialAbility", SV.Screen)
+	specialBar:SetPointToScale("BOTTOM", SV.Screen, "BOTTOM", 0, 360)
+	specialBar:SetSizeToScale(ExtraActionBarFrame:GetSize())
+	ExtraActionBarFrame:SetParent(specialBar)
+	ExtraActionBarFrame:ClearAllPoints()
+	ExtraActionBarFrame:SetPoint("CENTER", specialBar, "CENTER")
+	ExtraActionBarFrame.ignoreFramePositionManager = true;
+	local max = ExtraActionBarFrame:GetNumChildren()
+	for i = 1, max do 
+		local name = ("ExtraActionButton%d"):format(i)
+		local icon = ("%sIcon"):format(name)
+		local cool = ("%sCooldown"):format(name)
+		local button = _G[name]
+		if(button) then 
+			button.noResize = true;
+			button.pushed = true;
+			button.checked = true;
+			ModifyActionButton(button)
+			_G[icon]:SetDrawLayer("ARTWORK")
+			_G[cool]:SetAllPointsIn()
+			local checkedTexture = button:CreateTexture(nil, "OVERLAY")
+			checkedTexture:SetTexture(0.9, 0.8, 0.1, 0.3)
+			checkedTexture:SetAllPointsIn()
+			button:SetCheckedTexture(checkedTexture)
+		end 
+	end
+	if HasExtraActionBar()then 
+		ExtraActionBarFrame:Show()
+	end
+	SV.Mentalo:Add(specialBar, L["Extra Action Button"])
 end
 --[[ 
 ########################################################## 
@@ -1399,8 +1419,9 @@ function MOD:Load()
 	CreateActionBars(self)
 	CreateStanceBar(self)
 	CreatePetBar(self)
+	CreateExtraBar(self)
 	self:InitializeMicroBar()
-	self:InitializeExtraButtons()
+	self:InitializeZoneButton()
 	
 	self:LoadKeyBinder()
 

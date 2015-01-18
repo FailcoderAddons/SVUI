@@ -79,11 +79,14 @@ local function CacheBonusData(questID, xp, money)
 	data.objectives = {};
 	local isInArea, isOnMap, numObjectives = GetTaskInfo(questID);
 	local iscomplete = true;
-	for objectiveIndex = 1, numObjectives do
-		local text, objectiveType, finished = GetQuestObjectiveInfo(questID, objectiveIndex);
-		if not finished then iscomplete = false end
-		tinsert(data.objectives, text);
-		data.objectiveType = objectiveType;
+
+	if(numObjectives and (type(numObjectives) == "number") and numObjectives > 0) then
+		for objectiveIndex = 1, numObjectives do
+			local text, objectiveType, finished = GetQuestObjectiveInfo(questID, objectiveIndex);
+			if not finished then iscomplete = false end
+			tinsert(data.objectives, text);
+			data.objectiveType = objectiveType;
+		end
 	end
 
 	data.rewards = {};
@@ -212,7 +215,8 @@ local GetBonusRow = function(self, index)
 		row.Header:SetHeightToScale(INNER_HEIGHT);
 
 		row.Header.Text = row.Header:CreateFontString(nil,"OVERLAY")
-		row.Header.Text:FontManager("questheader", "LEFT");
+		row.Header.Text:SetFontObject(SVUI_Font_Quest_Header);
+		row.Header.Text:SetJustifyH('LEFT')
 		row.Header.Text:SetTextColor(0.2,0.75,1)
 		row.Header.Text:SetText('')
 		row.Header.Text:SetPointToScale("TOPLEFT", row.Header, "TOPLEFT", 0, 0);
@@ -323,7 +327,6 @@ end
 local UpdateBonusObjectives = function(self)
 	local fill_height = 0;
 	local rows = 0;
-	local ALL_EXIST = true;
 
 	if(C_Scenario.IsInScenario()) then
 		local tblBonusSteps = C_Scenario.GetBonusSteps();
@@ -366,9 +369,6 @@ local UpdateBonusObjectives = function(self)
 			if(not COMPLETED_BONUS_DATA[questID]) then
 				local isInArea, isOnMap, numObjectives = GetCachedTaskInfo(questID);
 				local existingTask = CACHED_BONUS_DATA[questID]
-				if(not existingTask) then
-					ALL_EXIST = false;
-				end
 				if(isInArea or (isOnMap and existingTask)) then
 					local add_height = 0;
 					rows, add_height = self:SetBonus(rows, questID, numObjectives)
@@ -385,7 +385,7 @@ local UpdateBonusObjectives = function(self)
 	else
 		self:SetHeightToScale(fill_height + 2);
 		self:FadeIn();
-		if(not ALL_EXIST) then
+		if(not CACHED_BONUS_DATA[questID]) then
 			PlaySound("UI_Scenario_Stage_End");
 			--PlaySoundKitID(45142);
 		end

@@ -67,20 +67,20 @@ LOCALS
 ##########################################################
 ]]--
 local FontMapping = {
-	["player"] = "unitprimary", 
-	["target"] = "unitprimary", 
-	["targettarget"] = "unitsecondary",
-	["pet"] = "unitprimary", 
-	["pettarget"] = "unitsecondary",
-	["focus"] = "unitprimary",  
-	["focustarget"] = "unitsecondary",
-	["boss"] = "unitprimary", 
-	["arena"] = "unitprimary",
-	["party"] = "unitsecondary",
-	["raid"] = "unitsecondary",
-	["raidpet"] = "unitsecondary",
-	["tank"] = "unitsecondary",
-	["assist"] = "unitsecondary",
+	["player"] = "SVUI_Font_Unit", 
+	["target"] = "SVUI_Font_Unit", 
+	["targettarget"] = "SVUI_Font_Unit_Small",
+	["pet"] = "SVUI_Font_Unit", 
+	["pettarget"] = "SVUI_Font_Unit_Small",
+	["focus"] = "SVUI_Font_Unit",  
+	["focustarget"] = "SVUI_Font_Unit_Small",
+	["boss"] = "SVUI_Font_Unit", 
+	["arena"] = "SVUI_Font_Unit",
+	["party"] = "SVUI_Font_Unit_Small",
+	["raid"] = "SVUI_Font_Unit_Small",
+	["raidpet"] = "SVUI_Font_Unit_Small",
+	["tank"] = "SVUI_Font_Unit_Small",
+	["assist"] = "SVUI_Font_Unit_Small",
 };
 
 local _hook_ActionPanel_OnSizeChanged = function(self)
@@ -263,7 +263,7 @@ local function CreateThreat(frame, unit)
 		aggro:SetFrameStrata("HIGH")
 		aggro:SetFrameLevel(30)
 		aggro:SetSize(40,40)
-		aggro:SetPoint("CENTER", frame, "TOPRIGHT", -6, -6)
+		aggro:SetPoint("BOTTOMLEFT", frame, "TOPRIGHT", -6, -6)
 		aggro.texture = aggro:CreateTexture(nil, "OVERLAY")
 		aggro.texture:SetAllPoints(aggro)
 		aggro.texture:SetTexture(AGGRO_TEXTURE)
@@ -271,6 +271,7 @@ local function CreateThreat(frame, unit)
 		aggro:SetScript("OnShow", function(this)
 			this.anim:Play() 
 		end);
+		aggro:Hide();
 		frame.Aggro = aggro
 
 		threat.Override = UpdatePlayerThreat
@@ -386,16 +387,17 @@ end
 function MOD:SetActionPanel(frame, unit, noHealthText, noPowerText, noMiscText)
 	if(unit and (unit == "target" or unit == "player")) then
 		frame.ActionPanel = CreateActionPanel(frame, 3)
-
+		local baseSize = SV.db.font.unitprimary.size / 0.55;
 		local info = CreateFrame("Frame", nil, frame)
 		info:SetFrameStrata("BACKGROUND")
 		info:SetFrameLevel(0)
-		info:SetPointToScale("TOPLEFT", frame.ActionPanel, "BOTTOMLEFT", -1, 1)
-		info:SetPointToScale("TOPRIGHT", frame.ActionPanel, "BOTTOMRIGHT", 1, 1)
-		info:SetHeight(30)
+		info:SetPointToScale("TOPLEFT", frame.ActionPanel, "BOTTOMLEFT", 0, 1)
+		info:SetPointToScale("TOPRIGHT", frame.ActionPanel, "BOTTOMRIGHT", 0, 1)
+		info:SetHeight(baseSize)
 
 		local bg = info:CreateTexture(nil, "BACKGROUND")
-		bg:SetAllPointsIn(info)
+		bg:SetPointToScale("TOPLEFT", frame.ActionPanel, "BOTTOMLEFT", 0, 1)
+		bg:SetPointToScale("BOTTOMRIGHT", info, "BOTTOMRIGHT", 0, 0)
 		bg:SetTexture(1, 1, 1, 1)
 		bg:SetGradientAlpha("VERTICAL", 0, 0, 0, 0, 0, 0, 0, 0.7)
 
@@ -447,7 +449,7 @@ function MOD:SetActionPanel(frame, unit, noHealthText, noPowerText, noMiscText)
 			frame.ActionPanel.class = CreateFrame("Frame", nil, frame.TextGrip)
 			frame.ActionPanel.class:SetSizeToScale(18)
 			frame.ActionPanel.class:SetPointToScale("TOPLEFT", frame.ActionPanel, "TOPLEFT", 2, -2)
-			frame.ActionPanel.class:SetStylePanel("Default", "Default", true, 2, 0, 0)
+			frame.ActionPanel.class:SetStylePanel("Frame", "Default", true, 2, 0, 0)
 
 			frame.ActionPanel.class.texture = frame.ActionPanel.class.Panel:CreateTexture(nil, "BORDER")
 			frame.ActionPanel.class.texture:SetAllPoints(frame.ActionPanel.class.Panel)
@@ -477,6 +479,8 @@ function MOD:SetActionPanel(frame, unit, noHealthText, noPowerText, noMiscText)
 			border4:SetPoint("BOTTOMLEFT")
 			border4:SetWidth(2)
 		else
+			frame.InfoPanel = info;
+
 			frame.LossOfControl = CreateFrame("Frame", nil, frame.TextGrip)
 			frame.LossOfControl:SetAllPoints(frame)
 			frame.LossOfControl:SetFrameStrata("DIALOG")
@@ -525,7 +529,7 @@ function MOD:SetActionPanel(frame, unit, noHealthText, noPowerText, noMiscText)
 		frame.ActionPanel = CreateActionPanel(frame, 2)
 		frame.TextGrip = CreateFrame("Frame", nil, frame)
 		frame.TextGrip:SetFrameStrata("LOW")
-		frame.TextGrip:SetFrameLevel(20)
+		frame.TextGrip:SetFrameLevel(99)
 		frame.TextGrip:SetPointToScale("TOPLEFT", frame.ActionPanel, "TOPLEFT", 2, -2)
 		frame.TextGrip:SetPointToScale("BOTTOMRIGHT", frame.ActionPanel, "BOTTOMRIGHT", -2, 2)
 	end
@@ -537,7 +541,7 @@ function MOD:SetActionPanel(frame, unit, noHealthText, noPowerText, noMiscText)
 	local fontgroup = FontMapping[unit]
 	if(not noHealthText) then
 		frame.TextGrip.Health = frame.TextGrip:CreateFontString(nil, "OVERLAY")
-		frame.TextGrip.Health:FontManager(fontgroup)
+		frame.TextGrip.Health:SetFontObject(_G[fontgroup])
 		offset = reverse and 2 or -2;
 		direction = reverse and "LEFT" or "RIGHT";
 		frame.TextGrip.Health:SetPointToScale(direction, frame.TextGrip, direction, offset, 0)
@@ -545,7 +549,7 @@ function MOD:SetActionPanel(frame, unit, noHealthText, noPowerText, noMiscText)
 
 	if(not noPowerText) then
 		frame.TextGrip.Power = frame.TextGrip:CreateFontString(nil, "OVERLAY")
-		frame.TextGrip.Power:FontManager(fontgroup)
+		frame.TextGrip.Power:SetFontObject(_G[fontgroup])
 		offset = reverse and -2 or 2;
 		direction = reverse and "RIGHT" or "LEFT";
 		frame.TextGrip.Power:SetPointToScale(direction, frame.TextGrip, direction, offset, 0)
@@ -553,7 +557,7 @@ function MOD:SetActionPanel(frame, unit, noHealthText, noPowerText, noMiscText)
 
 	if(not noMiscText) then
 		frame.TextGrip.Misc = frame.TextGrip:CreateFontString(nil, "OVERLAY")
-		frame.TextGrip.Misc:FontManager(fontgroup)
+		frame.TextGrip.Misc:SetFontObject(_G[fontgroup])
 		frame.TextGrip.Misc:SetPointToScale("CENTER", frame, "CENTER", 0, 0)
 	end
 
@@ -677,7 +681,7 @@ end
 function MOD:CreatePowerBar(frame, bg)
 	local power = CreateFrame("StatusBar", nil, frame)
 	power:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Bars\DEFAULT]])
-	power:SetStylePanel("Default", "Bar")
+	power:SetStylePanel("Frame", "Bar")
 	power:SetFrameStrata("LOW")
 	power:SetFrameLevel(6)
 	if bg then 
@@ -695,14 +699,14 @@ end
 function MOD:CreateAltPowerBar(frame)
 	local altPower = CreateFrame("StatusBar", nil, frame)
 	altPower:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Bars\DEFAULT]])
-	altPower:SetStylePanel("Default", "Bar")
+	altPower:SetStylePanel("Frame", "Bar")
 	altPower:GetStatusBarTexture():SetHorizTile(false)
 	altPower:SetFrameStrata("LOW")
 	altPower:SetFrameLevel(8)
 	altPower.text = altPower:CreateFontString(nil, "OVERLAY")
 	altPower.text:SetPoint("CENTER")
 	altPower.text:SetJustifyH("CENTER")
-	altPower.text:FontManager("unitprimary")
+	altPower.text:SetFontObject(SVUI_Font_Unit)
 	altPower.PostUpdate = PostUpdateAltPower;
 	return altPower 
 end
@@ -742,9 +746,9 @@ function MOD:CreatePortrait(frame,smallUnit,isPlayer)
 	portrait3D:SetFrameLevel(2)
 
 	if smallUnit then 
-		portrait3D:SetStylePanel("Default", "UnitSmall")
+		portrait3D:SetStylePanel("Frame", "UnitSmall")
 	else 
-		portrait3D:SetStylePanel("Default", "UnitLarge")
+		portrait3D:SetStylePanel("Frame", "UnitLarge")
 	end 
 
 	local overlay = CreateFrame("Frame",nil,portrait3D)
@@ -764,9 +768,9 @@ function MOD:CreatePortrait(frame,smallUnit,isPlayer)
 	portrait2D:SetAllPoints(portrait2Danchor)
 	portrait2D.anchor = portrait2Danchor;
 	if smallUnit then 
-		portrait2Danchor:SetStylePanel("Fixed", "UnitSmall")
+		portrait2Danchor:SetStylePanel("!_Frame", "UnitSmall")
 	else 
-		portrait2Danchor:SetStylePanel("Fixed", "UnitLarge")
+		portrait2Danchor:SetStylePanel("!_Frame", "UnitLarge")
 	end 
 	portrait2D.Panel = portrait2Danchor.Panel;
 

@@ -28,20 +28,22 @@ local AddonName, AddonObject = ...
 assert(LibSuperVillain, AddonName .. " requires LibSuperVillain")
 
 AddonObject.defaults = {
-	["fontSize"] = 12, 
-	["farming"] = {
-		["buttonsize"] = 35, 
-		["buttonspacing"] = 3, 
-		["onlyactive"] = false, 
-		["droptools"] = true, 
-		["toolbardirection"] = "HORIZONTAL", 
-	}, 
-	["fishing"] = {
-		["autoequip"] = true, 
-	}, 
-	["cooking"] = {
-		["autoequip"] = true, 
-	}, 
+	["general"] = {
+		["fontSize"] = 12, 
+		["farming"] = {
+			["buttonsize"] = 35, 
+			["buttonspacing"] = 3, 
+			["onlyactive"] = false, 
+			["droptools"] = true, 
+			["toolbardirection"] = "HORIZONTAL", 
+		}, 
+		["fishing"] = {
+			["autoequip"] = true, 
+		}, 
+		["cooking"] = {
+			["autoequip"] = true, 
+		},
+	} 
 }
 
 local PLUGIN = LibSuperVillain("Registry"):NewPlugin(AddonName, AddonObject, "CraftOMatic_Profile", nil, "CraftOMatic_Cache")
@@ -61,7 +63,7 @@ SV.Options.args.plugins.args.pluginOptions.args[Schema].args["fontSize"] = {
 	min = 6,
 	max = 22,
 	step = 1,
-    get = function(key) return PLUGIN.db[key[#key]] end,
+    get = function(key) return PLUGIN.db.general[key[#key]] end,
     set = function(key,value) PLUGIN:ChangeDBVar(value, key[#key]); PLUGIN:UpdateLogWindow() end
 }
 
@@ -76,7 +78,7 @@ SV.Options.args.plugins.args.pluginOptions.args[Schema].args["fishing"] = {
 			order = 1, 
 			name = L['AutoEquip'], 
 			desc = L['Enable/Disable automatically equipping fishing gear.'], 
-			get = function(key)return PLUGIN.db.fishing[key[#key]] end,
+			get = function(key)return PLUGIN.db.general.fishing[key[#key]] end,
 			set = function(key, value)PLUGIN:ChangeDBVar(value, key[#key], "fishing") end
 		}
 	}
@@ -93,7 +95,7 @@ SV.Options.args.plugins.args.pluginOptions.args[Schema].args["cooking"] = {
 			order = 1, 
 			name = L['AutoEquip'], 
 			desc = L['Enable/Disable automatically equipping cooking gear.'], 
-			get = function(key)return PLUGIN.db.cooking[key[#key]]end,
+			get = function(key)return PLUGIN.db.general.cooking[key[#key]]end,
 			set = function(key, value)PLUGIN:ChangeDBVar(value, key[#key], "cooking")end
 		}
 	}
@@ -104,8 +106,8 @@ SV.Options.args.plugins.args.pluginOptions.args[Schema].args["farming"] = {
 	type = "group", 
 	name = L["Farming Mode Settings"], 
 	guiInline = true, 
-	get = function(key)return PLUGIN.db.farming[key[#key]]end, 
-	set = function(key, value)PLUGIN.db.farming[key[#key]] = value end, 
+	get = function(key)return PLUGIN.db.general.farming[key[#key]]end, 
+	set = function(key, value)PLUGIN.db.general.farming[key[#key]] = value end, 
 	args = {
 		buttonsize = {
 			type = 'range', 

@@ -55,7 +55,7 @@ local function StyleAltoholic(event, addon)
 
 		AltoholicFramePortrait:Die()
 
-		PLUGIN:ApplyFrameStyle(AltoholicFrame, "Action", false, true)
+		PLUGIN:ApplyFrameStyle(AltoholicFrame, "Composite2", false, true)
 		PLUGIN:ApplyFrameStyle(AltoMsgBox)
 		PLUGIN:ApplyButtonStyle(AltoMsgBoxYesButton)
 		PLUGIN:ApplyButtonStyle(AltoMsgBoxNoButton)

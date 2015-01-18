@@ -105,54 +105,97 @@ local ErrorSound = SV.Sounds:Blend("Malfunction", "Sparks", "Wired");
 CORE FUNCTIONS
 ##########################################################
 ]]--
-_G.HideSuperDocks = function(self, button)
+_G.ToggleSuperDockLeft = function(self, button)
 	GameTooltip:Hide()
 	if(button and IsAltKeyDown()) then
 		SV:StaticPopup_Show('RESETDOCKS_CHECK')
 	else
-		if SV.cache.Docks.IsFaded then 
-			SV.cache.Docks.IsFaded = nil;
+		if SV.cache.Docks.LeftFaded then 
+			SV.cache.Docks.LeftFaded = nil;
 			Dock.BottomLeft:FadeIn(0.2, Dock.BottomLeft:GetAlpha(), 1)
 			Dock.BottomLeft.Bar:FadeIn(0.2, Dock.BottomLeft.Bar:GetAlpha(), 1)
-			Dock.BottomRight:FadeIn(0.2, Dock.BottomRight:GetAlpha(), 1)
-			Dock.BottomRight.Bar:FadeIn(0.2, Dock.BottomRight.Bar:GetAlpha(), 1)
-			SV.Events:Trigger("DOCKS_FADE_IN");
+			SV.Events:Trigger("DOCK_LEFT_FADE_IN");
 			PlaySoundFile([[sound\doodad\be_scryingorb_explode.ogg]])
-			--PlaySoundFile([[sound\interface\ui_etherealwindow_open.ogg]])
 		else 
-			SV.cache.Docks.IsFaded = true;
+			SV.cache.Docks.LeftFaded = true;
 			Dock.BottomLeft:FadeOut(0.2, Dock.BottomLeft:GetAlpha(), 0)
 			Dock.BottomLeft.Bar:FadeOut(0.2, Dock.BottomLeft.Bar:GetAlpha(), 0)
-			Dock.BottomRight:FadeOut(0.2, Dock.BottomRight:GetAlpha(), 0)
-			Dock.BottomRight.Bar:FadeOut(0.2, Dock.BottomRight.Bar:GetAlpha(), 0)
-			SV.Events:Trigger("DOCKS_FADE_OUT");
+			SV.Events:Trigger("DOCK_LEFT_FADE_OUT");
 			PlaySoundFile([[sound\doodad\be_scryingorb_explode.ogg]])
-			--PlaySoundFile([[sound\interface\ui_etherealwindow_close.ogg]])
 		end
 	end
 end
 
+_G.ToggleSuperDockRight = function(self, button)
+	GameTooltip:Hide()
+	if(button and IsAltKeyDown()) then
+		SV:StaticPopup_Show('RESETDOCKS_CHECK')
+	else
+		if SV.cache.Docks.RightFaded then 
+			SV.cache.Docks.RightFaded = nil;
+			Dock.BottomRight:FadeIn(0.2, Dock.BottomRight:GetAlpha(), 1)
+			Dock.BottomRight.Bar:FadeIn(0.2, Dock.BottomRight.Bar:GetAlpha(), 1)
+			SV.Events:Trigger("DOCK_RIGHT_FADE_IN");
+			PlaySoundFile([[sound\doodad\be_scryingorb_explode.ogg]])
+		else 
+			SV.cache.Docks.RightFaded = true;
+			Dock.BottomRight:FadeOut(0.2, Dock.BottomRight:GetAlpha(), 0)
+			Dock.BottomRight.Bar:FadeOut(0.2, Dock.BottomRight.Bar:GetAlpha(), 0)
+			SV.Events:Trigger("DOCK_RIGHT_FADE_OUT");
+			PlaySoundFile([[sound\doodad\be_scryingorb_explode.ogg]])
+		end
+	end
+end
+
+_G.ToggleSuperDocks = function()
+	if(SV.cache.Docks.AllFaded) then
+		SV.cache.Docks.AllFaded = nil;
+		SV.cache.Docks.LeftFaded = nil;
+		SV.cache.Docks.RightFaded = nil;
+		Dock.BottomLeft:FadeIn(0.2, Dock.BottomLeft:GetAlpha(), 1)
+		Dock.BottomLeft.Bar:FadeIn(0.2, Dock.BottomLeft.Bar:GetAlpha(), 1)
+		SV.Events:Trigger("DOCK_LEFT_FADE_IN");
+		Dock.BottomRight:FadeIn(0.2, Dock.BottomRight:GetAlpha(), 1)
+		Dock.BottomRight.Bar:FadeIn(0.2, Dock.BottomRight.Bar:GetAlpha(), 1)
+		SV.Events:Trigger("DOCK_RIGHT_FADE_IN");
+		PlaySoundFile([[sound\doodad\be_scryingorb_explode.ogg]])
+	else
+		SV.cache.Docks.AllFaded = true;
+		SV.cache.Docks.LeftFaded = true;
+		SV.cache.Docks.RightFaded = true;
+		Dock.BottomLeft:FadeOut(0.2, Dock.BottomLeft:GetAlpha(), 0)
+		Dock.BottomLeft.Bar:FadeOut(0.2, Dock.BottomLeft.Bar:GetAlpha(), 0)
+		SV.Events:Trigger("DOCK_LEFT_FADE_OUT");
+		Dock.BottomRight:FadeOut(0.2, Dock.BottomRight:GetAlpha(), 0)
+		Dock.BottomRight.Bar:FadeOut(0.2, Dock.BottomRight.Bar:GetAlpha(), 0)
+		SV.Events:Trigger("DOCK_RIGHT_FADE_OUT");
+		PlaySoundFile([[sound\doodad\be_scryingorb_explode.ogg]])
+	end
+end
+
 function Dock:EnterFade()
-	if SV.cache.Docks.IsFaded then
-		--self.BottomLeft:Show()
+	if SV.cache.Docks.LeftFaded then
 		self.BottomLeft:FadeIn(0.2, self.BottomLeft:GetAlpha(), 1)
 		self.BottomLeft.Bar:FadeIn(0.2, self.BottomLeft.Bar:GetAlpha(), 1)
-		--self.BottomRight:Show()
+		SV.Events:Trigger("DOCK_LEFT_FADE_IN");
+	end
+	if SV.cache.Docks.RightFaded then
 		self.BottomRight:FadeIn(0.2, self.BottomRight:GetAlpha(), 1)
 		self.BottomRight.Bar:FadeIn(0.2, self.BottomRight.Bar:GetAlpha(), 1)
-		SV.Events:Trigger("DOCKS_FADE_IN");
-		--PlaySoundFile([[sound\doodad\be_scryingorb_explode.ogg]])
+		SV.Events:Trigger("DOCK_RIGHT_FADE_IN");
 	end
 end 
 
 function Dock:ExitFade()
-	if SV.cache.Docks.IsFaded then
+	if SV.cache.Docks.LeftFaded then
 		self.BottomLeft:FadeOut(2, self.BottomLeft:GetAlpha(), 0)
 		self.BottomLeft.Bar:FadeOut(2, self.BottomLeft.Bar:GetAlpha(), 0)
+		SV.Events:Trigger("DOCK_LEFT_FADE_OUT");
+	end
+	if SV.cache.Docks.RightFaded then
 		self.BottomRight:FadeOut(2, self.BottomRight:GetAlpha(), 0)
 		self.BottomRight.Bar:FadeOut(2, self.BottomRight.Bar:GetAlpha(), 0)
-		SV.Events:Trigger("DOCKS_FADE_OUT");
-		--PlaySoundFile([[sound\doodad\be_scryingorb_explode.ogg]])
+		SV.Events:Trigger("DOCK_RIGHT_FADE_OUT");
 	end
 end
 --[[ 
@@ -669,7 +712,7 @@ local CreateBasicToolButton = function(self, displayName, texture, onclick, glob
 
 	button:ClearAllPoints()
 	button:SetSize(size, size)
-	button:SetStylePanel("Framed") 
+	button:SetStylePanel("HeavyButton") 
 	button.Icon:SetTexture(dockIcon)
 	button:SetAttribute("tipText", displayName)
 	button:SetAttribute("tipAnchor", self.Data.TipAnchor)
@@ -735,10 +778,8 @@ for location, settings in pairs(DOCK_LOCATIONS) do
 	};
 end
 
-local function SetSuperDockStyle(dock, isBottom)
+function Dock:SetSuperDockStyle(dock, isBottom)
 	if dock.backdrop then return end
-
-	local leftGradient = {}
 
 	local backdrop = CreateFrame("Frame", nil, dock)
 	backdrop:SetAllPoints(dock)
@@ -747,7 +788,12 @@ local function SetSuperDockStyle(dock, isBottom)
 	backdrop.bg = backdrop:CreateTexture(nil, "BORDER")
 	backdrop.bg:SetAllPointsIn(backdrop)
 	backdrop.bg:SetTexture(1, 1, 1, 1)
-	backdrop.bg:SetGradientAlpha("VERTICAL", 0, 0, 0, 0.8, 0, 0, 0, 0)
+	
+	if(isBottom) then
+		backdrop.bg:SetGradientAlpha("VERTICAL", 0, 0, 0, 0.8, 0, 0, 0, 0)
+	else
+		backdrop.bg:SetGradientAlpha("VERTICAL", 0, 0, 0, 0, 0, 0, 0, 0.8)
+	end
 
 	backdrop.left = backdrop:CreateTexture(nil, "OVERLAY")
 	backdrop.left:SetTexture(1, 1, 1, 1)
@@ -798,12 +844,16 @@ local function SetSuperDockStyle(dock, isBottom)
 	return backdrop 
 end
 
-local function InitDockButton(button)
+local function InitDockButton(button, location)
 	button:SetPanelColor("default")
 	button.Icon:SetGradient(unpack(SV.Media.gradient.icon))
 	button:SetScript("OnEnter", DockButton_OnEnter)
 	button:SetScript("OnLeave", DockletButton_OnLeave)
-	button:SetScript("OnClick", HideSuperDocks)
+	if(location == "BottomLeft") then
+		button:SetScript("OnClick", ToggleSuperDockLeft)
+	else
+		button:SetScript("OnClick", ToggleSuperDockRight)
+	end
 end
 
 local function BorderColorUpdates()
@@ -1007,8 +1057,16 @@ end
 function Dock:Initialize()
 	SV.cache.Docks = SV.cache.Docks	or {}
 
-	if(not SV.cache.Docks.IsFaded) then 
-		SV.cache.Docks.IsFaded = false
+	if(not SV.cache.Docks.AllFaded) then 
+		SV.cache.Docks.AllFaded = false
+	end
+
+	if(not SV.cache.Docks.LeftFaded) then 
+		SV.cache.Docks.LeftFaded = false
+	end
+
+	if(not SV.cache.Docks.RightFaded) then 
+		SV.cache.Docks.RightFaded = false
 	end
 
 	if(not SV.cache.Docks.Order) then 
@@ -1097,10 +1155,10 @@ function Dock:Initialize()
 
 		if(dock.Bar.Button) then
 	    	dock.Bar.Button:SetSize(buttonsize, buttonsize)
-	    	dock.Bar.Button:SetStylePanel("Framed") 
+	    	dock.Bar.Button:SetStylePanel("HeavyButton") 
 	    	dock.Bar.ToolBar:SetSize(1, buttonsize)
 	    	dock.Bar.ToolBar:SetPointToScale(barAnchor, dock.Bar.Button, barReverse, (spacing * mod), 0)
-	    	InitDockButton(dock.Bar.Button)
+	    	InitDockButton(dock.Bar.Button, location)
 	    else
 	    	dock.Bar.ToolBar:SetSize(1, buttonsize)
 	    	dock.Bar.ToolBar:SetPointToScale(barAnchor, dock.Bar, barAnchor, 0, 0)
@@ -1121,22 +1179,21 @@ function Dock:Initialize()
 	    dock.Window:SetSize(width, height)
 	    dock.Window:SetPoint(anchor, dock.Alert, reverse, 0, (4 * vertMod))
 
-	    SV.Mentalo:Add(dock.Bar, location .. " Dock ToolBar");
-
 		if(isBottom) then
-			dock.backdrop = SetSuperDockStyle(dock.Window, isBottom)
-			dock.Alert.backdrop = SetSuperDockStyle(dock.Alert, isBottom)
+			dock.backdrop = self:SetSuperDockStyle(dock.Window, isBottom)
+			dock.Alert.backdrop = self:SetSuperDockStyle(dock.Alert, isBottom)
 			dock.Alert.backdrop:Hide()
+			SV.Mentalo:Add(dock.Bar, location .. " Dock ToolBar");
+			SV.Mentalo:Add(dock, location .. " Dock Window")
 		end
-		
-		SV.Mentalo:Add(dock, location .. " Dock Window")
 	end
 
-	if SV.cache.Docks.IsFaded then Dock.BottomLeft:Hide() Dock.BottomRight:Hide() end
+	if SV.cache.Docks.LeftFaded then Dock.BottomLeft:Hide() end
+	if SV.cache.Docks.RightFaded then Dock.BottomRight:Hide() end
 
-	SV:AddToDisplayAudit(self.BottomRight.Window)
-	SV:AddToDisplayAudit(self.TopLeft)
-	SV:AddToDisplayAudit(self.TopRight)
+	SV:ManageVisibility(self.BottomRight.Window)
+	SV:ManageVisibility(self.TopLeft)
+	SV:ManageVisibility(self.TopRight)
 
 	if not InCombatLockdown() then 
 		self.BottomLeft.Bar:Refresh()

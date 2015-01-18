@@ -29,13 +29,33 @@ local oUF = oUF or ns.oUF
 assert(oUF, "oUF_AuraWatch cannot find an instance of oUF. If your oUF is embedded into a layout, it may not be embedded properly.")
 
 local UnitBuff, UnitDebuff, UnitGUID = UnitBuff, UnitDebuff, UnitGUID
-local GUIDs = {}
-
+local CACHED_GUIDS = {};
+local CACHED_IDS = {};
 local PLAYER_UNITS = {
 	player = true,
 	vehicle = true,
 	pet = true,
-}
+};
+local COUNT_OFFSETS = {
+	["TOPLEFT"] = {6, 1}, 
+	["TOPRIGHT"] = {-6, 1}, 
+	["BOTTOMLEFT"] = {6, 1}, 
+	["BOTTOMRIGHT"] = {-6, 1}, 
+	["LEFT"] = {6, 1}, 
+	["RIGHT"] = {-6, 1}, 
+	["TOP"] = {0, 0}, 
+	["BOTTOM"] = {0, 0}, 
+};
+local TEXT_OFFSETS = {
+	["TOPLEFT"] = {"LEFT", "RIGHT", -2, 0}, 
+	["TOPRIGHT"] = {"RIGHT", "LEFT", 2, 0}, 
+	["BOTTOMLEFT"] = {"LEFT", "RIGHT", -2, 0}, 
+	["BOTTOMRIGHT"] = {"RIGHT", "LEFT", 2, 0}, 
+	["LEFT"] = {"LEFT", "RIGHT", -2, 0}, 
+	["RIGHT"] = {"RIGHT", "LEFT", 2, 0}, 
+	["TOP"] = {"RIGHT", "LEFT", 2, 0}, 
+	["BOTTOM"] = {"RIGHT", "LEFT", 2, 0}, 
+};
 
 local setupGUID
 do 
@@ -43,8 +63,8 @@ do
 
 	local frame = CreateFrame"Frame"
 	frame:SetScript("OnEvent", function(self, event)
-		for k,t in pairs(GUIDs) do
-			GUIDs[k] = nil
+		for k,t in pairs(CACHED_GUIDS) do
+			CACHED_GUIDS[k] = nil
 			for a in pairs(t) do
 				t[a] = nil
 			end
@@ -61,7 +81,7 @@ do
 		else
 			t = {}
 		end
-		GUIDs[guid] = t
+		CACHED_GUIDS[guid] = t
 	end
 end
 
@@ -148,23 +168,23 @@ local function expireIcon(icon, frame)
 	end
 end
 
-local found = {}
-local function Update(frame, event, unit)
-	if frame.unit ~= unit or not unit then return end 
-	local watch = frame.AuraWatch
-	local index, icons = 1, watch.watched
-	local _, name, texture, count, duration, remaining, caster, key, icon, spellID
-	local filter = "HELPFUL"
+local Update = function(self, event, unit)
+	if self.unit ~= unit or not unit then return end 
+	local watch = self.AuraWatch
+	local index, watching = 1, watch.Active
+
 	local guid = UnitGUID(unit)
 	if not guid then return end
-	if not GUIDs[guid] then setupGUID(guid) end
+	if not CACHED_GUIDS[guid] then setupGUID(guid) end
 	
-	for key, icon in pairs(icons) do
-		if not icon.onlyShowMissing then
-			icon:Hide()
+	for _, aura in pairs(watching) do
+		if not aura.onlyShowMissing then
+			aura:Hide()
 		end
 	end
 	
+	local _, name, texture, count, duration, remaining, caster, key, aura, spellID;
+	local filter = "HELPFUL";
 	while true do
 		name, _, texture, count, _, duration, remaining, caster, _, _, spellID = UnitAura(unit, index, filter)
 		if not name then 
@@ -180,118 +200,277 @@ local function Update(frame, event, unit)
 			else
 				key = name..texture
 			end
-			icon = icons[key]
+			aura = watching[key]
 
-			if icon and (icon.anyUnit or (caster and icon.fromUnits and icon.fromUnits[caster])) then
-				resetIcon(icon, watch, count, duration, remaining)
-				GUIDs[guid][key] = true
-				found[key] = true
+			if aura and (aura.anyUnit or (caster and aura.fromUnits and aura.fromUnits[caster])) then
+				resetIcon(aura, watch, count, duration, remaining)
+				CACHED_GUIDS[guid][key] = true
+				CACHED_IDS[key] = true
 			end
 			index = index + 1
 		end
 	end
 	
-	for key in pairs(GUIDs[guid]) do
-		if icons[key] and not found[key] then
-			expireIcon(icons[key], watch)
+	for cacheKey in pairs(CACHED_GUIDS[guid]) do
+		if watching[cacheKey] and not CACHED_IDS[cacheKey] then
+			expireIcon(watching[cacheKey], watch)
 		end
 	end
 	
-	for k in pairs(found) do
-		found[k] = nil
+	for cacheKey in pairs(CACHED_IDS) do
+		CACHED_IDS[cacheKey] = nil
 	end
 end
 
-local function setupIcons(self)
-
-	local watch = self.AuraWatch
-	local icons = watch.icons
-	watch.watched = {}
+local UpdateIcons = function(self)
+	local auras = self.Cache
 	
-	for _,icon in pairs(icons) do
+	for _,aura in pairs(auras) do
 	
-		local name, _, image = GetSpellInfo(icon.spellID)
+		local name, _, image = GetSpellInfo(aura.spellID)
 
 		if name then
-			icon.name = name
+			aura.name = name
 		
-			if not icon.cd and not (watch.hideCooldown or icon.hideCooldown) then
-				local cd = CreateFrame("Cooldown", nil, icon, "CooldownFrameTemplate")
-				cd:SetAllPoints(icon)
-				icon.cd = cd
+			if not aura.cd and not (self.hideCooldown or aura.hideCooldown) then
+				local cd = CreateFrame("Cooldown", nil, aura, "CooldownFrameTemplate")
+				cd:SetAllPoints(aura)
+				aura.cd = cd
 			end
 
-			if not icon.icon then
-				local tex = icon:CreateTexture(nil, "BACKGROUND")
-				tex:SetAllPoints(icon)
+			if not aura.icon then
+				local tex = aura:CreateTexture(nil, "BACKGROUND")
+				tex:SetAllPoints(aura)
 				tex:SetTexture(image)
-				icon.icon = tex
-				if not icon.overlay then
-					local overlay = icon:CreateTexture(nil, "OVERLAY")
+				aura.icon = tex
+				if not aura.overlay then
+					local overlay = aura:CreateTexture(nil, "OVERLAY")
 					overlay:SetTexture"Interface\\Buttons\\UI-Debuff-Overlays"
-					overlay:SetAllPoints(icon)
+					overlay:SetAllPoints(aura)
 					overlay:SetTexCoord(.296875, .5703125, 0, .515625)
 					overlay:SetVertexColor(1, 0, 0)
-					icon.overlay = overlay
+					aura.overlay = overlay
 				end
 			end
 
-			if not icon.count and not (watch.hideCount or icon.hideCount) then
-				local count = icon:CreateFontString(nil, "OVERLAY")
+			if not aura.count and not (self.hideCount or aura.hideCount) then
+				local count = aura:CreateFontString(nil, "OVERLAY")
 				count:SetFontObject(NumberFontNormal)
-				count:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", -1, 0)
-				icon.count = count
+				count:SetPoint("BOTTOMRIGHT", aura, "BOTTOMRIGHT", -1, 0)
+				aura.count = count
 			end
 
-			if icon.onlyShowMissing == nil then
-				icon.onlyShowMissing = watch.onlyShowMissing
+			if aura.onlyShowMissing == nil then
+				aura.onlyShowMissing = self.onlyShowMissing
 			end
-			if icon.onlyShowPresent == nil then
-				icon.onlyShowPresent = watch.onlyShowPresent
+			if aura.onlyShowPresent == nil then
+				aura.onlyShowPresent = self.onlyShowPresent
 			end
-			if icon.presentAlpha == nil then
-				icon.presentAlpha = watch.presentAlpha
+			if aura.presentAlpha == nil then
+				aura.presentAlpha = self.presentAlpha
 			end
-			if icon.missingAlpha == nil then
-				icon.missingAlpha = watch.missingAlpha
+			if aura.missingAlpha == nil then
+				aura.missingAlpha = self.missingAlpha
 			end		
-			if icon.fromUnits == nil then
-				icon.fromUnits = watch.fromUnits or PLAYER_UNITS
+			if aura.fromUnits == nil then
+				aura.fromUnits = self.fromUnits or PLAYER_UNITS
 			end
-			if icon.anyUnit == nil then
-				icon.anyUnit = watch.anyUnit
+			if aura.anyUnit == nil then
+				aura.anyUnit = self.anyUnit
 			end
 			
-			if watch.strictMatching then
-				watch.watched[icon.spellID] = icon
+			if self.strictMatching then
+				self.Active[aura.spellID] = aura
 			else
-				watch.watched[name..image] = icon
+				self.Active[name..image] = aura
 			end
 
-			if watch.PostCreateIcon then watch:PostCreateIcon(icon, icon.spellID, name, self) end
-		else
-			print("oUF_AuraWatch error: no spell with "..tostring(icon.spellID).." spell ID exists")
+			if self.PostCreateIcon then self:PostCreateIcon(aura, aura.spellID, name, self) end
+		--else
+			--print("oUF_AuraWatch error: no spell with "..tostring(aura.spellID).." spell ID exists")
 		end
 	end
 end
 
-local function Enable(self)
-	if self.AuraWatch then
-		self.AuraWatch.Update = setupIcons
+local ForceUpdate = function(self)
+	if self.PreForcedUpdate then self:PreForcedUpdate() end
+	local frame = self:GetParent()
+
+	if(not self.watchEnabled) then
+		self:Hide();
+		return;
+	else
+		self:Show();
+	end
+	
+	local watchsize = self.watchSize;
+	local watchfilter = self.watchFilter;
+
+	if(watchfilter) then
+		if self.Cache then 
+			for i = 1, #self.Cache do 
+				local iconTest = false;
+				for id, data in pairs(watchfilter) do 
+					if(data.id and (data.id == self.Cache[i])) then 
+						iconTest = true;
+						break 
+					end 
+				end 
+				if not iconTest then 
+					self.Cache[i]:Hide()
+					self.Cache[i] = nil 
+				end 
+			end 
+		end
+
+		for stringID, data in pairs(watchfilter) do
+			local id = data.id;
+			local buffName, _, buffTexture = GetSpellInfo(id)
+			if buffName then 
+				local aura;
+				if not self.Cache[id] then 
+					aura = CreateFrame("Frame", nil, self)
+				else 
+					aura = self.Cache[id]
+				end 
+				aura.name = buffName;
+				aura.image = buffTexture;
+				aura.spellID = id;
+				aura.anyUnit = data.anyUnit;
+				aura.style = data.style or "NONE";
+				aura.onlyShowMissing = data.onlyShowMissing;
+				aura.presentAlpha = aura.onlyShowMissing and 0 or 1;
+				aura.missingAlpha = aura.onlyShowMissing and 1 or 0;
+				aura.textThreshold = data.textThreshold or -1;
+				aura.displayText = data.displayText;
+				aura:SetWidthToScale(watchsize)
+				aura:SetHeightToScale(watchsize)
+				aura:ClearAllPoints()
+
+				aura:SetPoint(data.point, frame.Health, data.point, data.xOffset, data.yOffset)
+				if not aura.icon then 
+					aura.icon = aura:CreateTexture(nil, "BORDER")
+					aura.icon:SetAllPoints(aura)
+				end  
+				if not aura.border then 
+					aura.border = aura:CreateTexture(nil, "BACKGROUND")
+					aura.border:SetPointToScale("TOPLEFT", -1, 1)
+					aura.border:SetPointToScale("BOTTOMRIGHT", 1, -1)
+					aura.border:SetTexture([[Interface\BUTTONS\WHITE8X8]])
+					aura.border:SetVertexColor(0, 0, 0)
+				end 
+				if not aura.cd then 
+					aura.cd = CreateFrame("Cooldown", nil, aura, "CooldownFrameTemplate")
+					aura.cd:SetAllPoints(aura)
+					aura.cd:SetReverse(true)
+					aura.cd:SetHideCountdownNumbers(true)
+					aura.cd:SetFrameLevel(aura:GetFrameLevel())
+				end
+				if not aura.grip then 
+					aura.grip = CreateFrame("Frame", nil, aura);
+					aura.grip:SetAllPoints(aura);
+				end
+				if not aura.text then 
+					aura.text = aura.grip:CreateFontString(nil, "BORDER");
+					aura.text:SetFontObject(NumberFontNormal);
+				end
+				if not aura.count then 
+					aura.count = aura.grip:CreateFontString(nil, "OVERLAY");
+					aura.count:SetFontObject(NumberFontNormal);
+				end
+
+				if(aura.style == "coloredIcon") then 
+					aura.icon:SetTexture([[Interface\BUTTONS\WHITE8X8]])
+					if(data.color) then 
+						aura.icon:SetVertexColor(data.color.r, data.color.g, data.color.b)
+					else 
+						aura.icon:SetVertexColor(0.8, 0.8, 0.8)
+					end 
+					aura.icon:Show()
+					aura.border:Show()
+					aura.cd:SetAlpha(1)
+				elseif(aura.style == "texturedIcon") then 
+					aura.icon:SetVertexColor(1, 1, 1)
+					aura.icon:SetTexCoord(.18, .82, .18, .82)
+					aura.icon:SetTexture(aura.image)
+					aura.icon:Show()
+					aura.border:Show()
+					aura.cd:SetAlpha(1)
+				else 
+					aura.border:Hide()
+					aura.icon:Hide()
+					aura.cd:SetAlpha(0)
+				end
+
+				if aura.displayText then 
+					aura.text:Show()
+					local r, g, b = 1, 1, 1;
+					if(data.textColor) then 
+						r, g, b = data.textColor.r, data.textColor.g, data.textColor.b
+					end 
+					aura.text:SetTextColor(r, g, b)
+				else 
+					aura.text:Hide()
+				end 
+
+				aura.text:ClearAllPoints();
+				aura.text:SetPoint(data.point, aura, data.point);
+				aura.count:ClearAllPoints()
+				if aura.displayText then 
+					local anchor, relative, x, y = unpack(TEXT_OFFSETS[data.point])
+					aura.count:SetPoint(anchor, aura.text, relative, x, y)
+				else 
+					aura.count:SetPoint("CENTER", unpack(COUNT_OFFSETS[data.point]))
+				end
+
+				if(not data.enable) then 
+					self.Cache[id] = nil;
+					if self.Active then 
+						self.Active[id] = nil 
+					end 
+					aura:Hide()
+					aura = nil 
+				else
+					self.Cache[id] = aura;
+					if self.Active then 
+						self.Active[id] = aura 
+					end
+				end 
+			end
+		end
+	end
+	self:UpdateIcons()
+end 
+
+local Enable = function(self)
+	local watch = self.AuraWatch;
+	if watch then
+		watch.__owner = self
+		watch.UpdateIcons = UpdateIcons
+		watch.ForceUpdate = ForceUpdate
+		watch.Cache = {}
+		watch.Active = {}
+
 		self:RegisterEvent("UNIT_AURA", Update)
-		setupIcons(self)
+
+		watch:ForceUpdate()
+
 		return true
 	else
 		return false
 	end
 end
 
-local function Disable(self)
-	if self.AuraWatch then
+local Disable = function(self)
+	local watch = self.AuraWatch;
+	if watch then
+
 		self:UnregisterEvent("UNIT_AURA", Update)
-		for _,icon in pairs(self.AuraWatch.icons) do
+
+		for _,icon in pairs(watch.Cache) do
 			icon:Hide()
 		end
 	end
 end
+
 oUF:AddElement("AuraWatch", Update, Enable, Disable)

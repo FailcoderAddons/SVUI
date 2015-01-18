@@ -34,7 +34,7 @@ local function TaxiStyle()
 
 	PLUGIN:ApplyWindowStyle(TaxiFrame)
 	
-	--TaxiRouteMap:SetStylePanel("Default", "Blackout")
+	--TaxiRouteMap:SetStylePanel("Frame", "Blackout")
 	--TaxiRouteMap.Panel:SetAllPointsOut(TaxiRouteMap, 4, 4)
 	
 	PLUGIN:ApplyCloseButtonStyle(TaxiFrame.CloseButton)

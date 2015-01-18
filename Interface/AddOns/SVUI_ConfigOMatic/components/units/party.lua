@@ -126,7 +126,7 @@ SV.Options.args.SVUnit.args.commonGroup.args.party = {
 									set = function(key, value) 
 										MOD:ChangeDBVar(value, key[#key], "party", "grid"); 
 										MOD:SetGroupFrame("party", true);
-										SV.Options.args.SVUnit.args.commonGroup.args.party.args.tabGroups.args.general.args.layoutGroup.args.sizing = ns:SetSizeConfigGroup(value, "party");
+										SV.Options.args.SVUnit.args.commonGroup.args.party.args.general.args.layoutGroup.args.sizing = ns:SetSizeConfigGroup(value, "party");
 									end,
 								},
 								invertGroupingOrder = {

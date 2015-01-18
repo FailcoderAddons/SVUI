@@ -64,7 +64,12 @@ Dock.DataHolders = {};
 Dock.DataTypes = {};
 Dock.DataTooltip = CreateFrame("GameTooltip", "SVUI_DataTooltip", UIParent, "GameTooltipTemplate");
 
-local PVP_STAT_ORDER = {"Honor", "Kills", "Assists", "Damage", "Healing", "Deaths"};
+Dock.BGHolders = {};
+local PVP_STAT_ORDER = {
+	{"Honor", "Kills", "Assists"}, 
+	{"Damage", "Healing", "Deaths"}
+};
+
 local PVP_STAT_LOOKUP = {
 	["Name"] = {1, NAME}, 
 	["Kills"] = {2, KILLS},
@@ -254,7 +259,7 @@ local function GetDataSlot(parent, index)
 		slot.text = slot.textframe:CreateFontString(nil, "OVERLAY", nil, 7)
 		slot.text:SetAllPoints()
 
-		slot.text:FontManager("data")
+		SV:FontManager(slot.text, "data")
 		if(SV.db.Dock.dataBackdrop) then
 			slot.text:SetShadowColor(0, 0, 0, 0.5)
 			slot.text:SetShadowOffset(2, -4)
@@ -272,7 +277,7 @@ local function GetDataSlot(parent, index)
 	return parent.Stats.Slots[index];
 end 
 
-function Dock:NewDataHolder(parent, maxCount, tipAnchor, isTop, customTemplate, isVertical, bgEnabled)
+function Dock:NewDataHolder(parent, maxCount, tipAnchor, pvpSet, customTemplate, isVertical)
 	DIRTY_LIST = true
 
 	local parentName = parent:GetName();
@@ -282,7 +287,10 @@ function Dock:NewDataHolder(parent, maxCount, tipAnchor, isTop, customTemplate, 
 	parent.Stats.Slots = {};
 	parent.Stats.Orientation = isVertical and "VERTICAL" or "HORIZONTAL";
 	parent.Stats.TooltipAnchor = tipAnchor or "ANCHOR_CURSOR";
-	parent.Stats.BGEnabled = bgEnabled or false;
+	if(pvpSet) then
+		parent.Stats.BGStats = pvpSet;
+		Dock.BGHolders[pvpSet] = parentName;
+	end
 
 	local point1, point2, x, y = "LEFT", "RIGHT", 4, 0;
 	if(isVertical) then
@@ -290,13 +298,13 @@ function Dock:NewDataHolder(parent, maxCount, tipAnchor, isTop, customTemplate, 
 	end
 
 	if(customTemplate) then
-		parent.Stats.templateType = "Fixed"
+		parent.Stats.templateType = "!_Frame"
 		parent.Stats.templateName = customTemplate
 		parent.Stats.textStrata = "LOW"
 	else
-		parent.Stats.templateType = "Framed"
-		parent.Stats.templateName = isTop and "FramedTop" or "FramedBottom"
-		parent.Stats.textStrata = "MEDIUM"
+		parent.Stats.templateType = "HeavyButton";
+		parent.Stats.templateName = "Heavy";
+		parent.Stats.textStrata = "MEDIUM";
 	end
 
 	for i = 1, maxCount do
@@ -394,11 +402,8 @@ do
 
 	local BG_OnUpdate = function(self)
 		local scoreString;
-		local parentName = self:GetParent():GetName();
-		local key = self.SlotKey
-		local lookup = PVP_STAT_ORDER[key]
-		local scoreindex = PVP_STAT_LOOKUP[lookup][1]
-		local scoreType = PVP_STAT_LOOKUP[lookup][2]
+		local scoreindex = self.scoreindex;
+		local scoreType = self.scoretype;
 		local scoreCount = GetNumBattlefieldScores()
 		for i = 1, scoreCount do
 			SCORE_CACHE = {GetBattlefieldScore(i)}
@@ -474,9 +479,9 @@ do
 			local numPoints = #slots;
 			for i = 1, numPoints do 
 				local subList = twipe(slots[i].MenuList)
-				tinsert(subList,{text = NONE, func = function() Dock:ChangeDBVar("", i, "dataHolders", place); Dock:UpdateDataSlots() end});
+				tinsert(subList,{text = NONE, func = function() Dock:ChangeDBVar("", i, "statSlots", place); Dock:UpdateDataSlots() end});
 				for _,name in pairs(statMenu) do
-					tinsert(subList,{text = name, func = function() Dock:ChangeDBVar(name, i, "dataHolders", place); Dock:UpdateDataSlots() end});
+					tinsert(subList,{text = name, func = function() Dock:ChangeDBVar(name, i, "statSlots", place); Dock:UpdateDataSlots() end});
 				end
 			end
 		end
@@ -496,9 +501,11 @@ do
 		for place, parent in pairs(anchorTable) do
 			local slots = parent.Stats.Slots;
 			local numPoints = #slots;
+			local pvpIndex = parent.Stats.BGStats;
+			local pvpSwitch = (allowPvP and pvpIndex and (Dock.BGHolders[pvpIndex] == parent:GetName()))
 
 			for i = 1, numPoints do
-				local pvpTable = (allowPvP and parent.Stats.BGEnabled) and PVP_STAT_ORDER[i]
+				local pvpTable = (pvpSwitch and PVP_STAT_ORDER[pvpIndex]) and PVP_STAT_ORDER[pvpIndex][i]
 				local slot = slots[i];
 
 				slot:UnregisterAllEvents()
@@ -521,7 +528,9 @@ do
 
 				slot:Hide()
 
-				if(pvpTable and ((instance and groupType == "pvp") or parent.lockedOpen)) then 
+				if(pvpTable and ((instance and groupType == "pvp") or parent.lockedOpen)) then
+					slot.scoreindex = PVP_STAT_LOOKUP[pvpTable][1]
+					slot.scoretype = PVP_STAT_LOOKUP[pvpTable][2]
 					slot:RegisterEvent("UPDATE_BATTLEFIELD_SCORE")
 					slot:SetScript("OnEvent", BG_OnUpdate)
 					slot:SetScript("OnEnter", BG_OnEnter)
@@ -533,7 +542,7 @@ do
 					slot:Show()
 				else 
 					for name, config in pairs(statTable) do
-						for panelName, panelData in pairs(db.dataHolders) do 
+						for panelName, panelData in pairs(db.statSlots) do 
 							if(panelData and type(panelData) == "table") then 
 								if(panelName == place and panelData[i] and panelData[i] == name) then 
 									_load(slot, name, config)
@@ -567,17 +576,24 @@ end
 
 function Dock:RefreshStats()
 	local centerWidth = SV.db.Dock.dockCenterWidth;
-	local centerHeight = SV.db.Dock.dockCenterHeight;
+	local dockWidth = centerWidth * 0.5;
+	local dockHeight = SV.db.Dock.dockCenterHeight;
 
-	self.BottomCenter:SetSize(centerWidth, centerHeight);
-	self.TopCenter:SetSize(centerWidth, centerHeight);
+	self.BottomCenter:SetWidth(centerWidth);
+	self.BottomCenter.Left:SetSize(dockWidth, dockHeight);
+	self.BottomCenter.Right:SetSize(dockWidth, dockHeight);
+
+	self.TopCenter:SetWidth(centerWidth);
+	self.TopCenter.Left:SetSize(dockWidth, dockHeight);
+	self.TopCenter.Right:SetSize(dockWidth, dockHeight);
 
 	self:UpdateDataSlots();
 end 
 
 function Dock:InitializeStats()
 	local centerWidth = SV.db.Dock.dockCenterWidth;
-	local centerHeight = SV.db.Dock.dockCenterHeight;
+	local dockWidth = centerWidth * 0.5;
+	local dockHeight = SV.db.Dock.dockCenterHeight;
 
 	hexHighlight = SV:HexColor("highlight") or "FFFFFF"
 	local hexClass = classColor.colorStr
@@ -590,20 +606,49 @@ function Dock:InitializeStats()
 	--BOTTOM CENTER BAR
 	self.BottomCenter:SetParent(SV.Screen)
 	self.BottomCenter:ClearAllPoints()
-	self.BottomCenter:SetSize(centerWidth, centerHeight)
+	self.BottomCenter:SetSize(centerWidth, 1)
 	self.BottomCenter:SetPoint("BOTTOM", SV.Screen, "BOTTOM", 0, 0)
-	SV.Mentalo:Add(self.BottomCenter, L["Bottom Data Dock"])
-	self:NewDataHolder(self.BottomCenter, 6, "ANCHOR_CURSOR")
-	--SV:AddToDisplayAudit(self.BottomCenter)
+
+	local bottomLeft = CreateFrame("Frame", "SVUI_StatDockBottomLeft", self.BottomCenter)
+	bottomLeft:SetSize(dockWidth, dockHeight)
+	bottomLeft:SetPoint("BOTTOMLEFT", self.BottomCenter, "BOTTOMLEFT", 0, 0)
+	SV.Mentalo:Add(bottomLeft, L["Data Dock 1"])
+	self:NewDataHolder(bottomLeft, 3, "ANCHOR_CURSOR")
+
+	local bottomRight = CreateFrame("Frame", "SVUI_StatDockBottomRight", self.BottomCenter)
+	bottomRight:SetSize(dockWidth, dockHeight)
+	bottomRight:SetPoint("BOTTOMRIGHT", self.BottomCenter, "BOTTOMRIGHT", 0, 0)
+	SV.Mentalo:Add(bottomRight, L["Data Dock 2"])
+	self:NewDataHolder(bottomRight, 3, "ANCHOR_CURSOR")
+	--SV:ManageVisibility(self.BottomCenter)
 
 	--TOP CENTER BAR
 	self.TopCenter:SetParent(SV.Screen)
 	self.TopCenter:ClearAllPoints()
-	self.TopCenter:SetSize(centerWidth, centerHeight)
+	self.TopCenter:SetSize(centerWidth, 1)
 	self.TopCenter:SetPoint("TOP", SV.Screen, "TOP", 0, 0)
-	SV.Mentalo:Add(self.TopCenter, L["Top Data Dock"])
-	self:NewDataHolder(self.TopCenter, 6, "ANCHOR_CURSOR")
-	SV:AddToDisplayAudit(self.TopCenter)
+
+	local topLeft = CreateFrame("Frame", "SVUI_StatDockTopLeft", self.TopCenter)
+	topLeft:SetSize(dockWidth, dockHeight)
+	topLeft:SetPoint("TOPLEFT", self.TopCenter, "TOPLEFT", 0, 0)
+
+	SV.Mentalo:Add(topLeft, L["Data Dock 3"])
+	self:NewDataHolder(topLeft, 3, "ANCHOR_CURSOR", 1)
+
+	local topRight = CreateFrame("Frame", "SVUI_StatDockTopRight", self.TopCenter)
+	topRight:SetSize(dockWidth, dockHeight)
+	topRight:SetPoint("TOPRIGHT", self.TopCenter, "TOPRIGHT", 0, 0)
+
+	SV.Mentalo:Add(topRight, L["Data Dock 4"])
+	self:NewDataHolder(topRight, 3, "ANCHOR_CURSOR", 2)
+
+
+	self.BottomCenter.Left = bottomLeft;
+	self.BottomCenter.Right = bottomRight;
+	self.TopCenter.Left = topLeft;
+	self.TopCenter.Right = topRight;
+
+	SV:ManageVisibility(self.TopCenter)
 	
 	-- self.DataTooltip:SetParent(SV.Screen)
 	self.DataTooltip:SetFrameStrata("DIALOG")

@@ -50,24 +50,41 @@ if(not MOD) then return end
 LOCALS
 ##########################################################
 ]]--
-local runeTextures = {
-	[[Interface\Addons\SVUI\assets\artwork\Unitframe\Class\DEATHKNIGHT-BLOOD]],
-	[[Interface\Addons\SVUI\assets\artwork\Unitframe\Class\DEATHKNIGHT-BLOOD]],
-	[[Interface\Addons\SVUI\assets\artwork\Unitframe\Class\DEATHKNIGHT-FROST]],
-	[[Interface\Addons\SVUI\assets\artwork\Unitframe\Class\DEATHKNIGHT-FROST]],
-	[[Interface\Addons\SVUI\assets\artwork\Unitframe\Class\DEATHKNIGHT-UNHOLY]],
-	[[Interface\Addons\SVUI\assets\artwork\Unitframe\Class\DEATHKNIGHT-UNHOLY]]
+SV.SpecialFX:Register("rune_blood", [[Spells\Monk_drunkenhaze_impact.m2]], 0, 0, 0, 0, 0.00001, 0, 0.3)
+SV.SpecialFX:Register("rune_frost", [[Spells\Ice_cast_low_hand.m2]], 0, 0, 0, 0, 0.00001, -0.2, 0.4)
+SV.SpecialFX:Register("rune_unholy", [[Spells\Poison_impactdot_med_chest.m2]], 0, 0, 0, 0, 0.13, -0.3, -0.2)
+SV.SpecialFX:Register("rune_death", [[Spells\Shadow_strikes_state_hand.m2]], 0, 0, 0, 0, 0.001, 0, -0.25)
+local specEffects = { 
+	[1] = "rune_blood", 
+	[2] = "rune_blood", 
+	[3] = "rune_frost",
+	[4] = "rune_frost", 
+	[5] = "rune_unholy", 
+	[6] = "rune_unholy",
 };
+local colors = {
+	{0.75, 0, 0},   -- blood
+	{0.1, 0.75, 0},  -- unholy
+	{0, 0.5, 0.75},   -- frost
+	{0.5, 0, 1}, -- death
+};
+local RUNE_FG = [[Interface\AddOns\SVUI\assets\artwork\Unitframe\Class\RUNES-FG]];
+local RUNE_BG = [[Interface\AddOns\SVUI\assets\artwork\Unitframe\Class\RUNES-BG]];
 --[[ 
 ########################################################## 
 POSITIONING
 ##########################################################
 ]]--
+local OnMove = function()
+	SV.db.SVUnit.player.classbar.detachFromFrame = true
+end
+
 local Reposition = function(self)
 	local db = SV.db.SVUnit.player
-	local bar = self.Runes;
+	local bar = self.Necromancy;
 	local max = self.MaxClassPower;
 	local size = db.classbar.height
+	local inset = size * 0.1
 	local width = size * max;
 	
 	bar.Holder:SetSizeToScale(width, size)
@@ -83,17 +100,18 @@ local Reposition = function(self)
     bar:SetAllPoints(bar.Holder)
 	for i = 1, max do
 		bar[i]:ClearAllPoints()
-		bar[i]:SetHeight(size)
+		bar[i]:SetHeight(size + 4)
 		bar[i]:SetWidth(size)
-		bar[i]:GetStatusBarTexture():SetHorizTile(false)
+		bar[i].bar:GetStatusBarTexture():SetHorizTile(false)
 		if i==1 then 
-			bar[i]:SetPoint("TOPLEFT", bar, "TOPLEFT", 0, 0)
-		elseif i == 2 then
-			bar[i]:SetPointToScale("LEFT", bar[1], "RIGHT", -6, 0) 
+			bar[i]:SetPoint("TOPLEFT", bar, "TOPLEFT", 0, 1)
 		else 
-			bar[i]:SetPointToScale("LEFT", bar[i - 1], "RIGHT", -2, 0) 
+			bar[i]:SetPointToScale("LEFT", bar[i - 1], "RIGHT", -6, 0) 
 		end
+		bar[i].bar:ClearAllPoints()
+		bar[i].bar:SetAllPointsIn(bgFrame,inset,inset)
 	end
+
 	if bar.UpdateAllRuneTypes then 
 		bar.UpdateAllRuneTypes(self)
 	end
@@ -103,32 +121,63 @@ end
 DEATHKNIGHT
 ##########################################################
 ]]--
+local RuneChange = function(self, runeType)
+	if(runeType and runeType == 4) then
+		self.FX:SetEffect("rune_death")
+	else
+		self.FX:SetEffect(specEffects[self.effectIndex])
+	end
+end
+
 function MOD:CreateClassBar(playerFrame)
 	local max = 6
 	local bar = CreateFrame("Frame", nil, playerFrame)
 	bar:SetFrameLevel(playerFrame.TextGrip:GetFrameLevel() + 30)
-	for i=1, max do 
-		local graphic = runeTextures[i]
-		bar[i] = CreateFrame("StatusBar", nil, bar)
-		bar[i].noupdate = true;
-		bar[i]:SetStatusBarTexture(graphic)
-		bar[i]:GetStatusBarTexture():SetHorizTile(false)
-		bar[i]:SetOrientation("VERTICAL")
-		bar[i].bg = bar[i]:CreateTexture(nil,'BORDER')
-		bar[i].bg:SetAllPoints()
-		bar[i].bg:SetTexture(graphic)
-		bar[i].bg:SetAlpha(0.5)
-		bar[i].bg.multiplier = 0.1 
+	for i=1, max do
+		local color = colors[i]
+		local rune = CreateFrame("Frame", nil, bar)
+		rune:SetFrameStrata("BACKGROUND")
+		rune:SetFrameLevel(0)
+
+		local bgFrame = CreateFrame("Frame", nil, rune)
+		bgFrame:SetAllPointsIn(rune)
+
+		local bgTexture = bgFrame:CreateTexture(nil, "BORDER")
+		bgTexture:SetAllPoints(bgFrame)
+		bgTexture:SetTexture(RUNE_BG)
+		bgTexture:SetGradientAlpha("VERTICAL",colors[1],colors[2],colors[3],0.75,0,0,0,0.25)
+
+	    rune.bar = CreateFrame("StatusBar", nil, bgFrame)
+		rune.bar.noupdate = true;
+		rune.bar:SetAllPointsIn(bgFrame,4,4)
+		rune.bar:SetOrientation("HORIZONTAL")
+		rune.bar:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Bars\DEFAULT]])
+
+		local fgFrame = CreateFrame("Frame", nil, rune.bar)
+		fgFrame:SetAllPoints(bgFrame)
+
+		local fgTexture = fgFrame:CreateTexture(nil, "OVERLAY")
+		fgTexture:SetAllPoints(fgFrame)
+		fgTexture:SetTexture(RUNE_FG)
+		fgTexture:SetVertexColor(0.25,0.25,0.25)
+
+		local effectName = specEffects[i]
+		SV.SpecialFX:SetFXFrame(rune.bar, effectName)
+
+		bar[i] = rune;
+		bar[i].bar.effectIndex = i;
+		bar[i].bar.Change = RuneChange;
+		bar[i].bar:SetOrientation("VERTICAL");
 	end 
 	
 	local classBarHolder = CreateFrame("Frame", "Player_ClassBar", bar)
 	classBarHolder:SetPointToScale("TOPLEFT", playerFrame, "BOTTOMLEFT", 0, -2)
 	bar:SetPoint("TOPLEFT", classBarHolder, "TOPLEFT", 0, 0)
 	bar.Holder = classBarHolder
-	SV.Mentalo:Add(bar.Holder, L["Classbar"])
+	SV.Mentalo:Add(bar.Holder, L["Classbar"], nil, OnMove)
 
 	playerFrame.MaxClassPower = max;
 	playerFrame.ClassBarRefresh = Reposition;
-	playerFrame.Runes = bar
-	return 'Runes' 
+	playerFrame.Necromancy = bar
+	return 'Necromancy' 
 end 

@@ -137,7 +137,7 @@ local function AbilityButtonHelper(index)
 		end
 
 		button:RemoveTextures()
-		button:SetStylePanel("Default", "Slot", true, 2, 0, 0)
+		button:SetStylePanel("Frame", "Slot", true, 2, 0, 0)
 
 		if(button.iconTexture) then
 			button.iconTexture:SetTexCoord(0.1, 0.9, 0.1, 0.9)
@@ -173,7 +173,7 @@ local ButtonUpdateHelper = function(self)
 		end
 
 		self:RemoveTextures() 
-		self:SetStylePanel("Default", "Slot", true, 2, 0, 0)
+		self:SetStylePanel("Frame", "Slot", true, 2, 0, 0)
 
 		if(icon) then
 			icon:SetTexture(iconTex)
@@ -213,7 +213,7 @@ local function SpellBookStyle()
 
 	if(SpellBookFrameInset) then 
 		SpellBookFrameInset:RemoveTextures()
-		SpellBookFrameInset:SetStylePanel("Fixed", "Inset", true, 6)
+		SpellBookFrameInset:SetStylePanel("!_Frame", "Inset", true, 6)
 	end
 	if(SpellBookSpellIconsFrame) then SpellBookSpellIconsFrame:RemoveTextures() end
 	if(SpellBookSideTabsFrame) then SpellBookSideTabsFrame:RemoveTextures() end
@@ -283,7 +283,7 @@ local function SpellBookStyle()
 				buttonTex:SetAllPointsIn()
 				button:SetFrameLevel(button:GetFrameLevel() + 2)
 				if not button.Panel then
-					button:SetStylePanel("Default", "Inset", false, 3, 3, 3)
+					button:SetStylePanel("Frame", "Inset", false, 3, 3, 3)
 					button.Panel:SetAllPoints()
 				end 
 			end
@@ -304,7 +304,7 @@ local function SpellBookStyle()
 			bar:SetHeight(12)
 			bar:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Bars\DEFAULT]])
 			bar:SetStatusBarColor(0, 220/255, 0)
-			bar:SetStylePanel("Default", "Default")
+			bar:SetStylePanel("Frame", "Default")
 			bar.rankText:ClearAllPoints()
 			bar.rankText:SetPoint("CENTER")
 		end

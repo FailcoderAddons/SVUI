@@ -30,10 +30,10 @@ ITEMSOCKETING PLUGINR
 local function ItemSocketStyle()
 	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.socket ~= true then return end 
 	ItemSocketingFrame:RemoveTextures()
-	ItemSocketingFrame:SetStylePanel("Default", "Action")
+	ItemSocketingFrame:SetStylePanel("Frame", "Composite2")
 	ItemSocketingFrameInset:Die()
 	ItemSocketingScrollFrame:RemoveTextures()
-	ItemSocketingScrollFrame:SetStylePanel("Default", "Inset", true)
+	ItemSocketingScrollFrame:SetStylePanel("Frame", "Inset", true)
 	PLUGIN:ApplyScrollFrameStyle(ItemSocketingScrollFrameScrollBar, 2)
 	for j = 1, MAX_NUM_SOCKETS do 
 		local i = _G[("ItemSocketingSocket%d"):format(j)];
@@ -42,7 +42,7 @@ local function ItemSocketStyle()
 		local E = _G[("ItemSocketingSocket%dIconTexture"):format(j)];
 		i:RemoveTextures()
 		i:SetStylePanel("Button")
-		i:SetStylePanel("Fixed", "Button", true)
+		i:SetStylePanel("!_Frame", "Button", true)
 		C:Die()
 		D:Die()
 		E:SetTexCoord(0.1, 0.9, 0.1, 0.9)

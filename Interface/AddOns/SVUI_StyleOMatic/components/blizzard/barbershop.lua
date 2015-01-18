@@ -40,7 +40,7 @@ local function BarberShopStyle()
 	end
 
 	BarberShopFrame:RemoveTextures()
-	BarberShopFrame:SetStylePanel("Default", "Halftone")
+	BarberShopFrame:SetStylePanel("Frame", "Composite1")
 	BarberShopFrame:SetSizeToScale(BarberShopFrame:GetWidth()-30, BarberShopFrame:GetHeight()-56)
 
 	local lastframe;
@@ -65,7 +65,7 @@ local function BarberShopStyle()
 	end
 
 	BarberShopFrameMoneyFrame:RemoveTextures()
-	BarberShopFrameMoneyFrame:SetStylePanel("Default", "Inset")
+	BarberShopFrameMoneyFrame:SetStylePanel("Frame", "Inset")
 	BarberShopFrameMoneyFrame:SetPointToScale("TOP", lastframe, "BOTTOM", 0, -10)
 
 	BarberShopFrameBackground:Die()
@@ -75,7 +75,7 @@ local function BarberShopStyle()
 	BarberShopAltFormFrameBorder:RemoveTextures()
 	BarberShopAltFormFrame:SetPointToScale("BOTTOM", BarberShopFrame, "TOP", 0, 5)
 	BarberShopAltFormFrame:RemoveTextures()
-	BarberShopAltFormFrame:SetStylePanel("Default", "Action")
+	BarberShopAltFormFrame:SetStylePanel("Frame", "Composite2")
 
 	BarberShopFrameResetButton:ClearAllPoints()
 	BarberShopFrameResetButton:SetPointToScale("BOTTOM", BarberShopFrame.Panel, "BOTTOM", 0, 4)

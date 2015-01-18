@@ -87,7 +87,7 @@ SV.SystemAlert["FAILED_UISCALE"] = {
 	text = L["You have changed your UIScale, however you still have the AutoScale option enabled in SVUI. Press accept if you would like to disable the Auto Scale option."], 
 	button1 = ACCEPT, 
 	button2 = CANCEL, 
-	OnAccept = function() SV.db.general.autoScale = false; ReloadUI(); end,
+	OnAccept = function() SV.db.screen.autoScale = false; ReloadUI(); end,
 	OnCancel = function() ReloadUI() end,
 	timeout = 0, 
 	whileDead = 1, 	

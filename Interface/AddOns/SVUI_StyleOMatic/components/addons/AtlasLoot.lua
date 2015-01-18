@@ -141,7 +141,7 @@ local function StyleAtlasLoot(event, addon)
 	for _, button in pairs(buttons) do _G[button]:SetStylePanel("Button")end 
 
 	-- Manipulate the main frames
-	PLUGIN:ApplyFrameStyle(_G["AtlasLootDefaultFrame"], "Action");
+	PLUGIN:ApplyFrameStyle(_G["AtlasLootDefaultFrame"], "Composite2");
 	PLUGIN:ApplyFixedFrameStyle(_G["AtlasLootItemsFrame"], "Inset");
 	PLUGIN:ApplyFrameStyle(_G["AtlasLootPanel"], "Default");
 	hooksecurefunc(_G["AtlasLootPanel"], "SetPoint", _hook_ALPanel);

@@ -27,23 +27,48 @@ local Schema = PLUGIN.Schema;
 BLACKMARKET PLUGINR
 ##########################################################
 ]]--
+local function ChangeTab(tab)
+	tab.Left:SetAlpha(0)
+	if tab.Middle then 
+		tab.Middle:SetAlpha(0)
+	end 
+	tab.Right:SetAlpha(0)
+end
+
+local _hook_ScrollFrameUpdate = function()
+	local self = BlackMarketScrollFrame;
+	local buttons = self.buttons;
+	local offset = HybridScrollFrame_GetOffset(self)
+	local itemCount = C_BlackMarket.GetNumItems()
+	for i = 1, #buttons do 
+		local button = buttons[i];
+		if(button) then
+			local indexOffset = offset + i;
+			if(not button.Panel) then 
+				button:RemoveTextures()
+				button:SetStylePanel("Button")
+				PLUGIN:ApplyItemButtonStyle(button.Item)
+			end 
+			if indexOffset <= itemCount then 
+				local name, texture = C_BlackMarket.GetItemInfoByIndex(indexOffset)
+				if(name) then 
+					button.Item.IconTexture:SetTexture(texture)
+				end 
+			end
+		end
+	end 
+end
+
 local function BlackMarketStyle()
 	if PLUGIN.db.blizzard.enable ~= true or PLUGIN.db.blizzard.bmah ~= true then 
 		return 
 	end 
 
-	local ChangeTab = function(p)
-		p.Left:SetAlpha(0)
-		if p.Middle then 
-			p.Middle:SetAlpha(0)
-		end 
-		p.Right:SetAlpha(0)
-	end 
+	PLUGIN:ApplyWindowStyle(BlackMarketFrame)
 
-	BlackMarketFrame:RemoveTextures()
-	BlackMarketFrame:SetStylePanel("Default", "Halftone")
 	BlackMarketFrame.Inset:RemoveTextures()
-	BlackMarketFrame.Inset:SetStylePanel("Fixed", "Inset")
+	BlackMarketFrame.Inset:SetStylePanel("!_Frame", "Inset")
+
 	PLUGIN:ApplyCloseButtonStyle(BlackMarketFrame.CloseButton)
 	PLUGIN:ApplyScrollFrameStyle(BlackMarketScrollFrameScrollBar, 4)
 
@@ -59,36 +84,11 @@ local function BlackMarketStyle()
 	BlackMarketBidPriceGold.Panel:SetPointToScale("TOPLEFT", -2, 0)
 	BlackMarketBidPriceGold.Panel:SetPointToScale("BOTTOMRIGHT", -2, 0)
 	BlackMarketFrame.BidButton:SetStylePanel("Button")
-	hooksecurefunc("BlackMarketScrollFrame_Update", function()
-		local buttons = BlackMarketScrollFrame.buttons;
-		local r = #buttons;
-		local s = HybridScrollFrame_GetOffset(BlackMarketScrollFrame)
-		local t = C_BlackMarket.GetNumItems()
-		for b = 1, r do 
-			local u = buttons[b]
-			local v = s+b;
-			if not u.styled then 
-				u:RemoveTextures()
-				u:SetStylePanel("Button")
-				PLUGIN:ApplyItemButtonStyle(u.Item)
-				u.styled = true 
-			end 
-			if v <= t then 
-				local w, x = C_BlackMarket.GetItemInfoByIndex(v)
-				if w then 
-					u.Item.IconTexture:SetTexture(x)
-				end 
-			end 
-		end 
-	end)
+
+	hooksecurefunc("BlackMarketScrollFrame_Update", _hook_ScrollFrameUpdate)
+
 	BlackMarketFrame.HotDeal:RemoveTextures()
 	PLUGIN:ApplyItemButtonStyle(BlackMarketFrame.HotDeal.Item)
-	for b = 1, BlackMarketFrame:GetNumRegions()do 
-		local y = select(b, BlackMarketFrame:GetRegions())
-		if y and y:GetObjectType() == "FontString" and y:GetText() == BLACK_MARKET_TITLE then 
-			y:ClearAllPoints()y:SetPoint("TOP", BlackMarketFrame, "TOP", 0, -4)
-		end 
-	end 
 end 
 --[[ 
 ########################################################## 

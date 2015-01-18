@@ -661,8 +661,8 @@ do
 		moveRetries, lastItemID, lockStop, lastDestination, lastMove = 0, nil, nil, nil, nil
 		self:SetScript("OnUpdate", nil)
 		self:Hide()
-		if(message and CombatText_AddMessage) then
-			CombatText_AddMessage(message, CombatText_StandardScroll, 1, 0.35, 0)
+		if(message) then
+			SV:SCTMessage(message, CombatText_StandardScroll, 1, 0.35, 0)
 		end
 	end
 

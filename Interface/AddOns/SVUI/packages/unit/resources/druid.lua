@@ -51,7 +51,29 @@ if(not MOD) then return end
 DRUID ALT MANA
 ##########################################################
 ]]--
-local TRACKER_FONT = [[Interface\AddOns\SVUI\assets\fonts\Combo.ttf]]
+local TRACKER_FONT = [[Interface\AddOns\SVUI\assets\fonts\Combo.ttf]];
+local cpointColor = {
+	[1]={0.69,0.31,0.31},
+	[2]={0.69,0.31,0.31},
+	[3]={0.65,0.63,0.35},
+	[4]={0.65,0.63,0.35},
+	[5]={0.33,0.59,0.33}
+};
+
+local comboTextures = {
+	[1]=[[Interface\Addons\SVUI\assets\artwork\Unitframe\Class\DRUID-CLAW-UP]],
+	[2]=[[Interface\Addons\SVUI\assets\artwork\Unitframe\Class\DRUID-CLAW-DOWN]],
+	[3]=[[Interface\Addons\SVUI\assets\artwork\Unitframe\Class\DRUID-BITE]],
+};
+
+local ShowPoint = function(self)
+	self:SetAlpha(1)
+end 
+
+local HidePoint = function(self)
+	self.Icon:SetTexture(comboTextures[random(1,3)])
+	self:SetAlpha(0)
+end 
 
 local UpdateAltPower = function(self, unit, arg1, arg2)
 	local value = self:GetParent().TextGrip.Power;
@@ -74,37 +96,18 @@ local UpdateAltPower = function(self, unit, arg1, arg2)
 		self.Text:SetText()
 	end 
 end 
-
-local function CreateAltMana(playerFrame, eclipse)
-	local bar = CreateFrame("Frame", nil, playerFrame)
-	bar:SetFrameStrata("LOW")
-	bar:SetPoint("TOPLEFT", eclipse, "TOPLEFT", 38, -2)
-	bar:SetPoint("TOPRIGHT", eclipse, "TOPRIGHT", 0, -2)
-	bar:SetHeight(18)
-	bar:SetStylePanel("Fixed", "Default")
-	bar:SetFrameLevel(bar:GetFrameLevel() + 1)
-	bar.colorPower = true;
-	bar.PostUpdatePower = UpdateAltPower;
-	bar.ManaBar = CreateFrame("StatusBar", nil, bar)
-	bar.ManaBar.noupdate = true;
-	bar.ManaBar:SetStatusBarTexture(SV.Media.bar.glow)
-	bar.ManaBar:SetAllPointsIn(bar)
-	bar.bg = bar:CreateTexture(nil, "BORDER")
-	bar.bg:SetAllPoints(bar.ManaBar)
-	bar.bg:SetTexture([[Interface\BUTTONS\WHITE8X8]])
-	bar.bg.multiplier = 0.3;
-	bar.Text = bar.ManaBar:CreateFontString(nil, "OVERLAY")
-	bar.Text:SetAllPoints(bar.ManaBar)
-	bar.Text:FontManager("unitprimary")
-	return bar 
-end 
 --[[ 
 ########################################################## 
 POSITIONING
 ##########################################################
 ]]--
+local OnMove = function()
+	SV.db.SVUnit.player.classbar.detachFromFrame = true
+end
+
 local Reposition = function(self)
-	local bar = self.EclipseBar
+	local bar = self.Druidness
+	local chicken = bar.Chicken;
 	local db = SV.db.SVUnit.player
 	if not bar or not db then print("Error") return end
 	local height = db.classbar.height
@@ -125,26 +128,44 @@ local Reposition = function(self)
 
     bar:ClearAllPoints()
     bar:SetAllPoints(bar.Holder)
+
+    chicken:ClearAllPoints()
+    chicken:SetAllPoints()
 	
-	bar.LunarBar:SetSizeToScale(width, adjustedBar)
-	bar.LunarBar:SetMinMaxValues(0,0)
-	bar.LunarBar:SetStatusBarColor(.13,.32,1)
+	chicken.LunarBar:SetSizeToScale(width, adjustedBar)
+	chicken.LunarBar:SetMinMaxValues(0,0)
+	chicken.LunarBar:SetStatusBarColor(.13,.32,1)
 
-	bar.Moon:SetSizeToScale(height, height)
-	bar.Moon[1]:SetSizeToScale(adjustedAnim, adjustedAnim)
-	bar.Moon[2]:SetSizeToScale(scaled, scaled)
+	chicken.Moon:SetSizeToScale(height, height)
+	chicken.Moon[1]:SetSizeToScale(adjustedAnim, adjustedAnim)
+	chicken.Moon[2]:SetSizeToScale(scaled, scaled)
 
-	bar.SolarBar:SetSizeToScale(width, adjustedBar)
-	bar.SolarBar:SetMinMaxValues(0,0)
-	bar.SolarBar:SetStatusBarColor(1,1,0.21)
+	chicken.SolarBar:SetSizeToScale(width, adjustedBar)
+	chicken.SolarBar:SetMinMaxValues(0,0)
+	chicken.SolarBar:SetStatusBarColor(1,1,0.21)
 
-	bar.Sun:SetSizeToScale(height, height)
-	bar.Sun[1]:SetSizeToScale(adjustedAnim, adjustedAnim)
-	bar.Sun[2]:SetSizeToScale(scaled, scaled)
+	chicken.Sun:SetSizeToScale(height, height)
+	chicken.Sun[1]:SetSizeToScale(adjustedAnim, adjustedAnim)
+	chicken.Sun[2]:SetSizeToScale(scaled, scaled)
 
-	bar.Text:SetPoint("TOPLEFT", bar, "TOPLEFT", 10, 0)
-	bar.Text:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT", -10, 0)
-	bar.Text:SetFont(TRACKER_FONT, scaled, 'OUTLINE')
+	chicken.Text:SetPoint("TOPLEFT", chicken, "TOPLEFT", 10, 0)
+	chicken.Text:SetPoint("BOTTOMRIGHT", chicken, "BOTTOMRIGHT", -10, 0)
+	chicken.Text:SetFont(TRACKER_FONT, scaled, 'OUTLINE')
+
+	local max = MAX_COMBO_POINTS;
+	local cat = bar.Cat;
+	local size = (height - 4)
+	for i = 1, max do
+		cat[i]:ClearAllPoints()
+		cat[i]:SetSizeToScale(size, size)
+		cat[i].Icon:ClearAllPoints()
+		cat[i].Icon:SetAllPoints(cat[i])
+		if i==1 then 
+			cat[i]:SetPoint("LEFT", cat)
+		else 
+			cat[i]:SetPointToScale("LEFT", cat[i - 1], "RIGHT", -2, 0) 
+		end
+	end
 end 
 --[[ 
 ########################################################## 
@@ -156,10 +177,13 @@ function MOD:CreateClassBar(playerFrame)
 	bar:SetFrameLevel(playerFrame.TextGrip:GetFrameLevel() + 30)
 	bar:SetSizeToScale(100,40)
 
-	local moon = CreateFrame('Frame', nil, bar)
-	moon:SetFrameLevel(bar:GetFrameLevel() + 2)
+	local chicken = CreateFrame('Frame', nil, bar)
+	chicken:SetAllPoints(bar)
+
+	local moon = CreateFrame('Frame', nil, chicken)
+	moon:SetFrameLevel(chicken:GetFrameLevel() + 2)
 	moon:SetSizeToScale(40, 40)
-	moon:SetPoint("TOPLEFT", bar, "TOPLEFT", 0, 0)
+	moon:SetPoint("TOPLEFT", chicken, "TOPLEFT", 0, 0)
 
 	moon[1] = moon:CreateTexture(nil, "BACKGROUND", nil, 1)
 	moon[1]:SetSizeToScale(40, 40)
@@ -174,25 +198,24 @@ function MOD:CreateClassBar(playerFrame)
 	moon[2]:SetPoint("CENTER")
 	moon[2]:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\DRUID-MOON")
 	moon[1]:Hide()
+	chicken.Moon = moon;
 
-	local lunar = CreateFrame('StatusBar', nil, bar)
+	local lunar = CreateFrame('StatusBar', nil, chicken)
 	lunar:SetPoint("LEFT", moon, "RIGHT", -10, 0)
 	lunar:SetSizeToScale(100,40)
 	lunar:SetStatusBarTexture(SV.Media.bar.lazer)
 	lunar.noupdate = true;
+	chicken.LunarBar = lunar;
 
-	bar.Moon = moon;
-
-	bar.LunarBar = lunar;
-
-	local solar = CreateFrame('StatusBar', nil, bar)
+	local solar = CreateFrame('StatusBar', nil, chicken)
 	solar:SetPoint('LEFT', lunar:GetStatusBarTexture(), 'RIGHT')
 	solar:SetSizeToScale(100,40)
 	solar:SetStatusBarTexture(SV.Media.bar.lazer)
 	solar.noupdate = true;
+	chicken.SolarBar = solar;
 
-	local sun = CreateFrame('Frame', nil, bar)
-	sun:SetFrameLevel(bar:GetFrameLevel() + 2)
+	local sun = CreateFrame('Frame', nil, chicken)
+	sun:SetFrameLevel(chicken:GetFrameLevel() + 2)
 	sun:SetSizeToScale(40, 40)
 	sun:SetPoint("LEFT", lunar, "RIGHT", -10, 0)
 	sun[1] = sun:CreateTexture(nil, "BACKGROUND", nil, 1)
@@ -208,37 +231,15 @@ function MOD:CreateClassBar(playerFrame)
 	sun[2]:SetPoint("CENTER")
 	sun[2]:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\DRUID-SUN")
 	sun[1]:Hide()
-	bar.Sun = sun;
+	chicken.Sun = sun;
 
-	bar.SolarBar = solar;
+	chicken.Text = lunar:CreateFontString(nil, 'OVERLAY')
+	chicken.Text:SetPoint("TOPLEFT", chicken, "TOPLEFT", 10, 0)
+	chicken.Text:SetPoint("BOTTOMRIGHT", chicken, "BOTTOMRIGHT", -10, 0)
+	chicken.Text:SetFont(SV.Media.font.default, 16, "NONE")
+	chicken.Text:SetShadowOffset(0,0)
 
-	bar.Text = lunar:CreateFontString(nil, 'OVERLAY')
-	bar.Text:SetPoint("TOPLEFT", bar, "TOPLEFT", 10, 0)
-	bar.Text:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT", -10, 0)
-	bar.Text:SetFont(SV.Media.font.default, 16, "NONE")
-	bar.Text:SetShadowOffset(0,0)
-
-	local hyper = CreateFrame("Frame",nil,playerFrame)
-	hyper:SetFrameStrata("DIALOG")
-	hyper:SetSizeToScale(45,30)
-	hyper:SetPointToScale("TOPLEFT", playerFrame.TextGrip, "TOPLEFT", 0, -2)
-
-	local points = CreateFrame('Frame',nil,hyper)
-	points:SetFrameStrata("DIALOG")
-	points:SetAllPoints(hyper)
-
-	points.Text = points:CreateFontString(nil,'OVERLAY')
-	points.Text:SetAllPoints(points)
-	points.Text:SetFont(TRACKER_FONT, 26, 'OUTLINE')
-	points.Text:SetTextColor(1,1,1)
-
-	playerFrame.HyperCombo = hyper;
-	playerFrame.HyperCombo.Tracking = points;
-
-	playerFrame.MaxClassPower = 1;
-	playerFrame.DruidAltMana = CreateAltMana(playerFrame, bar)
-
-	bar.PostDirectionChange = {
+	chicken.PostDirectionChange = {
 		["sun"] = function(this)
 			this.Text:SetJustifyH("LEFT")
 			this.Text:SetText(" >")
@@ -266,119 +267,56 @@ function MOD:CreateClassBar(playerFrame)
 			this.Moon[1].anim:Finish()
 		end
 	}
-	
-	local classBarHolder = CreateFrame("Frame", "Player_ClassBar", bar)
-	classBarHolder:SetPointToScale("TOPLEFT", playerFrame, "BOTTOMLEFT", 0, -2)
-	bar:SetPoint("TOPLEFT", classBarHolder, "TOPLEFT", 0, 0)
-	bar.Holder = classBarHolder
-	SV.Mentalo:Add(bar.Holder, L["Classbar"])
-	
-	playerFrame.ClassBarRefresh = Reposition;
-	playerFrame.EclipseBar = bar
-	return 'EclipseBar' 
-end 
---[[ 
-########################################################## 
-DRUID COMBO POINTS
-##########################################################
-]]--
-local cpointColor = {
-	[1]={0.69,0.31,0.31},
-	[2]={0.69,0.31,0.31},
-	[3]={0.65,0.63,0.35},
-	[4]={0.65,0.63,0.35},
-	[5]={0.33,0.59,0.33}
-};
 
-local comboTextures = {
-	[1]=[[Interface\Addons\SVUI\assets\artwork\Unitframe\Class\DRUID-CLAW-UP]],
-	[2]=[[Interface\Addons\SVUI\assets\artwork\Unitframe\Class\DRUID-CLAW-DOWN]],
-	[3]=[[Interface\Addons\SVUI\assets\artwork\Unitframe\Class\DRUID-BITE]],
-};
-
-local ShowPoint = function(self)
-	self:SetAlpha(1)
-end 
-
-local HidePoint = function(self)
-	self.Icon:SetTexture(comboTextures[random(1,3)])
-	self:SetAlpha(0)
-end 
-
-local ShowSmallPoint = function(self)
-	self:SetAlpha(1)
-end 
-
-local HideSmallPoint = function(self, i)
-	self.Icon:SetVertexColor(unpack(cpointColor[i]))
-	self:SetAlpha(0)
-end 
-
-local RepositionCombo = function(self)
-	local db = SV.db.SVUnit.target
-	local bar = self.HyperCombo.CPoints;
+	local cat = CreateFrame('Frame',nil,bar)
+	cat:SetAllPoints(bar)
 	local max = MAX_COMBO_POINTS;
-	local height = db.combobar.height
-	local isSmall = db.combobar.smallIcons
-	local size = isSmall and 22 or (height - 4)
-	local width = (size + 4) * max;
-	bar:ClearAllPoints()
-	bar:SetSizeToScale(width, height)
-	bar:SetPointToScale("TOPLEFT", self.ActionPanel, "TOPLEFT", 2, (height * 0.25))
-	for i = 1, max do
-		bar[i]:ClearAllPoints()
-		bar[i]:SetSizeToScale(size, size)
-		bar[i].Icon:ClearAllPoints()
-		bar[i].Icon:SetAllPoints(bar[i])
-		if(bar[i].Blood) then
-			bar[i].Blood:ClearAllPoints()
-			bar[i].Blood:SetAllPoints(bar[i])
-		end
-		if i==1 then 
-			bar[i]:SetPoint("LEFT", bar)
-		else 
-			bar[i]:SetPointToScale("LEFT", bar[i - 1], "RIGHT", -2, 0) 
-		end
-	end 
-end 
-
-function MOD:CreateDruidCombobar(targetFrame, isSmall)
-	local max = 5
-	local size = isSmall and 22 or 30
-	local bar = CreateFrame("Frame",nil,targetFrame)
-	bar:SetFrameStrata("DIALOG")
-	bar.CPoints = CreateFrame("Frame",nil,bar)
 	for i = 1, max do 
-		local cpoint = CreateFrame('Frame',nil,bar.CPoints)
+		local cpoint = CreateFrame('Frame',nil,cat)
 		cpoint:SetSizeToScale(size,size)
 
 		local icon = cpoint:CreateTexture(nil,"OVERLAY",nil,1)
 		icon:SetSizeToScale(size,size)
 		icon:SetPoint("CENTER")
 		icon:SetBlendMode("BLEND")
-
-		if(not isSmall) then
-			icon:SetTexture(comboTextures[random(1,3)])
-
-			local blood = cpoint:CreateTexture(nil,"OVERLAY",nil,2)
-			blood:SetSizeToScale(size,size)
-			blood:SetPoint("BOTTOMRIGHT",cpoint,12,-12)
-			blood:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Unitframe\Class\COMBO-ANIMATION]])
-			blood:SetBlendMode("ADD")
-			cpoint.Blood = blood
-			
-			SV.Animate:Sprite8(blood,0.08,2,true)
-		else
-			icon:SetTexture([[Interface\Addons\SVUI\assets\artwork\Unitframe\Class\COMBO-POINT-SMALL]])
-		end
+		icon:SetTexture(comboTextures[random(1,3)])
 		cpoint.Icon = icon
 
-		bar.CPoints[i] = cpoint 
-	end 
+		cat[i] = cpoint 
+	end
+	cat.PointShow = ShowPoint;
+	cat.PointHide = HidePoint;
 
-	targetFrame.ComboRefresh = RepositionCombo;
-	bar.PointShow = isSmall and ShowSmallPoint or ShowPoint;
-	bar.PointHide = isSmall and HideSmallPoint or HidePoint;
+	local mana = CreateFrame("Frame", nil, playerFrame)
+	mana:SetFrameStrata("LOW")
+	mana:SetAllPointsIn(bar, 2, 4)
+	mana:SetStylePanel("!_Frame", "Default")
+	mana:SetFrameLevel(mana:GetFrameLevel() + 1)
+	mana.colorPower = true;
+	mana.PostUpdatePower = UpdateAltPower;
+	mana.ManaBar = CreateFrame("StatusBar", nil, mana)
+	mana.ManaBar.noupdate = true;
+	mana.ManaBar:SetStatusBarTexture(SV.Media.bar.glow)
+	mana.ManaBar:SetAllPointsIn(mana)
+	mana.bg = mana:CreateTexture(nil, "BORDER")
+	mana.bg:SetAllPoints(mana.ManaBar)
+	mana.bg:SetTexture([[Interface\BUTTONS\WHITE8X8]])
+	mana.bg.multiplier = 0.3;
+	mana.Text = mana.ManaBar:CreateFontString(nil, "OVERLAY")
+	mana.Text:SetAllPoints(mana.ManaBar)
+	mana.Text:SetFontObject(SVUI_Font_Unit)
 
-	return bar 
+	bar.Cat = cat;
+	bar.Chicken = chicken;
+	bar.Mana = mana;
+	
+	local classBarHolder = CreateFrame("Frame", "Player_ClassBar", bar)
+	classBarHolder:SetPointToScale("TOPLEFT", playerFrame, "BOTTOMLEFT", 0, -2)
+	bar:SetPoint("TOPLEFT", classBarHolder, "TOPLEFT", 0, 0)
+	bar.Holder = classBarHolder
+	SV.Mentalo:Add(bar.Holder, L["Classbar"], nil, OnMove)
+	
+	playerFrame.ClassBarRefresh = Reposition;
+	playerFrame.Druidness = bar
+	return 'Druidness' 
 end 

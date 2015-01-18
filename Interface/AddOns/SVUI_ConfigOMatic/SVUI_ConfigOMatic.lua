@@ -156,24 +156,8 @@ SV.Options.args.common = {
 							guiInline = true, 
 							name = L["Common Stuff"],
 							args = {
-								autoScale = {
-									order = 1,
-									name = L["Auto Scale"],
-									desc = L["Automatically scale the User Interface based on your screen resolution"],
-									type = "toggle",
-									get = function(j)return SV.db.general.autoScale end,
-									set = function(j,value)SV.db.general.autoScale = value; SV:StaticPopup_Show("RL_CLIENT") end
-								},
-								multiMonitor = {
-									order = 2,
-									name = L["Multi Monitor"],
-									desc = L["Adjust UI dimensions to accomodate for multiple monitor setups"],
-									type = "toggle",
-									get = function(j)return SV.db.general.multiMonitor end,
-									set = function(j,value)SV.db.general.multiMonitor = value; SV:StaticPopup_Show("RL_CLIENT") end
-								},
 								saveDraggable = {
-									order = 3,
+									order = 1,
 									name = L["Save Draggable"],
 									desc = L["Save the positions of draggable frames when they are moved. NOTE: THIS WILL OVERRIDE BLIZZARD FRAME SNAPPING!"],
 									type = "toggle",
@@ -181,23 +165,18 @@ SV.Options.args.common = {
 									set = function(j,value)SV.db.general.saveDraggable = value; SV:StaticPopup_Show("RL_CLIENT") end
 								},
 								LoginMessage = {
-									order = 4,
+									order = 2,
 									type = 'toggle',
-									name = L['Login Message'],
+									name = L['Login Messages'],
 									get = function(j)return SV.db.general.loginmessage end,
 									set = function(j,value)SV.db.general.loginmessage = value end
 								},
-								scaleAdjust = {
-									order = 5,
-									name = L["Base Scale"],
-									desc = L["You can use this to adjust the base value applied to auto-scaling."],
-									type = "range",
-									width = "full",
-									min = 0.64,
-									max = 1,
-									step = 0.01,
-									get = function(j)return SV.db.general.scaleAdjust end,
-									set = function(j,value) SV.db.general.scaleAdjust = value; SV:StaticPopup_Show("RL_CLIENT") end
+								questTracker = {
+									order = 3,
+									type = 'toggle',
+									name = L['Custom Quest Tracker'],
+									get = function(j) return SV.db.SVQuest.enable end,
+									set = function(j,value) SV.db.SVQuest.enable = value;SV:StaticPopup_Show("RL_CLIENT") end
 								},
 							}
 						},

@@ -312,7 +312,7 @@ function MOD:BreakStuffLoader()
 	BreakStuffButton:SetSizeToScale(size, size)
 	BreakStuffButton:SetPointToScale("RIGHT", SV.Dock.BottomRight.Bar.ToolBar, "LEFT", -6, 0)
 	BreakStuffButton:Show();
-	BreakStuffButton:SetStylePanel("Framed") 
+	BreakStuffButton:SetStylePanel("HeavyButton") 
 	BreakStuffButton.icon=BreakStuffButton:CreateTexture(nil,"OVERLAY")
 	BreakStuffButton.icon:SetAllPointsIn(BreakStuffButton,2,2)
 	BreakStuffButton.icon:SetTexture(ICONARTFILE)

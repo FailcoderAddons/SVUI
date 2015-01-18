@@ -100,9 +100,7 @@ local SVLib = LibSuperVillain("Registry");
 local callbacks = {};
 local numCallbacks = 0;
 local playerClass = select(2, UnitClass("player"));
-local messagePattern = "|cffFF2F00%s:|r";
-local debugPattern = "|cffFF2F00%s|r [|cff992FFF%s|r]|cffFF2F00:|r";
-local errorPattern = "|cffff0000Error -- |r|cffff9900Required addon '|r|cffffff00%s|r|cffff9900' is %s.|r"
+local errorPattern = "|cffff0000Error -- |r|cffff9900Required addon '|r|cffffff00%s|r|cffff9900' is %s.|r";
 
 --[[ HELPERS ]]--
 
@@ -112,25 +110,26 @@ local function _removedeprecated()
     --[[ END DEPRECATED ]]--
 end
 
-local function _sendmessage(msg, prefix)
-    if(type(msg) == "table") then 
-         msg = tostring(msg) 
+local function _explode(this, delim)
+    local pattern = string.format("([^%s]+)", delim)
+    local res = {}
+    for line in string.gmatch(this, pattern) do
+        tinsert(res, line)
     end
-    if(not msg) then return end
-    if(prefix) then
-        local outbound = ("%s %s"):format(prefix, msg);
-        print(outbound)
-    else
-        print(msg)
-    end
+    return res
 end
-
 
 local function _needsupdate(value, lowest)
     local minimumVersion = 5;
     --print(table.dump(self.safedata))
     local version = value or '0.0';
-    local vt = version:explode(".")
+    if(version and type(version) ~= string) then
+        version = tostring(version)
+    end
+    if(not version) then
+        return true
+    end
+    local vt = _explode(version, ".")
     local MAJOR,MINOR,PATCH = unpack(vt)
     if(MAJOR) then
         if(type(MAJOR) == "string") then
@@ -238,6 +237,7 @@ local SVUI = SVLib:NewCore("SVUI_Global", "SVUI_Errors", "SVUI_Profile", "SVUI_C
 
 SVUI.ConfigID           = "SVUI_ConfigOMatic";
 SVUI.class              = playerClass;
+SVUI.Allegiance         = UnitFactionGroup("player");
 SVUI.ClassRole          = "";
 SVUI.UnitRole           = "NONE";
 SVUI.ConfigurationMode  = false;
@@ -264,7 +264,7 @@ SVUI.Options = {
     name = "|cff339fffConfig-O-Matic|r", 
     args = {
         plugins = {
-            order = -2,
+            order = 9999,
             type = "group",
             name = "Plugins",
             childGroups = "tab",
@@ -299,32 +299,67 @@ SVUI.Options = {
 }
 
 --[[ BUILD LOGIN MESSAGES ]]--
+local SetLoginMessage;
+do
+    local commandments = {
+        {
+            "schemes diabolical",
+            "henchmen in-line",
+            "entrances grand",
+            "battles glorious",
+            "power absolute",
+        },
+        {
+            "traps inescapable",
+            "enemies overthrown",
+            "monologues short",
+            "victories infamous",
+            "identity a mystery",
+        }
+    };
 
-local commandments = {
-    {
-        "schemes diabolical",
-        "henchmen in-line",
-        "entrances grand",
-        "battles glorious",
-        "power absolute",
-    },
-    {
-        "traps inescapable",
-        "enemies overthrown",
-        "monologues short",
-        "victories infamous",
-        "identity a mystery",
-    }
-};
+    local messagePattern = "|cffFF2F00%s:|r";
+    local debugPattern = "|cffFF2F00%s|r [|cff992FFF%s|r]|cffFF2F00:|r";
 
-function SVUI:SetLoginMessage()
-    local first = commandments[1][random(1,5)]
-    local second = commandments[2][random(1,5)]
-    local logMsg1 = (self.L["LOGIN_MSG"]):format(first, second)
-    local logMsg2 = (self.L["LOGIN_MSG2"]):format(self.Version)
-    local outbound = (messagePattern):format(self.NameID)
-    _sendmessage(logMsg1, outbound) 
-    _sendmessage(logMsg2, outbound) 
+    local function _send_message(msg, prefix)
+        if(type(msg) == "table") then 
+             msg = tostring(msg) 
+        end
+        if(not msg) then return end
+        if(prefix) then
+            local outbound = ("%s %s"):format(prefix, msg);
+            print(outbound)
+        else
+            print(msg)
+        end
+    end
+
+    SetLoginMessage = function(self)
+        if(not self.NameID) then return end
+        local prefix = (messagePattern):format(self.NameID)
+        local first = commandments[1][random(1,5)]
+        local second = commandments[2][random(1,5)]
+        local custom_msg = (self.L["LOGIN_MSG"]):format(first, second)
+        _send_message(custom_msg, prefix)
+        local login_msg = (self.L["LOGIN_MSG2"]):format(self.Version)
+        _send_message(login_msg, prefix)
+    end
+
+    function SVUI:Debugger(msg)
+        if(not self.DebugMode) then return end
+        local outbound = (debugPattern):format(self.NameID, "DEBUG")
+        _send_message(msg, outbound) 
+    end
+
+    function SVUI:SCTMessage(...)
+        if not CombatText_AddMessage then return end 
+        CombatText_AddMessage(...)
+    end
+
+    function SVUI:AddonMessage(msg)
+        local outbound = (messagePattern):format(self.NameID)
+        _send_message(msg, outbound) 
+    end
 end
 
 --[[ CORE FUNCTIONS ]]--
@@ -335,17 +370,6 @@ function SVUI:StaticPopup_Show(arg)
     if arg == "ADDON_ACTION_FORBIDDEN" then 
         StaticPopup_Hide(arg)
     end
-end
-
-function SVUI:Debugger(msg)
-    if(not self.DebugMode) then return end
-    local outbound = (debugPattern):format(self.NameID, "DEBUG")
-    _sendmessage(msg, outbound) 
-end
-
-function SVUI:AddonMessage(msg)
-    local outbound = (messagePattern):format(self.NameID)
-    _sendmessage(msg, outbound) 
 end
 
 function SVUI:ResetAllUI(confirmed)
@@ -442,12 +466,12 @@ function SVUI:PLAYER_ENTERING_WORLD()
 end
 
 function SVUI:PET_BATTLE_CLOSE()
-    self:PushDisplayAudit()
+    self:AuditVisibility()
     SVLib:LiveUpdate()
 end
 
 function SVUI:PET_BATTLE_OPENING_START()
-    self:FlushDisplayAudit()
+    self:AuditVisibility(true)
 end
 
 function SVUI:PLAYER_REGEN_DISABLED()
@@ -482,7 +506,7 @@ function SVUI:PLAYER_REGEN_DISABLED()
     end
 
     if(self.NeedsFrameAudit) then
-        self:PushDisplayAudit()
+        self:AuditVisibility()
     end
 end
 
@@ -536,18 +560,19 @@ function SVUI:Initialize()
 
     self:UI_SCALE_CHANGED("PLAYER_LOGIN")
     self:PlayerInfoUpdate();
-    self:VersionCheck()
+    self:VersionCheck();
     self:RefreshAllSystemMedia();
-    hooksecurefunc("StaticPopup_Show", self.StaticPopup_Show)
+    hooksecurefunc("StaticPopup_Show", self.StaticPopup_Show);
 
     SVLib:RefreshModule("SVMap");
 
-    self.Dock:UpdateAllDocks()
+    self.Dock:UpdateAllDocks();
+    self:SanitizeFilters();
 
     collectgarbage("collect") 
 
     if self.db.general.loginmessage then
-        self:SetLoginMessage()
+        SetLoginMessage(self)
     end
 end
 --[[ 

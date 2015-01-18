@@ -522,7 +522,7 @@ function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss, ha
 	organizer:SetFrameStrata("HIGH")
 
 	local iconHolder = CreateFrame("Frame", nil, organizer)
-	iconHolder:SetStylePanel("Fixed", "Inset", false)
+	iconHolder:SetStylePanel("!_Frame", "Inset", false)
 	organizer.Icon = iconHolder
 
 	local buttonIcon = iconHolder:CreateTexture(nil, "BORDER")
@@ -548,12 +548,10 @@ function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss, ha
 	local hadouken = CreateFrame("Frame", nil, castbar)
 
 	if ryu then
-		castbar.Time:SetFont(SV.Media.font.numbers, 12, "OUTLINE")
-		castbar.Time:SetShadowOffset(1, -1)
+		castbar.Time:SetFontObject(SVUI_Font_Aura)
 		castbar.Time:SetTextColor(1, 1, 1)
-		castbar.Text:SetFont(SV.Media.font.alert, 12, "OUTLINE")
-		castbar.Text:SetShadowOffset(0, 0)
-		castbar.Text:SetTextColor(1, 1, 1)
+		castbar.Text:SetFontObject(SVUI_Font_Caps)
+		castbar.Text:SetTextColor(1, 1, 1, 0.75)
 
 		castbar:SetStatusBarTexture(SV.Media.bar.lazer)
 
@@ -606,7 +604,6 @@ function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss, ha
 			organizer:SetPointToScale("LEFT", castbar, "RIGHT", 4, 0)
 
 			castbar.Time:SetPointToScale("RIGHT", castbar, "LEFT", -4, 0)
-			castbar.Time:SetJustifyH("CENTER")
 		else
 			hadouken[1] = hadouken:CreateTexture(nil, "ARTWORK")
 			hadouken[1]:SetAllPoints(hadouken)
@@ -642,26 +639,20 @@ function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss, ha
 			organizer:SetPointToScale("RIGHT", castbar, "LEFT", -4, 0)
 
 			castbar.Time:SetPointToScale("LEFT", castbar, "RIGHT", 4, 0)
-			castbar.Time:SetJustifyH("CENTER")
 		end
 
 		-- castbar.Time:SetPointToScale("CENTER", organizer, "CENTER", 0, 0)
 		-- castbar.Time:SetJustifyH("CENTER")
 
 		castbar.Text:SetAllPoints(castbar)
-		castbar.Text:SetJustifyH("CENTER")
 	else
-		castbar.Time:SetFont(SV.Media.font.default, 11)
-		castbar.Time:SetShadowOffset(1, -1)
+		castbar.Time:SetFontObject(SVUI_Font_Aura)
 		castbar.Time:SetTextColor(1, 1, 1, 0.9)
 		castbar.Time:SetPoint("RIGHT", castbar, "LEFT", -1, 0)
-		castbar.Time:SetJustifyH("RIGHT")
 
-		castbar.Text:SetFont(SV.Media.font.default, 11)
-		castbar.Text:SetShadowOffset(1, -1)
+		castbar.Text:SetFontObject(SVUI_Font_Caps)
 		castbar.Text:SetTextColor(1, 1, 1, 0.9)
 		castbar.Text:SetAllPoints(castbar)
-		castbar.Text:SetJustifyH("CENTER")
 
 		castbar.pewpew = false
 

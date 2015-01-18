@@ -28,91 +28,114 @@ local SPEC_WARLOCK_DESTRUCTION = SPEC_WARLOCK_DESTRUCTION
 local SPEC_WARLOCK_AFFLICTION = SPEC_WARLOCK_AFFLICTION
 local SPEC_WARLOCK_DEMONOLOGY = SPEC_WARLOCK_DEMONOLOGY
 
-oUF.colors.WarlockShards = {
-	[1] = {100/255, 0/255, 255/255},
-	[2] = {180/255, 30/255, 255/255},
-	[3] = {255/255, 115/255, 10/255}
+local shardColor = {
+	[1] = {0.57,0.08,1},
+	[2] = {1,0,0},
+	[3] = {1,0.25,0}
 }
 
 local Update = function(self, event, unit, powerType)
-	local wsb = self.WarlockShards
-	if(wsb.PreUpdate) then wsb:PreUpdate(unit) end
+	local bar = self.WarlockShards;
+	local fury = bar.DemonicFury;
+	local maxBars = bar.MaxCount or 4;
+
+	if(bar.PreUpdate) then bar:PreUpdate(unit) end
 	
 	if UnitHasVehicleUI("player") then
-		wsb:Hide()
+		bar:Hide()
 	else
-		wsb:Show()
+		bar:Show()
 	end
 	
 	local spec = GetSpecialization()
+
 	if spec then
-		if not wsb:IsShown() then 
-			wsb:Show()
+		if not bar:IsShown() then 
+			bar:Show()
 		end
 
-		for i = 1, 4 do
-			wsb[i]:Show()
-			wsb[i]:SetStatusBarColor(unpack(oUF.colors.WarlockShards[spec]))
+		if((not bar.CurrentSpec) or (bar.CurrentSpec ~= spec and bar.UpdateTextures)) then
+			bar:UpdateTextures(spec)
 		end
 
-		if (spec == SPEC_WARLOCK_DESTRUCTION) then	
+		local colors = shardColor[spec]
+
+		if (spec == SPEC_WARLOCK_DESTRUCTION) then
+			if fury:IsShown() then fury:Hide() end;
 			local maxPower = UnitPowerMax("player", SPELL_POWER_BURNING_EMBERS, true)
 			local power = UnitPower("player", SPELL_POWER_BURNING_EMBERS, true)
 			local numEmbers = power / MAX_POWER_PER_EMBER
 			local numBars = floor(maxPower / MAX_POWER_PER_EMBER)
-			wsb.number = numBars
-			
-			-- bar unavailable
-			if numBars == 3 then
-				wsb[4]:Hide()
-			else
-				wsb[4]:Show()
-			end
 
-			for i = 1, numBars do
-				wsb[i]:SetMinMaxValues((MAX_POWER_PER_EMBER * i) - MAX_POWER_PER_EMBER, MAX_POWER_PER_EMBER * i)
-				wsb[i]:SetValue(power)
+			for i = 1, maxBars do
+				if((i == maxBars) and (numBars == 3)) then
+					bar[i]:Hide()
+				else
+					bar[i]:Show()
+					bar[i]:SetStatusBarColor(unpack(colors))
+					bar[i]:SetMinMaxValues((MAX_POWER_PER_EMBER * i) - MAX_POWER_PER_EMBER, MAX_POWER_PER_EMBER * i)
+					bar[i]:SetValue(power)
+					if(bar[i].Update) then
+						local filled = (power >= MAX_POWER_PER_EMBER * i) and 1 or 0
+						bar[i]:Update(filled)
+					end
+				end
 			end
 		elseif ( spec == SPEC_WARLOCK_AFFLICTION ) then
+			if fury:IsShown() then fury:Hide() end;
 			local numShards = UnitPower("player", SPELL_POWER_SOUL_SHARDS)
 			local maxShards = UnitPowerMax("player", SPELL_POWER_SOUL_SHARDS)
-			wsb.number = maxShards
-			
-			-- bar unavailable
-			if maxShards == 3 then
-				wsb[4]:Hide()
-			else
-				wsb[4]:Show()
-			end
-			
-			for i = 1, maxShards do
-				wsb[i]:SetMinMaxValues(0, 1)
-				if i <= numShards then
-					wsb[i]:SetValue(1)
+
+			for i = 1, maxBars do
+				if((i == maxBars) and (maxShards == 3)) then
+					bar[i]:Hide()
 				else
-					wsb[i]:SetValue(0)
+					bar[i]:Show()
+					bar[i]:SetStatusBarColor(unpack(colors))
+					bar[i]:SetMinMaxValues(0, 1)
+					local filled = (i <= numShards) and 1 or 0
+					bar[i]:SetValue(filled)
+					if(bar[i].Update) then
+						bar[i]:Update(filled)
+					end
 				end
 			end
 		elseif spec == SPEC_WARLOCK_DEMONOLOGY then
+			if not fury:IsShown() then fury:Show() end;
 			local power = UnitPower("player", SPELL_POWER_DEMONIC_FURY)
 			local maxPower = UnitPowerMax("player", SPELL_POWER_DEMONIC_FURY)
+			local percent = (power / maxPower) * 100
+
+			for i = 1, maxBars do
+				bar[i]:Hide()
+			end
 			
-			wsb.number = 1
-			wsb[2]:Hide()
-			wsb[3]:Hide()
-			wsb[4]:Hide()
+			fury.bar:SetStatusBarColor(unpack(colors))
+			fury.bar:SetMinMaxValues(0, maxPower)
+			fury.bar:SetValue(power)
+			fury.text:SetText(power)
+			if(percent > 99) then
+				fury.text:SetTextColor(1,0,0)
+			elseif(percent > 80) then
+				fury.text:SetTextColor(1,0.5,0)
+			elseif(percent > 50) then
+				fury.text:SetTextColor(1,1,0)
+			else
+				fury.text:SetTextColor(1,1,1)
+			end
 			
-			wsb[1]:SetMinMaxValues(0, maxPower)
-			wsb[1]:SetValue(power)
+			if(fury.bar.Update) then
+				local filled = (percent > 80) and 1 or 0
+				fury.bar:Update(filled)
+			end
 		end
 	else
-		if wsb:IsShown() then 
-			wsb:Hide()
-		end
+		if bar:IsShown() then bar:Hide() end;
+		if fury:IsShown() then fury:Hide() end;
 	end
 
-	if(wsb.PostUpdate) then
-		return wsb:PostUpdate(unit, spec)
+	if(bar.PostUpdate) then
+		return bar:PostUpdate(unit, spec)
 	end
 end
 
@@ -127,35 +150,36 @@ end
 local function Enable(self, unit)
 	if(unit ~= 'player') then return end
 	
-	local wsb = self.WarlockShards
-	if(wsb) then
-		wsb.__owner = self
-		wsb.ForceUpdate = ForceUpdate
+	local bar = self.WarlockShards
+	if(bar) then
+		bar.__owner = self
+		bar.ForceUpdate = ForceUpdate
 
 		self:RegisterEvent('UNIT_POWER', Path)
 		self:RegisterEvent("PLAYER_TALENT_UPDATE", Path)
+		self:RegisterEvent("PLAYER_ENTERING_WORLD", Path)
 		
-		for i = 1, 4 do
-			if not wsb[i]:GetStatusBarTexture() then
-				wsb[i]:SetStatusBarTexture([=[Interface\TargetingFrame\UI-StatusBar]=])
+		local maxBars = bar.MaxCount or 4;
+		for i = 1, maxBars do
+			if not bar[i]:GetStatusBarTexture() then
+				bar[i]:SetStatusBarTexture([=[Interface\TargetingFrame\UI-StatusBar]=])
 			end
 
-			wsb[i]:SetFrameLevel(wsb:GetFrameLevel() + 1)
-			wsb[i]:GetStatusBarTexture():SetHorizTile(false)
+			bar[i]:SetFrameLevel(bar:GetFrameLevel() + 1)
+			bar[i]:GetStatusBarTexture():SetHorizTile(false)
 		end
-		
-		wsb.number = 4
 
 		return true
 	end
 end
 
 local function Disable(self)
-	local wsb = self.WarlockShards
-	if(wsb) then
+	local bar = self.WarlockShards
+	if(bar) then
 		self:UnregisterEvent('UNIT_POWER', Path)
 		self:UnregisterEvent("PLAYER_TALENT_UPDATE", Path)
-		wsb:Hide()
+		self:UnregisterEvent("PLAYER_ENTERING_WORLD", Path)
+		bar:Hide()
 	end
 end
 

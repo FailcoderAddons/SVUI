@@ -107,11 +107,11 @@ local function MirrorBarRegistry(barType)
 		return RegisteredMirrorBars[barType]
 	end 
 	local bar = CreateFrame('StatusBar', nil, UIParent)
-	bar:SetStylePanel("Default", "Bar", false, 3, 3, 3)
+	bar:SetStylePanel("Frame", "Bar", false, 3, 3, 3)
 	bar:SetScript("OnUpdate", MirrorBar_OnUpdate)
 	local r, g, b = unpack(mirrorTypeColor[barType])
 	bar.text = bar:CreateFontString(nil, 'OVERLAY')
-	bar.text:FontManager("default")
+	bar.text:SetFontObject(SVUI_Font_Default)
 	bar.text:SetJustifyH('CENTER')
 	bar.text:SetTextColor(1, 1, 1)
 	bar.text:SetPoint('LEFT', bar)
@@ -134,12 +134,12 @@ local function SetTimerStyle(bar)
 		if child:GetObjectType() == "Texture"then
 			child:SetTexture(0,0,0,0)
 		elseif child:GetObjectType() == "FontString" then 
-			child:FontManager("default")
+			child:SetFontObject(SVUI_Font_Default)
 		end 
 	end 
 	bar:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]])
 	bar:SetStatusBarColor(0.37, 0.92, 0.08)
-	bar:SetStylePanel("Default", "Bar", false, 3, 3, 3)
+	bar:SetStylePanel("Frame", "Bar", false, 3, 3, 3)
 end 
 
 local MirrorBarToggleHandler = function(_, event, arg, ...)

@@ -188,7 +188,7 @@ local QuestTracker_OnUpdate = function(self, elapsed)
                 self.questID = nil
                 self.throttle = 4
                 self.Arrow:SetAlpha(0)
-                self.BG:SetVertexColor(0.1,0.1,0.1)
+                self.BG:SetVertexColor(0.1,0.1,0.1,0)
             else
                 self.throttle = 0.02
                 local range = floor(distance)
@@ -197,15 +197,15 @@ local QuestTracker_OnUpdate = function(self, elapsed)
                     self.Arrow:SetAlpha(1)
                     self.BG:SetAlpha(1)
                     if(range > 100) then
-                        self.BG:SetVertexColor(0.8,0.1,0.1)
+                        self.BG:SetVertexColor(0.8,0.1,0.1,1)
                     elseif(range > 40) then
-                        self.BG:SetVertexColor(0.8,0.8,0.1)
+                        self.BG:SetVertexColor(0.8,0.8,0.1,1)
                     else
-                        self.BG:SetVertexColor(0.1,0.8,0.1)
+                        self.BG:SetVertexColor(0.1,0.8,0.1,1)
                     end
                     self.Range:SetText(range)
                 else
-                    self.BG:SetVertexColor(0.1,0.1,0.1)
+                    self.BG:SetVertexColor(0.1,0.1,0.1,0)
                     self.Arrow:SetAlpha(0)
                     self.BG:SetAlpha(0)
                     self.Range:SetText("")
@@ -227,7 +227,6 @@ local StartTrackingQuest = function(self, questID)
         end
         self.Compass.questID = questID
         self.Compass:Show()
-
     else
         self.Compass.questID = nil
         self.Compass:Hide()
@@ -237,8 +236,7 @@ end
 function SV:AddQuestCompass(parent, anchor, size)
     if anchor.Compass then return end
     local compass = CreateFrame("Frame", nil, parent)
-    compass:SetPoint("CENTER", anchor, "CENTER", 0, 0)
-    compass:SetSize(size, size)
+    compass:SetAllPoints(anchor)
     compass:SetFrameLevel(anchor:GetFrameLevel() + 99)
     compass.BG = compass:CreateTexture(nil, 'BACKGROUND')
     compass.BG:SetAllPointsIn(compass)
@@ -265,9 +263,9 @@ CORE
 ##########################################################
 ]]--
 function PLUGIN:ReLoad()
-    local frameSize = self.db.size or 70
+    local frameSize = self.db.general.size or 70
     local arrowSize = frameSize * 0.5
-    local fontSize = self.db.fontSize or 14
+    local fontSize = self.db.general.fontSize or 14
     local frame = _G["SVUI_UnitTrackingCompass"]
 
     frame:SetSize(frameSize, frameSize)

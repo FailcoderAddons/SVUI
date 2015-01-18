@@ -213,11 +213,6 @@ local function GetTitleAndSkill()
 	end 
 	return msg
 end
-
-local function SendModeMessage(...)
-	if not CombatText_AddMessage then return end 
-	CombatText_AddMessage(...)
-end 
 --[[ 
 ########################################################## 
 EVENT HANDLER
@@ -282,7 +277,7 @@ do
 				local sites = ArchaeologyMapUpdateAll();
 				if(sites and sites > 0) then
 					ArchSiteFound = true
-					SendModeMessage("Digsite Located", CombatText_StandardScroll, 0.91, 0.78, 0.12);
+					SV:SCTMessage("Digsite Located", CombatText_StandardScroll, 0.91, 0.78, 0.12);
 				else
 					ArchSiteFound = nil
 				end
@@ -393,7 +388,7 @@ function PLUGIN.Archaeology:Enable()
 	end
 	EnableListener()
 	PLUGIN.ModeAlert:Show()
-	SendModeMessage("Archaeology Mode Enabled", CombatText_StandardScroll, 0.28, 0.9, 0.1);
+	SV:SCTMessage("Archaeology Mode Enabled", CombatText_StandardScroll, 0.28, 0.9, 0.1);
 end
 
 function PLUGIN.Archaeology:Disable()
@@ -448,7 +443,7 @@ function PLUGIN:LoadArchaeologyMode()
 		local solve = CreateFrame("Button", nil, bar, "SecureHandlerClickTemplate")
 		local yOffset,xOffset = 0,0;
 
-		bar:SetStylePanel("Default", "Bar")
+		bar:SetStylePanel("Frame", "Bar")
 		bar:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]])
 		bar:SetSize(BAR_WIDTH,BAR_HEIGHT)
 		if(i > 10) then

@@ -104,7 +104,11 @@ SVUI_LootFrame:SetToplevel(true);
 SVUI_LootFrame.title = SVUI_LootFrame:CreateFontString(nil,'OVERLAY');
 SVUI_LootFrame.title:SetPoint('BOTTOMLEFT',SVUI_LootFrame,'TOPLEFT',0,1);
 SVUI_LootFrame.slots = {};
-SVUI_LootFrame:SetScript("OnHide", Loot_OnHide);
+SVUI_LootFrame:Hide();
+SVUI_LootFrame:SetScript("OnHide", function(self)
+	SV:StaticPopup_Hide("CONFIRM_LOOT_DISTRIBUTION");
+	CloseLoot()
+end);
 --[[ 
 ########################################################## 
 LOOTING
@@ -118,11 +122,6 @@ end
 local DoDaRoll = function(self)
 	RollOnLoot(self.parent.rollID, self.rolltype)
 end 
-
-local Loot_OnHide = function(self)
-	SV:StaticPopup_Hide("CONFIRM_LOOT_DISTRIBUTION");
-	CloseLoot()
-end
 
 local LootRoll_OnLeave = function(self)
 	GameTooltip:Hide()
@@ -276,7 +275,7 @@ local function MakeSlots(id)
 	slot.iconFrame:SetHeightToScale(size)
 	slot.iconFrame:SetWidthToScale(size)
 	slot.iconFrame:SetPoint("RIGHT", slot)
-	slot.iconFrame:SetStylePanel("Default", "Transparent")
+	slot.iconFrame:SetStylePanel("Frame", "Transparent")
 
 	slot.icon = slot.iconFrame:CreateTexture(nil, "ARTWORK")
 	slot.icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
@@ -285,7 +284,7 @@ local function MakeSlots(id)
 	slot.count = slot.iconFrame:CreateFontString(nil, "OVERLAY")
 	slot.count:SetJustifyH("RIGHT")
 	slot.count:SetPointToScale("BOTTOMRIGHT", slot.iconFrame, -2, 2)
-	slot.count:FontManager("lootnumber")
+	slot.count:SetFontObject(SVUI_Font_Loot_Number)
 	slot.count:SetText(1)
 
 	slot.name = slot:CreateFontString(nil, "OVERLAY")
@@ -293,7 +292,7 @@ local function MakeSlots(id)
 	slot.name:SetPoint("LEFT", slot)
 	slot.name:SetPoint("RIGHT", slot.icon, "LEFT")
 	slot.name:SetNonSpaceWrap(true)
-	slot.name:FontManager("lootdialog")
+	slot.name:SetFontObject(SVUI_Font_Loot)
 
 	slot.drop = slot:CreateTexture(nil, "ARTWORK")
 	slot.drop:SetTexture("Interface\\QuestFrame\\UI-QuestLogTitleHighlight")
@@ -329,7 +328,7 @@ local function CreateRollButton(rollFrame, type, locale, anchor)
 	rollButton:SetScript("OnClick", DoDaRoll)
 	rollButton:SetMotionScriptsWhileDisabled(true)
 	local text = rollButton:CreateFontString(nil, nil)
-	text:FontManager("rolldialog")
+	text:SetFontObject(SVUI_Font_Roll)
 	text:SetPointToScale("CENTER", 0, ((type == 2 and 1) or (type == 0 and -1.2) or 0))
 	return rollButton, text 
 end 
@@ -338,14 +337,14 @@ local function CreateRollFrame()
 	UpdateLootUpvalues()
 	local rollFrame = CreateFrame("Frame", nil, UIParent)
 	rollFrame:SetSizeToScale(LOOT_WIDTH,LOOT_HEIGHT)
-	rollFrame:SetStylePanel("Fixed", 'Default')
+	rollFrame:SetStylePanel("!_Frame", 'Default')
 	rollFrame:SetScript("OnEvent",LootRoll_OnEvent)
 	rollFrame:RegisterEvent("CANCEL_LOOT_ROLL")
 	rollFrame:Hide()
 	rollFrame.button = CreateFrame("Button",nil,rollFrame)
 	rollFrame.button:SetPointToScale("RIGHT",rollFrame,'LEFT',0,0)
 	rollFrame.button:SetSizeToScale(LOOT_HEIGHT - 2)
-	rollFrame.button:SetStylePanel("Default", 'Default')
+	rollFrame.button:SetStylePanel("Frame", 'Default')
 	rollFrame.button:SetScript("OnEnter",LootItem_SetTooltip)
 	rollFrame.button:SetScript("OnLeave",LootItem_OnLeave)
 	rollFrame.button:SetScript("OnUpdate",LootItem_OnUpdate)
@@ -383,16 +382,16 @@ local function CreateRollFrame()
 	rollFrame.need,rollFrame.greed,rollFrame.pass,rollFrame.disenchant = needText,greedText,passText,deText;
 	rollFrame.bindText = rollFrame:CreateFontString()
 	rollFrame.bindText:SetPointToScale("LEFT",passButton,"RIGHT",3,1)
-	rollFrame.bindText:FontManager("rollnumber")
+	rollFrame.bindText:SetFontObject(SVUI_Font_Roll_Number)
 	rollFrame.lootText = rollFrame:CreateFontString(nil,"ARTWORK")
-	rollFrame.lootText:FontManager("rollnumber")
+	rollFrame.lootText:SetFontObject(SVUI_Font_Roll_Number)
 	rollFrame.lootText:SetPointToScale("LEFT",rollFrame.bindText,"RIGHT",0,0)
 	rollFrame.lootText:SetPointToScale("RIGHT",rollFrame,"RIGHT",-5,0)
 	rollFrame.lootText:SetSizeToScale(200,10)
 	rollFrame.lootText:SetJustifyH("LEFT")
 
 	rollFrame.yourRoll = rollFrame:CreateFontString(nil,"ARTWORK")
-	rollFrame.yourRoll:FontManager("rollnumber", "CENTER", 4)
+	rollFrame.yourRoll:SetFontObject(SVUI_Font_Roll_Number)
 	rollFrame.yourRoll:SetSizeToScale(22,22)
 	rollFrame.yourRoll:SetPointToScale("LEFT",rollFrame,"RIGHT",5,0)
 	rollFrame.yourRoll:SetJustifyH("CENTER")
@@ -649,9 +648,9 @@ function MOD:SetLootFrames()
 	SV.Mentalo:Add(SVUI_LootFrameHolder, L["Loot Frame"], nil, nil, "SVUI_LootFrame");
 	
 	SVUI_LootFrame:SetSizeToScale(256, 64);
-	SVUI_LootFrame:SetStylePanel("Fixed", 'Transparent');
-	SVUI_LootFrame.title:FontManager("header")
-	SV:AddToDisplayAudit(SVUI_LootFrame);
+	SVUI_LootFrame:SetStylePanel("!_Frame", 'Transparent');
+	SVUI_LootFrame.title:SetFontObject(SVUI_Font_Header)
+	SV:ManageVisibility(SVUI_LootFrame);
 	SVUI_LootFrame:Hide();
 
 	UIParent:UnregisterEvent("LOOT_BIND_CONFIRM")

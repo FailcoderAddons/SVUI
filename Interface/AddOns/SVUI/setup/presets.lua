@@ -98,8 +98,8 @@ local function LoadPresetData()
 				["unitframes"] = {
 					["buff_bars"] = {.91, .91, .31, 1},
 					["health"] = {.1, .6, .02, 1},
-					["casting"] = {.91, .91, .31, 1},
-					["spark"] = {1, .72, 0, 1},
+					["casting"] = {0, 0.92, 1, 1},
+					["spark"] = {0, 0.42, 1, 1},
 				},
 			},
 			["kaboom"] = {
@@ -116,8 +116,8 @@ local function LoadPresetData()
 				["unitframes"] = {
 					["buff_bars"] = {.51, .79, 0, 1},
 					["health"] = {.16, .86, .22, 1},
-					["casting"] = {.91, .91, 0, 1},
-					["spark"] = {1, .72, 0, 1},
+					["casting"] = {0, 0.92, 1, 1},
+					["spark"] = {0, 0.42, 1, 1},
 				},
 			},
 			["classy"] = {
@@ -134,8 +134,8 @@ local function LoadPresetData()
 				["unitframes"] = {
 					["buff_bars"] = {scc.r, scc.g, scc.b, 1},
 					["health"] = {.16, .86, .22, 1},
-					["casting"] = {.91, .91, 0, 1},
-					["spark"] = {1, .72, 0, 1},
+					["casting"] = {0, 0.92, 1, 1},
+					["spark"] = {0, 0.42, 1, 1},
 				},
 			},
 			["dark"] = {
@@ -152,8 +152,8 @@ local function LoadPresetData()
 				["unitframes"] = {
 					["buff_bars"] = {.45, .55, .15, 1},
 					["health"] = {.06, .06, .06, 1},
-					["casting"] = {.8, .8, 0, 1},
-					["spark"] = {1, .72, 0, 1},
+					["casting"] = {0, 0.92, 1, 1},
+					["spark"] = {0, 0.42, 1, 1},
 				},
 			},
 		},
@@ -507,42 +507,42 @@ local function LoadPresetData()
 					portrait = {
 						enable = true,
 						overlay = true,
-						style = "3D",
+						style = "3DOVERLAY",
 					}
 				},
 				["target"] = {
 					portrait = {
 						enable = true,
 						overlay = true,
-						style = "3D",
+						style = "3DOVERLAY",
 					}
 				},
 				["pet"] = {
 					portrait = {
 						enable = true,
 						overlay = true,
-						style = "3D",
+						style = "3DOVERLAY",
 					},
 				},
 				["targettarget"] = {
 					portrait = {
 						enable = true,
 						overlay = true,
-						style = "3D",
+						style = "3DOVERLAY",
 					},
 				},
 				["boss"] = {
 					portrait = {
 						enable = true,
 						overlay = true,
-						style = "3D",
+						style = "3DOVERLAY",
 					}
 				},
 				["party"] = {
 					portrait = {
 						enable = true,
 						overlay = true,
-						style = "3D",
+						style = "3DOVERLAY",
 					},
 				},
 			},
@@ -551,42 +551,42 @@ local function LoadPresetData()
 					portrait = {
 						enable = true,
 						overlay = true,
-						style = "3D",
+						style = "3DOVERLAY",
 					}
 				},
 				["target"] = {
 					portrait = {
 						enable = true,
 						overlay = true,
-						style = "3D",
+						style = "3DOVERLAY",
 					}
 				},
 				["pet"] = {
 					portrait = {
 						enable = true,
 						overlay = true,
-						style = "3D",
+						style = "3DOVERLAY",
 					},
 				},
 				["targettarget"] = {
 					portrait = {
 						enable = false,
 						overlay = true,
-						style = "3D",
+						style = "3DOVERLAY",
 					},
 				},
 				["boss"] = {
 					portrait = {
 						enable = true,
 						overlay = true,
-						style = "3D",
+						style = "3DOVERLAY",
 					}
 				},
 				["party"] = {
 					portrait = {
 						enable = true,
 						overlay = true,
-						style = "3D",
+						style = "3DOVERLAY",
 					},
 				},
 			},
@@ -678,7 +678,7 @@ local function LoadPresetData()
 					portrait = {
 						enable = true,
 						overlay = true,
-						style = "3D",
+						style = "3DOVERLAY",
 					},
 					icons = {
 						roleIcon = {
@@ -735,7 +735,7 @@ local function LoadPresetData()
 					portrait = {
 						enable = true,
 						overlay = true,
-						style = "3D",
+						style = "3DOVERLAY",
 					},
 					["icons"] = {
 						["roleIcon"] = {

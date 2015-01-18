@@ -55,7 +55,7 @@ local GetSpellInfo = _G.GetSpellInfo;
 local collectgarbage = _G.collectgarbage;
 
 ns.FilterOptionGroups['_NEW'] = function(filterType)
-	return function(selectedSpell)
+	return function()
 		local RESULT, FILTER
 		if(SV.filters.Custom[filterType]) then 
 			FILTER = SV.filters.Custom[filterType] 
@@ -77,11 +77,13 @@ ns.FilterOptionGroups['_NEW'] = function(filterType)
 						type = "input",
 						get = function(key) return "" end,
 						set = function(key, value)
-							if(not FILTER[value]) then 
-								FILTER[value] = {
-									["enable"] = true,
-									["priority"] = 0
-								}
+							local spellID = tonumber(value);
+							if(not spellID) then 
+								SV:AddonMessage(L["Value must be a number"])
+							elseif(not GetSpellInfo(spellID)) then 
+								SV:AddonMessage(L["Not valid spell id"])
+							elseif(not FILTER[value]) then 
+								FILTER[value] = {['enable'] = true, ['id'] = spellID, ['priority'] = 0}
 							end 
 							ns:SetFilterOptions(filterType)
 							MOD:RefreshUnitFrames()
@@ -101,8 +103,13 @@ ns.FilterOptionGroups['_NEW'] = function(filterType)
 						end,
 						values = function()
 							wipe(tempFilterTable)
-							for g in pairs(FILTER) do
-								tempFilterTable[g] = g
+							for id, filterData in pairs(FILTER) do
+								if(type(id) == 'string' and filterData.id) then
+									local auraName = GetSpellInfo(filterData.id)
+									if(auraName) then
+										tempFilterTable[id] = auraName
+									end
+								end
 							end
 							return tempFilterTable 
 						end,
@@ -146,19 +153,23 @@ ns.FilterSpellGroups['_NEW'] = function(filterType)
 				args = {}
 			};
 
-			for aura, filterData in pairs(FILTER) do
-				RESULT.args[aura] = {
-					name = aura, 
-					type = "toggle", 
-					get = function()
-						return FILTER[aura].enable  
-					end, 
-					set = function(key, value)
-						FILTER[aura].enable = value;
-						MOD:RefreshUnitFrames()
-						ns:SetFilterOptions()
-					end
-				};
+			for id, filterData in pairs(FILTER) do
+				local auraName = GetSpellInfo(filterData.id)
+				--print(auraName)
+				if(auraName) then
+					RESULT.args[auraName] = {
+						name = auraName, 
+						type = "toggle", 
+						get = function()
+							return FILTER[id].enable  
+						end, 
+						set = function(key, value)
+							FILTER[id].enable = value;
+							MOD:RefreshUnitFrames()
+							ns:SetFilterOptions(filterType)
+						end
+					};
+				end
 			end
 		end
 

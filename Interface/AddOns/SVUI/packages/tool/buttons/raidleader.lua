@@ -78,7 +78,7 @@ local function NewToolButton(name, parent, template, width, height, point, relat
 	button:SetWidthToScale(width)
 	button:SetHeightToScale(height)
 	button:SetPointToScale(point, relativeto, point2, xOfs, yOfs)
-	button:SetStylePanel("Framed") 
+	button:SetStylePanel("HeavyButton") 
 
 	if(textDisplay) then
 		local text = button:CreateFontString(nil,"OVERLAY")
@@ -122,7 +122,7 @@ function MOD:LoadRaidLeaderTools()
 	self.RaidTool:SetAttribute("hasDropDown", false);
 
 	self.RaidTool.Menu = CreateFrame("Frame", "SVUI_RaidToolMenu", self.RaidTool, "SecureHandlerClickTemplate");
-	self.RaidTool.Menu:SetStylePanel("Default", 'Transparent');
+	self.RaidTool.Menu:SetStylePanel("Frame", 'Transparent');
 	self.RaidTool.Menu:SetWidthToScale(120);
 	self.RaidTool.Menu:SetHeightToScale(140);
 	self.RaidTool.Menu:SetPoint("TOPLEFT", dock.ToolBar, "BOTTOMLEFT", 0, -2);
@@ -159,7 +159,7 @@ function MOD:LoadRaidLeaderTools()
 	SVUI_RaidToolToggle:SetScript("PostClick", function(self) self:RemoveTextures(); SVUI_RaidToolMenu.toggled = true end);
 	SVUI_RaidToolToggle:HookScript("OnEnter", ToolButton_OnEnter)
 	SVUI_RaidToolToggle:HookScript("OnLeave", ToolButton_OnLeave)
-	SV:AddToDisplayAudit(self.RaidTool);
+	SV:ManageVisibility(self.RaidTool);
 
 	--Close Button
 	local close = NewToolButton("SVUI_RaidToolCloseButton", self.RaidTool.Menu, "UIMenuButtonStretchTemplate, SecureHandlerClickTemplate", 30, 18, "BOTTOM", self.RaidTool.Menu, "BOTTOM", 0, 2, "X");
@@ -204,7 +204,7 @@ function MOD:LoadRaidLeaderTools()
 		markerButton:SetHeightToScale(18)
 		markerButton:SetWidth(109)
 		markerButton:RemoveTextures()
-		markerButton:SetStylePanel("Framed") 
+		markerButton:SetStylePanel("HeavyButton") 
 
 		local markersText = markerButton:CreateFontString(nil,"OVERLAY")
 		markersText:SetFont(SV.Media.font.default, 14, "NONE")

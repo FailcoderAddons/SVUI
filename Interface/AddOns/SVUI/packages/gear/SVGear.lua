@@ -148,7 +148,7 @@ local function SetDisplayStats(arg)
 		if(flags[1]) then 
 			frame.ItemLevel = frame:CreateFontString(nil, "OVERLAY")
 			frame.ItemLevel:SetPointToScale("BOTTOMRIGHT", frame, "BOTTOMRIGHT", 2, 1)
-			frame.ItemLevel:FontManager("default")
+			frame.ItemLevel:SetFontObject(SVUI_Font_Default)
 		end 
 		
 		if(arg == "Character" and flags[2]) then

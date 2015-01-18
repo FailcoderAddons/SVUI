@@ -216,7 +216,7 @@ local DraggerEventHandler = function(self, event, ...)
 	if(InCombatLockdown()) then return end
 
 	local noMoreChanges = true;
-	local allCentered = SV.db.general.multiMonitor
+	local allCentered = SV.db.screen.multiMonitor
 
 	for frameName, data in pairs(UIPanels) do
 		if(not self.Frames[frameName] or (self.Frames[frameName] and type(self.Frames[frameName]) ~= 'string')) then
@@ -356,10 +356,6 @@ function Dragger:Initialize()
 
 	if(not SV.db.SVQuest.enable) then
 		UIPanels["ObjectiveTrackerFrame"] = { moving = false, snapped = false, canupdate = false, cansetpoint = false, centered = false };
-	end
-	if(SV.db.SVMap.tinyWorldMap) then
-		UIPanels["WorldMapFrame"] = { moving = false, snapped = false, canupdate = false, cansetpoint = false, centered = false };
-		WorldMapTitleButton:EnableMouse(false)
 	end
 
 	self.EventsActive = true

@@ -40,7 +40,7 @@ AUCTIONLITE
 ]]--
 local function BGHelper(parent)
   parent.bg = CreateFrame("Frame", nil, parent)
-  parent.bg:SetStylePanel("Fixed", "Inset")
+  parent.bg:SetStylePanel("!_Frame", "Inset")
   parent.bg:SetPointToScale("TOPLEFT", parent, "TOPLEFT", 16, -103)
   parent.bg:SetPointToScale("BOTTOMRIGHT", AuctionFrame, "BOTTOMRIGHT", -8, 36)
   parent.bg:SetFrameLevel(parent.bg:GetFrameLevel() - 1)

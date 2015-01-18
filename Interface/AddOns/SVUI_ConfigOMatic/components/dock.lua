@@ -253,7 +253,9 @@ SV.Options.args.Dock.args["rightDockGroup"] = {
 				CHAT:UpdateLocals()
 				CHAT:RefreshChatFrames(true)
 				BAG.BagFrame:UpdateLayout()
-				BAG.BankFrame:UpdateLayout()
+				if(BAG.BankFrame) then
+					BAG.BankFrame:UpdateLayout()
+				end
 			end,
 		},
 		-- quest = {
@@ -288,26 +290,42 @@ SV.Options.args.Dock.args["rightDockGroup"] = {
 	}
 };
 
-SV.Options.args.Dock.args["SVUI_DockTopCenter"] = {
+SV.Options.args.Dock.args["SVUI_StatDockTopLeft"] = {
 	order = 5,
 	type = "group", 
-	name = L["Top Dock"], 
+	name = L["Top Stats: Left"], 
 	guiInline = true,  
 	args = {}
 };
 
-SV.Options.args.Dock.args["SVUI_DockBottomCenter"] = {
+SV.Options.args.Dock.args["SVUI_StatDockTopRight"] = {
+	order = 5,
+	type = "group", 
+	name = L["Top Stats: Right"], 
+	guiInline = true,  
+	args = {}
+};
+
+SV.Options.args.Dock.args["SVUI_StatDockBottomLeft"] = {
 	order = 6,
 	type = "group", 
-	name = L["Bottom Dock"], 
+	name = L["Bottom Stats: Left"], 
 	guiInline = true, 
 	args = {}
-}
+};
+
+SV.Options.args.Dock.args["SVUI_StatDockBottomRight"] = {
+	order = 6,
+	type = "group", 
+	name = L["Bottom Stats: Right"], 
+	guiInline = true, 
+	args = {}
+};
 
 
 do
 	local statValues = {[""] = "None"};
-	local configTable = SV.db.Dock.dataHolders;
+	local configTable = SV.db.Dock.statSlots;
 
 	for name, _ in pairs(MOD.DataTypes) do
 		statValues[name] = name;
@@ -316,7 +334,6 @@ do
 	for panelName, panelPositions in pairs(configTable) do
 		local optionTable = SV.Options.args.Dock.args; 
 		if(not _G[panelName]) then 
-			print(panelName)
 			optionTable[panelName] = nil;
 			return 
 		end 
@@ -328,8 +345,8 @@ do
 					type = 'select',
 					name = 'Slot '..i,
 					values = statValues,
-					get = function(key) return SV.db.Dock.dataHolders[panelName][i] end,
-					set = function(key, value) MOD:ChangeDBVar(value, i, "dataHolders", panelName); MOD:UpdateDataSlots() end
+					get = function(key) return SV.db.Dock.statSlots[panelName][i] end,
+					set = function(key, value) MOD:ChangeDBVar(value, i, "statSlots", panelName); MOD:UpdateDataSlots() end
 				}
 			end 
 		end 

@@ -46,15 +46,30 @@ if(SV.class ~= "MAGE") then return end
 local MOD = SV.SVUnit
 if(not MOD) then return end 
 
-local specEffects = { [1] = "arcane", [2] = "none", [3] = "none" };
+local ORB_ICON = [[Interface\AddOns\SVUI\assets\artwork\Unitframe\Class\ORB]];
+local ORB_BG = [[Interface\AddOns\SVUI\assets\artwork\Unitframe\Class\ORB-BG]];
+local CHARGE_ICON = [[Interface\AddOns\SVUI\assets\artwork\Unitframe\Class\MAGE-CHARGE]];
+local ICICLE_ICON = [[Interface\AddOns\SVUI\assets\artwork\Unitframe\Class\MAGE-ICICLE]];
+local NO_ART = [[Interface\AddOns\SVUI\assets\artwork\Template\EMPTY]];
+SV.SpecialFX:Register("mage_fire", [[Spells\Fill_fire_cast_01.m2]], 2, -2, -2, 2, 0.5, -0.45, 1)
+local specEffects = { [1] = "arcane", [2] = "mage_fire", [3] = "frost" };
+local specColors = { 
+	[1] = {0.8, 1, 1, 1}, 
+	[2] = {1, 0.2, 0, 0.75}, 
+	[3] = {0.95, 1, 1, 0.75}
+};
 --[[ 
 ########################################################## 
 POSITIONING
 ##########################################################
 ]]--
+local OnMove = function()
+	SV.db.SVUnit.player.classbar.detachFromFrame = true
+end
+
 local Reposition = function(self)
 	local db = SV.db.SVUnit.player
-	local bar = self.ArcaneChargeBar;
+	local bar = self.MageMagic;
 	local max = self.MaxClassPower;
 	local size = db.classbar.height
 	local width = size * max;
@@ -73,11 +88,10 @@ local Reposition = function(self)
 		bar[i]:ClearAllPoints()
 		bar[i]:SetHeight(size)
 		bar[i]:SetWidth(size)
-		bar[i]:SetStatusBarColor(0.15, 0.65, 0.85)
 		if i==1 then 
 			bar[i]:SetPoint("TOPLEFT", bar, "TOPLEFT", 0, 0)
 		else 
-			bar[i]:SetPointToScale("LEFT", bar[i - 1], "RIGHT", -1, 0) 
+			bar[i]:SetPointToScale("LEFT", bar[i - 1], "RIGHT", -3, 0) 
 		end
 	end 
 end 
@@ -86,67 +100,115 @@ end
 MAGE CHARGES
 ##########################################################
 ]]--
-local PreUpdate = function(self, spec)
-	if(self.CurrentSpec ~= spec) then
-		local effectName = specEffects[spec]
-		if(effectName and effectName ~= 'none') then
-			if(not self:IsShown()) then
-				self:Show()
-			end
-			for i = 1, 4 do
-				self[i].FX:SetEffect(effectName)
-			end
-		else
-			self:Hide()
+local PostTalentUpdate = function(self, spec)
+	if(not self:IsShown()) then
+		self:Show()
+	end
+	local color = specColors[spec]
+	if(spec == 1) then
+		for i = 1, 5 do
+			self[i]:SetStatusBarTexture(CHARGE_ICON)
+			self[i].bg:SetTexture(ORB_BG)
+			self[i]:SetStatusBarColor(unpack(color))
+			self[i].FX:SetEffect(specEffects[spec])
 		end
-		self.CurrentSpec = spec
+	elseif(spec == 3) then
+		for i = 1, 5 do
+			self[i]:SetStatusBarTexture(ICICLE_ICON.."-"..i)
+			self[i].bg:SetTexture(ICICLE_ICON.."-"..i)
+			self[i]:SetStatusBarColor(unpack(color))
+			self[i].FX:SetEffect(specEffects[spec])
+		end
+	else
+		self.Ignite.FX:SetEffect(specEffects[spec])
 	end
 end
 
-local ChargeUpdate = function(self)
-	if not self.fg:IsShown() then self.fg:Show() end
-	if not self.fg.anim:IsPlaying() then self.fg.anim:Play() end 
-end
-
 function MOD:CreateClassBar(playerFrame)
-	local max = 4
+	local max = 5
 	local bar = CreateFrame("Frame",nil,playerFrame)
 	bar:SetFrameLevel(playerFrame.TextGrip:GetFrameLevel() + 30)
 
 	for i = 1, max do 
 		bar[i] = CreateFrame("StatusBar", nil, bar)
-		bar[i]:SetStatusBarTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\ORB")
+		bar[i]:SetStatusBarTexture(CHARGE_ICON)
 		bar[i]:GetStatusBarTexture():SetHorizTile(false)
 		bar[i]:SetOrientation("VERTICAL")
+		bar[i]:SetStatusBarColor(0.95, 1, 1, 0.75)
 		bar[i].noupdate = true;
 
 		bar[i].bg = bar[i]:CreateTexture(nil, "BACKGROUND")
 		bar[i].bg:SetAllPoints(bar[i])
-		bar[i].bg:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\ORB-BG");
+		bar[i].bg:SetTexture(ORB_BG);
+		bar[i].bg:SetVertexColor(0.25,0.5,0.5)
 
-		bar[i].fg = bar[i]:CreateTexture(nil, "OVERLAY")
-		bar[i].fg:SetAllPoints(bar[i])
-		bar[i].fg:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\MAGE-BG-ANIMATION")
-		bar[i].fg:SetBlendMode("ADD")
-		bar[i].fg:SetVertexColor(0.5,0.6,0.6)
-		bar[i].fg:SetTexCoord(0,0.25,0,1)
+		SV.SpecialFX:SetFXFrame(bar[i], "arcane")
+		--bar[i].FX:SetFrameLevel(0)
+		bar[i].FX:SetAlpha(0.5)
+	end
 
-		--bar[i].Update = ChargeUpdate
+	local bgFrame = CreateFrame("Frame", nil, bar)
+	bgFrame:SetAllPointsIn(bar)
+	SV.SpecialFX:SetFXFrame(bgFrame, "arcane")
 
-		local spec = GetSpecialization()
-		local effectName = specEffects[spec]
-		SV.SpecialFX:SetFXFrame(bar[i], effectName)
-	end 
+	local bgTexture = bgFrame:CreateTexture(nil, "BACKGROUND")
+	bgTexture:SetAllPoints(bgFrame)
+	bgTexture:SetTexture(0.09,0.01,0,0.5)
 
-	bar.PreUpdate = PreUpdate;
+	local borderB = bgFrame:CreateTexture(nil,"OVERLAY")
+    borderB:SetTexture(0,0,0)
+    borderB:SetPoint("BOTTOMLEFT")
+    borderB:SetPoint("BOTTOMRIGHT")
+    borderB:SetHeight(2)
+
+    local borderT = bgFrame:CreateTexture(nil,"OVERLAY")
+    borderT:SetTexture(0,0,0)
+    borderT:SetPoint("TOPLEFT")
+    borderT:SetPoint("TOPRIGHT")
+    borderT:SetHeight(2)
+
+    local borderL = bgFrame:CreateTexture(nil,"OVERLAY")
+    borderL:SetTexture(0,0,0)
+    borderL:SetPoint("TOPLEFT")
+    borderL:SetPoint("BOTTOMLEFT")
+    borderL:SetWidth(2)
+
+    local borderR = bgFrame:CreateTexture(nil,"OVERLAY")
+    borderR:SetTexture(0,0,0)
+    borderR:SetPoint("TOPRIGHT")
+    borderR:SetPoint("BOTTOMRIGHT")
+    borderR:SetWidth(2)
+
+    bar.bg = bgTexture;
+
+
+    local ignite = CreateFrame("StatusBar", nil, bgFrame)
+	ignite.noupdate = true;
+	ignite:SetAllPointsIn(bgFrame)
+	ignite:SetOrientation("HORIZONTAL")
+	ignite:SetStatusBarTexture(SV.Media.bar.glow)
+	ignite:SetStatusBarColor(1, 0.2, 0, 0.75)
+	ignite.text = ignite:CreateFontString(nil, "OVERLAY")
+	ignite.text:SetPoint("LEFT")
+	ignite.text:SetFontObject(SVUI_Font_Unit_Small)
+	ignite.text:SetJustifyH('LEFT')
+	ignite.text:SetTextColor(1,1,0)
+	ignite.text:SetText("0")
+	bgFrame.Bar = ignite;
+    --SV.SpecialFX:SetFXFrame(ignite, "conqueror", true)
+	--ignite.FX:SetScript("OnShow", EffectModel_OnShow)
+	bar.Ignite = bgFrame;
+	bar.Ignite:Hide();
+
+	bar.PostTalentUpdate = PostTalentUpdate;
 	local classBarHolder = CreateFrame("Frame", "Player_ClassBar", bar)
 	classBarHolder:SetPointToScale("TOPLEFT", playerFrame, "BOTTOMLEFT", 0, -2)
 	bar:SetPoint("TOPLEFT", classBarHolder, "TOPLEFT", 0, 0)
 	bar.Holder = classBarHolder
-	SV.Mentalo:Add(bar.Holder, L["Classbar"])
+	SV.Mentalo:Add(bar.Holder, L["Classbar"], nil, OnMove)
 
 	playerFrame.MaxClassPower = max;
 	playerFrame.ClassBarRefresh = Reposition;
-	playerFrame.ArcaneChargeBar = bar
-	return 'ArcaneChargeBar' 
+	playerFrame.MageMagic = bar
+	return 'MageMagic' 
 end 

@@ -16,6 +16,10 @@ local _, ns = ...
 local oUF = oUF or ns.oUF
 if not oUF then return end
 
+local TRAP_MASTERY_ID = 63458;
+local TRAP_MASTERY = IsSpellKnown(TRAP_MASTERY_ID);
+local ENHANCED_TRAPS_ID = 157751;
+local ENHANCED_TRAPS = IsSpellKnown(ENHANCED_TRAPS_ID);
 local FIRE_TRAP = GetSpellInfo(13813);
 local FROST_TRAP = GetSpellInfo(1499);
 local ICE_TRAP = GetSpellInfo(13809);
@@ -81,6 +85,8 @@ end
 local Update = function(self, event, ...)
 	local bar = self.HunterTraps
 	if(event and event == "SPELLS_CHANGED") then
+		ENHANCED_TRAPS = IsSpellKnown(ENHANCED_TRAPS_ID);
+		TRAP_MASTERY = IsSpellKnown(TRAP_MASTERY_ID);
 		local ice_icon = select(3, GetSpellInfo(13809));
 		if(ice_icon == SNAKE_ICON) then
 			TRAP_IDS[3] = SNAKE_TRAP
@@ -96,21 +102,29 @@ local Update = function(self, event, ...)
 
 	if(bar.PreUpdate) then bar:PreUpdate(event) end
 
-	local name, start, duration;
+	local name, start, duration, isReady, enable;
 	local unit, _, _, _, spellID = ...
 	if(unit and (self.unit ~= unit)) then
 		return 
 	end
 	if(spellID) then
 		name = GetSpellInfo(spellID)
-		start = GetSpellCooldown(spellID)
+		start, isReady, enable = GetSpellCooldown(spellID)
 		duration = GetSpellBaseCooldown(spellID)
+		if(duration and duration > 0) then
+			if(TRAP_MASTERY) then
+				duration = duration - 6;
+			end
+			if(ENHANCED_TRAPS) then
+				duration = duration * 0.5
+			end
+		end
 	end
 
 	if bar:IsShown() then		
 		for i = 1, 3 do
 			--bar[i]:SetStatusBarColor(unpack(TRAP_COLORS[i]))
-			if(name and TRAP_IDS[i] == name) then
+			if(name and TRAP_IDS[i] == name and isReady == 1) then
 				bar[i]:Show()
 				if((start and start > 0) and (duration and duration > 0)) then
 					bar[i]:SetMinMaxValues(0, duration)

@@ -39,7 +39,7 @@ local _, ns = ...
 ##################################################################################################
 ##################################################################################################
 ]]
-SV.Options.args.SVUnit.args.commonGroup.args.player={
+SV.Options.args.SVUnit.args.commonGroup.args.player = {
 	name = L['Player'],
 	type = 'group',
 	order = 3,
@@ -84,23 +84,8 @@ SV.Options.args.SVUnit.args.commonGroup.args.player={
 					guiInline = true, 
 					name = L["Base Settings"],
 					args = {
-						showAuras = {
-							order = 1,
-							type = "execute",
-							name = L["Show Auras"],
-							func = function()local U = SVUI_Player;if U.forceShowAuras then U.forceShowAuras = nil else U.forceShowAuras = true end MOD:SetUnitFrame("player")end
-						},
-						lowmana = {
-							order = 2,
-							name = L["Low Mana Threshold"],
-							desc = L["When you mana falls below this point, text will flash on the player frame."],
-							type = "range",
-							min = 0,
-							max = 100,
-							step = 1
-						},
 						combatfade = {
-							order = 3,
+							order = 1,
 							name = L["Combat Fade"],
 							desc = L["Fade the unitframe when out of combat, not casting, no target exists."],
 							type = "toggle",
@@ -115,33 +100,25 @@ SV.Options.args.SVUnit.args.commonGroup.args.player={
 							end
 						},
 						predict = {
-							order = 4,
+							order = 2,
 							name = L["Heal Prediction"],
 							desc = L["Show a incomming heal prediction bar on the unitframe. Also display a slightly different colored bar for incoming overheals."],
 							type = "toggle"
 						},
-						hideonnpc = {
-							type = "toggle",
-							order = 5,
-							name = L["Text Toggle On NPC"],
-							desc = L["Power text will be hidden on NPC targets, in addition the name text will be repositioned to the power texts anchor point."],
-							get = function(l)return SV.db.SVUnit["player"]["power"].hideonnpc end,
-							set = function(l, m)SV.db.SVUnit["player"]["power"].hideonnpc = m;MOD:SetUnitFrame("player")end
-						},
 						threatEnabled = {
 							type = "toggle",
-							order = 6,
+							order = 3,
 							name = L["Show Threat"]
 						},
 						playerExpBar = {
-							order = 7,
+							order = 4,
 							name = "Playerframe Experience Bar",
 							desc = "Show player experience on power bar mouseover",
 							type = "toggle",
 							set = function(l, m)MOD:ChangeDBVar(m, l[#l], "player");SV:StaticPopup_Show("RL_CLIENT")end
 						},
 						playerRepBar = {
-							order = 8,
+							order = 5,
 							name = "Playerframe Reputation Bar",
 							desc = "Show player reputations on power bar mouseover",
 							type = "toggle",
@@ -237,65 +214,21 @@ SV.Options.args.SVUnit.args.commonGroup.args.player={
 				enable = {
 					type = "toggle",
 					order = 1,
-					name = L["Enable"]
+					name = L["Classbar Enabled"]
 				},
-				commonGroup = {
-					order = 2, 
-					type = "group", 
-					guiInline = true, 
-					name = L["Base Settings"],
-					args = {
-						slideLeft = {
-							type = "toggle",
-							order = 1,
-							name = L["Slide Left"]
-						},
-						detachFromFrame = {
-							type = "toggle",
-							order = 2,
-							name = L["Detach From Frame"]
-						},
-						stagger = {
-							type = "toggle",
-							order = 3,
-							name = L["Stagger Bar"],
-							get = function(l)return SV.db.SVUnit["player"]["stagger"].enable end,
-							set = function(l, m)MOD:ChangeDBVar(m, "enable", "player", "stagger");MOD:SetUnitFrame("player")end,
-							disabled = SV.class ~= "MONK",
-						},
-						druidMana = {
-							type = "toggle", 
-							order = 12, 
-							name = L["Druid Mana"], 
-							desc = L["Display druid mana bar when in cat or bear form and when mana is not 100%."],
-							get = function(key) 
-								return SV.db.SVUnit["player"]["power"].druidMana 
-							end, 
-							set = function(key, value)
-								MOD:ChangeDBVar(value, "druidMana", "player", "power");
-								MOD:SetUnitFrame("player")
-							end,
-							disabled = SV.class ~= "DRUID",
-						}
-					}
+				detachFromFrame = {
+					type = "toggle",
+					order = 2,
+					name = L["Detach From Frame"]
 				},
-				sizeGroup = {
-					order = 3, 
-					guiInline = true, 
-					type = "group", 
-					name = L["Size Settings"], 
-					args = {
-						height = {
-							type = "range",
-							order = 4,
-							width = "full",
-							name = L["Size"],
-							min = 15,
-							max = 45,
-							step = 1
-						}
-					}
-				}
+				height = {
+					type = "range",
+					order = 4,
+					name = L["Classbar Height (Size)"],
+					min = 15,
+					max = 45,
+					step = 1
+				},
 			}
 		}
 	}

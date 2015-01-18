@@ -23,8 +23,8 @@ local SV = select(2, ...)
 --[[ ROGUE FILTERS ]]--
 
 SV.filterdefaults["BuffWatch"] = {
-    {-- Tricks of the Trade
-        ["enabled"] = true, 
+    ["57934"] = {-- Tricks of the Trade
+        ["enable"] = true, 
         ["id"] = 57934, 
         ["point"] = "TOPRIGHT", 
         ["color"] = {["r"] = 0.89, ["g"] = 0.09, ["b"] = 0.05},

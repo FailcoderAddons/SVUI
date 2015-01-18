@@ -211,7 +211,8 @@ local function BarConfigLoader()
 							name = L["Restore Defaults"], 
 							desc = L["Restore default visibility attributes for this bar"], 
 							func = function()
-								SV:ResetData("SVBar", "Bar"..d, "customVisibility")
+								--SV:ResetData("SVBar", "Bar"..d, "customVisibility")
+								SV.db.SVBar["Bar"..d].customVisibility = SV.defaults.SVBar["Bar"..d].customVisibility;
 								MOD:UpdateBarPagingDefaults();
 								MOD:RefreshBar("Bar"..d)
 							end

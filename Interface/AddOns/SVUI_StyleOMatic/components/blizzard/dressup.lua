@@ -39,7 +39,7 @@ local function DressUpStyle()
 	DressUpModel:SetPointToScale("TOPLEFT", DressUpFrame, "TOPLEFT", 12, -76)
 	DressUpModel:SetPointToScale("BOTTOMRIGHT", DressUpFrame, "BOTTOMRIGHT", -12, 36)
 
-	DressUpModel:SetStylePanel("Fixed", "Model")
+	DressUpModel:SetStylePanel("!_Frame", "Model")
 
 	DressUpFrameCancelButton:SetPointToScale("BOTTOMRIGHT", DressUpFrame, "BOTTOMRIGHT", -12, 12)
 	DressUpFrameCancelButton:SetStylePanel("Button")

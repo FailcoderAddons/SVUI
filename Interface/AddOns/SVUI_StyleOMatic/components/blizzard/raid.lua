@@ -63,7 +63,7 @@ local function RaidUIStyle()
 				local slot = _G[name]
 				if(slot) then
 					slot:RemoveTextures()
-					slot:SetStylePanel("Default", "Inset", true)
+					slot:SetStylePanel("Frame", "Inset", true)
 				end
 			end
 		end 
@@ -90,7 +90,7 @@ local function RaidInfoStyle()
 	end
 
 	RaidInfoScrollFrame:RemoveTextures()
-	RaidInfoFrame:SetStylePanel("Default", 'Transparent')
+	RaidInfoFrame:SetStylePanel("Frame", 'Transparent')
 	RaidInfoFrame.Panel:SetPointToScale("TOPLEFT", RaidInfoFrame, "TOPLEFT")
 	RaidInfoFrame.Panel:SetPointToScale("BOTTOMRIGHT", RaidInfoFrame, "BOTTOMRIGHT")
 

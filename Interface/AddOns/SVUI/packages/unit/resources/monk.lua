@@ -45,14 +45,36 @@ local L = SV.L;
 if(SV.class ~= "MONK") then return end 
 local MOD = SV.SVUnit
 if(not MOD) then return end
+
+local ORB_ICON = [[Interface\AddOns\SVUI\assets\artwork\Unitframe\Class\ORB]];
+local ORB_BG = [[Interface\AddOns\SVUI\assets\artwork\Unitframe\Class\ORB-BG]];
+
+local STAGGER_BAR = [[Interface\AddOns\SVUI\assets\artwork\Unitframe\Class\MONK-STAGGER-BAR]];
+local STAGGER_BG = [[Interface\AddOns\SVUI\assets\artwork\Unitframe\Class\MONK-STAGGER-BG]];
+local STAGGER_FG = [[Interface\AddOns\SVUI\assets\artwork\Unitframe\Class\MONK-STAGGER-FG]];
+local STAGGER_ICON = [[Interface\AddOns\SVUI\assets\artwork\Unitframe\Class\MONK-STAGGER-ICON]];
+
+local CHI_FILE = [[Interface\Addons\SVUI\assets\artwork\Unitframe\Class\MONK]];
+local CHI_COORDS = {
+	[1] = {0,0.5,0,0.5},
+	[2] = {0.5,1,0,0.5},
+	[3] = {0,0.5,0.5,1},
+	[4] = {0.5,1,0.5,1},
+	[5] = {0.5,1,0,0.5},
+	[6] = {0,0.5,0.5,1},
+};
 --[[ 
 ########################################################## 
 POSITIONING
 ##########################################################
 ]]--
+local OnMove = function()
+	SV.db.SVUnit.player.classbar.detachFromFrame = true
+end
+
 local Reposition = function(self)
 	local db = SV.db.SVUnit.player
-	local bar = self.MonkHarmony;
+	local bar = self.KungFu;
 	local max = self.MaxClassPower;
 	local size = db.classbar.height
 	local width = size * max;
@@ -86,69 +108,30 @@ local StartFlash = function(self) SV.Animate:Flash(self.overlay,1,true) end
 local StopFlash = function(self) SV.Animate:StopFlash(self.overlay) end
 --[[ 
 ########################################################## 
-MONK STAGGER BAR
-##########################################################
-]]--
-local function CreateDrunkenMasterBar(playerFrame)
-	local stagger = CreateFrame("Statusbar",nil,playerFrame)
-	stagger:SetSize(45,90)
-	stagger:SetPointToScale('BOTTOMLEFT', playerFrame, 'BOTTOMRIGHT', 6, 0)
-	stagger:SetOrientation("VERTICAL")
-	stagger:SetStatusBarTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\MONK-STAGGER-BAR")
-	stagger:GetStatusBarTexture():SetHorizTile(false)
-
-	stagger.bg = stagger:CreateTexture(nil,'BORDER',nil,1)
-	stagger.bg:SetAllPoints(stagger)
-	stagger.bg:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\MONK-STAGGER-BG")
-	stagger.bg:SetVertexColor(1,1,1,0.6)
-
-	stagger.overlay = stagger:CreateTexture(nil,'OVERLAY')
-	stagger.overlay:SetAllPoints(stagger)
-	stagger.overlay:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\MONK-STAGGER-FG")
-	stagger.overlay:SetVertexColor(1,1,1)
-
-	stagger.icon = stagger:CreateTexture(nil,'OVERLAY')
-	stagger.icon:SetAllPoints(stagger)
-	stagger.icon:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\MONK-STAGGER-ICON")
-
-	stagger:Hide()
-	return stagger 
-end 
---[[ 
-########################################################## 
 MONK HARMONY
 ##########################################################
 ]]--
-local CHI_FILE = [[Interface\Addons\SVUI\assets\artwork\Unitframe\Class\MONK]];
-local CHI_DATA = {
-	[1] = {0,0.5,0,0.5},
-	[2] = {0.5,1,0,0.5},
-	[3] = {0,0.5,0.5,1},
-	[4] = {0.5,1,0.5,1},
-	[5] = {0.5,1,0,0.5},
-	[6] = {0,0.5,0.5,1},
-};
 function MOD:CreateClassBar(playerFrame)
 	local max = 6
-	local bar = CreateFrame("Frame",nil,playerFrame)
+	local bar = CreateFrame("Frame", nil, playerFrame)
 	bar:SetFrameLevel(playerFrame.TextGrip:GetFrameLevel() + 30)
 	for i=1, max do
-		local coords = CHI_DATA[i]
+		local coords = CHI_COORDS[i]
 		bar[i] = CreateFrame("StatusBar", nil, bar)
-		bar[i]:SetStatusBarTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\ORB")
+		bar[i]:SetStatusBarTexture(ORB_ICON)
 		bar[i]:GetStatusBarTexture():SetHorizTile(false)
 		bar[i].noupdate = true;
 
 		bar[i].bg = bar[i]:CreateTexture(nil, "BACKGROUND")
 		bar[i].bg:SetAllPoints(bar[i])
-		bar[i].bg:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\ORB-BG")
+		bar[i].bg:SetTexture(ORB_BG)
 
 		bar[i].glow = bar[i]:CreateTexture(nil, "OVERLAY")
 		bar[i].glow:SetAllPoints(bar[i])
 		bar[i].glow:SetTexture(CHI_FILE)
 		bar[i].glow:SetTexCoord(coords[1],coords[2],coords[3],coords[4])
 		
-		bar[i].overlay = bar[i]:CreateTexture(nil, "OVERLAY", nil, 1)
+		bar[i].overlay = bar[i]:CreateTexture(nil, "OVERLAY", nil, 7)
 		bar[i].overlay:SetAllPoints(bar[i])
 		bar[i].overlay:SetTexture(CHI_FILE)
 		bar[i].overlay:SetTexCoord(coords[1],coords[2],coords[3],coords[4])
@@ -158,18 +141,43 @@ function MOD:CreateClassBar(playerFrame)
 		bar[i]:SetScript("OnHide", StopFlash)
 
 		SV.SpecialFX:SetFXFrame(bar[i], "chi")
-	end 
+		bar[i].FX:SetFrameLevel(bar[i]:GetFrameLevel())
+	end
+
+	local stagger = CreateFrame("Statusbar",nil,playerFrame)
+	stagger:SetPointToScale('TOPLEFT', playerFrame, 'TOPRIGHT', 3, 0)
+	stagger:SetPointToScale('BOTTOMLEFT', playerFrame, 'BOTTOMRIGHT', 3, 0)
+	stagger:SetWidth(10)
+	stagger:SetStylePanel("Frame", "Bar")
+	stagger:SetOrientation("VERTICAL")
+	stagger:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Bars\DEFAULT]])
+	--stagger:GetStatusBarTexture():SetHorizTile(false)
+
+	stagger.bg = stagger:CreateTexture(nil,'BORDER',nil,1)
+	stagger.bg:SetAllPoints(stagger)
+	stagger.bg:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Bars\DEFAULT]])
+	stagger.bg:SetVertexColor(0,0,0,0.33)
+
+	-- stagger.overlay = stagger:CreateTexture(nil,'OVERLAY')
+	-- stagger.overlay:SetAllPoints(stagger)
+	-- stagger.overlay:SetTexture(STAGGER_FG)
+	-- stagger.overlay:SetVertexColor(1,1,1)
+
+	-- stagger.icon = stagger:CreateTexture(nil,'OVERLAY')
+	-- stagger.icon:SetAllPoints(stagger)
+	-- stagger.icon:SetTexture(STAGGER_ICON)
+
+	bar.DrunkenMaster = stagger
 
 	local classBarHolder = CreateFrame("Frame", "Player_ClassBar", bar)
 	classBarHolder:SetPointToScale("TOPLEFT", playerFrame, "BOTTOMLEFT", 0, -2)
 	bar:SetPoint("TOPLEFT", classBarHolder, "TOPLEFT", 0, 0)
 	bar.Holder = classBarHolder
-	SV.Mentalo:Add(bar.Holder, L["Classbar"])
+	SV.Mentalo:Add(bar.Holder, L["Classbar"], nil, OnMove)
 
 	playerFrame.MaxClassPower = max
-	playerFrame.DrunkenMaster = CreateDrunkenMasterBar(playerFrame)
 	playerFrame.ClassBarRefresh = Reposition
 
-	playerFrame.MonkHarmony = bar
-	return 'MonkHarmony'  
+	playerFrame.KungFu = bar
+	return 'KungFu'  
 end 

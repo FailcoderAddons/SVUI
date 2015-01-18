@@ -28,10 +28,12 @@ local AddonName, AddonObject = ...
 assert(LibSuperVillain, AddonName .. " requires LibSuperVillain")
 
 AddonObject.defaults = {
-    ["saveChats"] = false,
-    ["service"] = true,
-    ["autoAnswer"] = false, 
-    ["prefix"] = true
+    ["general"] = {
+        ["saveChats"] = false,
+        ["service"] = true,
+        ["autoAnswer"] = false, 
+        ["prefix"] = true
+    }
 }
 
 local PLUGIN = LibSuperVillain("Registry"):NewPlugin(AddonName, AddonObject, "ChatOMatic_Profile", nil, "ChatOMatic_Cache")
@@ -47,30 +49,30 @@ SV.Options.args.plugins.args.pluginOptions.args[Schema].args["saveChats"] = {
     order = 2, 
     name = "Save Chat History", 
     type = "toggle", 
-    get = function(key) return PLUGIN.db[key[#key]] end,
-    set = function(key,value) PLUGIN.db[key[#key]] = value end
+    get = function(key) return PLUGIN.db.general[key[#key]] end,
+    set = function(key,value) PLUGIN.db.general[key[#key]] = value end
 }
 
 SV.Options.args.plugins.args.pluginOptions.args[Schema].args["service"] = {
     order = 3, 
     name = "Answering Service", 
     type = "toggle", 
-    get = function(key) return PLUGIN.db[key[#key]] end,
-    set = function(key,value) PLUGIN.db[key[#key]] = value end
+    get = function(key) return PLUGIN.db.general[key[#key]] end,
+    set = function(key,value) PLUGIN.db.general[key[#key]] = value end
 }
 
 SV.Options.args.plugins.args.pluginOptions.args[Schema].args["autoAnswer"] = {
     order = 4, 
     name = "Auto Answer", 
     type = "toggle", 
-    get = function(key) return PLUGIN.db[key[#key]] end,
-    set = function(key,value) PLUGIN.db[key[#key]] = value end
+    get = function(key) return PLUGIN.db.general[key[#key]] end,
+    set = function(key,value) PLUGIN.db.general[key[#key]] = value end
 }
 
 SV.Options.args.plugins.args.pluginOptions.args[Schema].args["prefix"] = {
     order = 5, 
     name = "Prefix Messages", 
     type = "toggle", 
-    get = function(key) return PLUGIN.db[key[#key]] end,
-    set = function(key,value) PLUGIN.db[key[#key]] = value end
+    get = function(key) return PLUGIN.db.general[key[#key]] end,
+    set = function(key,value) PLUGIN.db.general[key[#key]] = value end
 }

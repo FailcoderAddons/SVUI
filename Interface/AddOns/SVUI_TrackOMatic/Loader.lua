@@ -28,10 +28,12 @@ local AddonName, AddonObject = ...
 assert(LibSuperVillain, AddonName .. " requires LibSuperVillain")
 
 AddonObject.defaults = {
-    ["size"] = 75, 
-    ["fontSize"] = 12,
-    ["groups"] = true,
-    ["proximity"] = false, 
+    ["general"] = {
+        ["size"] = 75, 
+        ["fontSize"] = 12,
+        ["groups"] = true,
+        ["proximity"] = false, 
+    }
 }
 
 local PLUGIN = LibSuperVillain("Registry"):NewPlugin(AddonName, AddonObject, "TrackOMatic_Profile", "TrackOMatic_Global")
@@ -48,17 +50,17 @@ SV.Options.args.plugins.args.pluginOptions.args[Schema].args["groups"] = {
     name = L["GPS"],
     desc = L["Use group frame GPS elements"],
     type = "toggle",
-    get = function(key) return PLUGIN.db[key[#key]] end,
-    set = function(key,value) PLUGIN:ChangeDBVar(value, key[#key]); end
+    get = function(key) return PLUGIN.db.general.groups end,
+    set = function(key,value) PLUGIN.db.general.groups = value; end
 }
 
 SV.Options.args.plugins.args.pluginOptions.args[Schema].args["proximity"] = {
     order = 4,
     name = L["GPS Proximity"],
-    desc = L["Only point to closest low health unit"],
+    desc = L["Only point to closest low health unit (if one is in range)."],
     type = "toggle",
-    get = function(key) return PLUGIN.db[key[#key]] end,
-    set = function(key,value) PLUGIN:ChangeDBVar(value, key[#key]); end
+    get = function(key) return PLUGIN.db.general.proximity end,
+    set = function(key,value) PLUGIN.db.general.proximity = value; end
 }
 
 SV.Options.args.plugins.args.pluginOptions.args[Schema].args["fontSize"] = {
@@ -69,6 +71,6 @@ SV.Options.args.plugins.args.pluginOptions.args[Schema].args["fontSize"] = {
     min = 6,
     max = 22,
     step = 1,
-    get = function(key) return PLUGIN.db[key[#key]] end,
-    set = function(key,value) PLUGIN:ChangeDBVar(value, key[#key]); end
+    get = function(key) return PLUGIN.db.general.fontSize end,
+    set = function(key,value) PLUGIN.db.general.fontSize = value; end
 }

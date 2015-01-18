@@ -58,8 +58,8 @@ local function TabardFrameStyle()
 		 return 
 	end 
 	cleanT(TabardFrame, true)
-	TabardFrame:SetStylePanel("Default", "Action", false)
-	TabardModel:SetStylePanel("Fixed", "Transparent")
+	TabardFrame:SetStylePanel("Frame", "Composite2", false)
+	TabardModel:SetStylePanel("!_Frame", "Transparent")
 	TabardFrameCancelButton:SetStylePanel("Button")
 	TabardFrameAcceptButton:SetStylePanel("Button")
 	PLUGIN:ApplyCloseButtonStyle(TabardFrameCloseButton)

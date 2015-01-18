@@ -52,6 +52,22 @@ local textStringFormats = {
 	["curmax"] = "Current - Maximum",
 	["curmax-percent"] = "Current - Maximum | %",
 }
+local FRAME_MAP = {
+	["player"] = "SVUI_Player", 
+	["target"] = "SVUI_Target", 
+	["targettarget"] = "SVUI_TargetTarget",
+	["pet"] = "SVUI_Pet", 
+	["pettarget"] = "SVUI_PetTarget",
+	["focus"] = "SVUI_Focus",  
+	["focustarget"] = "SVUI_FocusTarget",
+	--["boss"] = "SVUI_Boss", 
+	--["arena"] = "SVUI_Arena",
+	--["party"] = "SVUI_Party",
+	--["raid"] = "SVUI_Raid",
+	--["raidpet"] = "SVUI_Raidpet",
+	--["tank"] = "SVUI_Tank",
+	--["assist"] = "SVUI_Assist",
+};
 --[[ 
 ########################################################## 
 SET PACKAGE OPTIONS
@@ -439,53 +455,21 @@ function ns:SetHealthConfigGroup(partyRaid, updateFunction, unitName, count)
 		end,
 		args = {
 			commonGroup = {
-				order = 2, 
+				order = 1, 
 				type = "group", 
 				guiInline = true, 
 				name = L["Base Settings"],
 				args = {
-					configureButton = {
-						order = 1, 
-						width = "full", 
-						name = L["Coloring"], 
-						type = "execute", 
-						func = function() ACD:SelectGroup(SV.NameID, "SVUnit", "common", "allColorsGroup", "healthGroup") end
-					}, 
-					classColor = {
-						order = 2, 
-						type = "toggle", 
-						name = L["Class Health"], 
-						desc = L["Color health by classcolor or reaction."],
-					}, 
-					valueColor = {
-						order = 3, 
-						type = "toggle", 
-						name = L["Health By Value"], 
-						desc = L["Color health by amount remaining."],
-					}, 
-					classBackdrop = {
-						order = 4, 
-						type = "toggle", 
-						name = L["Class Backdrop"], 
-						desc = L["Color the health backdrop by class or reaction."],
-					},
-					reversed = {
-						type = "toggle", 
-						order = 5, 
-						name = L["Reverse Fill"], 
-						desc = L["Invert this bars fill direction"]
-					}, 
 					position = {
 						type = "select", 
-						order = 6, 
+						order = 1, 
 						name = L["Text Position"], 
 						desc = L["Set the anchor for this bars value text"], 
 						values = SV.PointIndexes
 					},
 					xOffset = {
-						order = 7, 
+						order = 2, 
 						type = "range", 
-						width = "full", 
 						name = L["Text xOffset"], 
 						desc = L["Offset position for text."], 
 						min = -300, 
@@ -493,19 +477,30 @@ function ns:SetHealthConfigGroup(partyRaid, updateFunction, unitName, count)
 						step = 1
 					}, 
 					yOffset = {
-						order = 8, 
+						order = 3, 
 						type = "range", 
-						width = "full", 
 						name = L["Text yOffset"], 
 						desc = L["Offset position for text."], 
 						min = -300, 
 						max = 300, 
 						step = 1
 					},
+					spacer1 = {
+						order = 4, 
+						name = "", 
+						type = "description", 
+						width = "full", 
+					},
+					reversed = {
+						type = "toggle", 
+						order = 5, 
+						name = L["Reverse Fill"], 
+						desc = L["Invert this bars fill direction"]
+					}, 
 				}
 			}, 
 			formatGroup = {
-				order = 100, 
+				order = 2, 
 				type = "group", 
 				guiInline = true, 
 				name = L["Text Settings"],
@@ -540,19 +535,52 @@ function ns:SetHealthConfigGroup(partyRaid, updateFunction, unitName, count)
 						values = textStringFormats, 
 					}
 				}
+			},
+			colorGroup = {
+				order = 3, 
+				type = "group", 
+				guiInline = true, 
+				name = L["Color Settings"],
+				args = {
+					classColor = {
+						order = 1, 
+						type = "toggle", 
+						name = L["Class Health"], 
+						desc = L["Color health by classcolor or reaction."],
+					}, 
+					valueColor = {
+						order = 2, 
+						type = "toggle", 
+						name = L["Health By Value"], 
+						desc = L["Color health by amount remaining."],
+					},
+					classBackdrop = {
+						order = 3, 
+						type = "toggle", 
+						name = L["Class Backdrop"], 
+						desc = L["Color the health backdrop by class or reaction."],
+					},
+					configureButton = {
+						order = 4, 
+						name = L["Coloring"], 
+						type = "execute", 
+						width = 'full',
+						func = function() ACD:SelectGroup(SV.NameID, "SVUnit", "common", "allColorsGroup", "healthGroup") end
+					},
+				} 
 			}
 		}
 	}
 	if partyRaid then 
-		healthOptions.args.frequentUpdates = {
+		healthOptions.args.commonGroup.args.frequentUpdates = {
 			type = "toggle", 
-			order = 1, 
+			order = 6, 
 			name = L["Frequent Updates"], 
 			desc = L["Rapidly update the health, uses more memory and cpu. Only recommended for healing."]
 		}
-		healthOptions.args.orientation = {
+		healthOptions.args.commonGroup.args.orientation = {
 			type = "select", 
-			order = 2, 
+			order = 7, 
 			name = L["Orientation"], 
 			desc = L["Direction the health bar moves when gaining/losing health."], 
 			values = {["HORIZONTAL"] = L["Horizontal"], ["VERTICAL"] = L["Vertical"]}
@@ -574,46 +602,23 @@ function ns:SetPowerConfigGroup(playerTarget, updateFunction, unitName, count)
 			updateFunction(MOD, unitName, count)
 		end,
 		args = {
-			enable = {type = "toggle", order = 1, name = L["Enable"]}, 
+			enable = {type = "toggle", order = 1, name = L["Power Bar Enabled"]}, 
 			commonGroup = {
 				order = 2, 
 				type = "group", 
 				guiInline = true, 
 				name = L["Base Settings"],
-				args = {
-					configureButton = {
-						order = 1, 
-						name = L["Coloring"], 
-						width = "full", 
-						type = "execute", 
-						func = function()ACD:SelectGroup(SV.NameID, "SVUnit", "common", "allColorsGroup", "powerGroup")end
-					}, 
-					classColor = {
-						order = 2, 
-						type = "toggle", 
-						name = L["Class Power"], 
-						desc = L["Color power by classcolor or reaction."],
-					}, 
+				args = { 
 					position = {
 						type = "select", 
-						order = 3, 
+						order = 1, 
 						name = L["Text Position"], 
 						desc = L["Set the anchor for this bars value text"], 
 						values = SV.PointIndexes
-					}, 
-					height = {
-						type = "range", 
-						name = L["Height"], 
-						order = 4, 
-						width = "full", 
-						min = 3, 
-						max = 50, 
-						step = 1
-					}, 
+					},
 					xOffset = {
-						order = 5, 
+						order = 2, 
 						type = "range", 
-						width = "full", 
 						name = L["Text xOffset"], 
 						desc = L["Offset position for text."], 
 						min = -300, 
@@ -621,19 +626,26 @@ function ns:SetPowerConfigGroup(playerTarget, updateFunction, unitName, count)
 						step = 1
 					}, 
 					yOffset = {
-						order = 6, 
+						order = 3, 
 						type = "range", 
-						width = "full", 
 						name = L["Text yOffset"], 
 						desc = L["Offset position for text."], 
 						min = -300, 
 						max = 300, 
 						step = 1
-					}, 
+					},
+					height = {
+						type = "range", 
+						name = L["Height"], 
+						order = 4,  
+						min = 3, 
+						max = 50, 
+						step = 1
+					},
 				}
 			}, 
 			formatGroup = {
-				order = 100, 
+				order = 3, 
 				type = "group", 
 				guiInline = true, 
 				name = L["Text Settings"],
@@ -684,24 +696,30 @@ function ns:SetPowerConfigGroup(playerTarget, updateFunction, unitName, count)
 						values = textStringFormats, 
 					}
 				}
+			},
+			colorGroup = {
+				order = 4, 
+				type = "group", 
+				guiInline = true, 
+				name = L["Color Settings"],
+				args = {
+					classColor = {
+						order = 1, 
+						type = "toggle", 
+						name = L["Class Power"], 
+						desc = L["Color power by classcolor or reaction."],
+					},
+					configureButton = {
+						order = 2, 
+						name = L["Coloring"], 
+						type = "execute", 
+						width = 'full',
+						func = function() ACD:SelectGroup(SV.NameID, "SVUnit", "common", "allColorsGroup", "powerGroup") end
+					},
+				} 
 			}
 		}
 	}
-
-	if(playerTarget) then 
-		powerOptions.args.formatGroup.args.attachTextToPower = {
-			type = "toggle", 
-			order = 2, 
-			name = L["Attach Text to Power"],
-			get = function(key) 
-				return SV.db.SVUnit[unitName]["power"].attachTextToPower 
-			end, 
-			set = function(key, value)
-				MOD:ChangeDBVar(value, "attachTextToPower", unitName, "power");
-				updateFunction(MOD, unitName, count)
-			end,
-		}
-	end
 
 	return powerOptions 
 end 
@@ -720,22 +738,21 @@ function ns:SetNameConfigGroup(updateFunction, unitName, count)
 		end,
 		args = {
 			commonGroup = {
-				order = 2, 
+				order = 1, 
 				type = "group", 
 				guiInline = true, 
 				name = L["Base Settings"], 
 				args = {
 					position = {
 						type = "select", 
-						order = 3, 
+						order = 1, 
 						name = L["Text Position"], 
 						desc = L["Set the anchor for this units name text"], 
 						values = SV.PointIndexes
 					}, 
 					xOffset = {
-						order = 6, 
+						order = 2, 
 						type = "range", 
-						width = "full", 
 						name = L["Text xOffset"], 
 						desc = L["Offset position for text."], 
 						min = -300, 
@@ -743,9 +760,8 @@ function ns:SetNameConfigGroup(updateFunction, unitName, count)
 						step = 1
 					}, 
 					yOffset = {
-						order = 7, 
-						type = "range", 
-						width = "full", 
+						order = 3, 
+						type = "range",
 						name = L["Text yOffset"], 
 						desc = L["Offset position for text."], 
 						min = -300, 
@@ -784,7 +800,6 @@ function ns:SetNameConfigGroup(updateFunction, unitName, count)
 						name = L["Font Size"], 
 						desc = L["Set the font size."], 
 						type = "range", 
-						width = "full", 
 						min = 6, 
 						max = 22, 
 						step = 1
@@ -829,7 +844,6 @@ function ns:SetNameConfigGroup(updateFunction, unitName, count)
 						name = L["Name Length"],
 						desc = L["TEXT_FORMAT_DESC"], 
 						type = "range", 
-						width = "full", 
 						get = function() return SV.db.SVUnit[unitName]["formatting"].name_length end,
 						min = 1, 
 						max = 30, 
@@ -842,14 +856,7 @@ function ns:SetNameConfigGroup(updateFunction, unitName, count)
 	return k 
 end 
 
-local function getAvailablePortraitConfig(unit)
-	local db = SV.db.SVUnit[unit].portrait;
-	if db.overlay then
-		return {["3D"] = L["3D"]}
-	else
-		return {["2D"] = L["2D"], ["3D"] = L["3D"]}
-	end
-end
+local portraitStyles = {["2D"] = L["2D"], ["3D"] = L["3D"], ["3DOVERLAY"] = L["3D Overlay"]};
 
 function ns:SetPortraitConfigGroup(updateFunction, unitName, count)
 	local k = {
@@ -867,7 +874,7 @@ function ns:SetPortraitConfigGroup(updateFunction, unitName, count)
 			enable = {
 				type = "toggle", 
 				order = 1, 
-				name = L["Enable"]
+				name = L["Unit Portrait Enabled"]
 			},
 			styleGroup = {
 				order = 2, 
@@ -880,24 +887,16 @@ function ns:SetPortraitConfigGroup(updateFunction, unitName, count)
 						type = "select", 
 						name = L["Style"], 
 						desc = L["Select the display method of the portrait. NOTE: if overlay is set then only 3D will be available"], 
-						values = function() return getAvailablePortraitConfig(unitName) end
-					},
-					overlay = {
-						order = 2,
-						type = "toggle", 
-						name = L["Overlay"], 
-						desc = L["Overlay the healthbar"], 
-						disabled = function() return SV.db.SVUnit[unitName]["portrait"].style == "2D" end
+						values = portraitStyles
 					},
 					width = {
-						order = 3, 
+						order = 2, 
 						type = "range", 
-						width = "full", 
 						name = L["Width"], 
 						min = 15, 
 						max = 150, 
 						step = 1,
-						disabled = function() return SV.db.SVUnit[unitName]["portrait"].overlay == true end
+						disabled = function() return SV.db.SVUnit[unitName]["portrait"].style == "3DOVERLAY" end
 					}
 				}
 			},
@@ -964,10 +963,11 @@ function ns:SetIconConfigGroup(updateFunction, unitName, count)
 			end,
 			args = {
 				enable = {type = "toggle", order = 1, name = L["Enable"]}, 
-				attachTo = {type = "select", order = 2, name = L["Position"], values = SV.PointIndexes}, 
-				size = {type = "range", name = L["Size"], width = "full", order = 3, min = 8, max = 60, step = 1}, 
-				xOffset = {order = 4, type = "range", name = L["xOffset"], width = "full", min = -300, max = 300, step = 1}, 
-				yOffset = {order = 5, type = "range", name = L["yOffset"], width = "full", min = -300, max = 300, step = 1}
+				attachTo = {type = "select", order = 2, name = L["Position"], values = SV.PointIndexes},
+				spacer = { order = 3, name = "", type = "description", width = "full"},
+				size = {type = "range", name = L["Size"], order = 3, min = 8, max = 60, step = 1}, 
+				xOffset = {order = 4, type = "range", name = L["xOffset"], min = -300, max = 300, step = 1}, 
+				yOffset = {order = 5, type = "range", name = L["yOffset"], min = -300, max = 300, step = 1}
 			}
 		}
 		grouporder = grouporder + 1
@@ -988,10 +988,11 @@ function ns:SetIconConfigGroup(updateFunction, unitName, count)
 			end,
 			args = {
 				enable = {type = "toggle", order = 1, name = L["Enable"]}, 
-				attachTo = {type = "select", order = 2, name = L["Position"], values = SV.PointIndexes}, 
-				size = {type = "range", name = L["Size"], width = "full", order = 3, min = 8, max = 60, step = 1}, 
-				xOffset = {order = 4, type = "range", name = L["xOffset"], width = "full", min = -300, max = 300, step = 1}, 
-				yOffset = {order = 5, type = "range", name = L["yOffset"], width = "full", min = -300, max = 300, step = 1}
+				attachTo = {type = "select", order = 2, name = L["Position"], values = SV.PointIndexes},
+				spacer = { order = 3, name = "", type = "description", width = "full"}, 
+				size = {type = "range", name = L["Size"], order = 3, min = 8, max = 60, step = 1}, 
+				xOffset = {order = 4, type = "range", name = L["xOffset"], min = -300, max = 300, step = 1}, 
+				yOffset = {order = 5, type = "range", name = L["yOffset"], min = -300, max = 300, step = 1}
 			}
 		}
 		grouporder = grouporder + 1
@@ -1012,10 +1013,11 @@ function ns:SetIconConfigGroup(updateFunction, unitName, count)
 			end,
 			args = {
 				enable = {type = "toggle", order = 1, name = L["Enable"]}, 
-				attachTo = {type = "select", order = 2, name = L["Position"], values = SV.PointIndexes}, 
-				size = {type = "range", name = L["Size"], width = "full", order = 3, min = 8, max = 60, step = 1}, 
-				xOffset = {order = 4, type = "range", name = L["xOffset"], width = "full", min = -300, max = 300, step = 1}, 
-				yOffset = {order = 5, type = "range", name = L["yOffset"], width = "full", min = -300, max = 300, step = 1}
+				attachTo = {type = "select", order = 2, name = L["Position"], values = SV.PointIndexes},
+				spacer = { order = 3, name = "", type = "description", width = "full"},
+				size = {type = "range", name = L["Size"], order = 3, min = 8, max = 60, step = 1}, 
+				xOffset = {order = 4, type = "range", name = L["xOffset"], min = -300, max = 300, step = 1}, 
+				yOffset = {order = 5, type = "range", name = L["yOffset"], min = -300, max = 300, step = 1}
 			}
 		}
 		grouporder = grouporder + 1
@@ -1036,10 +1038,11 @@ function ns:SetIconConfigGroup(updateFunction, unitName, count)
 			end,
 			args = {
 				enable = {type = "toggle", order = 1, name = L["Enable"]}, 
-				attachTo = {type = "select", order = 2, name = L["Position"], values = SV.PointIndexes}, 
-				size = {type = "range", name = L["Size"], width = "full", order = 3, min = 8, max = 60, step = 1}, 
-				xOffset = {order = 4, type = "range", name = L["xOffset"], width = "full", min = -300, max = 300, step = 1}, 
-				yOffset = {order = 5, type = "range", name = L["yOffset"], width = "full", min = -300, max = 300, step = 1}
+				attachTo = {type = "select", order = 2, name = L["Position"], values = SV.PointIndexes},
+				spacer = { order = 3, name = "", type = "description", width = "full"},
+				size = {type = "range", name = L["Size"], order = 3, min = 8, max = 60, step = 1}, 
+				xOffset = {order = 4, type = "range", name = L["xOffset"], min = -300, max = 300, step = 1}, 
+				yOffset = {order = 5, type = "range", name = L["yOffset"], min = -300, max = 300, step = 1}
 			}
 		}
 		grouporder = grouporder + 1
@@ -1060,10 +1063,11 @@ function ns:SetIconConfigGroup(updateFunction, unitName, count)
 			end,
 			args = {
 				enable = {type = "toggle", order = 1, name = L["Enable"]}, 
-				attachTo = {type = "select", order = 2, name = L["Position"], values = SV.PointIndexes}, 
-				size = {type = "range", name = L["Size"], width = "full", order = 3, min = 8, max = 60, step = 1}, 
-				xOffset = {order = 4, type = "range", name = L["xOffset"], width = "full", min = -300, max = 300, step = 1}, 
-				yOffset = {order = 5, type = "range", name = L["yOffset"], width = "full", min = -300, max = 300, step = 1}
+				attachTo = {type = "select", order = 2, name = L["Position"], values = SV.PointIndexes},
+				spacer = { order = 3, name = "", type = "description", width = "full"},
+				size = {type = "range", name = L["Size"], order = 3, min = 8, max = 60, step = 1}, 
+				xOffset = {order = 4, type = "range", name = L["xOffset"], min = -300, max = 300, step = 1}, 
+				yOffset = {order = 5, type = "range", name = L["yOffset"], min = -300, max = 300, step = 1}
 			}
 		}
 		grouporder = grouporder + 1
@@ -1084,10 +1088,11 @@ function ns:SetIconConfigGroup(updateFunction, unitName, count)
 			end,
 			args = {
 				enable = {type = "toggle", order = 1, name = L["Enable"]}, 
-				attachTo = {type = "select", order = 2, name = L["Position"], values = SV.PointIndexes}, 
-				size = {type = "range", name = L["Size"], width = "full", order = 3, min = 8, max = 60, step = 1}, 
-				xOffset = {order = 4, type = "range", name = L["xOffset"], width = "full", min = -300, max = 300, step = 1}, 
-				yOffset = {order = 5, type = "range", name = L["yOffset"], width = "full", min = -300, max = 300, step = 1}
+				attachTo = {type = "select", order = 2, name = L["Position"], values = SV.PointIndexes},
+				spacer = { order = 3, name = "", type = "description", width = "full"},
+				size = {type = "range", name = L["Size"], order = 3, min = 8, max = 60, step = 1}, 
+				xOffset = {order = 4, type = "range", name = L["xOffset"], min = -300, max = 300, step = 1}, 
+				yOffset = {order = 5, type = "range", name = L["yOffset"], min = -300, max = 300, step = 1}
 			}
 		}
 		grouporder = grouporder + 1
@@ -1108,10 +1113,11 @@ function ns:SetIconConfigGroup(updateFunction, unitName, count)
 			end,
 			args = {
 				enable = {type = "toggle", order = 1, name = L["Enable"]}, 
-				attachTo = {type = "select", order = 2, name = L["Position"], values = SV.PointIndexes}, 
-				size = {type = "range", name = L["Size"], width = "full", order = 3, min = 8, max = 60, step = 1}, 
-				xOffset = {order = 4, type = "range", name = L["xOffset"], width = "full", min = -300, max = 300, step = 1}, 
-				yOffset = {order = 5, type = "range", name = L["yOffset"], width = "full", min = -300, max = 300, step = 1}
+				attachTo = {type = "select", order = 2, name = L["Position"], values = SV.PointIndexes},
+				spacer = { order = 3, name = "", type = "description", width = "full"},
+				size = {type = "range", name = L["Size"], order = 3, min = 8, max = 60, step = 1}, 
+				xOffset = {order = 4, type = "range", name = L["xOffset"], min = -300, max = 300, step = 1}, 
+				yOffset = {order = 5, type = "range", name = L["yOffset"], min = -300, max = 300, step = 1}
 			}
 		}
 		grouporder = grouporder + 1
@@ -1132,10 +1138,11 @@ function ns:SetIconConfigGroup(updateFunction, unitName, count)
 			end,
 			args = {
 				enable = {type = "toggle", order = 1, name = L["Enable"]}, 
-				attachTo = {type = "select", order = 2, name = L["Position"], values = SV.PointIndexes}, 
-				size = {type = "range", name = L["Size"], width = "full", order = 3, min = 8, max = 60, step = 1}, 
-				xOffset = {order = 4, type = "range", name = L["xOffset"], width = "full", min = -300, max = 300, step = 1}, 
-				yOffset = {order = 5, type = "range", name = L["yOffset"], width = "full", min = -300, max = 300, step = 1}
+				attachTo = {type = "select", order = 2, name = L["Position"], values = SV.PointIndexes},
+				spacer = { order = 3, name = "", type = "description", width = "full"},
+				size = {type = "range", name = L["Size"], order = 3, min = 8, max = 60, step = 1}, 
+				xOffset = {order = 4, type = "range", name = L["xOffset"], min = -300, max = 300, step = 1}, 
+				yOffset = {order = 5, type = "range", name = L["yOffset"], min = -300, max = 300, step = 1}
 			}
 		}
 		grouporder = grouporder + 1
@@ -1157,10 +1164,10 @@ local BoolFilters = {
 local function setAuraFilteringOptions(configTable, unitName, auraType, updateFunction, isPlayer)
 	if BoolFilters[unitName] then
 		configTable.filterGroup = {
-			order = 10, 
+			order = 18, 
 			guiInline = true, 
 			type = "group", 
-			name = L["Filter Options"],
+			name = L["Aura filtering..."], 
 			args = {
 				filterWhiteList = {
 					order = 1, 
@@ -1215,223 +1222,179 @@ local function setAuraFilteringOptions(configTable, unitName, auraType, updateFu
 					set = function(key, value) SV.db.SVUnit[unitName][auraType].filterRaid = value; updateFunction(MOD, unitName) end,
 					disabled = function() return SV.db.SVUnit[unitName][auraType].filterWhiteList end,
 				},
-				useFilter = {
-					order = 6, 
-					type = "select",
-					name = L["Custom Filter"], 
-					desc = L["Select a custom filter to include."],  
-					values = function()
-						filterList = {}
-						filterList[""] = NONE;
-						for n in pairs(SV.filters.Custom) do 
-							filterList[n] = n 
-						end 
-						return filterList 
-					end,
-					get = function(key) return SV.db.SVUnit[unitName][auraType].useFilter end,
-					set = function(key, value) SV.db.SVUnit[unitName][auraType].useFilter = value; updateFunction(MOD, unitName) end,
-					disabled = function() return not SV.db.SVUnit.arena.pvp.enable end,
-				}
 			}
 		}
 	else
-		configTable.filterGroup = {
-			order = 10, 
+		configTable.friendlyGroup = {
+			order = 18, 
 			guiInline = true, 
 			type = "group", 
-			name = L["Filter Options"], 
+			name = L["When the unit is friendly..."], 
 			args = {
-				friendlyGroup = {
+				filterAll = {
 					order = 1, 
-					guiInline = true, 
-					type = "group", 
-					name = L["When the unit is friendly..."], 
-					args = {
-						filterAll = {
-							order = 1, 
-							type = "toggle", 
-							name = L["Hide All"], 
-							desc = L["Don't display any " .. auraType .. "."], 
-							get = function(key) return SV.db.SVUnit[unitName][auraType].filterAll.friendly end,
-							set = function(key, value)
-								SV.db.SVUnit[unitName][auraType].filterAll.friendly = value;
-								if(value) then
-									SV.db.SVUnit[unitName][auraType].filterWhiteList.friendly = false;
-									SV.db.SVUnit[unitName][auraType].filterPlayer.friendly = false;
-									SV.db.SVUnit[unitName][auraType].filterDispellable.friendly = false;
-									SV.db.SVUnit[unitName][auraType].filterInfinite.friendly = false;
-									if(SV.db.SVUnit[unitName][auraType].filterRaid) then
-										SV.db.SVUnit[unitName][auraType].filterRaid.friendly = false;
-									end
-								end
-								updateFunction(MOD, unitName)
-							end,
-						},
-						filterWhiteList = {
-							order = 2, 
-							type = "toggle", 
-							name = L["Only White Listed"], 
-							desc = L["Only show auras that are on the whitelist."], 
-							get = function(key)return SV.db.SVUnit[unitName][auraType].filterWhiteList.friendly end, 
-							set = function(key, value)SV.db.SVUnit[unitName][auraType].filterWhiteList.friendly = value; updateFunction(MOD, unitName) end,
-							set = function(key, value)
-								SV.db.SVUnit[unitName][auraType].filterWhiteList.friendly = value;
-								if(value) then
-									SV.db.SVUnit[unitName][auraType].filterPlayer.friendly = false;
-									SV.db.SVUnit[unitName][auraType].filterDispellable.friendly = false;
-									SV.db.SVUnit[unitName][auraType].filterInfinite.friendly = false;
-									if(SV.db.SVUnit[unitName][auraType].filterRaid) then
-										SV.db.SVUnit[unitName][auraType].filterRaid.friendly = false;
-									end
-								end
-								updateFunction(MOD, unitName)
-							end,
-							disabled = function() 
-								return SV.db.SVUnit[unitName][auraType].filterAll.friendly
-							end,
-						},
-						filterPlayer = {
-							order = 3, 
-							type = "toggle", 
-							name = L["From You"], 
-							desc = L["Only show auras that were cast by you."], 
-							get = function(key)return SV.db.SVUnit[unitName][auraType].filterPlayer.friendly end, 
-							set = function(key, value)SV.db.SVUnit[unitName][auraType].filterPlayer.friendly = value; updateFunction(MOD, unitName) end,
-							disabled = function() 
-								return (SV.db.SVUnit[unitName][auraType].filterAll.friendly or SV.db.SVUnit[unitName][auraType].filterWhiteList.friendly)
-							end,
-						},
-						filterDispellable = {
-							order = 4, 
-							type = "toggle", 
-							name = L["You Can Remove"], 
-							desc = L["Only show auras that can be removed by you. (example: Purge, Dispel)"], 
-							get = function(key)return SV.db.SVUnit[unitName][auraType].filterDispellable.friendly end, 
-							set = function(key, value)SV.db.SVUnit[unitName][auraType].filterDispellable.friendly = value; updateFunction(MOD, unitName) end,
-							disabled = function() 
-								return (SV.db.SVUnit[unitName][auraType].filterAll.friendly or SV.db.SVUnit[unitName][auraType].filterWhiteList.friendly)
-							end,
-						},
-						filterInfinite = {
-							order = 5, 
-							type = "toggle", 
-							name = L["No Duration"], 
-							desc = L["Don't display auras that have no duration."], 
-							get = function(key)return SV.db.SVUnit[unitName][auraType].filterInfinite.friendly end, 
-							set = function(key, value)SV.db.SVUnit[unitName][auraType].filterInfinite.friendly = value; updateFunction(MOD, unitName) end,
-							disabled = function() 
-								return (SV.db.SVUnit[unitName][auraType].filterAll.friendly or SV.db.SVUnit[unitName][auraType].filterWhiteList.friendly)
-							end,
-						},
-					},
-				},
-				enemyGroup = {
-					order = 2, 
-					guiInline = true, 
-					type = "group", 
-					name = L["When the unit is hostile..."], 
-					args = {
-						filterAll = {
-							order = 1, 
-							type = "toggle", 
-							name = L["Hide All"], 
-							desc = L["Don't display any " .. auraType .. "."], 
-							get = function(key)return SV.db.SVUnit[unitName][auraType].filterAll.enemy end, 
-							set = function(key, value)
-								SV.db.SVUnit[unitName][auraType].filterAll.enemy = value;
-								if(value) then
-									SV.db.SVUnit[unitName][auraType].filterWhiteList.enemy = false;
-									SV.db.SVUnit[unitName][auraType].filterPlayer.enemy = false;
-									SV.db.SVUnit[unitName][auraType].filterDispellable.enemy = false;
-									SV.db.SVUnit[unitName][auraType].filterInfinite.enemy = false;
-									if(SV.db.SVUnit[unitName][auraType].filterRaid) then
-										SV.db.SVUnit[unitName][auraType].filterRaid.enemy = false;
-									end
-								end
-								updateFunction(MOD, unitName)
-							end,
-						},
-						filterWhiteList = {
-							order = 2, 
-							type = "toggle", 
-							name = L["Only White Listed"], 
-							desc = L["Only show auras that are on the whitelist."], 
-							get = function(key)return SV.db.SVUnit[unitName][auraType].filterPlayer.enemy end, 
-							set = function(key, value)
-								SV.db.SVUnit[unitName][auraType].filterWhiteList.enemy = value;
-								if(value) then
-									SV.db.SVUnit[unitName][auraType].filterPlayer.enemy = false;
-									SV.db.SVUnit[unitName][auraType].filterDispellable.enemy = false;
-									SV.db.SVUnit[unitName][auraType].filterInfinite.enemy = false;
-									if(SV.db.SVUnit[unitName][auraType].filterRaid) then
-										SV.db.SVUnit[unitName][auraType].filterRaid.enemy = false;
-									end
-								end
-								updateFunction(MOD, unitName)
-							end,
-							disabled = function() 
-								return SV.db.SVUnit[unitName][auraType].filterAll.enemy
-							end,
-						},
-						filterPlayer = {
-							order = 3, 
-							type = "toggle", 
-							name = L["From You"], 
-							desc = L["Only show auras that were cast by you."], 
-							get = function(key)return SV.db.SVUnit[unitName][auraType].filterPlayer.enemy end, 
-							set = function(key, value)SV.db.SVUnit[unitName][auraType].filterPlayer.enemy = value; updateFunction(MOD, unitName) end,
-							disabled = function() 
-								return (SV.db.SVUnit[unitName][auraType].filterAll.enemy or SV.db.SVUnit[unitName][auraType].filterWhiteList.enemy)
-							end,
-						},
-						filterDispellable = {
-							order = 4, 
-							type = "toggle", 
-							name = L["You Can Remove"], 
-							desc = L["Only show auras that can be removed by you. (example: Purge, Dispel)"], 
-							get = function(key)return SV.db.SVUnit[unitName][auraType].filterDispellable.enemy end, 
-							set = function(key, value)SV.db.SVUnit[unitName][auraType].filterDispellable.enemy = value; updateFunction(MOD, unitName) end,
-							disabled = function() 
-								return (SV.db.SVUnit[unitName][auraType].filterAll.enemy or SV.db.SVUnit[unitName][auraType].filterWhiteList.enemy)
-							end,
-						},
-						filterInfinite = {
-							order = 5, 
-							type = "toggle", 
-							name = L["No Duration"], 
-							desc = L["Don't display auras that have no duration."], 
-							get = function(key)return SV.db.SVUnit[unitName][auraType].filterInfinite.enemy end, 
-							set = function(key, value)SV.db.SVUnit[unitName][auraType].filterInfinite.enemy = value; updateFunction(MOD, unitName) end,
-							disabled = function() 
-								return (SV.db.SVUnit[unitName][auraType].filterAll.enemy or SV.db.SVUnit[unitName][auraType].filterWhiteList.enemy)
-							end,
-						},
-					},
-				},
-				useFilter = {
-					order = 3, 
-					type = "select", 
-					name = L["Custom Filter"], 
-					desc = L["Select a custom filter to include."], 
-					values = function()
-						filterList = {}
-						filterList[""] = NONE;
-						for n in pairs(SV.filters.Custom) do 
-							filterList[n] = n 
-						end 
-						return filterList 
+					type = "toggle", 
+					name = L["Hide All"], 
+					desc = L["Don't display any " .. auraType .. "."], 
+					get = function(key) return SV.db.SVUnit[unitName][auraType].filterAll.friendly end,
+					set = function(key, value)
+						SV.db.SVUnit[unitName][auraType].filterAll.friendly = value;
+						if(value) then
+							SV.db.SVUnit[unitName][auraType].filterWhiteList.friendly = false;
+							SV.db.SVUnit[unitName][auraType].filterPlayer.friendly = false;
+							SV.db.SVUnit[unitName][auraType].filterDispellable.friendly = false;
+							SV.db.SVUnit[unitName][auraType].filterInfinite.friendly = false;
+							if(SV.db.SVUnit[unitName][auraType].filterRaid) then
+								SV.db.SVUnit[unitName][auraType].filterRaid.friendly = false;
+							end
+						end
+						updateFunction(MOD, unitName)
 					end,
-					get = function(key) return SV.db.SVUnit[unitName][auraType].useFilter end,
-					set = function(key, value) SV.db.SVUnit[unitName][auraType].useFilter = value; updateFunction(MOD, unitName) end,
+				},
+				filterWhiteList = {
+					order = 2, 
+					type = "toggle", 
+					name = L["Only White Listed"], 
+					desc = L["Only show auras that are on the whitelist."], 
+					get = function(key)return SV.db.SVUnit[unitName][auraType].filterWhiteList.friendly end, 
+					set = function(key, value)SV.db.SVUnit[unitName][auraType].filterWhiteList.friendly = value; updateFunction(MOD, unitName) end,
+					set = function(key, value)
+						SV.db.SVUnit[unitName][auraType].filterWhiteList.friendly = value;
+						if(value) then
+							SV.db.SVUnit[unitName][auraType].filterPlayer.friendly = false;
+							SV.db.SVUnit[unitName][auraType].filterDispellable.friendly = false;
+							SV.db.SVUnit[unitName][auraType].filterInfinite.friendly = false;
+							if(SV.db.SVUnit[unitName][auraType].filterRaid) then
+								SV.db.SVUnit[unitName][auraType].filterRaid.friendly = false;
+							end
+						end
+						updateFunction(MOD, unitName)
+					end,
+					disabled = function() 
+						return SV.db.SVUnit[unitName][auraType].filterAll.friendly
+					end,
+				},
+				filterPlayer = {
+					order = 3, 
+					type = "toggle", 
+					name = L["From You"], 
+					desc = L["Only show auras that were cast by you."], 
+					get = function(key)return SV.db.SVUnit[unitName][auraType].filterPlayer.friendly end, 
+					set = function(key, value)SV.db.SVUnit[unitName][auraType].filterPlayer.friendly = value; updateFunction(MOD, unitName) end,
+					disabled = function() 
+						return (SV.db.SVUnit[unitName][auraType].filterAll.friendly or SV.db.SVUnit[unitName][auraType].filterWhiteList.friendly)
+					end,
+				},
+				filterDispellable = {
+					order = 4, 
+					type = "toggle", 
+					name = L["You Can Remove"], 
+					desc = L["Only show auras that can be removed by you. (example: Purge, Dispel)"], 
+					get = function(key)return SV.db.SVUnit[unitName][auraType].filterDispellable.friendly end, 
+					set = function(key, value)SV.db.SVUnit[unitName][auraType].filterDispellable.friendly = value; updateFunction(MOD, unitName) end,
+					disabled = function() 
+						return (SV.db.SVUnit[unitName][auraType].filterAll.friendly or SV.db.SVUnit[unitName][auraType].filterWhiteList.friendly)
+					end,
+				},
+				filterInfinite = {
+					order = 5, 
+					type = "toggle", 
+					name = L["No Duration"], 
+					desc = L["Don't display auras that have no duration."], 
+					get = function(key)return SV.db.SVUnit[unitName][auraType].filterInfinite.friendly end, 
+					set = function(key, value)SV.db.SVUnit[unitName][auraType].filterInfinite.friendly = value; updateFunction(MOD, unitName) end,
+					disabled = function() 
+						return (SV.db.SVUnit[unitName][auraType].filterAll.friendly or SV.db.SVUnit[unitName][auraType].filterWhiteList.friendly)
+					end,
+				},
+			},
+		}
+		configTable.enemyGroup = {
+			order = 19, 
+			guiInline = true, 
+			type = "group", 
+			name = L["When the unit is hostile..."], 
+			args = {
+				filterAll = {
+					order = 1, 
+					type = "toggle", 
+					name = L["Hide All"], 
+					desc = L["Don't display any " .. auraType .. "."], 
+					get = function(key)return SV.db.SVUnit[unitName][auraType].filterAll.enemy end, 
+					set = function(key, value)
+						SV.db.SVUnit[unitName][auraType].filterAll.enemy = value;
+						if(value) then
+							SV.db.SVUnit[unitName][auraType].filterWhiteList.enemy = false;
+							SV.db.SVUnit[unitName][auraType].filterPlayer.enemy = false;
+							SV.db.SVUnit[unitName][auraType].filterDispellable.enemy = false;
+							SV.db.SVUnit[unitName][auraType].filterInfinite.enemy = false;
+							if(SV.db.SVUnit[unitName][auraType].filterRaid) then
+								SV.db.SVUnit[unitName][auraType].filterRaid.enemy = false;
+							end
+						end
+						updateFunction(MOD, unitName)
+					end,
+				},
+				filterWhiteList = {
+					order = 2, 
+					type = "toggle", 
+					name = L["Only White Listed"], 
+					desc = L["Only show auras that are on the whitelist."], 
+					get = function(key)return SV.db.SVUnit[unitName][auraType].filterPlayer.enemy end, 
+					set = function(key, value)
+						SV.db.SVUnit[unitName][auraType].filterWhiteList.enemy = value;
+						if(value) then
+							SV.db.SVUnit[unitName][auraType].filterPlayer.enemy = false;
+							SV.db.SVUnit[unitName][auraType].filterDispellable.enemy = false;
+							SV.db.SVUnit[unitName][auraType].filterInfinite.enemy = false;
+							if(SV.db.SVUnit[unitName][auraType].filterRaid) then
+								SV.db.SVUnit[unitName][auraType].filterRaid.enemy = false;
+							end
+						end
+						updateFunction(MOD, unitName)
+					end,
+					disabled = function() 
+						return SV.db.SVUnit[unitName][auraType].filterAll.enemy
+					end,
+				},
+				filterPlayer = {
+					order = 3, 
+					type = "toggle", 
+					name = L["From You"], 
+					desc = L["Only show auras that were cast by you."], 
+					get = function(key)return SV.db.SVUnit[unitName][auraType].filterPlayer.enemy end, 
+					set = function(key, value)SV.db.SVUnit[unitName][auraType].filterPlayer.enemy = value; updateFunction(MOD, unitName) end,
 					disabled = function() 
 						return (SV.db.SVUnit[unitName][auraType].filterAll.enemy or SV.db.SVUnit[unitName][auraType].filterWhiteList.enemy)
 					end,
-				}
-			}
+				},
+				filterDispellable = {
+					order = 4, 
+					type = "toggle", 
+					name = L["You Can Remove"], 
+					desc = L["Only show auras that can be removed by you. (example: Purge, Dispel)"], 
+					get = function(key)return SV.db.SVUnit[unitName][auraType].filterDispellable.enemy end, 
+					set = function(key, value)SV.db.SVUnit[unitName][auraType].filterDispellable.enemy = value; updateFunction(MOD, unitName) end,
+					disabled = function() 
+						return (SV.db.SVUnit[unitName][auraType].filterAll.enemy or SV.db.SVUnit[unitName][auraType].filterWhiteList.enemy)
+					end,
+				},
+				filterInfinite = {
+					order = 5, 
+					type = "toggle", 
+					name = L["No Duration"], 
+					desc = L["Don't display auras that have no duration."], 
+					get = function(key)return SV.db.SVUnit[unitName][auraType].filterInfinite.enemy end, 
+					set = function(key, value)SV.db.SVUnit[unitName][auraType].filterInfinite.enemy = value; updateFunction(MOD, unitName) end,
+					disabled = function() 
+						return (SV.db.SVUnit[unitName][auraType].filterAll.enemy or SV.db.SVUnit[unitName][auraType].filterWhiteList.enemy)
+					end,
+				},
+			},
 		}
 
 		if(SV.db.SVUnit[unitName][auraType].filterRaid) then
-			configTable.filterGroup.args.friendlyGroup.args.filterRaid = {
+			configTable.friendlyGroup.args.filterRaid = {
 				order = 6, 
 				type = "toggle", 
 				name = L["Consolidated Buffs"], 
@@ -1442,7 +1405,7 @@ local function setAuraFilteringOptions(configTable, unitName, auraType, updateFu
 					return (SV.db.SVUnit[unitName][auraType].filterAll.friendly or SV.db.SVUnit[unitName][auraType].filterWhiteList.friendly)
 				end,
 			};
-			configTable.filterGroup.args.enemyGroup.args.filterRaid = {
+			configTable.enemyGroup.args.filterRaid = {
 				order = 6, 
 				type = "toggle", 
 				name = L["Consolidated Buffs"], 
@@ -1460,6 +1423,14 @@ end
 function ns:SetAuraConfigGroup(isPlayer, auraType, unused, updateFunction, unitName, count)
 	local groupOrder = auraType == "buffs" and 600 or 700
 	local groupName = auraType == "buffs" and L["Buffs"] or L["Debuffs"]
+	local attachToValue, attachToName;
+	if auraType == "buffs"then 
+		attachToValue = "DEBUFFS"
+		attachToName = L["Debuffs"]
+	else
+		attachToValue = "BUFFS"
+		attachToName = L["Buffs"]
+	end
 
 	local configTable = {
 		order = groupOrder, 
@@ -1475,110 +1446,168 @@ function ns:SetAuraConfigGroup(isPlayer, auraType, unused, updateFunction, unitN
 		args = {
 			enable = {
 				type = "toggle", 
-				order = 1, 
-				name = L["Enable"]
-			},
-			commonGroup = {
 				order = 2, 
-				guiInline = true, 
-				type = "group", 
-				name = L["Base Settings"], 
-				args = {
-					verticalGrowth = {
-						type = "select", 
-						order = 1, 
-						name = L["Vertical Growth"], 
-						desc = L["The vertical direction that the auras will position themselves"], 
-						values = {UP = "UP", DOWN = "DOWN"}
-					},
-					horizontalGrowth = {
-						type = "select", 
-						order = 2, 
-						name = L["Horizontal Growth"], 
-						desc = L["The horizontal direction that the auras will position themselves"], 
-						values = {LEFT = "LEFT", RIGHT = "RIGHT"}
-					},
-					perrow = {
-						type = "range", 
-						order = 3, 
-						width = "full", 
-						name = L["Per Row"], 
-						min = 1, 
-						max = 20, 
-						step = 1
-					}, 
-					numrows = {
-						type = "range", 
-						order = 4, 
-						width = "full", 
-						name = L["Num Rows"], 
-						min = 1, 
-						max = 4, 
-						step = 1
-					}, 
-					sizeOverride = {
-						type = "range", 
-						order = 5, 
-						width = "full", 
-						name = L["Size Override"], 
-						desc = L["If not set to 0 then override the size of the aura icon to this."], 
-						min = 0, 
-						max = 60, 
-						step = 1
-					}, 
-				}
+				name = L["Enable "..groupName]
 			},
-			positionGroup = {
+			attachTo1 = {
+				type = "toggle", 
 				order = 3, 
-				guiInline = true, 
-				type = "group", 
-				name = L["Position Settings"], 
-				args = {
-					xOffset = {
-						order = 1, 
-						type = "range", 
-						name = L["xOffset"], 
-						width = "full", 
-						min = -60, 
-						max = 60, 
-						step = 1
-					}, 
-					yOffset = {
-						order = 2, 
-						type = "range", 
-						name = L["yOffset"], 
-						width = "full", 
-						min = -60, 
-						max = 60, 
-						step = 1
-					},
-					anchorPoint = {
-						type = "select", 
-						order = 3, 
-						name = L["Anchor Point"], 
-						desc = L["What point to anchor to the frame you set to attach to."], 
-						values = SV.PointIndexes
-					}, 
-				}
-			}
+				name = L["Attach To"] .. " " .. L["Frame"], 
+				get = function(key)
+					return SV.db.SVUnit[unitName][auraType]["attachTo"] == "FRAME"
+				end,
+				set = function(key, value)
+					if(not value) then
+						MOD:ChangeDBVar(attachToValue, "attachTo", unitName, auraType)
+					else
+						MOD:ChangeDBVar("FRAME", "attachTo", unitName, auraType)
+					end
+					updateFunction(MOD, unitName, count)
+				end,
+			},
+			attachTo2 = {
+				type = "toggle", 
+				order = 4, 
+				name = L["Attach To"] .. " " .. attachToName,  
+				get = function(key)
+					return SV.db.SVUnit[unitName][auraType]["attachTo"] == attachToValue
+				end,
+				set = function(key, value)
+					if(not value) then
+						MOD:ChangeDBVar("FRAME", "attachTo", unitName, auraType)
+					else
+						MOD:ChangeDBVar(attachToValue, "attachTo", unitName, auraType)
+					end
+					updateFunction(MOD, unitName, count)
+				end,
+			},
+			spacer1 = {
+				order = 5, 
+				name = "", 
+				type = "description", 
+				width = "full", 
+			},
+			anchorPoint = {
+				type = "select", 
+				order = 6, 
+				name = L["Anchor Point"], 
+				desc = L["What point to anchor to the frame you set to attach to."], 
+				values = SV.PointIndexes
+			},
+			verticalGrowth = {
+				type = "select", 
+				order = 7, 
+				name = L["Vertical Growth"], 
+				desc = L["The vertical direction that the auras will position themselves"], 
+				values = {UP = "UP", DOWN = "DOWN"}
+			},
+			horizontalGrowth = {
+				type = "select", 
+				order = 8, 
+				name = L["Horizontal Growth"], 
+				desc = L["The horizontal direction that the auras will position themselves"], 
+				values = {LEFT = "LEFT", RIGHT = "RIGHT"}
+			},
+			spacer2 = {
+				order = 9, 
+				name = "", 
+				type = "description", 
+				width = "full", 
+			},
+			perrow = {
+				type = "range", 
+				order = 10, 
+				name = L["Per Row"], 
+				min = 1, 
+				max = 20, 
+				step = 1
+			}, 
+			numrows = {
+				type = "range", 
+				order = 11, 
+				name = L["Num Rows"], 
+				min = 1, 
+				max = 4, 
+				step = 1
+			},
+			sizeOverride = {
+				type = "range", 
+				order = 12, 
+				name = L["Size Override"], 
+				desc = L["If not set to 0 then override the size of the aura icon to this."], 
+				min = 0, 
+				max = 60, 
+				step = 1
+			},
+			spacer3 = {
+				order = 13, 
+				name = "", 
+				type = "description", 
+				width = "full", 
+			},
+			xOffset = {
+				order = 14, 
+				type = "range", 
+				name = L["xOffset"], 
+				min = -60, 
+				max = 60, 
+				step = 1
+			}, 
+			yOffset = {
+				order = 15, 
+				type = "range", 
+				name = L["yOffset"], 
+				width = "fill", 
+				min = -60, 
+				max = 60, 
+				step = 1
+			},
+			useFilter = {
+				order = 16, 
+				type = "select", 
+				name = L["Custom Filter"], 
+				desc = L["Select a custom filter to include."], 
+				values = function()
+					filterList = {}
+					filterList[""] = NONE;
+					for n in pairs(SV.filters.Custom) do 
+						filterList[n] = n 
+					end 
+					return filterList 
+				end,
+				get = function(key) return SV.db.SVUnit[unitName][auraType].useFilter end,
+				set = function(key, value) SV.db.SVUnit[unitName][auraType].useFilter = value; updateFunction(MOD, unitName) end,
+			},
+			spacer4 = {
+				order = 17, 
+				name = "", 
+				type = "description", 
+				width = "full", 
+			},
 		}
 	}
 
-	if auraType == "buffs"then 
-		configTable.args.positionGroup.args.attachTo = {
-			type = "select", 
-			order = 7, 
-			name = L["Attach To"], 
-			desc = L["What to attach the buff anchor frame to."], 
-			values = {["FRAME"] = L["Frame"], ["DEBUFFS"] = L["Debuffs"]}
+	local unitGlobalName = FRAME_MAP[unitName];
+	if(unitGlobalName) then
+		configTable.args.showAuras = {
+			order = 0,
+			type = "execute",
+			name = L["Show Auras"],
+			func = function()
+				local unitframe = _G[unitGlobalName];
+				if unitframe.forceShowAuras then 
+					unitframe.forceShowAuras = nil 
+				else 
+					unitframe.forceShowAuras = true 
+				end 
+				updateFunction(MOD, unitName, count)
+			end
 		}
-	else 
-		configTable.args.positionGroup.args.attachTo = {
-			type = "select", 
-			order = 7, 
-			name = L["Attach To"], 
-			desc = L["What to attach the buff anchor frame to."], 
-			values = {["FRAME"] = L["Frame"], ["BUFFS"] = L["Buffs"]}
+		configTable.args.showAurasSpacer = {
+			order = 1, 
+			name = "", 
+			type = "description", 
+			width = "full", 
 		}
 	end
 
@@ -1604,7 +1633,7 @@ function ns:SetAurabarConfigGroup(isPlayer, updateFunction, unitName)
 			enable = {
 				type = "toggle", 
 				order = 1, 
-				name = L["Enable"]
+				name = L["Aura Bars Enabled"]
 			},
 			commonGroup = {
 				order = 2, 
@@ -1621,31 +1650,29 @@ function ns:SetAurabarConfigGroup(isPlayer, updateFunction, unitName)
 						order = 2, 
 						name = L["Coloring (Specific)"], 
 						type = "execute", func = function() ns:SetToFilterConfig("AuraBars") end
-					}, 
-					anchorPoint = {
-						type = "select", 
+					},
+					spacer = {
 						order = 3, 
-						name = L["Anchor Point"], desc = L["What point to anchor to the frame you set to attach to."], values = {["ABOVE"] = L["Above"], ["BELOW"] = L["Below"]}
-					}, 
+						name = "", 
+						type = "description", 
+						width = "full", 
+					},
 					attachTo = {
 						type = "select", 
 						order = 4, 
 						name = L["Attach To"], desc = L["The object you want to attach to."], 
 						values = {["FRAME"] = L["Frame"], ["DEBUFFS"] = L["Debuffs"], ["BUFFS"] = L["Buffs"]}
-					}, 
+					},
+					anchorPoint = {
+						type = "select", 
+						order = 5, 
+						name = L["Anchor Point"], desc = L["What point to anchor to the frame you set to attach to."], values = {["ABOVE"] = L["Above"], ["BELOW"] = L["Below"]}
+					},  
 					height = {
 						type = "range", 
-						order = 5, 
-						name = L["Height"], min = 6, max = 40, step = 1
-					}, 
-					statusbar = {
-						type = "select", 
-						dialogControl = "LSM30_Statusbar", 
 						order = 6, 
-						name = L["StatusBar Texture"], 
-						desc = L["Aurabar texture."], 
-						values = AceGUIWidgetLSMlists.statusbar
-					}
+						name = L["Height"], min = 6, max = 40, step = 1
+					},
 				}
 			},
 			filterGroup = {
@@ -1765,28 +1792,38 @@ SV.Options.args.SVUnit = {
 									desc = L["Use handy graphics to focus the current target, or clear the current focus"], 
 									type = "toggle"
 								},
-								OORAlpha = {
+								resolveBar = {
 									order = 5, 
+									name = L["Resolve Meter"], 
+									desc = L["A convenient meter for tanks to display their current resolve."], 
+									type = "toggle"
+								},
+								spacer99 = {
+									order = 6, 
+									name = "", 
+									type = "description", 
+									width = "full", 
+								},
+								OORAlpha = {
+									order = 7, 
 									name = L["Range Fading"], 
 									desc = L["The transparency of units that are out of range."], 
 									type = "range", 
 									min = 0, 
 									max = 1, 
 									step = 0.01, 
-									width = "full",
 									set = function(key, value)
 										MOD:ChangeDBVar(value, key[#key]);
 									end
 								},
 								groupOORAlpha = {
-									order = 6, 
+									order = 8, 
 									name = L["Group Range Fading"], 
 									desc = L["The transparency of group units that are out of range."], 
 									type = "range", 
 									min = 0, 
 									max = 1, 
 									step = 0.01, 
-									width = "full",
 									set = function(key, value)
 										MOD:ChangeDBVar(value, key[#key]);
 									end

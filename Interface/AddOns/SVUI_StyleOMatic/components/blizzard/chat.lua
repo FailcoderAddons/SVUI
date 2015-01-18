@@ -144,13 +144,13 @@ HELPERS
 ]]--
 local ChatGeneric_OnShow = function(self)
 	 if(not self.Panel) then 
-	 	self:SetStylePanel("Default", "Halftone") 
+	 	self:SetStylePanel("Frame", "Composite1") 
 	end 
 end
 
 local ChatMenu_OnShow = function(self) 
 	if(not self.Panel) then 
-		self:SetStylePanel("Default", "Halftone") 
+		self:SetStylePanel("Frame", "Composite1") 
 	end 
 	self:ClearAllPoints() 
 	self:SetPointToScale("BOTTOMLEFT", ChatFrame1, "TOPLEFT", 0, 30) 
@@ -167,7 +167,7 @@ local ChatConfigChannelSettingsLeft_OnEvent = function(self)
 		if(checkbox) then
 			if(not checkbox.Panel) then
 				checkbox:RemoveTextures()
-				checkbox:SetStylePanel("Default", 'Transparent')
+				checkbox:SetStylePanel("Frame", 'Transparent')
 			end
 			checkbox:SetHeight(boxHeight)
 			checkbox.Panel:SetPointToScale("TOPLEFT",3,-1)
@@ -198,7 +198,7 @@ local ChatConfigBackgroundFrame_OnShow = function(self)
 		if(checkbox) then
 			if(not checkbox.Panel) then
 				checkbox:RemoveTextures()
-				checkbox:SetStylePanel("Default", "Default")
+				checkbox:SetStylePanel("Frame", "Default")
 			end
 			checkbox.Panel:SetPointToScale("TOPLEFT", 3, -1)
 			checkbox.Panel:SetPointToScale("BOTTOMRIGHT", -3, 1)
@@ -222,7 +222,7 @@ local ChatConfigBackgroundFrame_OnShow = function(self)
 		if(checkbox) then
 			if(not checkbox.Panel) then
 				checkbox:RemoveTextures()
-				checkbox:SetStylePanel("Default", "Default")
+				checkbox:SetStylePanel("Frame", "Default")
 			end
 			checkbox.Panel:SetPointToScale("TOPLEFT", 3, -1)
 			checkbox.Panel:SetPointToScale("BOTTOMRIGHT", -3, 1)
@@ -239,7 +239,7 @@ local ChatConfigBackgroundFrame_OnShow = function(self)
 		if(checkbox) then
 			if(not checkbox.Panel) then
 				checkbox:RemoveTextures()
-				checkbox:SetStylePanel("Default", "Default")
+				checkbox:SetStylePanel("Frame", "Default")
 			end
 			checkbox.Panel:SetPointToScale("TOPLEFT", 3, -1)
 			checkbox.Panel:SetPointToScale("BOTTOMRIGHT", -3, 1)
@@ -256,7 +256,7 @@ local ChatConfigBackgroundFrame_OnShow = function(self)
 		if(checkbox) then
 			if(not checkbox.Panel) then
 				checkbox:RemoveTextures()
-				checkbox:SetStylePanel("Default", "Default")
+				checkbox:SetStylePanel("Frame", "Default")
 			end
 			checkbox.Panel:SetPointToScale("TOPLEFT", 3, -1)
 			checkbox.Panel:SetPointToScale("BOTTOMRIGHT", -3, 1)
@@ -273,7 +273,7 @@ local ChatConfigBackgroundFrame_OnShow = function(self)
 		if(checkbox) then
 			if(not checkbox.Panel) then
 				checkbox:RemoveTextures()
-				checkbox:SetStylePanel("Default", "Default")
+				checkbox:SetStylePanel("Frame", "Default")
 			end
 			checkbox.Panel:SetPointToScale("TOPLEFT", 3, -1)
 			checkbox.Panel:SetPointToScale("BOTTOMRIGHT", -3, 1)
@@ -290,7 +290,7 @@ local ChatConfigBackgroundFrame_OnShow = function(self)
 		if(checkbox) then
 			if(not checkbox.Panel) then
 				checkbox:RemoveTextures()
-				checkbox:SetStylePanel("Default", "Default")
+				checkbox:SetStylePanel("Frame", "Default")
 			end
 			checkbox.Panel:SetPointToScale("TOPLEFT", 3, -1)
 			checkbox.Panel:SetPointToScale("BOTTOMRIGHT", -3, 1)
@@ -307,7 +307,7 @@ local ChatConfigBackgroundFrame_OnShow = function(self)
 		if(checkbox) then
 			if(not checkbox.Panel) then
 				checkbox:RemoveTextures()
-				checkbox:SetStylePanel("Default", "Default")
+				checkbox:SetStylePanel("Frame", "Default")
 			end
 			checkbox.Panel:SetPointToScale("TOPLEFT", 3, -1)
 			checkbox.Panel:SetPointToScale("BOTTOMRIGHT", -3, 1)
@@ -324,7 +324,7 @@ local ChatConfigBackgroundFrame_OnShow = function(self)
 		if(checkbox) then
 			if(not checkbox.Panel) then
 				checkbox:RemoveTextures()
-				checkbox:SetStylePanel("Default", "Default")
+				checkbox:SetStylePanel("Frame", "Default")
 			end
 			checkbox.Panel:SetPointToScale("TOPLEFT", 3, -1)
 			checkbox.Panel:SetPointToScale("BOTTOMRIGHT", -3, 1)
@@ -405,13 +405,13 @@ local function ChatStyle()
 	if(_G["CombatConfigTab5"]) then _G["CombatConfigTab5"]:RemoveTextures() end
 
 	CombatConfigSettingsNameEditBox:SetStylePanel("Editbox")
-	ChatConfigFrame:SetStylePanel("Default", "Halftone", true)
+	ChatConfigFrame:SetStylePanel("Frame", "Composite1", true)
 
 	for i = 1, #ChatFrameList3 do
 		local frame = _G[ChatFrameList3[i]]
 		if(frame) then
 			frame:RemoveTextures()
-			frame:SetStylePanel("Default", 'Transparent')
+			frame:SetStylePanel("Frame", 'Transparent')
 		end
 	end
 
@@ -477,6 +477,10 @@ local function ChatStyle()
 
 	PLUGIN:ApplyPaginationStyle(ChatConfigMoveFilterUpButton,true)
 	PLUGIN:ApplyPaginationStyle(ChatConfigMoveFilterDownButton,true)
+	PLUGIN:ApplyPaginationStyle(CombatLogQuickButtonFrame_CustomAdditionalFilterButton,true)
+
+	PLUGIN:ApplyScrollBarStyle(SVUI_CopyChatScrollFrameScrollBar)
+	PLUGIN:ApplyCloseButtonStyle(SVUI_CopyChatFrameCloseButton)
 
 	ChatConfigMoveFilterUpButton:ClearAllPoints()
 	ChatConfigMoveFilterDownButton:ClearAllPoints()

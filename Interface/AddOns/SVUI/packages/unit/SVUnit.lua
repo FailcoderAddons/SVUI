@@ -129,13 +129,13 @@ end
 
 local function FindAnchorFrame(frame, anchor, badPoint)
 	if badPoint or anchor == 'FRAME' then 
-		if(frame.Combatant and frame.Combatant:IsShown()) then 
-			return frame.Combatant
+		if(frame.Gladiator and frame.Gladiator:IsShown()) then 
+			return frame.Gladiator
 		else
 			return frame 
 		end
-	elseif(anchor == 'TRINKET' and frame.Combatant and frame.Combatant:IsShown()) then 
-		return frame.Combatant
+	elseif(anchor == 'TRINKET' and frame.Gladiator and frame.Gladiator:IsShown()) then 
+		return frame.Gladiator
 	elseif(anchor == 'BUFFS' and frame.Buffs and frame.Buffs:IsShown()) then
 		return frame.Buffs 
 	elseif(anchor == 'DEBUFFS' and frame.Debuffs and frame.Debuffs:IsShown()) then
@@ -417,12 +417,12 @@ function MOD:RefreshUnitLayout(frame, template)
 	local PORTRAIT_STYLE = 'None';
 	if(db.portrait) then
 		PORTRAIT_ENABLED = (not GRID_MODE and db.portrait.enable);
-		PORTRAIT_OVERLAY = (not GRID_MODE and PORTRAIT_ENABLED and db.portrait.overlay);
+		PORTRAIT_STYLE = db.portrait.style;
+		PORTRAIT_OVERLAY = (not GRID_MODE and PORTRAIT_ENABLED and PORTRAIT_STYLE == '3DOVERLAY');
 		PORTRAIT_OVERLAY_ANIMATION = (PORTRAIT_OVERLAY) and SV.db.SVUnit.overlayAnimation or false;
 		if(PORTRAIT_ENABLED and (not PORTRAIT_OVERLAY)) then 
 			PORTRAIT_WIDTH = ((db.portrait.width * TOP_MODIFIER) + (1 * TOP_MODIFIER));
 		end
-		PORTRAIT_STYLE = db.portrait.style;
 
 		if(frame.Portrait) then
 			frame.Portrait:Hide()
@@ -552,11 +552,6 @@ function MOD:RefreshUnitLayout(frame, template)
 				cY = db.power.yOffset
 				powertext:ClearAllPoints()
 				SV:SetReversePoint(powertext, point, TEXT_GRIP, cX, cY)
-				if db.power.attachTextToPower then 
-					powertext:SetParent(POWER_GRIP)
-				else 
-					powertext:SetParent(TEXT_GRIP)
-				end
 			end
 			frame:Tag(powertext, db.power.tags)
 		end
@@ -1111,6 +1106,23 @@ function MOD:RefreshUnitLayout(frame, template)
 				frame:DisableElement('Range')
 			end 
 		end 
+	end
+
+	--[[ AURA WATCH LAYOUT ]]--
+
+	if(frame.AuraWatch) then
+		if(db.auraWatch) then
+			if db.auraWatch.enable then 
+				if not frame:IsElementEnabled('AuraWatch')then 
+					frame:EnableElement('AuraWatch')
+				end
+				frame.AuraWatch:ForceUpdate()
+			else 
+				if frame:IsElementEnabled('AuraWatch')then 
+					frame:DisableElement('AuraWatch')
+				end 
+			end
+		end
 	end
 end
 --[[ 

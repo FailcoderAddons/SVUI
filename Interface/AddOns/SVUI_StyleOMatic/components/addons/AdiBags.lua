@@ -45,8 +45,8 @@ local function StyleAdiBags(event)
 
 	local function SkinFrame(frame)
 		local region = frame.HeaderRightRegion
-		frame:SetStylePanel("Default", 'Transparent')
-		_G[frame:GetName()..'Bags']:SetStylePanel("Default", "Default")
+		frame:SetStylePanel("Frame", 'Transparent')
+		_G[frame:GetName()..'Bags']:SetStylePanel("Frame", "Default")
 		for i = 1, 3 do
 			region.widgets[i].widget:SetStylePanel("Button")
 		end

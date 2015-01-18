@@ -96,14 +96,8 @@ SV.Options.args.SVBag = {
 							set = function(a,b) MOD:ChangeDBVar(b,a[#a]) MOD:RefreshBagFrames("BankFrame") end,
 							disabled = function()return SV.db.SVBag.alignToChat end
 						},
-						sortInverted = {
-							order = 3, 
-							type = "toggle", 
-							name = L["Sort Inverted"], 
-							desc = L["Direction the bag sorting will use to allocate the items."]
-						},
 						bagWidth = {
-							order = 4, 
+							order = 3, 
 							type = "range", 
 							name = L["Panel Width (Bags)"], 
 							desc = L["Adjust the width of the bag frame."], 
@@ -114,7 +108,7 @@ SV.Options.args.SVBag = {
 							disabled = function()return SV.db.SVBag.alignToChat end
 						},
 						bankWidth = {
-							order = 5, 
+							order = 4, 
 							type = "range", 
 							name = L["Panel Width (Bank)"], 
 							desc = L["Adjust the width of the bank frame."], 
@@ -125,7 +119,7 @@ SV.Options.args.SVBag = {
 							disabled = function() return SV.db.SVBag.alignToChat end
 						},
 						currencyFormat = {
-							order = 6, 
+							order = 5, 
 							type = "select", 
 							name = L["Currency Format"], 
 							desc = L["The display format of the currency icons that get displayed below the main bag. (You have to be watching a currency for this to display)"], 
@@ -135,6 +129,12 @@ SV.Options.args.SVBag = {
 							},
 							set = function(a,b)MOD:ChangeDBVar(b,a[#a]) MOD:RefreshTokens() end
 						},
+						sortInverted = {
+							order = 6, 
+							type = "toggle", 
+							name = L["Sort Inverted"], 
+							desc = L["Direction the bag sorting will use to allocate the items."]
+						},
 						bagTools = {
 							order = 7, 
 							type = "toggle", 
@@ -142,6 +142,15 @@ SV.Options.args.SVBag = {
 							desc = L["Enable/Disable Prospecting, Disenchanting and Milling buttons on the bag frame."], 
 							set = function(a,b)MOD:ChangeDBVar(b,a[#a])SV:StaticPopup_Show("RL_CLIENT")end
 						},
+						ignoreItems = {
+							order = 8, 
+							name = L["Ignore Items"], 
+							desc = L["List of items to ignore when sorting. If you wish to add multiple items you must seperate the word with a comma."], 
+							type = "input", 
+							width = "full", 
+							multiline = true, 
+							set = function(a,b) SV.db.SVBag[a[#a]] = b end
+						}
 					}
 				},
 				position = {
@@ -177,7 +186,6 @@ SV.Options.args.SVBag = {
 									order = 2, 
 									type = "range", 
 									name = L["X Offset"],
-									width = "full", 
 									min = -600, 
 									max = 600, 
 									step = 1,
@@ -186,7 +194,6 @@ SV.Options.args.SVBag = {
 									order = 3, 
 									type = "range", 
 									name = L["Y Offset"],
-									width = "full", 
 									min = -600, 
 									max = 600, 
 									step = 1,
@@ -212,7 +219,6 @@ SV.Options.args.SVBag = {
 									order = 2, 
 									type = "range", 
 									name = L["X Offset"],
-									width = "full", 
 									min = -600, 
 									max = 600, 
 									step = 1,
@@ -221,7 +227,6 @@ SV.Options.args.SVBag = {
 									order = 3, 
 									type = "range", 
 									name = L["Y Offset"],
-									width = "full", 
 									min = -600, 
 									max = 600, 
 									step = 1,
@@ -242,7 +247,7 @@ SV.Options.args.SVBag = {
 						enable = {
 							order = 1,
 							type = "toggle",
-							name = L["Enable"],
+							name = L["Bags Bar Enabled"],
 							desc = L["Enable/Disable the Bag-Bar."],
 							get = function() return SV.db.SVBag.bagBar.enable end,
 							set = function(key, value) MOD:ChangeDBVar(value, key[#key], "bagBar"); SV:StaticPopup_Show("RL_CLIENT")end
@@ -259,8 +264,14 @@ SV.Options.args.SVBag = {
 							desc = L["Show/Hide bag bar backdrop"], 
 							type = "toggle"
 						},
-						size = {
+						spacer = {
 							order = 4, 
+							name = "", 
+							type = "description", 
+							width = "full", 
+						},
+						size = {
+							order = 5, 
 							type = "range", 
 							name = L["Button Size"], 
 							desc = L["Set the size of your bag buttons."], 
@@ -269,7 +280,7 @@ SV.Options.args.SVBag = {
 							step = 1
 						},
 						spacing = {
-							order = 5, 
+							order = 6, 
 							type = "range", 
 							name = L["Button Spacing"], 
 							desc = L["The spacing between buttons."], 
@@ -278,7 +289,7 @@ SV.Options.args.SVBag = {
 							step = 1
 						},
 						sortDirection = {
-							order = 6, 
+							order = 7, 
 							type = "select", 
 							name = L["Sort Direction"], 
 							desc = L["The direction that the bag frames will grow from the anchor."], 
@@ -288,7 +299,7 @@ SV.Options.args.SVBag = {
 							}
 						},
 						showBy = {
-							order = 7, 
+							order = 8, 
 							type = "select", 
 							name = L["Bar Direction"], 
 							desc = L["The direction that the bag frames be (Horizontal or Vertical)."], 

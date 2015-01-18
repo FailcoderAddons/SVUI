@@ -64,13 +64,13 @@ local DEFAULT_MODEL = [[Spells\Missile_bomb.m2]];
 local DEFAULT_EFFECT = {DEFAULT_MODEL, 0, 0, 0, 0, 0.75, 0, 0};
 
 local EFFECTS_LIST = setmetatable({
-    ["default"]     = {[[Spells\Missile_bomb.m2]], 0, 0, 0, 0, 0.75, 0, 0},
+    ["default"]     = {[[Spells\Missile_bomb.m2]], -12, 12, 12, -12, 0.25, 0.125, 0.05},
     ["holy"]        = {[[Spells\Solar_precast_hand.m2]], -12, 12, 12, -12, 0.23, 0, 0},
     ["shadow"]      = {[[Spells\Shadow_precast_uber_hand.m2]], -12, 12, 12, -12, 0.23, -0.1, 0.1},
     ["arcane"]      = {[[Spells\Cast_arcane_01.m2]], -12, 12, 12, -12, 0.25, 0, 0},
     ["fire"]        = {[[Spells\Bloodlust_state_hand.m2]], -8, 4, 24, -24, 0.23, -0.08, 0.08},
-    ["frost"]       = {[[Spells\Ice_cast_low_hand.m2]], -12, 12, 12, -12, 0.23, -0.1, 0.1},
-    ["chi"]         = {[[Spells\Fel_fire_precast_high_hand.m2]], -12, 12, 12, -12, 0.3, 0, 0},
+    ["frost"]       = {[[Spells\Ice_cast_low_hand.m2]], -12, 12, 12, -12, 0.25, -0.2, -0.35},
+    ["chi"]         = {[[Spells\Fel_fire_precast_high_hand.m2]], -12, 12, 12, -12, 0.3, -0.04, -0.1},
     ["lightning"]   = {[[Spells\Fill_lightning_cast_01.m2]], -12, 12, 12, -12, 1.25, 0, 0},
     ["water"]       = {[[Spells\Monk_drunkenhaze_impact.m2]], -12, 12, 12, -12, 0.9, 0, 0},
     ["earth"]       = {[[Spells\Sand_precast_hand.m2]], -12, 12, 12, -12, 0.23, 0, 0},

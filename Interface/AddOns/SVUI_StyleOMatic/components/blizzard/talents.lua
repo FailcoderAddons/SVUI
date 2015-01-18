@@ -140,7 +140,7 @@ local function TalentFrameStyle()
 		end
 	end 
 
-	PlayerTalentFrameTalents:SetStylePanel("Fixed", "Inset")
+	PlayerTalentFrameTalents:SetStylePanel("!_Frame", "Inset")
 	PlayerTalentFrameTalentsClearInfoFrame.icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 	PlayerTalentFrameTalentsClearInfoFrame:SetWidthToScale(PlayerTalentFrameTalentsClearInfoFrame:GetWidth()-2)
 	PlayerTalentFrameTalentsClearInfoFrame:SetHeightToScale(PlayerTalentFrameTalentsClearInfoFrame:GetHeight()-2)
@@ -225,13 +225,13 @@ local function TalentFrameStyle()
 
 	local C = _G["PlayerTalentFrameSpecializationSpellScrollFrameScrollChild"]
 	C.ring:Hide()
-	C:SetStylePanel("Fixed", "Inset")
+	C:SetStylePanel("!_Frame", "Inset")
 	C.Panel:SetAllPointsOut(C.specIcon)
 	C.specIcon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 
 	local D = _G["PlayerTalentFramePetSpecializationSpellScrollFrameScrollChild"]
 	D.ring:Hide()
-	D:SetStylePanel("Fixed", "Inset")
+	D:SetStylePanel("!_Frame", "Inset")
 	D.Panel:SetAllPointsOut(D.specIcon)
 	D.specIcon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 
@@ -259,7 +259,7 @@ local function TalentFrameStyle()
 					button.restyled = true;
 					button:SetSizeToScale(30, 30)
 					button.ring:Hide()
-					button:SetStylePanel("Fixed", "Inset")
+					button:SetStylePanel("!_Frame", "Inset")
 					button.icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 					button.icon:SetAllPointsIn()
 				end 
@@ -309,7 +309,7 @@ local function TalentFrameStyle()
 				button.bg:SetAlpha(0)
 				button.learnedTex:SetAlpha(0)
 				button.selectedTex:SetAlpha(0)
-				button:SetStylePanel("Fixed", "Button")
+				button:SetStylePanel("!_Frame", "Button")
 				button:GetHighlightTexture():SetAllPointsIn(button.Panel)
 			end
 		end 
@@ -364,7 +364,7 @@ local function GlyphStyle()
 	GlyphFrame:RemoveTextures()
 	--GlyphFrame.background:ClearAllPoints()
 	--GlyphFrame.background:SetAllPoints(PlayerTalentFrameInset)
-	GlyphFrame:SetStylePanel("Fixed", "Comic", false, 0, 3, 3)
+	GlyphFrame:SetStylePanel("!_Frame", "Premium", false, 0, 3, 3)
 	GlyphFrameSideInset:RemoveTextures()
 	GlyphFrameClearInfoFrame:RemoveTextures()
 	GlyphFrameClearInfoFrame.icon:SetTexCoord(0.1, 0.9, 0.1, 0.9 )
@@ -398,7 +398,7 @@ local function GlyphStyle()
 
 	GlyphFrameHeader1:RemoveTextures()
 	GlyphFrameHeader2:RemoveTextures()
-	GlyphFrameScrollFrame:SetStylePanel("Default", "Inset", false, 3, 2, 2)
+	GlyphFrameScrollFrame:SetStylePanel("Frame", "Inset", false, 3, 2, 2)
 end 
 
 PLUGIN:SaveBlizzardStyle("Blizzard_GlyphUI", GlyphStyle)

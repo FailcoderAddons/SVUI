@@ -74,15 +74,6 @@ function SVUISayIncoming()
 end
 --[[ 
 ########################################################## 
-LOCAL FUNCTIONS
-##########################################################
-]]--
-local function HeadsUpAlarm(...)
-	if not CombatText_AddMessage then return end 
-	CombatText_AddMessage(...)
-end
---[[ 
-########################################################## 
 MUNGLUNCH's FAVORITE EMOTE GENERATOR
 ##########################################################
 ]]--
@@ -343,18 +334,18 @@ local function SaveEnemyScan(guid, timestamp)
         ["time"] = enemy.timestamp
     }
     local msg = ("Killed By: %s"):format(enemy.name);
-    HeadsUpAlarm(msg, CombatText_StandardScroll, enemy.colors.r, enemy.colors.g, enemy.colors.b, "sticky");
+    SV:SCTMessage(msg, CombatText_StandardScroll, enemy.colors.r, enemy.colors.g, enemy.colors.b, "sticky");
     PLUGIN:UpdateSummary()
 end
 
 local function KilledEnemyHandler(guid)
 	local enemy = PLUGIN.cache[guid]
 	if(enemy and enemy.name) then
-		HeadsUpAlarm(("Killed Mortal Enemy: %s"):format(enemy.name), CombatText_StandardScroll, 0.2, 1, 0.1, "sticky");
+		SV:SCTMessage(("Killed Mortal Enemy: %s"):format(enemy.name), CombatText_StandardScroll, 0.2, 1, 0.1, "sticky");
 	end
 	enemy = EnemyCache[guid]
 	if(enemy) then
-		HeadsUpAlarm(("Killed Enemy: %s"):format(enemy.name), CombatText_StandardScroll, 0.1, 0.8, 0);
+		SV:SCTMessage(("Killed Enemy: %s"):format(enemy.name), CombatText_StandardScroll, 0.1, 0.8, 0);
 	end
 end
 
@@ -375,10 +366,10 @@ local function EnemyAlarm(name, class, colors, kos)
 		local msg
 		if(kos) then
 			msg = ("Mortal Enemy Detected!: %s"):format(name);
-			HeadsUpAlarm(msg, CombatText_StandardScroll, 1, 0, 0)
+			SV:SCTMessage(msg, CombatText_StandardScroll, 1, 0, 0)
 		elseif(class and colors) then
 			msg = ("%s Detected"):format(class);
-			HeadsUpAlarm(msg, CombatText_StandardScroll, colors.r, colors.g, colors.b)
+			SV:SCTMessage(msg, CombatText_StandardScroll, colors.r, colors.g, colors.b)
 	    end
 	    AlertedCache[name] = true
 	end
@@ -386,7 +377,7 @@ end
 
 local function StealthAlarm(spell, name)
 	local msg = ("%s Detected!"):format(spell);
-    HeadsUpAlarm(msg, CombatText_StandardScroll, 1, 0.5, 0);
+    SV:SCTMessage(msg, CombatText_StandardScroll, 1, 0.5, 0);
     print(("%s has %sed nearby!"):format(name, spell))
     if(self.db.annoyingEmotes) then
     	Stealth_Emote(name)
@@ -602,7 +593,7 @@ local function ParseIncomingLog(timestamp, event, eGuid, eName, pGuid)
 		if(pGuid == playerGUID and not AlertedCache[eName]) then
 			AlertedCache[eName] = true
 			local incoming = ("%s Attacking You!"):format(eName);
-			HeadsUpAlarm(incoming, CombatText_StandardScroll, 1, 0.05, 0, "crit")
+			SV:SCTMessage(incoming, CombatText_StandardScroll, 1, 0.05, 0, "crit")
 		end
 	end
 end
@@ -668,7 +659,7 @@ function PLUGIN:EventDistributor(event, ...)
 						local timestamp = time()
 						AddEnemyScan(guid, timestamp)
 					elseif(self.cache[guid] and self.cache[guid].name) then
-						--HeadsUpAlarm("Kill On Sight!", CombatText_StandardScroll, 1, 0, 0, "crit")
+						--SV:SCTMessage("Kill On Sight!", CombatText_StandardScroll, 1, 0, 0, "crit")
 						if(self.db.annoyingEmotes) then
 							KOS_Emote()
 						end
@@ -693,6 +684,15 @@ local onMouseWheel = function(self, delta)
 	elseif (delta < 0) then
 		self:ScrollDown()
 	end
+end
+
+local function _explode(this, delim)
+    local pattern = ("([^%s]+)"):format(delim)
+    local res = {}
+    for line in this:gmatch(pattern) do
+        tinsert(res, line)
+    end
+    return res
 end
 
 local function MakeLogWindow()
@@ -720,7 +720,7 @@ local function MakeLogWindow()
 	output:SetInsertMode('TOP')
 
 	output:SetScript("OnHyperlinkEnter", function(self, linkData, link, button)
-		local t = link:explode(":")
+		local t = _explode(link, ":")
 		local name = t[2] or ""
 	    SVUI_TargetScanButton:SetAttribute("macrotext", ("/tar %s"):format(name))
 	    SVUI_TargetScanButton:EnableMouse(true)
@@ -766,7 +766,7 @@ local function MakeCommWindow()
 		local poi = CreateFrame("Frame", poiName, frame)
 		poi:SetSize((DOCK_WIDTH - 2), sectionHeight)
 		poi:SetPoint("TOP", frame, "TOP", 0, -yOffset)
-		poi:SetStylePanel("Default", "Transparent")
+		poi:SetStylePanel("Frame", "Transparent")
 
 		local safe = CreateFrame("Button", nil, poi)
 		safe:SetSize(sectionWidth, sectionHeight)
@@ -851,24 +851,19 @@ local function MakeInfoWindow()
 	leftColumn:SetSizeToScale(DATA_WIDTH, DATA_HEIGHT)
 	leftColumn:SetPointToScale("LEFT", frame, "LEFT", 0, 0)
 	leftColumn.lockedOpen = true
-	SV.Dock:NewDataHolder(leftColumn, 3, "ANCHOR_CURSOR", nil, "Transparent", true)
+	SV.Dock:NewDataHolder(leftColumn, 3, "ANCHOR_CURSOR", 1, "Transparent", true)
 	leftColumn:SetFrameLevel(0)
 
 	local rightColumn = CreateFrame("Frame", "SVUI_FightOMaticInfoRight", frame)
 	rightColumn:SetSizeToScale(DATA_WIDTH, DATA_HEIGHT)
 	rightColumn:SetPointToScale("LEFT", leftColumn, "RIGHT", 2, 0)
 	rightColumn.lockedOpen = true
-	SV.Dock:NewDataHolder(rightColumn, 3, "ANCHOR_CURSOR", nil, "Transparent", true)
+	SV.Dock:NewDataHolder(rightColumn, 3, "ANCHOR_CURSOR", 2, "Transparent", true)
 	rightColumn:SetFrameLevel(0)
 
 	PLUGIN.INFO = frame
 
 	_G["SVUI_FightOMaticTool4"].Window = PLUGIN.INFO
-
-	SV.Dock.BGPanels = {
-		["SVUI_FightOMaticInfoLeft"] = {top = "Honor", middle = "Kills", bottom = "Assists"},
-		["SVUI_FightOMaticInfoRight"] = {top = "Damage", middle = "Healing", bottom = "Deaths"}
-	}
 
 	SV.Dock:UpdateDataSlots()
 
@@ -1076,7 +1071,7 @@ function PLUGIN:Load()
 	title:SetFrameStrata("MEDIUM")
 	title:SetPoint("TOPLEFT", toolBar, "TOPRIGHT",0,0)
 	title:SetPoint("BOTTOMRIGHT", self.Docklet, "TOPRIGHT",0,-16)
-	title:FontManager("title")
+	title:SetFontObject(SystemFont_Shadow_Outline_Large)
 	title:SetMaxLines(1)
 	title:EnableMouseWheel(false)
 	title:SetFading(false)
@@ -1107,7 +1102,7 @@ function PLUGIN:Load()
 	summary:SetFrameStrata("MEDIUM")
 	summary:SetPoint("TOPLEFT", title, "BOTTOMLEFT",0,0)
 	summary:SetPoint("BOTTOMRIGHT", title, "BOTTOMRIGHT",0,-14)
-	summary:FontManager("default")
+	summary:SetFontObject(SVUI_Font_Default)
 	summary:SetMaxLines(1)
 	summary:EnableMouse(false)
 	summary:SetFading(false)

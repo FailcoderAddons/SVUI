@@ -203,50 +203,8 @@ local UpdatePlayerFrame = function(self)
         pvp:SetPointToScale(db.pvp.position, MASTER_GRIP, db.pvp.position)
         self:Tag(pvp, db.pvp.tags)
     end 
-    do 
-        if SV.class == "DRUID" and self.DruidAltMana then 
-            if db.power.druidMana then 
-                self:EnableElement("DruidAltMana")
-            else 
-                self:DisableElement("DruidAltMana")
-                self.DruidAltMana:Hide()
-            end 
-        end 
-        if SV.class == "MONK" then 
-            local stagger = self.DrunkenMaster;
-            if db.stagger.enable then 
-                if not self:IsElementEnabled("DrunkenMaster")then 
-                    self:EnableElement("DrunkenMaster")
-                end 
-            else 
-                if self:IsElementEnabled("DrunkenMaster")then 
-                    self:DisableElement("DrunkenMaster")
-                end 
-            end 
-        end 
-    end 
     do
-        if(self.DruidAltMana) then 
-            if db.power.druidMana then 
-                self:EnableElement("DruidAltMana")
-            else 
-                self:DisableElement("DruidAltMana")
-                self.DruidAltMana:Hide()
-            end 
-        end 
-        if(self.DrunkenMaster) then
-            if db.stagger.enable then 
-                if not self:IsElementEnabled("DrunkenMaster")then 
-                    self:EnableElement("DrunkenMaster")
-                end 
-            else 
-                if self:IsElementEnabled("DrunkenMaster")then 
-                    self:DisableElement("DrunkenMaster")
-                end 
-            end 
-        end
-        
-        if(self.ClassBar or self.HyperCombo) then
+        if(self.ClassBar) then
             if USE_CLASSBAR and self.ClassBarRefresh then 
                 self.ClassBarRefresh(self)
             end 
@@ -264,21 +222,9 @@ local UpdatePlayerFrame = function(self)
                     classBar:Hide()
                 end
             end
-            if(self.HyperCombo) then
-                if USE_CLASSBAR then
-                    if not self:IsElementEnabled("HyperCombo") then 
-                        self:EnableElement("HyperCombo")
-                    end
-                    self.HyperCombo:Show()
-                else
-                    if self:IsElementEnabled("HyperCombo") then 
-                        self:DisableElement("HyperCombo")
-                    end
-                    self.HyperCombo:Hide()
-                end
-            end
         end
     end 
+
     do 
         if db.combatfade and not self:IsElementEnabled("CombatFade")then 
             self:EnableElement("CombatFade")
@@ -311,13 +257,13 @@ CONSTRUCTORS["player"] = function(self, unit)
     MOD:CreateExperienceRepBar(self)
     self.ClassBar = MOD:CreateClassBar(self)
     self.RaidIcon = MOD:CreateRaidIcon(self)
-    self.Resting = MOD:CreateRestingIndicator(self)
-    self.Combat = MOD:CreateCombatIndicator(self)
+    MOD:CreatePlayerIndicators(self)
     self.PvPText = self.TextGrip:CreateFontString(nil,'OVERLAY')
-    self.PvPText:FontManager("dialog")
+    self.PvPText:SetFontObject(SpellFont_Small)
     self.Afflicted = MOD:CreateAfflicted(self)
     self.HealPrediction = MOD:CreateHealPrediction(self, true)
     self.AuraBars = MOD:CreateAuraBarHeader(self, key)
+    self.ResolveBar = MOD:CreateResolveBar(self)
     self.CombatFade = true;
     self:SetPointToScale("BOTTOMLEFT", SV.Screen, "BOTTOM", -413, 182)
     SV.Mentalo:Add(self, L["Player Frame"])
@@ -367,30 +313,6 @@ local UpdateTargetFrame = function(self)
         end 
     end
 
-    if (SV.class == "ROGUE" or SV.class == "DRUID") and self.HyperCombo then 
-        local comboBar = self.HyperCombo;
-        if self.ComboRefresh then 
-            self.ComboRefresh(self)
-        end 
-        if db.combobar.autoHide then 
-            comboBar:SetParent(self)
-        else 
-            comboBar:SetParent(UIParent)
-        end
-
-        if comboBar.Grip then
-            comboBar.Grip:SetScale(0.000001)
-            comboBar.Grip:SetAlpha(0)
-        end
-        
-        if USE_COMBOBAR and not self:IsElementEnabled("HyperCombo")then 
-            self:EnableElement("HyperCombo")
-        elseif not USE_COMBOBAR and self:IsElementEnabled("HyperCombo")then 
-            self:DisableElement("HyperCombo")
-            comboBar:Hide()
-        end 
-    end 
-
     self:UpdateAllElements()
 end
 
@@ -421,12 +343,6 @@ CONSTRUCTORS["target"] = function(self, unit)
     self.AuraBars = MOD:CreateAuraBarHeader(self, key)
     self.Afflicted = MOD:CreateAfflicted(self)
     self.RaidIcon = MOD:CreateRaidIcon(self)
-    local isSmall = SV.db.SVUnit[key].combobar.smallIcons
-    if(SV.class == "ROGUE") then
-        self.HyperCombo = MOD:CreateRogueCombobar(self, isSmall)
-    elseif(SV.class == "DRUID") then
-        self.HyperCombo = MOD:CreateDruidCombobar(self, isSmall)
-    end
 
     --self.GPS = MOD:CreateGPS(self)
     self.Friendship = MOD:CreateFriendshipBar(self)
@@ -475,7 +391,7 @@ CONSTRUCTORS["targettarget"] = function(self, unit)
     self.Debuffs = MOD:CreateDebuffs(self, key)
     self.RaidIcon = MOD:CreateRaidIcon(self)
     self.Range = { insideAlpha = 1, outsideAlpha = 1 }
-    self:SetPointToScale("BOTTOM", SV.Screen, "BOTTOM", 0, 192)
+    self:SetPointToScale("BOTTOM", SV.Screen, "BOTTOM", 0, 182)
     SV.Mentalo:Add(self, L["TargetTarget Frame"])
 
     self.MediaUpdate = MOD.RefreshUnitMedia
@@ -502,7 +418,6 @@ local UpdatePetFrame = function(self)
             self:SetParent(SVUI_Player)
         end 
     end 
-    MOD:UpdateAuraWatch(self, "pet")
     self:UpdateAllElements()
 end
 
@@ -599,7 +514,6 @@ local UpdateFocusFrame = function(self)
         self.XRay:Hide()
     end
 
-    MOD:UpdateAuraWatch(self, "focus")
     self:UpdateAllElements()
 end
 
@@ -627,7 +541,7 @@ CONSTRUCTORS["focus"] = function(self, unit)
     self.Buffs = MOD:CreateBuffs(self, key)
     self.Debuffs = MOD:CreateDebuffs(self, key)
     self.AuraBars = MOD:CreateAuraBarHeader(self, key)
-
+    self.AuraWatch = MOD:CreateAuraWatch(self, key)
     self.RaidIcon = MOD:CreateRaidIcon(self)
     self.Range = { insideAlpha = 1, outsideAlpha = 1 }
     self.XRay = MOD:CreateXRay_Closer(self)
@@ -800,8 +714,8 @@ local UpdateArenaFrame = function(self)
 
     MOD:RefreshUnitLayout(self, "arena")
 
-    if(self.Combatant) then
-        local pvp = self.Combatant
+    if(self.Gladiator) then
+        local pvp = self.Gladiator
         local trinket = pvp.Trinket
         local badge = pvp.Badge
 
@@ -832,11 +746,11 @@ local UpdateArenaFrame = function(self)
         pvp:SetPoint("TOPLEFT", leftAnchor, "TOPLEFT", 0, 0)
         pvp:SetPoint("BOTTOMRIGHT", rightAnchor, "BOTTOMRIGHT", 0, 0)
 
-        if(db.pvp.enable and (not self:IsElementEnabled("Combatant"))) then
-            self:EnableElement("Combatant")
+        if(db.pvp.enable and (not self:IsElementEnabled("Gladiator"))) then
+            self:EnableElement("Gladiator")
             pvp:Show()
-        elseif((not db.pvp.enable) and self:IsElementEnabled("Combatant")) then 
-            self:DisableElement("Combatant")
+        elseif((not db.pvp.enable) and self:IsElementEnabled("Gladiator")) then 
+            self:DisableElement("Gladiator")
             pvp:Hide()
         end
     end
@@ -866,7 +780,7 @@ CONSTRUCTORS["arena"] = function(self, unit)
     self.Buffs = MOD:CreateBuffs(self, key)
     self.Debuffs = MOD:CreateDebuffs(self, key)
     self.Castbar = MOD:CreateCastbar(self, true, nil, true, nil, true)
-    self.Combatant = MOD:CreateCombatant(self)
+    self.Gladiator = MOD:CreateGladiator(self)
     self.Range = { insideAlpha = 1, outsideAlpha = 1 }
     self:SetAttribute("type2", "focus")
 
@@ -878,7 +792,7 @@ CONSTRUCTORS["arena"] = function(self, unit)
         prep:SetFrameStrata("MEDIUM")
         prep:SetAllPoints(self)
         prep:SetID(selfID)
-        prep:SetStylePanel("Default", "Bar", true, 3, 1, 1)
+        prep:SetStylePanel("Frame", "Bar", true, 3, 1, 1)
 
         local health = CreateFrame("StatusBar", nil, prep)
         health:SetAllPoints(prep)

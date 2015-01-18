@@ -60,7 +60,7 @@ local function StyleFrame(frame)
   frame:SetBackdrop(nil)
 
   frame.TitleBackground = CreateFrame('Frame', nil, frame)
-  frame.TitleBackground:SetStylePanel("Fixed", "Transparent")
+  frame.TitleBackground:SetStylePanel("!_Frame", "Transparent")
   --frame.TitleBackground:SetPanelColor("class")
   frame.TitleBackground:SetPoint('TOP', frame, 'TOP', 0, -8)
   frame.TitleBackground.timeLapse = 0

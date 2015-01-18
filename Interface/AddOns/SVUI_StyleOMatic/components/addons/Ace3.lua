@@ -111,7 +111,7 @@ local function StyleAceGUI(event, addon)
 		if(widgetType == "MultiLineEditBox") then 
 			local widgetFrame = widget.frame;
 			PLUGIN:ApplyFixedFrameStyle(widgetFrame, "Default", true)
-			PLUGIN:ApplyFrameStyle(widget.scrollBG, "Headline", true) 
+			PLUGIN:ApplyFrameStyle(widget.scrollBG, "Lite", true) 
 			Widget_ButtonStyle(widget.button)
 			PLUGIN:ApplyScrollFrameStyle(widget.scrollBar) 
 			widget.scrollBar:SetPoint("RIGHT", widgetFrame, "RIGHT", -4)
@@ -125,7 +125,7 @@ local function StyleAceGUI(event, addon)
 			if not widget.styledCheckBG then 
 				widget.styledCheckBG = CreateFrame("Frame", nil, widget.frame)
 				widget.styledCheckBG:SetAllPointsIn(widget.check)
-				PLUGIN:ApplyFixedFrameStyle(widget.styledCheckBG, "Inset")
+				PLUGIN:ApplyFixedFrameStyle(widget.styledCheckBG, "Checkbox")
 			end 
 			widget.check:SetParent(widget.styledCheckBG)
 
@@ -242,7 +242,7 @@ local function StyleAceGUI(event, addon)
 					return newButton 
 				end
 			elseif(not widgetParent.Panel) then
-				PLUGIN:ApplyFrameStyle(widgetParent, "Headline", false, true)
+				PLUGIN:ApplyFrameStyle(widgetParent, "Lite", false, true)
 			end
 
 			if(widgetType == "TabGroup") then

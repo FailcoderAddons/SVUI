@@ -36,7 +36,7 @@ local PetBattleActionBar = CreateFrame("Frame", "SVUI_PetBattleActionBar", UIPar
 local ITEM_QUALITY_COLORS = _G.ITEM_QUALITY_COLORS;
 
 local function PetBattleButtonHelper(frame)
-	frame:SetStylePanel("Default", "Blackout")
+	frame:SetStylePanel("Frame", "Blackout")
 	frame:SetNormalTexture("")
 	frame.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 	frame.Icon:SetDrawLayer('BORDER')
@@ -99,7 +99,7 @@ local _hook_AuraHolderUpdate = function(self)
 			local frame = self.frames[nextFrame]
 			frame.DebuffBorder:Hide()
 			if not frame.isStyled then
-				frame:SetStylePanel("Slot", true, 2, -8,-2)
+				frame:SetStylePanel("Slot", 2, -8,-2)
 				frame.Icon:SetAllPointsIn(frame.Panel, 2, 2)
 				frame.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 				frame.isStyled = true
@@ -223,16 +223,16 @@ local function PetBattleStyle()
 			frame.IconBackdrop = CreateFrame("Frame", nil, frame)
 			frame.IconBackdrop:SetFrameLevel(0)
 			frame.IconBackdrop:SetAllPoints(frame.Icon)
-			frame.IconBackdrop:SetStylePanel("Slot", true, 1, 0, 0, 0.5);
+			frame.IconBackdrop:SetStylePanel("Slot", 1, 0, 0, 0.5);
 
-			frame.IconBackdrop.Panel:SetStylePanel("Fixed", "Blackout")
+			frame.IconBackdrop.Panel:SetStylePanel("!_Frame", "Blackout")
 
 			frame.BorderFlash:Die()
 			frame.HealthBarBG:Die()
 			frame.HealthBarFrame:Die()
 			frame.HealthBarBackdrop = CreateFrame("Frame", nil, frame)
 			frame.HealthBarBackdrop:SetFrameLevel(frame:GetFrameLevel()-1)
-			frame.HealthBarBackdrop:SetStylePanel("Fixed", "Blackout")
+			frame.HealthBarBackdrop:SetStylePanel("!_Frame", "Blackout")
 			frame.HealthBarBackdrop:SetWidthToScale(frame.healthBarWidth+(2))
 			frame.ActualHealthBar:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Bars\DEFAULT]])
 			frame.PetTypeFrame = CreateFrame("Frame", nil, frame)
@@ -303,9 +303,9 @@ local function PetBattleStyle()
 			frame.IconBackdrop = CreateFrame("Frame", nil, frame)
 			frame.IconBackdrop:SetFrameLevel(0)
 			frame.IconBackdrop:SetAllPoints(frame)
-			frame.IconBackdrop:SetStylePanel("Slot", true, 1, 0, 0, 0.5);
+			frame.IconBackdrop:SetStylePanel("Slot", 1, 0, 0, 0.5);
 
-			frame.IconBackdrop.Panel:SetStylePanel("Fixed", "Blackout")
+			frame.IconBackdrop.Panel:SetStylePanel("!_Frame", "Blackout")
 
 			frame:ClearAllPoints()
 			frame.healthBarWidth = 40;
@@ -314,7 +314,7 @@ local function PetBattleStyle()
 			frame.ActualHealthBar:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Bars\DEFAULT]])
 			frame.HealthBarBackdrop = CreateFrame("Frame", nil, frame)
 			frame.HealthBarBackdrop:SetFrameLevel(frame:GetFrameLevel()-1)
-			frame.HealthBarBackdrop:SetStylePanel("Fixed", "Blackout")
+			frame.HealthBarBackdrop:SetStylePanel("!_Frame", "Blackout")
 			frame.HealthBarBackdrop:SetWidthToScale(frame.healthBarWidth+2)
 			frame.HealthBarBackdrop:SetPointToScale('TOPLEFT', frame.ActualHealthBar, 'TOPLEFT', -1, 1)
 			frame.HealthBarBackdrop:SetPointToScale('BOTTOMLEFT', frame.ActualHealthBar, 'BOTTOMLEFT', -1, -1)
@@ -327,7 +327,7 @@ local function PetBattleStyle()
 	PetBattleActionBar:EnableMouse(true)
 	PetBattleActionBar:SetFrameLevel(0)
 	PetBattleActionBar:SetFrameStrata('BACKGROUND')
-	PetBattleActionBar:SetStylePanel("Fixed", "Blackout")
+	PetBattleActionBar:SetStylePanel("!_Frame", "Blackout")
 
 	local SVUI_DockBottomCenter = _G.SVUI_DockBottomCenter;
 	if(SVUI_DockBottomCenter) then
@@ -367,7 +367,7 @@ local function PetBattleStyle()
 	BottomFrame.xpBar:SetParent(PetBattleActionBar)
 	BottomFrame.xpBar:SetSizeToScale((PBAB_WIDTH * 0.8) - 4, 16)
 	BottomFrame.xpBar:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Bars\DEFAULT]])
-	BottomFrame.xpBar:SetStylePanel("Default", "Bar")
+	BottomFrame.xpBar:SetStylePanel("Frame", "Bar")
 	BottomFrame.xpBar:SetPoint("BOTTOMRIGHT", PetBattleActionBar.Panel, "TOPRIGHT", -3, 3)
 	BottomFrame.xpBar:SetScript("OnShow", function(self)
 		self:RemoveTextures()
@@ -392,7 +392,7 @@ local function PetBattleStyle()
 	local PetBattleQueueReadyFrame = _G.PetBattleQueueReadyFrame;
 
 	PetBattleQueueReadyFrame:RemoveTextures()
-	PetBattleQueueReadyFrame:SetStylePanel("Default", 'Transparent')
+	PetBattleQueueReadyFrame:SetStylePanel("Frame", 'Transparent')
 	PetBattleQueueReadyFrame.AcceptButton:SetStylePanel("Button")
 	PetBattleQueueReadyFrame.DeclineButton:SetStylePanel("Button")
 	PetBattleQueueReadyFrame.Art:SetTexture([[Interface\PetBattles\PetBattlesQueue]])

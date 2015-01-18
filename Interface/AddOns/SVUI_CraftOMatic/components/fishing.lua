@@ -111,11 +111,6 @@ local refPoles = {
 LOCAL FUNCTIONS
 ##########################################################
 ]]--
-local function SendModeMessage(...)
-	if not CombatText_AddMessage then return end 
-	CombatText_AddMessage(...)
-end 
-
 local function GetFishingSkill()
 	local fishing = select(4, GetProfessions())
 	if (fishing) then
@@ -334,7 +329,7 @@ CORE METHODS
 function PLUGIN.Fishing:Enable()
 	PLUGIN:UpdateFishingMode()
 	if(not PLUGIN.Docklet:IsShown()) then PLUGIN.Docklet.DockButton:Click() end
-	UpdateFishingGear(PLUGIN.db.fishing.autoequip);
+	UpdateFishingGear(PLUGIN.db.general.fishing.autoequip);
 	PlaySoundFile("Sound\\Spells\\Tradeskills\\FishCast.wav")
 	PLUGIN.ModeAlert:SetBackdropColor(0.25, 0.52, 0.1)
 	if(not IsSpellKnown(131474)) then
@@ -345,7 +340,7 @@ function PLUGIN.Fishing:Enable()
 	end
 	EnableListener()
 	PLUGIN.ModeAlert:Show()
-	SendModeMessage("Fishing Mode Enabled", CombatText_StandardScroll, 0.28, 0.9, 0.1);
+	SV:SCTMessage("Fishing Mode Enabled", CombatText_StandardScroll, 0.28, 0.9, 0.1);
 end
 
 function PLUGIN.Fishing:Disable()

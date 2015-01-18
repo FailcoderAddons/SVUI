@@ -191,7 +191,7 @@ end
 
 local SetChallengeMedals = function(self, elapsedTime, ...)
 	self:SetHeight(INNER_HEIGHT);
-	local blockHeight = MOD.Block:GetHeight();
+	local blockHeight = MOD.Headers["Scenario"].Block:GetHeight();
 	MOD.Headers["Scenario"].Block:SetHeight(blockHeight + INNER_HEIGHT + 4);
 	self:FadeIn();
 	self.Bar:SetMinMaxValues(0, elapsedTime);
@@ -363,12 +363,12 @@ function MOD:InitializeScenarios()
 	block:SetPointToScale("TOPLEFT", scenario, "TOPLEFT", 2, -2);
 	block:SetPointToScale("TOPRIGHT", scenario, "TOPRIGHT", -2, -2);
 	block:SetHeight(1);
-	block:SetStylePanel("Framed", "Headline");
+	block:SetStylePanel("HeavyButton", "Lite");
 
 	block.Badge = CreateFrame("Frame", nil, block)
 	block.Badge:SetPointToScale("TOPLEFT", block, "TOPLEFT", 4, -4);
 	block.Badge:SetSizeToScale((LARGE_INNER_HEIGHT - 4), (LARGE_INNER_HEIGHT - 4));
-	block.Badge:SetStylePanel("Fixed", "Inset")
+	block.Badge:SetStylePanel("!_Frame", "Inset")
 
 	block.Icon = block.Badge:CreateTexture(nil,"OVERLAY")
 	block.Icon:SetAllPointsIn(block.Badge);
@@ -379,23 +379,25 @@ function MOD:InitializeScenarios()
 	block.Header:SetPointToScale("TOPLEFT", block.Badge, "TOPRIGHT", 4, -1);
 	block.Header:SetPointToScale("TOPRIGHT", block, "TOPRIGHT", -4, 0);
 	block.Header:SetHeightToScale(INNER_HEIGHT);
-	block.Header:SetStylePanel("Default")
+	block.Header:SetStylePanel("Frame")
 
 	block.Header.Stage = block.Header:CreateFontString(nil,"OVERLAY")
-	block.Header.Stage:FontManager("questdialog", "LEFT");
+	block.Header.Stage:SetFontObject(SVUI_Font_Quest);
+	block.Header.Stage:SetJustifyH('LEFT')
 	block.Header.Stage:SetText('')
 	block.Header.Stage:SetPointToScale("TOPLEFT", block.Header, "TOPLEFT", 4, 0);
 	block.Header.Stage:SetPointToScale("BOTTOMLEFT", block.Header, "BOTTOMLEFT", 4, 0);
 
 	block.Header.Score = block.Header:CreateFontString(nil,"OVERLAY")
-	block.Header.Score:FontManager("questdialog", "RIGHT");
+	block.Header.Score:SetFontObject(SVUI_Font_Quest);
+	block.Header.Score:SetJustifyH('RIGHT')
 	block.Header.Score:SetTextColor(1,1,0)
 	block.Header.Score:SetText('')
 	block.Header.Score:SetPointToScale("TOPRIGHT", block.Header, "TOPRIGHT", -2, 0);
 	block.Header.Score:SetPointToScale("BOTTOMRIGHT", block.Header, "BOTTOMRIGHT", -2, 0);
 
 	block.Header.Text = block.Header:CreateFontString(nil,"OVERLAY")
-	block.Header.Text:FontManager("questdialog");
+	block.Header.Text:SetFontObject(SVUI_Font_Quest);
 	block.Header.Text:SetTextColor(1,1,0)
 	block.Header.Text:SetText('')
 	block.Header.Text:SetPointToScale("TOPLEFT", block.Header.Stage, "TOPRIGHT", 4, 0);
@@ -405,7 +407,7 @@ function MOD:InitializeScenarios()
 	timer:SetPointToScale("TOPLEFT", block.Header, "BOTTOMLEFT", 4, -4);
 	timer:SetPointToScale("TOPRIGHT", block.Header, "BOTTOMRIGHT", -4, -4);
 	timer:SetHeight(INNER_HEIGHT);
-	timer:SetStylePanel("Fixed", "Bar");
+	timer:SetStylePanel("!_Frame", "Bar");
 
 	timer.StartTimer = StartTimer;
 	timer.StopTimer = StopTimer;
@@ -424,14 +426,15 @@ function MOD:InitializeScenarios()
 	timer.Bar.Wave = timer.Bar:CreateFontString(nil,"OVERLAY")
 	timer.Bar.Wave:SetPointToScale("TOPLEFT", timer.Bar, "TOPLEFT", 4, 0);
 	timer.Bar.Wave:SetPointToScale("BOTTOMLEFT", timer.Bar, "BOTTOMLEFT", 4, 0);
-	timer.Bar.Wave:FontManager("questdialog", "LEFT");
+	timer.Bar.Wave:SetFontObject(SVUI_Font_Quest);
+	timer.Bar.Wave:SetJustifyH('LEFT')
 	timer.Bar.Wave:SetTextColor(1,1,0)
 	timer.Bar.Wave:SetText('')
 
 	timer.Bar.TimeLeft = timer.Bar:CreateFontString(nil,"OVERLAY");
 	timer.Bar.TimeLeft:SetPointToScale("TOPLEFT", timer.Bar.Wave, "TOPRIGHT", 4, 0);
 	timer.Bar.TimeLeft:SetPointToScale("BOTTOMRIGHT", timer.Bar, "BOTTOMRIGHT", 0, 0);
-	timer.Bar.TimeLeft:FontManager("questnumber");
+	timer.Bar.TimeLeft:SetFontObject(SVUI_Font_Quest_Number);
 	timer.Bar.TimeLeft:SetTextColor(1,1,1)
 	timer.Bar.TimeLeft:SetText('')
 

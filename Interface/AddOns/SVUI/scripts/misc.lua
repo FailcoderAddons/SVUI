@@ -38,6 +38,34 @@ local L = SV.L
 local toonclass = select(2, UnitClass('player'))
 --[[ 
 ########################################################## 
+SIMPLE BUTTON CONSTRUCT
+##########################################################
+]]--
+local Button_OnEnter = function(self, ...)
+    if InCombatLockdown() then return end 
+    GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT", 0, 4)
+    GameTooltip:ClearLines()
+    GameTooltip:AddLine(self.TText, 1, 1, 1)
+    GameTooltip:Show()
+end 
+
+local function CreateSimpleButton(frame, label, anchor, x, y, width, height, tooltip)
+    local button = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
+    button:SetWidth(width)
+    button:SetHeight(height) 
+    button:SetPoint(anchor, x, y)
+    button:SetText(label) 
+    button:RegisterForClicks("AnyUp") 
+    button:SetHitRectInsets(0, 0, 0, 0);
+    button:SetFrameStrata("FULLSCREEN_DIALOG");
+    button.TText = tooltip
+    button:SetStylePanel("Button")
+    button:SetScript("OnEnter", Button_OnEnter)        
+    button:SetScript("OnLeave", GameTooltip_Hide)
+    return button
+end
+--[[ 
+########################################################## 
 TAINT FIX HACKS
 ##########################################################
 ]]--
@@ -232,12 +260,12 @@ end
 local function LoadDressupHelper()
 	if IsAddOnLoaded("DressingRoomFunctions") then return end
 	--[[ PAPER DOLL ENHANCEMENT ]]--
-	local tabard1 = SV:CreateButton(DressUpFrame, "Tabard", "BOTTOMLEFT", 12, 12, 80, 22, "")
+	local tabard1 = CreateSimpleButton(DressUpFrame, "Tabard", "BOTTOMLEFT", 12, 12, 80, 22, "")
 	tabard1:SetScript("OnClick", function()
 		DressUpModel:UndressSlot(19)
 	end)
 
-	local nude1 = SV:CreateButton(DressUpFrame, "Nude", "BOTTOMLEFT", 104, 12, 80, 22, "")
+	local nude1 = CreateSimpleButton(DressUpFrame, "Nude", "BOTTOMLEFT", 104, 12, 80, 22, "")
 	nude1:SetScript("OnClick", function()
 		DressUpFrameResetButton:Click()
 		for i = 1, 19 do
@@ -249,14 +277,14 @@ local function LoadDressupHelper()
 
 	-- frame, label, anchor, x, y, width, height, tooltip
 
-	local tabard2 = SV:CreateButton(SideDressUpFrame, "Tabard", "BOTTOMLEFT", 14, 20, 60, 22, "")
+	local tabard2 = CreateSimpleButton(SideDressUpFrame, "Tabard", "BOTTOMLEFT", 14, 20, 60, 22, "")
 	tabard2:SetFrameStrata(BtnStrata);
 	tabard2:SetFrameLevel(BtnLevel);
 	tabard2:SetScript("OnClick", function()
 		SideDressUpModel:UndressSlot(19)
 	end)
 
-	local nude2 = SV:CreateButton(SideDressUpFrame, "Nude", "BOTTOMRIGHT", -18, 20, 60, 22, "")
+	local nude2 = CreateSimpleButton(SideDressUpFrame, "Nude", "BOTTOMRIGHT", -18, 20, 60, 22, "")
 	nude2:SetFrameStrata(BtnStrata);
 	nude2:SetFrameLevel(BtnLevel);
 	nude2:SetScript("OnClick", function()

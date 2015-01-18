@@ -23,8 +23,8 @@ local SV = select(2, ...)
 --[[ PRIEST FILTERS ]]--
 
 SV.filterdefaults["BuffWatch"] = {
-    {-- Unholy Frenzy
-        ["enabled"] = true, 
+    ["49016"] = {-- Unholy Frenzy
+        ["enable"] = true, 
         ["id"] = 49016, 
         ["point"] = "TOPRIGHT", 
         ["color"] = {["r"] = 0.89, ["g"] = 0.09, ["b"] = 0.05},

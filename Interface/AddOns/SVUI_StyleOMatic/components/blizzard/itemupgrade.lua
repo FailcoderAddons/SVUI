@@ -38,7 +38,7 @@ local function ItemUpgradeStyle()
 	ItemUpgradeFrameUpgradeButton:RemoveTextures()
 	ItemUpgradeFrameUpgradeButton:SetStylePanel("Button")
 	ItemUpgradeFrame.ItemButton:RemoveTextures()
-	ItemUpgradeFrame.ItemButton:SetStylePanel("Slot", true)
+	ItemUpgradeFrame.ItemButton:SetStylePanel("Slot")
 	ItemUpgradeFrame.ItemButton.IconTexture:SetAllPointsIn()
 	hooksecurefunc('ItemUpgradeFrame_Update', function()
 		if GetItemUpgradeItemInfo() then

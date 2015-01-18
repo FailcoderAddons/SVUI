@@ -291,11 +291,11 @@ do
 
 		aura.count = aura:CreateFontString(nil, "ARTWORK")
 		aura.count:SetPoint("BOTTOMRIGHT", (-1 + SV.db.SVAura.countOffsetH), (1 + SV.db.SVAura.countOffsetV))
-		aura.count:FontManager("aura")
+		aura.count:SetFontObject(SVUI_Font_Aura)
 
 		aura.time = aura:CreateFontString(nil, "ARTWORK")
 		aura.time:SetPoint("TOP", aura, "BOTTOM", 1 + SV.db.SVAura.timeOffsetH, 0 + SV.db.SVAura.timeOffsetV)
-		aura.time:FontManager("aura")
+		aura.time:SetFontObject(SVUI_Font_Aura)
 
 		aura.highlight = aura:CreateTexture(nil, "HIGHLIGHT")
 		aura.highlight:SetTexture(BASIC_TEXTURE)
@@ -584,7 +584,7 @@ function MOD:Load()
 	local auras = CreateFrame("Frame", "SVUI_AurasAnchor", UIParent)
 	auras:SetSize(CB_WIDTH, CB_HEIGHT)
 	auras:SetPointToScale("TOPRIGHT", Minimap, "TOPLEFT", -8, 0)
-	SV:AddToDisplayAudit(auras)
+	SV:ManageVisibility(auras)
 	
 	self.BuffFrame = CreateAuraHeader("HELPFUL")
 	self.BuffFrame:SetPoint("TOPRIGHT", auras, "TOPLEFT", -8, 0)
@@ -594,7 +594,7 @@ function MOD:Load()
 	-- SVUI_ConsolidatedBuffs:SetParent(SV.Screen)
 	SVUI_ConsolidatedBuffs:SetAllPoints(auras)
 	SVUI_ConsolidatedBuffs:SetFrameStrata("BACKGROUND")
-	SV:AddToDisplayAudit(SVUI_ConsolidatedBuffs)
+	SV:ManageVisibility(SVUI_ConsolidatedBuffs)
 
 	for i = 1, NUM_LE_RAID_BUFF_TYPES do 
 		SVUI_ConsolidatedBuffs[i] = CreateHyperBuff(i)

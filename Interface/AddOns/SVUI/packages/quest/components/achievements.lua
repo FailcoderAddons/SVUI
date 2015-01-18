@@ -63,6 +63,7 @@ local OBJ_ICON_COMPLETE = [[Interface\COMMON\Indicator-Green]];
 local OBJ_ICON_INCOMPLETE = [[Interface\COMMON\Indicator-Gray]];
 
 local LINE_ACHIEVEMENT_ICON = [[Interface\ICONS\Achievement_General]];
+local MAX_OBJECTIVES_SHOWN = 8;
 --[[ 
 ########################################################## 
 SCRIPT HANDLERS
@@ -132,7 +133,7 @@ local GetAchievementRow = function(self, index)
 		row.Badge = CreateFrame("Frame", nil, row)
 		row.Badge:SetPoint("TOPLEFT", row, "TOPLEFT", 2, -2);
 		row.Badge:SetSize(INNER_HEIGHT, INNER_HEIGHT);
-		row.Badge:SetStylePanel("Default", "Headline")
+		row.Badge:SetStylePanel("Frame", "Lite")
 		row.Badge.Icon = row.Badge:CreateTexture(nil,"OVERLAY")
 		row.Badge.Icon:SetAllPoints(row.Badge);
 		row.Badge.Icon:SetTexture(LINE_ACHIEVEMENT_ICON)
@@ -143,7 +144,8 @@ local GetAchievementRow = function(self, index)
 		row.Header:SetPoint("TOPRIGHT", row, "TOPRIGHT", -2, 0);
 		row.Header:SetHeightToScale(INNER_HEIGHT);
 		row.Header.Text = row.Header:CreateFontString(nil,"OVERLAY")
-		row.Header.Text:FontManager("questdialog", "LEFT");
+		row.Header.Text:SetFontObject(SVUI_Font_Quest);
+		row.Header.Text:SetJustifyH('LEFT')
 		row.Header.Text:SetTextColor(1,1,0)
 		row.Header.Text:SetText('')
 		row.Header.Text:SetPoint("TOPLEFT", row.Header, "TOPLEFT", 4, 0);
@@ -151,7 +153,7 @@ local GetAchievementRow = function(self, index)
 
 		row.Button = CreateFrame("Button", nil, row.Header)
 		row.Button:SetAllPoints(row.Header);
-		row.Button:SetStylePanel("Button", "Headline", 1, 1, 1)
+		row.Button:SetStylePanel("Button", "Lite", 1, 1, 1)
 		row.Button:SetID(0)
 		row.Button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 		row.Button:SetScript("OnClick", ViewButton_OnClick)
@@ -195,8 +197,8 @@ local SetAchievementRow = function(self, index, title, details, icon, achievemen
 
 	for i = 1, subCount do
 		local description, category, completed, quantity, totalQuantity, _, flags, assetID, quantityString, criteriaID, eligible, duration, elapsed = GetAchievementCriteriaInfo(achievementID, i);
-		if(not ((not completed) and (shown_objectives > 5))) then
-			if(shown_objectives == 5 and subCount > (6)) then
+		if(not ((not completed) and (shown_objectives > MAX_OBJECTIVES_SHOWN))) then
+			if(shown_objectives == MAX_OBJECTIVES_SHOWN and subCount > (6)) then
 				shown_objectives = shown_objectives + 1;
 			else
 				if(description and bit.band(flags, EVALUATION_TREE_FLAG_PROGRESS_BAR) == EVALUATION_TREE_FLAG_PROGRESS_BAR) then
@@ -313,7 +315,8 @@ function MOD:InitializeAchievements()
 	achievements.Header.Text = achievements.Header:CreateFontString(nil,"OVERLAY")
 	achievements.Header.Text:SetPoint("TOPLEFT", achievements.Header, "TOPLEFT", 2, 0);
 	achievements.Header.Text:SetPoint("BOTTOMLEFT", achievements.Header, "BOTTOMLEFT", 2, 0);
-	achievements.Header.Text:FontManager("questheader", "LEFT");
+	achievements.Header.Text:SetFontObject(SVUI_Font_Quest_Header);
+	achievements.Header.Text:SetJustifyH('LEFT')
 	achievements.Header.Text:SetTextColor(0.28,0.75,1)
 	achievements.Header.Text:SetText(TRACKER_HEADER_ACHIEVEMENTS)
 

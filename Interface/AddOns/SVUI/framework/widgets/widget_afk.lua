@@ -62,15 +62,14 @@ function SV.AFK:Activate(enabled)
 end
 
 local AFK_OnEvent = function(self, event)
-	if(event == "PLAYER_REGEN_DISABLED") then
-		self:RegisterEvent("PLAYER_REGEN_ENABLED", "OnEvent")
-		self:Activate(false)
-	else
+	if(event == "PLAYER_FLAGS_CHANGED") then
 		if(UnitIsAFK("player")) then
 			self:Activate(true)
 		else
 			self:Activate(false)
 		end
+	else
+		self:Activate(false)
 	end
 end
 
@@ -106,6 +105,8 @@ function SV.AFK:Initialize()
 	if(SV.db.general.afk) then
 		self:RegisterEvent("PLAYER_FLAGS_CHANGED")
 		self:RegisterEvent("PLAYER_REGEN_DISABLED")
+		self:RegisterEvent("PLAYER_ENTERING_WORLD")
+		self:RegisterEvent("PET_BATTLE_OPENING_START")
 		self:SetScript("OnEvent", AFK_OnEvent)
 	end
 end
@@ -114,10 +115,16 @@ function SV.AFK:Toggle()
 	if(SV.db.general.afk) then
 		self:RegisterEvent("PLAYER_FLAGS_CHANGED")
 		self:RegisterEvent("PLAYER_REGEN_DISABLED")
+		self:RegisterEvent("PLAYER_ENTERING_WORLD")
+		self:RegisterEvent("PET_BATTLE_OPENING_START")
+		self:RegisterEvent("PLAYER_DEAD")
 		self:SetScript("OnEvent", AFK_OnEvent)
 	else
 		self:UnregisterEvent("PLAYER_FLAGS_CHANGED")
 		self:UnregisterEvent("PLAYER_REGEN_DISABLED")
+		self:UnregisterEvent("PLAYER_ENTERING_WORLD")
+		self:UnregisterEvent("PET_BATTLE_OPENING_START")
+		self:UnregisterEvent("PLAYER_DEAD")
 		self:SetScript("OnEvent", nil)
 	end
 end

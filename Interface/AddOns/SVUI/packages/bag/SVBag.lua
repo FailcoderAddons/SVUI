@@ -44,16 +44,20 @@ local SV = select(2, ...)
 local L = SV.L
 local MOD = SV:NewPackage("SVBag", L["Bags"]);
 local TTIP = SV.SVTip;
+
+MOD.VendorQueue = {};
 --[[ 
 ########################################################## 
 LOCAL VARS
 ##########################################################
 ]]--
+local DEBUG_BAGS = false;
 local CreateFrame = _G.CreateFrame;
 local hooksecurefunc = _G.hooksecurefunc;
 local BLANK_TEXTURE = [[Interface\BUTTONS\WHITE8X8]];
 local BASIC_TEXTURE = [[Interface\AddOns\SVUI\assets\artwork\Bars\DEFAULT]];
 local BORDER_TEXTURE = [[Interface\Addons\SVUI\assets\artwork\Template\ROUND]];
+local BORDER_BG = [[Interface\AddOns\SVUI\assets\artwork\Unitframe\Class\ORB-BG]];
 local ICON_BAGS = [[Interface\AddOns\SVUI\assets\artwork\Icons\BAGS-BAGS]];
 local ICON_SORT = [[Interface\AddOns\SVUI\assets\artwork\Icons\BAGS-SORT]];
 local ICON_STACK = [[Interface\AddOns\SVUI\assets\artwork\Icons\BAGS-STACK]];
@@ -64,7 +68,6 @@ local ICON_DEPOSIT = [[Interface\AddOns\SVUI\assets\artwork\Icons\BAGS-DEPOSIT]]
 local ICON_VENDOR = [[Interface\AddOns\SVUI\assets\artwork\Icons\BAGS-VENDOR]];
 local ICON_REAGENTS = [[Interface\AddOns\SVUI\assets\artwork\Icons\BAGS-REAGENTS]];
 local numBagFrame = NUM_BAG_FRAMES + 1;
-local VendorQueue = {};
 local GEAR_CACHE, GEARSET_LISTING = {}, {};
 local internalTimer;
 local RefProfessionColors = {
@@ -78,18 +81,6 @@ local RefProfessionColors = {
 	[0x10000] = {222/255,13/255,65/255},
 	[0x100000] = {18/255,224/255,180/255}
 }
-local BagFilters = CreateFrame("Frame", "SVUI_BagFilterMenu", UIParent);
---[[ 
-########################################################## 
-UPVALUES
-##########################################################
-]]--
-local DIALOG_FONT = [[Interface\AddOns\SVUI\assets\fonts\Default.ttf]];
-local DIALOG_FONTSIZE = 12;
-local DIALOG_FONTOUTLINE = "OUTLINE";
-local NUMBER_FONT = [[Interface\AddOns\SVUI\assets\fonts\Default.ttf]];
-local NUMBER_FONTSIZE = 12;
-local NUMBER_FONTOUTLINE = "OUTLINE";
 --[[ 
 ########################################################## 
 LOCAL FUNCTIONS
@@ -107,30 +98,35 @@ local function FormatCurrency(amount)
 end 
 
 local function StyleBagToolButton(button, iconTex)
-	if button.styled then return end 
+	if button.styled then return end
+
+	local bg = button:CreateTexture(nil, "BACKGROUND")
+	bg:SetAllPointsOut(button, 4, 4)
+	bg:SetTexture(BORDER_BG)
+	bg:SetVertexColor(unpack(SV.Media.color.default))
 
 	local outer = button:CreateTexture(nil, "OVERLAY")
-	outer:SetAllPointsOut(button, 6, 6)
+	outer:SetAllPointsOut(button, 5, 5)
 	outer:SetTexture(BORDER_TEXTURE)
-	outer:SetGradient("VERTICAL", 0.4, 0.47, 0.5, 0.3, 0.33, 0.35)
+	outer:SetGradient(unpack(SV.Media.gradient.container))
 
 	button:SetNormalTexture(iconTex)
 	iconTex = button:GetNormalTexture()
-	iconTex:SetGradient("VERTICAL", 0.5, 0.53, 0.55, 0.8, 0.8, 1)
+	iconTex:SetGradient(unpack(SV.Media.gradient.medium))
 	
 	local icon = button:CreateTexture(nil, "OVERLAY")
-	icon:SetAllPointsOut(button, 6, 6)
+	icon:SetAllPointsOut(button, 5, 5)
 	SetPortraitToTexture(icon, iconTex)
 	hooksecurefunc(icon, "SetTexture", SetPortraitToTexture)
 
 	local hover = button:CreateTexture(nil, "HIGHLIGHT")
-	hover:SetAllPointsOut(button, 6, 6)
+	hover:SetAllPointsOut(button, 5, 5)
 	hover:SetTexture(BORDER_TEXTURE)
 	hover:SetGradient(unpack(SV.Media.gradient.yellow))
 
 	if button.SetPushedTexture then 
 		local pushed = button:CreateTexture(nil, "BORDER")
-		pushed:SetAllPointsOut(button, 6, 6)
+		pushed:SetAllPointsOut(button, 5, 5)
 		pushed:SetTexture(BORDER_TEXTURE)
 		pushed:SetGradient(unpack(SV.Media.gradient.highlight))
 		button:SetPushedTexture(pushed)
@@ -138,7 +134,7 @@ local function StyleBagToolButton(button, iconTex)
 
 	if button.SetCheckedTexture then 
 		local checked = button:CreateTexture(nil, "BORDER")
-		checked:SetAllPointsOut(button, 6, 6)
+		checked:SetAllPointsOut(button, 5, 5)
 		checked:SetTexture(BORDER_TEXTURE)
 		checked:SetGradient(unpack(SV.Media.gradient.green))
 		button:SetCheckedTexture(checked)
@@ -146,7 +142,7 @@ local function StyleBagToolButton(button, iconTex)
 
 	if button.SetDisabledTexture then 
 		local disabled = button:CreateTexture(nil, "BORDER")
-		disabled:SetAllPointsOut(button, 6, 6)
+		disabled:SetAllPointsOut(button, 5, 5)
 		disabled:SetTexture(BORDER_TEXTURE)
 		disabled:SetGradient(unpack(SV.Media.gradient.default))
 		button:SetDisabledTexture(disabled)
@@ -214,47 +210,6 @@ local function BuildEquipmentMap()
 		end
 	end
 end
-
-local DD_OnClick = function(self)
-	SetBagSlotFlag(self.BagID, self.FilterID, not GetBagSlotFlag(self.BagID, self.FilterID))
-	self:GetParent():Hide()
-end
-
-local DDClear_OnClick = function(self)
-	for i = LE_BAG_FILTER_FLAG_EQUIPMENT, NUM_LE_BAG_FILTER_FLAGS do
-		SetBagSlotFlag(self.BagID, i, false)
-	end
-	self:GetParent():Hide()
-end
-
-local DD_OnEnter = function(self)
-	self.hoverTex:Show()
-end
-
-local DD_OnLeave = function(self)
-	self.hoverTex:Hide()
-end
-
-local function SetFilterMenu(self)
-	for i = LE_BAG_FILTER_FLAG_EQUIPMENT, NUM_LE_BAG_FILTER_FLAGS do
-		if(GetBagSlotFlag(self.id, i)) then
-			BagFilters.buttons[i].activeTex:Show()
-		else
-			BagFilters.buttons[i].activeTex:Hide()
-		end
-		BagFilters.buttons[i].BagID = self.id
-	end
-
-	BagFilters.buttons[NUM_LE_BAG_FILTER_FLAGS + 1].BagID = self.id
-
-	local maxHeight = ((NUM_LE_BAG_FILTER_FLAGS) * 16) + 30
-	local maxWidth = 135
-	
-	BagFilters:SetSize(maxWidth, maxHeight)    
-	BagFilters:ClearAllPoints()
-	BagFilters:SetPoint("TOPLEFT", self, "BOTTOMLEFT", 0, -8)
-	ToggleFrame(BagFilters)
-end
 --[[ 
 ########################################################## 
 CORE FUNCTIONS
@@ -293,6 +248,93 @@ function MOD:INVENTORY_SEARCH_UPDATE()
 			end 
 		end
 	end
+end
+
+function MOD:SlotUpdate(bagID, slotID)
+	if((not self.Bags[bagID]) or (self.Bags[bagID] and self.Bags[bagID].numSlots ~= GetContainerNumSlots(bagID)) or (not self.Bags[bagID][slotID])) then
+		return; 
+	end
+
+	local slot = self.Bags[bagID][slotID];
+	local bagType = self.Bags[bagID].bagFamily;
+
+	slot:Show()
+
+	local texture, count, locked = GetContainerItemInfo(bagID, slotID);
+	local start, duration, enable = GetContainerItemCooldown(bagID, slotID);
+	local isQuestItem, questId, isActiveQuest = GetContainerItemQuestInfo(bagID, slotID);
+
+	local itemID = GetContainerItemID(bagID, slotID);
+	if(itemID and MOD.VendorQueue[itemID]) then
+		slot.JunkIcon:Show()
+	else
+		slot.JunkIcon:Hide()
+	end
+
+	local r,g,b = 0,0,0
+	slot.HasQuestItem = nil
+	if(questId and (not isActiveQuest)) then
+		r,g,b = 1,0.3,0.3
+		slot.questIcon:Show();
+		slot.HasQuestItem = true;
+	elseif(questId or isQuestItem) then
+		r,g,b = 1,0.3,0.3
+		slot.questIcon:Hide();
+		slot.HasQuestItem = true;
+	elseif(bagType) then
+		r,g,b = bagType[1],bagType[2],bagType[3]
+		slot.questIcon:Hide();
+	else
+		slot.questIcon:Hide();
+		local itemLink = GetContainerItemLink(bagID, slotID);
+		if(itemLink) then
+			local rarity = select(3, GetItemInfo(itemLink));
+			if(rarity) then
+				if(rarity > 1) then 
+					r,g,b = GetItemQualityColor(rarity)
+				elseif(rarity == 0) then
+					slot.JunkIcon:Show()
+				end
+			end
+		else
+			if(GameTooltip:NumLines() ~= 0) then
+				GameTooltip:Hide()
+			end
+		end
+	end
+
+	slot:SetBackdropColor(r,g,b,0.6)
+	slot:SetBackdropBorderColor(r,g,b,1)
+
+	CooldownFrame_SetTimer(slot.cooldown, start, duration, enable);
+
+	if((duration > 0) and (enable == 0)) then
+		SetItemButtonTextureVertexColor(slot, 0.4, 0.4, 0.4)
+	else 
+		SetItemButtonTextureVertexColor(slot, 1, 1, 1)
+	end
+
+	if(C_NewItems.IsNewItem(bagID, slotID)) then
+		C_NewItems.RemoveNewItem(bagID, slotID)
+	end
+	
+	if(slot.NewItemTexture) then slot.NewItemTexture:Hide() end;
+	if(slot.flashAnim) then slot.flashAnim:Stop() end;
+    if(slot.newitemglowAnim) then slot.newitemglowAnim:Stop() end;
+
+	SetItemButtonTexture(slot, texture)
+	SetItemButtonCount(slot, count)
+	SetItemButtonDesaturated(slot, locked, 0.5, 0.5, 0.5)
+
+	if(slot.GearInfo) then
+		local loc = format("%d_%d", bagID, slotID)
+		if(GEARSET_LISTING[loc]) then
+			local level = #GEARSET_LISTING[loc] < 4 and #GEARSET_LISTING[loc] or 3;
+			SetGearLabel(level, slot.GearInfo, GEARSET_LISTING[loc])
+		else
+			SetGearLabel(0, slot.GearInfo, nil)
+		end
+	end
 end 
 
 local SlotUpdate = function(self, slotID)
@@ -308,7 +350,7 @@ local SlotUpdate = function(self, slotID)
 	local isQuestItem, questId, isActiveQuest = GetContainerItemQuestInfo(bag, slotID);
 
 	local itemID = GetContainerItemID(bag, slotID);
-	if(itemID and VendorQueue[itemID]) then
+	if(itemID and MOD.VendorQueue[itemID]) then
 		slot.JunkIcon:Show()
 	else
 		slot.JunkIcon:Hide()
@@ -351,7 +393,7 @@ local SlotUpdate = function(self, slotID)
 
 	CooldownFrame_SetTimer(slot.cooldown, start, duration, enable);
 
-	if(duration > 0 and enable == 0) then 
+	if((duration > 0) and (enable == 0)) then
 		SetItemButtonTextureVertexColor(slot, 0.4, 0.4, 0.4)
 	else 
 		SetItemButtonTextureVertexColor(slot, 1, 1, 1)
@@ -380,10 +422,20 @@ local SlotUpdate = function(self, slotID)
 	end
 end 
 
+function MOD:RefreshSlots(bagID)
+	if(self.Bags[bagID]) then
+		local maxcount = GetContainerNumSlots(bagID)
+		for slotID = 1, maxcount do
+			self.Bags[bagID]:SlotUpdate(slotID) 
+		end
+	end
+end
+
 local RefreshSlots = function(self)
 	local bagID = self:GetID()
 	if(not bagID) then return end
 	local maxcount = GetContainerNumSlots(bagID)
+	--print("RefreshSlots BAG:" .. bagID)
 	for slotID = 1, maxcount do
 		self:SlotUpdate(slotID) 
 	end 
@@ -398,59 +450,19 @@ local RefreshReagentSlots = function(self)
 	end 
 end
 
-local BagMenu_OnEnter = function(self)
-	local parent = self.parent
-	if(not parent) then return end
-	for bagID, bag in pairs(parent.Bags) do
-		local numSlots = GetContainerNumSlots(bagID)
-		for slotID = 1, numSlots do 
-			if bag[slotID] then 
-				if bagID == self.id then 
-					bag[slotID]:SetAlpha(1)
-				else 
-					bag[slotID]:SetAlpha(0.1)
-				end 
-			end 
-		end 
-	end
-
-	GameTooltip:AppendText(" |cff00FF11[SHIFT-CLICK] To Set Filters|r")
-end 
-
-local BagMenu_OnLeave = function(self)
-	local parent = self.parent
-	if(not parent) then return end
-	for bagID, bag in pairs(parent.Bags) do 
-		local numSlots = GetContainerNumSlots(bagID)
-		for slotID = 1, numSlots do 
-			if bag[slotID] then 
-				bag[slotID]:SetAlpha(1)
-			end 
-		end 
-	end
-end
-
-local BAG_FILTER_LABELS = _G.BAG_FILTER_LABELS;
-
-local BagMenu_OnClick = function(self)
-	if IsShiftKeyDown() then
-		SetFilterMenu(self);
-	elseif(BagFilters:IsShown()) then
-		ToggleFrame(BagFilters)
-	end
-end
-
 local ContainerFrame_UpdateCooldowns = function(self)
 	if self.isReagent then return end
-	for bagID, bag in pairs(self.Bags) do 
-		for slotID = 1, GetContainerNumSlots(bagID)do 
-			local start, duration, enable = GetContainerItemCooldown(bagID, slotID)
-			if(bag[slotID]) then
-				CooldownFrame_SetTimer(bag[slotID].cooldown, start, duration, enable)
-				if duration > 0 and enable == 0 then 
-					SetItemButtonTextureVertexColor(bag[slotID], 0.4, 0.4, 0.4)
-				else 
-					SetItemButtonTextureVertexColor(bag[slotID], 1, 1, 1)
+	for _, bagID in ipairs(self.BagIDs) do
+		if self.Bags[bagID] then
+			for slotID = 1, GetContainerNumSlots(bagID)do 
+				local start, duration, enable = GetContainerItemCooldown(bagID, slotID)
+				if(self.Bags[bagID][slotID]) then
+					CooldownFrame_SetTimer(self.Bags[bagID][slotID].cooldown, start, duration, enable)
+					if duration > 0 and enable == 0 then 
+						SetItemButtonTextureVertexColor(self.Bags[bagID][slotID], 0.4, 0.4, 0.4)
+					else 
+						SetItemButtonTextureVertexColor(self.Bags[bagID][slotID], 1, 1, 1)
+					end
 				end
 			end
 		end 
@@ -458,8 +470,10 @@ local ContainerFrame_UpdateCooldowns = function(self)
 end
 
 local ContainerFrame_UpdateBags = function(self)
-	for bagID, bag in pairs(self.Bags) do
-		bag:RefreshSlots() 
+	for _, bagID in ipairs(self.BagIDs) do
+		if self.Bags[bagID] then
+			self.Bags[bagID]:RefreshSlots();
+		end
 	end
 end
 
@@ -512,22 +526,22 @@ local ContainerFrame_UpdateLayout = function(self)
 	self.holderFrame:SetWidthToScale(holderWidth);
 
 	local menu = self.BagMenu
+	local lastMenu;
+	for i, bagID in ipairs(self.BagIDs) do
+		if((not isBank and bagID <= 3) or (isBank and bagID ~= -1 and numContainerSlots >= 1 and not (i - 1 > numContainerSlots))) then
 
-	for i, bagID in ipairs(self.BagIDs) do 
-		if((not isBank and bagID <= 3) or (isBank and (bagID ~= -1 and numContainerSlots >= 1))) then
 			menu:SetSizeToScale(((buttonSize + buttonSpacing) * (isBank and i - 1 or i)) + buttonSpacing, buttonSize + (buttonSpacing * 2))
 			
-			local bagSlot, globalName, bagTemplate;
-
-			if isBank then
-				globalName = ("SVUI_BankBag%d"):format(bagID - 4);
-				bagTemplate = "BankItemButtonBagTemplate"
-			else 
-				globalName = ("SVUI_MainBag%dSlot"):format(bagID);
-				bagTemplate = "BagSlotButtonTemplate"
-			end
-
 			if(not menu[i]) then
+				local bagSlot, globalName, bagTemplate;
+				if isBank then
+					globalName = "SVUI_BankBag" .. bagID - 4;
+					bagTemplate = "BankItemButtonBagTemplate"
+				else 
+					globalName = "SVUI_MainBag" .. bagID .. "Slot";
+					bagTemplate = "BagSlotButtonTemplate"
+				end
+
 				bagSlot = CreateFrame("CheckButton", globalName, menu, bagTemplate)
 				bagSlot.parent = self;
 
@@ -536,7 +550,7 @@ local ContainerFrame_UpdateLayout = function(self)
 				bagSlot:SetPushedTexture("")
 				bagSlot:SetScript("OnClick", nil)
 				bagSlot:RemoveTextures()
-				bagSlot:SetStylePanel("Slot", true, 2, 0, 0, 0.5);
+				bagSlot:SetStylePanel("Slot", 2, 0, 0, 0.5);
 
 				if(not bagSlot.icon) then
 					bagSlot.icon = bagSlot:CreateTexture(nil, "BORDER");
@@ -544,170 +558,150 @@ local ContainerFrame_UpdateLayout = function(self)
 				bagSlot.icon:SetAllPointsIn()
 				bagSlot.icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 
-				hooksecurefunc(bagSlot, "UpdateTooltip", BagMenu_OnEnter)
-				bagSlot:HookScript("OnLeave", BagMenu_OnLeave)
-
 				if(not bagSlot.tooltipText) then
 					bagSlot.tooltipText = ""
 				end
 
 				if(isBank) then
 					bagSlot:SetID(bagID - 4)
-					bagSlot.id = bagID;
+					bagSlot.internalID = bagID;
 				else
-					bagSlot:HookScript("OnClick", BagMenu_OnClick)
-					bagSlot.id = (bagID + 1);
+					MOD:NewFilterMenu(bagSlot)
+					bagSlot.internalID = (bagID + 1);
 				end
 
 				menu[i] = bagSlot;
-			else
-				bagSlot = menu[i]
 			end
 
-			bagSlot:SetSizeToScale(buttonSize) 
-			bagSlot:ClearAllPoints()
+			menu[i]:SetSizeToScale(buttonSize) 
+			menu[i]:ClearAllPoints()
 
 			if(isBank) then
-				if(i == 2) then 
-					bagSlot:SetPoint("BOTTOMLEFT", menu, "BOTTOMLEFT", buttonSpacing, buttonSpacing)
-				else 
-					bagSlot:SetPoint("LEFT", menu[i - 1], "RIGHT", buttonSpacing, 0)
-				end
+				BankFrameItemButton_Update(menu[i])
+				BankFrameItemButton_UpdateLocked(menu[i])
 
-				if(bagSlot.GetInventorySlot) then
-					BankFrameItemButton_Update(bagSlot)
-					BankFrameItemButton_UpdateLocked(bagSlot)
+				if(i == 2) then 
+					menu[i]:SetPoint("BOTTOMLEFT", menu, "BOTTOMLEFT", buttonSpacing, buttonSpacing)
+				else 
+					menu[i]:SetPoint("LEFT", lastMenu, "RIGHT", buttonSpacing, 0)
 				end
 			else
 				if(i == 1) then 
-					bagSlot:SetPoint("BOTTOMLEFT", menu, "BOTTOMLEFT", buttonSpacing, buttonSpacing)
+					menu[i]:SetPoint("BOTTOMLEFT", menu, "BOTTOMLEFT", buttonSpacing, buttonSpacing)
 				else 
-					bagSlot:SetPoint("LEFT", menu[i - 1], "RIGHT", buttonSpacing, 0)
+					menu[i]:SetPoint("LEFT", lastMenu, "RIGHT", buttonSpacing, 0)
 				end
 			end
+			lastMenu = menu[i];	
 		end
 
 		local numSlots = GetContainerNumSlots(bagID);
 
 		local bagName = ("%sBag%d"):format(containerName, bagID)
-		local template = (bagID == -1) and "BankItemButtonGenericTemplate" or "ContainerFrameItemButtonTemplate"
 		local bag;
 
 		if numSlots > 0 then
 			if not self.Bags[bagID] then
-				bag = CreateFrame("Frame", bagName, self); 
-				bag:SetID(bagID);
-				bag.SlotUpdate = SlotUpdate;
-				bag.RefreshSlots = RefreshSlots;
-				self.Bags[bagID] = bag
-			else
-				bag = self.Bags[bagID]
+				self.Bags[bagID] = CreateFrame("Frame", bagName, self); 
+				self.Bags[bagID]:SetID(bagID);
+				self.Bags[bagID].SlotUpdate = SlotUpdate;
+				self.Bags[bagID].RefreshSlots = RefreshSlots;
 			end
 
-			bag.numSlots = numSlots;
-			bag.bagFamily = false;
+			self.Bags[bagID].numSlots = numSlots;
+			self.Bags[bagID].bagFamily = false;
 
 			local btype = select(2, GetContainerNumFreeSlots(bagID));
 			if RefProfessionColors[btype] then
 				local r, g, b = unpack(RefProfessionColors[btype]);
-				bag.bagFamily = {r, g, b};
+				self.Bags[bagID].bagFamily = {r, g, b};
 			end
 
 			for i = 1, MAX_CONTAINER_ITEMS do 
-				if bag[i] then 
-					bag[i]:Hide();
+				if self.Bags[bagID][i] then 
+					self.Bags[bagID][i]:Hide();
 				end 
 			end
 
 			for slotID = 1, numSlots do
-				local slot;
 				totalSlots = totalSlots + 1;
 
-				if not bag[slotID] then
+				if not self.Bags[bagID][slotID] then
 					local slotName = ("%sSlot%d"):format(bagName, slotID)
 					local iconName = ("%sIconTexture"):format(slotName)
 					local cdName = ("%sCooldown"):format(slotName)
 					local questIcon = ("%sIconQuestTexture"):format(slotName)
 
-					slot = CreateFrame("CheckButton", slotName, bag, template);
-					slot:SetNormalTexture("");
-					slot:SetCheckedTexture("");
-					slot:RemoveTextures()
-					slot:SetStylePanel("Slot", true, 2, 0, 0, 0.45);
-					slot.Panel.Shadow:SetAttribute("shadowAlpha", 0.9)
+					self.Bags[bagID][slotID] = CreateFrame("CheckButton", slotName, self.Bags[bagID], bagID == -1 and "BankItemButtonGenericTemplate" or "ContainerFrameItemButtonTemplate");
+					self.Bags[bagID][slotID]:SetNormalTexture("");
+					self.Bags[bagID][slotID]:SetCheckedTexture("");
+					self.Bags[bagID][slotID]:RemoveTextures();
+					self.Bags[bagID][slotID]:SetStylePanel("Slot", 1, 0, 0);
 					
-					if(not slot.NewItemTexture) then
-						slot.NewItemTexture = slot:CreateTexture(nil, "OVERLAY", 1);
+					if(not self.Bags[bagID][slotID].NewItemTexture) then
+						self.Bags[bagID][slotID].NewItemTexture = self.Bags[bagID][slotID]:CreateTexture(nil, "OVERLAY", 1);
 					end
-					slot.NewItemTexture:SetAllPointsIn(slot);
-					slot.NewItemTexture:SetTexture(0,0,0,0);
-					slot.NewItemTexture:Hide()
+					self.Bags[bagID][slotID].NewItemTexture:SetAllPointsIn(self.Bags[bagID][slotID]);
+					self.Bags[bagID][slotID].NewItemTexture:SetTexture(0,0,0,0);
+					self.Bags[bagID][slotID].NewItemTexture:Hide()
 
-					if(not slot.JunkIcon) then 
-						slot.JunkIcon = slot:CreateTexture(nil, "OVERLAY");
-						slot.JunkIcon:SetSizeToScale(16,16);
+					if(not self.Bags[bagID][slotID].JunkIcon) then 
+						self.Bags[bagID][slotID].JunkIcon = self.Bags[bagID][slotID]:CreateTexture(nil, "OVERLAY");
+						self.Bags[bagID][slotID].JunkIcon:SetSizeToScale(16,16);
 					end
-					slot.JunkIcon:SetTexture([[Interface\BUTTONS\UI-GroupLoot-Coin-Up]]);
-					slot.JunkIcon:SetPointToScale("TOPLEFT", slot, "TOPLEFT", -4, 4);
+					self.Bags[bagID][slotID].JunkIcon:SetTexture([[Interface\BUTTONS\UI-GroupLoot-Coin-Up]]);
+					self.Bags[bagID][slotID].JunkIcon:SetPointToScale("TOPLEFT", self.Bags[bagID][slotID], "TOPLEFT", -4, 4);
 
-					if(not slot.icon) then
-						slot.icon = slot:CreateTexture(nil, "BORDER");
+					if(not self.Bags[bagID][slotID].icon) then
+						self.Bags[bagID][slotID].icon = self.Bags[bagID][slotID]:CreateTexture(nil, "BORDER");
 					end
-					slot.icon:SetAllPointsIn(slot);
-					slot.icon:SetTexCoord(0.1, 0.9, 0.1, 0.9);
+					self.Bags[bagID][slotID].icon:SetTexCoord(0.1, 0.9, 0.1, 0.9);
+					self.Bags[bagID][slotID].icon:SetAllPointsIn(self.Bags[bagID][slotID]);
 
-					slot.questIcon = _G[questIcon] or slot:CreateTexture(nil, "OVERLAY")
-					slot.questIcon:SetTexture(TEXTURE_ITEM_QUEST_BANG);
-					slot.questIcon:SetAllPointsIn(slot);
-					slot.questIcon:SetTexCoord(0.1, 0.9, 0.1, 0.9);
+					self.Bags[bagID][slotID].questIcon = _G[questIcon] or self.Bags[bagID][slotID]:CreateTexture(nil, "OVERLAY")
+					self.Bags[bagID][slotID].questIcon:SetTexture(TEXTURE_ITEM_QUEST_BANG);
+					self.Bags[bagID][slotID].questIcon:SetAllPointsIn(self.Bags[bagID][slotID]);
+					self.Bags[bagID][slotID].questIcon:SetTexCoord(0.1, 0.9, 0.1, 0.9);
 					
-					hooksecurefunc(slot, "SetBackdropColor", function(self, r, g, b, a) if(self.HasQuestItem and (r ~= 1)) then self:SetBackdropColor(1,0.3,0.3,a) end end)
-					hooksecurefunc(slot, "SetBackdropBorderColor", function(self, r, g, b, a) if(self.HasQuestItem and (r ~= 1)) then self:SetBackdropBorderColor(1,0.3,0.3,a) end end)
+					hooksecurefunc(self.Bags[bagID][slotID], "SetBackdropColor", function(self, r, g, b, a) if(self.HasQuestItem and (r ~= 1)) then self:SetBackdropColor(1,0.3,0.3,a) end end)
+					hooksecurefunc(self.Bags[bagID][slotID], "SetBackdropBorderColor", function(self, r, g, b, a) if(self.HasQuestItem and (r ~= 1)) then self:SetBackdropBorderColor(1,0.3,0.3,a) end end)
 
-					slot.cooldown = _G[cdName];
-
-					bag[slotID] = slot
-				else
-					slot = bag[slotID]
+					self.Bags[bagID][slotID].cooldown = _G[cdName];
 				end
 
-				if(SV.db.SVGear.misc.setoverlay and (not slot.GearInfo)) then 
-					slot.GearInfo = slot:CreateFontString(nil,"OVERLAY")
-					slot.GearInfo:FontManager("default")
-					slot.GearInfo:SetAllPoints(slot)
-					slot.GearInfo:SetWordWrap(true)
-					slot.GearInfo:SetJustifyH('LEFT')
-					slot.GearInfo:SetJustifyV('BOTTOM')
+				if(SV.db.SVGear.misc.setoverlay and (not self.Bags[bagID][slotID].GearInfo)) then 
+					self.Bags[bagID][slotID].GearInfo = self.Bags[bagID][slotID]:CreateFontString(nil,"OVERLAY")
+					self.Bags[bagID][slotID].GearInfo:SetFontObject(SVUI_Font_Default)
+					self.Bags[bagID][slotID].GearInfo:SetAllPoints(self.Bags[bagID][slotID])
+					self.Bags[bagID][slotID].GearInfo:SetWordWrap(true)
+					self.Bags[bagID][slotID].GearInfo:SetJustifyH('LEFT')
+					self.Bags[bagID][slotID].GearInfo:SetJustifyV('BOTTOM')
 				end
 
-				slot:SetID(slotID);
-				slot:SetSizeToScale(buttonSize);
+				self.Bags[bagID][slotID]:SetID(slotID);
+				self.Bags[bagID][slotID]:SetSizeToScale(buttonSize);
 
-				if slot:GetPoint() then 
-					slot:ClearAllPoints();
+				if self.Bags[bagID][slotID]:GetPoint() then 
+					self.Bags[bagID][slotID]:ClearAllPoints();
 				end
 
 				if lastButton then 
 					if((totalSlots - 1) % numContainerColumns == 0) then 
-						slot:SetPointToScale("TOP", lastRowButton, "BOTTOM", 0, -buttonSpacing);
-						lastRowButton = slot;
+						self.Bags[bagID][slotID]:SetPointToScale("TOP", lastRowButton, "BOTTOM", 0, -buttonSpacing);
+						lastRowButton = self.Bags[bagID][slotID];
 					else 
-						slot:SetPointToScale("LEFT", lastButton, "RIGHT", buttonSpacing, 0);
+						self.Bags[bagID][slotID]:SetPointToScale("LEFT", lastButton, "RIGHT", buttonSpacing, 0);
 					end 
 				else 
-					slot:SetPointToScale("TOPLEFT", self.holderFrame, "TOPLEFT");
-					lastRowButton = slot;
+					self.Bags[bagID][slotID]:SetPointToScale("TOPLEFT", self.holderFrame, "TOPLEFT");
+					lastRowButton = self.Bags[bagID][slotID];
 				end
 
-				lastButton = slot;
+				lastButton = self.Bags[bagID][slotID];
 
-				bag:SlotUpdate(slotID);
+				self.Bags[bagID]:SlotUpdate(slotID);
 			end
 		else
-			if(menu[i] and menu[i].GetInventorySlot) then 
-				BankFrameItemButton_Update(menu[i])
-				BankFrameItemButton_UpdateLocked(menu[i])
-			end
 			if(self.Bags[bagID]) then
 				self.Bags[bagID].numSlots = numSlots;
 				
@@ -717,6 +711,13 @@ local ContainerFrame_UpdateLayout = function(self)
 					end 
 				end
 			end 
+
+			if(isBank) then
+				if(menu[i]) then
+					BankFrameItemButton_Update(menu[i])
+					BankFrameItemButton_UpdateLocked(menu[i])
+				end
+			end
 		end
 	end
 	
@@ -777,7 +778,7 @@ local ReagentFrame_UpdateLayout = function(self)
 			slot:SetNormalTexture(nil);
 			slot:SetCheckedTexture(nil);
 			slot:RemoveTextures()
-			slot:SetStylePanel("Slot", true, 2, 0, 0, 0.5);
+			slot:SetStylePanel("Slot", 2, 0, 0);
 
 			slot.NewItemTexture = slot:CreateTexture(nil, "OVERLAY", 1);
 			slot.NewItemTexture:SetAllPointsIn(slot);
@@ -826,8 +827,10 @@ local ReagentFrame_UpdateLayout = function(self)
 
 		lastButton = slot;
 
-		BankFrameItemButton_Update(slot);
-		BankFrameItemButton_UpdateLocked(slot);
+		if(slot.GetInventorySlot) then
+			BankFrameItemButton_Update(slot)
+			BankFrameItemButton_UpdateLocked(slot)
+		end
 
 		bag:SlotUpdate(slotID);
 	end
@@ -882,9 +885,8 @@ function MOD:VendorGrays(destroy, silent, request)
 							end 
 							totalValue = totalValue + sellPrice;
 							canDelete = canDelete + 1 
-						elseif(itemID and VendorQueue[itemID]) then
+						elseif(itemID and MOD.VendorQueue[itemID]) then
 							if(not request) then
-								VendorQueue[itemID] = nil
 								PickupContainerItem(bagID, slot)
 								DeleteCursorItem()
 							end 
@@ -898,9 +900,8 @@ function MOD:VendorGrays(destroy, silent, request)
 								PickupMerchantItem()
 							end 
 							totalValue = totalValue + sellPrice
-						elseif(itemID and VendorQueue[itemID]) then
+						elseif(itemID and MOD.VendorQueue[itemID]) then
 							if(not request) then
-								VendorQueue[itemID] = nil
 								UseContainerItem(bagID, slot)
 								PickupMerchantItem()
 							end 
@@ -982,8 +983,8 @@ do
 		local icon = _G[bar:GetName().."IconTexture"]
 		bar.oldTex = icon:GetTexture()
 		bar:RemoveTextures()
-		bar:SetStylePanel("Fixed", "Default")
-		bar:SetStylePanel("Slot", false, 1, nil, nil, true)
+		bar:SetStylePanel("!_Frame", "Default")
+		bar:SetStylePanel("!_Slot", 1, nil, nil, true)
 		icon:SetTexture(bar.oldTex)
 		icon:SetAllPointsIn()
 		icon:SetTexCoord(0.1, 0.9, 0.1, 0.9 )
@@ -1002,7 +1003,7 @@ do
 		MainMenuBarBackpackButton:SetParent(bar)
 		MainMenuBarBackpackButton.SetParent = SV.Hidden;
 		MainMenuBarBackpackButton:ClearAllPoints()
-		MainMenuBarBackpackButtonCount:FontManager("default")
+		MainMenuBarBackpackButtonCount:SetFontObject(SVUI_Font_Default)
 		MainMenuBarBackpackButtonCount:ClearAllPoints()
 		MainMenuBarBackpackButtonCount:SetPointToScale("BOTTOMRIGHT", MainMenuBarBackpackButton, "BOTTOMRIGHT", -1, 4)
 		MainMenuBarBackpackButton:HookScript("OnEnter", Bags_OnEnter)
@@ -1087,7 +1088,7 @@ do
 		end
 
 	    if not SVUI_BagBar_MOVE then
-	    	SVUI_BagBar:SetStylePanel("Default", "Default")
+	    	SVUI_BagBar:SetStylePanel("Frame", "Default")
 	        SV.Mentalo:Add(SVUI_BagBar, L["Bags Bar"])
 	    end
 
@@ -1104,11 +1105,8 @@ BAG EVENTS
 ##########################################################
 ]]--
 local Container_OnEvent = function(self, event, ...)
-	if(event == "ITEM_LOCK_CHANGED") then
-		local bagID, slotID = ...
-		if(bagID and slotID and self.Bags[bagID]) then
-			self.Bags[bagID]:SlotUpdate(slotID)
-		end
+	if(event == "ITEM_LOCK_CHANGED" or event == "ITEM_UNLOCKED") then
+		MOD.SlotUpdate(self, ...)
 	elseif(event == "BAG_UPDATE" or event == "EQUIPMENT_SETS_CHANGED") then
 		BuildEquipmentMap()
 		for _, id in ipairs(self.BagIDs) do
@@ -1118,14 +1116,11 @@ local Container_OnEvent = function(self, event, ...)
 				return;
 			end
 		end
-		local bagID = ...
-		if(bagID and self.Bags[bagID]) then
-			self.Bags[bagID]:RefreshSlots()
-		end
+		MOD.RefreshSlots(self, ...)
 	elseif(event == "BAG_UPDATE_COOLDOWN") then 
 		self:RefreshCooldowns()
 	elseif(event == "PLAYERBANKSLOTS_CHANGED") then
-		self:RefreshBags()
+		self:RefreshBags();
 	elseif(event == "PLAYERREAGENTBANKSLOTS_CHANGED") then 
 		local slotID = ...
 		local container = _G["SVUI_ReagentContainerFrame"]
@@ -1232,7 +1227,7 @@ do
 	end 
 
 	local Tooltip_Hide = function(self)
-		self:GetNormalTexture():SetGradient("VERTICAL", 0.5, 0.53, 0.55, 0.8, 0.8, 1)
+		self:GetNormalTexture():SetGradient(unpack(SV.Media.gradient.medium))
 		GameTooltip:Hide()
 	end 
 
@@ -1259,13 +1254,14 @@ do
 		local bagsCount = #self.BagFrames + 1;
 		local frame = CreateFrame("Button", "SVUI_ContainerFrame", UIParent)
 
-		frame:SetStylePanel("Default", "Container")
+		frame:SetStylePanel("Frame", "Container")
 		frame:SetFrameStrata("HIGH")
 		frame.UpdateLayout = ContainerFrame_UpdateLayout;
 		frame.RefreshBags = ContainerFrame_UpdateBags;
 		frame.RefreshCooldowns = ContainerFrame_UpdateCooldowns;
 
 		frame:RegisterEvent("ITEM_LOCK_CHANGED")
+		frame:RegisterEvent("ITEM_UNLOCKED")
 		frame:RegisterEvent("BAG_UPDATE_COOLDOWN")
 		frame:RegisterEvent("BAG_UPDATE")
 		frame:RegisterEvent("EQUIPMENT_SETS_CHANGED")
@@ -1304,18 +1300,18 @@ do
 		frame.holderFrame:SetPointToScale("BOTTOM", frame, "BOTTOM", 0, frame.bottomOffset)
 
 		frame.Title = frame:CreateFontString()
-		frame.Title:FontManager("header")
+		frame.Title:SetFontObject(SVUI_Font_Header)
 		frame.Title:SetText(INVENTORY_TOOLTIP)
 		frame.Title:SetPoint("TOPLEFT", frame, "TOPLEFT", 2, -2)
 		frame.Title:SetTextColor(1,0.8,0)
 
 		frame.BagMenu = CreateFrame("Button", "SVUI_ContainerFrameBagMenu", frame)
 		frame.BagMenu:SetPointToScale("BOTTOMLEFT", frame, "TOPLEFT", 0, 1)
-		frame.BagMenu:SetStylePanel("Fixed", "Transparent")
+		frame.BagMenu:SetStylePanel("!_Frame", "Transparent")
 		frame.BagMenu:Hide()
 
 		frame.goldText = frame:CreateFontString(nil, "OVERLAY")
-		frame.goldText:FontManager("bagnumber")
+		frame.goldText:SetFontObject(SVUI_Font_Bag_Number)
 		frame.goldText:SetPointToScale("BOTTOMRIGHT", frame.holderFrame, "TOPRIGHT", -2, 4)
 		frame.goldText:SetJustifyH("RIGHT")
 
@@ -1335,7 +1331,7 @@ do
 		frame.editBox:SetScript("OnChar", Search_OnInput)
 		frame.editBox.SearchReset = Search_OnKeyPressed
 		frame.editBox:SetText(SEARCH)
-		frame.editBox:FontManager("bagdialog")
+		frame.editBox:SetFontObject(SVUI_Font_Bag)
 
 		local searchButton = CreateFrame("Button", nil, frame)
 		searchButton:RegisterForClicks("LeftButtonUp", "RightButtonUp")
@@ -1344,7 +1340,7 @@ do
 		searchButton:SetStylePanel("Button")
 		searchButton:SetScript("OnClick", Search_OnClick)
 		local searchText = searchButton:CreateFontString(nil, "OVERLAY")
-		searchText:FontManager("bagdialog", nil, 0, "NONE")
+		searchText:SetFontObject(SVUI_Font_Bag)
 		searchText:SetAllPoints(searchButton)
 		searchText:SetJustifyH("CENTER")
 		searchText:SetText("|cff9999ff"..SEARCH.."|r")
@@ -1392,8 +1388,8 @@ do
 		frame.bagsButton:SetScript("OnLeave", Tooltip_Hide)
 		local BagBtn_OnClick = function()
 			PlaySound("igMainMenuOption");
-			if(BagFilters:IsShown()) then
-				ToggleFrame(BagFilters)
+			if(SVUI_BagFilterMenu and SVUI_BagFilterMenu:IsShown()) then
+				ToggleFrame(SVUI_BagFilterMenu)
 			end
 			ToggleFrame(frame.BagMenu)
 		end
@@ -1416,14 +1412,14 @@ do
 		for h = 1, MAX_WATCHED_TOKENS do 
 			frame.currencyButton[h] = CreateFrame("Button", nil, frame.currencyButton)
 			frame.currencyButton[h]:SetSizeToScale(22)
-			frame.currencyButton[h]:SetStylePanel("Fixed", "Default")
+			frame.currencyButton[h]:SetStylePanel("!_Frame", "Default")
 			frame.currencyButton[h]:SetID(h)
 			frame.currencyButton[h].icon = frame.currencyButton[h]:CreateTexture(nil, "OVERLAY")
 			frame.currencyButton[h].icon:SetAllPointsIn()
 			frame.currencyButton[h].icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 			frame.currencyButton[h].text = frame.currencyButton[h]:CreateFontString(nil, "OVERLAY")
 			frame.currencyButton[h].text:SetPointToScale("LEFT", frame.currencyButton[h], "RIGHT", 2, 0)
-			frame.currencyButton[h].text:FontManager("bagnumber")
+			frame.currencyButton[h].text:SetFontObject(SVUI_Font_Bag_Number)
 			frame.currencyButton[h]:SetScript("OnEnter", Token_OnEnter)
 			frame.currencyButton[h]:SetScript("OnLeave", Token_OnLeave)
 			frame.currencyButton[h]:SetScript("OnClick", Token_OnClick)
@@ -1446,7 +1442,7 @@ do
 		local bagsCount = #self.BagFrames + 1;
 
 		local frame = CreateFrame("Button", bagName, isReagent and self.BankFrame or SV.Screen)
-		frame:SetStylePanel("Default", isReagent and "Action" or "Container")
+		frame:SetStylePanel("Frame", "Container")
 		frame:SetFrameStrata("HIGH")
 		frame:SetFrameLevel(SVUI_ContainerFrame:GetFrameLevel() + 99)
 
@@ -1455,6 +1451,7 @@ do
 		frame.RefreshCooldowns = ContainerFrame_UpdateCooldowns;
 
 		frame:RegisterEvent("ITEM_LOCK_CHANGED")
+		frame:RegisterEvent("ITEM_UNLOCKED")
 		frame:RegisterEvent("BAG_UPDATE_COOLDOWN")
 		frame:RegisterEvent("BAG_UPDATE")
 		frame:RegisterEvent("EQUIPMENT_SETS_CHANGED")
@@ -1496,7 +1493,7 @@ do
 		frame.holderFrame:SetPointToScale("BOTTOM", frame, "BOTTOM", 0, frame.bottomOffset)
 
 		frame.Title = frame:CreateFontString()
-		frame.Title:FontManager("header")
+		frame.Title:SetFontObject(SVUI_Font_Header)
 		frame.Title:SetText(isReagent and REAGENT_BANK or BANK or "Bank")
 		frame.Title:SetPoint("TOPLEFT", frame, "TOPLEFT", 2, -2)
 		frame.Title:SetTextColor(1,0.8,0)
@@ -1521,7 +1518,7 @@ do
 		if(not isReagent) then
 			frame.BagMenu = CreateFrame("Button", bagName.."BagMenu", frame)
 			frame.BagMenu:SetPointToScale("BOTTOMLEFT", frame, "TOPLEFT", 0, 1)
-			frame.BagMenu:SetStylePanel("Fixed", "Transparent")
+			frame.BagMenu:SetStylePanel("!_Frame", "Transparent")
 			frame.BagMenu:Hide()
 
 			local Sort_OnClick = MOD:RunSortingProcess(MOD.Sort, "bank", SortBankBags)
@@ -1550,8 +1547,8 @@ do
 			frame.bagsButton:SetScript("OnLeave", Tooltip_Hide)
 			local BagBtn_OnClick = function()
 				PlaySound("igMainMenuOption");
-				if(BagFilters:IsShown()) then
-					ToggleFrame(BagFilters)
+				if(SVUI_BagFilterMenu and SVUI_BagFilterMenu:IsShown()) then
+					ToggleFrame(SVUI_BagFilterMenu)
 				end
 				local numSlots, _ = GetNumBankSlots()
 				if numSlots  >= 1 then 
@@ -1739,12 +1736,12 @@ local _hook_OnModifiedClick = function(self, button)
     	local bagID = self:GetParent():GetID()
     	local itemID = GetContainerItemID(bagID, slotID);
     	if(itemID) then
-    		if(VendorQueue[itemID]) then
+    		if(MOD.VendorQueue[itemID]) then
     			if(self.JunkIcon) then self.JunkIcon:Hide() end
-    			VendorQueue[itemID] = nil
+    			MOD.VendorQueue[itemID] = nil
 	    	else
 	    		if(self.JunkIcon) then self.JunkIcon:Show() end
-	    		VendorQueue[itemID] = true
+	    		MOD.VendorQueue[itemID] = true
 	    	end
     	end
     end
@@ -1800,15 +1797,6 @@ end
 BUILD FUNCTION / UPDATE
 ##########################################################
 ]]--
-function MOD:UpdateLocals()
-	DIALOG_FONT = LSM:Fetch("font", SV.db.font.bagdialog.file);
-	DIALOG_FONTSIZE = SV.db.font.bagdialog.size or 11;
-	DIALOG_FONTOUTLINE = SV.db.font.bagdialog.outline;
-	NUMBER_FONT = LSM:Fetch("font", SV.db.font.bagnumber.file);
-	NUMBER_FONTSIZE = SV.db.font.bagnumber.size;
-	NUMBER_FONTOUTLINE = SV.db.font.bagnumber.outline;
-end
-
 function MOD:ReLoad()
 	if not SV.db.SVBag.enable then return end
 	self:RefreshBagFrames()
@@ -1821,83 +1809,18 @@ function MOD:Load()
 		return 
 	end
 	if not SV.db.SVBag.enable then return end
+
+	SV.cache.VendorMarks = SV.cache.VendorMarks or {}
+
+	self.VendorQueue = SV.cache.VendorMarks;
+
 	self:ModifyBagBar()
 	self.BagFrames = {}
 	self:MakeBags()
 	self:ModifyBags()
 	self.BagFrame:UpdateLayout()
 
-	-- BagFilters:SetParent(SV.Screen)
-	BagFilters:SetStylePanel("Default", "Default")
-	BagFilters.buttons = {}
-	BagFilters:SetFrameStrata("DIALOG")
-	BagFilters:SetClampedToScreen(true)
-
-	for i = LE_BAG_FILTER_FLAG_EQUIPMENT, NUM_LE_BAG_FILTER_FLAGS do 
-		BagFilters.buttons[i] = CreateFrame("Button", nil, BagFilters)
-
-		BagFilters.buttons[i].hoverTex = BagFilters.buttons[i]:CreateTexture(nil, 'OVERLAY')
-		BagFilters.buttons[i].hoverTex:SetAllPoints()
-		BagFilters.buttons[i].hoverTex:SetTexture([[Interface\QuestFrame\UI-QuestTitleHighlight]])
-		BagFilters.buttons[i].hoverTex:SetBlendMode("ADD")
-		BagFilters.buttons[i].hoverTex:Hide()
-
-		BagFilters.buttons[i].activeTex = BagFilters.buttons[i]:CreateTexture(nil, 'OVERLAY')
-		BagFilters.buttons[i].activeTex:SetAllPoints()
-		BagFilters.buttons[i].activeTex:SetTexture([[Interface\QuestFrame\UI-QuestTitleHighlight]])
-		BagFilters.buttons[i].activeTex:SetVertexColor(0,0.7,0)
-		BagFilters.buttons[i].activeTex:SetBlendMode("ADD")
-		BagFilters.buttons[i].activeTex:Hide()
-
-		BagFilters.buttons[i].text = BagFilters.buttons[i]:CreateFontString(nil, 'BORDER')
-		BagFilters.buttons[i].text:SetAllPoints()
-		BagFilters.buttons[i].text:SetFont(SV.Media.font.default,12,"OUTLINE")
-		BagFilters.buttons[i].text:SetJustifyH("LEFT")
-		BagFilters.buttons[i].text:SetText(BAG_FILTER_LABELS[i])
-
-		BagFilters.buttons[i]:SetScript("OnEnter", DD_OnEnter)
-		BagFilters.buttons[i]:SetScript("OnLeave", DD_OnLeave)
-
-		BagFilters.buttons[i]:SetHeight(16)
-		BagFilters.buttons[i]:SetWidth(115)
-
-		BagFilters.buttons[i].FilterID = i
-		BagFilters.buttons[i]:SetScript("OnClick", DD_OnClick)
-
-		if i == LE_BAG_FILTER_FLAG_EQUIPMENT then
-			BagFilters.buttons[i]:SetPoint("TOPLEFT", BagFilters, "TOPLEFT", 10, -10)
-		else
-			BagFilters.buttons[i]:SetPoint("TOPLEFT", BagFilters.buttons[i - 1], "BOTTOMLEFT", 0, 0)
-		end
-
-		BagFilters.buttons[i]:Show()
-	end
-
-	local clearID = NUM_LE_BAG_FILTER_FLAGS + 1
-
-	BagFilters.buttons[clearID] = CreateFrame("Button", nil, BagFilters)
-	BagFilters.buttons[clearID].hoverTex = BagFilters.buttons[clearID]:CreateTexture(nil, 'OVERLAY')
-	BagFilters.buttons[clearID].hoverTex:SetAllPoints()
-	BagFilters.buttons[clearID].hoverTex:SetTexture([[Interface\QuestFrame\UI-QuestTitleHighlight]])
-	BagFilters.buttons[clearID].hoverTex:SetBlendMode("ADD")
-	BagFilters.buttons[clearID].hoverTex:Hide()
-	BagFilters.buttons[clearID].text = BagFilters.buttons[clearID]:CreateFontString(nil, 'BORDER')
-	BagFilters.buttons[clearID].text:SetAllPoints()
-	BagFilters.buttons[clearID].text:SetFont(SV.Media.font.default,12,"OUTLINE")
-	BagFilters.buttons[clearID].text:SetJustifyH("LEFT")
-	BagFilters.buttons[clearID].text:SetText(CLEAR_ALL .. " " .. FILTERS)
-	BagFilters.buttons[clearID]:SetScript("OnEnter", DD_OnEnter)
-	BagFilters.buttons[clearID]:SetScript("OnLeave", DD_OnLeave)
-	BagFilters.buttons[clearID]:SetHeight(16)
-	BagFilters.buttons[clearID]:SetWidth(115)
-	BagFilters.buttons[clearID].FilterID = 0
-	BagFilters.buttons[clearID]:SetScript("OnClick", DDClear_OnClick)
-	BagFilters.buttons[clearID]:SetPoint("TOPLEFT", BagFilters.buttons[NUM_LE_BAG_FILTER_FLAGS], "BOTTOMLEFT", 0, -10)
-	BagFilters.buttons[clearID]:Show()
-
-
-	BagFilters:Hide()
-	SV:AddToDisplayAudit(BagFilters)
+	self:InitializeMenus()
 
 	BankFrame:UnregisterAllEvents()
 	for i = 1, NUM_CONTAINER_FRAMES do
@@ -1913,6 +1836,7 @@ function MOD:Load()
 	hooksecurefunc("ToggleAllBags", _toggleBackpack)
 	hooksecurefunc("ToggleBackpack", _toggleBackpack)
 	hooksecurefunc("BackpackTokenFrame_Update", self.RefreshTokens)
+
 	hooksecurefunc("ContainerFrameItemButton_OnModifiedClick", _hook_OnModifiedClick)
 
 	self:RegisterEvent("BANKFRAME_OPENED")
@@ -1925,4 +1849,5 @@ function MOD:Load()
 	self:RegisterEvent("PLAYERBANKBAGSLOTS_CHANGED")
 
 	StackSplitFrame:SetFrameStrata("DIALOG")
+	DEBUG_BAGS = true;
 end 

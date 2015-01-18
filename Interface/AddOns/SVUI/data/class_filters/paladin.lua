@@ -23,8 +23,8 @@ local SV = select(2, ...)
 --[[ PALADIN FILTERS ]]--
 
 SV.filterdefaults["BuffWatch"] = {
-    {-- Beacon of Light
-        ["enabled"] = true, 
+    ["53563"] = {-- Beacon of Light
+        ["enable"] = true, 
         ["id"] = 53563, 
         ["point"] = "TOPRIGHT", 
         ["color"] = {["r"] = 0.7, ["g"] = 0.3, ["b"] = 0.7}, 
@@ -37,8 +37,8 @@ SV.filterdefaults["BuffWatch"] = {
         ['xOffset'] = 0, 
         ['yOffset'] = 0
     },
-    {-- Hand of Protection
-        ["enabled"] = true, 
+    ["1022"] = {-- Hand of Protection
+        ["enable"] = true, 
         ["id"] = 1022, 
         ["point"] = "BOTTOMRIGHT", 
         ["color"] = {["r"] = 0.2, ["g"] = 0.2, ["b"] = 1}, 
@@ -51,8 +51,8 @@ SV.filterdefaults["BuffWatch"] = {
         ['xOffset'] = 0, 
         ['yOffset'] = 0
     },
-    {-- Hand of Freedom
-        ["enabled"] = true, 
+    ["1044"] = {-- Hand of Freedom
+        ["enable"] = true, 
         ["id"] = 1044, 
         ["point"] = "BOTTOMRIGHT", 
         ["color"] = {["r"] = 0.89, ["g"] = 0.45, ["b"] = 0}, 
@@ -65,8 +65,8 @@ SV.filterdefaults["BuffWatch"] = {
         ['xOffset'] = 0, 
         ['yOffset'] = 0
     },
-    {-- Hand of Salvation
-        ["enabled"] = true, 
+    ["1038"] = {-- Hand of Salvation
+        ["enable"] = true, 
         ["id"] = 1038, 
         ["point"] = "BOTTOMRIGHT", 
         ["color"] = {["r"] = 0.93, ["g"] = 0.75, ["b"] = 0}, 
@@ -79,8 +79,8 @@ SV.filterdefaults["BuffWatch"] = {
         ['xOffset'] = 0, 
         ['yOffset'] = 0
     },
-    {-- Hand of Sacrifice
-        ["enabled"] = true, 
+    ["6940"] = {-- Hand of Sacrifice
+        ["enable"] = true, 
         ["id"] = 6940, 
         ["point"] = "BOTTOMRIGHT", 
         ["color"] = {["r"] = 0.89, ["g"] = 0.1, ["b"] = 0.1}, 
@@ -93,8 +93,8 @@ SV.filterdefaults["BuffWatch"] = {
         ['xOffset'] = 0, 
         ['yOffset'] = 0
     },
-    {-- Hand of Purity
-        ["enabled"] = true, 
+    ["114039"] = {-- Hand of Purity
+        ["enable"] = true, 
         ["id"] = 114039, 
         ["point"] = "BOTTOMRIGHT", 
         ["color"] = {["r"] = 0.64, ["g"] = 0.41, ["b"] = 0.72}, 
@@ -107,8 +107,8 @@ SV.filterdefaults["BuffWatch"] = {
         ['xOffset'] = 0, 
         ['yOffset'] = 0
     },
-    {-- Sacred Shield
-        ["enabled"] = true, 
+    ["20925"] = {-- Sacred Shield
+        ["enable"] = true, 
         ["id"] = 20925, 
         ["point"] = "TOPLEFT", 
         ["color"] = {["r"] = 0.93, ["g"] = 0.75, ["b"] = 0},
@@ -121,8 +121,8 @@ SV.filterdefaults["BuffWatch"] = {
         ['xOffset'] = 0, 
         ['yOffset'] = 0
     },
-    {-- Eternal Flame
-        ["enabled"] = true, 
+    ["114163"] = {-- Eternal Flame
+        ["enable"] = true, 
         ["id"] = 114163, 
         ["point"] = "BOTTOMLEFT", 
         ["color"] = {["r"] = 0.87, ["g"] = 0.7, ["b"] = 0.03}, 

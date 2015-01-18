@@ -60,7 +60,7 @@ local function InspectStyle()
 	end 
 	InspectFrame:RemoveTextures(true)
 	InspectFrameInset:RemoveTextures(true)
-	InspectFrame:SetStylePanel("Default", 'Action')
+	InspectFrame:SetStylePanel("Frame", "Composite2")
 	PLUGIN:ApplyCloseButtonStyle(InspectFrameCloseButton)
 	for d = 1, 4 do
 		PLUGIN:ApplyTabStyle(_G["InspectFrameTab"..d])
@@ -75,7 +75,7 @@ local function InspectStyle()
 	InspectModelFrameBorderBottom:Die()
 	InspectModelFrameBorderBottom2:Die()
 	InspectModelFrameBackgroundOverlay:Die()
-	InspectModelFrame:SetStylePanel("Default", "Default")
+	InspectModelFrame:SetStylePanel("Frame", "Default")
 	for _, slot in pairs(InspectSlotList)do 
 		local texture = _G["Inspect"..slot.."IconTexture"]
 		local frame = _G["Inspect"..slot]
@@ -84,7 +84,7 @@ local function InspectStyle()
 		texture:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 		texture:SetAllPointsIn()
 		frame:SetFrameLevel(frame:GetFrameLevel() + 1)
-		frame:SetStylePanel("Fixed")
+		frame:SetStylePanel("!_Frame")
 	end 
 	hooksecurefunc('InspectPaperDollItemSlotButton_Update', function(q)
 		local unit = InspectFrame.unit;

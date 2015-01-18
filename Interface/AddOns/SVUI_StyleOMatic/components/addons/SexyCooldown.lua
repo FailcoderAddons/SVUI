@@ -56,7 +56,7 @@ end
 local function StyleSexyCooldownBar(bar)
 	SCDStripStyleSettings(bar)
 	PLUGIN:ApplyFrameStyle(bar)
-	SV:AddToDisplayAudit(bar)
+	SV:ManageVisibility(bar)
 	if PLUGIN:IsAddonReady("DockletSexyCooldown") then
 		bar:ClearAllPoints()
 		bar:SetPointToScale('BOTTOMRIGHT', SVUI_ActionBar1, 'TOPRIGHT', 0, 2)
@@ -76,7 +76,7 @@ local function StyleSexyCooldownIcon(bar, icon)
 end
 
 local function StyleSexyCooldownBackdrop(bar)
-	bar:SetStylePanel("Fixed", "Transparent")
+	bar:SetStylePanel("!_Frame", "Transparent")
 end
 
 local function HookSCDBar(bar)

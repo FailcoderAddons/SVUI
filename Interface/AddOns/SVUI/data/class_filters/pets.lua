@@ -21,8 +21,8 @@ local SV = select(2, ...)
 --[[ PET FILTERS ]]--
 
 SV.filterdefaults["PetBuffWatch"] = {
-    {-- Frenzy
-        ["enabled"] = true, 
+    ["19615"] = {-- Frenzy
+        ["enable"] = true, 
         ["id"] = 19615, 
         ["point"] = "TOPLEFT", 
         ["color"] = {["r"] = 0.89, ["g"] = 0.09, ["b"] = 0.05},
@@ -35,8 +35,8 @@ SV.filterdefaults["PetBuffWatch"] = {
         ['xOffset'] = 0, 
         ['yOffset'] = 0
     },
-    {-- Mend Pet
-        ["enabled"] = true, 
+    ["136"] = {-- Mend Pet
+        ["enable"] = true, 
         ["id"] = 136, 
         ["point"] = "TOPRIGHT", 
         ["color"] = {["r"] = 0.2, ["g"] = 0.8, ["b"] = 0.2}, 

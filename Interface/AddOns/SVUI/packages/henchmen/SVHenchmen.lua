@@ -419,7 +419,7 @@ local function CreateHenchmenSubOptions(buttonIndex,optionIndex)
 	frame.txt:SetTextColor(1,1,1)
 	frame.txthigh = frame:CreateFontString(nil,"HIGHLIGHT")
 	frame.txthigh:SetAllPointsIn(frame)
-	frame.txthigh:FontManager("default")
+	frame.txthigh:SetFontObject(SVUI_Font_Default)
 	frame.txthigh:SetTextColor(1,1,0)
 	SV.Animate:Slide(frame,500,0)
 

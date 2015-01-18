@@ -44,7 +44,7 @@ local function ReforgingStyle()
 	ReforgingFrameReforgeButton:SetStylePanel("Button")
 
 	ReforgingFrame.ItemButton:RemoveTextures()
-	ReforgingFrame.ItemButton:SetStylePanel("Slot", true)
+	ReforgingFrame.ItemButton:SetStylePanel("Slot")
 	ReforgingFrame.ItemButton.IconTexture:SetAllPointsIn()
 	hooksecurefunc("ReforgingFrame_Update", function(k)
 		local w, x, u, y, z, A = GetReforgeItemInfo()

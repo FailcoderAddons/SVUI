@@ -85,13 +85,15 @@ local RefreshLoggedSlots = function(self, bagID, save)
 end
 
 local RefreshLoggedBags = function(self)
-	for id,bag in pairs(self.Bags)do
-		if PLUGIN.myStash[id] then
-			twipe(PLUGIN.myStash[id])
-		else
-			PLUGIN.myStash[id] = {};
+	for _, bagID in ipairs(self.BagIDs) do
+		if self.Bags[bagID] then
+			if PLUGIN.myStash[bagID] then
+				twipe(PLUGIN.myStash[bagID])
+			else
+				PLUGIN.myStash[bagID] = {};
+			end
+			RefreshLoggedSlots(self.Bags[bagID], bagID, true)
 		end
-		RefreshLoggedSlots(bag, id, true) 
 	end
 	for id,items in pairs(PLUGIN.myStash) do
 		for id,amt in pairs(items) do

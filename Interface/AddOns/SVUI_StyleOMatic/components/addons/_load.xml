@@ -10,7 +10,7 @@
 	<Script file='Bugsack.lua'/>
 	<Script file='Clique.lua'/>
 	<Script file='Cooline.lua'/>
-	<Script file='Details.lua'/>
+	<!-- <Script file='Details.lua'/> -->
 	<Script file='DBM.lua'/>
 	<Script file='DXE.lua'/>
 	<Script file='LightHeaded.lua'/>
@@ -27,4 +27,5 @@
 	<Script file='TomTom.lua'/>
 	<Script file='TradeSkillDW.lua'/>
 	<Script file='VEM.lua'/>
+	<Script file='Zygor.lua'/>
 </Ui>

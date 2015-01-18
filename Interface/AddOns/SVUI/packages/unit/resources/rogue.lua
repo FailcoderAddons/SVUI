@@ -51,133 +51,25 @@ LOCALS
 ##########################################################
 ]]--
 local TRACKER_FONT = [[Interface\AddOns\SVUI\assets\fonts\Combo.ttf]]
-local ICON_FILE = [[Interface\Addons\SVUI\assets\artwork\Unitframe\Class\ROGUE]];
-local ICON_COORDS = {
-	{0,0.5,0,0.5},
-	{0.5,1,0,0.5},
-	{0,0.5,0.5,1},
-	{0.5,1,0.5,1},
-};
-local cpointColor = {
-	{0.69,0.31,0.31},
-	{0.69,0.31,0.31},
-	{0.65,0.63,0.35},
-	{0.65,0.63,0.35},
-	{0.33,0.59,0.33}
-};
+local ICON_BG = [[Interface\Addons\SVUI\assets\artwork\Unitframe\Class\ROGUE-SMOKE]];
+local ICON_ANTI = [[Interface\Addons\SVUI\assets\artwork\Unitframe\Class\ROGUE-ANTICIPATION]];
 --[[ 
 ########################################################## 
 POSITIONING
 ##########################################################
 ]]--
+local OnMove = function()
+	SV.db.SVUnit.player.classbar.detachFromFrame = true
+end
+
 local Reposition = function(self)
-	local db = SV.db.SVUnit.target
-	local bar = self.HyperCombo.CPoints;
-	local max = MAX_COMBO_POINTS;
-	local height = db.combobar.height
-	local isSmall = db.combobar.smallIcons
-	local size = isSmall and 22 or (height - 4)
-	local width = (size + 4) * max;
-	bar:ClearAllPoints()
-	bar:SetSizeToScale(width, height)
-	bar:SetPointToScale("TOPLEFT", self.ActionPanel, "TOPLEFT", 2, (height * 0.25))
-	for i = 1, max do
-		bar[i]:ClearAllPoints()
-		bar[i]:SetSizeToScale(size, size)
-		bar[i].Icon:ClearAllPoints()
-		bar[i].Icon:SetAllPoints(bar[i])
-		if(bar[i].Blood) then
-			bar[i].Blood:ClearAllPoints()
-			bar[i].Blood:SetAllPoints(bar[i])
-		end
-		if i==1 then 
-			bar[i]:SetPoint("LEFT", bar)
-		else 
-			bar[i]:SetPointToScale("LEFT", bar[i - 1], "RIGHT", -2, 0) 
-		end
-	end 
-end 
---[[ 
-########################################################## 
-ROGUE COMBO POINTS
-##########################################################
-]]--
-local ShowPoint = function(self)
-	self:SetAlpha(1)
-end 
-
-local HidePoint = function(self)
-	local coords = ICON_COORDS[random(2,4)];
-	self.Icon:SetTexCoord(coords[1],coords[2],coords[3],coords[4])
-	self:SetAlpha(0)
-end 
-
-local ShowSmallPoint = function(self)
-	self:SetAlpha(1)
-end 
-
-local HideSmallPoint = function(self, i)
-	self.Icon:SetVertexColor(unpack(cpointColor[i]))
-	self:SetAlpha(0)
-end 
-
-function MOD:CreateRogueCombobar(targetFrame, isSmall)
-	local max = 5
-	local size = isSmall and 22 or 30
-	local bar = CreateFrame("Frame",nil,targetFrame)
-	local coords
-	bar:SetFrameStrata("DIALOG")
-	bar.CPoints = CreateFrame("Frame",nil,bar)
-	for i = 1, max do 
-		local cpoint = CreateFrame('Frame',nil,bar.CPoints)
-		cpoint:SetSizeToScale(size,size)
-
-		local icon = cpoint:CreateTexture(nil,"OVERLAY",nil,1)
-		icon:SetSizeToScale(size,size)
-		icon:SetPoint("CENTER")
-		icon:SetBlendMode("BLEND")
-		icon:SetTexture(ICON_FILE)
-
-		if(not isSmall) then
-			coords = ICON_COORDS[random(2,4)]
-			icon:SetTexCoord(coords[1],coords[2],coords[3],coords[4])
-
-			local blood = cpoint:CreateTexture(nil,"OVERLAY",nil,2)
-			blood:SetSizeToScale(size,size)
-			blood:SetPoint("BOTTOMRIGHT",cpoint,12,-12)
-			blood:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Unitframe\Class\COMBO-ANIMATION]])
-			blood:SetBlendMode("ADD")
-			cpoint.Blood = blood
-			
-			SV.Animate:Sprite8(blood,0.08,2,true)
-		else
-			coords = ICON_COORDS[1]
-			icon:SetTexCoord(coords[1],coords[2],coords[3],coords[4])
-		end
-		cpoint.Icon = icon
-
-		bar.CPoints[i] = cpoint 
-	end 
-
-	targetFrame.ComboRefresh = Reposition;
-	bar.PointShow = isSmall and ShowSmallPoint or ShowPoint;
-	bar.PointHide = isSmall and HideSmallPoint or HidePoint;
-
-	return bar 
-end 
---[[ 
-########################################################## 
-ROGUE COMBO TRACKER
-##########################################################
-]]--
-local RepositionTracker = function(self)
 	local db = SV.db.SVUnit.player
 	local bar = self.HyperCombo;
 	if not db then return end
-	local size = db.classbar.height
-	local width = size * 3;
-	local textwidth = size * 1.25;
-	bar.Holder:SetSizeToScale(width, size)
+	local height = db.classbar.height
+	local width = height * 3;
+	local textwidth = height * 1.25;
+	bar.Holder:SetSizeToScale(width, height)
     if(not db.classbar.detachFromFrame) then
     	SV.Mentalo:Reset(L["Classbar"])
     end
@@ -188,69 +80,71 @@ local RepositionTracker = function(self)
 
     bar:ClearAllPoints()
     bar:SetAllPoints(bar.Holder)
-	if(bar.Tracking) then
-		bar.Tracking:ClearAllPoints()
-		bar.Tracking:SetHeight(size)
-		bar.Tracking:SetWidth(textwidth)
-		bar.Tracking:SetPoint("TOPLEFT", bar, "TOPLEFT", 0, 0)
-		bar.Tracking.Text:ClearAllPoints()
-		bar.Tracking.Text:SetAllPoints(bar.Tracking)
-		bar.Tracking.Text:SetFont(TRACKER_FONT, size, 'OUTLINE')
+
+    local points = bar.Combo;
+	local max = MAX_COMBO_POINTS;
+	local size = height + 4
+	points:ClearAllPoints()
+	points:SetAllPoints(bar)
+	for i = 1, max do
+		points[i]:ClearAllPoints()
+		points[i]:SetSizeToScale(size, size)
+
+		if i==1 then 
+			points[i]:SetPoint("LEFT", points)
+		else 
+			points[i]:SetPointToScale("LEFT", points[i - 1], "RIGHT", -8, 0) 
+		end
 	end
-	if(bar.Anticipation) then
-		bar.Anticipation:ClearAllPoints()
-		bar.Anticipation:SetHeight(size)
-		bar.Anticipation:SetWidth(textwidth)
-		bar.Anticipation:SetPoint("LEFT", bar.Tracking, "RIGHT", -2, 0)
-		bar.Anticipation.Text:ClearAllPoints()
-		bar.Anticipation.Text:SetAllPoints(bar.Anticipation)
-		bar.Anticipation.Text:SetFont(TRACKER_FONT, size, 'OUTLINE')
-	end
+
 	if(bar.Guile) then
-		bar.Guile:ClearAllPoints()
-		bar.Guile:SetHeight(size)
-		bar.Guile:SetWidth(textwidth)
-		bar.Guile:SetPoint("LEFT", bar.Anticipation, "RIGHT", -2, 0)
-		bar.Guile.Text:ClearAllPoints()
-		bar.Guile.Text:SetAllPoints(bar.Guile)
-		bar.Guile.Text:SetFont(TRACKER_FONT, size, 'OUTLINE')
+		bar.Guile:SetFont(TRACKER_FONT, height, 'OUTLINE')
 	end
-end 
-
+end
+--[[ 
+########################################################## 
+ROGUE COMBO TRACKER
+##########################################################
+]]--
 function MOD:CreateClassBar(playerFrame)
-	local bar = CreateFrame("Frame",nil,playerFrame)
-	bar:SetFrameStrata("DIALOG")
-	bar:SetSizeToScale(150, 30)
-	local points = CreateFrame('Frame',nil,bar)
-	points:SetFrameStrata("DIALOG")
-	points:SetSizeToScale(30,30)
+	local max = 5
+	local size = 30
+	local coords
 
-	points.Text = points:CreateFontString(nil,'OVERLAY')
-	points.Text:SetAllPoints(points)
-	points.Text:SetFont(TRACKER_FONT,30,'OUTLINE')
-	points.Text:SetTextColor(1,1,1)
+	local bar = CreateFrame("Frame", nil, playerFrame)
+	bar:SetFrameLevel(playerFrame.TextGrip:GetFrameLevel() + 30)
 
-	bar.Tracking = points;
+	bar.Combo = CreateFrame("Frame",nil,bar)
+	for i = 1, max do 
+		local cpoint = CreateFrame('Frame', nil, bar.Combo)
+		cpoint:SetSizeToScale(size,size)
 
-	local anticipation = CreateFrame('Frame',nil,bar)
-	anticipation:SetFrameStrata("DIALOG")
-	anticipation:SetSizeToScale(30,30)
+		SV.SpecialFX:SetFXFrame(cpoint, "default")
 
-	anticipation.Text = anticipation:CreateFontString(nil,'OVERLAY')
-	anticipation.Text:SetAllPoints(anticipation)
-	anticipation.Text:SetFont(TRACKER_FONT,30,'OUTLINE')
-	anticipation.Text:SetTextColor(1,1,1)
+		-- local icon = cpoint:CreateTexture(nil,"BACKGROUND",nil,-7)
+		-- icon:SetPoint("TOPLEFT", cpoint, "TOPLEFT", -10, 8)
+		-- icon:SetPoint("BOTTOMRIGHT", cpoint, "BOTTOMRIGHT", 4, -4)
+		-- icon:SetTexture(ICON_BG)
+		-- icon:SetBlendMode("BLEND")
+		-- cpoint.Icon = icon
 
-	bar.Anticipation = anticipation;
+		local anti = CreateFrame('Frame',nil,bar.Combo)
+		anti:SetAllPointsOut(cpoint, 8, 8)
+		anti:SetFrameLevel(bar.Combo:GetFrameLevel() - 2)
+		local antiicon = anti:CreateTexture(nil,"BACKGROUND",nil,-1)
+		antiicon:SetPoint("TOPLEFT", anti, "TOPLEFT", -8, 0)
+		antiicon:SetPoint("BOTTOMRIGHT", anti, "BOTTOMRIGHT", 6, -2)
+		antiicon:SetTexture(ICON_ANTI)
+		anti:Hide()
+		cpoint.Anticipation = anti
 
-	local guile = CreateFrame('Frame',nil,bar)
-	guile:SetFrameStrata("DIALOG")
-	guile:SetSizeToScale(30,30)
+		bar.Combo[i] = cpoint 
+	end 
 
-	guile.Text = guile:CreateFontString(nil,'OVERLAY')
-	guile.Text:SetAllPoints(guile)
-	guile.Text:SetFont(TRACKER_FONT,30,'OUTLINE')
-	guile.Text:SetTextColor(1,1,1)
+	local guile = bar:CreateFontString(nil, 'OVERLAY', nil, 7)
+	guile:SetPoint("RIGHT", bar, "LEFT", 0, -3)
+	guile:SetFont(TRACKER_FONT, 30, 'OUTLINE')
+	guile:SetTextColor(1,1,1)
 
 	bar.Guile = guile;
 
@@ -258,10 +152,10 @@ function MOD:CreateClassBar(playerFrame)
 	classBarHolder:SetPointToScale("TOPLEFT", playerFrame, "BOTTOMLEFT", 0, -2)
 	bar:SetPoint("TOPLEFT", classBarHolder, "TOPLEFT", 0, 0)
 	bar.Holder = classBarHolder
-	SV.Mentalo:Add(bar.Holder, L["Classbar"])
+	SV.Mentalo:Add(bar.Holder, L["Classbar"], nil, OnMove)
 
 	playerFrame.MaxClassPower = 5;
-	playerFrame.ClassBarRefresh = RepositionTracker;
+	playerFrame.ClassBarRefresh = Reposition;
 	playerFrame.HyperCombo = bar
 	return 'HyperCombo' 
 end 

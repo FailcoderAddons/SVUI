@@ -280,6 +280,18 @@ local function CriteriaStyle()
 		end 
 	end 
 end
+
+-- [[ GarrisonFollowerAlertFrame ]] --
+local function GarrisonFollowerAlertStyle(followerID, name, displayID, level, quality, isUpgraded)
+	local color = BAG_ITEM_QUALITY_COLORS[quality];
+	if (color) then
+		GarrisonFollowerAlertFrame.PortraitFrame.LevelBorder:SetVertexColor(color.r, color.g, color.b);
+		GarrisonFollowerAlertFrame.PortraitFrame.PortraitRing:SetVertexColor(color.r, color.g, color.b);
+	else
+		GarrisonFollowerAlertFrame.PortraitFrame.LevelBorder:SetVertexColor(1, 1, 1);
+		GarrisonFollowerAlertFrame.PortraitFrame.PortraitRing:SetVertexColor(1, 1, 1);
+	end
+end
 --[[ 
 ########################################################## 
 ALERTFRAME STYLES
@@ -476,6 +488,7 @@ local function AlertStyle()
 			end
 		end
 	end
+	hooksecurefunc("GarrisonFollowerAlertFrame_ShowAlert", GarrisonFollowerAlertStyle)
 end 
 --[[ 
 ########################################################## 

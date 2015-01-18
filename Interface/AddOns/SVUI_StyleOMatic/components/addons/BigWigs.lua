@@ -80,7 +80,7 @@ local function applystyle(bar)
 	else
 		bg = CreateFrame("Frame")
 	end
-	bg:SetStylePanel("Fixed", 'Transparent', true)
+	bg:SetStylePanel("!_Frame", 'Transparent', true)
 	bg:SetParent(bar)
 	bg:SetAllPointsOut(bar)
 	bg:SetFrameLevel(bar:GetFrameLevel() - 1)
@@ -95,7 +95,7 @@ local function applystyle(bar)
 			ibg = CreateFrame("Frame")
 		end
 		ibg:SetParent(bar)
-		ibg:SetStylePanel("Fixed", 'Transparent', true)
+		ibg:SetStylePanel("!_Frame", 'Transparent', true)
 		ibg:SetBackdropColor(0, 0, 0, 0)
 		ibg:SetAllPointsOut(bar.candyBarIconFrame)
 		ibg:SetFrameLevel(bar:GetFrameLevel() - 1)

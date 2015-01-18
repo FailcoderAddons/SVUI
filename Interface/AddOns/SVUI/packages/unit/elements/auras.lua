@@ -70,28 +70,6 @@ local AURA_FONT = [[Interface\AddOns\SVUI\assets\fonts\Numbers.ttf]];
 local AURA_FONTSIZE = 11;
 local AURA_OUTLINE = "OUTLINE";
 local BASIC_TEXTURE = [[Interface\AddOns\SVUI\assets\artwork\Bars\DEFAULT]];
-local shadowTex = [[Interface\AddOns\SVUI\assets\artwork\Template\GLOW]];
-local counterOffsets = {
-	["TOPLEFT"] = {6, 1}, 
-	["TOPRIGHT"] = {-6, 1}, 
-	["BOTTOMLEFT"] = {6, 1}, 
-	["BOTTOMRIGHT"] = {-6, 1}, 
-	["LEFT"] = {6, 1}, 
-	["RIGHT"] = {-6, 1}, 
-	["TOP"] = {0, 0}, 
-	["BOTTOM"] = {0, 0}, 
-}
-local textCounterOffsets = {
-	["TOPLEFT"] = {"LEFT", "RIGHT", -2, 0}, 
-	["TOPRIGHT"] = {"RIGHT", "LEFT", 2, 0}, 
-	["BOTTOMLEFT"] = {"LEFT", "RIGHT", -2, 0}, 
-	["BOTTOMRIGHT"] = {"RIGHT", "LEFT", 2, 0}, 
-	["LEFT"] = {"LEFT", "RIGHT", -2, 0}, 
-	["RIGHT"] = {"RIGHT", "LEFT", 2, 0}, 
-	["TOP"] = {"RIGHT", "LEFT", 2, 0}, 
-	["BOTTOM"] = {"RIGHT", "LEFT", 2, 0}, 
-}
-
 local CanSteal = (SV.class == "MAGE");
 --[[ 
 ########################################################## 
@@ -101,9 +79,11 @@ LOCAL FUNCTIONS
 local AuraIcon_OnClick = function(self)
 	if not IsShiftKeyDown() then return end 
 	local name = self.name;
-	if name then 
+
+	local filterKey = tostring(self.spellID)
+	if name and filterKey then 
 		SV:AddonMessage((L["The spell '%s' has been added to the BlackList unitframe aura filter."]):format(name))
-		SV.filters["BlackList"][name] = {["enable"] = true}
+		SV.filters["BlackList"][filterKey] = {["enable"] = true}
 		MOD:RefreshUnitFrames()
 	end
 end
@@ -123,6 +103,8 @@ local Aura_UpdateTooltip = function(self)
 	GameTooltip:SetUnitAura(self.parent.__owner.unit, self:GetID(), self.filter)
 end
 
+local _hook_AuraBGBorderColor = function(self, ...) self.bg:SetBackdropBorderColor(...) end
+
 local CreateAuraIcon = function(icons, index)
 	local baseSize = icons.size or 16
 	local aura = CreateFrame("Button", nil, icons)
@@ -138,7 +120,7 @@ local CreateAuraIcon = function(icons, index)
 		tile = false, 
 		tileSize = 0, 
 		edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
-        edgeSize = 2, 
+        edgeSize = 1, 
         insets = {
             left = 0, 
             right = 0, 
@@ -149,12 +131,37 @@ local CreateAuraIcon = function(icons, index)
     aura:SetBackdropColor(0, 0, 0, 0)
     aura:SetBackdropBorderColor(0, 0, 0)
 
-    local fontgroup = "unitauralarge";
+    local bg = CreateFrame("Frame", nil, aura)
+    bg:SetFrameStrata("BACKGROUND")
+    bg:SetFrameLevel(0)
+    bg:SetAllPointsOut(aura, 2, 2)
+    bg:SetBackdrop({
+    	bgFile = [[Interface\BUTTONS\WHITE8X8]], 
+		tile = false, 
+		tileSize = 0, 
+		edgeFile = [[Interface\AddOns\SVUI\assets\artwork\Template\GLOW]], 
+        edgeSize = 1, 
+        insets = {
+            left = 1, 
+            right = 1, 
+            top = 1, 
+            bottom = 1
+        }
+    })
+    bg:SetBackdropColor(0, 0, 0, 0)
+    bg:SetBackdropBorderColor(0, 0, 0, 0)
+    aura.bg = bg;
+
+    --hooksecurefunc(aura, "SetBackdropBorderColor", _hook_AuraBGBorderColor)
+
+    local fontgroup = "SVUI_Font_UnitAura_Large";
     if(baseSize < 18) then
-    	fontgroup = "unitaurasmall";
+    	fontgroup = "SVUI_Font_UnitAura_Small";
     elseif(baseSize < 24) then
-    	fontgroup = "unitauramedium";
+    	fontgroup = "SVUI_Font_UnitAura";
     end
+    --print(baseSize)
+    --print(fontgroup)
 
 	local cd = CreateFrame("Cooldown", nil, aura, "CooldownFrameTemplate");
 	cd:SetAllPointsIn(aura, 1, 1);
@@ -163,22 +170,25 @@ local CreateAuraIcon = function(icons, index)
 	cd:SetReverse(true);
 	cd:SetHideCountdownNumbers(true);
 
-	local text = cd:CreateFontString(nil, 'OVERLAY');
-	text:FontManager(fontgroup);
+	local fg = CreateFrame("Frame", nil, aura)
+    fg:SetAllPointsOut(aura, 2, 2)
+
+	local text = fg:CreateFontString(nil, 'OVERLAY');
+	text:SetFontObject(_G[fontgroup]);
 	text:SetPoint('CENTER', aura, 'CENTER', 1, 1);
 	text:SetJustifyH('CENTER');
 
-	local count = cd:CreateFontString(nil, "OVERLAY");
-	count:FontManager(fontgroup);
-	count:SetPoint("BOTTOMRIGHT", aura, "BOTTOMRIGHT", 3, -3);
+	local count = fg:CreateFontString(nil, "OVERLAY");
+	count:SetFontObject(_G[fontgroup]);
+	count:SetPoint("CENTER", aura, "BOTTOMRIGHT", -3, 3);
 
-	local icon = aura:CreateTexture(nil, "BORDER");
+	local icon = aura:CreateTexture(nil, "BACKGROUND");
 	icon:SetAllPoints(aura);
 	icon:SetAllPointsIn(aura, 1, 1);
     icon:SetTexCoord(0.1, 0.9, 0.1, 0.9);
 
 	local overlay = aura:CreateTexture(nil, "OVERLAY");
-	overlay:SetAllPoints(aura);
+	overlay:SetAllPointsIn(aura, 1, 1);
 	overlay:SetTexture(BASIC_TEXTURE);
 	overlay:SetVertexColor(0, 0, 0);
 	overlay:Hide();
@@ -259,21 +269,31 @@ local PostUpdateAuraIcon = function(self, unit, button, index, offset)
 	if button.isDebuff then
 		if(not isFriend and button.owner and button.owner ~= "player" and button.owner ~= "vehicle") then
 			button:SetBackdropBorderColor(0.9, 0.1, 0.1, 1)
+			button.bg:SetBackdropColor(1, 0, 0, 1)
+			button.bg:SetBackdropBorderColor(0, 0, 0, 1)
 			button.icon:SetDesaturated((unit and not unit:find('arena%d')) and true or false)
 		else
 			local color = DebuffTypeColor[dtype] or DebuffTypeColor.none
 			if (name == "Unstable Affliction" or name == "Vampiric Touch") and SV.class ~= "WARLOCK" then
 				button:SetBackdropBorderColor(0.05, 0.85, 0.94, 1)
+				button.bg:SetBackdropColor(0, 0.9, 1, 1)
+				button.bg:SetBackdropBorderColor(0, 0, 0, 1)
 			else
 				button:SetBackdropBorderColor(color.r * 0.6, color.g * 0.6, color.b * 0.6, 1)
+				button.bg:SetBackdropColor(color.r, color.g, color.b, 1)
+				button.bg:SetBackdropBorderColor(0, 0, 0, 1)
 			end
 			button.icon:SetDesaturated(false)
 		end
 	else
 		if (isStealable) and not isFriend then
 			button:SetBackdropBorderColor(0.92, 0.91, 0.55, 1)
+			button.bg:SetBackdropColor(1, 1, 0.5, 1)
+			button.bg:SetBackdropBorderColor(0, 0, 0, 1)
 		else
-			button:SetBackdropBorderColor(0, 0, 0, 1)		
+			button:SetBackdropBorderColor(0, 0, 0, 1)
+			button.bg:SetBackdropColor(0, 0, 0, 0)
+			button.bg:SetBackdropBorderColor(0, 0, 0, 0)		
 		end	
 	end
 
@@ -306,18 +326,21 @@ end
 --[[ AURABAR HANDLERS ]]--
 
 local AuraBar_OnClick = function(self)
-	if not IsShiftKeyDown() then return end 
-	local name = self:GetParent().aura.name
-	if name then 
+	if not IsShiftKeyDown() then return end
+	local parent = self:GetParent()
+	local name = parent.aura.name
+
+	local filterKey = tostring(parent.aura.spellID)
+	if name and filterKey then 
 		SV:AddonMessage((L["The spell '%s' has been added to the BlackList unitframe aura filter."]):format(name))
-		SV.filters["BlackList"][name] = {["enable"] = true}
+		SV.filters["BlackList"][filterKey] = {["enable"] = true}
 		MOD:RefreshUnitFrames()
 	end 
 end
 
 local PostCreateAuraBars = function(self)
 	self.spelltime = self:CreateFontString(nil, 'ARTWORK')
-	self.spelltime:FontManager("unitauramedium")
+	self.spelltime:SetFontObject(SVUI_Font_UnitAura);
 	self.spelltime:SetTextColor(1 ,1, 1)
 	self.spelltime:SetShadowOffset(1, -1)
   	self.spelltime:SetShadowColor(0, 0, 0)
@@ -326,7 +349,7 @@ local PostCreateAuraBars = function(self)
 	self.spelltime:SetPoint'RIGHT'
 
 	self.spellname = self:CreateFontString(nil, 'ARTWORK')
-	self.spellname:FontManager("unitaurabar")
+	self.spellname:SetFontObject(SVUI_Font_UnitAura_Bar);
 	self.spellname:SetTextColor(1, 1, 1)
 	self.spellname:SetShadowOffset(1, -1)
   	self.spellname:SetShadowColor(0, 0, 0)
@@ -344,12 +367,12 @@ local ColorizeAuraBars = function(self)
 		local auraBar = bars[i]
 		if not auraBar:IsVisible()then break end 
 		local color
-		local spellName = auraBar.statusBar.aura.name;
 		local spellID = auraBar.statusBar.aura.spellID;
-		if(SV.filters["Defense"][spellName]) then 
+		local filterKey = tostring(spellID)
+		if(SV.filters["Defense"][filterKey]) then 
 			color = oUF_Villain.colors.shield_bars
-		elseif(SV.db.media.unitframes.spellcolor[spellName]) then
-			color = SV.db.media.unitframes.spellcolor[spellName]
+		elseif(SV.filters.AuraBars[filterKey]) then
+			color = SV.filters.AuraBars[filterKey]
 		end 
 		if color then 
 			auraBar.statusBar:SetStatusBarColor(unpack(color))
@@ -378,10 +401,13 @@ local CommonAuraFilter = function(self, unit, icon, auraName, _, _, _, debuffTyp
 	icon.priority = 0;
 	icon.owner = caster;
 	icon.name = auraName;
+	icon.spellID = spellID;
 
-	if(auraDB.filterWhiteList and (not SV.filters.WhiteList[auraName])) then
+	local filterKey = tostring(spellID)
+
+	if(auraDB.filterWhiteList and (not SV.filters.WhiteList[filterKey])) then
 		return false;
-	elseif(SV.filters.BlackList[auraName] and SV.filters.BlackList[auraName].enable) then
+	elseif(SV.filters.BlackList[filterKey] and SV.filters.BlackList[filterKey].enable) then
 		return false;
 	else
 		if(auraDB.filterPlayer and (not isPlayer)) then
@@ -403,7 +429,7 @@ local CommonAuraFilter = function(self, unit, icon, auraName, _, _, _, debuffTyp
 		local active = auraDB.useFilter
 		if(active and SV.filters[active]) then
 			local spellDB = SV.filters[active];
-			if(spellDB[auraName] and spellDB[auraName].enable) then
+			if(spellDB[filterKey] and spellDB[filterKey].enable) then
 				return false
 			end  
 		end
@@ -420,9 +446,11 @@ local CommonBarFilter = function(self, unit, auraName, _, _, _, debuffType, dura
 	local isPlayer = caster == "player" or caster == "vehicle";
 	local isEnemy = UnitIsEnemy("player", unit);
 
-	if(auraDB.filterWhiteList and (not SV.filters.WhiteList[auraName])) then
+	local filterKey = tostring(spellID)
+
+	if(auraDB.filterWhiteList and (not SV.filters.WhiteList[filterKey])) then
 		return false;
-	elseif(SV.filters.BlackList[auraName] and SV.filters.BlackList[auraName].enable) then
+	elseif(SV.filters.BlackList[filterKey] and SV.filters.BlackList[filterKey].enable) then
 		return false
 	else
 		if(auraDB.filterPlayer and (not isPlayer)) then
@@ -444,7 +472,7 @@ local CommonBarFilter = function(self, unit, auraName, _, _, _, debuffType, dura
 		local active = auraDB.useFilter
 		if(active and SV.filters[active]) then
 			local spellDB = SV.filters[active];
-			if(spellDB[auraName] and spellDB[auraName].enable) then
+			if(spellDB[filterKey] and spellDB[filterKey].enable) then
 				return false
 			end  
 		end
@@ -479,12 +507,15 @@ local DetailedAuraFilter = function(self, unit, icon, auraName, _, _, _, debuffT
 	icon.priority = 0;
 	icon.owner = caster;
 	icon.name = auraName;
+	icon.spellID = spellID;
+
+	local filterKey = tostring(spellID)
 
 	if(filter_test(auraDB.filterAll, isEnemy)) then
 		return false
-	elseif(filter_test(auraDB.filterWhiteList, isEnemy) and (not SV.filters.WhiteList[auraName])) then
+	elseif(filter_test(auraDB.filterWhiteList, isEnemy) and (not SV.filters.WhiteList[filterKey])) then
 		return false;
-	elseif(SV.filters.BlackList[auraName] and SV.filters.BlackList[auraName].enable) then
+	elseif(SV.filters.BlackList[filterKey] and SV.filters.BlackList[filterKey].enable) then
 		return false
 	else
 		if(filter_test(auraDB.filterPlayer, isEnemy) and (not isPlayer)) then
@@ -504,7 +535,7 @@ local DetailedAuraFilter = function(self, unit, icon, auraName, _, _, _, debuffT
 		local active = auraDB.useFilter
 		if(active and SV.filters[active]) then
 			local spellDB = SV.filters[active];
-			if(spellDB[auraName] and spellDB[auraName].enable) then
+			if(spellDB[filterKey] and spellDB[filterKey].enable) then
 				return false
 			end  
 		end
@@ -521,11 +552,13 @@ local DetailedBarFilter = function(self, unit, auraName, _, _, _, debuffType, du
 	local isPlayer = caster == "player" or caster == "vehicle";
 	local isEnemy = UnitIsEnemy("player", unit);
 
+	local filterKey = tostring(spellID)
+
 	if(filter_test(auraDB.filterAll, isEnemy)) then
 		return false
-	elseif(filter_test(auraDB.filterWhiteList, isEnemy) and (not SV.filters.WhiteList[auraName])) then
+	elseif(filter_test(auraDB.filterWhiteList, isEnemy) and (not SV.filters.WhiteList[filterKey])) then
 		return false;
-	elseif(SV.filters.BlackList[auraName] and SV.filters.BlackList[auraName].enable) then
+	elseif(SV.filters.BlackList[filterKey] and SV.filters.BlackList[filterKey].enable) then
 		return false
 	else
 		if(filter_test(auraDB.filterPlayer, isEnemy) and (not isPlayer)) then
@@ -543,7 +576,7 @@ local DetailedBarFilter = function(self, unit, auraName, _, _, _, debuffType, du
 		local active = auraDB.useFilter
 		if(active and SV.filters[active]) then
 			local spellDB = SV.filters[active];
-			if(spellDB[auraName] and spellDB[auraName].enable) then
+			if(spellDB[filterKey] and spellDB[filterKey].enable) then
 				return false
 			end  
 		end
@@ -598,17 +631,6 @@ function MOD:CreateDebuffs(frame, unit)
 	return aura 
 end 
 
-function MOD:CreateAuraWatch(frame, unit)
-	local aWatch = CreateFrame("Frame", nil, frame)
-	aWatch:SetFrameLevel(frame:GetFrameLevel()  +  25)
-	aWatch:SetAllPoints(frame)
-	aWatch.presentAlpha = 1;
-	aWatch.missingAlpha = 0;
-	aWatch.strictMatching = true;
-	aWatch.icons = {}
-	return aWatch
-end
-
 function MOD:CreateAuraBarHeader(frame, unit)
 	local auraBarParent = CreateFrame("Frame", nil, frame)
 	auraBarParent.parent = frame;
@@ -627,191 +649,37 @@ function MOD:CreateAuraBarHeader(frame, unit)
 end 
 --[[ 
 ########################################################## 
-UPDATE
+AURA WATCH
 ##########################################################
 ]]--
-function MOD:UpdateAuraWatch(frame, key, override)
-	local AW = frame.AuraWatch
-	if not SV.db.SVUnit[key] then return end 
-	local db = SV.db.SVUnit[key].auraWatch
-	if not db then return end 
-
-	if not db.enable then 
-		AW:Hide()
-		return 
+local PreForcedUpdate = function(self)
+	local unit = self.___key;
+	if not SV.db.SVUnit[unit] then return end 
+	local db = SV.db.SVUnit[unit].auraWatch;
+	if not db then return end;
+	if(unit == "pet" or unit == "raidpet") then
+		self.watchFilter = SV.filters.PetBuffWatch
 	else
-		AW:Show()
+		self.watchFilter = SV.filters.BuffWatch
 	end
-
-	local WATCH_CACHE
-
-	if key == "pet" and not override then 
-		local petBW = SV.filters["PetBuffWatch"]
-		if(petBW) then
-			WATCH_CACHE = {}
-			for _, buff in pairs(petBW)do 
-				if(buff.style == "text") then 
-					buff.style = "NONE"
-				end 
-				tinsert(WATCH_CACHE, buff)
-			end
-		end
-	else 
-		local unitBW = SV.filters["BuffWatch"]
-		if(unitBW) then
-			WATCH_CACHE = {}
-			for _, buff in pairs(unitBW)do 
-				if(buff.style == "text") then 
-					buff.style = "NONE"
-				end 
-				tinsert(WATCH_CACHE, buff)
-			end
-		end
-	end  
-
-	if WATCH_CACHE then
-		if AW.icons then 
-			for i = 1, #AW.icons do 
-				local iconTest = false;
-				for j = 1, #WATCH_CACHE do 
-					if(#WATCH_CACHE[j].id and #WATCH_CACHE[j].id == AW.icons[i]) then 
-						iconTest = true;
-						break 
-					end 
-				end 
-				if not iconTest then 
-					AW.icons[i]:Hide()
-					AW.icons[i] = nil 
-				end 
-			end 
-		end
-
-		for i = 1, #WATCH_CACHE do 
-			if WATCH_CACHE[i].id then 
-				local buffName, _, buffTexture = GetSpellInfo(WATCH_CACHE[i].id)
-				if buffName then 
-					local watchedAura;
-					if not AW.icons[WATCH_CACHE[i].id]then 
-						watchedAura = CreateFrame("Frame", nil, AW)
-					else 
-						watchedAura = AW.icons[WATCH_CACHE[i].id]
-					end 
-					watchedAura.name = buffName;
-					watchedAura.image = buffTexture;
-					watchedAura.spellID = WATCH_CACHE[i].id;
-					watchedAura.anyUnit = WATCH_CACHE[i].anyUnit;
-					watchedAura.style = WATCH_CACHE[i].style;
-					watchedAura.onlyShowMissing = WATCH_CACHE[i].onlyShowMissing;
-					watchedAura.presentAlpha = watchedAura.onlyShowMissing and 0 or 1;
-					watchedAura.missingAlpha = watchedAura.onlyShowMissing and 1 or 0;
-					watchedAura.textThreshold = WATCH_CACHE[i].textThreshold or -1;
-					watchedAura.displayText = WATCH_CACHE[i].displayText;
-					watchedAura:SetWidthToScale(db.size)
-					watchedAura:SetHeightToScale(db.size)
-					watchedAura:ClearAllPoints()
-
-					watchedAura:SetPoint(WATCH_CACHE[i].point, frame.Health, WATCH_CACHE[i].point, WATCH_CACHE[i].xOffset, WATCH_CACHE[i].yOffset)
-					if not watchedAura.icon then 
-						watchedAura.icon = watchedAura:CreateTexture(nil, "BORDER")
-						watchedAura.icon:SetAllPoints(watchedAura)
-					end 
-					if not watchedAura.text then 
-						local awText = CreateFrame("Frame", nil, watchedAura)
-						awText:SetFrameLevel(watchedAura:GetFrameLevel() + 50)
-						watchedAura.text = awText:CreateFontString(nil, "BORDER")
-					end 
-					if not watchedAura.border then 
-						watchedAura.border = watchedAura:CreateTexture(nil, "BACKGROUND")
-						watchedAura.border:SetPointToScale("TOPLEFT", -1, 1)
-						watchedAura.border:SetPointToScale("BOTTOMRIGHT", 1, -1)
-						watchedAura.border:SetTexture([[Interface\BUTTONS\WHITE8X8]])
-						watchedAura.border:SetVertexColor(0, 0, 0)
-					end 
-					if not watchedAura.cd then 
-						watchedAura.cd = CreateFrame("Cooldown", nil, watchedAura, "CooldownFrameTemplate")
-						watchedAura.cd:SetAllPoints(watchedAura)
-						watchedAura.cd:SetReverse(true)
-						watchedAura.cd:SetHideCountdownNumbers(true)
-						watchedAura.cd:SetFrameLevel(watchedAura:GetFrameLevel())
-					end 
-					if watchedAura.style == "coloredIcon"then 
-						watchedAura.icon:SetTexture([[Interface\BUTTONS\WHITE8X8]])
-						if WATCH_CACHE[i]["color"]then 
-							watchedAura.icon:SetVertexColor(WATCH_CACHE[i]["color"].r, WATCH_CACHE[i]["color"].g, WATCH_CACHE[i]["color"].b)
-						else 
-							watchedAura.icon:SetVertexColor(0.8, 0.8, 0.8)
-						end 
-						watchedAura.icon:Show()
-						watchedAura.border:Show()
-						watchedAura.cd:SetAlpha(1)
-					elseif watchedAura.style == "texturedIcon" then 
-						watchedAura.icon:SetVertexColor(1, 1, 1)
-						watchedAura.icon:SetTexCoord(.18, .82, .18, .82)
-						watchedAura.icon:SetTexture(watchedAura.image)
-						watchedAura.icon:Show()
-						watchedAura.border:Show()
-						watchedAura.cd:SetAlpha(1)
-					else 
-						watchedAura.border:Hide()
-						watchedAura.icon:Hide()
-						watchedAura.cd:SetAlpha(0)
-					end 
-					if watchedAura.displayText then 
-						watchedAura.text:Show()
-						local r, g, b = 1, 1, 1;
-						if WATCH_CACHE[i].textColor then 
-							r, g, b = WATCH_CACHE[i].textColor.r, WATCH_CACHE[i].textColor.g, WATCH_CACHE[i].textColor.b 
-						end 
-						watchedAura.text:SetTextColor(r, g, b)
-					else 
-						watchedAura.text:Hide()
-					end 
-					if not watchedAura.count then 
-						watchedAura.count = watchedAura:CreateFontString(nil, "OVERLAY")
-					end 
-					watchedAura.count:ClearAllPoints()
-					if watchedAura.displayText then 
-						local anchor, relative, x, y = unpack(textCounterOffsets[WATCH_CACHE[i].point])
-						watchedAura.count:SetPoint(anchor, watchedAura.text, relative, x, y)
-					else 
-						watchedAura.count:SetPoint("CENTER", unpack(counterOffsets[WATCH_CACHE[i].point]))
-					end
-
-					watchedAura.count:FontManager("unitaurasmall");
-					watchedAura.text:FontManager("unitaurasmall");
-
-					watchedAura.text:ClearAllPoints();
-					
-					watchedAura.text:SetPoint(WATCH_CACHE[i].point, watchedAura, WATCH_CACHE[i].point)
-					if WATCH_CACHE[i].enabled then 
-						AW.icons[WATCH_CACHE[i].id] = watchedAura;
-						if AW.watched then 
-							AW.watched[WATCH_CACHE[i].id] = watchedAura 
-						end 
-					else
-						AW.icons[WATCH_CACHE[i].id] = nil;
-						if AW.watched then 
-							AW.watched[WATCH_CACHE[i].id] = nil 
-						end 
-						watchedAura:Hide()
-						watchedAura = nil 
-					end 
-				end 
-			end 
-		end
-		
-		WATCH_CACHE = nil
-	end
-	if frame.AuraWatch.Update then 
-		frame.AuraWatch.Update(frame)
-	end 
+	self.watchEnabled = db.enable;
+	self.watchSize = db.size;
 end
 
-function MOD:UpdateGroupAuraWatch(header, override)
-	assert(self.Headers[header], "Invalid group specified.")
-	local group = self.Headers[header]
-	for i = 1, group:GetNumChildren() do 
-		local frame = select(i, group:GetChildren())
-		if frame and frame.Health then self:UpdateAuraWatch(frame, header, override) end 
-	end 
-end  
+function MOD:CreateAuraWatch(frame, unit)
+	local watch = CreateFrame("Frame", nil, frame)
+	watch:SetFrameLevel(frame:GetFrameLevel() + 25)
+	watch:SetAllPoints(frame);
+	watch.___key = unit;
+	watch.watchEnabled = true;
+	watch.presentAlpha = 1;
+	watch.missingAlpha = 0;
+	if(unit == "pet" or unit == "raidpet") then
+		watch.watchFilter = SV.filters.PetBuffWatch
+	else
+		watch.watchFilter = SV.filters.BuffWatch
+	end
+
+	watch.PreForcedUpdate = PreForcedUpdate
+	return watch
+end

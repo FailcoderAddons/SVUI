@@ -127,7 +127,7 @@ SV.Options.args.SVUnit.args.commonGroup.args["raid"] = {
 									set = function(key, value) 
 										MOD:ChangeDBVar(value, key[#key], "raid", "grid"); 
 										MOD:SetGroupFrame("raid", true);
-										SV.Options.args.SVUnit.args.commonGroup.args.raid.args.tabGroups.args.general.args.layoutGroup.args.sizing = ns:SetSizeConfigGroup(value, "raid");
+										SV.Options.args.SVUnit.args.commonGroup.args.raid.args.general.args.layoutGroup.args.sizing = ns:SetSizeConfigGroup(value, "raid");
 									end,
 								},
 								showPlayer = {
@@ -503,7 +503,7 @@ SV.Options.args.SVUnit.args.commonGroup.args.raidpet = {
 									set = function(key, value) 
 										MOD:ChangeDBVar(value, key[#key], "raidpet", "grid"); 
 										MOD:SetGroupFrame("raidpet", true);
-										SV.Options.args.SVUnit.args.commonGroup.args.raidpet.args.tabGroups.args.general.args.layoutGroup.args.sizing = ns:SetSizeConfigGroup(value, "raidpet");
+										SV.Options.args.SVUnit.args.commonGroup.args.raidpet.args.general.args.layoutGroup.args.sizing = ns:SetSizeConfigGroup(value, "raidpet");
 									end,
 								},
 								invertGroupingOrder = {

@@ -23,8 +23,8 @@ local SV = select(2, ...)
 --[[ MONK FILTERS ]]--
 
 SV.filterdefaults["BuffWatch"] = {
-    {--Renewing Mist
-        ["enabled"] = true, 
+    ["119611"] = {--Renewing Mist
+        ["enable"] = true, 
         ["id"] = 119611, 
         ["point"] = "TOPLEFT", 
         ["color"] = {["r"] = 0.8, ["g"] = 0.4, ["b"] = 0.8}, 
@@ -37,8 +37,8 @@ SV.filterdefaults["BuffWatch"] = {
         ['xOffset'] = 0, 
         ['yOffset'] = 0
     },
-    {-- Life Cocoon
-        ["enabled"] = true, 
+    ["116849"] = {-- Life Cocoon
+        ["enable"] = true, 
         ["id"] = 116849, 
         ["point"] = "TOPRIGHT", 
         ["color"] = {["r"] = 0.2, ["g"] = 0.8, ["b"] = 0.2}, 
@@ -51,8 +51,8 @@ SV.filterdefaults["BuffWatch"] = {
         ['xOffset'] = 0, 
         ['yOffset'] = 0
     },
-    {-- Enveloping Mist
-        ["enabled"] = true, 
+    ["132120"] = {-- Enveloping Mist
+        ["enable"] = true, 
         ["id"] = 132120, 
         ["point"] = "BOTTOMLEFT", 
         ["color"] = {["r"] = 0.4, ["g"] = 0.8, ["b"] = 0.2}, 
@@ -65,8 +65,8 @@ SV.filterdefaults["BuffWatch"] = {
         ['xOffset'] = 0, 
         ['yOffset'] = 0
     },
-    {-- Zen Sphere
-        ["enabled"] = true, 
+    ["124081"] = {-- Zen Sphere
+        ["enable"] = true, 
         ["id"] = 124081, 
         ["point"] = "BOTTOMRIGHT", 
         ["color"] = {["r"] = 0.7, ["g"] = 0.4, ["b"] = 0}, 

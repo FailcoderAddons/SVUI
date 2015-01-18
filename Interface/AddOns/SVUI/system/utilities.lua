@@ -35,11 +35,15 @@ local tonumber      = _G.tonumber;
 local table         = _G.table;
 local string        = _G.string;
 local math          = _G.math;
+local tinsert       = _G.tinsert;
+local tremove       = _G.tremove;
+local twipe         = _G.wipe;
 --[[ STRING METHODS ]]--
 local match, format = string.match, string.format;
 local gmatch, gsub = string.gmatch, string.gsub;
 --[[ MATH METHODS ]]--
 local floor, modf = math.floor, math.modf;
+
 local iLevelFilter = ITEM_LEVEL:gsub( "%%d", "(%%d+)" )
 --[[ 
 ########################################################## 
@@ -48,6 +52,37 @@ GET ADDON DATA
 ]]--
 local SV = select(2, ...)
 local L = SV.L
+--[[ 
+########################################################## 
+FRAME VISIBILITY MANAGEMENT
+##########################################################
+]]--
+do
+    local FRAMELIST = {};
+
+    function SV:ManageVisibility(frame)
+        if(not frame) then return end
+        if(frame.GetParent) then
+            FRAMELIST[frame] = frame:GetParent()
+        end 
+    end 
+
+    function SV:AuditVisibility(hidden)
+        if(hidden) then
+          self.NeedsFrameAudit = true 
+          if(InCombatLockdown()) then return end 
+          for frame, _ in pairs(FRAMELIST)do 
+              frame:SetParent(self.Hidden) 
+          end
+        else
+          if(InCombatLockdown()) then return end
+          for frame, parent in pairs(FRAMELIST) do
+              frame:SetParent(parent or UIParent) 
+          end
+          self.NeedsFrameAudit = false
+        end
+    end
+end
 --[[ 
 ########################################################## 
 MISC UTILITY FUNCTIONS
@@ -231,11 +266,12 @@ do
 
     function SV:SetReversePoint(frame, point, target, x, y)
         if((not frame) or (not point)) then return; end
+        target = target or frame:GetParent()
+        if(not target) then print(frame:GetName()) return; end
         local anchor = _inverted[point];
         local relative = _translated[point];
         x = x or 0;
         y = y or 0;
-        target = target or frame:GetParent()
         frame:SetPoint(anchor, target, relative, x, y)
         --[[ auto-set specific properties to save on logic ]]--
         frame.initialAnchor = anchor;
@@ -433,142 +469,6 @@ do
 end 
 --[[ 
 ########################################################## 
-CHAT LOG PARSING FUNCTIONS (from LibDeformat  by:ckknight)
-##########################################################
-]]--
-do
-    local FORMAT_SEQUENCES = {
-        ["s"] = ".+",    
-        ["c"] = ".",
-        ["%d*d"] = "%%-?%%d+",
-        ["[fg]"] = "%%-?%%d+%%.?%%d*",
-        ["%%%.%d[fg]"] = "%%-?%%d+%%.?%%d*",
-    }
-
-    local STRING_BASED_SEQUENCES = {
-        ["s"] = true,
-        ["c"] = true,
-    }
-
-    local cache = setmetatable({}, {__mode='k'})
-
-    local function _deformat(pattern)
-        local func = cache[pattern]
-        if func then return func end
-        local unpattern = '^' .. pattern:gsub("([%(%)%.%*%+%-%[%]%?%^%$%%])", "%%%1") .. '$'
-        local number_indexes = {}
-        local index_translation = nil
-        local highest_index
-        if not pattern:find("%%1%$") then
-            local i = 0
-            while true do
-                i = i + 1
-                local first_index
-                local first_sequence
-                for sequence in pairs(FORMAT_SEQUENCES) do
-                    local index = unpattern:find("%%%%" .. sequence)
-                    if index and (not first_index or index < first_index) then
-                        first_index = index
-                        first_sequence = sequence
-                    end
-                end
-                if not first_index then
-                    break
-                end
-                unpattern = unpattern:gsub("%%%%" .. first_sequence, "(" .. FORMAT_SEQUENCES[first_sequence] .. ")", 1)
-                number_indexes[i] = not STRING_BASED_SEQUENCES[first_sequence]
-            end
-            highest_index = i - 1
-        else
-            local i = 0
-            while true do
-                i = i + 1
-                local found_sequence
-                for sequence in pairs(FORMAT_SEQUENCES) do
-                    if unpattern:find("%%%%" .. i .. "%%%$" .. sequence) then
-                        found_sequence = sequence
-                        break
-                    end
-                end
-                if not found_sequence then
-                    break
-                end
-                unpattern = unpattern:gsub("%%%%" .. i .. "%%%$" .. found_sequence, "(" .. FORMAT_SEQUENCES[found_sequence] .. ")", 1)
-                number_indexes[i] = not STRING_BASED_SEQUENCES[found_sequence]
-            end
-            highest_index = i - 1
-            i = 0
-            index_translation = {}
-            pattern:gsub("%%(%d)%$", function(w)
-                i = i + 1
-                index_translation[i] = tonumber(w)
-            end)
-        end
-        if highest_index == 0 then
-            cache[pattern] = SV.fubar
-        else
-            local t = {}
-            t[#t+1] = [=[
-                return function(text)
-                    local ]=]
-            for i = 1, highest_index do
-                if i ~= 1 then
-                    t[#t+1] = ", "
-                end
-                t[#t+1] = "a"
-                if not index_translation then
-                    t[#t+1] = i
-                else
-                    t[#t+1] = index_translation[i]
-                end
-            end
-            t[#t+1] = [=[ = text:match(]=]
-            t[#t+1] = ("%q"):format(unpattern)
-            t[#t+1] = [=[)
-                if not a1 then
-                    return ]=]
-            for i = 1, highest_index do
-                if i ~= 1 then
-                    t[#t+1] = ", "
-                end
-                t[#t+1] = "nil"
-            end
-            t[#t+1] = "\n"
-            t[#t+1] = [=[
-                end
-            ]=]
-            t[#t+1] = "return "
-            for i = 1, highest_index do
-                if i ~= 1 then
-                    t[#t+1] = ", "
-                end
-                t[#t+1] = "a"
-                t[#t+1] = i
-                if number_indexes[i] then
-                    t[#t+1] = "+0"
-                end
-            end
-            t[#t+1] = "\n"
-            t[#t+1] = [=[
-                end
-            ]=]
-            t = table.concat(t, "")
-            cache[pattern] = assert(loadstring(t))()
-        end
-        return cache[pattern]
-    end
-
-    function SV:DeFormat(text, pattern)
-        if type(text) ~= "string" then
-            error(("Error: DeFormat text argument %s (%s)."):format(type(text), text), 2)
-        elseif type(pattern) ~= "string" then
-            error(("Error: DeFormat pattern argument %s (%s)."):format(type(pattern), pattern), 2)
-        end
-        return _deformat(pattern)(text)
-    end
-end
---[[ 
-########################################################## 
 TIME UTILITIES
 ##########################################################
 ]]--
@@ -595,32 +495,4 @@ function SV:ParseSeconds(seconds)
     else
         return ("%s%d:%02d:%02d"):format(negative, seconds / SECONDS_PER_HOUR, math.fmod(seconds / 60, 60), math.fmod(seconds, 60))
     end
-end
---[[ 
-########################################################## 
-SIMPLE BUTTON CONSTRUCT
-##########################################################
-]]--
-local Button_OnEnter = function(self, ...)
-    if InCombatLockdown() then return end 
-    GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT", 0, 4)
-    GameTooltip:ClearLines()
-    GameTooltip:AddLine(self.TText, 1, 1, 1)
-    GameTooltip:Show()
-end 
-
-function SV:CreateButton(frame, label, anchor, x, y, width, height, tooltip)
-    local button = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
-    button:SetWidth(width)
-    button:SetHeight(height) 
-    button:SetPoint(anchor, x, y)
-    button:SetText(label) 
-    button:RegisterForClicks("AnyUp") 
-    button:SetHitRectInsets(0, 0, 0, 0);
-    button:SetFrameStrata("FULLSCREEN_DIALOG");
-    button.TText = tooltip
-    button:SetStylePanel("Button")
-    button:SetScript("OnEnter", Button_OnEnter)        
-    button:SetScript("OnLeave", GameTooltip_Hide)
-    return button
 end

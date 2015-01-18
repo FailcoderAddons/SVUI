@@ -161,99 +161,6 @@ local RemoveTextures = function(self, option)
 end 
 --[[ 
 ########################################################## 
-APPENDED FONT TEMPLATING METHODS
-##########################################################
-]]--
-local ManagedFonts = {};
-
-local FONT_LIST_DIRTY = false;
-
-local FontManager = function(self, template, arg, sizeMod, styleOverride, colorR, colorG, colorB)
-    if not self then return end
-    template = template or "default";
-    local info = SV.db.font[template];
-    if(not info) then return end
-
-    local isSystemFont = false;
-    if(arg and (arg == 'SYSTEM')) then
-        isSystemFont = true;
-    end
-
-    local file = LSM:Fetch("font", info.file);
-    local size = info.size;
-    local outline = info.outline;
-
-    if(styleOverride) then
-        self.___fontOutline = styleOverride;
-        outline = styleOverride;
-    end
-
-    self.___fontSizeMod = sizeMod or 0;
-    self:SetFont(file, (size + self.___fontSizeMod), outline)
-
-    if(not isSystemFont) then
-        if(info.outline and info.outline ~= "NONE") then 
-            self:SetShadowColor(0, 0, 0, 0)
-        else 
-            self:SetShadowColor(0, 0, 0, 0.2)
-        end 
-        self:SetShadowOffset(1, -1)
-        self:SetJustifyH(arg or "CENTER")
-        self:SetJustifyV("MIDDLE")
-    end
-
-    if(colorR and colorG and colorB) then
-        self:SetTextColor(colorR, colorG, colorB);
-    end
-
-    if(not ManagedFonts[template]) then
-        ManagedFonts[template] = {}
-    end
-
-    ManagedFonts[template][self] = true
-end
-
-SV.SetToFontManager = FontManager;
-
-local function UpdateFontTemplate(template)
-    template = template or "default";
-    local info = SV.db.font[template];
-    local file = LSM:Fetch("font", info.file);
-    local size = info.size;
-    local line = info.outline;
-    local list = ManagedFonts[template];
-
-    for frame in pairs(list) do
-        if frame then
-            if(frame.___fontOutline) then
-                frame:SetFont(file, (size + frame.___fontSizeMod), frame.___fontOutline);
-            else
-                frame:SetFont(file, (size + frame.___fontSizeMod), line);
-            end
-        else
-            ManagedFonts[template][frame] = nil;
-        end
-    end
-end
-
-local function UpdateAllFontTemplates()
-    for template, _ in pairs(ManagedFonts) do
-        UpdateFontTemplate(template)
-    end
-end
-
-local function UpdateFontGroup(...)
-    for i = 1, select('#', ...) do
-        local template = select(i, ...)
-        if not template then break end
-        UpdateFontTemplate(template)
-    end
-end
-
-SV.Events:On("SVUI_ALLFONTS_UPDATED", "UpdateAllFontTemplates", UpdateAllFontTemplates);
-SV.Events:On("SVUI_FONTGROUP_UPDATED", "UpdateFontGroup", UpdateFontGroup);
---[[ 
-########################################################## 
 SECURE FADING
 ##########################################################
 ]]--
@@ -295,32 +202,32 @@ local SecureFadeIn = function(self, duration, alphaStart, alphaEnd)
     local alpha1 = alphaStart or 0;
     local alpha2 = alphaEnd or 1;
     local timer = duration or 0.1;
-    --local name = self:GetName() or 'Frame';
+
     local canfade = (not InCombatLockdown()) or (InCombatLockdown() and (not self:IsProtected()))
     if(canfade and not self:IsShown()) then 
         self:Show() 
     end
 
     if(self:IsShown() and self:GetAlpha() == alpha2) then return end
-
-    self.___fademode = "IN";
-    self.___fadehide = false;
-    self.___fadefunc = nil;
-
-    if(not self.___fadeset) then
-        self.___fadeset = {};
-    end
-    self.___fadeset[1] = alpha1;
-    self.___fadeset[2] = alpha2;
-    self.___fadeset[3] = timer;
-
-    self:SetAlpha(alpha1)
-
     if(not self.___fadehandler) then 
         self.___fadehandler = CreateFrame("Frame", nil)
         self.___fadehandler.owner = self;
     end
-    if(not self.___fadehandler.Running) then 
+    if(not self.___fademode or (self.___fademode and self.___fademode == "OUT")) then
+        self.___fademode = "IN";
+        self.___fadehide = false;
+        self.___fadefunc = nil;
+
+        if(not self.___fadeset) then
+            self.___fadeset = {};
+        end
+        self.___fadeset[1] = alpha1;
+        self.___fadeset[2] = alpha2;
+        self.___fadeset[3] = timer;
+
+        self:SetAlpha(alpha1)
+    end
+    if(not self.___fadehandler.Running) then
         self.___fadehandler.Running = true;
         self.___fadehandler:SetScript("OnUpdate", SecureFade_OnUpdate)
     end
@@ -330,29 +237,28 @@ local SecureFadeOut = function(self, duration, alphaStart, alphaEnd, hideOnFinis
     local alpha1 = alphaStart or 1;
     local alpha2 = alphaEnd or 0;
     local timer = duration or 0.1;
-    --local name = self:GetName() or 'Frame';
 
     if(not self:IsShown() or self:GetAlpha() == alpha2) then return end
-
-    self.___fademode = "OUT";
-    self.___fadehide = hideOnFinished;
-    self.___fadefunc = nil;
-
-    if(not self.___fadeset) then
-        self.___fadeset = {};
-    end
-
-    self.___fadeset[1] = alpha1;
-    self.___fadeset[2] = alpha2;
-    self.___fadeset[3] = timer;
-
-    self:SetAlpha(alpha1)
-    
     if(not self.___fadehandler) then 
         self.___fadehandler = CreateFrame("Frame", nil)
         self.___fadehandler.owner = self;
     end
-    if(not self.___fadehandler.Running) then 
+    if(not self.___fademode or (self.___fademode and self.___fademode == "IN")) then
+        self.___fademode = "OUT";
+        self.___fadehide = hideOnFinished;
+        self.___fadefunc = nil;
+
+        if(not self.___fadeset) then
+            self.___fadeset = {};
+        end
+
+        self.___fadeset[1] = alpha1;
+        self.___fadeset[2] = alpha2;
+        self.___fadeset[3] = timer;
+
+        self:SetAlpha(alpha1)
+    end
+    if(not self.___fadehandler.Running) then
         self.___fadehandler.Running = true;
         self.___fadehandler:SetScript("OnUpdate", SecureFade_OnUpdate)
     end
@@ -360,6 +266,40 @@ end
 
 local SecureFadeCallback = function(self, callback)
     self.___fadefunc = callback;
+end
+--[[ 
+########################################################## 
+HOOKED ATLAS HIJACKER
+##########################################################
+]]--
+local ATLAS_THIEF = {} -- Wasn't this the name of a movie?
+local ATLAS_HACKS = {} -- Couldn't think of anything clever honestly.
+ATLAS_HACKS["default"] = function(self)
+  self:SetTexture("")
+end
+
+local StealAtlas = function(self, atlas)
+    if(not self or not atlas) then return end
+    local hack = ATLAS_THIEF[atlas];
+    if(hack) then
+        local fn = ATLAS_HACKS[hack] or ATLAS_HACKS["default"]
+        local pass, catch = pcall(fn, self, atlas)
+        if(catch) then
+            SV:Debugger(catch)
+            return
+        end
+    end
+end
+
+function SV:SetAtlasFunc(atlas, fn)
+    ATLAS_HACKS[atlas] = fn
+end
+
+function SV:SetAtlasFilter(atlas, fn)
+    if(not fn) then
+        fn = "default"
+    end
+    ATLAS_THIEF[atlas] = fn
 end
 --[[ 
 ########################################################## 
@@ -376,10 +316,12 @@ local function AppendMethods(OBJECT)
     if not OBJECT.SetAllPointsIn then META.SetAllPointsIn = SetAllPointsIn end
     if not OBJECT.Die then META.Die = Die end
     if not OBJECT.RemoveTextures then META.RemoveTextures = RemoveTextures end
-    if not OBJECT.FontManager then META.FontManager = FontManager end
     if not OBJECT.FadeIn then META.FadeIn = SecureFadeIn end
     if not OBJECT.FadeOut then META.FadeOut = SecureFadeOut end
     if not OBJECT.FadeCallback then META.FadeCallback = SecureFadeCallback end
+    if(OBJECT.SetAtlas) then
+        hooksecurefunc(META, "SetAtlas", StealAtlas)
+    end
 end
 
 local HANDLER, OBJECT = {["Frame"] = true}, CreateFrame("Frame")

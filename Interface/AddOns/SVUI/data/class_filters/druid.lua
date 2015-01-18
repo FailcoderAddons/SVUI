@@ -23,8 +23,8 @@ local SV = select(2, ...)
 --[[ DRUID FILTERS ]]--
 
 SV.filterdefaults["BuffWatch"] = {
-    {-- Rejuvenation
-        ["enabled"] = true, 
+    ["774"] = {-- Rejuvenation
+        ["enable"] = true, 
         ["id"] = 774, 
         ["point"] = "TOPRIGHT", 
         ["color"] = {["r"] = 0.8, ["g"] = 0.4, ["b"] = 0.8}, 
@@ -37,8 +37,8 @@ SV.filterdefaults["BuffWatch"] = {
         ['xOffset'] = 0, 
         ['yOffset'] = 0
     },
-    {-- Regrowth
-        ["enabled"] = true, 
+    ["8936"] = {-- Regrowth
+        ["enable"] = true, 
         ["id"] = 8936, 
         ["point"] = "BOTTOMLEFT", 
         ["color"] = {["r"] = 0.2, ["g"] = 0.8, ["b"] = 0.2}, 
@@ -51,8 +51,8 @@ SV.filterdefaults["BuffWatch"] = {
         ['xOffset'] = 0, 
         ['yOffset'] = 0
     },
-    {-- Lifebloom
-        ["enabled"] = true, 
+    ["33763"] = {-- Lifebloom
+        ["enable"] = true, 
         ["id"] = 33763, 
         ["point"] = "TOPLEFT", 
         ["color"] = {["r"] = 0.4, ["g"] = 0.8, ["b"] = 0.2}, 
@@ -65,8 +65,8 @@ SV.filterdefaults["BuffWatch"] = {
         ['xOffset'] = 0, 
         ['yOffset'] = 0
     },
-    {-- Wild Growth
-        ["enabled"] = true, 
+    ["48438"] = {-- Wild Growth
+        ["enable"] = true, 
         ["id"] = 48438, 
         ["point"] = "BOTTOMRIGHT", 
         ["color"] = {["r"] = 0.8, ["g"] = 0.4, ["b"] = 0}, 

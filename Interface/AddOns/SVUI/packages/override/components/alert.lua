@@ -219,7 +219,7 @@ PACKAGE CALL
 ]]--
 function MOD:SetAlerts()
 	SVUI_AlertFrame:SetSizeToScale(180, 20);
-	SV.Mentalo:Add(SVUI_AlertFrame, L["Loot / Alert Frames"], nil, AlertFramePostMove_Hook)
+	SV.Mentalo:Add(SVUI_AlertFrame, L["Loot / Alert Frames"], nil, AlertFramePostMove_Hook, nil, true)
 
 	NewHook('AlertFrame_FixAnchors', AlertFramePostMove_Hook)
 	NewHook('AlertFrame_SetLootAnchors', _hook_AlertFrame_SetLootAnchors)

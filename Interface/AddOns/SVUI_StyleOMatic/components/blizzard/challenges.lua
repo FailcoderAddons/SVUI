@@ -32,7 +32,7 @@ local function ChallengesFrameStyle()
   ChallengesFrameInset:RemoveTextures()
   ChallengesFrameInsetBg:Hide()
   ChallengesFrameDetails.bg:Hide()
-  ChallengesFrameDetails:SetStylePanel("Default", "Inset")
+  ChallengesFrameDetails:SetStylePanel("Frame", "Inset")
   ChallengesFrameLeaderboard:SetStylePanel("Button")
   select(2, ChallengesFrameDetails:GetRegions()):Hide()
   select(9, ChallengesFrameDetails:GetRegions()):Hide()
@@ -54,7 +54,7 @@ local function ChallengesFrameStyle()
     local F = ChallengesFrame["RewardRow"..u]
     for A = 1, 2 do 
       local v = F["Reward"..A]
-      v:SetStylePanel("Default")
+      v:SetStylePanel("Frame")
       v.Icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
     end 
   end 

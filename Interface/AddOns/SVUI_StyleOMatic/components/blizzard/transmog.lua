@@ -72,7 +72,7 @@ local function TransmogStyle()
 	TransmogrifyModelFrame:ClearAllPoints()
 	TransmogrifyModelFrame:SetPointToScale("TOPLEFT", TransmogrifyFrame, "TOPLEFT", 12, -22)
 	TransmogrifyModelFrame:SetPointToScale("BOTTOMRIGHT", TransmogrifyFrame, "BOTTOMRIGHT", -12, 36)
-	TransmogrifyModelFrame:SetStylePanel("Fixed", "Model")
+	TransmogrifyModelFrame:SetStylePanel("!_Frame", "Model")
 
 	TransmogrifyFrameButtonFrame:GetRegions():Die()
 	TransmogrifyApplyButton:RemoveTextures()
@@ -86,7 +86,7 @@ local function TransmogStyle()
 		local a9 = _G["TransmogrifyFrame"..a9 .."Slot"]
 		if a9 then
 			a9:RemoveTextures()
-			a9:SetStylePanel("Slot", true)
+			a9:SetStylePanel("Slot")
 			a9:SetFrameLevel(a9:GetFrameLevel()+2)
 			
 			a9.Panel:SetAllPoints()
@@ -98,7 +98,7 @@ local function TransmogStyle()
 	
 	TransmogrifyConfirmationPopup:SetParent(UIParent)
 	TransmogrifyConfirmationPopup:RemoveTextures()
-	TransmogrifyConfirmationPopup:SetStylePanel("Default", "Pattern")
+	TransmogrifyConfirmationPopup:SetStylePanel("Frame", "Pattern")
 	TransmogrifyConfirmationPopup.Button1:SetStylePanel("Button")
 	TransmogrifyConfirmationPopup.Button2:SetStylePanel("Button")
 	PLUGIN:ApplyItemButtonStyle(TransmogrifyConfirmationPopupItemFrame1, true)

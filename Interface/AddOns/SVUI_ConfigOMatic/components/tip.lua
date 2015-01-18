@@ -43,7 +43,7 @@ SV.Options.args.SVTip = {
 	name = MOD.TitleID, 
 	childGroups = "tab", 
 	get = function(a)return SV.db.SVTip[a[#a]] end, 
-	set = function(a, b)SV.db.SVTip[a[#a]] = b end, 
+	set = function(a, b) MOD:ChangeDBVar(b,a[#a]); end, 
 	args = {
 		commonGroup = {
 			order = 1, 
@@ -105,7 +105,7 @@ SV.Options.args.SVTip = {
 							name = L["Spell/Item IDs"], 
 							desc = L["Display the spell or item ID when mousing over a spell or item tooltip."],
 							get = function(a)return SV.db.SVTip.spellID end, 
-							set = function(a, b)SV.db.SVTip.spellID = b;SV:StaticPopup_Show("RL_CLIENT") end,
+							set = function(a, b)SV.db.SVTip.spellID = b; SV:StaticPopup_Show("RL_CLIENT") end,
 						}
 					}
 

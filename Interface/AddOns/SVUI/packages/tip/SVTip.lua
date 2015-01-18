@@ -291,7 +291,7 @@ local function tipcleaner(this)
 	for i=3, this:NumLines() do 
 		local tip = _G["GameTooltipTextLeft"..i]
 		local tipText = tip:GetText()
-		if tipText:find(PVP) or tipText:find(FACTION_ALLIANCE) or tipText:find(FACTION_HORDE) then 
+		if(tipText and (tipText:find(PVP) or tipText:find(FACTION_ALLIANCE) or tipText:find(FACTION_HORDE))) then 
 			tip:SetText(nil)
 			tip:Hide()
 		end 
@@ -532,7 +532,7 @@ local _hook_GameTooltip_OnTooltipSetItem = function(self)
 			self:AddLine(" ")
 			local left = "|cFFCA3C3CSpell ID: |r"
 			local itemID = ("|cFFCA3C3C%s|r %s"):format(left, itemLink):match(":(%w+)")
-			self:AddDoubleLine("|cFFCA3C3CSpell ID: |r", itemID)
+			self:AddLine(("|cFFCA3C3C%s# %d|r"):format(ID, itemID))
 		end
 
 		if(self.InjectedDouble[8]) then
@@ -551,7 +551,7 @@ local _hook_GameTooltip_ShowStatusBar = function(self, ...)
 	if bar and not bar.styled then 
 		bar:RemoveTextures()
 		bar:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]])
-		bar:SetStylePanel("Fixed", 'Inset',true)
+		bar:SetStylePanel("!_Frame", 'Inset',true)
 		if not bar.border then 
 			local border=CreateFrame("Frame",nil,bar)
 			border:SetAllPointsOut(bar,1,1)
@@ -579,10 +579,10 @@ local _hook_OnSetUnitAura = function(self, unit, index, filter)
 			local color = RAID_CLASS_COLORS[class]
 			if color then
 				self.SuperBorder:SetMaskBorderColor(color.r, color.g, color.b)
-				self:AddDoubleLine(("|cFFCA3C3C%s|r %d"):format(ID, spellID), format("|c%s%s|r", color.colorStr, name))
+				self:AddDoubleLine(("|cFFCA3C3C%s# %d|r"):format(ID, spellID), format("|c%s%s|r", color.colorStr, name))
 			end
 		else 
-			self:AddLine(("|cFFCA3C3C%s|r %d"):format(ID, spellID))
+			self:AddLine(("|cFFCA3C3C%s# %d|r"):format(ID, spellID))
 		end 
 		self:Show()
 	end
@@ -611,7 +611,7 @@ end
 local _hook_GameTooltip_OnTooltipSetSpell = function(self)
 	local ref = select(3, self:GetSpell())
 	if not ref then return end 
-	local text = ("|cFFCA3C3C%s|r%d"):format(ID, ref)
+	local text = ("|cFFCA3C3C%s# %d|r"):format(ID, ref)
 	local max = self:NumLines()
 	local check;
 	for i = 1, max do 
@@ -936,7 +936,7 @@ function MOD:Load()
 	GameTooltipStatusBar:SetPoint("BOTTOMRIGHT", GameTooltip.SuperBorder, "BOTTOMRIGHT", -3, 3)
 	GameTooltipStatusBar.text = GameTooltipStatusBar:CreateFontString(nil, "OVERLAY")
 	GameTooltipStatusBar.text:SetPointToScale("CENTER", GameTooltipStatusBar, "CENTER", 0, 0)
-	GameTooltipStatusBar.text:FontManager("default")
+	GameTooltipStatusBar.text:SetFontObject(SVUI_Font_Default)
 
 
 	if not GameTooltipStatusBar.border then 

@@ -160,7 +160,7 @@ function MOD:InitializeMicroBar()
 	microBar:SetFrameStrata("HIGH")
 	microBar:SetFrameLevel(0)
 	microBar:SetPointToScale('BOTTOMLEFT', SV.Dock.TopLeft.Bar.ToolBar, 'BOTTOMRIGHT', 4, 0)
-	SV:AddToDisplayAudit(microBar)
+	SV:ManageVisibility(microBar)
 
 	for i=1,13 do
 		local data = ICON_DATA[i]
@@ -187,7 +187,7 @@ function MOD:InitializeMicroBar()
 				local buttonMask = NewFrame("Frame",nil,button)
 				buttonMask:SetPoint("TOPLEFT",button,"TOPLEFT",0,-28)
 				buttonMask:SetPoint("BOTTOMRIGHT",button,"BOTTOMRIGHT",0,0)
-				buttonMask:SetStylePanel("Framed") 
+				buttonMask:SetStylePanel("HeavyButton") 
 				buttonMask:SetPanelColor()
 				buttonMask.icon = buttonMask:CreateTexture(nil,"OVERLAY",nil,2)
 				buttonMask.icon:SetAllPointsIn(buttonMask,2,2)

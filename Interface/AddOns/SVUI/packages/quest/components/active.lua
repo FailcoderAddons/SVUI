@@ -171,6 +171,11 @@ local UnsetActiveData = function(self, bypass)
 	self:SetHeight(1);
 	block:SetAlpha(0);
 	self:SetAlpha(0);
+	-- if(MOD.QuestItem and MOD.QuestItem:IsShown()) then
+	-- 	MOD.QuestItem.CurrentQuest = 0;
+	-- 	MOD.QuestItem.Artwork:SetTexture([[Interface\AddOns\SVUI\assets\artwork\Template\EMPTY]]);
+	-- 	MOD.QuestItem:ClearUsage();
+	-- end
 	if(not bypass and MOD.Headers["Quests"]) then
 		MOD:UpdateObjectives('FORCED_UPDATE')
 	end
@@ -225,12 +230,13 @@ local SetActiveData = function(self, title, level, icon, questID, questLogIndex,
 	end
 	block.Badge.Icon:SetTexture(icon);
 
-	local link, texture, _, showCompleted = GetQuestLogSpecialItemInfo(questLogIndex)
-	if(link) then
-		if(MOD.QuestItem:SetAbility(link, texture)) then
-			MOD.QuestItem.CurrentQuest = questLogIndex
-		end
-	end
+	-- local link, texture, _, showCompleted = GetQuestLogSpecialItemInfo(questLogIndex)
+	
+	-- if(link) then
+	-- 	MOD.QuestItem:SetUsage(link, texture)
+	-- elseif(MOD.QuestItem:IsShown()) then
+	-- 	MOD.QuestItem:ClearUsage()
+	-- end
 
 	if(self.Block.Badge.PostUpdate) then
 		self.Block.Badge:PostUpdate(questID)
@@ -339,9 +345,10 @@ function MOD:InitializeActive()
 	block.Top.Text = block.Top:CreateFontString(nil,"OVERLAY")
 	block.Top.Text:SetPoint("TOPLEFT", block.Top, "TOPLEFT", 2, 0);
 	block.Top.Text:SetPoint("BOTTOMLEFT", block.Top, "BOTTOMLEFT", 2, 0);
-	block.Top.Text:FontManager("questheader", "LEFT");
+	block.Top.Text:SetFontObject(SVUI_Font_Quest_Header);
+	block.Top.Text:SetJustifyH('LEFT')
 	block.Top.Text:SetTextColor(0.28,0.75,1)
-	block.Top.Text:SetText("Now Tracking...")
+	block.Top.Text:SetText("Active")
 
 	block.CloseButton = CreateFrame("Button", nil, block.Top, "UIPanelCloseButton")
 	block.CloseButton:RemoveTextures()
@@ -363,7 +370,7 @@ function MOD:InitializeActive()
 	block.Button = CreateFrame("Button", nil, block)
 	block.Button:SetPointToScale("TOPLEFT", block, "TOPLEFT", 0, 0);
 	block.Button:SetPointToScale("BOTTOMRIGHT", block, "BOTTOMRIGHT", 0, 8);
-	block.Button:SetStylePanel("Framed", "Headline")
+	block.Button:SetStylePanel("HeavyButton", false, "Lite")
 	block.Button:SetPanelColor("gold")
 	block.Button:SetID(0)
 	block.Button.Parent = active;
@@ -374,7 +381,7 @@ function MOD:InitializeActive()
 	block.Badge = CreateFrame("Frame", nil, block.Button)
 	block.Badge:SetPointToScale("TOPLEFT", block.Top, "BOTTOMLEFT", 4, -4);
 	block.Badge:SetSizeToScale((LARGE_INNER_HEIGHT - 4), (LARGE_INNER_HEIGHT - 4));
-	block.Badge:SetStylePanel("Fixed", "Inset")
+	block.Badge:SetStylePanel("!_Frame", "Inset")
 
 	block.Badge.Icon = block.Badge:CreateTexture(nil,"OVERLAY")
 	block.Badge.Icon:SetAllPointsIn(block.Badge);
@@ -388,16 +395,18 @@ function MOD:InitializeActive()
 	block.Header:SetPointToScale("TOPLEFT", block.Badge, "TOPRIGHT", 4, -1);
 	block.Header:SetPointToScale("TOPRIGHT", block.Top, "BOTTOMRIGHT", -4, 0);
 	block.Header:SetHeightToScale(INNER_HEIGHT);
-	block.Header:SetStylePanel("Default", "Headline")
+	block.Header:SetStylePanel("Frame", "Lite")
 
 	block.Header.Level = block.Header:CreateFontString(nil,"OVERLAY")
-	block.Header.Level:FontManager("questdialog", "LEFT");
+	block.Header.Level:SetFontObject(SVUI_Font_Quest);
+	block.Header.Level:SetJustifyH('LEFT')
 	block.Header.Level:SetText('')
 	block.Header.Level:SetPointToScale("TOPLEFT", block.Header, "TOPLEFT", 4, 0);
 	block.Header.Level:SetPointToScale("BOTTOMLEFT", block.Header, "BOTTOMLEFT", 4, 0);
 
 	block.Header.Text = block.Header:CreateFontString(nil,"OVERLAY")
-	block.Header.Text:FontManager("questdialog", "LEFT");
+	block.Header.Text:SetFontObject(SVUI_Font_Quest);
+	block.Header.Text:SetJustifyH('LEFT')
 	block.Header.Text:SetTextColor(1,1,0)
 	block.Header.Text:SetText('')
 	block.Header.Text:SetPointToScale("TOPLEFT", block.Header.Level, "TOPRIGHT", 4, 0);

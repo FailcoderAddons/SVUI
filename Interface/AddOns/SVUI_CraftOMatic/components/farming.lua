@@ -157,7 +157,7 @@ do
 		if(InCombatLockdown()) then return end
 		if(event == "ZONE_CHANGED") then
 			local inZone = InFarmZone()
-			if not inZone and PLUGIN.db.farming.droptools then
+			if not inZone and PLUGIN.db.general.farming.droptools then
 				for k, v in pairs(refTools) do
 					local container, slot = FindItemInBags(k)
 					if container and slot then
@@ -271,7 +271,7 @@ do
 	local function CreateFarmingButton(index, owner, buttonName, buttonType, name, texture, allowDrop, showCount)
 		local BUTTONSIZE = owner.ButtonSize;
 		local button = CreateFrame("Button", ("FarmingButton"..buttonName.."%d"):format(index), owner, "SecureActionButtonTemplate")
-		button:SetStylePanel("Fixed", "Transparent")
+		button:SetStylePanel("!_Frame", "Transparent")
 		button.Panel:SetFrameLevel(0)
 		button:SetNormalTexture(nil)
 		button:SetSizeToScale(BUTTONSIZE, BUTTONSIZE)
@@ -318,7 +318,7 @@ do
 			PLUGIN.TitleWindow:AddMessage("|cffffff11Loading Farm Tools...|r|cffff1111PLEASE WAIT|r")
 			PLUGIN.FarmLoadTimer = SV.Timers:ExecuteTimer(LoadFarmingModeTools, 5)
 		else
-			local horizontal = PLUGIN.db.farming.toolbardirection == 'HORIZONTAL'
+			local horizontal = PLUGIN.db.general.farming.toolbardirection == 'HORIZONTAL'
 
 			local seeds, farmtools, portals = {},{},{}
 
@@ -406,7 +406,7 @@ function PLUGIN.Farming:Disable()
 		DisableListener()
 		return 
 	end
-	if PLUGIN.db.farming.droptools then
+	if PLUGIN.db.general.farming.droptools then
 		for k, v in pairs(refTools) do
 			local container, slot = FindItemInBags(k)
 			if container and slot then
@@ -425,8 +425,8 @@ CORE FUNCTIONS
 ##########################################################
 ]]--
 function PLUGIN:RefreshFarmingTools()
-	local count, horizontal = 0, self.db.farming.toolbardirection == 'HORIZONTAL'
-	local BUTTONSPACE = self.db.farming.buttonspacing or 2;
+	local count, horizontal = 0, self.db.general.farming.toolbardirection == 'HORIZONTAL'
+	local BUTTONSPACE = self.db.general.farming.buttonspacing or 2;
 	local lastBar;
 	if not FarmToolBar:IsShown() then
 		_G["FarmSeedBarAnchor"]:SetPoint("TOPLEFT", _G["FarmModeFrameSlots"], "TOPLEFT", 0, 0)
@@ -435,24 +435,27 @@ function PLUGIN:RefreshFarmingTools()
 	end
 
 	for i = 1, NUM_SEED_BARS do
+
 		local seedBar = _G["FarmSeedBar"..i]
 		count = 0
-		for i, button in ipairs(seedButtons[i]) do
-			local BUTTONSIZE = seedBar.ButtonSize;
-			button:SetPointToScale("TOPLEFT", seedBar, "TOPLEFT", horizontal and (count * (BUTTONSIZE + BUTTONSPACE) + 1) or 1, horizontal and -1 or -(count * (BUTTONSIZE + BUTTONSPACE) + 1))
-			button:SetSizeToScale(BUTTONSIZE,BUTTONSIZE)
-			if (not self.db.farming.onlyactive or (self.db.farming.onlyactive and button.items > 0)) then
-				button.icon:SetVertexColor(1,1,1)
-				count = count + 1
-			elseif (not self.db.farming.onlyactive and button.items <= 0) then
-				button:Show()
-				button.icon:SetVertexColor(0.25,0.25,0.25)
-				count = count + 1
-			else
-				button:Hide()
+		if(seedButtons[i]) then
+			for i, button in ipairs(seedButtons[i]) do
+				local BUTTONSIZE = seedBar.ButtonSize;
+				button:SetPointToScale("TOPLEFT", seedBar, "TOPLEFT", horizontal and (count * (BUTTONSIZE + BUTTONSPACE) + 1) or 1, horizontal and -1 or -(count * (BUTTONSIZE + BUTTONSPACE) + 1))
+				button:SetSizeToScale(BUTTONSIZE,BUTTONSIZE)
+				if (not self.db.general.farming.onlyactive or (self.db.general.farming.onlyactive and button.items > 0)) then
+					button.icon:SetVertexColor(1,1,1)
+					count = count + 1
+				elseif (not self.db.general.farming.onlyactive and button.items <= 0) then
+					button:Show()
+					button.icon:SetVertexColor(0.25,0.25,0.25)
+					count = count + 1
+				else
+					button:Hide()
+				end
 			end
 		end
-		if(self.db.farming.onlyactive and not self.db.farming.undocked) then
+		if(self.db.general.farming.onlyactive and not self.db.general.farming.undocked) then
 			if count==0 then 
 				seedBar:Hide() 
 			else
@@ -474,11 +477,11 @@ function PLUGIN:RefreshFarmingTools()
 		local BUTTONSIZE = FarmToolBar.ButtonSize;
 		button:SetPointToScale("TOPLEFT", FarmToolBar, "TOPLEFT", horizontal and (count * (BUTTONSIZE + BUTTONSPACE) + 1) or 1, horizontal and -1 or -(count * (BUTTONSIZE + BUTTONSPACE) + 1))
 		button:SetSizeToScale(BUTTONSIZE,BUTTONSIZE)
-		if (not self.db.farming.onlyactive or (self.db.farming.onlyactive and button.items > 0)) then
+		if (not self.db.general.farming.onlyactive or (self.db.general.farming.onlyactive and button.items > 0)) then
 			button:Show()
 			button.icon:SetVertexColor(1,1,1)
 			count = count + 1
-		elseif (not self.db.farming.onlyactive and button.items == 0) then
+		elseif (not self.db.general.farming.onlyactive and button.items == 0) then
 			button:Show()
 			button.icon:SetVertexColor(0.25,0.25,0.25)
 			count = count + 1
@@ -486,7 +489,7 @@ function PLUGIN:RefreshFarmingTools()
 			button:Hide()
 		end
 	end
-	if(self.db.farming.onlyactive and not self.db.farming.undocked) then
+	if(self.db.general.farming.onlyactive and not self.db.general.farming.undocked) then
 		if count==0 then 
 			FarmToolBarAnchor:Hide()
 			FarmPortalBar:SetPoint("TOPLEFT", FarmModeFrameSlots, "TOPLEFT", 0, 0)
@@ -502,11 +505,11 @@ function PLUGIN:RefreshFarmingTools()
 		local BUTTONSIZE = FarmPortalBar.ButtonSize;
 		button:SetPointToScale("TOPLEFT", FarmPortalBar, "TOPLEFT", horizontal and (count * (BUTTONSIZE + BUTTONSPACE) + 1) or 1, horizontal and -1 or -(count * (BUTTONSIZE + BUTTONSPACE) + 1))
 		button:SetSizeToScale(BUTTONSIZE,BUTTONSIZE)
-		if (not self.db.farming.onlyactive or (self.db.farming.onlyactive and button.items > 0)) then
+		if (not self.db.general.farming.onlyactive or (self.db.general.farming.onlyactive and button.items > 0)) then
 			button:Show()
 			button.icon:SetVertexColor(1,1,1)
 			count = count + 1
-		elseif (not self.db.farming.onlyactive and button.items == 0) then
+		elseif (not self.db.general.farming.onlyactive and button.items == 0) then
 			button:Show()
 			button.icon:SetVertexColor(0.25,0.25,0.25)
 			count = count + 1
@@ -514,7 +517,7 @@ function PLUGIN:RefreshFarmingTools()
 			button:Hide()
 		end
 	end
-	if(self.db.farming.onlyactive) then
+	if(self.db.general.farming.onlyactive) then
 		if count==0 then 
 			FarmPortalBar:Hide() 
 		else
@@ -524,13 +527,13 @@ function PLUGIN:RefreshFarmingTools()
 end
 
 function PLUGIN:PrepareFarmingTools()
-	local horizontal = self.db.farming.toolbardirection == "HORIZONTAL"
-	local BUTTONSPACE = self.db.farming.buttonspacing or 2;
+	local horizontal = self.db.general.farming.toolbardirection == "HORIZONTAL"
+	local BUTTONSPACE = self.db.general.farming.buttonspacing or 2;
 
 	ModeLogsFrame = self.LogWindow;
 	DockButton = self.Docklet.DockButton
 
-	if not self.db.farming.undocked then
+	if not self.db.general.farming.undocked then
 		local bgTex = [[Interface\BUTTONS\WHITE8X8]]
 		local bdTex = SV.Media.bar.glow
 		local farmingDocklet = CreateFrame("ScrollFrame", "FarmModeFrame", ModeLogsFrame);
@@ -552,7 +555,7 @@ function PLUGIN:PrepareFarmingTools()
 		slotSlider:SetPoint("BOTTOMLEFT", farmingDocklet, -28, 0);
 		slotSlider:SetBackdrop({bgFile = bgTex, edgeFile = bdTex, edgeSize = 4, insets = {left = 3, right = 3, top = 3, bottom = 3}});
 		slotSlider:SetFrameLevel(6)
-		slotSlider:SetStylePanel("Fixed", "Transparent", true);
+		slotSlider:SetStylePanel("!_Frame", "Transparent", true);
 		slotSlider:SetThumbTexture("Interface\\Buttons\\UI-ScrollBar-Knob");
 		slotSlider:SetOrientation("VERTICAL");
 		slotSlider:SetValueStep(5);
@@ -605,7 +608,7 @@ function PLUGIN:PrepareFarmingTools()
 
 		farmingDocklet:Hide()
 	else
-		local BUTTONSIZE = self.db.farming.buttonsize or 35;
+		local BUTTONSIZE = self.db.general.farming.buttonsize or 35;
 
 		-- SEEDS
 		local farmSeedBarAnchor = CreateFrame("Frame", "FarmSeedBarAnchor", UIParent)

@@ -160,8 +160,7 @@ local function UFMoveBottomQuadrant(toggle)
 		anchors.SVUI_PlayerCastbar_MOVE = "BOTTOMSVUIParentBOTTOM-278122"
 		anchors.SVUI_Target_MOVE = "BOTTOMSVUIParentBOTTOM278182"
 		anchors.SVUI_TargetCastbar_MOVE = "BOTTOMSVUIParentBOTTOM278122"
-		--anchors.SVUI_Pet_MOVE = "BOTTOMSVUIParentBOTTOM0181"
-		anchors.SVUI_TargetTarget_MOVE = "BOTTOMSVUIParentBOTTOM0198"
+		anchors.SVUI_TargetTarget_MOVE = "BOTTOMSVUIParentBOTTOM0182"
 		anchors.SVUI_Focus_MOVE = "BOTTOMSVUIParentBOTTOM310432"
 		anchors.SVUI_ThreatBar_MOVE = "BOTTOMRIGHTSVUIParentBOTTOMRIGHT-495182"
 	elseif toggle == "shift" then
@@ -169,8 +168,7 @@ local function UFMoveBottomQuadrant(toggle)
 		anchors.SVUI_PlayerCastbar_MOVE = "BOTTOMSVUIParentBOTTOM-278150"
 		anchors.SVUI_Target_MOVE = "BOTTOMSVUIParentBOTTOM278210"
 		anchors.SVUI_TargetCastbar_MOVE = "BOTTOMSVUIParentBOTTOM278150"
-		--anchors.SVUI_Pet_MOVE = "BOTTOMSVUIParentBOTTOM0209"
-		anchors.SVUI_TargetTarget_MOVE = "BOTTOMSVUIParentBOTTOM0226"
+		anchors.SVUI_TargetTarget_MOVE = "BOTTOMSVUIParentBOTTOM0210"
 		anchors.SVUI_Focus_MOVE = "BOTTOMSVUIParentBOTTOM310432"
 		anchors.SVUI_ThreatBar_MOVE = "BOTTOMRIGHTSVUIParentBOTTOMRIGHT-495210"
 	elseif toggle == "minimal" then
@@ -178,7 +176,6 @@ local function UFMoveBottomQuadrant(toggle)
 		anchors.SVUI_PlayerCastbar_MOVE = "BOTTOMSVUIParentBOTTOM-278122"
 		anchors.SVUI_Target_MOVE = "BOTTOMSVUIParentBOTTOM278182"
 		anchors.SVUI_TargetCastbar_MOVE = "BOTTOMSVUIParentBOTTOM278122"
-		--anchors.SVUI_Pet_MOVE = "BOTTOMSVUIParentBOTTOM0181"
 		anchors.SVUI_TargetTarget_MOVE = "BOTTOMSVUIParentBOTTOM0182"
 		anchors.SVUI_Focus_MOVE = "BOTTOMSVUIParentBOTTOM310432"
 		anchors.SVUI_ThreatBar_MOVE = "BOTTOMRIGHTSVUIParentBOTTOMRIGHT-495182"
@@ -442,7 +439,9 @@ function SV.Setup:ChatConfigs(mungs)
 	if not mungs then
 		if SV.Chat then 
 			SV.Chat:ReLoad(true)
-			if SV.Dock.Cache.IsFaded == true then HideSuperDocks() end 
+			if(SV.Dock.Cache.LeftFaded or SV.Dock.Cache.RightFaded) then 
+				ToggleSuperDocks() 
+			end 
 		end
 		SV:SavedPopup()
 	end
@@ -911,7 +910,7 @@ function SV.Setup:Install(autoLoaded)
 	if not SVUI_InstallerFrame then 
 		local frame = CreateFrame("Button", "SVUI_InstallerFrame", UIParent)
 		frame:SetSizeToScale(550, 400)
-		frame:SetStylePanel("Default", "Action")
+		frame:SetStylePanel("Frame", "Composite2")
 		frame:SetPoint("TOP", SV.Screen, "TOP", 0, -150)
 		frame:SetFrameStrata("TOOLTIP")
 

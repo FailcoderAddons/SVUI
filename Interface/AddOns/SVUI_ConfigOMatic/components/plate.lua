@@ -168,21 +168,15 @@ SV.Options.args.SVPlate = {
 							order = 3,
 							name = L["Color Name By Health Value"]
 						},
-						targetcount = {
-							type = "toggle",
-							order = 4,
-							name = L["Target Count"],
-							desc = L["Display the number of party / raid members targetting the nameplate unit."]
-						},
 						showthreat = {
 							type = "toggle",
-							order = 5,
+							order = 4,
 							name = L["Threat Text"],
 							desc = L["Display threat level as text on targeted,	boss or mouseover nameplate."]
 						},
 						nonTargetAlpha = {
 							type = "range",
-							order = 6,
+							order = 5,
 							name = L["Non-Target Alpha"],
 							desc = L["Alpha of nameplates that are not your current target."],
 							min = 0,

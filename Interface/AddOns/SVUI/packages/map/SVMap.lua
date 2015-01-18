@@ -80,6 +80,9 @@ local WM_ALPHA = false;
 local SVUI_MinimapFrame = CreateFrame("Frame", "SVUI_MinimapFrame", UIParent)
 local WMCoords = CreateFrame('Frame', 'SVUI_WorldMapCoords', WorldMapFrame)
 SVUI_MinimapFrame:SetSize(MM_WIDTH, MM_HEIGHT)
+
+local CUSTOM_BLIPS = [[Interface\AddOns\SVUI\assets\artwork\Minimap\MINIMAP-OBJECTICONS]]
+local DEFAULT_BLIPS = [[Interface\AddOns\SVUI\assets\artwork\Minimap\DEFAULT-OBJECTICONS]]
 --[[ 
 ########################################################## 
 GENERAL HELPERS
@@ -239,7 +242,7 @@ do
 				end 
 			end
 
-			btn:SetStylePanel("Slot", true, 2, -1, -1)
+			btn:SetStylePanel("Slot", 2, -1, -1)
 
 			if(name == "DBMMinimapButton") then 
 				btn:SetNormalTexture("Interface\\Icons\\INV_Helmet_87")
@@ -378,11 +381,9 @@ end
 local function AdjustMapSize()
 	if InCombatLockdown() then return end
 
-	-- if WORLDMAP_SETTINGS.size == WORLDMAP_FULLMAP_SIZE then 
-	-- 	SetLargeWorldMap()
-	-- elseif WORLDMAP_SETTINGS.size == WORLDMAP_WINDOWED_SIZE then 
-	-- 	SetSmallWorldMap()
-	-- end
+	if WORLDMAP_SETTINGS.size == WORLDMAP_FULLMAP_SIZE then 
+		WorldMapFrame:SetPoint("TOP", SV.Screen, "TOP", 0, 0)
+	end
 	
 	if SV.db.SVMap.tinyWorldMap == true then
 		BlackoutWorld:SetTexture(0,0,0,0)
@@ -558,7 +559,7 @@ function MOD:RefreshMiniMap()
 			Minimap:SetSizeToScale(MM_SIZE,MM_SIZE)
 			self.Holder.Square:Hide()
 			self.Holder.Circle:Show()
-			self.Holder.Circle:SetGradient(unpack(MM_COLOR))
+			--self.Holder.Circle:SetGradient(unpack(MM_COLOR))
 			Minimap:SetHitRectInsets(0, 0, 0, 0)
 			Minimap:SetAllPointsIn(self.Holder, MM_BRDR, MM_BRDR)
 			Minimap:SetMaskTexture('Textures\\MinimapMask')
@@ -705,6 +706,16 @@ function MOD:ReLoad()
 	self:UpdateMinimapButtonSettings()
 end
 
+local _hook_BlipTextures = function(self, texture)
+	if(SV.db.SVMap.customIcons and (texture ~= CUSTOM_BLIPS)) then
+		self:SetBlipTexture(CUSTOM_BLIPS)
+	else
+		if((not SV.db.SVMap.customIcons) and texture ~= DEFAULT_BLIPS) then
+			self:SetBlipTexture(DEFAULT_BLIPS)
+		end
+	end
+end
+
 function MOD:Load()
 	if(not SV.db.SVMap.enable) then 
 		Minimap:SetMaskTexture('Textures\\MinimapMask')
@@ -717,27 +728,28 @@ function MOD:Load()
 	Minimap:SetCorpsePOIArrowTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Minimap\\MINIMAP_CORPSE_ARROW")
 	Minimap:SetPOIArrowTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Minimap\\MINIMAP_GUIDE_ARROW")
 	if(SV.db.SVMap.customIcons) then
-		Minimap:SetBlipTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Minimap\\MINIMAP-OBJECTICONS")
+		Minimap:SetBlipTexture(CUSTOM_BLIPS)
 	else
-		Minimap:SetBlipTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Minimap\\DEFAULT-OBJECTICONS")
+		Minimap:SetBlipTexture(DEFAULT_BLIPS)
 	end
+	
 	Minimap:SetClampedToScreen(false)
 
 	local mapHolder = SVUI_MinimapFrame
 	-- mapHolder:SetParent(SV.Screen);
-	mapHolder:SetFrameStrata("BACKGROUND")
+	mapHolder:SetFrameStrata(Minimap:GetFrameStrata())
 	mapHolder:SetPointToScale("TOPRIGHT", SV.Screen, "TOPRIGHT", -10, -10)
 	mapHolder:SetSizeToScale(MM_WIDTH, MM_HEIGHT)
 
 	mapHolder.Square = CreateFrame("Frame", nil, mapHolder)
 	mapHolder.Square:SetAllPointsOut(mapHolder, 2)
-	mapHolder.Square:SetStylePanel("Default", "Blackout")
+	mapHolder.Square:SetStylePanel("Frame", "Blackout")
 	mapHolder.Square.Panel.Skin:SetGradient(unpack(MM_COLOR))
 
 	mapHolder.Circle = mapHolder:CreateTexture(nil, "BACKGROUND", nil, -2)
 	mapHolder.Circle:SetAllPointsOut(mapHolder, 2)
 	mapHolder.Circle:SetTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Minimap\\MINIMAP-ROUND")
-	mapHolder.Circle:SetGradient(unpack(MM_COLOR))
+	mapHolder.Circle:SetVertexColor(0,0,0)
 	mapHolder.Circle:Hide()
 
 	if TimeManagerClockButton then
@@ -749,6 +761,7 @@ function MOD:Load()
 	Minimap:SetParent(mapHolder)
 	Minimap:SetFrameStrata("LOW")
 	Minimap:SetFrameLevel(Minimap:GetFrameLevel() + 2)
+	mapHolder:SetFrameLevel(Minimap:GetFrameLevel() - 2)
 	ShowUIPanel(SpellBookFrame)
 	HideUIPanel(SpellBookFrame)
 	MinimapBorder:Hide()
@@ -780,7 +793,7 @@ function MOD:Load()
 
 	QueueStatusMinimapButton:ClearAllPoints()
 	QueueStatusMinimapButton:SetPointToScale("BOTTOMLEFT", mapHolder, "BOTTOMLEFT", 2, 1)
-	QueueStatusMinimapButton:SetStylePanel("Default", "Icon", true, 1, -6, -6)
+	QueueStatusMinimapButton:SetStylePanel("Frame", "Icon", true, 1, -6, -6)
 
 	QueueStatusFrame:SetClampedToScreen(true)
 	QueueStatusMinimapButtonBorder:Hide()
@@ -804,14 +817,16 @@ function MOD:Load()
 	local narr = CreateFrame("Frame", nil, mapHolder)
 	narr:SetPointToScale("TOPLEFT", mapHolder, "TOPLEFT", 2, -2)
 	narr:SetSize(100, 22)
-	narr:SetStylePanel("Fixed", "Component", true)
+	narr:SetStylePanel("!_Frame", "Heavy", true)
   	narr:SetPanelColor("yellow")
   	narr:SetBackdropColor(1, 1, 0, 1)
 	narr:SetFrameLevel(Minimap:GetFrameLevel() + 2)
 	narr:SetParent(Minimap)
 
 	narr.Text = narr:CreateFontString(nil, "ARTWORK", nil, 7)
-	narr.Text:FontManager("narrator")
+	narr.Text:SetFontObject(SVUI_Font_Narrator)
+	narr.Text:SetJustifyH("CENTER")
+	narr.Text:SetJustifyV("MIDDLE")
 	narr.Text:SetAllPoints(narr)
 	narr.Text:SetTextColor(1, 1, 1)
 	narr.Text:SetShadowColor(0, 0, 0, 0.3)
@@ -826,7 +841,9 @@ function MOD:Load()
 	zt:SetParent(Minimap)
 
 	zt.Text = zt:CreateFontString(nil, "ARTWORK", nil, 7)
-	zt.Text:FontManager("narrator", "RIGHT")
+	zt.Text:SetFontObject(SVUI_Font_Narrator)
+	zt.Text:SetJustifyH("RIGHT")
+	zt.Text:SetJustifyV("MIDDLE")
 	zt.Text:SetPointToScale("RIGHT", zt)
 	zt.Text:SetSize(MM_WIDTH, 32)
 	zt.Text:SetTextColor(1, 1, 0)
@@ -864,7 +881,7 @@ function MOD:Load()
 	DropDownList1:HookScript('OnShow', _hook_DropDownList1)
 	WorldFrame:SetAllPoints()
 
-	SV:AddToDisplayAudit(mapHolder)
+	SV:ManageVisibility(mapHolder)
 
 	local CoordsHolder = CreateFrame("Frame", "SVUI_MiniMapCoords", Minimap)
 	CoordsHolder:SetFrameLevel(Minimap:GetFrameLevel()  +  1)
@@ -881,14 +898,14 @@ function MOD:Load()
 	CoordsHolder.playerXCoords:SetPoint("BOTTOMLEFT", CoordsHolder, "BOTTOMLEFT", 0, 0)
 	CoordsHolder.playerXCoords:SetWidth(70)
 	CoordsHolder.playerXCoords:SetHeight(22)
-	CoordsHolder.playerXCoords:FontManager("number")
+	CoordsHolder.playerXCoords:SetFontObject(SVUI_Font_Number)
 	CoordsHolder.playerXCoords:SetTextColor(cColor.r, cColor.g, cColor.b)
 	
 	CoordsHolder.playerYCoords = CoordsHolder:CreateFontString(nil, "OVERLAY")
 	CoordsHolder.playerYCoords:SetPoint("BOTTOMLEFT", CoordsHolder.playerXCoords, "BOTTOMRIGHT", 4, 0)
 	CoordsHolder.playerXCoords:SetWidth(70)
 	CoordsHolder.playerYCoords:SetHeight(22)
-	CoordsHolder.playerYCoords:FontManager("number")
+	CoordsHolder.playerYCoords:SetFontObject(SVUI_Font_Number)
 	CoordsHolder.playerYCoords:SetTextColor(cColor.r, cColor.g, cColor.b)
 
 	local calendarButton = CreateFrame("Button", "SVUI_CalendarButton", CoordsHolder)
@@ -943,4 +960,5 @@ function MOD:Load()
 	self:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 
 	NewHook("Minimap_UpdateRotationSetting", RotationHook)
+	--NewHook(Minimap, "SetBlipTexture", _hook_BlipTextures)
 end

@@ -1,5 +1,5 @@
 ﻿<Ui xmlns="http://www.blizzard.com/wow/ui/">
-	<Frame name="SVUI_PanelTemplate" virtual="true" toplevel="true">
+	<Frame name="SVUI_StyleTemplate" virtual="true" toplevel="true">
         <Layers>
             <Layer level="BACKGROUND">
                 <Texture name="$parentBG" setAllPoints="true"/>
@@ -220,13 +220,6 @@
                 </Layers>
             </Frame>
         </Frames>
-    </Frame>
-
-    <Frame name="SVUI_SuperButtonFrame" parent="UIParent" hidden="true">
-        <Size x="64" y="64"/>
-        <Anchors>
-            <Anchor point="BOTTOM" x="0" y="160"/>
-        </Anchors>
     </Frame>
 
     <Frame name="SVUI_BoozedUpFrame" parent="UIParent" setAllPoints="true">

@@ -96,16 +96,16 @@ RAID DEBUFFS / DEBUFF HIGHLIGHT
 ]]--
 function MOD:CreateRaidDebuffs(frame)
 	local raidDebuff = CreateFrame("Frame", nil, frame)
-	raidDebuff:SetStylePanel("Fixed", "Slot")
+	raidDebuff:SetStylePanel("!_Frame", "Slot")
 	raidDebuff.icon = raidDebuff:CreateTexture(nil, "OVERLAY")
 	raidDebuff.icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 	raidDebuff.icon:SetAllPointsIn(raidDebuff)
 	raidDebuff.count = raidDebuff:CreateFontString(nil, "OVERLAY")
-	raidDebuff.count:FontManager("aura")
+	raidDebuff.count:SetFontObject(SVUI_Font_Aura)
 	raidDebuff.count:SetPoint("BOTTOMRIGHT", 0, 2)
 	raidDebuff.count:SetTextColor(1, .9, 0)
 	raidDebuff.time = raidDebuff:CreateFontString(nil, "OVERLAY")
-	raidDebuff.time:FontManager("aura")
+	raidDebuff.time:SetFontObject(SVUI_Font_Aura)
 	raidDebuff.time:SetPoint("CENTER")
 	raidDebuff.time:SetTextColor(1, .9, 0)
 	raidDebuff:SetParent(frame.TextGrip)
@@ -140,13 +140,15 @@ function MOD:CreateResurectionIcon(frame)
 end 
 
 function MOD:CreateReadyCheckIcon(frame)
-	local rdy = frame.TextGrip:CreateTexture(nil, "OVERLAY", nil, 7)
-	rdy:SetSizeToScale(12)
-	rdy:SetPointToScale("BOTTOM", frame.Health, "BOTTOM", 0, 2)
+	local rdyHolder = CreateFrame("Frame", nil, frame.TextGrip)
+	rdyHolder:SetAllPoints(frame)
+	local rdy = rdyHolder:CreateTexture(nil, "OVERLAY", nil, 7)
+	rdy:SetSizeToScale(18)
+	rdy:SetPointToScale("RIGHT", rdyHolder, "RIGHT", 0, 0)
 	return rdy 
 end 
 
-function MOD:CreateCombatant(frame)
+function MOD:CreateGladiator(frame)
 	local pvp = CreateFrame("Frame", nil, frame)
 	pvp:SetFrameLevel(pvp:GetFrameLevel() + 1)
 
@@ -302,37 +304,45 @@ end
 PLAYER ONLY COMPONENTS
 ##########################################################
 ]]--
-function MOD:CreateRestingIndicator(frame)
+function MOD:CreatePlayerIndicators(frame)
 	local resting = CreateFrame("Frame",nil,frame)
 	resting:SetFrameStrata("MEDIUM")
 	resting:SetFrameLevel(20)
 	resting:SetSizeToScale(26,26)
-	resting:SetPointToScale("TOPRIGHT",frame,3,3)
+	resting:SetPointToScale("BOTTOMRIGHT", frame.Health, "BOTTOMRIGHT", 0, 0)
 	resting.bg = resting:CreateTexture(nil,"OVERLAY",nil,1)
 	resting.bg:SetAllPoints(resting)
 	resting.bg:SetTexture(STATE_ICON_FILE)
 	resting.bg:SetTexCoord(0.5,1,0,0.5)
-	return resting 
-end 
-
-function MOD:CreateCombatIndicator(frame)
+	
 	local combat = CreateFrame("Frame",nil,frame)
 	combat:SetFrameStrata("MEDIUM")
 	combat:SetFrameLevel(30)
 	combat:SetSizeToScale(26,26)
-	combat:SetPointToScale("TOPRIGHT",frame,3,3)
+	combat:SetPointToScale("BOTTOMLEFT", frame , "TOPRIGHT", 3, 3)
 	combat.bg = combat:CreateTexture(nil,"OVERLAY",nil,5)
 	combat.bg:SetAllPoints(combat)
 	combat.bg:SetTexture(STATE_ICON_FILE)
 	combat.bg:SetTexCoord(0,0.5,0,0.5)
+	combat.linked = resting
 	SV.Animate:Pulse(combat)
+	--IsResting()
 	combat:SetScript("OnShow", function(this)
-		if not this.anim:IsPlaying() then this.anim:Play() end 
+		if not this.anim:IsPlaying() then this.anim:Play() end
+		if(resting:IsShown()) then
+			resting:SetAlpha(0)
+		end
 	end)
-	
 	combat:Hide()
-	return combat 
-end 
+	combat:SetScript("OnHide", function(this)
+		if(IsResting()) then
+			resting:SetAlpha(1)
+		end
+	end)
+
+	frame.Resting = resting
+	frame.Combat = combat
+end
 
 local ExRep_OnEnter = function(self)if self:IsShown() then UIFrameFadeIn(self,.1,0,1) end end 
 local ExRep_OnLeave = function(self)if self:IsShown() then UIFrameFadeOut(self,.2,1,0) end end 
@@ -343,7 +353,7 @@ function MOD:CreateExperienceRepBar(frame)
 	if db.playerExpBar then 
 		local xp = CreateFrame("StatusBar", "PlayerFrameExperienceBar", frame.Power)
 		xp:SetAllPointsIn(frame.Power, 0, 0)
-		xp:SetStylePanel("Default")
+		xp:SetStylePanel("Frame")
 		xp:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]])
 		xp:SetStatusBarColor(0, 0.1, 0.6)
 		--xp:SetBackdropColor(1, 1, 1, 0.8)
@@ -355,7 +365,7 @@ function MOD:CreateExperienceRepBar(frame)
 		xp.Rested:SetStatusBarColor(1, 0, 1, 0.6)
 		xp.Value = xp:CreateFontString(nil, "TOOLTIP")
 		xp.Value:SetAllPoints(xp)
-		xp.Value:FontManager("default")
+		xp.Value:SetFontObject(SVUI_Font_Default)
 		xp.Value:SetTextColor(0.2, 0.75, 1)
 		xp.Value:SetShadowColor(0, 0, 0, 0)
 		xp.Value:SetShadowOffset(0, 0)
@@ -371,7 +381,7 @@ function MOD:CreateExperienceRepBar(frame)
 	if db.playerRepBar then 
 		local rep = CreateFrame("StatusBar", "PlayerFrameReputationBar", frame.Power)
 		rep:SetAllPointsIn(frame.Power, 0, 0)
-		rep:SetStylePanel("Default")
+		rep:SetStylePanel("Frame")
 		rep:SetStatusBarTexture([[Interface\AddOns\SVUI\assets\artwork\Template\DEFAULT]])
 		rep:SetStatusBarColor(0, 0.6, 0)
 		--rep:SetBackdropColor(1, 1, 1, 0.8)
@@ -379,7 +389,7 @@ function MOD:CreateExperienceRepBar(frame)
 		rep.Tooltip = true;
 		rep.Value = rep:CreateFontString(nil, "TOOLTIP")
 		rep.Value:SetAllPoints(rep)
-		rep.Value:FontManager("default")
+		rep.Value:SetFontObject(SVUI_Font_Default)
 		rep.Value:SetTextColor(0.1, 1, 0.2)
 		rep.Value:SetShadowColor(0, 0, 0, 0)
 		rep.Value:SetShadowOffset(0, 0)
@@ -575,4 +585,122 @@ function MOD:CreateHealPrediction(frame, fullSet)
 	end
 
 	return healPrediction
-end 
+end
+--[[ 
+########################################################## 
+RESOLVE
+##########################################################
+]]--
+local cached_resolve;
+local RESOLVE_ID = 158300;
+
+local function Short(value)
+	local fmt
+	if value >= 10000 then
+		fmt = "%.0fk"
+		value = value / 1000	
+	elseif value >= 1000 then
+		fmt = "%.1fk"
+		value = value / 1000
+	else
+		fmt = "%d"
+	end
+	return fmt:format(value)
+end
+
+local function IsTank()
+	local _, playerclass = UnitClass("player")
+	local masteryIndex 
+	local tank = false
+	if playerclass == "DEATHKNIGHT" then
+		masteryIndex = GetSpecialization()
+		if masteryIndex and masteryIndex == 1 then
+			tank = true
+		end
+	elseif playerclass == "DRUID" then
+		masteryIndex = GetSpecialization()
+		if masteryIndex and masteryIndex == 3 then
+			tank = true
+		end
+	elseif playerclass == "MONK" then
+		masteryIndex = GetSpecialization()
+		if masteryIndex and masteryIndex == 1 then
+			tank = true
+		end
+	elseif playerclass == "PALADIN" then
+		masteryIndex = GetSpecialization()
+		if masteryIndex and masteryIndex == 2 then
+			tank = true
+		end
+	elseif playerclass == "WARRIOR" then
+		masteryIndex = GetSpecialization()
+		if masteryIndex and masteryIndex == 3 then
+			tank = true
+		end
+	end
+	return tank
+end
+
+local ResolveBar_OnEvent = function(self, event, unit)
+	if(SV.db.SVUnit.resolveBar) then
+		if(event == 'UNIT_AURA') then
+			for index = 1, 30 do
+				local _, _, _, _, _, _, _, _, _, _, spellID, _, _, _, value, amount = UnitBuff('player', index)
+				if((spellID == RESOLVE_ID) and (amount and (cached_resolve ~= amount))) then
+					if(value) then
+						self.bar:SetValue(value)
+					end
+					self.bar.text:SetText(Short(amount))
+					self:FadeIn()
+					cached_resolve = amount
+				end		
+			end
+		else
+			if IsTank() then
+				if(not self.bar:IsShown()) then
+					self:RegisterUnitEvent("UNIT_AURA", "player")
+					self.bar:Show()
+				end
+			else
+				if(self.bar:IsShown()) then
+					self:UnregisterEvent("UNIT_AURA")
+					self.bar:Hide()
+				end
+			end
+		end
+	end
+	if(self.bar:IsShown()) then
+		if(self.bar.text:GetText() == "0") then
+			self.bar.text:SetText("")
+			self:FadeOut()
+		end
+	end
+end
+
+function MOD:CreateResolveBar(frame)
+	local resolve = CreateFrame("Frame", nil, frame)
+	resolve:SetPointToScale("TOPLEFT", frame.Health, "TOPLEFT", 0, 0)
+	resolve:SetPointToScale("TOPRIGHT", frame.Health, "TOPRIGHT", 0, 0)
+	resolve:SetHeight(8)
+
+	local bar = CreateFrame('StatusBar', nil, resolve)
+	bar:SetAllPointsIn(resolve)
+	bar:SetStylePanel("Frame", "Bar")
+	bar:SetStatusBarTexture([[Interface\BUTTONS\WHITE8X8]])
+	bar:SetStatusBarColor(0.15, 0.7, 0.05, 0.9)
+	bar:SetMinMaxValues(0, 100)
+	bar.text = bar:CreateFontString(nil, "OVERLAY")
+	bar.text:SetPoint("LEFT")
+	bar.text:SetFontObject(SVUI_Font_Pixel)
+	bar.text:SetJustifyH('LEFT')
+	bar.text:SetTextColor(0.8, 0.42, 0.09)
+	bar:Hide()
+	resolve.bar = bar;
+
+	resolve:RegisterEvent("PLAYER_TALENT_UPDATE")
+	resolve:RegisterEvent("PLAYER_ENTERING_WORLD")
+	resolve:SetScript('OnEvent', ResolveBar_OnEvent)
+	
+	ResolveBar_OnEvent(resolve)
+	return resolve
+end

@@ -330,26 +330,31 @@ local function GetDistance(map1, floor1, x1, y1, map2, floor2, x2, y2)
     local dist, xDelta, yDelta, angle;
     if(map1 == map2 and floor1 == floor2) then
         local chunk = GEOGRAPHICAL_DATA[map1];
-        local tmp = chunk
-        if(floor1 ~= 0) then
-            tmp = rawget(chunk, floor1)
-        end
-        local w,h = 1,1
-        if(not tmp) then
-            if(DUNGEON_DATA[chunk.origin] and DUNGEON_DATA[chunk.origin][floor1]) then
-                chunk = DUNGEON_DATA[chunk.origin][floor1]
+        if(not chunk) then
+            xDelta = 0;
+            yDelta = 0;
+        else
+            local tmp = chunk
+            if(floor1 ~= 0) then
+                tmp = rawget(chunk, floor1)
+            end
+            local w,h = 1,1
+            if(not tmp) then
+                if(DUNGEON_DATA[chunk.origin] and DUNGEON_DATA[chunk.origin][floor1]) then
+                    chunk = DUNGEON_DATA[chunk.origin][floor1]
+                    w = chunk.width
+                    h = chunk.height
+                else
+                    w = 1
+                    h = 1
+                end
+            else
                 w = chunk.width
                 h = chunk.height
-            else
-                w = 1
-                h = 1
             end
-        else
-            w = chunk.width
-            h = chunk.height
+            xDelta = (x2 - x1) * (w or 1);
+            yDelta = (y2 - y1) * (h or 1);
         end
-        xDelta = (x2 - x1) * (w or 1);
-        yDelta = (y2 - y1) * (h or 1);
     else
         local map1 = GEOGRAPHICAL_DATA[map1];
         local map2 = GEOGRAPHICAL_DATA[map2];

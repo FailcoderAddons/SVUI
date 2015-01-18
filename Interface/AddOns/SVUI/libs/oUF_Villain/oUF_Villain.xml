@@ -14,7 +14,6 @@
 	<Script file='oUF\elements\power.lua' />
 	<Script file='oUF\elements\aura.lua' />
 	<Script file='oUF\elements\health.lua' />
-	<Script file='oUF\elements\cpoints.lua' />
 	<Script file='oUF\elements\ricons.lua' />
 	<Script file='oUF\elements\leader.lua' />
 	<Script file='oUF\elements\combat.lua' />
@@ -26,19 +25,15 @@
 	<Script file='oUF\elements\threat.lua' />
 	<Script file='oUF\elements\tags.lua' />
 	<Script file='oUF\elements\masterlooter.lua' />
-	<Script file='oUF\elements\assistant.lua' />
-	<Script file='oUF\elements\runebar.lua' />
 	<Script file='oUF\elements\lfdrole.lua' />
 	<Script file='oUF\elements\healprediction.lua' />
 	<Script file='oUF\elements\picon.lua' />
 	<Script file='oUF\elements\readycheck.lua' />
 	<Script file='oUF\elements\qicon.lua' />
-	<Script file='oUF\elements\eclipsebar.lua' />
 	<Script file='oUF\elements\altpowerbar.lua' />
-	<Script file='oUF\elements\totems.lua' />
 	<Script file='oUF\elements\resurrect.lua' />
-	<Script file='oUF\elements\druidmana.lua' />
-	<Script file='oUF\elements\stagger.lua' />
+	<Script file='oUF\elements\assistant.lua' />
+	<Script file='oUF\elements\maintank.lua' />
 
 	<!-- Clique support -->
 	<Button name="oUF_ClickCastUnitTemplate" virtual="true" inherits="SecureUnitButtonTemplate,SecureHandlerEnterLeaveTemplate">
@@ -62,22 +57,22 @@
 	<Script file="plugins\oUF_AuraBars\oUF_AuraBars.lua"/>
 	<Script file="plugins\oUF_RaidDebuffs\oUF_RaidDebuffs.lua"/>
 	<Script file="plugins\oUF_Smooth\oUF_Smooth.lua"/>
-	<Script file="plugins\oUF_DruidMana\oUF_DruidMana.lua"/>
 	<Script file="plugins\oUF_CombatFader\oUF_CombatFader.lua"/>
 	<Script file="plugins\oUF_Experience\oUF_Experience.lua"/>
 	<Script file="plugins\oUF_Reputation\oUF_Reputation.lua"/>
 	<Script file="plugins\oUF_Friendship\oUF_Friendship.lua"/>
-	<Script file="plugins\oUF_ArcaneCharge\oUF_ArcaneCharge.lua"/>
+	<Script file="plugins\oUF_MageMagic\oUF_MageMagic.lua"/>
 	<Script file="plugins\oUF_ActionPanel\oUF_ActionPanel.lua"/>
 	<Script file="plugins\oUF_Afflicted\oUF_Afflicted.lua"/>
 	<Script file="plugins\oUF_HunterTraps\oUF_HunterTraps.lua"/>
-	<Script file="plugins\oUF_MainTank\oUF_MainTank.lua"/>
 	<Script file="plugins\oUF_PallyPower\oUF_PallyPower.lua"/>
 	<Script file="plugins\oUF_WarlockShards\oUF_WarlockShards.lua"/>
 	<Script file="plugins\oUF_PriestOrbs\oUF_PriestOrbs.lua"/>
-	<Script file="plugins\oUF_MonkHarmony\oUF_MonkHarmony.lua"/>
-	<Script file="plugins\oUF_DrunkenMaster\oUF_DrunkenMaster.lua"/>
+	<Script file="plugins\oUF_KungFu\oUF_KungFu.lua"/>
 	<Script file="plugins\oUF_TotemBars\oUF_TotemBars.lua"/>
 	<Script file="plugins\oUF_HyperCombo\oUF_HyperCombo.lua"/>
-	<Script file="plugins\oUF_Combatant\oUF_Combatant.lua"/>
+	<Script file="plugins\oUF_Gladiator\oUF_Gladiator.lua"/>
+	<Script file="plugins\oUF_Necromancy\oUF_Necromancy.lua"/>
+	<Script file="plugins\oUF_Druidness\oUF_Druidness.lua"/>
+	<Script file="plugins\oUF_Conqueror\oUF_Conqueror.lua"/>
 </Ui>

@@ -100,7 +100,7 @@ AddonObject.defaults = {
 		['Bugsack'] = true,
 		['Clique'] = true,
 		['Cooline'] = true,
-		['Details'] = true,
+		--['Details'] = true,
 		['DBM'] = true,
 		['DXE'] = true,
 		['LightHeaded'] = true,
@@ -117,6 +117,7 @@ AddonObject.defaults = {
 		['TomTom'] = true,
 		['TradeSkillDW'] = true,
 		['VEM'] = true,
+		['ZygorGuidesViewer'] = true,
 	},
 };
 
@@ -135,23 +136,6 @@ SV.Options.args.plugins.args.pluginOptions.args[Schema].args["blizzardEnable"] =
     type = "toggle",
     get = function(key) return PLUGIN.db.blizzard.enable end,
     set = function(key,value) PLUGIN.db.blizzard.enable = value; SV:StaticPopup_Show("RL_CLIENT") end
-}
-SV.Options.args.plugins.args.pluginOptions.args[Schema].args["addonEnable"] = {
-    order = 3,
-	name = "Addon Styling",
-    type = "toggle",
-    get = function(key) return PLUGIN.db.addons.enable end,
-    set = function(key,value) PLUGIN.db.addons.enable = value; SV:StaticPopup_Show("RL_CLIENT") end
-}
-SV.Options.args.plugins.args.pluginOptions.args[Schema].args["addons"] = {
-	order = 4, 
-	type = "group", 
-	name = "Addon Styling", 
-	get = function(key) return PLUGIN.db.addons[key[#key]] end, 
-	set = function(key,value) PLUGIN.db.addons[key[#key]] = value; SV:StaticPopup_Show("RL_CLIENT")end,
-	disabled = function() return not PLUGIN.db.addons.enable end,
-	guiInline = true, 
-	args = {}
 }
 SV.Options.args.plugins.args.pluginOptions.args[Schema].args["blizzard"] = {
 	order = 300, 
@@ -438,4 +422,38 @@ SV.Options.args.plugins.args.pluginOptions.args[Schema].args["blizzard"] = {
 			desc = L["TOGGLEART_DESC"]
 		}
 	}
+}
+
+
+local function AddonConfigOptions()
+	local t = {};
+	for addonName,_ in pairs(AddonObject.defaults.addons) do
+		t[addonName] = {
+			type = "toggle",
+			name = addonName,
+			desc = L["Addon Styling"],
+			get = function(key) return PLUGIN:IsAddonReady(key[#key]) end,
+			set = function(key,value) PLUGIN:ChangeDBVar(value, key[#key], "addons"); SV:StaticPopup_Show("RL_CLIENT") end,
+		}
+	end
+	return t;
+end
+
+SV.Options.args.plugins.args.pluginOptions.args[Schema].args["addonEnable"] = {
+    order = 3,
+	name = "Addon Styling",
+    type = "toggle",
+    get = function(key) return PLUGIN.db.addons.enable end,
+    set = function(key,value) PLUGIN.db.addons.enable = value; SV:StaticPopup_Show("RL_CLIENT") end
+}
+
+SV.Options.args.plugins.args.pluginOptions.args[Schema].args["addons"] = {
+	order = 4, 
+	type = "group", 
+	name = "Addon Styling", 
+	get = function(key) return PLUGIN.db.addons[key[#key]] end, 
+	set = function(key,value) PLUGIN.db.addons[key[#key]] = value; SV:StaticPopup_Show("RL_CLIENT")end,
+	disabled = function() return not PLUGIN.db.addons.enable end,
+	guiInline = true, 
+	args = AddonConfigOptions()
 }

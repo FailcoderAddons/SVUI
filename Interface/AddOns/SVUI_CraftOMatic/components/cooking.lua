@@ -80,11 +80,6 @@ local function GetTitleAndSkill()
 		msg = msg .. " (|cff00ddff" .. skillRank .. "|r)";
 	end 
 	return msg
-end 
-
-local function SendModeMessage(...)
-	if not CombatText_AddMessage then return end 
-	CombatText_AddMessage(...)
 end
 
 local function FindPierre()
@@ -193,7 +188,7 @@ CORE METHODS
 function PLUGIN.Cooking:Enable()
 	PLUGIN.Cooking:Update()
 	if(not PLUGIN.Docklet:IsShown()) then PLUGIN.Docklet.DockButton:Click() end
-	if(PLUGIN.db.cooking.autoequip) then
+	if(PLUGIN.db.general.cooking.autoequip) then
 		UpdateChefWear();
 	end
 	PlaySoundFile("Sound\\Spells\\Tradeskills\\CookingPrepareA.wav")
@@ -218,7 +213,7 @@ function PLUGIN.Cooking:Enable()
 	end
 	EnableListener()
 	PLUGIN.ModeAlert:Show()
-	SendModeMessage("Cooking Mode Enabled", CombatText_StandardScroll, 0.28, 0.9, 0.1);
+	SV:SCTMessage("Cooking Mode Enabled", CombatText_StandardScroll, 0.28, 0.9, 0.1);
 end
 
 function PLUGIN.Cooking:Disable()

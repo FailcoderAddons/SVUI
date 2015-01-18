@@ -221,13 +221,6 @@ function PLUGIN:PLAYER_ENTERING_WORLD(event, ...)
 				desc = L["Addon Styling"],
 				get = function(key) return PLUGIN:IsAddonReady(key[#key]) end,
 				set = function(key,value) PLUGIN:ChangeDBVar(value, key[#key], "addons"); SV:StaticPopup_Show("RL_CLIENT") end,
-				disabled = function()
-					if addonName then
-						 return not PLUGIN.StyledAddons[addonName]
-					else
-						 return false 
-					end 
-				end
 			}
 		end
 		if(self.db.addons[addonName] == nil) then
@@ -497,7 +490,7 @@ local function DockFadeInDocklet()
 		PLUGIN.Docklet.Dock2:Show()
 	end
 end
-SV.Events:On("DOCKS_FADE_IN", "DockFadeInDocklet", DockFadeInDocklet);
+SV.Events:On("DOCK_RIGHT_FADE_IN", "DockFadeInDocklet", DockFadeInDocklet);
 
 local function DockFadeOutDocklet()
 	local active = PLUGIN.Docklet.DockButton:GetAttribute("isActive")
@@ -506,7 +499,7 @@ local function DockFadeOutDocklet()
 		PLUGIN.Docklet.Dock2:Hide()
 	end
 end
-SV.Events:On("DOCKS_FADE_OUT", "DockFadeOutDocklet", DockFadeOutDocklet);
+SV.Events:On("DOCK_RIGHT_FADE_OUT", "DockFadeOutDocklet", DockFadeOutDocklet);
 --[[ 
 ########################################################## 
 BUILD FUNCTION
@@ -520,7 +513,7 @@ function PLUGIN:Load()
 	self.cache.Docks = self.cache.Docks or {"None", "None"}
 
 	local alert = CreateFrame('Frame', nil, UIParent);
-	alert:SetStylePanel("Fixed", 'Transparent');
+	alert:SetStylePanel("!_Frame", 'Transparent');
 	alert:SetSize(250, 70);
 	alert:SetPoint('CENTER', UIParent, 'CENTER');
 	alert:SetFrameStrata('DIALOG');

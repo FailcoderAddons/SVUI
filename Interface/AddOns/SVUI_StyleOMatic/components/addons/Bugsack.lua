@@ -43,7 +43,7 @@ local function StyleBugSack(event, addon)
 	hooksecurefunc(BugSack, "OpenSack", function()
 		if BugSackFrame.Panel then return end
 		BugSackFrame:RemoveTextures()
-		BugSackFrame:SetStylePanel("Default", 'Transparent')
+		BugSackFrame:SetStylePanel("Frame", 'Transparent')
 		PLUGIN:ApplyTabStyle(BugSackTabAll)
 		BugSackTabAll:SetPoint("TOPLEFT", BugSackFrame, "BOTTOMLEFT", 0, 1)
 		PLUGIN:ApplyTabStyle(BugSackTabSession)

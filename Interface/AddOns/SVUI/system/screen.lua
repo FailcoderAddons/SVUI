@@ -49,80 +49,99 @@ UI SCALING
 ##########################################################
 ]]--
 function SV:UI_SCALE_CHANGED(event)
-    local evalwidth;
-    local gxWidth, gxHeight, gxScale = self.Screen:Update();
+    local gxWidth, gxHeight, gxScale, customScale = self.Screen:Update();
+    local needCalc = true;
+    if(self.db.screen.advanced) then
+        if(self.db.screen.forcedWidth ~= gxWidth) then
+            gxWidth = self.db.screen.forcedWidth
+            needCalc = false;
+        end
+        if(self.db.screen.forcedHeight ~= gxHeight) then
+            gxHeight = self.db.screen.forcedHeight
+            needCalc = false;
+        end
+    end
+    if(needCalc) then
+        if(gxWidth < 1600) then
+            self.LowRez = true;
+        elseif(gxWidth >= 3840) then
+            self.LowRez = nil
+            local evalwidth;
+            if(self.db.screen.multiMonitor) then
+                if(gxWidth < 4080) then 
+                    evalwidth = 1224;
+                elseif(gxWidth < 4320) then 
+                    evalwidth = 1360;
+                elseif(gxWidth < 4680) then 
+                    evalwidth = 1400;
+                elseif(gxWidth < 4800) then 
+                    evalwidth = 1440;
+                elseif(gxWidth < 5760) then 
+                    if(gxHeight == 900) then evalwidth = 1600 else evalwidth = 1680 end 
+                elseif(gxWidth < 7680) then 
+                    evalwidth = 1920;
+                elseif(gxWidth < 9840) then 
+                    evalwidth = 2560;
+                elseif(gxWidth > 9839) then 
+                    evalwidth = 3280; 
+                end
+            else
+                if(gxWidth < 4080) then 
+                    evalwidth = 3840;
+                elseif(gxWidth < 4320) then 
+                    evalwidth = 4080;
+                elseif(gxWidth < 4680) then 
+                    evalwidth = 4320;
+                elseif(gxWidth < 4800) then 
+                    evalwidth = 4680;
+                elseif(gxWidth < 5040) then 
+                    evalwidth = 4800; 
+                elseif(gxWidth < 5760) then 
+                    evalwidth = 5040; 
+                elseif(gxWidth < 7680) then 
+                    evalwidth = 5760;
+                elseif(gxWidth < 9840) then 
+                    evalwidth = 7680;
+                elseif(gxWidth > 9839) then 
+                    evalwidth = 9840; 
+                end
+            end
 
-    if(gxWidth < 1600) then
-        self.LowRez = true;
-    elseif(gxWidth >= 3840) then
-        self.LowRez = nil
-        if(self.db.general.multiMonitor) then
-            if(gxWidth < 4080) then 
-                evalwidth = 1224;
-            elseif(gxWidth < 4320) then 
-                evalwidth = 1360;
-            elseif(gxWidth < 4800) then 
-                evalwidth = 1440;
-            elseif(gxWidth < 5760) then 
-                if(gxHeight == 900) then evalwidth = 1600 else evalwidth = 1680 end 
-            elseif(gxWidth < 7680) then 
-                evalwidth = 1920;
-            elseif(gxWidth < 9840) then 
-                evalwidth = 2560;
-            elseif(gxWidth > 9839) then 
-                evalwidth = 3280; 
-            end
-        else
-            if(gxWidth < 4080) then 
-                evalwidth = 3840;
-            elseif(gxWidth < 4320) then 
-                evalwidth = 4080;
-            elseif(gxWidth < 4800) then 
-                evalwidth = 4320;
-            elseif(gxWidth < 5040) then 
-                evalwidth = 4800; 
-            elseif(gxWidth < 5760) then 
-                evalwidth = 5040; 
-            elseif(gxWidth < 7680) then 
-                evalwidth = 5760;
-            elseif(gxWidth < 9840) then 
-                evalwidth = 7680;
-            elseif(gxWidth > 9839) then 
-                evalwidth = 9840; 
-            end
+            gxWidth = evalwidth;
         end
     end
 
     local testScale1 = parsefloat(UIParent:GetScale(), 5)
     local testScale2 = parsefloat(gxScale, 5)
-
+    local ignoreChange = false;
     if(event == "PLAYER_LOGIN" and (testScale1 ~= testScale2)) then 
         SetCVar("useUiScale", 1)
         SetCVar("uiScale", gxScale)
         WorldMapFrame.hasTaint = true;
+        ignoreChange = true;
     end
 
     if(event == 'PLAYER_LOGIN' or event == 'UI_SCALE_CHANGED') then
         self.Screen:ClearAllPoints()
         self.Screen:SetPoint("CENTER")
 
-        if evalwidth then
-            local width = evalwidth
+        if gxWidth then
+            local width = gxWidth
             local height = gxHeight;
-            if(not self.db.general.autoScale or height > 1200) then
+            if(not self.db.screen.autoScale or height > 1200) then
                 height = UIParent:GetHeight();
                 local ratio = gxHeight / height;
-                width = evalwidth / ratio;
+                width = gxWidth / ratio;
             end
             self.Screen:SetSize(width, height);
         else
             self.Screen:SetSize(UIParent:GetSize());
         end
 
-        if(event == 'UI_SCALE_CHANGED') then
+        if((not customScale) and (not ignoreChange) and (event == 'UI_SCALE_CHANGED')) then
             local change = abs((testScale1 * 100) - (testScale2 * 100))
             if(change > 1) then
-                if(self.db.general.autoScale) then
+                if(self.db.screen.autoScale) then
                     self:StaticPopup_Show('FAILED_UISCALE')
                 else
                     self:StaticPopup_Show('RL_CLIENT')
@@ -143,7 +162,7 @@ function SV.Screen:Update()
     local gxHeight = tonumber(height)
     local gxWidth = tonumber(width)
     local gxMod = (768 / gxHeight)
-
+    local customScale = false;
     if(IsMacClient()) then
         if(not self.MacDisplay) then
             self.MacDisplay = LibSuperVillain("Registry"):NewGlobal("Display");
@@ -163,16 +182,29 @@ function SV.Screen:Update()
     end
 
     local gxScale;
-    if(SV.db.general.scaleAdjust and type(SV.db.general.scaleAdjust) == "number") then
-        BASE_MOD = SV.db.general.scaleAdjust;
-    end
-    if(SV.db.general.autoScale) then
-        gxScale = max(BASE_MOD, min(1.15, gxMod));
+    if(SV.db.screen.advanced) then
+        BASE_MOD = 0.64
+        local ADJUSTED_SCALE = SV.db.screen.scaleAdjust;
+        if(ADJUSTED_SCALE) then
+            if(type(ADJUSTED_SCALE) ~= "number") then
+                ADJUSTED_SCALE = tonumber(ADJUSTED_SCALE);
+            end
+            if(ADJUSTED_SCALE and ADJUSTED_SCALE ~= BASE_MOD) then 
+                BASE_MOD = ADJUSTED_SCALE;
+                customScale = true;
+            end
+        end
+
+        gxScale = BASE_MOD;
     else
-        gxScale = max(BASE_MOD, min(1.15, GetCVar("uiScale") or UIParent:GetScale() or gxMod));
+        if(SV.db.screen.autoScale) then
+            gxScale = max(0.64, min(1.15, gxMod));
+        else
+            gxScale = max(0.64, min(1.15, GetCVar("uiScale") or UIParent:GetScale() or gxMod));
+        end
     end
 
     SCREEN_MOD = (gxMod / gxScale);
 
-    return gxWidth, gxHeight, gxScale
+    return gxWidth, gxHeight, gxScale, customScale
 end

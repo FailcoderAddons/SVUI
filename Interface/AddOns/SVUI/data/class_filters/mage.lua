@@ -23,8 +23,8 @@ local SV = select(2, ...)
 --[[ MAGE FILTERS ]]--
 
 SV.filterdefaults["BuffWatch"] = {
-    {-- Ice Ward
-        ["enabled"] = true, 
+    ["111264"] = {-- Ice Ward
+        ["enable"] = true, 
         ["id"] = 111264, 
         ["point"] = "TOPLEFT", 
         ["color"] = {["r"] = 0.2, ["g"] = 0.2, ["b"] = 1}, 

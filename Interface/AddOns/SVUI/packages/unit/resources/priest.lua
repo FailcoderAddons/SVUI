@@ -48,13 +48,18 @@ if(SV.class ~= "PRIEST") then return end
 local MOD = SV.SVUnit
 if(not MOD) then return end 
 
-local ICON_FILE = [[Interface\AddOns\SVUI\assets\artwork\Unitframe\Class\PRIEST]]
+local ORB_ICON = [[Interface\AddOns\SVUI\assets\artwork\Unitframe\Class\ORB]]
+local ORB_BG = [[Interface\AddOns\SVUI\assets\artwork\Unitframe\Class\ORB-BG]]
 local specEffects = { [1] = "holy", [2] = "holy", [3] = "shadow" };
 --[[ 
 ########################################################## 
 POSITIONING
 ##########################################################
 ]]--
+local OnMove = function()
+	SV.db.SVUnit.player.classbar.detachFromFrame = true
+end
+
 local Reposition = function(self)
 	local db = SV.db.SVUnit.player
 	local bar = self.PriestOrbs;
@@ -106,14 +111,13 @@ function MOD:CreateClassBar(playerFrame)
 
 	for i=1, max do 
 		bar[i] = CreateFrame("StatusBar", nil, bar)
-		bar[i]:SetStatusBarTexture("Interface\\AddOns\\SVUI\\assets\\artwork\\Unitframe\\Class\\ORB")
+		bar[i]:SetStatusBarTexture(ORB_ICON)
 		bar[i]:GetStatusBarTexture():SetHorizTile(false)
 		bar[i].noupdate = true;
 		
 		bar[i].bg = bar[i]:CreateTexture(nil, "BACKGROUND")
 		bar[i].bg:SetAllPoints(bar[i])
-		bar[i].bg:SetTexture(ICON_FILE)
-		bar[i].bg:SetTexCoord(0,0.5,0,0.5)
+		bar[i].bg:SetTexture(ORB_BG)
 
 		local spec = GetSpecialization()
 		local effectName = specEffects[spec]
@@ -125,7 +129,7 @@ function MOD:CreateClassBar(playerFrame)
 	classBarHolder:SetPointToScale("TOPLEFT", playerFrame, "BOTTOMLEFT", 0, -2)
 	bar:SetPoint("TOPLEFT", classBarHolder, "TOPLEFT", 0, 0)
 	bar.Holder = classBarHolder
-	SV.Mentalo:Add(bar.Holder, L["Classbar"])
+	SV.Mentalo:Add(bar.Holder, L["Classbar"], nil, OnMove)
 
 	playerFrame.MaxClassPower = max;
 	playerFrame.ClassBarRefresh = Reposition;
