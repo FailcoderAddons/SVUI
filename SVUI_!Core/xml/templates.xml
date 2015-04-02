@@ -1,0 +1,122 @@
+﻿<Ui xmlns="http://www.blizzard.com/wow/ui/">
+    <Frame name="SVUI_ShadowTemplate" virtual="true">
+        <Attributes>
+            <Attribute name="shadowAlpha" type="number" value="0.5" />
+        </Attributes>
+        <Backdrop edgeFile="Interface\AddOns\SVUI_!Core\assets\borders\SHADOW">
+            <EdgeSize val="3" />
+            <BackgroundInsets left="0" right="0" top="0" bottom="0" />
+            <Color r="0" g="0" b="0" a="0" />
+            <BorderColor r="0" g="0" b="0" a="0.5" />
+        </Backdrop>
+    </Frame>
+    
+    <Button name="SVUI_DockletButtonTemplate" virtual="true" hidden="true">
+        <Size x="22" y="22"/>
+        <Attributes>
+            <Attribute name="tipText" type="string" value="" />
+            <Attribute name="ownerFrame" type="string" value="None" />
+            <Attribute name="hasDropDown" type="boolean" value="true" />
+            <Attribute name="isActive" type="boolean" value="false" />
+        </Attributes>
+        <Layers>
+            <Layer level="OVERLAY">
+                <Texture parentKey="Icon" file="Interface\AddOns\SVUI_!Core\assets\backgrounds\DEFAULT">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="2" y="-2" />
+                        <Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="-2" y="2" />
+                    </Anchors>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnLoad>
+                self:RegisterForClicks("LeftButtonUp", "RightButtonUp");
+            </OnLoad>
+        </Scripts>
+    </Button>
+
+    <Frame name="SVUI_DockletWindowTemplate" virtual="true">
+        <Attributes>
+            <Attribute name="ownerFrame" type="string" value="None" />
+            <Attribute name="isLoaded" type="boolean" value="false" />
+        </Attributes>
+    </Frame>
+
+    <Frame name="SVUI_MovingPanelTemplate" virtual="true" movable="true" clampedToScreen="true" toplevel="true">
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture name="$parentBG" setAllPoints="true"/>
+            </Layer>
+            <Layer level="OVERLAY">
+                <Texture name="$parentTitleBG">
+                    <Anchors>
+                        <Anchor point="TOPLEFT"/>
+                        <Anchor point="BOTTOMRIGHT" relativePoint="TOPRIGHT">
+                            <Offset x="0" y="-30"/>
+                        </Anchor>
+                    </Anchors>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Frames>
+            <Frame name="$parentTitleButton">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="$parentTitleBG"/>
+                    <Anchor point="BOTTOMRIGHT" relativeTo="$parentTitleBG"/>
+                </Anchors>
+            </Frame>
+        </Frames>
+    </Frame>
+
+    <Frame name="SVUI_MessagePanelTemplate" virtual="true" toplevel="true">
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture name="$parentBG" setAllPoints="true"/>
+            </Layer>
+            <Layer level="OVERLAY">
+                <Texture name="$parentTitleBG">
+                    <Anchors>
+                        <Anchor point="TOPLEFT">
+                            <Offset x="8" y="-8"/>
+                        </Anchor>
+                        <Anchor point="BOTTOMRIGHT" relativePoint="TOPRIGHT">
+                            <Offset x="-32" y="-24"/>
+                        </Anchor>
+                    </Anchors>
+                </Texture>
+                <Texture name="$parentDialogBG">
+                    <Anchors>
+                        <Anchor point="TOPLEFT">
+                            <Offset x="8" y="-32"/>
+                        </Anchor>
+                        <Anchor point="BOTTOMRIGHT">
+                            <Offset x="-32" y="32"/>
+                        </Anchor>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="ARTWORK">
+                <FontString parentKey="Title" inherits="GameFontNormal">
+                    <Anchors>
+                        <Anchor point="TOPLEFT">
+                            <Offset x="8" y="-8"/>
+                        </Anchor>
+                        <Anchor point="TOPRIGHT">
+                            <Offset x="-32" y="-24"/>
+                        </Anchor>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+        <Frames>
+            <Button parentKey="Close" inherits="UIPanelCloseButton">
+                <Anchors>
+                    <Anchor point="TOPRIGHT">
+                        <Offset x="-2" y="-2"/>
+                    </Anchor>
+                </Anchors>
+            </Button>
+        </Frames>
+    </Frame>
+</Ui>
