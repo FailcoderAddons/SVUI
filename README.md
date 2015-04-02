@@ -4,7 +4,7 @@ Custom World of Warcraft User Interface
 
 ### Compatibility
 
-SuperVillain UI is designed to work with the latest live expansion of World of Warcraft. (Mists of Pandaria)
+SuperVillain UI is designed to work with the latest live expansion of World of Warcraft.
 
 ### Notes
 
@@ -14,8 +14,9 @@ SuperVillain UI is designed to work with the latest live expansion of World of W
 
 ## Release Version
 
-If you are looking for the most current release version (non-development) [you can find it here](http://www.wowinterface.com/downloads/fileinfo.php?id=16837#info)
+If you are looking for the most current release version (non-development) you can find it at [WowInterface](http://www.wowinterface.com/downloads/info23519-SuperVillainUI.html#info) or [Curse](http://www.curse.com/addons/wow/supervillain-ui)
 
 ## License
 
-SuperVillain UI (development version) is licensed under the [Creative Commons Attribution-ShareAlike 3.0 License](http://creativecommons.org/licenses/by-sa/3.0/). You are free to share and edit this addon, however please abide by the license terms when doing so. 
+SuperVillain UI is licensed under the The MIT License.
+Copyright (c) 2010, Munglunch (Steve Jackson). 

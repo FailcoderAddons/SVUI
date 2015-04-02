@@ -1,6 +1,0 @@
-<Ui xmlns="http://www.blizzard.com/wow/ui/">	
-	<Script file='SVBag.lua'/>
-	<Script file="components\organization.lua"/>
-	<Script file="components\sorting.lua"/>
-	<Script file="components\breakstuff.lua"/>
-</Ui>
