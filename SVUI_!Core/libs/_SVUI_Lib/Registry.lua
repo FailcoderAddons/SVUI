@@ -477,7 +477,7 @@ function lib:LiveUpdate(forced)
     if(forced or PRIVATE_SV.SAFEDATA.NEEDSLIVEUPDATE) then
         if(CoreObject.ReLoad) then
             CoreObject.Timers:ClearAllTimers()
-            CoreObject:ReLoad()
+            if(forced) then CoreObject:ReLoad() end
         end
         self:RefreshAll()
         if((not InCombatLockdown()) and (not C_PetBattles.IsInBattle())) then
@@ -571,8 +571,9 @@ local function UpdateProfileSources(newKey)
     end
     if(not MEDIA_SV.profiles[THEME_KEY]) then MEDIA_SV.profiles[THEME_KEY] = {} end
     if(not MEDIA_SV.profiles[THEME_KEY][PROFILE_KEY]) then MEDIA_SV.profiles[THEME_KEY][PROFILE_KEY] = {} end
-    
+
     DirtyDataList[PROFILE_KEY] = THEME_KEY;
+
     if(not newKey) then
         if((CoreObject.initialized) and (PREVIOUS_PROFILE_KEY ~= PROFILE_KEY)) then
             local db           = setmetatable({}, meta_transdata)
@@ -1174,22 +1175,20 @@ function lib:UnsetProfile()
 end
 
 function lib:CopyDatabase(key, linked)
-    if(not key) then return end
+    if((not key) or (not GLOBAL_SV.profiles[key])) then return end
 
     if(not linked) then
-        if(not GLOBAL_SV.profiles[key]) then GLOBAL_SV.profiles[key] = {} end;
         wipe(GLOBAL_SV.profiles[PROFILE_KEY])
         local export = GLOBAL_SV.profiles[key];
         local saved = GLOBAL_SV.profiles[PROFILE_KEY];
         tablecopy(saved, export);
 
-        if(not MEDIA_SV.profiles[THEME_KEY][key]) then MEDIA_SV.profiles[THEME_KEY][key] = {} end;
-        wipe(MEDIA_SV.profiles[THEME_KEY][PROFILE_KEY])
-        export = MEDIA_SV.profiles[THEME_KEY][key];
-        saved = MEDIA_SV.profiles[THEME_KEY][PROFILE_KEY];
-        tablecopy(saved, export);
-        
-        DirtyDataList[PROFILE_KEY] = THEME_KEY;
+        if(MEDIA_SV.profiles[THEME_KEY][key]) then
+            wipe(MEDIA_SV.profiles[THEME_KEY][PROFILE_KEY])
+            export = MEDIA_SV.profiles[THEME_KEY][key];
+            saved = MEDIA_SV.profiles[THEME_KEY][PROFILE_KEY];
+            tablecopy(saved, export);
+        end
 
         ReloadUI()
     else
@@ -1206,7 +1205,6 @@ function lib:CloneDatabase(key)
     export = GLOBAL_SV.profiles[PROFILE_KEY];
     saved = GLOBAL_SV.profiles[key];
     tablecopy(saved, export);
-    DirtyDataList[key] = true;
 
     if(not MEDIA_SV.profiles[THEME_KEY][key]) then MEDIA_SV.profiles[THEME_KEY][key] = {} end;
     export = MEDIA_SV.profiles[THEME_KEY][PROFILE_KEY];

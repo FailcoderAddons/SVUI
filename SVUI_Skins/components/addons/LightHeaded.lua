@@ -67,7 +67,7 @@ local function StyleLightHeaded()
 	lhsub.next:SetHeight(16)
 	lhsub.prev:SetPoint("RIGHT", lhsub.page, "LEFT", -25, 0)
 	lhsub.next:SetPoint("LEFT", lhsub.page, "RIGHT", 25, 0)
-	SV.API:Set("ScrollFrame", LightHeadedScrollFrameScrollBar, 5)
+	SV.API:Set("ScrollBar", LightHeadedScrollFrameScrollBar, 5)
 	lhsub.title:SetTextColor(23/255, 132/255, 209/255)	
 	
 	lhframe.timeLapse = 0;

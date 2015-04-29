@@ -1,7 +1,7 @@
 --[[
 ##########################################################
 S V U I   By: Munglunch
-########################################################## 
+##########################################################
 LOCALIZED LUA FUNCTIONS
 ##########################################################
 ]]--
@@ -27,13 +27,13 @@ local find          = string.find;
 local match         = string.match;
 local gsub          = string.gsub;
 --TABLE
-local table 		= _G.table; 
+local table 				= _G.table;
 local tinsert       = _G.tinsert;
 local tremove       = _G.tremove;
-local twipe 		= _G.wipe;
+local twipe 				= _G.wipe;
 --MATH
-local math      	= _G.math;
-local min 			= math.min;
+local math      		= _G.math;
+local min 					= math.min;
 local floor         = math.floor
 local ceil          = math.ceil
 
@@ -68,8 +68,8 @@ local IsSpellKnown         	= _G.IsSpellKnown;
 local GetGarrison       	= _G.GetGarrison;
 local GetProfessionInfo    	= _G.GetProfessionInfo;
 local GetCurrencyInfo    	= _G.GetCurrencyInfo;
---[[ 
-########################################################## 
+--[[
+##########################################################
 ADDON
 ##########################################################
 ]]--
@@ -77,21 +77,21 @@ local SV = select(2, ...)
 local L = SV.L
 local MOD = SV.Dock;
 local GarrisonData = {};
---[[ 
-########################################################## 
+--[[
+##########################################################
 LOCALS
 ##########################################################
 ]]--
 local function GetDockCooldown(itemID)
 	local start,duration = GetItemCooldown(itemID)
 	local expires = duration - (GetTime() - start)
-	if expires > 0.05 then 
+	if expires > 0.05 then
 		local timeLeft = 0;
 		local calc = 0;
 		if expires < 4 then
 			return format("|cffff0000%.1f|r", expires)
-		elseif expires < 60 then 
-			return format("|cffffff00%d|r", floor(expires)) 
+		elseif expires < 60 then
+			return format("|cffffff00%d|r", floor(expires))
 		elseif expires < 3600 then
 			timeLeft = ceil(expires / 60);
 			calc = floor((expires / 60) + .5);
@@ -105,42 +105,38 @@ local function GetDockCooldown(itemID)
 			calc = floor((expires / 86400) + .5);
 			return format("|cff6666ff%dd|r", timeLeft)
 		end
-	else 
+	else
 		return "|cff6666ffReady|r"
-	end 
+	end
 end
 
 local GarrisonButton_OnEvent = function(self, event, ...)
-    if (event == "GARRISON_HIDE_LANDING_PAGE") then
-        if(not InCombatLockdown() and self:IsShown()) then
-        	self.Parent:SetWidth(self.Parent:GetWidth() - self:GetWidth())
-        	self:Hide()
-        end;
-    elseif (event == "GARRISON_SHOW_LANDING_PAGE") then
-    	if(not InCombatLockdown() and (not self:IsShown())) then
-    		self.Parent:SetWidth(self.Parent:GetWidth() + self:GetWidth())
-    		self:Show() 
-    	end;
-    end
-    if((not self.StartAlert) or (not self.StopAlert)) then return end
-    if ( event == "GARRISON_BUILDING_ACTIVATABLE" ) then
-        self:StartAlert();
-    elseif ( event == "GARRISON_BUILDING_ACTIVATED" or event == "GARRISON_ARCHITECT_OPENED") then
-        self:StopAlert();
-    elseif ( event == "GARRISON_MISSION_FINISHED" ) then
-        self:StartAlert();
-    elseif ( event == "GARRISON_MISSION_NPC_OPENED" ) then
-        self:StopAlert();
-    elseif (event == "GARRISON_INVASION_AVAILABLE") then
-        self:StartAlert();
-    elseif (event == "GARRISON_INVASION_UNAVAILABLE") then
-        self:StopAlert();
-    elseif (event == "SHIPMENT_UPDATE") then
-        local shipmentStarted = ...;
-        if (shipmentStarted) then
-            self:StartAlert();
-        end
-    end
+	if(not InCombatLockdown()) then
+		if (event == "GARRISON_HIDE_LANDING_PAGE") then
+			self:DockRemove()
+		elseif (event == "GARRISON_SHOW_LANDING_PAGE") then
+			self:DockAdd()
+		end
+	end
+	if((not self.StartAlert) or (not self.StopAlert)) then return end
+	if ( event == "GARRISON_BUILDING_ACTIVATABLE" ) then
+		self:StartAlert();
+	elseif ( event == "GARRISON_BUILDING_ACTIVATED" or event == "GARRISON_ARCHITECT_OPENED") then
+		self:StopAlert();
+	elseif ( event == "GARRISON_MISSION_FINISHED" ) then
+		self:StartAlert();
+	elseif ( event == "GARRISON_MISSION_NPC_OPENED" ) then
+		self:StopAlert();
+	elseif (event == "GARRISON_INVASION_AVAILABLE") then
+		self:StartAlert();
+	elseif (event == "GARRISON_INVASION_UNAVAILABLE") then
+		self:StopAlert();
+	elseif (event == "SHIPMENT_UPDATE") then
+		local shipmentStarted = ...;
+		if (shipmentStarted) then
+			self:StartAlert();
+		end
+	end
 end
 
 local function getColoredString(text, color)
@@ -196,9 +192,7 @@ end
 local function GetBuildingData()
 	local hasBuildings = false
 	local now = time();
-
-	GameTooltip:AddLine(" ", 1, 1, 1)
-	GameTooltip:AddLine("Buildings", 1, 0.7, 0)
+	local prefixed = false;
 
 	local buildings = C_Garrison.GetBuildings()
 	for i = 1, #buildings do
@@ -206,37 +200,34 @@ local function GetBuildingData()
 		local plotID = buildings[i].plotID
 
 		local id, name, texPrefix, icon, rank, isBuilding, timeStart, buildTime, canActivate, canUpgrade, isPrebuilt = C_Garrison.GetOwnedBuildingInfoAbbrev(plotID)
-
-		local building = '';
-		local remaining
+		local remaining;
 
 		if(isBuilding) then
-			building = ("|cffFFFF00%s|r|cff888888 - |r|cffFF5500%s|r"):format(rank, name);
 			local timeLeft = buildTime - (now - timeStart);
 			if(canActivate or timeLeft < 0) then
 				remaining = L["Complete!"]
 			else
 				remaining = ("Building %s"):format(getColoredString("("..SV:ParseSeconds(timeLeft)..")", "lightgrey"))
 			end
-			GameTooltip:AddDoubleLine(building, remaining, 0, 1, 0, 1, 1, 1)
 		else
 			local name, texture, shipmentCapacity, shipmentsReady, shipmentsTotal, creationTime, duration, timeleftString, itemName, itemIcon, itemQuality, itemID = C_Garrison.GetLandingPageShipmentInfo(buildingID)
 			if(shipmentsReady and shipmentsReady > 0) then
-				building = ("|cffFFFF00%s|r|cff888888 - |r|cffFF5500%s|r"):format(rank, name);
 				timeleftString = timeleftString or 'Unknown'
 				remaining = ("Ready: %s, Next: %s"):format(getColoredString(shipmentsReady, "green"), getColoredString(timeleftString, "lightgrey"))
 			elseif(timeleftString) then
-				building = ("|cffFFFF00%s|r|cff888888 - |r|cffFF5500%s|r"):format(rank, name);
 				remaining = ("Next: %s"):format(getColoredString(timeleftString, "lightgrey"))
 			end
+		end
+
+		if(remaining) then
+			if(not prefixed) then
+				GameTooltip:AddLine(" ", 1, 1, 1)
+				GameTooltip:AddLine("Buildings", 1, 0.7, 0)
+				prefixed = true
+			end
+			local building = ("|cffFF5500%s|r|cff888888 - |r|cffFFFF00Rank %s|r"):format(name, rank);
 			GameTooltip:AddDoubleLine(building, remaining, 0, 1, 0, 1, 1, 1)
 		end
-		
-		hasBuildings = true
-	end
-
-	if(not hasBuildings) then
-		GameTooltip:AddLine("None", 1, 0, 0)
 	end
 end
 
@@ -244,8 +235,12 @@ local SetGarrisonTooltip = function(self)
 	if(not InCombatLockdown()) then C_Garrison.RequestLandingPageShipmentInfo() end
 	local name, amount, tex, week, weekmax, maxed, discovered = GetCurrencyInfo(824)
 	local texStr = ("\124T%s:12\124t %d"):format(tex, amount)
-	GameTooltip:AddDoubleLine(name, texStr, 0.23, 0.88, 0.27, 1, 1, 1)
-
+	GameTooltip:AddDoubleLine(name, texStr, 1, 1, 0, 1, 1, 1)
+	GetActiveMissions()
+	GetBuildingData()
+	if(self.StopAlert) then
+		self:StopAlert()
+	end
 	local text1 = self:GetAttribute("tipText")
 	local text2 = self:GetAttribute("tipExtraText")
 	GameTooltip:AddLine(" ", 1, 1, 1)
@@ -254,24 +249,20 @@ local SetGarrisonTooltip = function(self)
 	if(text2) then
 		local remaining = GetDockCooldown(110560)
 		GameTooltip:AddDoubleLine("[Right Click]", text2, 0, 1, 0, 1, 1, 1)
-		GameTooltip:AddDoubleLine(L["Time Remaining"], remaining, 1, 1, 1, 0, 1, 1)
-	end
-
-	GetActiveMissions()
-	GetBuildingData()
-	if(self.StopAlert) then
-		self:StopAlert()
+		GameTooltip:AddDoubleLine(L["Time Remaining"], remaining, 1, 0.5, 0, 1, 1, 1)
 	end
 end
 
 local function LoadToolBarGarrison()
 	local mmButton = _G.GarrisonLandingPageMinimapButton;
 	if((not SV.db.Dock.dockTools.garrison) or (not mmButton) or MOD.GarrisonLoaded) then return end
+
 	mmButton:FadeOut()
-	if(InCombatLockdown()) then 
-		MOD.GarrisonNeedsUpdate = true; 
-		MOD:RegisterEvent("PLAYER_REGEN_ENABLED"); 
-		return 
+
+	if(InCombatLockdown()) then
+		MOD.GarrisonNeedsUpdate = true;
+		MOD:RegisterEvent("PLAYER_REGEN_ENABLED");
+		return
 	end
 
 	local garrison = SV.Dock:SetDockButton("BottomLeft", L["Garrison Landing Page"], SV.media.dock.garrisonToolIcon, nil, "SVUI_Garrison", SetGarrisonTooltip, "SecureActionButtonTemplate")
@@ -293,11 +284,6 @@ local function LoadToolBarGarrison()
 	mmButton:SetHighlightTexture("")
 	mmButton:EnableMouse(false)
 
-	if(not mmButton:IsShown()) then
-		garrison.Parent:SetWidth(garrison.Parent:GetWidth() - garrison:GetWidth())
-		garrison:Hide()
-	end
-
 	garrison:RegisterEvent("GARRISON_HIDE_LANDING_PAGE");
 	garrison:RegisterEvent("GARRISON_SHOW_LANDING_PAGE");
 	garrison:RegisterEvent("GARRISON_BUILDING_ACTIVATABLE");
@@ -310,18 +296,23 @@ local function LoadToolBarGarrison()
 	garrison:RegisterEvent("SHIPMENT_UPDATE");
 
 	garrison:SetScript("OnEvent", GarrisonButton_OnEvent);
+
+	if(not mmButton:IsShown()) then
+		garrison:DockRemove()
+	end
+
 	C_Garrison.RequestLandingPageShipmentInfo();
 	MOD.GarrisonLoaded = true
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 BUILD/UPDATE
 ##########################################################
 ]]--
-function MOD:UpdateGarrisonTool() 
+function MOD:UpdateGarrisonTool()
 	if((not SV.db.Dock.dockTools.garrison) or self.GarrisonLoaded) then return end
 	LoadToolBarGarrison()
-end 
+end
 
 function MOD:LoadGarrisonTool()
 	if((not SV.db.Dock.dockTools.garrison) or self.GarrisonLoaded or (not _G.GarrisonLandingPageMinimapButton)) then return end

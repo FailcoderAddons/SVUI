@@ -1,7 +1,7 @@
 --[[
 ##########################################################
 S V U I   By: Munglunch
-########################################################## 
+##########################################################
 LOCALIZED LUA FUNCTIONS
 ##########################################################
 ]]--
@@ -25,16 +25,16 @@ local string 	= _G.string;
 local table     = _G.table;
 local format = string.format;
 local tcopy = table.copy;
---[[ 
-########################################################## 
+--[[
+##########################################################
 GET ADDON DATA
 ##########################################################
 ]]--
 local SV = select(2, ...)
 local SVUILib = Librarian("Registry")
 local L = SV.L;
---[[ 
-########################################################## 
+--[[
+##########################################################
 LOCAL VARS
 ##########################################################
 ]]--
@@ -50,26 +50,31 @@ local rcc = RAID_CLASS_COLORS[SV.class];
 local r2 = .1 + (rcc.r * .1)
 local g2 = .1 + (rcc.g * .1)
 local b2 = .1 + (rcc.b * .1)
---[[ 
-########################################################## 
+--[[
+##########################################################
 LAYOUT PRESETS
 ##########################################################
 ]]--
 local hasOldConfigs = function()
-	return SVUILib:GetSafeData("install_version")
+	local installed = SVUILib:GetSafeData("install_version")
+	if(installed) then
+		return USE.."\n"..GARRISON_SHIPYARD_SHIP_SAVED.."\n"..SETTINGS, "Complete"
+	else
+		return LFG_LIST_SELECT.."\n"..NEW.."\n"..SETTINGS, "NewSettings"
+	end
 end
 
 local isLowRez = function()
-	if SV.LowRez then 
+	if SV.LowRez then
 		return L["This resolution requires that you change some settings to get everything to fit on your screen."].." "..L["Click the button below to resize your chat frames, unitframes, and reposition your actionbars."].." "..L["You may need to further alter these settings depending how low your resolution is."]
-	else 
+	else
 		return L["This resolution doesn't require that you change settings for the UI to fit on your screen."].." "..L["Click the button below to resize your chat frames, unitframes, and reposition your actionbars."].." "..L["This is completely optional."]
 	end
 end
 
 local PRESET_DATA, CLICK_DIALOG, PAGE_DIALOG;
 
-SV.Setup.ColorThemes = {
+local ColorThemes = {
 	["data"] = {
 		["link"] = "media",
 		["default"] = {
@@ -79,10 +84,10 @@ SV.Setup.ColorThemes = {
 			},
 			["shared"] = {
 				["background"] = {
-					["pattern"] 	= {file = "SVUI Backdrop 1", 	size = 0, tiled = false},
-					["premium"] 	= {file = "SVUI Artwork 1", 	size = 0, tiled = false},
-					["unitlarge"] 	= {file = "SVUI UnitBG 1", 		size = 0, tiled = false},
-					["unitsmall"] 	= {file = "SVUI SmallUnitBG 1", size = 0, tiled = false},
+					["pattern"] 	= {file = "SVUI Backdrop 2", 	size = 0, tiled = false},
+					["premium"] 	= {file = "SVUI Artwork 2", 	size = 0, tiled = false},
+					["unitlarge"] 	= {file = "SVUI UnitBG 2", 		size = 0, tiled = false},
+					["unitsmall"] 	= {file = "SVUI SmallUnitBG 2", size = 0, tiled = false},
 				}
 			},
 			["unitframes"] = {
@@ -99,10 +104,10 @@ SV.Setup.ColorThemes = {
 			},
 			["shared"] = {
 				["background"] = {
-					["pattern"] 	= {file = "SVUI Backdrop 2", 	size = 0, tiled = false},
-					["premium"] 	= {file = "SVUI Artwork 2", 	size = 0, tiled = false},
-					["unitlarge"] 	= {file = "SVUI UnitBG 2", 		size = 0, tiled = false},
-					["unitsmall"] 	= {file = "SVUI SmallUnitBG 2", size = 0, tiled = false},
+					["pattern"] 	= {file = "SVUI Backdrop 13", 	size = 0, tiled = false},
+					["premium"] 	= {file = "SVUI Artwork 13", 	size = 0, tiled = false},
+					["unitlarge"] 	= {file = "SVUI UnitBG 13", 		size = 0, tiled = false},
+					["unitsmall"] 	= {file = "SVUI SmallUnitBG 13", size = 0, tiled = false},
 				}
 			},
 			["unitframes"] = {
@@ -119,10 +124,10 @@ SV.Setup.ColorThemes = {
 			},
 			["shared"] = {
 				["background"] = {
-					["pattern"] 	= {file = "SVUI Backdrop 3", 	size = 0, tiled = false},
-					["premium"] 	= {file = "SVUI Artwork 3", 	size = 0, tiled = false},
-					["unitlarge"] 	= {file = "SVUI UnitBG 3", 		size = 0, tiled = false},
-					["unitsmall"] 	= {file = "SVUI SmallUnitBG 3", size = 0, tiled = false},
+					["pattern"] 	= {file = "SVUI Backdrop 9", 	size = 0, tiled = false},
+					["premium"] 	= {file = "SVUI Artwork 9", 	size = 0, tiled = false},
+					["unitlarge"] 	= {file = "SVUI UnitBG 9", 		size = 0, tiled = false},
+					["unitsmall"] 	= {file = "SVUI SmallUnitBG 9", size = 0, tiled = false},
 				}
 			},
 			["unitframes"] = {
@@ -139,10 +144,10 @@ SV.Setup.ColorThemes = {
 			},
 			["shared"] = {
 				["background"] = {
-					["pattern"] 	= {file = "SVUI Backdrop 4", 	size = 0, tiled = false},
-					["premium"] 	= {file = "SVUI Artwork 4", 	size = 0, tiled = false},
-					["unitlarge"] 	= {file = "SVUI UnitBG 4", 		size = 0, tiled = false},
-					["unitsmall"] 	= {file = "SVUI SmallUnitBG 4", size = 0, tiled = false},
+					["pattern"] 	= {file = "SVUI Backdrop 3", 	size = 0, tiled = false},
+					["premium"] 	= {file = "SVUI Artwork 3", 	size = 0, tiled = false},
+					["unitlarge"] 	= {file = "SVUI UnitBG 3", 		size = 0, tiled = false},
+					["unitsmall"] 	= {file = "SVUI SmallUnitBG 3", size = 0, tiled = false},
 				}
 			},
 			["unitframes"] = {
@@ -185,11 +190,11 @@ SV.Setup.ColorThemes = {
 			["Desc3"] = CONTINUED..L["you don't need fancyness to kick some ass!"],
 		},
 	}
-}
+};
 
 local function LoadPresetData()
 	PRESET_DATA = {
-		["media"] = SV.Setup.ColorThemes.data,
+		["media"] = ColorThemes.data,
 		["auras"] = {
 			["link"] = "UnitFrames",
 			["default"] = {
@@ -664,9 +669,9 @@ local function LoadPresetData()
 					},
 					["icons"] = {
 						["roleIcon"] = {
-							["attachTo"] = "INNERBOTTOMLEFT", 
-							["xOffset"] = 8, 
-							["yOffset"] = 1, 
+							["attachTo"] = "INNERBOTTOMLEFT",
+							["xOffset"] = 8,
+							["yOffset"] = 1,
 						},
 					},
 					["name"] = {
@@ -724,9 +729,9 @@ local function LoadPresetData()
 					},
 					["icons"] = {
 						["roleIcon"] = {
-							["attachTo"] = "INNERBOTTOMLEFT", 
-							["xOffset"] = 8, 
-							["yOffset"] = 0, 
+							["attachTo"] = "INNERBOTTOMLEFT",
+							["xOffset"] = 8,
+							["yOffset"] = 0,
 						},
 					},
 					["name"] = {
@@ -864,9 +869,7 @@ local function LoadPageData()
 			["Desc3"] = L["CHOOSE_OR_DIE"],
 
 			["Option01"] = {USE.."\n"..DEFAULT.."\n"..SETTINGS, "EZDefault"},
-			["Option02"] = {USE.."\nMINIMALIST\n" .. SETTINGS, "Minimalist"},
-			--["Option02"] = {"PRETEND YOU\nDID THIS\nALREADY", "Complete"},
-			["Option03"] = {"Keep\nSaved\n"..SETTINGS, "Complete", nil, hasOldConfigs},
+			["Option02"] = {hasOldConfigs},
 		},
 		--PAGE 2
 		{
@@ -891,7 +894,7 @@ local function LoadPageData()
 		},
 		--PAGE 4
 		{
-			
+
 		},
 		--PAGE 5
 		{
@@ -957,7 +960,7 @@ local function LoadPageData()
 		},
 	};
 
-	PAGE_DIALOG[4] = SV.Setup.ColorThemes.dialog;
+	PAGE_DIALOG[4] = ColorThemes.dialog;
 end
 
 local function LoadOnClickData()
@@ -1029,13 +1032,13 @@ local function LoadOnClickData()
 		},
 	};
 
-	for key, data in pairs(SV.Setup.ColorThemes.clicktext) do
+	for key, data in pairs(ColorThemes.clicktext) do
 		local optionKey = "Page4_" .. key;
 		CLICK_DIALOG[optionKey] = data;
 	end
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 LOCAL FUNCTIONS
 ##########################################################
 ]]--
@@ -1059,6 +1062,20 @@ function SV.Setup:SetAllDefaults()
 	_copyPresets(SV.db, SV.defaults)
 end
 
+function SV.Setup:GenerateBackdrops()
+	local BG_INDEX = math.random(1, SV.MaxBackdrops.Pattern);
+	local ART_INDEX = math.random(1, SV.MaxBackdrops.Art);
+	local UNIT_INDEX = math.random(1, SV.MaxBackdrops.Unit);
+
+	local preset = {
+		["pattern"] = {file = "SVUI Backdrop "..BG_INDEX, size = 0, tiled = false},
+		["premium"] = {file = "SVUI Artwork "..ART_INDEX, size = 0, tiled = false},
+		["unitlarge"] = {file = "SVUI UnitBG "..UNIT_INDEX, size = 0, tiled = false},
+		["unitsmall"] = {file = "SVUI SmallUnitBG "..UNIT_INDEX, size = 0, tiled = false}
+	}
+	_copyPresets(SV.media.shared.background, preset)
+end
+
 function SV.Setup:CopyPreset(category, theme)
 	if(not PRESET_DATA) then LoadPresetData() end
 	if(PRESET_DATA and PRESET_DATA[category] and PRESET_DATA[category]["link"]) then
@@ -1071,10 +1088,10 @@ function SV.Setup:CopyPreset(category, theme)
 		else
 			data = SV.db[saved]
 		end
-	
+
 		if(data) then
-	    	_copyPresets(data, preset)
-	    end
+    	_copyPresets(data, preset)
+    end
 	end
 end
 

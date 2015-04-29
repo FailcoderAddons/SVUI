@@ -4,7 +4,7 @@ S V U I   By: Munglunch
 ##############################################################################
 credit: Elv.       NamePlatess was parently nameplates.lua adapted from ElvUI #
 ##############################################################################
-########################################################## 
+##########################################################
 LOCALIZED LUA FUNCTIONS
 ##########################################################
 ]]--
@@ -34,8 +34,8 @@ local floor, ceil = math.floor, math.ceil;  -- Basic
 local band, bor = bit.band, bit.bor;
 --[[ TABLE METHODS ]]--
 local tremove, tcopy, twipe, tsort, tconcat = table.remove, table.copy, table.wipe, table.sort, table.concat;
---[[ 
-########################################################## 
+--[[
+##########################################################
 GET ADDON DATA
 ##########################################################
 ]]--
@@ -45,8 +45,8 @@ local MOD = SV.NamePlates;
 if(not MOD) then return end;
 
 local LSM = _G.LibStub("LibSharedMedia-3.0")
---[[ 
-########################################################## 
+--[[
+##########################################################
 LOCALIZED GLOBALS
 ##########################################################
 ]]--
@@ -57,35 +57,8 @@ local GameTooltip           = _G.GameTooltip;
 
 local CreateFrame           = _G.CreateFrame;
 local InCombatLockdown      = _G.InCombatLockdown;
-
-local UnitAura      		= _G.UnitAura;
-local UnitName      		= _G.UnitName;
-local UnitExists      		= _G.UnitExists;
-local UnitLevel      		= _G.UnitLevel;
-local UnitGUID              = _G.UnitGUID;
-local UnitHasVehicleUI      = _G.UnitHasVehicleUI;
-local UnitPlayerControlled  = _G.UnitPlayerControlled;
-
-local GetTime          		= _G.GetTime;
-local GetSpellInfo          = _G.GetSpellInfo;
-local GetSpellTexture   	= _G.GetSpellTexture;
-local GetComboPoints        = _G.GetComboPoints;
-local GetPlayerInfoByGUID   = _G.GetPlayerInfoByGUID;
-local GetRaidTargetIndex    = _G.GetRaidTargetIndex;
-
-local SPELL_AURA_APPLIED 		= _G.SPELL_AURA_APPLIED
-local SPELL_AURA_REMOVED 		= _G.SPELL_AURA_REMOVED
-local SPELL_AURA_REFRESH 		= _G.SPELL_AURA_REFRESH
-local SPELL_AURA_BROKEN 		= _G.SPELL_AURA_BROKEN
-local SPELL_AURA_BROKEN_SPELL 	= _G.SPELL_AURA_BROKEN_SPELL
-local SPELL_AURA_APPLIED_DOSE 	= _G.SPELL_AURA_APPLIED_DOSE
-local SPELL_AURA_REMOVED_DOSE 	= _G.SPELL_AURA_REMOVED_DOSE
-
-local RAID_CLASS_COLORS 			  = _G.RAID_CLASS_COLORS
-local MAX_COMBO_POINTS 				  = _G.MAX_COMBO_POINTS
-local COMBATLOG_OBJECT_CONTROL_PLAYER = _G.COMBATLOG_OBJECT_CONTROL_PLAYER
---[[ 
-########################################################## 
+--[[
+##########################################################
 LOCAL VARS
 ##########################################################
 ]]--
@@ -101,14 +74,13 @@ local PLATE_RIGHT = MOD.media.rightArt;
 local PLATE_LEFT = MOD.media.leftArt;
 --[[
 	Quick explaination of what Im doing with all of these locals...
-	Unlike many of the other modules, NamePlatess has to continuously 
+	Unlike many of the other modules, NamePlatess has to continuously
 	reference config settings which can start to get sluggish. What
 	I have done is set local variables for every database value
 	that the module can read efficiently. The function "UpdateLocals"
 	is used to refresh these any time a change is made to configs
 	and once when the mod is loaded.
 ]]--
-local NPClassRole = SV.ClassRole;
 local NPBaseAlpha = 0.6;
 local NPCombatHide = false;
 local NPNameMatch = false;
@@ -130,11 +102,6 @@ local NPPointerColor = {0.9, 1, 0.9, 0.5};
 local NPUseThreat = false;
 local NPThreatGS = 1;
 local NPThreatBS = 1;
-local NPGoodThreat = {0.29,0.68,0.3}
-local NPBadThreat = {0.78,0.25,0.25}
-local NPGoodTrans = {0.85,0.77,0.36}
-local NPBadTrans = {0.94,0.6,0.06}
-
 local NPReactTap = {0.3,0.3,0.3}
 local NPReactNPCGood = {0.31,0.45,0.63}
 local NPReactPlayerGood = {0.29,0.68,0.3}
@@ -156,6 +123,7 @@ local HBWidth = 108;
 local HBHeight = 9;
 
 local NPIcons = 14;
+local ICON_SIZE = 20;
 
 local CBColor = {0.1,0.81,0}
 local CBNoInterrupt = {1,0.25,0.25}
@@ -184,72 +152,124 @@ local AuraClocks = {};
 local ClockIsTicking = false;
 local TickTock = 0;
 local LastKnownTarget;
---[[ 
-########################################################## 
+--[[
+##########################################################
+COLORING THREAT/REACTIONS
+##########################################################
+]]--
+local CONFIG_THREAT_HOSTILE = { {0.29,0.68,0.3}, {0.85,0.77,0.36}, {0.94,0.6,0.06}, {0.78,0.25,0.25} };
+local CONFIG_THREAT_SCALE = { 1,1,1,1 };
+local PLATE_CLASS_COLORS = {};
+
+do
+	for classToken, colorData in pairs(RAID_CLASS_COLORS) do
+			PLATE_CLASS_COLORS[classToken] = {colorData.r, colorData.g, colorData.b}
+	end
+end
+
+local REACTION_COLORING = {
+	-- (1) PLAYER
+	function(token)
+		if(not token) then
+			return NPReactPlayerGood,NPThreatGS
+		else
+			return PLATE_CLASS_COLORS[token],NPThreatGS
+		end
+	end,
+	-- (2) TAPPED
+	function() return NPReactTap,NPThreatGS end,
+	-- (3) FRIENDLY
+	function() return NPReactNPCGood,NPThreatGS end,
+	-- (4) NEUTRAL
+	function(threatLevel)
+		local color,scale;
+		if((not threatLevel) or (not NPUseThreat) or (not InCombatLockdown())) then
+			color = NPReactNeutral
+			scale = NPThreatGS
+		else
+			color = CONFIG_THREAT_HOSTILE[threatLevel]
+			scale = CONFIG_THREAT_SCALE[threatLevel]
+		end
+		return color,scale
+	end,
+	-- (5) HOSTILE
+	function(threatLevel)
+		local color,scale;
+		if((not threatLevel) or (not NPUseThreat)) then
+			color = NPReactEnemy
+			scale = NPThreatGS
+		else
+			color = CONFIG_THREAT_HOSTILE[threatLevel]
+			scale = CONFIG_THREAT_SCALE[threatLevel]
+		end
+		return color,scale
+	end,
+};
+--[[
+##########################################################
 UTILITY FRAMES
 ##########################################################
 ]]--
 local NPGrip = _G.SVUI_PlateParentFrame
 local NPGlow = _G.SVUI_PlateGlowFrame
 local AuraClockManager = CreateFrame("Frame")
---[[ 
-########################################################## 
+--[[
+##########################################################
 PRE VARS/FUNCTIONS
 ##########################################################
 ]]--
 local formatting = {
-	["CURRENT"] = "%s", 
-	["CURRENT_MAX"] = "%s - %s", 
-	["CURRENT_PERCENT"] = "%s - %s%%", 
-	["CURRENT_MAX_PERCENT"] = "%s - %s | %s%%", 
-	["PERCENT"] = "%s%%", 
+	["CURRENT"] = "%s",
+	["CURRENT_MAX"] = "%s - %s",
+	["CURRENT_PERCENT"] = "%s - %s%%",
+	["CURRENT_MAX_PERCENT"] = "%s - %s | %s%%",
+	["PERCENT"] = "%s%%",
 	["DEFICIT"] = "-%s"
 };
 
 local function TruncateString(value)
-    if value  >= 1e9 then 
+    if value  >= 1e9 then
         return ("%.1fb"):format(value / 1e9):gsub("%.?0 + ([kmb])$", "%1")
-    elseif value  >= 1e6 then 
+    elseif value  >= 1e6 then
         return ("%.1fm"):format(value / 1e6):gsub("%.?0 + ([kmb])$", "%1")
-    elseif value  >= 1e3 or value  <= -1e3 then 
+    elseif value  >= 1e3 or value  <= -1e3 then
         return ("%.1fk"):format(value / 1e3):gsub("%.?0 + ([kmb])$", "%1")
-    else 
-        return value 
-    end 
+    else
+        return value
+    end
 end
 
 local function SetTextStyle(style, min, max)
-	if max == 0 then max = 1 end 
+	if max == 0 then max = 1 end
 	local result;
 	local textFormat = formatting[style]
-	if style == "DEFICIT" then 
+	if style == "DEFICIT" then
 		local result = max - min;
-		if result  <= 0 then 
+		if result  <= 0 then
 			return ""
-		else 
+		else
 			return format(textFormat, TruncateString(result))
-		end 
-	elseif style == "PERCENT" then 
+		end
+	elseif style == "PERCENT" then
 		result = format(textFormat, format("%.1f", min  /  max  *  100))
 		result = result:gsub(".0%%", "%%")
-		return result 
-	elseif style == "CURRENT" or (style == "CURRENT_MAX" or style == "CURRENT_MAX_PERCENT" or style == "CURRENT_PERCENT") and min == max then 
+		return result
+	elseif style == "CURRENT" or (style == "CURRENT_MAX" or style == "CURRENT_MAX_PERCENT" or style == "CURRENT_PERCENT") and min == max then
 		return format(formatting["CURRENT"], TruncateString(min))
-	elseif style == "CURRENT_MAX" then 
+	elseif style == "CURRENT_MAX" then
 		return format(textFormat, TruncateString(min), TruncateString(max))
-	elseif style == "CURRENT_PERCENT" then 
+	elseif style == "CURRENT_PERCENT" then
 		result = format(textFormat, TruncateString(min), format("%.1f", min  /  max  *  100))
 		result = result:gsub(".0%%", "%%")
-		return result 
-	elseif style == "CURRENT_MAX_PERCENT" then 
+		return result
+	elseif style == "CURRENT_MAX_PERCENT" then
 		result = format(textFormat, TruncateString(min), TruncateString(max), format("%.1f", min  /  max  *  100))
 		result = result:gsub(".0%%", "%%")
-		return result 
-	end 
+		return result
+	end
 end
 
 local function CreatePlateBorder(plate)
-	local noscalemult = 2 * SV.Scale;
 
 	if(not plate.backdrop) then
 		plate.backdrop = plate:CreateTexture(nil, "BORDER")
@@ -259,31 +279,31 @@ local function CreatePlateBorder(plate)
 		plate.backdrop:SetVertexColor(0.1,0.1,0.1)
 
 		plate.bordertop = plate:CreateTexture(nil, "BORDER")
-		plate.bordertop:SetPoint("TOPLEFT", plate, "TOPLEFT", -noscalemult, noscalemult)
-		plate.bordertop:SetPoint("TOPRIGHT", plate, "TOPRIGHT", noscalemult, noscalemult)
-		plate.bordertop:SetHeight(noscalemult)
-		plate.bordertop:SetTexture(0,0,0)	
+		plate.bordertop:SetPoint("TOPLEFT", plate, "TOPLEFT", -2, 2)
+		plate.bordertop:SetPoint("TOPRIGHT", plate, "TOPRIGHT", 2, 2)
+		plate.bordertop:SetHeight(2)
+		plate.bordertop:SetTexture(0,0,0)
 		plate.bordertop:SetDrawLayer("BORDER", 1)
 
 		plate.borderbottom = plate:CreateTexture(nil, "BORDER")
-		plate.borderbottom:SetPoint("BOTTOMLEFT", plate, "BOTTOMLEFT", -noscalemult, -noscalemult)
-		plate.borderbottom:SetPoint("BOTTOMRIGHT", plate, "BOTTOMRIGHT", noscalemult, -noscalemult)
-		plate.borderbottom:SetHeight(noscalemult)
-		plate.borderbottom:SetTexture(0,0,0)	
+		plate.borderbottom:SetPoint("BOTTOMLEFT", plate, "BOTTOMLEFT", -2, -2)
+		plate.borderbottom:SetPoint("BOTTOMRIGHT", plate, "BOTTOMRIGHT", 2, -2)
+		plate.borderbottom:SetHeight(2)
+		plate.borderbottom:SetTexture(0,0,0)
 		plate.borderbottom:SetDrawLayer("BORDER", 1)
 
 		plate.borderleft = plate:CreateTexture(nil, "BORDER")
-		plate.borderleft:SetPoint("TOPLEFT", plate, "TOPLEFT", -noscalemult, noscalemult)
-		plate.borderleft:SetPoint("BOTTOMLEFT", plate, "BOTTOMLEFT", noscalemult, -noscalemult)
-		plate.borderleft:SetWidth(noscalemult)
-		plate.borderleft:SetTexture(0,0,0)	
+		plate.borderleft:SetPoint("TOPLEFT", plate, "TOPLEFT", -2, 2)
+		plate.borderleft:SetPoint("BOTTOMLEFT", plate, "BOTTOMLEFT", 2, -2)
+		plate.borderleft:SetWidth(2)
+		plate.borderleft:SetTexture(0,0,0)
 		plate.borderleft:SetDrawLayer("BORDER", 1)
 
 		plate.borderright = plate:CreateTexture(nil, "BORDER")
-		plate.borderright:SetPoint("TOPRIGHT", plate, "TOPRIGHT", noscalemult, noscalemult)
-		plate.borderright:SetPoint("BOTTOMRIGHT", plate, "BOTTOMRIGHT", -noscalemult, -noscalemult)
-		plate.borderright:SetWidth(noscalemult)
-		plate.borderright:SetTexture(0,0,0)	
+		plate.borderright:SetPoint("TOPRIGHT", plate, "TOPRIGHT", 2, 2)
+		plate.borderright:SetPoint("BOTTOMRIGHT", plate, "BOTTOMRIGHT", -2, -2)
+		plate.borderright:SetWidth(2)
+		plate.borderright:SetTexture(0,0,0)
 		plate.borderright:SetDrawLayer("BORDER", 1)
 	end
 
@@ -330,8 +350,8 @@ local function CreatePlateBorder(plate)
 		plate.eliteborder:Hide()
 	end
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 UPVALUE PROXYS
 ##########################################################
 ]]--
@@ -350,8 +370,8 @@ local function ProxyThisPlate(plate, updateName)
 	PLATE_REALNAME = plate.ref.nametext
 	return true
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 LOCAL HELPERS
 ##########################################################
 ]]--
@@ -375,7 +395,7 @@ local function CheckRaidIcon(plate)
 		SVUI_PLATE.raidicon:SetTexCoord(ULx,ULy,LLx,LLy,URx,URy,LRx,LRy)
 	else
 		PLATE_REF.raidicontype = nil;
-		SVUI_PLATE.raidicon:Hide() 
+		SVUI_PLATE.raidicon:Hide()
 	end
 end
 
@@ -406,8 +426,8 @@ local function UpdateComboPoints()
 		LastKnownTarget = plate
 	end
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 AURA HELPERS
 ##########################################################
 ]]--
@@ -419,11 +439,11 @@ local ClockUpdateHandler = function(self, elapsed)
 	for frame, expiration in pairs(AuraClocks) do
 		local calc = 0;
 		local expires = expiration - curTime;
-		if expiration < curTime then 
-			frame:Hide(); 
+		if expiration < curTime then
+			frame:Hide();
 			AuraClocks[frame] = nil
-		else 
-			if expires < 60 then 
+		else
+			if expires < 60 then
 				calc = floor(expires)
 				if expires >= 4 then
 					frame.TimeLeft:SetFormattedText("|cffffff00%d|r", calc)
@@ -431,7 +451,7 @@ local ClockUpdateHandler = function(self, elapsed)
 					frame.TimeLeft:SetFormattedText("|cffff0000%d|r", calc)
 				else
 					frame.TimeLeft:SetFormattedText("|cffff0000%.1f|r", expires)
-				end 
+				end
 			elseif expires < 3600 then
 				calc = ceil(expires / 60);
 				frame.TimeLeft:SetFormattedText("|cffffffff%.1f|r", calc)
@@ -445,21 +465,21 @@ local ClockUpdateHandler = function(self, elapsed)
 			deactivate = false
 		end
 	end
-	if deactivate then 
-		self:SetScript("OnUpdate", nil); 
-		ClockIsTicking = false 
+	if deactivate then
+		self:SetScript("OnUpdate", nil);
+		ClockIsTicking = false
 	end
 end
 
 local function RegisterAuraClock(frame, expiration)
 	if(not frame) then return end
-	if expiration == 0 then 
+	if expiration == 0 then
 		frame:Hide()
 		AuraClocks[frame] = nil
 	else
 		AuraClocks[frame] = expiration
 		frame:Show()
-		if(not ClockIsTicking) then 
+		if(not ClockIsTicking) then
 			AuraClockManager:SetScript("OnUpdate", ClockUpdateHandler)
 			ClockIsTicking = true
 		end
@@ -498,14 +518,14 @@ end
 local function UpdateAuraIcon(aura, texture, expiration, stacks, test)
 	if aura and texture and expiration then
 		aura.Icon:SetTexture(texture)
-		if stacks > 1 then 
+		if stacks > 1 then
 			aura.Stacks:SetText(stacks)
-		else 
-			aura.Stacks:SetText("") 
+		else
+			aura.Stacks:SetText("")
 		end
 		aura:Show()
 		RegisterAuraClock(aura, expiration)
-	else 
+	else
 		RegisterAuraClock(aura, 0)
 	end
 end
@@ -541,11 +561,11 @@ local function UpdateAuraIconGrid(plate)
 		local cachedaura = AurasCache[index]
 		local gridaura = iconCache[AuraSlotIndex]
 		if gridaura and cachedaura.spellID and cachedaura.expiration then
-			UpdateAuraIcon(gridaura, cachedaura.texture, cachedaura.expiration, cachedaura.stacks) 
+			UpdateAuraIcon(gridaura, cachedaura.texture, cachedaura.expiration, cachedaura.stacks)
 			AuraSlotIndex = AuraSlotIndex + 1
 		end
-		if(AuraSlotIndex > AuraMaxCount) then 
-			break 
+		if(AuraSlotIndex > AuraMaxCount) then
+			break
 		end
 	end
 	if(iconCache[AuraSlotIndex]) then
@@ -555,7 +575,7 @@ local function UpdateAuraIconGrid(plate)
 end
 
 local function LoadDuration(spellID)
-	if spellID then 
+	if spellID then
 		return CachedAuraDurations[spellID] or 0
 	end
 	return 0
@@ -567,15 +587,14 @@ local function SaveDuration(spellID, duration)
 end
 
 local function CreateAuraIcon(auras, plate)
-	local noscalemult = 2 * SV.Scale;
 
 	local button = CreateFrame("Frame", nil, auras)
 
 	button.bord = button:CreateTexture(nil, "BACKGROUND")
 	button.bord:SetDrawLayer('BACKGROUND', 2)
 	button.bord:SetTexture(0,0,0,1)
-	button.bord:SetPoint("TOPLEFT", button, "TOPLEFT", -noscalemult, noscalemult)
-	button.bord:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", noscalemult, -noscalemult)
+	button.bord:SetPoint("TOPLEFT", button, "TOPLEFT", -2, 2)
+	button.bord:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", 2, -2)
 
 	button.Icon = button:CreateTexture(nil, "BORDER")
 	button.Icon:SetPoint("TOPLEFT",button,"TOPLEFT")
@@ -585,7 +604,7 @@ local function CreateAuraIcon(auras, plate)
 	button.TimeLeft = button:CreateFontString(nil, 'OVERLAY')
 	button.TimeLeft:SetFontObject(SVUI_Font_NamePlate_Aura)
 	button.TimeLeft:SetPoint("BOTTOMLEFT",button,"TOPLEFT",-3,-1)
-	button.TimeLeft:SetJustifyH('CENTER') 
+	button.TimeLeft:SetJustifyH('CENTER')
 
 	button.Stacks = button:CreateFontString(nil,"OVERLAY")
 	button.Stacks:SetFontObject(SVUI_Font_NamePlate_Aura)
@@ -603,16 +622,16 @@ local function CreateAuraIcon(auras, plate)
 end
 
 function MOD:UpdateAuras(plate)
-	if plate.setting.tiny then return end 
+	if plate.setting.tiny then return end
 	local guid = plate.guid
 	local frame = plate.frame
 	if not guid then
-		if RAID_CLASS_COLORS[plate.setting.unitcategory] then
+		if RAID_CLASS_COLORS[plate.setting.classToken] then
 			local pn = plate.name:GetText()
 			local name = pn:gsub("%s%(%*%)", "")
 			guid = AuraByName[name]
-		elseif plate.ref.raidicon:IsShown() then 
-			guid = AuraByRaidIcon[plate.ref.raidicontype] 
+		elseif plate.ref.raidicon:IsShown() then
+			guid = AuraByRaidIcon[plate.ref.raidicontype]
 		end
 		if guid then
 			plate.guid = guid
@@ -649,7 +668,7 @@ function MOD:UpdateAurasByUnitID(unitid)
 		SetAuraInstance(guid, spellid, expirationTime, count, UnitGUID(unitCaster or ""), duration, texture)
 	end
 	local name;
-	if UnitPlayerControlled(unitid) then 
+	if UnitPlayerControlled(unitid) then
 		name = UnitName(unitid)
 		AuraByName[name] = guid
 	end
@@ -659,8 +678,8 @@ function MOD:UpdateAurasByUnitID(unitid)
 	end
 	self:RequestScanUpdate(guid, raidIcon, name, "UpdateAuras")
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 PLATE COLORING
 ##########################################################
 ]]--
@@ -668,25 +687,30 @@ do
 	local function GetPlateThreatReaction(plate)
 		if plate.ref.threat:IsShown() then
 			local r, g, b = plate.ref.threat:GetVertexColor()
-			if g + b == 0 then
-				return 'FULL_THREAT'
+			local lastThreat = plate.ref.reaction or 1
+			if g + b < 1 then
+				plate.ref.reaction = 4
+				return 4
 			else
-				if plate.ref.reaction == 'FULL_THREAT' then
-					return 'GAINING_THREAT'
-				else
-					return 'LOSING_THREAT'
+				if lastThreat > 2 then
+					plate.ref.reaction = 2
+					return 2
+				elseif lastThreat < 3 then
+					plate.ref.reaction = 3
+					return 3
 				end
 			end
-		else
-			return 'NO_THREAT'
 		end
+		plate.ref.reaction = 1
+		return 1
 	end
 
 	local function GetPlateReaction(plate)
 		if plate.guid ~= nil then
 			local class, classToken, _, _, _, _, _ = GetPlayerInfoByGUID(plate.guid)
 			if RAID_CLASS_COLORS[classToken] then
-				return classToken
+				plate.setting.classToken = classToken
+				return REACTION_COLORING[1](classToken)
 			end
 		end
 
@@ -701,89 +725,34 @@ do
 				bb = bb - 0.01
 			end
 			if RAID_CLASS_COLORS[classToken].r == r and RAID_CLASS_COLORS[classToken].g == g and RAID_CLASS_COLORS[classToken].b == bb then
-				return classToken
+				plate.setting.classToken = classToken
+				return REACTION_COLORING[1](classToken)
 			end
 		end
 
-		if (r + b + b) == 1.59 then
-			return 'TAPPED_NPC'
-		elseif g + b == 0 then
-			return 'HOSTILE_NPC'
-		elseif r + b == 0 then
-			return 'FRIENDLY_NPC'
-		elseif r + g > 1.95 then
-			return 'NEUTRAL_NPC'
-		elseif r + g == 0 then
-			return 'FRIENDLY_PLAYER'
+		plate.setting.classToken = nil
+		if((r > 0.4) and (g > 0.4) and (b > 0.4)) then
+			return REACTION_COLORING[2]()
+		elseif(r + b < 0.25) then
+			return REACTION_COLORING[3]()
 		else
-			return 'HOSTILE_PLAYER'
+			local threatReaction = GetPlateThreatReaction(plate)
+			if(r + g > 1.8) then
+				return REACTION_COLORING[4](threatReaction)
+			elseif(g + b < 0.25) then
+				return REACTION_COLORING[5](threatReaction)
+			else
+				REACTION_COLORING[1]()
+			end
 		end
 	end
 
 	local function ColorizeAndScale(plate, frame)
 		local unitType = GetPlateReaction(plate)
-		local scale = 1
 
-		plate.setting.unitcategory = unitType
+		plate.setting.classToken = unitType
 
-		local latestColor;
-		
-		if RAID_CLASS_COLORS[unitType] then
-			latestColor = {RAID_CLASS_COLORS[unitType].r, RAID_CLASS_COLORS[unitType].g, RAID_CLASS_COLORS[unitType].b}
-		elseif unitType == "TAPPED_NPC" then
-			latestColor = NPReactTap
-		elseif unitType == "HOSTILE_NPC" or unitType == "NEUTRAL_NPC" then
-			local threatReaction = GetPlateThreatReaction(plate)
-			if (not NPUseThreat) then
-				if unitType == "NEUTRAL_NPC" then
-					latestColor = NPReactNeutral
-				else
-					latestColor = NPReactEnemy
-				end			
-			else
-				if threatReaction == 'FULL_THREAT' then
-					if NPClassRole == 'T' then
-						latestColor = NPGoodThreat
-						scale = NPThreatGS
-					else
-						latestColor = NPBadThreat
-						scale = NPThreatBS
-					end
-				elseif threatReaction == 'GAINING_THREAT' then
-					if NPClassRole == 'T' then
-						latestColor = NPGoodTrans
-					else
-						latestColor = NPBadTrans
-					end
-				elseif threatReaction == 'LOSING_THREAT' then
-					if NPClassRole == 'T' then
-						latestColor = NPBadTrans
-					else
-						latestColor = NPGoodTrans
-					end
-				elseif InCombatLockdown() then
-					if NPClassRole == 'T' then
-						latestColor = NPBadThreat
-						scale = NPThreatBS
-					else
-						latestColor = NPGoodThreat
-						scale = NPThreatGS
-					end
-				else
-					if unitType == "NEUTRAL_NPC" then
-						latestColor = NPReactNeutral
-					else
-						latestColor = NPReactEnemy
-					end
-				end
-			end
-			plate.ref.reaction = threatReaction
-		elseif unitType == "FRIENDLY_NPC" then
-			latestColor = NPReactNPCGood
-		elseif unitType == "FRIENDLY_PLAYER" then
-			latestColor = NPReactPlayerGood
-		end
-
+		local latestColor, scale = GetPlateReaction(plate);
 		local r,g,b
 		if(latestColor) then
 			r,g,b = unpack(latestColor)
@@ -799,10 +768,11 @@ do
 		--frame.health.elite.bottom:SetVertexColor(r,g,b)
 		--frame.health.elite.right:SetVertexColor(r,g,b)
 		--frame.health.elite.left:SetVertexColor(r,g,b)
-
+		scale = scale or 1
 		if(not plate.setting.scaled and not plate.setting.tiny and frame.health:GetWidth() ~= (HBWidth * scale)) then
 			frame.health:SetSize(HBWidth * scale, HBHeight * scale)
-			plate.cast.icon:SetSize(CBHeight + (HBHeight * scale) + 5, CBHeight + (HBHeight * scale) + 5)
+			local scaledIconSize = CBHeight + (HBHeight * scale) + 5;
+			plate.cast.icon:SetSize(scaledIconSize, scaledIconSize)
 		end
 	end
 
@@ -851,8 +821,8 @@ do
 		end
 	end
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 PLATE UPDATE HANDLERS
 ##########################################################
 ]]--
@@ -911,7 +881,7 @@ do
 		elseif PLATE_REF.highlight:IsShown() and UnitExists("mouseover") and (UnitName("mouseover") == plateName) then
 			if(PLATE_ARGS.unit ~= "mouseover" or PLATE_ARGS.allowed) then
 				SVUI_PLATE:SetFrameLevel(1)
-				SVUI_PLATE.highlight:Show()			
+				SVUI_PLATE.highlight:Show()
 				MOD:UpdateAurasByUnitID('mouseover')
 				if MOD.UseCombo then
 					UpdateComboPoints()
@@ -919,7 +889,7 @@ do
 				PLATE_ARGS.allowed = nil
 			end
 			BLIZZ_PLATE.guid = UnitGUID("mouseover")
-			PLATE_ARGS.unit = "mouseover"		
+			PLATE_ARGS.unit = "mouseover"
 		else
 			SVUI_PLATE:SetFrameLevel(0)
 			SVUI_PLATE.highlight:Hide()
@@ -967,8 +937,8 @@ do
 		end
 	end
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 SCRIPT HANDLERS
 ##########################################################
 ]]--
@@ -989,7 +959,7 @@ do
 			if(index == 1) then
 				PLATE_AURAICONS[index]:SetPoint("LEFT", PLATE_AURAS, 0, 0)
 			else
-				PLATE_AURAICONS[index]:SetPoint("LEFT", PLATE_AURAICONS[index-1], "RIGHT", 4, 0) 
+				PLATE_AURAICONS[index]:SetPoint("LEFT", PLATE_AURAICONS[index-1], "RIGHT", 4, 0)
 			end
 		end
 		if(numAuras > #PLATE_AURAICONS) then
@@ -1044,7 +1014,7 @@ do
 			else
 				color = CBColor
 			end
-		end			
+		end
 		castBar:SetStatusBarColor(unpack(color))
 	end
 
@@ -1099,7 +1069,7 @@ do
 		VisiblePlates[plate] = nil
 
 		PLATE_REF.reaction = nil
-		PLATE_ARGS.unitcategory = nil
+		PLATE_ARGS.classToken = nil
 		plate.guid = nil
 		PLATE_ARGS.unit = nil
 		PLATE_REF.raidicontype = nil
@@ -1116,12 +1086,12 @@ do
 		SVUI_PLATE.health.icon:Hide()
 		if SVUI_PLATE.health then
 			SVUI_PLATE.health:SetSize(HBWidth, HBHeight)
-			plate.cast.icon:ModSize(CBHeight + HBHeight + 5)
+			plate.cast.icon:SetSize(ICON_SIZE, ICON_SIZE)
 		end
 		if PLATE_AURAS then
 			for index = 1, #PLATE_AURAICONS do
 				RegisterAuraClock(PLATE_AURAICONS[index], 0)
-			end		
+			end
 		end
 		if MOD.UseCombo then
 			for i=1, MAX_COMBO_POINTS do
@@ -1146,14 +1116,14 @@ do
 		SVUI_PLATE.cast:SetStatusBarTexture(NPBarTex)
 		SVUI_PLATE.cast.text:SetFont(SV.media.font.default, 8, "OUTLINE")
 		plate.cast.text:SetFont(SV.media.font.default, 8, "OUTLINE")
-		plate.cast.icon:ModSize((CBHeight + HBHeight) + 5)
+		plate.cast.icon:SetSize(ICON_SIZE, ICON_SIZE)
 		PLATE_REF.raidicon:ClearAllPoints()
-		SV:SetReversePoint(PLATE_REF.raidicon, RIAnchor, SVUI_PLATE.health, RIXoffset, RIYoffset)	
+		SV:SetReversePoint(PLATE_REF.raidicon, RIAnchor, SVUI_PLATE.health, RIXoffset, RIYoffset)
 		PLATE_REF.raidicon:SetSize(RISize, RISize)
 		SVUI_PLATE.health.icon:ClearAllPoints()
 		SV:SetReversePoint(SVUI_PLATE.health.icon, RIAnchor, SVUI_PLATE.health, RIXoffset, RIYoffset)
 		SVUI_PLATE.health.icon:SetSize(RISize, RISize)
-		for index = 1, #PLATE_AURAICONS do 
+		for index = 1, #PLATE_AURAICONS do
 			if PLATE_AURAICONS and PLATE_AURAICONS[index] then
 				PLATE_AURAICONS[index].TimeLeft:SetFontObject(SVUI_Font_NamePlate_Aura)
 				PLATE_AURAICONS[index].Stacks:SetFontObject(SVUI_Font_NamePlate_Aura)
@@ -1162,9 +1132,9 @@ do
 		end
 
 		if(MOD.UseCombo and not SVUI_PLATE.combo:IsShown()) then
-			SVUI_PLATE.combo:Show()	
+			SVUI_PLATE.combo:Show()
 		elseif(SVUI_PLATE.combo:IsShown()) then
-			SVUI_PLATE.combo:Hide()	
+			SVUI_PLATE.combo:Hide()
 		end
 
 		ShowThisPlate(plate)
@@ -1287,7 +1257,7 @@ do
 		alert:SetBackdrop({
 			edgeFile = SV.media.border.shadow,
 			edgeSize = 2
-		});		
+		});
 		alert:SetBackdropColor(0, 0, 0, 0)
 		alert:SetBackdropBorderColor(1, 1, 0, 0.9)
 		alert:SetScale(1.5)
@@ -1299,7 +1269,7 @@ do
 		--[[ CAST BAR ]]--
 
 		frame.cast = CreateFrame("StatusBar", nil, frame)
-		frame.cast:SetPoint('TOPLEFT', frame.health, 'BOTTOMLEFT', 0, -8)	
+		frame.cast:SetPoint('TOPLEFT', frame.health, 'BOTTOMLEFT', 0, -8)
 		frame.cast:SetPoint('TOPRIGHT', frame.health, 'BOTTOMRIGHT', 0, -8)
 		frame.cast:SetFrameStrata("BACKGROUND")
 		frame.cast:SetStyle("Frame", 'Bar')
@@ -1329,7 +1299,7 @@ do
 		cast.sync = frame.cast
 
 		frame.combo = CreateFrame("Frame", nil, frame.health)
-		frame.combo:ModPoint("CENTER", frame.health, "BOTTOM")
+		frame.combo:SetPoint("CENTER", frame.health, "BOTTOM")
 		frame.combo:SetSize(68, 1)
 		frame.combo:Hide()
 
@@ -1393,8 +1363,8 @@ do
 		end
 	end
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 SCANNER
 ##########################################################
 ]]--
@@ -1403,7 +1373,7 @@ do
 		if not sourceName then return; end
 		local SearchFor = split("-", sourceName)
 		for plate, _ in pairs(VisiblePlates) do
-			if plate and plate:IsShown() and plate.ref.nametext == SearchFor and RAID_CLASS_COLORS[plate.setting.unitcategory] then
+			if plate and plate:IsShown() and plate.ref.nametext == SearchFor and RAID_CLASS_COLORS[plate.setting.classToken] then
 				return plate
 			end
 		end
@@ -1415,7 +1385,7 @@ do
 			if plate and plate:IsShown() and plate.ref.raidicon:IsShown() and (plate.ref.raidicontype and plate.ref.raidicontype == raidIcon) then
 				return plate
 			end
-		end		
+		end
 	end
 
 	function MOD:RequestScanUpdate(guid, raidIcon, name, callbackFunc, ...)
@@ -1428,8 +1398,8 @@ do
 		end
 	end
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 EVENTS
 ##########################################################
 ]]--
@@ -1502,7 +1472,7 @@ function MOD:COMBAT_LOG_EVENT_UNFILTERED(event, timestamp, combatevent, hideCast
   end
 
   local rawName, raidIcon
-  if(destName and (band(destFlags, COMBATLOG_OBJECT_CONTROL_PLAYER) > 0)) then 
+  if(destName and (band(destFlags, COMBATLOG_OBJECT_CONTROL_PLAYER) > 0)) then
     rawName = split("-", destName)
     AuraByName[rawName] = destGUID
   end
@@ -1513,20 +1483,23 @@ function MOD:COMBAT_LOG_EVENT_UNFILTERED(event, timestamp, combatevent, hideCast
       break
     end
   end
-  self:RequestScanUpdate(destGUID, raidIcon, rawName, "UpdateAuras") 
+  self:RequestScanUpdate(destGUID, raidIcon, rawName, "UpdateAuras")
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 UPDATE AND BUILD
 ##########################################################
 ]]--
+local function PlayerRoleUpdate()
+	MOD:UpdateAllPlates()
+end
+
 function MOD:UpdateLocals()
 	local db = SV.db.NamePlates
-	if not db then return end 
+	if not db then return end
 
 	NPBarTex = LSM:Fetch("statusbar", db.barTexture);
 
-	NPClassRole = SV.ClassRole;
 	NPBaseAlpha = db.nonTargetAlpha;
 	NPCombatHide = db.combatHide;
 
@@ -1553,19 +1526,12 @@ function MOD:UpdateLocals()
 	CBXoffset = db.castBar.text.xOffset;
 	CBYoffset = db.castBar.text.yOffset;
 
+	ICON_SIZE = CBHeight + HBHeight + 5
+
 	NPUsePointer = db.pointer.enable;
 	NPPointerMatch = db.pointer.colorMatchHealthBar;
 	NPPointerColor = {db.pointer.color[1], db.pointer.color[2], db.pointer.color[3], 0.5};
 	NPUseModel = db.pointer.useArrowEffect
-
-	local tc = db.threat
-	NPUseThreat = tc.enable;
-	NPThreatGS = tc.goodScale;
-	NPThreatBS = tc.badScale;
-	NPGoodThreat = {tc.goodColor[1], tc.goodColor[2], tc.goodColor[3]}
-	NPBadThreat = {tc.badColor[1], tc.badColor[2], tc.badColor[3]}
-	NPGoodTrans = {tc.goodTransitionColor[1], tc.goodTransitionColor[2], tc.goodTransitionColor[3]}
-	NPBadTrans = {tc.badTransitionColor[1], tc.badTransitionColor[2], tc.badTransitionColor[3]}
 
 	local rc = db.reactions
 	NPReactTap = {rc.tapped[1], rc.tapped[2], rc.tapped[3]}
@@ -1578,16 +1544,38 @@ function MOD:UpdateLocals()
 	AuraFilterName = db.auras.additionalFilter
 	AuraFilter = SV.db.Filters[AuraFilterName]
 
+	local tc = SV.db.NamePlates.threat
+	NPUseThreat = tc.enable;
+	NPThreatGS = tc.goodScale;
+	NPThreatBS = tc.badScale;
+	if(SV.ClassRole == 'TANK') then
+		CONFIG_THREAT_HOSTILE = {
+			{tc.badColor[1], tc.badColor[2], tc.badColor[3]},
+			{tc.badTransitionColor[1], tc.badTransitionColor[2], tc.badTransitionColor[3]},
+			{tc.goodTransitionColor[1], tc.goodTransitionColor[2], tc.goodTransitionColor[3]},
+			{tc.goodColor[1], tc.goodColor[2], tc.goodColor[3]}
+		};
+		CONFIG_THREAT_SCALE = { NPThreatBS, NPThreatBS, NPThreatGS, NPThreatGS };
+	else
+		CONFIG_THREAT_HOSTILE = {
+			{tc.goodColor[1], tc.goodColor[2], tc.goodColor[3]},
+			{tc.goodTransitionColor[1], tc.goodTransitionColor[2], tc.goodTransitionColor[3]},
+			{tc.badTransitionColor[1], tc.badTransitionColor[2], tc.badTransitionColor[3]},
+			{tc.badColor[1], tc.badColor[2], tc.badColor[3]}
+		};
+		CONFIG_THREAT_SCALE = { NPThreatGS, NPThreatGS, NPThreatBS, NPThreatBS };
+	end
+
 	if(not db.themed) then
 		PLATE_TOP = SV.NoTexture
 		PLATE_BOTTOM = SV.NoTexture
 		PLATE_RIGHT = SV.NoTexture
 		PLATE_LEFT = SV.NoTexture
 	else
-		PLATE_TOP = MOD.media.topArt
-		PLATE_BOTTOM = MOD.media.bottomArt
-		PLATE_RIGHT = MOD.media.rightArt
-		PLATE_LEFT = MOD.media.leftArt
+		PLATE_TOP = self.media.topArt
+		PLATE_BOTTOM = self.media.bottomArt
+		PLATE_RIGHT = self.media.rightArt
+		PLATE_LEFT = self.media.leftArt
 	end
 
 	if (db.comboPoints and (SV.class == 'ROGUE' or SV.class == 'DRUID')) then
@@ -1617,7 +1605,7 @@ end
 
 function MOD:ReLoad()
 	self:UpdateAllPlates();
-end 
+end
 
 function MOD:Load()
 	--SV.SpecialFX:Register("platepoint", [[Spells\Arcane_missile_lvl1.m2]], -12, 48, 12, -48, 0.25, 0, 0)
@@ -1638,4 +1626,5 @@ function MOD:Load()
 	self:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
 	WorldFrame:HookScript('OnUpdate', WorldFrameUpdateHook)
 	self:CombatToggle(true)
+	SV.Events:On("PLAYER_ROLE_CHANGED", PlayerRoleUpdate, true)
 end

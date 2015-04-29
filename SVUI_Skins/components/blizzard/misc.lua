@@ -12,13 +12,26 @@ local SV = _G['SVUI'];
 local L = SV.L;
 local MOD = SV.Skins;
 local Schema = MOD.Schema;
---[[ 
-########################################################## 
+--[[
+##########################################################
 ##########################################################
 ]]--
+local _hook_NavBar_AddButton = function(self, buttonData)
+	local navButton = self.navList[#self.navList];
+	if(not navButton or navButton.Panel) then return end
+	navButton:RemoveTextures()
+	navButton:SetStyle("Button")
+	if(navButton.MenuArrowButton) then
+		navButton.MenuArrowButton:SetNormalTexture('')
+		navButton.MenuArrowButton:SetPushedTexture('')
+	end
+end
+
+hooksecurefunc("NavBar_AddButton", _hook_NavBar_AddButton)
+
 local MissingLootFrame_OnShow = function(self)
 	local numMissing = GetNumMissingLootItems()
-	for i = 1, numMissing do 
+	for i = 1, numMissing do
 		local slot = _G["MissingLootFrameItem"..i]
 		local icon = slot.icon;
 		SV.API:Set("!_ItemButton", slot)
@@ -29,16 +42,16 @@ local MissingLootFrame_OnShow = function(self)
 		end
 		icon:SetTexture(texture)
 		_G.MissingLootFrame:SetBackdropBorderColor(r,g,b)
-	end 
+	end
 	local calc = (ceil(numMissing * 0.5) * 43) + 38
 	_G.MissingLootFrame:SetHeight(calc + _G.MissingLootFrameLabel:GetHeight())
-end 
+end
 
 local LootHistoryFrame_OnUpdate = function(self)
 	local numItems = _G.C_LootHistory.GetNumItems()
-	for i = 1, numItems do   
+	for i = 1, numItems do
 		local frame = _G.LootHistoryFrame.itemFrames[i]
-		if not frame.isStyled then 
+		if not frame.isStyled then
 			local Icon = frame.Icon:GetTexture()
 			frame:RemoveTextures()
 			frame.Icon:SetTexture(Icon)
@@ -48,16 +61,16 @@ local LootHistoryFrame_OnUpdate = function(self)
 			frame.Panel:WrapPoints(frame.Icon)
 			frame.Icon:SetParent(frame.Panel)
 
-			frame.isStyled = true 
-		end 
-	end 
+			frame.isStyled = true
+		end
+	end
 end
 
 local _hook_MasterLootFrame_OnShow = function()
 	local MasterLooterFrame = _G.MasterLooterFrame;
 	local item = MasterLooterFrame.Item;
 	local LootFrame = _G.LootFrame;
-	if item then 
+	if item then
 		local icon = item.Icon;
 		local tex = icon:GetTexture()
 		local colors = ITEM_QUALITY_COLORS[LootFrame.selectedQuality]
@@ -67,21 +80,21 @@ local _hook_MasterLootFrame_OnShow = function()
 		item:SetStyle("Frame", "Pattern")
 		item.Panel:WrapPoints(icon)
 		item:SetBackdropBorderColor(colors.r, colors.g, colors.b)
-	end 
-	for i = 1, MasterLooterFrame:GetNumChildren()do 
+	end
+	for i = 1, MasterLooterFrame:GetNumChildren()do
 		local child = select(i, MasterLooterFrame:GetChildren())
 		if child and not child.isStyled and not child:GetName() then
-			if child:GetObjectType() == "Button" then 
+			if child:GetObjectType() == "Button" then
 				if child:GetPushedTexture() then
 					SV.API:Set("CloseButton", child)
 				else
 					child:SetStyle("!_Frame")
 					child:SetStyle("Button")
-				end 
-				child.isStyled = true 
-			end 
-		end 
-	end 
+				end
+				child.isStyled = true
+			end
+		end
+	end
 end
 
 local _hook_LossOfControl = function(self, ...)
@@ -101,15 +114,15 @@ local _hook_LossOfControl = function(self, ...)
 	self.TimeLeft.SecondsText:SetFont(SV.media.font.default, 20, 'OUTLINE')
 	if self.Anim:IsPlaying() then
 		self.Anim:Stop()
-	end 
+	end
 end
 
 local function MailFrame_OnUpdate()
-	for i = 1, ATTACHMENTS_MAX_SEND do 
+	for i = 1, ATTACHMENTS_MAX_SEND do
 		local slot = _G["SendMailAttachment"..i]
 		if(not slot.Panel) then
 			slot:RemoveTextures()
-			slot:SetStyle("!_ActionSlot") 
+			slot:SetStyle("!_ActionSlot")
 		end
 		if(slot.GetNormalTexture) then
 			local icon = slot:GetNormalTexture()
@@ -117,8 +130,8 @@ local function MailFrame_OnUpdate()
 				icon:SetTexCoord(unpack(_G.SVUI_ICON_COORDS))
 				icon:InsetPoints()
 			end
-		end 
-	end 
+		end
+	end
 end
 
 local _hook_GreetingPanelShow = function(self)
@@ -158,7 +171,7 @@ local function StyleTradeSlots(name)
 				bg:SetFrameLevel(level - 3)
 			end
 		end
-	end 
+	end
 end
 
 local TABARD_REGIONS = {
@@ -167,29 +180,29 @@ local TABARD_REGIONS = {
 	["TabardFrameEmblemBottomRight"] = true,
 	["TabardFrameEmblemBottomLeft"] = true,
 }
---[[ 
-########################################################## 
+--[[
+##########################################################
 ##########################################################
 ]]--
 local function MiscStyles()
 	if SV.db.Skins.blizzard.enable ~= true then
-		 return 
+		 return
 	end
 
 	if(SV.db.Skins.blizzard.dressingroom) then
-		DressUpFrame:ModSize(500, 600)
+		DressUpFrame:SetSize(500, 600)
 		SV.API:Set("Window", DressUpFrame, true, true)
 
 		DressUpModel:ClearAllPoints()
-		DressUpModel:ModPoint("TOPLEFT", DressUpFrame, "TOPLEFT", 12, -76)
-		DressUpModel:ModPoint("BOTTOMRIGHT", DressUpFrame, "BOTTOMRIGHT", -12, 36)
+		DressUpModel:SetPoint("TOPLEFT", DressUpFrame, "TOPLEFT", 12, -76)
+		DressUpModel:SetPoint("BOTTOMRIGHT", DressUpFrame, "BOTTOMRIGHT", -12, 36)
 
 		DressUpModel:SetStyle("!_Frame", "Model")
 
-		DressUpFrameCancelButton:ModPoint("BOTTOMRIGHT", DressUpFrame, "BOTTOMRIGHT", -12, 12)
+		DressUpFrameCancelButton:SetPoint("BOTTOMRIGHT", DressUpFrame, "BOTTOMRIGHT", -12, 12)
 		DressUpFrameCancelButton:SetStyle("Button")
 
-		DressUpFrameResetButton:ModPoint("RIGHT", DressUpFrameCancelButton, "LEFT", -12, 0)
+		DressUpFrameResetButton:SetPoint("RIGHT", DressUpFrameCancelButton, "LEFT", -12, 0)
 		DressUpFrameResetButton:SetStyle("Button")
 
 		SV.API:Set("CloseButton", DressUpFrameCloseButton, DressUpFrame.Panel)
@@ -205,25 +218,25 @@ local function MiscStyles()
 		SV.API:Set("PageButton", ItemTextNextPageButton)
 		ItemTextPageText:SetTextColor(1, 1, 1)
 		hooksecurefunc(ItemTextPageText, "SetTextColor", function(q, k, l, m)
-			if k ~= 1 or l ~= 1 or m ~= 1 then 
+			if k ~= 1 or l ~= 1 or m ~= 1 then
 				ItemTextPageText:SetTextColor(1, 1, 1)
-			end 
+			end
 		end)
 		ItemTextFrame:SetStyle("Frame", "Pattern")
 		ItemTextFrameInset:Die()
-		SV.API:Set("ScrollFrame", ItemTextScrollFrameScrollBar)
+		SV.API:Set("ScrollBar", ItemTextScrollFrameScrollBar)
 		SV.API:Set("CloseButton", ItemTextFrameCloseButton)
 		local r = {"GossipFrameGreetingPanel", "GossipFrameInset", "GossipGreetingScrollFrame"}
-		SV.API:Set("ScrollFrame", GossipGreetingScrollFrameScrollBar, 5)
-		for s, t in pairs(r)do 
+		SV.API:Set("ScrollBar", GossipGreetingScrollFrameScrollBar, 5)
+		for s, t in pairs(r)do
 			_G[t]:RemoveTextures()
-		end 
+		end
 		GossipFrame:SetStyle("Frame", "Window")
 		GossipGreetingScrollFrame:SetStyle("!_Frame", "Inset", true)
 		GossipGreetingScrollFrame.spellTex = GossipGreetingScrollFrame:CreateTexture(nil, "ARTWORK")
 		GossipGreetingScrollFrame.spellTex:SetTexture([[Interface\QuestFrame\QuestBG]])
 		GossipGreetingScrollFrame.spellTex:SetPoint("TOPLEFT", 2, -2)
-		GossipGreetingScrollFrame.spellTex:ModSize(506, 615)
+		GossipGreetingScrollFrame.spellTex:SetSize(506, 615)
 		GossipGreetingScrollFrame.spellTex:SetTexCoord(0, 1, 0.02, 1)
 		_G["GossipFramePortrait"]:Die()
 		_G["GossipFrameGreetingGoodbyeButton"]:RemoveTextures()
@@ -237,7 +250,7 @@ local function MiscStyles()
 		NPCFriendshipStatusBar:ClearAllPoints()
 		NPCFriendshipStatusBar:SetPoint("TOPLEFT", GossipFrame, "TOPLEFT", 58, -34)
 
-		NPCFriendshipStatusBar.icon:ModSize(32,32)
+		NPCFriendshipStatusBar.icon:SetSize(32,32)
 		NPCFriendshipStatusBar.icon:ClearAllPoints()
 		NPCFriendshipStatusBar.icon:SetPoint("RIGHT", NPCFriendshipStatusBar, "LEFT", 0, -2)
 	end
@@ -259,16 +272,16 @@ local function MiscStyles()
 		SV.API:Set("CloseButton", GuildRegistrarFrameCloseButton)
 		GuildRegistrarFrameEditBox:SetStyle("Editbox")
 
-		for i = 1, GuildRegistrarFrameEditBox:GetNumRegions() do 
+		for i = 1, GuildRegistrarFrameEditBox:GetNumRegions() do
 			local region = select(i, GuildRegistrarFrameEditBox:GetRegions())
 			if region and region:GetObjectType() == "Texture"then
-				if region:GetTexture() == "Interface\\ChatFrame\\UI-ChatInputBorder-Left" or region:GetTexture() == "Interface\\ChatFrame\\UI-ChatInputBorder-Right" then 
+				if region:GetTexture() == "Interface\\ChatFrame\\UI-ChatInputBorder-Left" or region:GetTexture() == "Interface\\ChatFrame\\UI-ChatInputBorder-Right" then
 					region:Die()
-				end 
-			end 
+				end
+			end
 		end
 
-		GuildRegistrarFrameEditBox:ModHeight(20)
+		GuildRegistrarFrameEditBox:SetHeight(20)
 
 		if(_G["GuildRegistrarButton1"]) then
 			_G["GuildRegistrarButton1"]:GetFontString():SetTextColor(1, 1, 1)
@@ -301,10 +314,10 @@ local function MiscStyles()
 		LootHistoryFrame:SetStyle("!_Frame", 'Transparent')
 		SV.API:Set("CloseButton", LootHistoryFrame.ResizeButton)
 		LootHistoryFrame.ResizeButton:SetStyle("!_Frame")
-		LootHistoryFrame.ResizeButton:ModWidth(LootHistoryFrame:GetWidth())
-		LootHistoryFrame.ResizeButton:ModHeight(19)
+		LootHistoryFrame.ResizeButton:SetWidth(LootHistoryFrame:GetWidth())
+		LootHistoryFrame.ResizeButton:SetHeight(19)
 		LootHistoryFrame.ResizeButton:ClearAllPoints()
-		LootHistoryFrame.ResizeButton:ModPoint("TOP", LootHistoryFrame, "BOTTOM", 0, -2)
+		LootHistoryFrame.ResizeButton:SetPoint("TOP", LootHistoryFrame, "BOTTOM", 0, -2)
 		LootHistoryFrame.ResizeButton:SetNormalTexture("")
 
 		local txt = LootHistoryFrame.ResizeButton:CreateFontString(nil,"OVERLAY")
@@ -314,7 +327,7 @@ local function MiscStyles()
 		txt:SetText("RESIZE")
 
 		LootHistoryFrameScrollFrame:RemoveTextures()
-		SV.API:Set("ScrollFrame", LootHistoryFrameScrollFrameScrollBar)
+		SV.API:Set("ScrollBar", LootHistoryFrameScrollFrameScrollBar)
 		hooksecurefunc("LootHistoryFrame_FullUpdate", LootHistoryFrame_OnUpdate)
 
 		MasterLooterFrame:RemoveTextures()
@@ -360,30 +373,30 @@ local function MiscStyles()
 
 		SendMailScrollFrame:RemoveTextures(true)
 		SendMailScrollFrame:SetStyle("!_Frame", "Inset")
-		SV.API:Set("ScrollFrame", SendMailScrollFrameScrollBar)
+		SV.API:Set("ScrollBar", SendMailScrollFrameScrollBar)
 
 		SendMailNameEditBox:SetStyle("Editbox")
-		SendMailNameEditBox.Panel:ModPoint("BOTTOMRIGHT", 2, 4)
+		SendMailNameEditBox.Panel:SetPoint("BOTTOMRIGHT", 2, 4)
 
 		SendMailSubjectEditBox:SetStyle("Editbox")
-		SendMailSubjectEditBox.Panel:ModPoint("BOTTOMRIGHT", 2, 0)
+		SendMailSubjectEditBox.Panel:SetPoint("BOTTOMRIGHT", 2, 0)
 
 		SendMailMoneyGold:SetStyle("Editbox")
 
 		SendMailMoneySilver:SetStyle("Editbox")
-		SendMailMoneySilver.Panel:ModPoint("TOPLEFT", -2, 1)
-		SendMailMoneySilver.Panel:ModPoint("BOTTOMRIGHT", -12, -1)
+		SendMailMoneySilver.Panel:SetPoint("TOPLEFT", -2, 1)
+		SendMailMoneySilver.Panel:SetPoint("BOTTOMRIGHT", -12, -1)
 		SendMailMoneySilver:SetTextInsets(-1, -1, -2, -2)
 
 		SendMailMoneyCopper:SetStyle("Editbox")
-		SendMailMoneyCopper.Panel:ModPoint("TOPLEFT", -2, 1)
-		SendMailMoneyCopper.Panel:ModPoint("BOTTOMRIGHT", -12, -1)
+		SendMailMoneyCopper.Panel:SetPoint("TOPLEFT", -2, 1)
+		SendMailMoneyCopper.Panel:SetPoint("BOTTOMRIGHT", -12, -1)
 		SendMailMoneyCopper:SetTextInsets(-1, -1, -2, -2)
-		
+
 		hooksecurefunc("SendMailFrame_Update", MailFrame_OnUpdate)
 		SendMailCancelButton:SetStyle("Button")
 		SendMailMailButton:SetStyle("Button")
-		SendMailMailButton:ModPoint("RIGHT", SendMailCancelButton, "LEFT", -2, 0)
+		SendMailMailButton:SetPoint("RIGHT", SendMailCancelButton, "LEFT", -2, 0)
 
 		OpenMailFrame:RemoveTextures(true)
 		OpenMailFrame:SetStyle("!_Frame", "Transparent", true)
@@ -392,16 +405,16 @@ local function MiscStyles()
 		OpenMailReportSpamButton:SetStyle("Button")
 		OpenMailCancelButton:SetStyle("Button")
 		OpenMailDeleteButton:SetStyle("Button")
-		OpenMailDeleteButton:ModPoint("RIGHT", OpenMailCancelButton, "LEFT", -2, 0)
+		OpenMailDeleteButton:SetPoint("RIGHT", OpenMailCancelButton, "LEFT", -2, 0)
 		OpenMailReplyButton:SetStyle("Button")
-		OpenMailReplyButton:ModPoint("RIGHT", OpenMailDeleteButton, "LEFT", -2, 0)
+		OpenMailReplyButton:SetPoint("RIGHT", OpenMailDeleteButton, "LEFT", -2, 0)
 
 		SV.API:Set("CloseButton", OpenMailFrameCloseButton)
 
 		OpenMailScrollFrame:RemoveTextures(true)
 		OpenMailScrollFrame:SetStyle("!_Frame", "Default")
 
-		SV.API:Set("ScrollFrame", OpenMailScrollFrameScrollBar)
+		SV.API:Set("ScrollBar", OpenMailScrollFrameScrollBar)
 		SendMailBodyEditBox:SetTextColor(1, 1, 1)
 		OpenMailBodyText:SetTextColor(1, 1, 1)
 		InvoiceTextFontNormal:SetTextColor(1, 1, 1)
@@ -418,13 +431,13 @@ local function MiscStyles()
 		OpenMailMoneyButtonIconTexture:SetTexCoord(unpack(_G.SVUI_ICON_COORDS))
 		OpenMailMoneyButtonIconTexture:InsetPoints()
 
-		for i = 1, INBOXITEMS_TO_DISPLAY do 
+		for i = 1, INBOXITEMS_TO_DISPLAY do
 			local slot = _G["MailItem"..i]
 			if(slot) then
 				slot:RemoveTextures()
 				slot:SetStyle("Frame", "Inset")
-				slot.Panel:ModPoint("TOPLEFT", 2, 1)
-				slot.Panel:ModPoint("BOTTOMRIGHT", -2, 2)
+				slot.Panel:SetPoint("TOPLEFT", 2, 1)
+				slot.Panel:SetPoint("BOTTOMRIGHT", -2, 2)
 
 				local button = _G["MailItem"..i.."Button"]
 				if(button) then
@@ -440,7 +453,7 @@ local function MiscStyles()
 			end
 		end
 
-		for i = 1, ATTACHMENTS_MAX_SEND do 
+		for i = 1, ATTACHMENTS_MAX_SEND do
 			local slot = _G["OpenMailAttachmentButton"..i]
 			if(slot) then
 				slot:RemoveTextures()
@@ -451,19 +464,19 @@ local function MiscStyles()
 					icon:InsetPoints()
 				end
 			end
-		end 
+		end
 	end
 
 	if(SV.db.Skins.blizzard.merchant) then
 
 		MerchantFrame:RemoveTextures(true)
 		MerchantFrame:SetStyle("Frame", "Window", false, nil, 2, 4)
-		MerchantFrame:ModWidth(360)
-		
+		MerchantFrame:SetWidth(360)
+
 		local level = MerchantFrame:GetFrameLevel()
-		if(level > 0) then 
+		if(level > 0) then
 			MerchantFrame:SetFrameLevel(level - 1)
-		else 
+		else
 			MerchantFrame:SetFrameLevel(0)
 		end
 
@@ -486,17 +499,17 @@ local function MiscStyles()
 		SV.API:Set("Tab", _G["MerchantFrameTab2"])
 
 		for i = 1, 12 do
-			local slot = _G["MerchantItem"..i] 
-				
+			local slot = _G["MerchantItem"..i]
+
 			if(slot) then
 				slot:RemoveTextures(true)
-				slot:SetStyle("!_Frame", "Inset")
+				slot:SetStyle("Frame", "Inset")
 
 				local button = _G["MerchantItem"..i.."ItemButton"]
 				if(button) then
 					button:RemoveTextures()
 					button:SetStyle("!_ActionSlot")
-					button:ModPoint("TOPLEFT", slot, "TOPLEFT", 4, -4)
+					button:SetPoint("TOPLEFT", slot, "TOPLEFT", 4, -4)
 					local icon = _G["MerchantItem"..i.."ItemButtonIconTexture"]
 					if(icon) then
 						icon:SetTexCoord(unpack(_G.SVUI_ICON_COORDS))
@@ -505,7 +518,7 @@ local function MiscStyles()
 					local money = _G["MerchantItem"..i.."MoneyFrame"]
 					if(money) then
 						money:ClearAllPoints()
-						money:ModPoint("BOTTOMLEFT", button, "BOTTOMRIGHT", 3, 0)
+						money:SetPoint("BOTTOMLEFT", button, "BOTTOMRIGHT", 3, 0)
 					end
 				end
 			end
@@ -517,13 +530,13 @@ local function MiscStyles()
 		MerchantBuyBackItemItemButtonIconTexture:InsetPoints()
 		MerchantRepairItemButton:SetStyle("Button")
 
-		for i = 1, MerchantRepairItemButton:GetNumRegions()do 
+		for i = 1, MerchantRepairItemButton:GetNumRegions()do
 			local region = select(i, MerchantRepairItemButton:GetRegions())
 			if region:GetObjectType() == "Texture" then
 				region:SetTexCoord(0.04, 0.24, 0.06, 0.5)
 				region:InsetPoints()
-			end 
-		end 
+			end
+		end
 
 		MerchantGuildBankRepairButton:SetStyle("Button")
 		MerchantGuildBankRepairButtonIcon:SetTexCoord(0.61, 0.82, 0.1, 0.52)
@@ -561,12 +574,12 @@ local function MiscStyles()
 			if(frame) then
 				frame:SetTextColor(1, 1, 1)
 			end
-		end 
+		end
 
 		PetitionFrameInstructions:SetTextColor(1, 1, 1)
-		
-		PetitionFrameRenameButton:ModPoint("LEFT", PetitionFrameRequestButton, "RIGHT", 3, 0)
-		PetitionFrameRenameButton:ModPoint("RIGHT", PetitionFrameCancelButton, "LEFT", -3, 0)
+
+		PetitionFrameRenameButton:SetPoint("LEFT", PetitionFrameRequestButton, "RIGHT", 3, 0)
+		PetitionFrameRenameButton:SetPoint("RIGHT", PetitionFrameCancelButton, "LEFT", -3, 0)
 	end
 
 	if(SV.db.Skins.blizzard.stable) then
@@ -583,22 +596,22 @@ local function MiscStyles()
 		SV.API:Set("PageButton", PetStableNextPageButton)
 		for i = 1, NUM_PET_ACTIVE_SLOTS do
 			 SV.API:Set("!_ItemButton", _G['PetStableActivePet'..i])
-		end 
+		end
 		for i = 1, NUM_PET_STABLE_SLOTS do
 			 SV.API:Set("!_ItemButton", _G['PetStableStabledPet'..i])
-		end 
+		end
 		PetStableSelectedPetIcon:SetTexCoord(unpack(_G.SVUI_ICON_COORDS))
 	end
 
 	if(SV.db.Skins.blizzard.tabard) then
 		for i=1, TabardFrame:GetNumRegions() do
 			local region = select(i, TabardFrame:GetRegions())
-			if(region and region.GetObjectType and region:GetObjectType() == "Texture") then 
+			if(region and region.GetObjectType and region:GetObjectType() == "Texture") then
 				local regionName = region:GetName();
 				if(not TABARD_REGIONS[regionName]) then
 					region:Die()
 				end
-			end 
+			end
 		end
 
 		TabardFrame:SetStyle("Frame", "Window2", false)
@@ -612,7 +625,7 @@ local function MiscStyles()
 		TabardFrameMoneyInset:Die()
 		TabardFrameMoneyBg:RemoveTextures()
 
-		for i = 1, 5 do 
+		for i = 1, 5 do
 			local name = "TabardFrameCustomization"..i;
 			local frame = _G[name];
 			if(frame) then
@@ -639,20 +652,20 @@ local function MiscStyles()
 		hooksecurefunc(TabardCharacterModelRotateLeftButton, "SetPoint", function(self, p1, a, p2, x, y)
 			if((p1 ~= "BOTTOMLEFT") or (x ~= 4) or (y ~= 4)) then
 				 self:SetPoint("BOTTOMLEFT", 4, 4)
-			end 
+			end
 		end)
 
 		hooksecurefunc(TabardCharacterModelRotateRightButton, "SetPoint", function(self, p1, a, p2, x, y)
 		    local anchor = _G.TabardCharacterModelRotateLeftButton
 			if((anchor) and ((p1 ~= "TOPLEFT") or (x ~= 4) or (y ~= 0))) then
 				 self:SetPoint("TOPLEFT", anchor, "TOPRIGHT", 4, 0)
-			end 
+			end
 		end)
 	end
 
 	if(SV.db.Skins.blizzard.taxi) then
 		SV.API:Set("Window", TaxiFrame)
-		SV.API:Set("CloseButton", TaxiFrame.CloseButton) 
+		SV.API:Set("CloseButton", TaxiFrame.CloseButton)
 	end
 
 	if (SV.db.Skins.blizzard.trade) then
@@ -668,7 +681,7 @@ local function MiscStyles()
 		TradeFrameRecipientPortrait:Die()
 
 		SV.API:Set("Window", TradeFrame, true)
-		
+
 		TradeFrameTradeButton:SetStyle("Button")
 		TradeFrameCancelButton:SetStyle("Button")
 		SV.API:Set("CloseButton", TradeFrameCloseButton, TradeFrame.Panel)
@@ -676,13 +689,13 @@ local function MiscStyles()
 		TradePlayerInputMoneyFrameGold:SetStyle("Editbox")
 
 		TradePlayerInputMoneyFrameSilver:SetStyle("Editbox")
-		TradePlayerInputMoneyFrameSilver.Panel:ModPoint("TOPLEFT", -2, 1)
-		TradePlayerInputMoneyFrameSilver.Panel:ModPoint("BOTTOMRIGHT", -12, -1)
+		TradePlayerInputMoneyFrameSilver.Panel:SetPoint("TOPLEFT", -2, 1)
+		TradePlayerInputMoneyFrameSilver.Panel:SetPoint("BOTTOMRIGHT", -12, -1)
 		TradePlayerInputMoneyFrameSilver:SetTextInsets(-1, -1, -2, -2)
 
 		TradePlayerInputMoneyFrameCopper:SetStyle("Editbox")
-		TradePlayerInputMoneyFrameCopper.Panel:ModPoint("TOPLEFT", -2, 1)
-		TradePlayerInputMoneyFrameCopper.Panel:ModPoint("BOTTOMRIGHT", -12, -1)
+		TradePlayerInputMoneyFrameCopper.Panel:SetPoint("TOPLEFT", -2, 1)
+		TradePlayerInputMoneyFrameCopper.Panel:SetPoint("BOTTOMRIGHT", -12, -1)
 		TradePlayerInputMoneyFrameCopper:SetTextInsets(-1, -1, -2, -2)
 
 		for i = 1, 7 do
@@ -706,23 +719,23 @@ local function MiscStyles()
 		TradeHighlightRecipientEnchantBottom:SetTexture(0.28, 0.75, 1, 0.2)
 		TradeHighlightRecipientEnchantMiddle:SetTexture(0.28, 0.75, 1, 0.2)
 		TradeHighlightRecipientEnchant:SetFrameStrata("HIGH")
-	end 
+	end
 
 	if(SV.db.Skins.blizzard.bgscore) then
 		WorldStateScoreScrollFrame:RemoveTextures()
 		WorldStateScoreFrame:RemoveTextures()
 		WorldStateScoreFrame:SetStyle("Frame", "Window")
 		SV.API:Set("CloseButton", WorldStateScoreFrameCloseButton)
-		SV.API:Set("ScrollFrame", WorldStateScoreScrollFrameScrollBar)
+		SV.API:Set("ScrollBar", WorldStateScoreScrollFrameScrollBar)
 		WorldStateScoreFrameInset:SetAlpha(0)
 		WorldStateScoreFrameLeaveButton:SetStyle("Button")
 		SV.API:Set("Tab", _G["WorldStateScoreFrameTab1"])
 		SV.API:Set("Tab", _G["WorldStateScoreFrameTab2"])
 		SV.API:Set("Tab", _G["WorldStateScoreFrameTab3"])
 	end
-end 
---[[ 
-########################################################## 
+end
+--[[
+##########################################################
 MOD LOADING
 ##########################################################
 ]]--

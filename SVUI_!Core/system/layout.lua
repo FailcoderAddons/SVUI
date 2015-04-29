@@ -1,7 +1,7 @@
 --[[
 ##########################################################
 S V U I   By: Munglunch
-########################################################## 
+##########################################################
 LOCALIZED LUA FUNCTIONS
 ##########################################################
 ]]--
@@ -42,8 +42,8 @@ local ToggleFrame           = _G.ToggleFrame;
 local ERR_NOT_IN_COMBAT     = _G.ERR_NOT_IN_COMBAT;
 local RAID_CLASS_COLORS     = _G.RAID_CLASS_COLORS;
 local CUSTOM_CLASS_COLORS   = _G.CUSTOM_CLASS_COLORS;
---[[ 
-########################################################## 
+--[[
+##########################################################
 GET ADDON DATA
 ##########################################################
 ]]--
@@ -146,14 +146,14 @@ local function SnapStickyFrame(frameA, frameB, left, top, right, bottom)
 		end
 		if lA  <= (lB  +  Sticky.rangeX) and lA  >= (lB - Sticky.rangeX) then
 			newX = lB  +  wA
-			if frameB == UIParent or frameB == WorldFrame or frameB == SVUIParent then 
+			if frameB == UIParent or frameB == WorldFrame or frameB == SVUIParent then
 				newX = newX  +  4
 			end
 			snap = true
 		end
 		if rA  <= (rB  +  Sticky.rangeX) and rA  >= (rB - Sticky.rangeX) then
 			newX = rB - wA
-			if frameB == UIParent or frameB == WorldFrame or frameB == SVUIParent then 
+			if frameB == UIParent or frameB == WorldFrame or frameB == SVUIParent then
 				newX = newX - 4
 			end
 			snap = true
@@ -174,14 +174,14 @@ local function SnapStickyFrame(frameA, frameB, left, top, right, bottom)
 		end
 		if tA  <= (tB  +  Sticky.rangeY) and tA  >= (tB - Sticky.rangeY) then
 			newY = tB - hA
-			if frameB == UIParent or frameB == WorldFrame or frameB == SVUIParent then 
+			if frameB == UIParent or frameB == WorldFrame or frameB == SVUIParent then
 				newY = newY - 4
 			end
 			snap = true
 		end
 		if bA  <= (bB  +  Sticky.rangeY) and bA  >= (bB - Sticky.rangeY) then
 			newY = bB  +  hA
-			if frameB == UIParent or frameB == WorldFrame or frameB == SVUIParent then 
+			if frameB == UIParent or frameB == WorldFrame or frameB == SVUIParent then
 				newY = newY  +  4
 			end
 			snap = true
@@ -244,8 +244,8 @@ local function StickyStopMoving(frame)
 	end
 end
 local CurrentFrameTarget, UpdateFrameTarget;
---[[ 
-########################################################## 
+--[[
+##########################################################
 LOCAL FUNCTIONS
 ##########################################################
 ]]--
@@ -254,33 +254,33 @@ local function Pinpoint(parent)
     local screenWidth = GetScreenWidth()
     local screenHeight = GetScreenHeight()
     local result;
-    if not centerX or not centerY then 
+    if not centerX or not centerY then
         return "CENTER"
-    end 
+    end
     local heightTop = screenHeight  *  0.75;
     local heightBottom = screenHeight  *  0.25;
     local widthLeft = screenWidth  *  0.25;
     local widthRight = screenWidth  *  0.75;
-    if(((centerX > widthLeft) and (centerX < widthRight)) and (centerY > heightTop)) then 
+    if(((centerX > widthLeft) and (centerX < widthRight)) and (centerY > heightTop)) then
         result = "TOP"
-    elseif((centerX < widthLeft) and (centerY > heightTop)) then 
+    elseif((centerX < widthLeft) and (centerY > heightTop)) then
         result = "TOPLEFT"
-    elseif((centerX > widthRight) and (centerY > heightTop)) then 
+    elseif((centerX > widthRight) and (centerY > heightTop)) then
         result = "TOPRIGHT"
-    elseif(((centerX > widthLeft) and (centerX < widthRight)) and centerY < heightBottom) then 
+    elseif(((centerX > widthLeft) and (centerX < widthRight)) and centerY < heightBottom) then
         result = "BOTTOM"
-    elseif((centerX < widthLeft) and (centerY < heightBottom)) then 
+    elseif((centerX < widthLeft) and (centerY < heightBottom)) then
         result = "BOTTOMLEFT"
-    elseif((centerX > widthRight) and (centerY < heightBottom)) then 
+    elseif((centerX > widthRight) and (centerY < heightBottom)) then
         result = "BOTTOMRIGHT"
-    elseif((centerX < widthLeft) and (centerY > heightBottom) and (centerY < heightTop)) then 
+    elseif((centerX < widthLeft) and (centerY > heightBottom) and (centerY < heightTop)) then
         result = "LEFT"
-    elseif((centerX > widthRight) and (centerY < heightTop) and (centerY > heightBottom)) then 
+    elseif((centerX > widthRight) and (centerY < heightTop) and (centerY > heightBottom)) then
         result = "RIGHT"
-    else 
+    else
         result = "CENTER"
-    end 
-    return result 
+    end
+    return result
 end
 
 local function CurrentPosition(frame)
@@ -290,8 +290,8 @@ local function CurrentPosition(frame)
 	if((not anchor1) or (not anchor2) or (not x) or (not y)) then
 		anchor1, anchor2, x, y = "TOPLEFT", "TOPLEFT", 160, -80
 	end
-	if(not parent or (parent and (not parent:GetName()))) then 
-		parentName = "UIParent" 
+	if(not parent or (parent and (not parent:GetName()))) then
+		parentName = "UIParent"
 	else
 		parentName = parent:GetName()
 	end
@@ -303,7 +303,7 @@ local function CurrentPosition(frame)
 end
 
 local function SaveAnchor(frameName)
-	if((not _G[frameName]) or (not Layout.Anchors)) then return end 
+	if((not _G[frameName]) or (not Layout.Anchors)) then return end
 	Layout.Anchors[frameName] = CurrentPosition(_G[frameName])
 end
 
@@ -344,18 +344,18 @@ local function CalculateOffsets(frame)
 	else
 		a1 = "BOTTOM"
 		yOffset = CurrentFrameTarget:GetBottom()
-	end 
+	end
 
 	if xOffset >= screenRight then
 		a2 = "RIGHT"
-		xOffset = (CurrentFrameTarget:GetRight() - right) 
+		xOffset = (CurrentFrameTarget:GetRight() - right)
 	elseif xOffset <= screenLeft then
 		a2 = "LEFT"
-		xOffset = CurrentFrameTarget:GetLeft() 
+		xOffset = CurrentFrameTarget:GetLeft()
 	else
 		a2 = ""
-		xOffset = (xOffset - center) 
-	end 
+		xOffset = (xOffset - center)
+	end
 
 	xOffset = parsefloat(xOffset, 0)
 	yOffset = parsefloat(yOffset, 0)
@@ -367,13 +367,13 @@ end
 local function ResetAllAlphas()
 	for entry,_ in pairs(Layout.Frames) do
 		local frame = _G[entry]
-		if(frame) then 
+		if(frame) then
 			frame:SetAlpha(0.4)
-		end 
-	end 
+		end
+	end
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 MOVING ANIMATION WIDGET
 ##########################################################
 ]]--
@@ -404,7 +404,7 @@ local TheHand_OnUpdate = function(self, elapsed)
 		local x, y = GetCursorPosition()
 		local scale = SV.Screen:GetEffectiveScale()
 		self:SetPoint("CENTER", SV.Screen, "BOTTOMLEFT", (x  /  scale)  +  50, (y  /  scale)  +  50)
-	end 
+	end
 end
 
 function TheHand:Enable()
@@ -412,7 +412,7 @@ function TheHand:Enable()
 	self.bg:SetTexture([[Interface\AddOns\SVUI_!Core\assets\textures\Doodads\MENTALO-HAND-ON]])
 	self.energy:Show()
 	self.flash:Play()
-	self:SetScript("OnUpdate", TheHand_OnUpdate) 
+	self:SetScript("OnUpdate", TheHand_OnUpdate)
 end
 
 function TheHand:Disable()
@@ -423,8 +423,8 @@ function TheHand:Disable()
 	self.elapsedTime = 0
 	self:Hide()
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 HANDLERS
 ##########################################################
 ]]--
@@ -437,7 +437,7 @@ function Layout:Movable_OnMouseUp()
 
 	SVUI_LayoutPrecisionSetX.CurrentValue = xOffset;
 	SVUI_LayoutPrecisionSetX:SetText(xOffset)
-	
+
 	SVUI_LayoutPrecisionSetY.CurrentValue = yOffset;
 	SVUI_LayoutPrecisionSetY:SetText(yOffset)
 
@@ -453,17 +453,17 @@ function Layout:Movable_OnUpdate()
 	local calc2 = rightPos * 0.66;
 	local calc3 = topPos * 0.5;
 	local anchor1, anchor2;
-	if centerY >= calc3 then 
+	if centerY >= calc3 then
 		anchor1 = "TOP"
 		anchor2 = "BOTTOM"
-	else 
+	else
 		anchor1 = "BOTTOM"
 		anchor2 = "TOP"
-	end 
-	if centerX >= calc2 then 
+	end
+	if centerX >= calc2 then
 		anchor1 = "RIGHT"
 		anchor2 = "LEFT"
-	elseif centerX <= calc1 then 
+	elseif centerX <= calc1 then
 		anchor1 = "LEFT"
 		anchor2 = "RIGHT"
 	end
@@ -475,65 +475,65 @@ function Layout:Movable_OnUpdate()
 end
 
 function Layout:Movable_OnSizeChanged()
-	if InCombatLockdown()then return end 
-	if self.dirtyWidth and self.dirtyHeight then 
-		self.Grip:ModSize(self.dirtyWidth, self.dirtyHeight)
-	else 
-		self.Grip:ModSize(self:GetSize())
-	end 
+	if InCombatLockdown()then return end
+	if self.dirtyWidth and self.dirtyHeight then
+		self.Grip:SetSize(self.dirtyWidth, self.dirtyHeight)
+	else
+		self.Grip:SetSize(self:GetSize())
+	end
 end
 
 function Layout:Movable_OnDragStart()
-	if InCombatLockdown() then SV:AddonMessage(ERR_NOT_IN_COMBAT)return end 
-	if SV.db.general.stickyFrames then 
+	if InCombatLockdown() then SV:AddonMessage(ERR_NOT_IN_COMBAT)return end
+	if SV.db.general.stickyFrames then
 		StickyStartMoving(self, self.snapOffset, -2)
-	else 
+	else
 		self:StartMoving()
-	end 
+	end
 	UpdateFrameTarget = self;
 	LayoutUpdateHandler:Show()
 	LayoutUpdateHandler:SetScript("OnUpdate", Layout.Movable_OnUpdate)
 	TheHand:Enable()
-	TheHand.UserHeld = true 
+	TheHand.UserHeld = true
 end
 
 function Layout:Movable_OnDragStop()
-	if InCombatLockdown()then SV:AddonMessage(ERR_NOT_IN_COMBAT)return end 
-	if SV.db.general.stickyFrames then 
+	if InCombatLockdown()then SV:AddonMessage(ERR_NOT_IN_COMBAT)return end
+	if SV.db.general.stickyFrames then
 		StickyStopMoving(self)
-	else 
+	else
 		self:StopMovingOrSizing()
-	end 
+	end
 	local pR, pT, pC = GrabUsableRegions()
 	local cX, cY = self:GetCenter()
 	local newAnchor;
-	if cY >= (pT * 0.5) then 
-		newAnchor = "TOP"; 
+	if cY >= (pT * 0.5) then
+		newAnchor = "TOP";
 		cY = (-(pT - self:GetTop()))
-	else 
+	else
 		newAnchor = "BOTTOM"
 		cY = self:GetBottom()
-	end 
-	if cX >= (pR * 0.66) then 
+	end
+	if cX >= (pR * 0.66) then
 		newAnchor = newAnchor.."RIGHT"
-		cX = self:GetRight() - pR 
-	elseif cX <= (pR * 0.33) then 
+		cX = self:GetRight() - pR
+	elseif cX <= (pR * 0.33) then
 		newAnchor = newAnchor.."LEFT"
 		cX = self:GetLeft()
-	else 
-		cX = cX - pC 
-	end 
-	if self.positionOverride then 
+	else
+		cX = cX - pC
+	end
+	if self.positionOverride then
 		self.parent:ClearAllPoints()
-		self.parent:ModPoint(self.positionOverride, self, self.positionOverride)
+		self.parent:SetPoint(self.positionOverride, self, self.positionOverride)
 	end
 
 	self:ClearAllPoints()
-	self:ModPoint(newAnchor, SV.Screen, newAnchor, cX, cY)
+	self:SetPoint(newAnchor, SV.Screen, newAnchor, cX, cY)
 
 	SaveAnchor(self.name)
 
-	if SVUI_LayoutPrecision then 
+	if SVUI_LayoutPrecision then
 		Layout.Movable_OnMouseUp(self)
 	end
 
@@ -542,9 +542,9 @@ function Layout:Movable_OnDragStop()
 	LayoutUpdateHandler:SetScript("OnUpdate", nil)
 	LayoutUpdateHandler:Hide()
 
-	if(self.postdrag ~= nil and type(self.postdrag) == "function") then 
+	if(self.postdrag ~= nil and type(self.postdrag) == "function") then
 		self:postdrag(Pinpoint(self))
-	end 
+	end
 	self:SetUserPlaced(false)
 	TheHand.UserHeld = false;
 	TheHand:Disable()
@@ -565,7 +565,7 @@ function Layout:Movable_OnEnter()
 	TheHand:SetPoint("CENTER", self, "TOP", 0, 0)
 	TheHand:Show()
 	if(not SVUI_LayoutPrecision) then return end;
-	if CurrentFrameTarget ~= self then 
+	if CurrentFrameTarget ~= self then
 		SVUI_LayoutPrecision:Hide()
 		self:GetScript("OnMouseUp")(self)
 	end
@@ -586,9 +586,9 @@ end
 function Layout:Movable_OnMouseDown(button)
 	if button == "RightButton" then
 		TheHand.UserHeld = false;
-		if(SV.db.general.stickyFrames) then 
+		if(SV.db.general.stickyFrames) then
 			StickyStopMoving(self)
-		else 
+		else
 			self:StopMovingOrSizing()
 		end
 		if(not SVUI_LayoutPrecision) then return end;
@@ -602,26 +602,26 @@ function Layout:Movable_OnMouseDown(button)
 end
 
 function Layout:Movable_HasMoved()
-	if(Layout.Anchors and Layout.Anchors[self.name]) then 
-		return true 
-	else 
-		return false 
-	end 
+	if(Layout.Anchors and Layout.Anchors[self.name]) then
+		return true
+	else
+		return false
+	end
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 CONSTRUCTS
 ##########################################################
 ]]--
 local function SetNewAnchor(frame, moveName, title, postSizeFunc, postDragFunc, callbackOnEnter)
 	if((not frame) or (not moveName) or (Layout.Frames[moveName] ~= nil)) then return end
-	--print('SetNewAnchor: '..moveName) 
+	--print('SetNewAnchor: '..moveName)
 	Layout.Frames[moveName] = {
 		text = title,
 		postsize = postSizeFunc,
 		postdrag = postDragFunc,
 		layoutString = CurrentPosition(frame)
-	} 
+	}
 
 	local grip = CreateFrame("Button", moveName, SV.Screen)
 	grip:SetFrameLevel(frame:GetFrameLevel() + 1)
@@ -633,14 +633,14 @@ local function SetNewAnchor(frame, moveName, title, postSizeFunc, postDragFunc, 
 	grip.textString = title;
 	grip.postdrag = postDragFunc;
 	grip.HasMoved = Layout.Movable_HasMoved
-	grip.snapOffset = frame.snapOffset or -2; 
+	grip.snapOffset = frame.snapOffset or -2;
 
 	local anchor1, anchorParent, anchor2, xPos, yPos
-	if(Layout.Anchors and Layout.Anchors[moveName] and (type(Layout.Anchors[moveName]) == "string")) then 
+	if(Layout.Anchors and Layout.Anchors[moveName] and (type(Layout.Anchors[moveName]) == "string")) then
 		anchor1, anchorParent, anchor2, xPos, yPos = LayoutParser(Layout.Anchors[moveName])
 	else
 		anchor1, anchorParent, anchor2, xPos, yPos = LayoutParser(CurrentPosition(frame))
-	end 
+	end
 
 	local width, height = frame:GetSize()
 	grip:SetPoint(anchor1, anchorParent, anchor2, xPos, yPos)
@@ -676,21 +676,21 @@ local function SetNewAnchor(frame, moveName, title, postSizeFunc, postDragFunc, 
 	grip:SetMovable(true)
 	grip:Hide()
 
-	if(postDragFunc and (type(postDragFunc) == "function") and callbackOnEnter) then 
+	if(postDragFunc and (type(postDragFunc) == "function") and callbackOnEnter) then
 		grip:RegisterEvent("PLAYER_ENTERING_WORLD")
 		grip:SetScript("OnEvent", function(this, event)
 			local point = Pinpoint(this)
 			postDragFunc(this, point)
 			this:UnregisterAllEvents()
 		end)
-	end 
+	end
 
 	Sticky.Frames[#Sticky.Frames + 1] = grip;
-end  
+end
 
 function Layout:Reset(request, bypass)
-	if(request == "" or request == nil) then 
-		for frameName, frameData in pairs(self.Frames) do 
+	if(request == "" or request == nil) then
+		for frameName, frameData in pairs(self.Frames) do
 			local frame = _G[frameName];
 			if(frameData.layoutString) then
 				local anchor1, anchorParent, anchor2, xPos, yPos, width, height = LayoutParser(frameData.layoutString)
@@ -703,22 +703,22 @@ function Layout:Reset(request, bypass)
 						frame:SetSize(width, height)
 						frameData.postsize(frame)
 					end
-					if(frameData.postdrag and (type(frameData.postdrag) == "function")) then 
+					if(frameData.postdrag and (type(frameData.postdrag) == "function")) then
 						frameData.postdrag(frame, Pinpoint(frame))
 					end
 				end
 			end
-			if(self.Anchors and self.Anchors[frameName]) then 
-				self.Anchors[frameName] = nil 
-			end 
+			if(self.Anchors and self.Anchors[frameName]) then
+				self.Anchors[frameName] = nil
+			end
 		end
-	else 
+	else
 		for frameName, frameData in pairs(self.Frames) do
-			if(frameData.layoutString and (request == frameData.text)) then
+			if(frameData.layoutString and (request == frameName or request == frameData.text)) then
 				local frame = _G[frameName]
 				local anchor1, anchorParent, anchor2, xPos, yPos, width, height = LayoutParser(frameData.layoutString)
 				frame:ClearAllPoints()
-				frame:SetPoint(anchor1, anchorParent, anchor2, xPos, yPos) 
+				frame:SetPoint(anchor1, anchorParent, anchor2, xPos, yPos)
 				if(not bypass) then
 					if(frameData.postsize and (type(frameData.postsize) == "function")) then
 						if(not width or width == 0) then width = frame:GetWidth() end
@@ -726,17 +726,17 @@ function Layout:Reset(request, bypass)
 						frame:SetSize(width, height)
 						frameData.postsize(frame)
 					end
-					if(frameData.postdrag and (type(frameData.postdrag) == "function")) then 
+					if(frameData.postdrag and (type(frameData.postdrag) == "function")) then
 						frameData.postdrag(frame, Pinpoint(frame))
 					end
 				end
-				if(self.Anchors and self.Anchors[frameName]) then 
-					self.Anchors[frameName] = nil 
+				if(self.Anchors and self.Anchors[frameName]) then
+					self.Anchors[frameName] = nil
 				end
 				break
 			end
-		end 
-	end 
+		end
+	end
 end
 
 function Layout:Update()
@@ -746,7 +746,7 @@ function Layout:Update()
 		local frame = _G[frameName];
 		local anchor1, parent, anchor2, x, y, width, height;
 		if frame then
-			if (self.Anchors and self.Anchors[frameName] and (type(self.Anchors[frameName]) == "string")) then 
+			if (self.Anchors and self.Anchors[frameName] and (type(self.Anchors[frameName]) == "string")) then
 				anchor1, parent, anchor2, x, y, width, height = LayoutParser(self.Anchors[frameName], frameName)
 				frame:ClearAllPoints()
 				frame:SetPoint(anchor1, parent, anchor2, x, y)
@@ -756,7 +756,7 @@ function Layout:Update()
 					frame:SetSize(width, height)
 					frameData.postsize(frame)
 				end
-			elseif(frameData.layoutString) then 
+			elseif(frameData.layoutString) then
 				anchor1, parent, anchor2, x, y, width, height = LayoutParser(frameData.layoutString, frameName)
 				frame:ClearAllPoints()
 				frame:SetPoint(anchor1, parent, anchor2, x, y)
@@ -769,23 +769,23 @@ function Layout:Update()
 			end
 		end
 	end
-end  
+end
 
 function Layout:Toggle(isConfigMode)
-	if(InCombatLockdown()) then return end 
+	if(InCombatLockdown()) then return end
 	local enabled = false;
-	if((isConfigMode ~= nil) and (isConfigMode ~= "")) then 
-		SV.ConfigurationMode = isConfigMode 
-	end 
+	if((isConfigMode ~= nil) and (isConfigMode ~= "")) then
+		SV.ConfigurationMode = isConfigMode
+	end
 
 	if(not SV.ConfigurationMode) then
-		if(SV.OptionsLoaded) then 
+		if(SV.OptionsLoaded) then
 			LibStub("AceConfigDialog-1.0"):Close(SV.NameID)
 			GameTooltip:Hide()
-			SV.ConfigurationMode = true 
-		else 
-			SV.ConfigurationMode = false 
-		end 
+			SV.ConfigurationMode = true
+		else
+			SV.ConfigurationMode = false
+		end
 	else
 		SV.ConfigurationMode = false
 	end
@@ -797,19 +797,19 @@ function Layout:Toggle(isConfigMode)
 		enabled = true
 	end
 
-	for frameName, _ in pairs(self.Frames)do 
-		if(_G[frameName]) then 
-			local movable = _G[frameName] 
-			if(not enabled) then 
-				movable:Hide() 
-			else 
-				movable:Show() 
-			end 
-		end 
+	for frameName, _ in pairs(self.Frames)do
+		if(_G[frameName]) then
+			local movable = _G[frameName]
+			if(not enabled) then
+				movable:Hide()
+			else
+				movable:Show()
+			end
+		end
 	end
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 ALIGNMENT GRAPH
 ##########################################################
 ]]--
@@ -831,9 +831,9 @@ function Graph:UpdateAllReports()
 	self.CellSize = cellSize
 
 	self.Grid = CreateFrame('Frame', nil, UIParent)
-	self.Grid:SetAllPoints(SV.Screen) 
+	self.Grid:SetAllPoints(SV.Screen)
 
-	local size = 1 
+	local size = 1
 	local width = GetScreenWidth()
 	local ratio = width / GetScreenHeight()
 	local height = GetScreenHeight() * ratio
@@ -841,36 +841,36 @@ function Graph:UpdateAllReports()
 	local wStep = width / cellSize
 	local hStep = height / cellSize
 
-	for i = 0, cellSize do 
-		local tx = self.Grid:CreateTexture(nil, 'BACKGROUND') 
-		if(i == cellSize / 2) then 
-			tx:SetTexture(0, 1, 0, 0.8) 
-		else 
-			tx:SetTexture(0, 0, 0, 0.8) 
-		end 
-		tx:SetPoint("TOPLEFT", self.Grid, "TOPLEFT", i*wStep - (size/2), 0) 
-		tx:SetPoint('BOTTOMRIGHT', self.Grid, 'BOTTOMLEFT', i*wStep + (size/2), 0) 
+	for i = 0, cellSize do
+		local tx = self.Grid:CreateTexture(nil, 'BACKGROUND')
+		if(i == cellSize / 2) then
+			tx:SetTexture(0, 1, 0, 0.8)
+		else
+			tx:SetTexture(0, 0, 0, 0.8)
+		end
+		tx:SetPoint("TOPLEFT", self.Grid, "TOPLEFT", i*wStep - (size/2), 0)
+		tx:SetPoint('BOTTOMRIGHT', self.Grid, 'BOTTOMLEFT', i*wStep + (size/2), 0)
 	end
 
 	height = GetScreenHeight()
-	
+
 	do
-		local tx = self.Grid:CreateTexture(nil, 'BACKGROUND') 
+		local tx = self.Grid:CreateTexture(nil, 'BACKGROUND')
 		tx:SetTexture(0, 1, 0, 0.8)
 		tx:SetPoint("TOPLEFT", self.Grid, "TOPLEFT", 0, -(height/2) + (size/2))
 		tx:SetPoint('BOTTOMRIGHT', self.Grid, 'TOPRIGHT', 0, -(height/2 + size/2))
 	end
-	
+
 	for i = 1, floor((height/2)/hStep) do
-		local tx = self.Grid:CreateTexture(nil, 'BACKGROUND') 
+		local tx = self.Grid:CreateTexture(nil, 'BACKGROUND')
 		tx:SetTexture(0, 0, 0, 0.8)
-		
+
 		tx:SetPoint("TOPLEFT", self.Grid, "TOPLEFT", 0, -(height/2+i*hStep) + (size/2))
 		tx:SetPoint('BOTTOMRIGHT', self.Grid, 'TOPRIGHT', 0, -(height/2+i*hStep + size/2))
-		
-		tx = self.Grid:CreateTexture(nil, 'BACKGROUND') 
+
+		tx = self.Grid:CreateTexture(nil, 'BACKGROUND')
 		tx:SetTexture(0, 0, 0, 0.8)
-		
+
 		tx:SetPoint("TOPLEFT", self.Grid, "TOPLEFT", 0, -(height/2-i*hStep) + (size/2))
 		tx:SetPoint('BOTTOMRIGHT', self.Grid, 'TOPRIGHT', 0, -(height/2-i*hStep + size/2))
 	end
@@ -881,17 +881,17 @@ end
 function Graph:Initialize()
 	self:UpdateAllReports()
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 SCRIPT AND EVENT HANDLERS
 ##########################################################
 ]]--
 local XML_Layout_OnEvent = function(self)
-	if self:IsShown() then 
+	if self:IsShown() then
 		self:Hide()
 		Layout:Toggle(true)
 	end
-end 
+end
 
 local XML_LayoutGridButton_OnClick = function(self)
 	local enabled = true
@@ -905,25 +905,25 @@ end
 local XML_LayoutLockButton_OnClick = function(self)
 	Graph:Toggle()
 	Layout:Toggle(true)
-	if(SV.OptionsLoaded) then 
+	if(SV.OptionsLoaded) then
 		LibStub("AceConfigDialog-1.0"):Open(SV.NameID)
-	end 
+	end
 end
 
 local SVUI_LayoutPrecisionResetButton_OnClick = function(self)
 	if(not CurrentFrameTarget) then return end
 	local name = CurrentFrameTarget.name
 	Layout:Reset(name)
-end 
+end
 
 local XML_LayoutPrecisionInputX_EnterPressed = function(self)
 	local current = tonumber(self:GetText())
-	if(current) then 
+	if(current) then
 		if(CurrentFrameTarget) then
 			local xOffset, yOffset, anchor = CalculateOffsets()
 			yOffset = tonumber(SVUI_LayoutPrecisionSetY.CurrentValue)
 			CurrentFrameTarget:ClearAllPoints()
-			CurrentFrameTarget:ModPoint(anchor, SVUIParent, anchor, current, yOffset)
+			CurrentFrameTarget:SetPoint(anchor, SVUIParent, anchor, current, yOffset)
 			SaveAnchor(CurrentFrameTarget.name)
 		end
 		self.CurrentValue = current
@@ -934,12 +934,12 @@ end
 
 local XML_LayoutPrecisionInputY_EnterPressed = function(self)
 	local current = tonumber(self:GetText())
-	if(current) then 
+	if(current) then
 		if(CurrentFrameTarget) then
 			local xOffset, yOffset, anchor = CalculateOffsets()
 			xOffset = tonumber(SVUI_LayoutPrecisionSetX.CurrentValue)
 			CurrentFrameTarget:ClearAllPoints()
-			CurrentFrameTarget:ModPoint(anchor, SVUIParent, anchor, xOffset, current)
+			CurrentFrameTarget:SetPoint(anchor, SVUIParent, anchor, xOffset, current)
 			SaveAnchor(CurrentFrameTarget.name)
 		end
 		self.CurrentValue = current
@@ -947,8 +947,8 @@ local XML_LayoutPrecisionInputY_EnterPressed = function(self)
 	self:SetText(floor((self.CurrentValue or 0) + 0.5))
 	EditBox_ClearFocus(self)
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 DRAGGABLES
 ##########################################################
 ]]--
@@ -969,7 +969,7 @@ local function SetDraggablePoint(frame, data)
 end
 
 local function SaveCurrentPosition(frame)
-	if not frame then return end 
+	if not frame then return end
 	local result;
 	local frameName = frame:GetName()
 	local anchor1, parent, anchor2, x, y = frame:GetPoint()
@@ -977,8 +977,8 @@ local function SaveCurrentPosition(frame)
 		result = "TBD";
 	else
 		local parentName
-		if(not parent or (parent and (not parent:GetName()))) then 
-			parentName = "UIParent" 
+		if(not parent or (parent and (not parent:GetName()))) then
+			parentName = "UIParent"
 		else
 			parentName = parent:GetName()
 		end
@@ -993,7 +993,7 @@ local function SaveCurrentPosition(frame)
 end
 
 local DraggerFrame_OnDragStart = function(self)
-	if(not self:IsMovable()) then return; end 
+	if(not self:IsMovable()) then return; end
 	self:StartMoving();
 	local data = UIPanels[self:GetName()];
 	if(data) then
@@ -1070,14 +1070,14 @@ local DraggerEventHandler = function(self, event, ...)
 	for frameName, data in pairs(UIPanels) do
 		if(not self.Frames[frameName] or (self.Frames[frameName] and type(self.Frames[frameName]) ~= 'string')) then
 			self.Frames[frameName] = 'TBD'
-			noMoreChanges = false; 
+			noMoreChanges = false;
 		end
-		if(not data.initialized) then 
+		if(not data.initialized) then
 			local frame = _G[frameName]
 			if(frame) then
 				frame:EnableMouse(true)
 
-				if(frameName == "LFGDungeonReadyPopup") then 
+				if(frameName == "LFGDungeonReadyPopup") then
 					LFGDungeonReadyDialog:EnableMouse(false)
 				end
 
@@ -1130,7 +1130,7 @@ end
 --[[METHODS]]--
 
 function Dragger:New(frameName)
-	if(not UIPanels[frameName]) then 
+	if(not UIPanels[frameName]) then
 		UIPanels[frameName] = { moving = false, snapped = false, canupdate = false, cansetpoint = false, centered = false };
 		if(not self.EventsActive) then
 			self:RegisterEvent("ADDON_LOADED")
@@ -1185,10 +1185,10 @@ function Dragger:Reset()
 		self.EventsActive = true;
 	end
 
-	ReloadUI() 
+	ReloadUI()
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 LOAD BY TRIGGER
 ##########################################################
 ]]--
@@ -1201,7 +1201,7 @@ local function InitializeMovables()
 	Layout.Portrait:SetTexture([[Interface\AddOns\SVUI_!Core\assets\textures\Doodads\MENTALO-OFF]])
 
 
-	SVUI_LayoutLockButton:ModSize(110, 25)
+	SVUI_LayoutLockButton:SetSize(110, 25)
 	SVUI_LayoutLockButton.Left:SetAlpha(0)
     SVUI_LayoutLockButton.Middle:SetAlpha(0)
     SVUI_LayoutLockButton.Right:SetAlpha(0)
@@ -1212,7 +1212,7 @@ local function InitializeMovables()
     SVUI_LayoutLockButton:RemoveTextures()
     SVUI_LayoutLockButton:SetFrameLevel(SVUI_LayoutLockButton:GetFrameLevel() + 1)
 	SVUI_LayoutLockButton.texture = SVUI_LayoutLockButton:CreateTexture(nil, "BORDER")
-	SVUI_LayoutLockButton.texture:ModSize(110, 50)
+	SVUI_LayoutLockButton.texture:SetSize(110, 50)
 	SVUI_LayoutLockButton.texture:SetPoint("CENTER", SVUI_LayoutLockButton, "CENTER", 0, -4)
 	SVUI_LayoutLockButton.texture:SetTexture([[Interface\AddOns\SVUI_!Core\assets\textures\Doodads\QUESTION]])
 	SVUI_LayoutLockButton.texture:SetVertexColor(1, 1, 1)
@@ -1232,7 +1232,7 @@ local function InitializeMovables()
 	end)
 	SVUI_LayoutLockButton:SetScript("OnClick", XML_LayoutLockButton_OnClick)
 
-	SVUI_LayoutGridButton:ModSize(110, 25)
+	SVUI_LayoutGridButton:SetSize(110, 25)
 	SVUI_LayoutGridButton.Left:SetAlpha(0)
     SVUI_LayoutGridButton.Middle:SetAlpha(0)
     SVUI_LayoutGridButton.Right:SetAlpha(0)
@@ -1243,7 +1243,7 @@ local function InitializeMovables()
     SVUI_LayoutGridButton:RemoveTextures()
     SVUI_LayoutGridButton:SetFrameLevel(SVUI_LayoutGridButton:GetFrameLevel() + 1)
 	SVUI_LayoutGridButton.texture = SVUI_LayoutGridButton:CreateTexture(nil, "BORDER")
-	SVUI_LayoutGridButton.texture:ModSize(110, 50)
+	SVUI_LayoutGridButton.texture:SetSize(110, 50)
 	SVUI_LayoutGridButton.texture:SetPoint("CENTER", SVUI_LayoutGridButton, "CENTER", 0, -4)
 	SVUI_LayoutGridButton.texture:SetTexture([[Interface\AddOns\SVUI_!Core\assets\textures\Doodads\QUESTION]])
 	SVUI_LayoutGridButton.texture:SetVertexColor(1, 1, 1)
@@ -1273,42 +1273,47 @@ local function InitializeMovables()
 	SVUI_LayoutPrecisionSetY.CurrentValue = 0;
 	SVUI_LayoutPrecisionSetY:SetScript("OnEnterPressed", XML_LayoutPrecisionInputY_EnterPressed)
 
+	SVUI_LayoutPrecisionResetButton:SetStyle("Button")
 	SVUI_LayoutPrecisionUpButton:SetStyle("Button")
 	SVUI_LayoutPrecisionDownButton:SetStyle("Button")
 	SVUI_LayoutPrecisionLeftButton:SetStyle("Button")
 	SVUI_LayoutPrecisionRightButton:SetStyle("Button")
-	
+
+	SVUI_LayoutPrecisionResetButton:SetScript("OnClick", SVUI_LayoutPrecisionResetButton_OnClick)
+
 	Layout:Update()
 
-	if(not SV.private.Draggables) then SV.private.Draggables = {} end
+	if(SV.db.general.useDraggable) then
+		if(not SV.private.Draggables) then SV.private.Draggables = {} end
 
-	if(SV.db.general.saveDraggable) then
-		Dragger.Frames = SV.private.Draggables
-	else
-		Dragger.Frames = {}
-	end
+		if(SV.db.general.saveDraggable) then
+			Dragger.Frames = SV.private.Draggables
+		else
+			Dragger.Frames = {}
+		end
 
-	Dragger.EventsActive = true
+		Dragger.EventsActive = true
 
-	Dragger:RegisterEvent("ADDON_LOADED")
-	Dragger:RegisterEvent("LFG_UPDATE")
-	Dragger:RegisterEvent("ROLE_POLL_BEGIN")
-	Dragger:RegisterEvent("READY_CHECK")
-	Dragger:RegisterEvent("UPDATE_WORLD_STATES")
-	Dragger:RegisterEvent("WORLD_STATE_TIMER_START")
-	Dragger:RegisterEvent("WORLD_STATE_UI_TIMER_UPDATE")
+		Dragger:RegisterEvent("ADDON_LOADED")
+		Dragger:RegisterEvent("LFG_UPDATE")
+		Dragger:RegisterEvent("ROLE_POLL_BEGIN")
+		Dragger:RegisterEvent("READY_CHECK")
+		Dragger:RegisterEvent("UPDATE_WORLD_STATES")
+		Dragger:RegisterEvent("WORLD_STATE_TIMER_START")
+		Dragger:RegisterEvent("WORLD_STATE_UI_TIMER_UPDATE")
 
-	DraggerEventHandler(Dragger)
-	Dragger:SetScript("OnEvent", DraggerEventHandler)
+		DraggerEventHandler(Dragger)
+		Dragger:SetScript("OnEvent", DraggerEventHandler)
 
-	if(SV.db.general.saveDraggable) then
-		hooksecurefunc("UIParent_ManageFramePositions", _hook_UIParent_ManageFramePositions)
+		if(SV.db.general.saveDraggable) then
+			hooksecurefunc("UIParent_ManageFramePositions", _hook_UIParent_ManageFramePositions)
+		end
 	end
 end
 
 SV.Events:On("LOAD_ALL_WIDGETS", InitializeMovables);
---[[ 
-########################################################## 
+--[[
+##########################################################
 CORE FUNCTIONS
 ##########################################################
 ]]--
@@ -1328,7 +1333,7 @@ function SV:ReAnchor(name, ...)
 	local grip = frame.Grip
 	grip:SetPoint(...)
 	SaveAnchor(grip.name)
-end 
+end
 
 function SV:MoveAnchors(arg)
 	Layout:Toggle(arg)
@@ -1343,31 +1348,31 @@ function SV:ResetAnchors(...)
 end
 
 function SV:ForceAnchors(forced)
-	if(Layout.Frames) then 
-        for frame,_ in pairs(Layout.Frames) do 
-            if _G[frame] and _G[frame]:IsShown() then 
+	if(Layout.Frames) then
+        for frame,_ in pairs(Layout.Frames) do
+            if _G[frame] and _G[frame]:IsShown() then
                 forced = true;
                 _G[frame]:Hide()
-            end 
-        end 
+            end
+        end
     end
     return forced
 end
 
 SV.SystemAlert["RESETBLIZZARD_CHECK"] = {
-	text = L["Are you sure you want to all draggable Blizzard frames to their original positions? This will reload your UI."], 
-	button1 = ACCEPT, 
-	button2 = CANCEL, 
-	OnAccept = function(a) Dragger:Reset() end, 
-	timeout = 0, 
+	text = L["Are you sure you want to all draggable Blizzard frames to their original positions? This will reload your UI."],
+	button1 = ACCEPT,
+	button2 = CANCEL,
+	OnAccept = function(a) Dragger:Reset() end,
+	timeout = 0,
 	whileDead = 1
 };
 
 SV.SystemAlert["RESETLAYOUT_CHECK"] = {
-	text = L["Are you sure you want to all movable frames to their original positions?"], 
-	button1 = ACCEPT, 
-	button2 = CANCEL, 
-	OnAccept = function(a) Layout:Reset() end, 
-	timeout = 0, 
+	text = L["Are you sure you want to all movable frames to their original positions?"],
+	button1 = ACCEPT,
+	button2 = CANCEL,
+	OnAccept = function(a) Layout:Reset() end,
+	timeout = 0,
 	whileDead = 1
 };

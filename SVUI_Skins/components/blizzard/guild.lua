@@ -18,15 +18,15 @@ local SV = _G['SVUI'];
 local L = SV.L;
 local MOD = SV.Skins;
 local Schema = MOD.Schema;
---[[ 
-########################################################## 
+--[[
+##########################################################
 HELPERS
 ##########################################################
 ]]--
 local format = string.format;
 local internalTest = false;
 
-local GuildFrameList = {	
+local GuildFrameList = {
 	"GuildNewPerksFrame",
 	"GuildFrameInset",
 	"GuildFrameBottomInset",
@@ -84,7 +84,7 @@ local CalendarIconList = {
 	[CALENDAR_EVENTTYPE_OTHER] = "Interface\\Calendar\\UI-Calendar-Event-Other"
 };
 
-local LFGFrameList = {  
+local LFGFrameList = {
   "LookingForGuildPvPButton",
   "LookingForGuildWeekendsButton",
   "LookingForGuildWeekdaysButton",
@@ -98,13 +98,13 @@ local function GCTabHelper(tab)
 	tab.Panel:Hide()
 	tab.bg1 = tab:CreateTexture(nil,"BACKGROUND")
 	tab.bg1:SetDrawLayer("BACKGROUND",4)
-	tab.bg1:SetTexture(SV.BaseTexture)
+	tab.bg1:SetTexture(SV.media.background.transparent)
 	tab.bg1:SetVertexColor(unpack(SV.media.color.default))
 	tab.bg1:InsetPoints(tab.Panel,1)
 	tab.bg3 = tab:CreateTexture(nil,"BACKGROUND")
 	tab.bg3:SetDrawLayer("BACKGROUND",2)
 	tab.bg3:SetTexture(0,0,0,1)
-	tab.bg3:SetAllPoints(tab.Panel) 
+	tab.bg3:SetAllPoints(tab.Panel)
 end
 
 local function Tab_OnEnter(this)
@@ -137,21 +137,21 @@ local function ChangeTabHelper(this)
 	this:SetScript("OnLeave", Tab_OnLeave)
 
 	local a,b,c,d,e = this:GetPoint()
-	this:ModPoint(a,b,c,1,e)
-end 
+	this:SetPoint(a,b,c,1,e)
+end
 
 local function StyleSortingButton(button)
-	if button.styled then return end 
+	if button.styled then return end
 
 	local outer = button:CreateTexture(nil, "OVERLAY")
 	outer:WrapPoints(button, 6, 6)
 	outer:SetTexture(SV.media.button.round)
-	outer:SetGradient("VERTICAL", 0.4, 0.47, 0.5, 0.3, 0.33, 0.35) 
-	
+	outer:SetGradient("VERTICAL", 0.4, 0.47, 0.5, 0.3, 0.33, 0.35)
+
 	local icon = button:CreateTexture(nil, "OVERLAY")
 	icon:WrapPoints(button, 6, 6)
 
-	if button.SetNormalTexture then 
+	if button.SetNormalTexture then
 		local iconTex = button:GetNormalTexture()
 		iconTex:SetGradient("VERTICAL", 0.5, 0.53, 0.55, 0.8, 0.8, 1)
 		SetPortraitToTexture(icon, iconTex)
@@ -163,53 +163,53 @@ local function StyleSortingButton(button)
 	hover:SetTexture(SV.media.button.round)
 	hover:SetGradient(unpack(SV.media.gradient.yellow))
 
-	if button.SetPushedTexture then 
+	if button.SetPushedTexture then
 		local pushed = button:CreateTexture(nil, "BORDER")
 		pushed:WrapPoints(button, 6, 6)
 		pushed:SetTexture(SV.media.button.round)
 		pushed:SetGradient(unpack(SV.media.gradient.highlight))
 		button:SetPushedTexture(pushed)
-	end 
+	end
 
-	if button.SetCheckedTexture then 
+	if button.SetCheckedTexture then
 		local checked = button:CreateTexture(nil, "BORDER")
 		checked:WrapPoints(button, 6, 6)
 		checked:SetTexture(SV.media.button.round)
 		checked:SetGradient(unpack(SV.media.gradient.green))
 		button:SetCheckedTexture(checked)
-	end 
+	end
 
-	if button.SetDisabledTexture then 
+	if button.SetDisabledTexture then
 		local disabled = button:CreateTexture(nil, "BORDER")
 		disabled:WrapPoints(button, 6, 6)
 		disabled:SetTexture(SV.media.button.round)
 		disabled:SetGradient(unpack(SV.media.gradient.default))
 		button:SetDisabledTexture(disabled)
-	end 
+	end
 
 	local cd = button:GetName() and _G[button:GetName().."Cooldown"]
-	if cd then 
+	if cd then
 		cd:ClearAllPoints()
 		cd:InsetPoints()
-	end 
+	end
 	button.styled = true
 end
 
 local _hook_RankOrder_OnUpdate = function()
-	for i = 1, GuildControlGetNumRanks()do 
+	for i = 1, GuildControlGetNumRanks()do
 		local frame = _G["GuildControlUIRankOrderFrameRank"..i]
-		if frame then 
+		if frame then
 			frame.downButton:SetStyle("Button")
 			frame.upButton:SetStyle("Button")
 			frame.deleteButton:SetStyle("Button")
-			if not frame.nameBox.Panel then 
+			if not frame.nameBox.Panel then
 				frame.nameBox:SetStyle("Editbox")
-			end 
-			frame.nameBox.Panel:ModPoint("TOPLEFT",-2,-4)
-			frame.nameBox.Panel:ModPoint("BOTTOMRIGHT",-4,4)
-		end 
-	end 
-end 
+			end
+			frame.nameBox.Panel:SetPoint("TOPLEFT",-2,-4)
+			frame.nameBox.Panel:SetPoint("BOTTOMRIGHT",-4,4)
+		end
+	end
+end
 
 local function GuildInfoEvents_SetButton(button, eventIndex)
 	local dateData = date("*t")
@@ -217,34 +217,34 @@ local function GuildInfoEvents_SetButton(button, eventIndex)
 	local formattedTime = GameTime_GetFormattedTime(hour, minute, true)
 	local unformattedText;
 	if dateData["day"] == day and dateData["month"] == month then
-		unformattedText = NORMAL_FONT_COLOR_CODE..GUILD_EVENT_TODAY..FONT_COLOR_CODE_CLOSE 
+		unformattedText = NORMAL_FONT_COLOR_CODE..GUILD_EVENT_TODAY..FONT_COLOR_CODE_CLOSE
 	else
 		local year = dateData["year"]
 		if month < dateData["month"] then
-			year = year + 1 
-		end 
+			year = year + 1
+		end
 		local newTime = time{year = year, month = month, day = day}
 		if(((newTime - time()) < 518400) and CALENDAR_WEEKDAY_NAMES[weekday]) then
 			unformattedText = CALENDAR_WEEKDAY_NAMES[weekday]
-		elseif CALENDAR_WEEKDAY_NAMES[weekday]and day and month then 
+		elseif CALENDAR_WEEKDAY_NAMES[weekday]and day and month then
 			unformattedText = format(GUILD_NEWS_DATE, CALENDAR_WEEKDAY_NAMES[weekday], day, month)
-		end 
-	end 
+		end
+	end
 	if button.text and unformattedText then
 		button.text:SetFormattedText(GUILD_EVENT_FORMAT, unformattedText, formattedTime, title)
-	end 
+	end
 	button.index = eventIndex;
 	if button.icon.type ~= "event" then
 		button.icon.type = "event"
 		button.icon:SetTexCoord(0, 1, 0, 1)
 		button.icon:SetWidth(14)
 		button.icon:SetHeight(14)
-	end 
+	end
 	if CalendarIconList[eventType] then
 		button.icon:SetTexture(CalendarIconList[eventType])
 	else
 		button.icon:SetTexture("Interface\\LFGFrame\\LFGIcon-"..textureName)
-	end 
+	end
 end
 
 local _hook_UIRankOrder = function(self)
@@ -252,7 +252,7 @@ local _hook_UIRankOrder = function(self)
 end
 
 local _hook_GuildBankFrame_Update = function(self)
-	if GuildBankFrame.mode ~= "bank" then return end 
+	if GuildBankFrame.mode ~= "bank" then return end
 	local curTab = GetCurrentGuildBankTab()
 	local numSlots = NUM_SLOTS_PER_GUILDBANK_GROUP
 	local maxSlots = MAX_GUILDBANK_SLOTS_PER_TAB
@@ -260,7 +260,7 @@ local _hook_GuildBankFrame_Update = function(self)
 	for i = 1, maxSlots do
 		btnID = i % numSlots
 		if btnID == 0 then
-			btnID = numSlots 
+			btnID = numSlots
 		end
 		slotID = ceil((i - 0.5) / numSlots)
 		btnName = ("GuildBankColumn%dButton%d"):format(slotID, btnID)
@@ -273,10 +273,10 @@ local _hook_GuildBankFrame_Update = function(self)
 				if(quality > 1) then
 					r, g, b = GetItemQualityColor(quality)
 				end
-			end 
+			end
 			button:SetBackdropBorderColor(r, g, b, a)
 		end
-	end 
+	end
 end
 
 local _hook_BankTabPermissions = function(self)
@@ -284,15 +284,15 @@ local _hook_BankTabPermissions = function(self)
 
 	tabs = GetNumGuildBankTabs()
 
-	if tabs < MAX_BUY_GUILDBANK_TABS then 
-		tabs = tabs + 1 
+	if tabs < MAX_BUY_GUILDBANK_TABS then
+		tabs = tabs + 1
 	end
 
-	for i = 1, tabs do 
+	for i = 1, tabs do
 		baseName = ("GuildControlBankTab%d"):format(i)
 		ownedName = ("%sOwned"):format(baseName)
 		tab = _G[ownedName]
-		
+
 		if(tab) then
 			if(tab.tabIcon) then tab.tabIcon:SetTexCoord(unpack(_G.SVUI_ICON_COORDS)) end
 			if(tab.editBox) then tab.editBox:SetStyle("Editbox") end
@@ -324,30 +324,30 @@ local _hook_BankTabPermissions = function(self)
 				end
 			end
 		end
-	end 
-	internalTest = true 
+	end
+	internalTest = true
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 GUILDFRAME MODRS
 ##########################################################
 ]]--
 local function GuildBankStyle()
 	if SV.db.Skins.blizzard.enable ~= true or SV.db.Skins.blizzard.gbank ~= true then
-		return 
+		return
 	end
 
 	SV.API:Set("Window", GuildBankFrame)
 
 	GuildBankEmblemFrame:RemoveTextures(true)
 	GuildBankMoneyFrameBackground:Die()
-	SV.API:Set("ScrollFrame", GuildBankPopupScrollFrameScrollBar)
+	SV.API:Set("ScrollBar", GuildBankPopupScrollFrameScrollBar)
 
-	for i = 1, GuildBankFrame:GetNumChildren() do 
+	for i = 1, GuildBankFrame:GetNumChildren() do
 		local child = select(i, GuildBankFrame:GetChildren())
 		if(child and child.GetPushedTexture and child:GetPushedTexture() and not child:GetName()) then
 			SV.API:Set("CloseButton", child)
-		end 
+		end
 	end
 
 	GuildBankFrameDepositButton:SetStyle("Button")
@@ -358,27 +358,27 @@ local function GuildBankStyle()
 	-- local BAGS = SV.Inventory
 	-- if(BAGS) then
 		-- local sortButton = CreateFrame("Button", nil, GuildBankFrame)
-		-- sortButton:ModPoint("BOTTOMLEFT", GuildBankFrame, "BOTTOMRIGHT", 2, 0)
-		-- sortButton:ModSize(36, 36)
-		-- sortButton:SetStyle("DockButton") 
+		-- sortButton:SetPoint("BOTTOMLEFT", GuildBankFrame, "BOTTOMRIGHT", 2, 0)
+		-- sortButton:SetSize(36, 36)
+		-- sortButton:SetStyle("DockButton")
 		-- sortButton:SetNormalTexture(BAGS.media.cleanupIcon)
 		-- StyleSortingButton(sortButton)
 		-- local Sort_OnClick = BAGS:RunSortingProcess(BAGS.Sort, "guild")
 		-- sortButton:SetScript("OnClick", Sort_OnClick)
 	-- end
 
-	GuildBankFrameWithdrawButton:ModPoint("RIGHT", GuildBankFrameDepositButton, "LEFT", -2, 0)
-	GuildBankInfoScrollFrame:ModPoint('TOPLEFT', GuildBankInfo, 'TOPLEFT', -10, 12)
+	GuildBankFrameWithdrawButton:SetPoint("RIGHT", GuildBankFrameDepositButton, "LEFT", -2, 0)
+	GuildBankInfoScrollFrame:SetPoint('TOPLEFT', GuildBankInfo, 'TOPLEFT', -10, 12)
 	GuildBankInfoScrollFrame:RemoveTextures()
-	GuildBankInfoScrollFrame:ModWidth(GuildBankInfoScrollFrame:GetWidth()-8)
+	GuildBankInfoScrollFrame:SetWidth(GuildBankInfoScrollFrame:GetWidth()-8)
 	GuildBankTransactionsScrollFrame:RemoveTextures()
-	
+
 	for i = 1, NUM_GUILDBANK_COLUMNS do
 		local frame = _G["GuildBankColumn"..i]
 		if(frame) then
 			frame:RemoveTextures()
 			local baseName = ("GuildBankColumn%dButton"):format(i)
-			for slotID = 1, NUM_SLOTS_PER_GUILDBANK_GROUP do 
+			for slotID = 1, NUM_SLOTS_PER_GUILDBANK_GROUP do
 				local btnName = ("%s%d"):format(baseName, slotID)
 				local button = _G[btnName]
 				if(button) then
@@ -397,7 +397,7 @@ local function GuildBankStyle()
 				end
 			end
 		end
-	end 
+	end
 
 	for i = 1, 8 do
 		local baseName = ("GuildBankTab%d"):format(i)
@@ -416,7 +416,7 @@ local function GuildBankStyle()
 				end
 			end
 		end
-	end 
+	end
 
 	for i = 1, 4 do
 		local baseName = ("GuildBankFrameTab%d"):format(i)
@@ -424,14 +424,14 @@ local function GuildBankStyle()
 		if(frame) then
 			SV.API:Set("Tab", _G[baseName])
 		end
-	end 
+	end
 
 	hooksecurefunc('GuildBankFrame_Update', _hook_GuildBankFrame_Update)
 
 	GuildBankPopupFrame:RemoveTextures()
 	GuildBankPopupScrollFrame:RemoveTextures()
 	GuildBankPopupFrame:SetStyle("!_Frame", "Transparent", true)
-	GuildBankPopupFrame:ModPoint("TOPLEFT", GuildBankFrame, "TOPRIGHT", 1, -30)
+	GuildBankPopupFrame:SetPoint("TOPLEFT", GuildBankFrame, "TOPRIGHT", 1, -30)
 	GuildBankPopupOkayButton:SetStyle("Button")
 	GuildBankPopupCancelButton:SetStyle("Button")
 	GuildBankPopupEditBox:SetStyle("Editbox")
@@ -440,8 +440,8 @@ local function GuildBankStyle()
 	GuildBankPopupNameMiddle:Die()
 	GuildItemSearchBox:RemoveTextures()
 	GuildItemSearchBox:SetStyle("Frame", "Overlay")
-	GuildItemSearchBox.Panel:ModPoint("TOPLEFT", 10, -1)
-	GuildItemSearchBox.Panel:ModPoint("BOTTOMRIGHT", 4, 1)
+	GuildItemSearchBox.Panel:SetPoint("TOPLEFT", 10, -1)
+	GuildItemSearchBox.Panel:SetPoint("BOTTOMRIGHT", 4, 1)
 
 	for i = 1, 16 do
 		local btnName = ("GuildBankPopupButton%d"):format(i)
@@ -457,17 +457,17 @@ local function GuildBankStyle()
 				icon:SetTexCoord(unpack(_G.SVUI_ICON_COORDS))
 			end
 		end
-	end 
+	end
 
-	SV.API:Set("ScrollFrame", GuildBankTransactionsScrollFrameScrollBar)
-	SV.API:Set("ScrollFrame", GuildBankInfoScrollFrameScrollBar)
-end 
+	SV.API:Set("ScrollBar", GuildBankTransactionsScrollFrameScrollBar)
+	SV.API:Set("ScrollBar", GuildBankInfoScrollFrameScrollBar)
+end
 
 local function GuildFrameStyle()
 	if SV.db.Skins.blizzard.enable ~= true or SV.db.Skins.blizzard.guild ~= true then
-		return 
+		return
 	end
-	
+
 	SV.API:Set("Window", GuildFrame)
 
 	SV.API:Set("CloseButton", GuildMemberDetailCloseButton)
@@ -488,26 +488,26 @@ local function GuildFrameStyle()
 			button:RemoveTextures(true)
 			button:SetStyle("Button")
 		end
-	end 
+	end
 
 	for i = 1, #GuildCheckBoxList do
 		local check = _G[GuildCheckBoxList[i]]
 		if(check) then check:SetStyle("Checkbox") end
-	end 
+	end
 
 	for i = 1, 5 do
 		local tab = _G["GuildFrameTab"..i]
 		if(tab) then
 			SV.API:Set("Tab", tab)
 			if i == 1 then
-				tab:ModPoint("TOPLEFT", GuildFrame, "BOTTOMLEFT", -10, 3)
+				tab:SetPoint("TOPLEFT", GuildFrame, "BOTTOMLEFT", -10, 3)
 			end
 		end
 	end
-	
+
 	GuildNewsBossModel:SetStyle("Frame", 'Transparent')
 	GuildNewsBossModelTextFrame:SetStyle("Frame", "Default")
-	GuildNewsBossModelTextFrame.Panel:ModPoint("TOPLEFT", GuildNewsBossModel.Panel, "BOTTOMLEFT", 0, -1)
+	GuildNewsBossModelTextFrame.Panel:SetPoint("TOPLEFT", GuildNewsBossModel.Panel, "BOTTOMLEFT", 0, -1)
 	GuildNewsBossModel:SetPoint("TOPLEFT", GuildFrame, "TOPRIGHT", 4, -43)
 
 	GuildRecruitmentTankButton.checkButton:SetStyle("Checkbox")
@@ -515,13 +515,13 @@ local function GuildFrameStyle()
 	GuildRecruitmentDamagerButton.checkButton:SetStyle("Checkbox")
 
 	GuildFactionBar:RemoveTextures()
-	GuildFactionBar.progress:SetTexture(SV.BaseTexture)
+	GuildFactionBar.progress:SetTexture(SV.media.statusbar.default)
 	GuildFactionBar:SetStyle("Frame", "Inset")
-	GuildFactionBar.Panel:ModPoint("TOPLEFT", GuildFactionBar.progress, "TOPLEFT", -1, 1)
-	GuildFactionBar.Panel:ModPoint("BOTTOMRIGHT", GuildFactionBar, "BOTTOMRIGHT", 1, 1)
-	
+	GuildFactionBar.Panel:SetPoint("TOPLEFT", GuildFactionBar.progress, "TOPLEFT", -1, 1)
+	GuildFactionBar.Panel:SetPoint("BOTTOMRIGHT", GuildFactionBar, "BOTTOMRIGHT", 1, 1)
+
 	GuildRosterContainer:SetStyle("Frame", "Inset")
-	SV.API:Set("ScrollFrame", GuildRosterContainerScrollBar, 4, -4)
+	SV.API:Set("ScrollBar", GuildRosterContainerScrollBar, 4, -4)
 	GuildRosterShowOfflineButton:SetStyle("Checkbox")
 
 	for i = 1, 4 do
@@ -529,7 +529,7 @@ local function GuildFrameStyle()
 		if(btn) then
 			btn:RemoveTextures(true)
 		end
-	end 
+	end
 
 	SV.API:Set("DropDown", GuildRosterViewDropdown, 200)
 
@@ -557,8 +557,8 @@ local function GuildFrameStyle()
 			if(btn.header) then btn.header:Die() end
 			btn:RemoveTextures()
 			btn:SetStyle("Button")
-		end 
-	end 
+		end
+	end
 
 	GuildNewsFiltersFrame:RemoveTextures()
 	GuildNewsFiltersFrame:SetStyle("!_Frame", "Transparent", true)
@@ -569,11 +569,11 @@ local function GuildFrameStyle()
 		if(btn) then
 			btn:SetStyle("Checkbox")
 		end
-	end 
+	end
 
-	GuildNewsFiltersFrame:ModPoint("TOPLEFT", GuildFrame, "TOPRIGHT", 4, -20)
-	SV.API:Set("ScrollFrame", GuildNewsContainerScrollBar, 4, 4)
-	SV.API:Set("ScrollFrame", GuildInfoDetailsFrameScrollBar, 4, 4)
+	GuildNewsFiltersFrame:SetPoint("TOPLEFT", GuildFrame, "TOPRIGHT", 4, -20)
+	SV.API:Set("ScrollBar", GuildNewsContainerScrollBar, 4, 4)
+	SV.API:Set("ScrollBar", GuildInfoDetailsFrameScrollBar, 4, 4)
 
 	for i = 1, 3 do
 		local tab = _G["GuildInfoFrameTab"..i]
@@ -599,12 +599,12 @@ local function GuildFrameStyle()
 
 	GuildRecruitmentCommentInputFrame:SetStyle("!_Frame", "Default")
 	GuildTextEditFrame:SetStyle("!_Frame", "Transparent", true)
-	SV.API:Set("ScrollFrame", GuildTextEditScrollFrameScrollBar, 4, 4)
+	SV.API:Set("ScrollBar", GuildTextEditScrollFrameScrollBar, 4, 4)
 	GuildTextEditContainer:SetStyle("!_Frame", "Default")
 
 	local editChildren = GuildTextEditFrame:GetNumChildren()
 
-	for i = 1, editChildren do 
+	for i = 1, editChildren do
 		local child = select(i, GuildTextEditFrame:GetChildren())
 		if(child:GetName() == "GuildTextEditFrameCloseButton") then
 			if(child:GetWidth() < 33) then
@@ -612,30 +612,30 @@ local function GuildFrameStyle()
 			else
 				child:SetStyle("Button")
 			end
-		end 
+		end
 	end
 
-	SV.API:Set("ScrollFrame", GuildLogScrollFrameScrollBar, 4, 4)
+	SV.API:Set("ScrollBar", GuildLogScrollFrameScrollBar, 4, 4)
 	GuildLogFrame:SetStyle("Frame", 'Transparent')
 
 	local logChildren = GuildLogFrame:GetNumChildren()
 
-	for i = 1, logChildren do 
+	for i = 1, logChildren do
 		local child = select(i, GuildLogFrame:GetChildren())
-		if child:GetName() == "GuildLogFrameCloseButton" then 
+		if child:GetName() == "GuildLogFrameCloseButton" then
 			if(child:GetWidth() < 33) then
 				SV.API:Set("CloseButton", child)
 			else
 				child:SetStyle("Button")
 			end
-		end 
-	end 
+		end
+	end
 
 	GuildRewardsFrame:SetStyle("Frame", "Inset")
-	SV.API:Set("ScrollFrame", GuildRewardsContainerScrollBar, 4, -4)
-	SV.API:Set("ScrollFrame", GuildPerksContainerScrollBar, 4, 2)
+	SV.API:Set("ScrollBar", GuildRewardsContainerScrollBar, 4, -4)
+	SV.API:Set("ScrollBar", GuildPerksContainerScrollBar, 4, 2)
 
-	for i = 1, 8 do 
+	for i = 1, 8 do
 		local button = _G["GuildPerksContainerButton"..i]
 		if button then
 			button:RemoveTextures()
@@ -644,19 +644,19 @@ local function GuildFrameStyle()
 			if icon then
 				icon:SetTexCoord(unpack(_G.SVUI_ICON_COORDS))
 				icon:ClearAllPoints()
-				icon:ModPoint("TOPLEFT", button, "TOPLEFT", 2, -2)
+				icon:SetPoint("TOPLEFT", button, "TOPLEFT", 2, -2)
 				icon:SetParent(button.Panel)
 			end
 		end
-	end 
-	
-	for i = 1, 8 do 
+	end
+
+	for i = 1, 8 do
 		local button = _G["GuildRewardsContainerButton"..i]
 		if button then
 			button:RemoveTextures()
 			SV.API:Set("ItemButton", button)
 		end
-	end 
+	end
 
 	local maxCalendarEvents = CalendarGetNumGuildEvents();
 	local scrollFrame = GuildInfoFrameApplicantsContainer;
@@ -669,8 +669,8 @@ local function GuildFrameStyle()
 		button.selectedTex:Die()
 		button:GetHighlightTexture():Die()
 		button:SetBackdrop(nil)
-	end 
-end 
+	end
+end
 
 local function GuildControlStyle()
 	if SV.db.Skins.blizzard.enable~=true or SV.db.Skins.blizzard.guildcontrol~=true then return end
@@ -682,25 +682,25 @@ local function GuildControlStyle()
 
 	SV.API:Set("Window", GuildControlUI)
 
-	SV.API:Set("ScrollFrame", GuildControlUIRankBankFrameInsetScrollFrameScrollBar)
+	SV.API:Set("ScrollBar", GuildControlUIRankBankFrameInsetScrollFrameScrollBar)
 
 	hooksecurefunc("GuildControlUI_RankOrder_Update", _hook_RankOrder_OnUpdate)
 	GuildControlUIRankOrderFrameNewButton:HookScript("OnClick", _hook_UIRankOrder)
 
 	SV.API:Set("DropDown", GuildControlUINavigationDropDown)
 	SV.API:Set("DropDown", GuildControlUIRankSettingsFrameRankDropDown,180)
-	GuildControlUINavigationDropDownButton:ModWidth(20)
-	GuildControlUIRankSettingsFrameRankDropDownButton:ModWidth(20)
+	GuildControlUINavigationDropDownButton:SetWidth(20)
+	GuildControlUIRankSettingsFrameRankDropDownButton:SetWidth(20)
 
 	for i=1, NUM_RANK_FLAGS do
 		local check = _G["GuildControlUIRankSettingsFrameCheckbox"..i]
-		if(check) then check:SetStyle("Checkbox") end 
+		if(check) then check:SetStyle("Checkbox") end
 	end
 
 	GuildControlUIRankOrderFrameNewButton:SetStyle("Button")
 	GuildControlUIRankSettingsFrameGoldBox:SetStyle("Editbox")
-	GuildControlUIRankSettingsFrameGoldBox.Panel:ModPoint("TOPLEFT",-2,-4)
-	GuildControlUIRankSettingsFrameGoldBox.Panel:ModPoint("BOTTOMRIGHT",2,4)
+	GuildControlUIRankSettingsFrameGoldBox.Panel:SetPoint("TOPLEFT",-2,-4)
+	GuildControlUIRankSettingsFrameGoldBox.Panel:SetPoint("BOTTOMRIGHT",2,4)
 	GuildControlUIRankSettingsFrameGoldBox:RemoveTextures()
 	GuildControlUIRankBankFrame:RemoveTextures()
 
@@ -708,8 +708,8 @@ local function GuildControlStyle()
 
 	SV.API:Set("DropDown", GuildControlUIRankBankFrameRankDropDown, 180)
 
-	GuildControlUIRankBankFrameRankDropDownButton:ModWidth(20)
-end 
+	GuildControlUIRankBankFrameRankDropDownButton:SetWidth(20)
+end
 
 local function LFGuildFrameStyle()
 	if(SV.db.Skins.blizzard.enable ~= true or SV.db.Skins.blizzard.lfguild ~= true) then return end
@@ -720,7 +720,7 @@ local function LFGuildFrameStyle()
 		local check = _G[LFGFrameList[i]]
 		if(check) then check:SetStyle("Checkbox") end
 	end
-	
+
 	LookingForGuildTankButton.checkButton:SetStyle("Checkbox")
 	LookingForGuildHealerButton.checkButton:SetStyle("Checkbox")
 	LookingForGuildDamagerButton.checkButton:SetStyle("Checkbox")
@@ -728,7 +728,7 @@ local function LFGuildFrameStyle()
 	LookingForGuildBrowseButton_LeftSeparator:Die()
 	LookingForGuildRequestButton_RightSeparator:Die()
 
-	SV.API:Set("ScrollFrame", LookingForGuildBrowseFrameContainerScrollBar)
+	SV.API:Set("ScrollBar", LookingForGuildBrowseFrameContainerScrollBar)
 	LookingForGuildBrowseButton:SetStyle("Button")
 	LookingForGuildRequestButton:SetStyle("Button")
 
@@ -756,9 +756,9 @@ local function LFGuildFrameStyle()
 	GuildFinderRequestMembershipFrameCancelButton:SetStyle("Button")
 	GuildFinderRequestMembershipFrameInputFrame:RemoveTextures()
 	GuildFinderRequestMembershipFrameInputFrame:SetStyle("!_Frame", "Default")
-end 
---[[ 
-########################################################## 
+end
+--[[
+##########################################################
 MOD LOADING
 ##########################################################
 ]]--

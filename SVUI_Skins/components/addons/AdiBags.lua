@@ -47,7 +47,7 @@ local function StyleAdiBags(event)
 			if AdiBagsContainer1 then
 				SkinFrame(AdiBagsContainer1)
 				AdiBagsContainer1SearchBox:SetStyle("Editbox")
-				AdiBagsContainer1SearchBox:ModPoint('TOPRIGHT', AdiBagsSimpleLayeredRegion2, 'TOPRIGHT', -75, -1)
+				AdiBagsContainer1SearchBox:SetPoint('TOPRIGHT', AdiBagsSimpleLayeredRegion2, 'TOPRIGHT', -75, -1)
 			end
 		end, 1)
 	elseif event == 'BANKFRAME_OPENED' then

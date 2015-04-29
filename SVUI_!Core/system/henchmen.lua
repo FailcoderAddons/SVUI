@@ -47,8 +47,8 @@ local GameTooltip           = _G.GameTooltip;
 
 local SV = select(2, ...)
 local L = SV.L
---[[ 
-########################################################## 
+--[[
+##########################################################
 LOCAL VARS
 ##########################################################
 ]]--
@@ -62,11 +62,11 @@ local BUBBLE = [[Interface\Addons\SVUI_!Core\assets\textures\Doodads\HENCHMEN-SP
 local SUBOPTIONS = {};
 local HENCHMEN_DATA = {
 	{
-		{0,"Adjust My Colors!","Color Themes","Click here to change your current color theme to one of the default sets."},
-		{20,"Adjust My Frames!","Frame Styles","Click here to change your current frame styles to one of the default sets."},
-		{40,"Adjust My Bars!","Bar Layouts","Click here to change your current actionbar layout to one of the default sets."},
+		{40,"Adjust My Colors!","Color Themes","Click here to change your current color theme to one of the default sets."},
+		{40,"Adjust My Frames!","Frame Styles","Click here to change your current frame styles to one of the default sets."},
+		{0,"Adjust My Bars!","Bar Layouts","Click here to change your current actionbar layout to one of the default sets."},
 		{-40,"Adjust My Auras!","Aura Layouts","Click here to change your buff/debuff layout to one of the default sets."},
-		{-20,"Show Me All Options!","Config Screen","Click here to access the entire SVUI configuration."}
+		{-40,"Show Me All Options!","Config Screen","Click here to access the entire SVUI configuration."}
 	},
 	{
 		{0,"Accept Quests","Your minions will automatically accept quests for you", "autoquestaccept"},
@@ -95,16 +95,16 @@ SV.YOUR_HENCHMEN = {
 	{37339,60,60,60,60,60,60}, 	--Augh
 	{2323,67,113,69,70,73,75}, 	--Defias Henchman
 }
---[[ 
-########################################################## 
+--[[
+##########################################################
 SCRIPT HANDLERS
 ##########################################################
 ]]--
-local ColorFunc = function(self) SV.Setup:ColorTheme(self.value, true); SV:ToggleHenchman() end 
-local UnitFunc = function(self) SV.Setup:UnitframeLayout(self.value, true); SV:ToggleHenchman() end 
-local BarFunc = function(self) SV.Setup:BarLayout(self.value, true); SV:ToggleHenchman() end 
-local AuraFunc = function(self) SV.Setup:Auralayout(self.value, true); SV:ToggleHenchman() end 
-local ConfigFunc = function() SV:ToggleConfig(); SV:ToggleHenchman() end 
+local ColorFunc = function(self) SV.Setup:ColorTheme(self.value, true); SV:ToggleHenchman() end
+local UnitFunc = function(self) SV.Setup:UnitframeLayout(self.value, true); SV:ToggleHenchman() end
+local BarFunc = function(self) SV.Setup:BarLayout(self.value, true); SV:ToggleHenchman() end
+local AuraFunc = function(self) SV.Setup:Auralayout(self.value, true); SV:ToggleHenchman() end
+local ConfigFunc = function() SV:ToggleConfig(); SV:ToggleHenchman() end
 local speechTimer;
 
 local Tooltip_Show = function(self)
@@ -112,13 +112,13 @@ local Tooltip_Show = function(self)
 	GameTooltip:ClearLines()
 	GameTooltip:AddLine(self.ttText)
 	GameTooltip:Show()
-end 
+end
 
 local Tooltip_Hide = function(self)
 	GameTooltip:Hide()
-end 
+end
 
-local Minion_OnMouseUp = function(self) 
+local Minion_OnMouseUp = function(self)
 	if(not self.setting()) then
 		self.indicator:SetTexCoord(0,1,0.5,1)
 		self.setting(true)
@@ -126,7 +126,7 @@ local Minion_OnMouseUp = function(self)
 		self.indicator:SetTexCoord(0,1,0,0.5)
 		self.setting(false)
 	end
-end 
+end
 
 local Option_OnMouseUp = function(self)
 	--print('Option_OnMouseUp Fired')
@@ -135,26 +135,26 @@ local Option_OnMouseUp = function(self)
 	--else
 		--print('Option_OnMouseUp No Callbacks')
 	end
-end 
+end
 
 local SubOption_OnMouseUp = function(self)
-	if not InCombatLockdown()then 
+	if not InCombatLockdown()then
 		local name=self:GetName()
-		for _,frame in pairs(SUBOPTIONS) do 
+		for _,frame in pairs(SUBOPTIONS) do
 			frame.anim:Finish()
 			frame:Hide()
-		end 
-		if not self.isopen then 
-			for i=1, self.suboptions do 
+		end
+		if not self.isopen then
+			for i=1, self.suboptions do
 				_G[name.."Sub"..i]:Show()
 				_G[name.."Sub"..i].anim:Play()
 				_G[name.."Sub"..i].anim:Finish()
-			end 
-			self.isopen=true 
+			end
+			self.isopen=true
 		else
-			self.isopen=false 
-		end 
-	end 
+			self.isopen=false
+		end
+	end
 end
 
 local function UpdateHenchmanModel(hide)
@@ -171,10 +171,10 @@ local function UpdateHenchmanModel(hide)
 		HenchmenFrameModel:Show()
 	else
 		HenchmenFrameModel:Hide()
-	end 
+	end
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 CORE FUNCTIONS
 ##########################################################
 ]]--
@@ -185,11 +185,11 @@ local function CreateMinionOptions(i)
 	local option = CreateFrame("Frame", "MinionOptionButton"..i, HenchmenFrame)
 	option:SetSize(148,50)
 
-	if i==1 then 
-		option:ModPoint("TOPRIGHT",HenchmenFrame,"TOPLEFT",-32,-32)
-	else 
-		option:ModPoint("TOP",_G["MinionOptionButton"..lastIndex],"BOTTOM",offsetX,-32)
-	end 
+	if i==1 then
+		option:SetPoint("TOPRIGHT",HenchmenFrame,"TOPLEFT",-32,-32)
+	else
+		option:SetPoint("TOP",_G["MinionOptionButton"..lastIndex],"BOTTOM",offsetX,-32)
+	end
 
 	local setting = options[4];
 	local dbSet = SV.db.Extras[setting];
@@ -226,18 +226,18 @@ local function CreateMinionOptions(i)
 	option.ttText = options[3]
 	option.indicator = option:CreateTexture(nil,"OVERLAY")
 	option.indicator:SetSize(100,32)
-	option.indicator:ModPoint("RIGHT", option , "LEFT", -5, 0)
+	option.indicator:SetPoint("RIGHT", option , "LEFT", -5, 0)
 	option.indicator:SetTexture(SWITCH)
 	if(not dbSet) then
 		option.indicator:SetTexCoord(0,1,0,0.5)
 	else
 		option.indicator:SetTexCoord(0,1,0.5,1)
 	end
-	
+
 	option:SetScript("OnEnter", Tooltip_Show)
 	option:SetScript("OnLeave", Tooltip_Hide)
 	option:SetScript("OnMouseUp", Minion_OnMouseUp)
-end 
+end
 
 local function CreateHenchmenOptions(i)
 	local lastIndex = i - 1;
@@ -245,11 +245,11 @@ local function CreateHenchmenOptions(i)
 	local offsetX = options[1]
 	local option = CreateFrame("Frame", "HenchmenOptionButton"..i, HenchmenFrame)
 	option:SetSize(148,50)
-	if i==1 then 
-		option:ModPoint("TOPLEFT",HenchmenFrame,"TOPRIGHT",32,-32)
-	else 
-		option:ModPoint("TOP",_G["HenchmenOptionButton"..lastIndex],"BOTTOM",offsetX,-32)
-	end 
+	if i==1 then
+		option:SetPoint("TOP",_G["HenchmenOptionButton0"],"BOTTOM",offsetX,-32)
+	else
+		option:SetPoint("TOP",_G["HenchmenOptionButton"..lastIndex],"BOTTOM",offsetX,-32)
+	end
 	SV.Animate:Slide(option,500,-500)
 	option:SetFrameStrata("DIALOG")
 	option:SetFrameLevel(24)
@@ -276,7 +276,7 @@ local function CreateHenchmenOptions(i)
 	option.ttText = options[3]
 	option:SetScript("OnEnter", Tooltip_Show)
 	option:SetScript("OnLeave", Tooltip_Hide)
-end 
+end
 
 local function CreateHenchmenSubOptions(buttonIndex,optionIndex)
 	local parent = _G["HenchmenOptionButton"..buttonIndex]
@@ -285,7 +285,7 @@ local function CreateHenchmenSubOptions(buttonIndex,optionIndex)
 	local yOffset = 180 - calc;
 	local frame = CreateFrame("Frame",name,HenchmenFrame)
 	frame:SetSize(122,50)
-	frame:ModPoint("BOTTOMLEFT", parent, "TOPRIGHT", 75, yOffset)
+	frame:SetPoint("BOTTOMLEFT", parent, "TOPRIGHT", 75, yOffset)
 	frame:SetFrameStrata("DIALOG")
 	frame:SetFrameLevel(24)
 	frame:EnableMouse(true)
@@ -305,7 +305,7 @@ local function CreateHenchmenSubOptions(buttonIndex,optionIndex)
 	SV.Animate:Slide(frame,500,0)
 
 	tinsert(SUBOPTIONS,frame)
-end 
+end
 
 local function CreateHenchmenFrame()
 	HenchmenFrame:SetParent(UIParent)
@@ -346,7 +346,38 @@ local function CreateHenchmenFrame()
 	HenchmenFrameBG:Hide()
 	HenchmenFrameBG:SetScript("OnMouseUp", SV.ToggleHenchman)
 
-	for i=1, 5 do 
+	local option = CreateFrame("Frame", "HenchmenOptionButton0", HenchmenFrame)
+	option:SetSize(148,50)
+	option:SetPoint("TOPLEFT",HenchmenFrame,"TOPRIGHT",32,0)
+	SV.Animate:Slide(option,500,-500)
+	option:SetFrameStrata("DIALOG")
+	option:SetFrameLevel(24)
+	option:EnableMouse(true)
+	option.bg = option:CreateTexture(nil,"BORDER")
+	option.bg:SetPoint("TOPLEFT",option,"TOPLEFT",-4,4)
+	option.bg:SetPoint("BOTTOMRIGHT",option,"BOTTOMRIGHT",4,-24)
+	option.bg:SetTexture(OPTION_RIGHT)
+	option.bg:SetVertexColor(1,1,1,0.6)
+	option.txt = option:CreateFontString(nil,"DIALOG")
+	option.txt:InsetPoints(option)
+	option.txt:SetFont(SV.media.font.narrator,12,"NONE")
+	option.txt:SetJustifyH("CENTER")
+	option.txt:SetJustifyV("MIDDLE")
+	option.txt:SetText("Random Backdrops!")
+	option.txt:SetTextColor(0,0,0)
+	option.txthigh = option:CreateFontString(nil,"HIGHLIGHT")
+	option.txthigh:InsetPoints(option)
+	option.txthigh:SetFont(SV.media.font.narrator,12,"OUTLINE")
+	option.txthigh:SetJustifyH("CENTER")
+	option.txthigh:SetJustifyV("MIDDLE")
+	option.txthigh:SetText("Random Backdrops!")
+	option.txthigh:SetTextColor(0,1,1)
+	option.ttText = "Set a random texture for all unit frame backdrops!"
+	option:SetScript("OnEnter", Tooltip_Show)
+	option:SetScript("OnLeave", Tooltip_Hide)
+	option:SetScript("OnMouseUp", function() SV.Setup:RandomBackdrops() end)
+
+	for i=1, 5 do
 		CreateHenchmenOptions(i)
 		CreateMinionOptions(i)
 	end
@@ -460,7 +491,7 @@ local function CreateHenchmenFrame()
 	------------------------------------------------------------------------
 	HenchmenOptionButton5:SetScript("OnMouseUp", ConfigFunc)
 	------------------------------------------------------------------------
-	for _,frame in pairs(SUBOPTIONS) do 
+	for _,frame in pairs(SUBOPTIONS) do
 		frame.anim:Finish()
 		frame:Hide()
 	end
@@ -470,11 +501,11 @@ end
 
 
 function SV:ToggleHenchman()
-	if(InCombatLockdown() or (not SV.HenchmenButton)) then return end 
+	if(InCombatLockdown() or (not SV.HenchmenButton)) then return end
 	if(not SV.PostLoaded) then
 		CreateHenchmenFrame()
 	end
-	if not HenchmenFrame:IsShown()then 
+	if not HenchmenFrame:IsShown()then
 		HenchmenFrameBG:Show()
 
 		UpdateHenchmanModel()
@@ -487,7 +518,7 @@ function SV:ToggleHenchman()
 		HenchmenCalloutFrame:SetAlpha(1)
 		HenchmenCalloutFrame.anim:Play()
 		UIFrameFadeOut(HenchmenCalloutFrame,5)
-		for i=1,5 do 
+		for i=1,5 do
 			local option=_G["HenchmenOptionButton"..i]
 			option.anim:Finish()
 			option:Show()
@@ -497,14 +528,14 @@ function SV:ToggleHenchman()
 			minion.anim:Finish()
 			minion:Show()
 			minion.anim:Play()
-		end 
+		end
 		SV.HenchmenButton.Icon:SetGradient(unpack(SV.media.gradient.green))
-	else 
+	else
 		UpdateHenchmanModel(true)
 		for _,frame in pairs(SUBOPTIONS)do
 			frame.anim:Finish()
 			frame:Hide()
-		end 
+		end
 		HenchmenOptionButton1.isopen=false;
 		HenchmenOptionButton2.isopen=false;
 		HenchmenOptionButton3.isopen=false;
@@ -513,7 +544,7 @@ function SV:ToggleHenchman()
 		HenchmenFrame.anim:Finish()
 		HenchmenFrame:Hide()
 		HenchmenFrameBG:Hide()
-		for i=1,5 do 
+		for i=1,5 do
 			local option=_G["HenchmenOptionButton"..i]
 			option.anim:Finish()
 			option:Hide()
@@ -521,17 +552,17 @@ function SV:ToggleHenchman()
 			local minion=_G["MinionOptionButton"..i]
 			minion.anim:Finish()
 			minion:Hide()
-		end 
+		end
 		SV.HenchmenButton.Icon:SetGradient("VERTICAL", 0.5, 0.53, 0.55, 0.8, 0.8, 1)
-	end 
+	end
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 BUILD FUNCTION / UPDATE
 ##########################################################
 ]]--
 local function LockdownCallback()
-	if(HenchmenFrameModel and HenchmenFrame and HenchmenFrame:IsShown()) then 
+	if(HenchmenFrameModel and HenchmenFrame and HenchmenFrame:IsShown()) then
         HenchmenFrame:Hide()
         HenchmenFrameBG:Hide()
     end

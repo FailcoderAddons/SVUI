@@ -127,12 +127,12 @@ local SetScenarioData = function(self, title, stageName, currentStage, numStages
 	local timerHeight = self.Timer:GetHeight()
 
 	if(objective_rows > 0) then
-		objective_block:ModHeight(fill_height);
+		objective_block:SetHeight(fill_height);
 		objective_block:FadeIn();
 	end
 
 	fill_height = fill_height + (LARGE_ROW_HEIGHT + 2) + timerHeight;
-	block:ModHeight(fill_height);
+	block:SetHeight(fill_height);
 
 	MOD.Docklet.ScrollFrame.ScrollBar:SetValue(0)
 end
@@ -367,14 +367,14 @@ function MOD:InitializeScenarios()
 	scenario.RefreshHeight = RefreshScenarioHeight;
 
 	local block = CreateFrame("Frame", nil, scenario)
-	block:ModPoint("TOPLEFT", scenario, "TOPLEFT", 2, -2);
-	block:ModPoint("TOPRIGHT", scenario, "TOPRIGHT", -2, -2);
+	block:SetPoint("TOPLEFT", scenario, "TOPLEFT", 2, -2);
+	block:SetPoint("TOPRIGHT", scenario, "TOPRIGHT", -2, -2);
 	block:SetHeight(1);
 	block:SetStyle("Frame", "Lite");
 
 	block.Badge = CreateFrame("Frame", nil, block)
-	block.Badge:ModPoint("TOPLEFT", block, "TOPLEFT", 4, -4);
-	block.Badge:ModSize((LARGE_INNER_HEIGHT - 4), (LARGE_INNER_HEIGHT - 4));
+	block.Badge:SetPoint("TOPLEFT", block, "TOPLEFT", 4, -4);
+	block.Badge:SetSize((LARGE_INNER_HEIGHT - 4), (LARGE_INNER_HEIGHT - 4));
 	block.Badge:SetStyle("!_Frame", "Inset")
 
 	block.Icon = block.Badge:CreateTexture(nil,"OVERLAY")
@@ -383,36 +383,36 @@ function MOD:InitializeScenarios()
 	block.Icon:SetTexCoord(unpack(_G.SVUI_ICON_COORDS))
 
 	block.Header = CreateFrame("Frame", nil, block)
-	block.Header:ModPoint("TOPLEFT", block.Badge, "TOPRIGHT", 4, -1);
-	block.Header:ModPoint("TOPRIGHT", block, "TOPRIGHT", -4, 0);
-	block.Header:ModHeight(INNER_HEIGHT);
+	block.Header:SetPoint("TOPLEFT", block.Badge, "TOPRIGHT", 4, -1);
+	block.Header:SetPoint("TOPRIGHT", block, "TOPRIGHT", -4, 0);
+	block.Header:SetHeight(INNER_HEIGHT);
 	block.Header:SetStyle("Frame")
 
 	block.Header.Stage = block.Header:CreateFontString(nil,"OVERLAY")
 	block.Header.Stage:SetFontObject(SVUI_Font_Quest);
 	block.Header.Stage:SetJustifyH('LEFT')
 	block.Header.Stage:SetText('')
-	block.Header.Stage:ModPoint("TOPLEFT", block.Header, "TOPLEFT", 4, 0);
-	block.Header.Stage:ModPoint("BOTTOMLEFT", block.Header, "BOTTOMLEFT", 4, 0);
+	block.Header.Stage:SetPoint("TOPLEFT", block.Header, "TOPLEFT", 4, 0);
+	block.Header.Stage:SetPoint("BOTTOMLEFT", block.Header, "BOTTOMLEFT", 4, 0);
 
 	block.Header.Score = block.Header:CreateFontString(nil,"OVERLAY")
 	block.Header.Score:SetFontObject(SVUI_Font_Quest);
 	block.Header.Score:SetJustifyH('RIGHT')
 	block.Header.Score:SetTextColor(1,1,0)
 	block.Header.Score:SetText('')
-	block.Header.Score:ModPoint("TOPRIGHT", block.Header, "TOPRIGHT", -2, 0);
-	block.Header.Score:ModPoint("BOTTOMRIGHT", block.Header, "BOTTOMRIGHT", -2, 0);
+	block.Header.Score:SetPoint("TOPRIGHT", block.Header, "TOPRIGHT", -2, 0);
+	block.Header.Score:SetPoint("BOTTOMRIGHT", block.Header, "BOTTOMRIGHT", -2, 0);
 
 	block.Header.Text = block.Header:CreateFontString(nil,"OVERLAY")
 	block.Header.Text:SetFontObject(SVUI_Font_Quest);
 	block.Header.Text:SetTextColor(1,1,0)
 	block.Header.Text:SetText('')
-	block.Header.Text:ModPoint("TOPLEFT", block.Header.Stage, "TOPRIGHT", 4, 0);
-	block.Header.Text:ModPoint("BOTTOMRIGHT", block.Header.Score, "BOTTOMRIGHT", 0, 0);
+	block.Header.Text:SetPoint("TOPLEFT", block.Header.Stage, "TOPRIGHT", 4, 0);
+	block.Header.Text:SetPoint("BOTTOMRIGHT", block.Header.Score, "BOTTOMRIGHT", 0, 0);
 
 	local timer = CreateFrame("Frame", nil, block.Header)
-	timer:ModPoint("TOPLEFT", block.Header, "BOTTOMLEFT", 4, -4);
-	timer:ModPoint("TOPRIGHT", block.Header, "BOTTOMRIGHT", -4, -4);
+	timer:SetPoint("TOPLEFT", block.Header, "BOTTOMLEFT", 4, -4);
+	timer:SetPoint("TOPRIGHT", block.Header, "BOTTOMRIGHT", -4, -4);
 	timer:SetHeight(INNER_HEIGHT);
 	timer:SetStyle("!_Frame", "Bar");
 
@@ -431,16 +431,16 @@ function MOD:InitializeScenarios()
 	timer.Bar:SetValue(0)
 
 	timer.Bar.Wave = timer.Bar:CreateFontString(nil,"OVERLAY")
-	timer.Bar.Wave:ModPoint("TOPLEFT", timer.Bar, "TOPLEFT", 4, 0);
-	timer.Bar.Wave:ModPoint("BOTTOMLEFT", timer.Bar, "BOTTOMLEFT", 4, 0);
+	timer.Bar.Wave:SetPoint("TOPLEFT", timer.Bar, "TOPLEFT", 4, 0);
+	timer.Bar.Wave:SetPoint("BOTTOMLEFT", timer.Bar, "BOTTOMLEFT", 4, 0);
 	timer.Bar.Wave:SetFontObject(SVUI_Font_Quest);
 	timer.Bar.Wave:SetJustifyH('LEFT')
 	timer.Bar.Wave:SetTextColor(1,1,0)
 	timer.Bar.Wave:SetText('')
 
 	timer.Bar.TimeLeft = timer.Bar:CreateFontString(nil,"OVERLAY");
-	timer.Bar.TimeLeft:ModPoint("TOPLEFT", timer.Bar.Wave, "TOPRIGHT", 4, 0);
-	timer.Bar.TimeLeft:ModPoint("BOTTOMRIGHT", timer.Bar, "BOTTOMRIGHT", 0, 0);
+	timer.Bar.TimeLeft:SetPoint("TOPLEFT", timer.Bar.Wave, "TOPRIGHT", 4, 0);
+	timer.Bar.TimeLeft:SetPoint("BOTTOMRIGHT", timer.Bar, "BOTTOMRIGHT", 0, 0);
 	timer.Bar.TimeLeft:SetFontObject(SVUI_Font_Quest_Number);
 	timer.Bar.TimeLeft:SetTextColor(1,1,1)
 	timer.Bar.TimeLeft:SetText('')
@@ -450,9 +450,9 @@ function MOD:InitializeScenarios()
 	timer:SetAlpha(0)
 
 	block.Objectives = MOD:NewObjectiveHeader(block);
-	block.Objectives:ModPoint("TOPLEFT", timer, "BOTTOMLEFT", -4, -4);
-	block.Objectives:ModPoint("TOPRIGHT", timer, "BOTTOMRIGHT", 4, -4);
-	block.Objectives:ModHeight(1);
+	block.Objectives:SetPoint("TOPLEFT", timer, "BOTTOMLEFT", -4, -4);
+	block.Objectives:SetPoint("TOPRIGHT", timer, "BOTTOMRIGHT", 4, -4);
+	block.Objectives:SetHeight(1);
 
 	block.HasData = false;
 

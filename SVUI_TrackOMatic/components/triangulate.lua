@@ -1,7 +1,7 @@
 --[[
 ##########################################################
 S V U I   By: S.Jackson
-########################################################## 
+##########################################################
 LOCALIZED LUA FUNCTIONS
 ##########################################################
 ]]--
@@ -44,8 +44,8 @@ local QuestPOIGetIconInfo   = _G.QuestPOIGetIconInfo;
 local WORLDMAP_WORLD_ID     = _G.WORLDMAP_WORLD_ID;
 local WorldMapFrame         = _G.WorldMapFrame;
 local GetCurrentMapDungeonLevel   = _G.GetCurrentMapDungeonLevel;
---[[ 
-########################################################## 
+--[[
+##########################################################
 LOCALS
 ##########################################################
 ]]--
@@ -53,8 +53,8 @@ local radian90 = (3.141592653589793 / 2) * -1;
 local WORLDMAPAREA_DEFAULT_DUNGEON_FLOOR_IS_TERRAIN = 0x00000004
 local WORLDMAPAREA_VIRTUAL_CONTINENT = 0x00000008
 local DUNGEONMAP_MICRO_DUNGEON = 0x00000001
---[[ 
-########################################################## 
+--[[
+##########################################################
 LOCALIZED BLIZZARD FUNCTIONS
 ##########################################################
 ]]--
@@ -67,8 +67,8 @@ local GetPlayerMapPosition = GetPlayerMapPosition
 local GetNumDungeonMapLevels = GetNumDungeonMapLevels
 local GetCurrentMapContinent = GetCurrentMapContinent
 local GetWorldMapTransformInfo = GetWorldMapTransformInfo
---[[ 
-########################################################## 
+--[[
+##########################################################
 MAPPING DATA STORAGE
 ##########################################################
 ]]--
@@ -108,10 +108,10 @@ do
     local backup_cache, temp_cache, swap_cache = {}, {}, {};
 
     local meta_backup = {
-        xOffset = 0, 
-        height = 1, 
-        yOffset = 0, 
-        width = 1, 
+        xOffset = 0,
+        height = 1,
+        yOffset = 0,
+        width = 1,
         __index = function(t, k)
             if(type(k) == "number") then
                 return backup_cache;
@@ -198,7 +198,7 @@ do
     end
 
     local area_maps = GetAreaMaps()
-    
+
     for _,id in ipairs(area_maps) do
         if((not temp_cache[id]) and SetMapByID(id)) then
             SetTempData();
@@ -326,7 +326,7 @@ local function GetCoordinates(map, mapFloor, x, y)
 end
 
 local function GetDistance(map1, floor1, x1, y1, map2, floor2, x2, y2)
-    if not (map1 and map2) then return end 
+    if not (map1 and map2) then return end
     floor1 = floor1 or min(#GEOGRAPHICAL_DATA[map1], 1);
     floor2 = floor2 or min(#GEOGRAPHICAL_DATA[map2], 1);
     local dist, xDelta, yDelta, angle;
@@ -358,28 +358,29 @@ local function GetDistance(map1, floor1, x1, y1, map2, floor2, x2, y2)
             yDelta = (y2 - y1) * (h or 1);
         end
     else
-        local map1 = GEOGRAPHICAL_DATA[map1];
-        local map2 = GEOGRAPHICAL_DATA[map2];
-        if(map1.system == map2.system) then
-            x1, y1 = GetCoordinates(map1, floor1, x1, y1);
-            x2, y2 = GetCoordinates(map2, floor2, x2, y2);
+        local mapX = GEOGRAPHICAL_DATA[map1];
+        local mapY = GEOGRAPHICAL_DATA[map2];
+
+        if(mapX.system == mapY.system) then
+            x1, y1 = GetCoordinates(mapX, floor1, x1, y1);
+            x2, y2 = GetCoordinates(mapY, floor2, x2, y2);
             xDelta = (x2 - x1);
             yDelta = (y2 - y1);
         else
-            local s1 = map1.system;
-            local s2 = map2.system;
-            if((map1==0 or GEOGRAPHICAL_DATA[0][s1]) and (map2 == 0 or GEOGRAPHICAL_DATA[0][s2])) then
-                x1, y1 = GetCoordinates(map1, floor1, x1, y1);
-                x2, y2 = GetCoordinates(map2, floor2, x2, y2);
-                if(map1 ~= 0) then
+            local s1 = mapX.system;
+            local s2 = mapY.system;
+            if((mapX==0 or GEOGRAPHICAL_DATA[0][s1]) and (mapY == 0 or GEOGRAPHICAL_DATA[0][s2])) then
+                x1, y1 = GetCoordinates(mapX, floor1, x1, y1);
+                x2, y2 = GetCoordinates(mapY, floor2, x2, y2);
+                if(mapX ~= 0) then
                     local cont1 = GEOGRAPHICAL_DATA[0][s1];
                     x1 = (x1 - cont1.xOffset) * cont1.scale;
                     y1 = (y1 - cont1.yOffset) * cont1.scale;
                 end
-                if(map2 ~= 0) then
+                if(mapY ~= 0) then
                     local cont2 = GEOGRAPHICAL_DATA[0][s2];
                     x2 = (x2 - cont2.xOffset) * cont2.scale;
-                    y2 = (y2 - cont2.yOffset) * cont2.scale; 
+                    y2 = (y2 - cont2.yOffset) * cont2.scale;
                 end
                 xDelta = x2 - x1;
                 yDelta = y2 - y1;
@@ -458,9 +459,10 @@ end
 --QuestPOIGetIconInfo(questID)
 
 _G.TriangulateQuest = function(questID)
+    --print(questID)
     if(WorldMapFrame and WorldMapFrame:IsShown()) then return end
 
-    local _, plot1, plot2, plot3, plot4, plot5, plot6, plot7, plot8;
+    local _, debug, plot1, plot2, plot3, plot4, plot5, plot6, plot7, plot8;
 
     plot3, plot4 = GetPlayerMapPosition("player");
 
@@ -484,6 +486,11 @@ _G.TriangulateQuest = function(questID)
     plot1 = GetCurrentMapAreaID()
     plot2 = GetCurrentMapDungeonLevel()
     _, plot7, plot8, _ = QuestPOIGetIconInfo(questID);
-    if((not plot7) or (not plot8)) then return 0,0 end
+    if((not plot7) or (not plot8)) then
+        local mapID, floorNumber = GetQuestWorldMapAreaID(questID)
+        SetMapByID(mapID)
+        _, plot7, plot8, _ = QuestPOIGetIconInfo(questID);
+        if((not plot7) or (not plot8)) then return end
+    end
     return GetDistance(plot1, plot2, plot3, plot4, plot1, plot2, plot7, plot8)
 end

@@ -22,7 +22,7 @@ local function BarberShopStyle()
 
 	local buttons = {"BarberShopFrameOkayButton", "BarberShopFrameCancelButton", "BarberShopFrameResetButton"}
 
-	BarberShopFrameOkayButton:ModPoint("RIGHT", BarberShopFrameSelector4, "BOTTOM", 2, -50)
+	BarberShopFrameOkayButton:SetPoint("RIGHT", BarberShopFrameSelector4, "BOTTOM", 2, -50)
 
 	for b = 1, #buttons do 
 		_G[buttons[b]]:RemoveTextures()
@@ -31,7 +31,7 @@ local function BarberShopStyle()
 
 	BarberShopFrame:RemoveTextures()
 	BarberShopFrame:SetStyle("Frame", "Window")
-	BarberShopFrame:ModSize(BarberShopFrame:GetWidth()-30, BarberShopFrame:GetHeight()-56)
+	BarberShopFrame:SetSize(BarberShopFrame:GetWidth()-30, BarberShopFrame:GetHeight()-56)
 
 	local lastframe;
 	for i = 1, 5 do 
@@ -42,9 +42,9 @@ local function BarberShopStyle()
 			selector:ClearAllPoints()
 
 			if lastframe then 
-				selector:ModPoint("TOP", lastframe, "BOTTOM", 0, -3)
+				selector:SetPoint("TOP", lastframe, "BOTTOM", 0, -3)
 			else
-				selector:ModPoint("TOP", BarberShopFrame, "TOP", 0, -12)
+				selector:SetPoint("TOP", BarberShopFrame, "TOP", 0, -12)
 			end
 
 			selector:RemoveTextures()
@@ -56,19 +56,19 @@ local function BarberShopStyle()
 
 	BarberShopFrameMoneyFrame:RemoveTextures()
 	BarberShopFrameMoneyFrame:SetStyle("Frame", "Inset")
-	BarberShopFrameMoneyFrame:ModPoint("TOP", lastframe, "BOTTOM", 0, -10)
+	BarberShopFrameMoneyFrame:SetPoint("TOP", lastframe, "BOTTOM", 0, -10)
 
 	BarberShopFrameBackground:Die()
 	BarberShopBannerFrameBGTexture:Die()
 	BarberShopBannerFrame:Die()
 
 	BarberShopAltFormFrameBorder:RemoveTextures()
-	BarberShopAltFormFrame:ModPoint("BOTTOM", BarberShopFrame, "TOP", 0, 5)
+	BarberShopAltFormFrame:SetPoint("BOTTOM", BarberShopFrame, "TOP", 0, 5)
 	BarberShopAltFormFrame:RemoveTextures()
 	BarberShopAltFormFrame:SetStyle("Frame", "Window2")
 
 	BarberShopFrameResetButton:ClearAllPoints()
-	BarberShopFrameResetButton:ModPoint("BOTTOM", BarberShopFrame.Panel, "BOTTOM", 0, 4)
+	BarberShopFrameResetButton:SetPoint("BOTTOM", BarberShopFrame.Panel, "BOTTOM", 0, 4)
 end 
 --[[ 
 ########################################################## 

@@ -14,44 +14,44 @@ local SV = _G["SVUI"];
 local L = SV.L;
 local MOD = SV.Skins;
 local Schema = MOD.Schema;
---[[ 
-########################################################## 
+--[[
+##########################################################
 FRAME LISTS
 ##########################################################
 ]]--
 local proButtons = {
-	"PrimaryProfession1SpellButtonTop", 
-	"PrimaryProfession1SpellButtonBottom", 
-	"PrimaryProfession2SpellButtonTop", 
-	"PrimaryProfession2SpellButtonBottom", 
-	"SecondaryProfession1SpellButtonLeft", 
-	"SecondaryProfession1SpellButtonRight", 
-	"SecondaryProfession2SpellButtonLeft", 
-	"SecondaryProfession2SpellButtonRight", 
-	"SecondaryProfession3SpellButtonLeft", 
-	"SecondaryProfession3SpellButtonRight", 
-	"SecondaryProfession4SpellButtonLeft", 
+	"PrimaryProfession1SpellButtonTop",
+	"PrimaryProfession1SpellButtonBottom",
+	"PrimaryProfession2SpellButtonTop",
+	"PrimaryProfession2SpellButtonBottom",
+	"SecondaryProfession1SpellButtonLeft",
+	"SecondaryProfession1SpellButtonRight",
+	"SecondaryProfession2SpellButtonLeft",
+	"SecondaryProfession2SpellButtonRight",
+	"SecondaryProfession3SpellButtonLeft",
+	"SecondaryProfession3SpellButtonRight",
+	"SecondaryProfession4SpellButtonLeft",
 	"SecondaryProfession4SpellButtonRight"
 }
 
 local proFrames = {
-	"PrimaryProfession1", 
-	"PrimaryProfession2", 
-	"SecondaryProfession1", 
-	"SecondaryProfession2", 
-	"SecondaryProfession3", 
+	"PrimaryProfession1",
+	"PrimaryProfession2",
+	"SecondaryProfession1",
+	"SecondaryProfession2",
+	"SecondaryProfession3",
 	"SecondaryProfession4"
 }
 local proBars = {
-	"PrimaryProfession1StatusBar", 
-	"PrimaryProfession2StatusBar", 
-	"SecondaryProfession1StatusBar", 
-	"SecondaryProfession2StatusBar", 
-	"SecondaryProfession3StatusBar", 
+	"PrimaryProfession1StatusBar",
+	"PrimaryProfession2StatusBar",
+	"SecondaryProfession1StatusBar",
+	"SecondaryProfession2StatusBar",
+	"SecondaryProfession3StatusBar",
 	"SecondaryProfession4StatusBar"
 }
---[[ 
-########################################################## 
+--[[
+##########################################################
 HELPERS
 ##########################################################
 ]]--
@@ -87,19 +87,19 @@ local function ChangeTabHelper(tab)
 	tab:SetScript("OnLeave", Tab_OnLeave)
 
 	local a1, p, a2, x, y = tab:GetPoint()
-	tab:ModPoint(a1, p, a2, 1, y)
-end 
+	tab:SetPoint(a1, p, a2, 1, y)
+end
 
 local function GetSpecTabHelper(index)
 	local tab = SpellBookCoreAbilitiesFrame.SpecTabs[index]
 	if(not tab) then return end
 	ChangeTabHelper(tab)
-	if(index > 1) then 
+	if(index > 1) then
 		local a1, p, a2, x, y = tab:GetPoint()
 		tab:ClearAllPoints()
 		tab:SetPoint(a1, p, a2, 0, y)
-	end 
-end  
+	end
+end
 
 local function AbilityButtonHelper(index)
 	local button = SpellBookCoreAbilitiesFrame.Abilities[index]
@@ -108,9 +108,9 @@ local function AbilityButtonHelper(index)
 		local icon = button.iconTexture;
 
 		if(not InCombatLockdown()) then
-			if not button.properFrameLevel then 
-			 	button.properFrameLevel = button:GetFrameLevel() + 1 
-			end 
+			if not button.properFrameLevel then
+			 	button.properFrameLevel = button:GetFrameLevel() + 1
+			end
 			button:SetFrameLevel(button.properFrameLevel)
 		end
 
@@ -120,20 +120,20 @@ local function AbilityButtonHelper(index)
 		if(button.iconTexture) then
 			button.iconTexture:SetTexCoord(unpack(_G.SVUI_ICON_COORDS))
 			button.iconTexture:ClearAllPoints()
-			button.iconTexture:InsetPoints(button, 1, 1) 
+			button.iconTexture:InsetPoints(button, 1, 1)
 		end
 
-		if(button.Name) then 
-			button.Name:SetFontObject(NumberFont_Outline_Large) 
-			button.Name:SetTextColor(1,1,0) 
+		if(button.Name) then
+			button.Name:SetFontObject(NumberFont_Outline_Large)
+			button.Name:SetTextColor(1,1,0)
 		end
 
-		if(button.InfoText) then 
-			button.InfoText:SetFontObject(NumberFont_Shadow_Small) 
-			button.InfoText:SetTextColor(0.9,0.9,0.9) 
+		if(button.InfoText) then
+			button.InfoText:SetFontObject(SubSpellFont)
+			button.InfoText:SetTextColor(0.8,0.8,0.8)
 		end
 	end
-end 
+end
 
 local ButtonUpdateHelper = function(self)
 	local name = self:GetName();
@@ -144,13 +144,13 @@ local ButtonUpdateHelper = function(self)
 
 		if(not InCombatLockdown()) then
 			self:SetFrameLevel(SpellBookFrame:GetFrameLevel() + 5)
-		end 
+		end
 
 		if(icon) then
 			iconTex = icon:GetTexture()
 		end
 
-		self:RemoveTextures() 
+		self:RemoveTextures()
 		self:SetStyle("Frame", "Icon", true, 2, 0, 0)
 
 		if(icon) then
@@ -166,30 +166,35 @@ local ButtonUpdateHelper = function(self)
 		end
 	end
 
-	if(icon) then 
-		icon:SetTexCoord(unpack(_G.SVUI_ICON_COORDS)) 
+	if(icon) then
+		icon:SetTexCoord(unpack(_G.SVUI_ICON_COORDS))
 	end
 
 	if(self.SpellName) then
+		self.SpellName:SetFontObject(NumberFont_Outline_Large)
 		self.SpellName:SetTextColor(1,1,0)
 	end
-	
+
 	if(self.SpellSubName) then
-		self.SpellSubName:SetTextColor(0.9,0.9,0.9)
+		self.SpellSubName:SetFontObject(SubSpellFont)
+		self.SpellSubName:SetTextColor(0.8,0.8,0.8)
 	end
-end 
---[[ 
-########################################################## 
+end
+--[[
+##########################################################
 SPELLBOOK MODR
 ##########################################################
 ]]--
 local function SpellBookStyle()
 	if SV.db.Skins.blizzard.enable ~= true or SV.db.Skins.blizzard.spellbook ~= true then return end
 
+	SV:FontManager(_G["SubSpellFont"], "caps", "SYSTEM", 1, "OUTLINE", 0.8, 0.8, 0.8);
+	SV:FontManager(_G["CoreAbilityFont"], "zone", "SYSTEM", 10, "OUTLINE", 0, 0, 0);
+
 	SV.API:Set("Window", SpellBookFrame, false, false, 1, 3, 3)
 	SV.API:Set("CloseButton", SpellBookFrameCloseButton)
 
-	if(SpellBookFrameInset) then 
+	if(SpellBookFrameInset) then
 		SpellBookFrameInset:RemoveTextures()
 		SpellBookFrameInset:SetStyle("!_Frame", "Inset", true, 6)
 	end
@@ -215,9 +220,9 @@ local function SpellBookStyle()
 	for i = 1, MAX_SKILLLINE_TABS do
 		local tabName = "SpellBookSkillLineTab" .. i
 		local tab = _G[tabName]
-		if(tab) then 
+		if(tab) then
 			if(_G[tabName .. "Flash"]) then _G[tabName .. "Flash"]:Die() end
-			ChangeTabHelper(tab) 
+			ChangeTabHelper(tab)
 		end
 	end
 
@@ -226,27 +231,27 @@ local function SpellBookStyle()
 	for _, gName in pairs(proFrames)do
 		local frame = _G[gName]
 		if(frame) then
-			if(_G[gName .. "Missing"]) then 
-				_G[gName .. "Missing"]:SetTextColor(1, 1, 0) 
+			if(_G[gName .. "Missing"]) then
+				_G[gName .. "Missing"]:SetTextColor(1, 1, 0)
 			end
-			if(frame.missingText) then 
-				frame.missingText:SetTextColor(1, 0, 0) 
+			if(frame.missingText) then
+				frame.missingText:SetTextColor(1, 0, 0)
 			end
-	    	if(frame.missingHeader) then 
-	    		frame.missingHeader:SetFontObject(NumberFont_Outline_Large) 
-	    		frame.missingHeader:SetTextColor(1,1,0) 
+	    	if(frame.missingHeader) then
+	    		frame.missingHeader:SetFontObject(NumberFont_Outline_Large)
+	    		frame.missingHeader:SetTextColor(1,1,0)
 	    	end
-	    	if(frame.missingText) then 
-	    		frame.missingText:SetFontObject(NumberFont_Shadow_Small) 
-	    		frame.missingText:SetTextColor(0.9,0.9,0.9) 
+	    	if(frame.missingText) then
+	    		frame.missingText:SetFontObject(NumberFont_Shadow_Small)
+	    		frame.missingText:SetTextColor(0.9,0.9,0.9)
 	    	end
-	    	if(frame.rank) then 
-	    		frame.rank:SetFontObject(NumberFontNormal) 
-	    		frame.rank:SetTextColor(0.9,0.9,0.9) 
+	    	if(frame.rank) then
+	    		frame.rank:SetFontObject(NumberFontNormal)
+	    		frame.rank:SetTextColor(0.9,0.9,0.9)
 	    	end
-	    	if(frame.professionName) then 
-	    		frame.professionName:SetFontObject(NumberFont_Outline_Large) 
-	    		frame.professionName:SetTextColor(1,1,0) 
+	    	if(frame.professionName) then
+	    		frame.professionName:SetFontObject(NumberFont_Outline_Large)
+	    		frame.professionName:SetTextColor(1,1,0)
 	    	end
 	    end
 	end
@@ -263,11 +268,11 @@ local function SpellBookStyle()
 				if not button.Panel then
 					button:SetStyle("Frame", "Inset", false, 3, 3, 3)
 					button.Panel:SetAllPoints()
-				end 
+				end
 			end
-			if(button.spellString) then 
-				button.spellString:SetFontObject(NumberFontNormal) 
-				button.spellString:SetTextColor(1,1,0) 
+			if(button.spellString) then
+				button.spellString:SetFontObject(NumberFontNormal)
+				button.spellString:SetTextColor(1,1,0)
 			end
 			if(button.subSpellString) then
 				button.subSpellString:SetFontObject(SubSpellFont)
@@ -275,7 +280,7 @@ local function SpellBookStyle()
 		end
 	end
 
-	for _, gName in pairs(proBars) do 
+	for _, gName in pairs(proBars) do
 		local bar = _G[gName]
 		if(bar) then
 			bar:RemoveTextures()
@@ -288,26 +293,26 @@ local function SpellBookStyle()
 		end
 	end
 
-	if(SpellBookFrameTabButton1) then 
+	if(SpellBookFrameTabButton1) then
 		SV.API:Set("Tab", SpellBookFrameTabButton1)
 		SpellBookFrameTabButton1:ClearAllPoints()
 		SpellBookFrameTabButton1:SetPoint('TOPLEFT', SpellBookFrame, 'BOTTOMLEFT', 0, 2)
 	end
-	if(SpellBookFrameTabButton2) then 
-		SV.API:Set("Tab", SpellBookFrameTabButton2) 
+	if(SpellBookFrameTabButton2) then
+		SV.API:Set("Tab", SpellBookFrameTabButton2)
 	end
-	if(SpellBookFrameTabButton3) then 
-		SV.API:Set("Tab", SpellBookFrameTabButton3) 
+	if(SpellBookFrameTabButton3) then
+		SV.API:Set("Tab", SpellBookFrameTabButton3)
 	end
-	if(SpellBookFrameTabButton4) then 
-		SV.API:Set("Tab", SpellBookFrameTabButton4) 
+	if(SpellBookFrameTabButton4) then
+		SV.API:Set("Tab", SpellBookFrameTabButton4)
 	end
-	if(SpellBookFrameTabButton5) then 
-		SV.API:Set("Tab", SpellBookFrameTabButton5) 
+	if(SpellBookFrameTabButton5) then
+		SV.API:Set("Tab", SpellBookFrameTabButton5)
 	end
-end 
---[[ 
-########################################################## 
+end
+--[[
+##########################################################
 MOD LOADING
 ##########################################################
 ]]--

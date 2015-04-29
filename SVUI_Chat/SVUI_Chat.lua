@@ -90,6 +90,7 @@ local NewHook = hooksecurefunc;
 	and once when the mod is loaded.
 ]]--
 local PLAYER_NAME = UnitName("player");
+local PLAYER_FILTER = PLAYER_NAME:upper();
 local CHAT_WIDTH = 350;
 local CHAT_HEIGHT = 180;
 local CHAT_THROTTLE = 45;
@@ -155,6 +156,7 @@ local BNPLAYER_PATTERN = "|HBNplayer:(.-)|h%[(|Kb(%d+).-)%](.*)|h"
 LOCAL FUNCTIONS
 ##########################################################
 ]]--
+local AddModifiedMessage;
 local ScrollIndicator = CreateFrame("Frame", nil)
 local HighLight_OnUpdate = function(self)
 	if(self:IsMouseOver(50, -2, 0, 50)) then
@@ -301,7 +303,7 @@ do
 		return arg1:gsub("([%%%+%-%.%[%]%*%?])", "%%%1")
 	end
 
-	local AddModifiedMessage = function(self, message, ...)
+	function AddModifiedMessage(self, message, ...)
 		internalTest = false;
 		if type(message) == "string" then
 			if(message:find("%pTInterface%p+") or message:find("%pTINTERFACE%p+") or message:find("%pHshare%p+") or message:find("%pHSHARE%p+")) then
@@ -381,29 +383,30 @@ do
 	    end
 
 		if(CHAT_THROTTLE ~= 0) then
-			local msg = author:upper() .. message;
-			if((msg ~= nil) and (not author:find(PLAYER_NAME))) then
-				if THROTTLE_CACHE[msg] then
-					local timeDiff = (time() - THROTTLE_CACHE[msg]) or 0
-					if timeDiff <= CHAT_THROTTLE then
-						return true;
-					end
+			local sentFrom = author:upper()
+			if(not sentFrom:find(PLAYER_FILTER)) then
+				local msg
+				if(self.GetID) then
+					local chatID = self:GetID() or 0;
+					msg = chatID .. sentFrom .. message;
+				else
+					msg = sentFrom .. message;
 				end
-				THROTTLE_CACHE[msg] = time()
+				if(msg ~= nil) then
+					if THROTTLE_CACHE[msg] then
+						local timeDiff = (time() - THROTTLE_CACHE[msg]) or 0
+						if timeDiff <= CHAT_THROTTLE then
+							return true;
+						end
+					end
+					THROTTLE_CACHE[msg] = time()
+				end
 			end
 		end
 		return SVUI_ParseMessage(self, event, message, author, ...)
 	end
 
 	function SetParseHandlers()
-		for _,chatName in pairs(CHAT_FRAMES)do
-			local chat = _G[chatName]
-			if chat:GetID() ~= 2 then
-				chat.TempAddMessage = chat.AddMessage;
-				chat.AddMessage = AddModifiedMessage
-			end
-		end
-
 		ChatFrame_AddMessageEventFilter("CHAT_MSG_CHANNEL", AntiSpam_ChatEventFilter)
 		ChatFrame_AddMessageEventFilter("CHAT_MSG_YELL", AntiSpam_ChatEventFilter)
 		ChatFrame_AddMessageEventFilter("CHAT_MSG_SAY", AntiSpam_ChatEventFilter)
@@ -451,29 +454,42 @@ do
 	local refreshLocked = false;
 	local doskey = false;
 
-
-
-	local SVUI_OnHyperlinkShow = function(self, link, ...)
-		if(link:sub(1, 3) == "url") then
+	local SetHyperlink = ItemRefTooltip.SetHyperlink
+	function ItemRefTooltip:SetHyperlink(data, ...)
+		if (data):sub(1, 3) == "url" then
 			local ChatFrameEditBox = ChatEdit_ChooseBoxForSend()
-			local currentLink = (link):sub(5)
+			local currentLink = (data):sub(5)
 			if (not ChatFrameEditBox:IsShown()) then
 				ChatEdit_ActivateChat(ChatFrameEditBox)
 			end
 			ChatFrameEditBox:Insert(currentLink)
 			ChatFrameEditBox:HighlightText()
-			return;
-		end
-		local test, text = link:match("(%a+):(.+)");
-		if(test == "url") then
-			local editBox = LAST_ACTIVE_CHAT_EDIT_BOX or _G[("%sEditBox"):format(self:GetName())]
-			if editBox then
-				editBox:SetText(text)
-				editBox:SetFocus()
-				editBox:HighlightText()
-			end
+		else
+			SetHyperlink(self, data, ...)
 		end
 	end
+
+	-- local SVUI_OnHyperlinkShow = function(self, link, ...)
+	-- 	if(link:sub(1, 3) == "url") then
+	-- 		local ChatFrameEditBox = ChatEdit_ChooseBoxForSend()
+	-- 		local currentLink = (link):sub(5)
+	-- 		if (not ChatFrameEditBox:IsShown()) then
+	-- 			ChatEdit_ActivateChat(ChatFrameEditBox)
+	-- 		end
+	-- 		ChatFrameEditBox:Insert(currentLink)
+	-- 		ChatFrameEditBox:HighlightText()
+	-- 		return;
+	-- 	end
+	-- 	local test, text = link:match("(%a+):(.+)");
+	-- 	if(test == "url") then
+	-- 		local editBox = LAST_ACTIVE_CHAT_EDIT_BOX or _G[("%sEditBox"):format(self:GetName())]
+	-- 		if editBox then
+	-- 			editBox:SetText(text)
+	-- 			editBox:SetFocus()
+	-- 			editBox:HighlightText()
+	-- 		end
+	-- 	end
+	-- end
 
 	local _hook_TabTextColor = function(self, r, g, b, a)
 		local r2, g2, b2 = 1, 1, 1;
@@ -629,7 +645,7 @@ do
 		local lastTab = TabsList[1];
 		if(lastTab) then
 			lastTab:ClearAllPoints()
-			lastTab:ModPoint("LEFT", MOD.Dock.Bar, "LEFT", 2, 0);
+			lastTab:SetPoint("LEFT", MOD.Dock.Bar, "LEFT", 2, 0);
 		end
 		local offset = 1;
 		for chatID,frame in pairs(TabsList) do
@@ -662,7 +678,7 @@ do
 		end
 		frame:SetParent(chat)
 		frame:ClearAllPoints()
-		frame:ModPoint("TOPLEFT", chat, "BOTTOMLEFT", -3, -6)
+		frame:SetPoint("TOPLEFT", chat, "BOTTOMLEFT", -3, -6)
 		TABS_DIRTY = true
 		_repositionDockedTabs()
 	end
@@ -734,13 +750,13 @@ do
 		local chatID = chat:GetID();
 		local tabName = chatName.."Tab";
 		local tabText = _G[chatName.."TabText"]
-		SV:FontManager(chat, "chatdialog", "LEFT")
-		SV:FontManager(tabText, "chattab")
 		if(not chat.Panel) then
 			chat:SetStyle("Frame", "Transparent", true, 1, 3, 6)
 			chat.Panel:Hide()
+			SV:FontManager(chat, "chatdialog", "LEFT")
+			SV:FontManager(tabText, "chattab")
 		end
-		if(SV.media.shared.font.chatdialog.outline ~= 'NONE' )then
+		if(SV.media.shared.font.chatdialog.outline ~= 'NONE' ) then
 			chat:SetShadowColor(0, 0, 0, 0)
 			chat:SetShadowOffset(0, 0)
 		else
@@ -779,7 +795,7 @@ do
 			if tab.conversationIcon then
 				tab.conversationIcon:SetAlpha(0)
 				tab.conversationIcon:ClearAllPoints()
-				tab.conversationIcon:ModPoint("TOPLEFT", tab, "TOPLEFT", 0, 0)
+				tab.conversationIcon:SetPoint("TOPLEFT", tab, "TOPLEFT", 0, 0)
 			end
 			if(TAB_SKINS and not tab.IsStyled) then
 				local arg3 = (chat.inUse or chat.isDocked or chat.isTemporary)
@@ -807,7 +823,7 @@ do
 			-------------------------------------------
 			chat:SetTimeVisible(100)
 			chat:SetFading(CHAT_FADING)
-			chat:HookScript("OnHyperlinkClick", SVUI_OnHyperlinkShow)
+			--chat:HookScript("OnHyperlinkClick", SVUI_OnHyperlinkShow)
 
 			local alertSize = MOD.Dock.Bar:GetHeight();
 			local alertOffset = alertSize * 0.25
@@ -824,7 +840,7 @@ do
 			--copy chat button
 			chat.button = CreateFrame('Frame', format("SVUI_CopyChatButton%d", chatID), chat)
 			chat.button:SetAlpha(0.35)
-			chat.button:ModSize(38, 18)
+			chat.button:SetSize(38, 18)
 			chat.button:SetPoint('TOPRIGHT', chat, 'TOPRIGHT', 0, 0)
 			chat.button:SetStyle("Frame", "Lite")
 
@@ -923,6 +939,10 @@ do
 						_addTab(tab.Holder, id)
 					end
 				end
+			end
+			if((not chat.TempAddMessage) and (chat:GetID() ~= 2)) then
+				chat.TempAddMessage = chat.AddMessage;
+				chat.AddMessage = AddModifiedMessage
 			end
 		end
 		refreshLocked = true
@@ -1130,14 +1150,11 @@ do
 	end
 
 	local _hook_ChatFontUpdate = function(self, chat, size)
+		if(C_PetBattles.IsInBattle()) then return end
+		SV.Events:Trigger("FONT_GROUP_UPDATED", "chatdialog");
 		if ( not chat ) then
 			chat = FCF_GetCurrentChatFrame();
 		end
-		if ( not size ) then
-			size = self.value or SV.media.shared.font.chatdialog.size;
-		end
-		SV.media.shared.font.chatdialog.size = size;
-		SV.Events:Trigger("FONT_GROUP_UPDATED", "chatdialog");
 		if(SV.media.shared.font.chatdialog.outline ~= 'NONE' )then
 			chat:SetShadowColor(0, 0, 0, 0)
 			chat:SetShadowOffset(0, 0)
@@ -1341,6 +1358,7 @@ end
 
 function MOD:UpdateLocals()
 	PLAYER_NAME = UnitName("player");
+	PLAYER_FILTER = PLAYER_NAME:upper();
 	CHAT_WIDTH = (SV.db.Dock.dockLeftWidth or 350) - 10;
 	CHAT_HEIGHT = (SV.db.Dock.dockLeftHeight or 180) - 15;
 	CHAT_THROTTLE = SV.db.Chat.throttleInterval;
@@ -1413,10 +1431,9 @@ function MOD:Load()
 	self:RegisterEvent('UPDATE_FLOATING_CHAT_WINDOWS', 'RefreshChatFrames')
 	self:RegisterEvent('PET_BATTLE_CLOSE')
 
-	SetParseHandlers()
-
 	self:UpdateLocals()
 	self:RefreshChatFrames(true)
+	SetParseHandlers()
 
 	_G.GeneralDockManagerOverflowButton:ClearAllPoints()
 	_G.GeneralDockManagerOverflowButton:SetPoint('BOTTOMRIGHT', self.Dock.Bar, 'BOTTOMRIGHT', -2, 2)

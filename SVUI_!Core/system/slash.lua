@@ -30,7 +30,6 @@ local EnableAddOn           = _G.EnableAddOn;
 local DisableAddOn          = _G.DisableAddOn;
 local GetAddOnInfo          = _G.GetAddOnInfo;
 local GetAddOnMetadata      = _G.GetAddOnMetadata;
-local PlaySoundFile   		  = _G.PlaySoundFile;
 
 local SV = select(2, ...)
 local L = SV.L;
@@ -111,11 +110,6 @@ _G.SLASH_SVUIENABLE1="/enable"
 
 _G.SlashCmdList["SVUIDISABLE"] = DisableAddon;
 _G.SLASH_SVUIDISABLE1="/disable"
-
-_G.SlashCmdList["LOLWUT"] = function(msg)
-	PlaySoundFile("Sound\\Character\\Human\\HumanVocalFemale\\HumanFemalePissed04.wav")
-end
-_G.SLASH_LOLWUT1 = "/lolwut";
 --[[
 ##########################################################
 LEEEEEROY

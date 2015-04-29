@@ -60,6 +60,13 @@ local POSITION_SELECT = {
 	["BOTTOM"] = "BOTTOM"
 };
 
+local ANCHOR_SELECT = {
+	["LEFT"] = "LEFT",
+	["RIGHT"] = "RIGHT",
+	["TOP"] = "TOP",
+	["BOTTOM"] = "BOTTOM"
+};
+
 local textStringFormats = {
 	["none"] = "None",
 	["current"] = "Current",
@@ -646,25 +653,27 @@ function SVUIOptions:SetHealthConfigGroup(partyRaid, updateFunction, unitName, c
 						name = L["Coloring"],
 						type = "execute",
 						width = 'full',
-						func = function() ACD:SelectGroup(SV.NameID, "UnitFrames", "common", "allColorsGroup", "healthGroup") end
+						func = function() ACD:SelectGroup(SV.NameID, "UnitFrames", "commonGroup", "baseGroup", "allColorsGroup", "healthGroup") end
 					},
 				}
 			}
 		}
 	}
-	if partyRaid then
-		healthOptions.args.commonGroup.args.frequentUpdates = {
-			type = "toggle",
-			order = 6,
-			name = L["Frequent Updates"],
-			desc = L["Rapidly update the health, uses more memory and cpu. Only recommended for healing."]
-		}
+	if SV.db.UnitFrames[unitName].health.orientation then
 		healthOptions.args.commonGroup.args.orientation = {
 			type = "select",
-			order = 7,
+			order = 6,
 			name = L["Orientation"],
 			desc = L["Direction the health bar moves when gaining/losing health."],
 			values = {["HORIZONTAL"] = L["Horizontal"], ["VERTICAL"] = L["Vertical"]}
+		}
+	end
+	if partyRaid then
+		healthOptions.args.commonGroup.args.frequentUpdates = {
+			type = "toggle",
+			order = 7,
+			name = L["Frequent Updates"],
+			desc = L["Rapidly update the health, uses more memory and cpu. Only recommended for healing."]
 		}
 	end
 	return healthOptions
@@ -689,6 +698,45 @@ function SVUIOptions:SetPowerConfigGroup(playerTarget, updateFunction, unitName,
 				type = "group",
 				guiInline = true,
 				name = L["Base Settings"],
+				args = {
+					detached = {
+						type = "toggle",
+						order = 1,
+						name = L["Detached"],
+						desc = L["Detach the power bar from the unit frame."]
+					},
+					anchor = {
+						type = "select",
+						order = 2,
+						name = L["Bar Position"],
+						desc = L["Set direction to anchor this bar"],
+						values = ANCHOR_SELECT
+					},
+					height = {
+						type = "range",
+						name = L["Height"],
+						width = 'full',
+						order = 4,
+						min = 3,
+						max = 250,
+						step = 1
+					},
+					width = {
+						type = "range",
+						name = L["Width"],
+						width = 'full',
+						order = 5,
+						min = 3,
+						max = 250,
+						step = 1
+					},
+				}
+			},
+			textGroup = {
+				order = 3,
+				type = "group",
+				guiInline = true,
+				name = L["Text Settings"],
 				args = {
 					position = {
 						type = "select",
@@ -715,21 +763,13 @@ function SVUIOptions:SetPowerConfigGroup(playerTarget, updateFunction, unitName,
 						max = 300,
 						step = 1
 					},
-					height = {
-						type = "range",
-						name = L["Height"],
-						order = 4,
-						min = 3,
-						max = 50,
-						step = 1
-					},
 				}
 			},
 			formatGroup = {
-				order = 3,
+				order = 4,
 				type = "group",
 				guiInline = true,
-				name = L["Text Settings"],
+				name = L["Text Formatting"],
 				set = function(key, value)
 					MOD:ChangeDBVar(value, key[#key], unitName, "formatting");
 					local tag = ""
@@ -757,19 +797,19 @@ function SVUIOptions:SetPowerConfigGroup(playerTarget, updateFunction, unitName,
 						desc = L["Use various name coloring methods"]
 					},
 					power_class = {
-						order = 1,
+						order = 2,
 						name = L["Show Class Power"],
 						type = "toggle",
 						get = function() return SV.db.UnitFrames[unitName]["formatting"].power_class end,
 					},
 					power_alt = {
-						order = 1,
+						order = 3,
 						name = L["Show Alt Power"],
 						type = "toggle",
 						get = function() return SV.db.UnitFrames[unitName]["formatting"].power_alt end,
 					},
 					power_type = {
-						order = 3,
+						order = 4,
 						name = L["Text Format"],
 						type = "select",
 						get = function() return SV.db.UnitFrames[unitName]["formatting"].power_type end,
@@ -779,7 +819,7 @@ function SVUIOptions:SetPowerConfigGroup(playerTarget, updateFunction, unitName,
 				}
 			},
 			colorGroup = {
-				order = 4,
+				order = 5,
 				type = "group",
 				guiInline = true,
 				name = L["Color Settings"],
@@ -795,12 +835,22 @@ function SVUIOptions:SetPowerConfigGroup(playerTarget, updateFunction, unitName,
 						name = L["Coloring"],
 						type = "execute",
 						width = 'full',
-						func = function() ACD:SelectGroup(SV.NameID, "UnitFrames", "common", "allColorsGroup", "powerGroup") end
+						func = function() ACD:SelectGroup(SV.NameID, "UnitFrames", "commonGroup", "baseGroup", "allColorsGroup", "powerGroup") end
 					},
 				}
 			}
 		}
 	}
+
+	if SV.db.UnitFrames[unitName].power.orientation then
+		powerOptions.args.commonGroup.args.orientation = {
+			type = "select",
+			order = 3,
+			name = L["Orientation"],
+			desc = L["Direction the power bar moves when gaining/losing power."],
+			values = {["HORIZONTAL"] = L["Horizontal"], ["VERTICAL"] = L["Vertical"]}
+		}
+	end
 
 	return powerOptions
 end
@@ -1285,7 +1335,7 @@ local BoolFilters = {
 local function setAuraFilteringOptions(configTable, unitName, auraType, updateFunction, isPlayer)
 	if BoolFilters[unitName] then
 		configTable.filterGroup = {
-			order = 18,
+			order = 20,
 			guiInline = true,
 			type = "group",
 			name = L["Aura filtering..."],
@@ -1347,7 +1397,7 @@ local function setAuraFilteringOptions(configTable, unitName, auraType, updateFu
 		}
 	else
 		configTable.friendlyGroup = {
-			order = 18,
+			order = 20,
 			guiInline = true,
 			type = "group",
 			name = L["When the unit is friendly..."],
@@ -1431,7 +1481,7 @@ local function setAuraFilteringOptions(configTable, unitName, auraType, updateFu
 			},
 		}
 		configTable.enemyGroup = {
-			order = 19,
+			order = 21,
 			guiInline = true,
 			type = "group",
 			name = L["When the unit is hostile..."],
@@ -1655,19 +1705,28 @@ function SVUIOptions:SetAuraConfigGroup(isPlayer, auraType, unused, updateFuncti
 				type = "range",
 				order = 12,
 				name = L["Size Override"],
-				desc = L["If not set to 0 then override the size of the aura icon to this."],
+				desc = L["If not set to 0 then override the size of the aura icons (or height of aura bars)."],
 				min = 0,
 				max = 60,
 				step = 1
 			},
-			spacer3 = {
+			barWidthOverride = {
+				type = "range",
 				order = 13,
+				name = L["Bar Width Override"],
+				desc = L["If not set to 0 then override the width of aura bars."],
+				min = 0,
+				max = 500,
+				step = 1
+			},
+			spacer3 = {
+				order = 14,
 				name = "",
 				type = "description",
 				width = "full",
 			},
 			xOffset = {
-				order = 14,
+				order = 15,
 				type = "range",
 				name = L["xOffset"],
 				min = -60,
@@ -1675,16 +1734,24 @@ function SVUIOptions:SetAuraConfigGroup(isPlayer, auraType, unused, updateFuncti
 				step = 1
 			},
 			yOffset = {
-				order = 15,
+				order = 16,
 				type = "range",
 				name = L["yOffset"],
-				width = "fill",
 				min = -60,
 				max = 60,
 				step = 1
 			},
+			spacing = {
+				order = 17,
+				name = L["Aura Spacing"],
+				type = "range",
+				min = 0,
+				max = 20,
+				step = 1,
+				width = "fill",
+			},
 			useFilter = {
-				order = 16,
+				order = 18,
 				type = "select",
 				name = L["Custom Filter"],
 				desc = L["Select a custom filter to include."],
@@ -1700,7 +1767,7 @@ function SVUIOptions:SetAuraConfigGroup(isPlayer, auraType, unused, updateFuncti
 				set = function(key, value) SV.db.UnitFrames[unitName][auraType].useFilter = value; updateFunction(MOD, unitName) end,
 			},
 			spacer4 = {
-				order = 17,
+				order = 19,
 				name = "",
 				type = "description",
 				width = "full",
@@ -1749,7 +1816,7 @@ function SVUIOptions:SetAuraConfigGroup(isPlayer, auraType, unused, updateFuncti
 				configureButton1 = {
 					order = 2,
 					name = L["Coloring"],
-					type = "execute", func = function() ACD:SelectGroup(SV.NameID, "UnitFrames", "common", "allColorsGroup", "auraBars") end,
+					type = "execute", func = function() ACD:SelectGroup(SV.NameID, "UnitFrames", "commonGroup", "baseGroup", "allColorsGroup", "auraBars") end,
 					disabled = function() return not SV.db.UnitFrames[unitName][auraType].useBars end,
 				},
 				configureButton2 = {
@@ -2357,8 +2424,14 @@ SV.Options.args[Schema] = {
 							guiInline = true,
 							name = L["General"],
 							args = {
-								disableBlizzard = {
+								themed = {
 									order = 1,
+									name = L["Elite Bursts"],
+									desc = L["Toggle the styled starbursts around the target frame for elites and rares"],
+									type = "toggle"
+								},
+								disableBlizzard = {
+									order = 2,
 									name = L["Disable Blizzard"],
 									desc = L["Disables the blizzard party/raid frames."],
 									type = "toggle",
@@ -2371,43 +2444,43 @@ SV.Options.args[Schema] = {
 									end
 								},
 								fastClickTarget = {
-									order = 2,
+									order = 3,
 									name = L["Fast Clicks"],
 									desc = L["Immediate mouse-click-targeting"],
 									type = "toggle"
 								},
 								debuffHighlighting = {
-									order = 3,
+									order = 4,
 									name = L["Debuff Highlight"],
 									desc = L["Color the unit if there is a debuff that can be dispelled by your class."],
 									type = "toggle"
 								},
 								xrayFocus = {
-									order = 4,
+									order = 5,
 									name = L["X-Ray Specs"],
 									desc = L["Use handy graphics to focus the current target, or clear the current focus"],
 									type = "toggle"
 								},
 								resolveBar = {
-									order = 5,
+									order = 6,
 									name = L["Resolve Meter"],
 									desc = L["A convenient meter for tanks to display their current resolve."],
 									type = "toggle"
 								},
 								infoBackgrounds = {
-									order = 6,
+									order = 7,
 									name = L["Info Backgrounds"],
 									desc = L["Show or hide the gradient under each of the four main unitframes. (Player, Target, Pet, Target of Target)"],
 									type = "toggle"
 								},
 								spacer99 = {
-									order = 7,
+									order = 8,
 									name = "",
 									type = "description",
 									width = "full",
 								},
 								OORAlpha = {
-									order = 8,
+									order = 9,
 									name = L["Range Fading"],
 									desc = L["The transparency of units that are out of range."],
 									type = "range",
@@ -2419,7 +2492,7 @@ SV.Options.args[Schema] = {
 									end
 								},
 								groupOORAlpha = {
-									order = 9,
+									order = 10,
 									name = L["Group Range Fading"],
 									desc = L["The transparency of group units that are out of range."],
 									type = "range",
@@ -2561,8 +2634,21 @@ SV.Options.args[Schema] = {
 												MOD:RefreshAllUnitMedia()
 											end,
 										},
-										tapped = {
+										healthBackdrop = {
 											order = 4,
+											type = "color",
+											name = L["Health Backdrop"],
+											get = function(key)
+												local color = SV.media.extended.unitframes.healthBackdrop
+												return color[1],color[2],color[3]
+											end,
+											set = function(key, rValue, gValue, bValue)
+												SV.media.extended.unitframes.healthBackdrop = {rValue, gValue, bValue}
+												MOD:RefreshAllUnitMedia()
+											end,
+										},
+										tapped = {
+											order = 5,
 											type = "color",
 											name = L["Tapped"],
 											get = function(key)
@@ -2575,7 +2661,7 @@ SV.Options.args[Schema] = {
 											end,
 										},
 										disconnected = {
-											order = 5,
+											order = 6,
 											type = "color",
 											name = L["Disconnected"],
 											get = function(key)
@@ -3311,7 +3397,7 @@ SV.Options.args[Schema] = {
 											name = L["Width"],
 											type = "range",
 											width = "full",
-											min = 50,
+											min = 10,
 											max = 500,
 											step = 1,
 											set = function(l, m)
@@ -3328,7 +3414,7 @@ SV.Options.args[Schema] = {
 											type = "range",
 											width = "full",
 											min = 10,
-											max = 250,
+											max = 500,
 											step = 1
 										},
 									}
@@ -3454,7 +3540,7 @@ SV.Options.args[Schema] = {
 											name = L["Width"],
 											type = "range",
 											width = "full",
-											min = 50,
+											min = 10,
 											max = 500,
 											step = 1,
 										},
@@ -3464,7 +3550,7 @@ SV.Options.args[Schema] = {
 											type = "range",
 											width = "full",
 											min = 10,
-											max = 250,
+											max = 500,
 											step = 1
 										},
 									}
@@ -3558,7 +3644,7 @@ SV.Options.args[Schema] = {
 											name = L["Width"],
 											type = "range",
 											width = "full",
-											min = 50,
+											min = 10,
 											max = 500,
 											step = 1,
 										},
@@ -3568,7 +3654,7 @@ SV.Options.args[Schema] = {
 											type = "range",
 											width = "full",
 											min = 10,
-											max = 250,
+											max = 500,
 											step = 1
 										},
 									}
@@ -3647,8 +3733,24 @@ SV.Options.args[Schema] = {
 									type = "group",
 									name = L["Size Settings"],
 									args = {
-										width = {order = 1, width = "full", name = L["Width"], type = "range", min = 50, max = 500, step = 1},
-										height = {order = 2, width = "full", name = L["Height"], type = "range", min = 10, max = 250, step = 1},
+										width = {
+											order = 1,
+											name = L["Width"],
+											type = "range",
+											width = "full",
+											min = 10,
+											max = 500,
+											step = 1,
+										},
+										height = {
+											order = 2,
+											name = L["Height"],
+											type = "range",
+											width = "full",
+											min = 10,
+											max = 500,
+											step = 1
+										},
 									}
 								},
 							}
@@ -4705,8 +4807,24 @@ SV.Options.args[Schema] = {
 									type = "group",
 									name = L["Size Settings"],
 									args = {
-										width = {order = 1, width = "full", name = L["Width"], type = "range", min = 50, max = 500, step = 1},
-										height = {order = 2, width = "full", name = L["Height"], type = "range", min = 10, max = 250, step = 1},
+										width = {
+											order = 1,
+											name = L["Width"],
+											type = "range",
+											width = "full",
+											min = 10,
+											max = 500,
+											step = 1,
+										},
+										height = {
+											order = 2,
+											name = L["Height"],
+											type = "range",
+											width = "full",
+											min = 10,
+											max = 500,
+											step = 1
+										},
 									}
 								},
 							}
@@ -4774,8 +4892,24 @@ SV.Options.args[Schema] = {
 									type = "group",
 									name = L["Size Settings"],
 									args = {
-										width = {order = 1, width = "full", name = L["Width"], type = "range", min = 50, max = 500, step = 1},
-										height = {order = 2, width = "full", name = L["Height"], type = "range", min = 10, max = 250, step = 1},
+										width = {
+											order = 1,
+											name = L["Width"],
+											type = "range",
+											width = "full",
+											min = 10,
+											max = 500,
+											step = 1,
+										},
+										height = {
+											order = 2,
+											name = L["Height"],
+											type = "range",
+											width = "full",
+											min = 10,
+											max = 500,
+											step = 1
+										},
 									}
 								},
 								pvp = {
@@ -4929,7 +5063,7 @@ SV.Options.args[Schema] = {
 									set = function(key, value)
 										MOD:ChangeDBVar(value, key[#key], "tank", "grid");
 										MOD:SetGroupFrame("tank");
-										SV.Options.args.UnitFrames.args.commonGroup.args.tank.args.tabGroups.args.sizing = SVUIOptions:SetSizeConfigGroup(value, "tank");
+										SV.Options.args.UnitFrames.args.commonGroup.args.tank.args.commonGroup.args.sizing = SVUIOptions:SetSizeConfigGroup(value, "tank");
 									end,
 								},
 								invertGroupingOrder = {
@@ -4995,7 +5129,7 @@ SV.Options.args[Schema] = {
 									set = function(key, value)
 										MOD:ChangeDBVar(value, key[#key], "assist", "grid");
 										MOD:SetGroupFrame("assist");
-										SV.Options.args.UnitFrames.args.commonGroup.args.assist.args.tabGroups.args.sizing = SVUIOptions:SetSizeConfigGroup(value, "assist");
+										SV.Options.args.UnitFrames.args.commonGroup.args.assist.args.commonGroup.args.sizing = SVUIOptions:SetSizeConfigGroup(value, "assist");
 									end,
 								},
 								invertGroupingOrder = {

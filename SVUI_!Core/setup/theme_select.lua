@@ -37,7 +37,7 @@ local L = SV.L;
 function SV.Setup:SelectTheme()
 	if not SVUI_ThemeSelectFrame then 
 		local frame = CreateFrame("Button", "SVUI_ThemeSelectFrame", UIParent)
-		frame:ModSize(350, 145)
+		frame:SetSize(350, 145)
 		frame:SetStyle("Frame", "Window2")
 		frame:SetPoint("CENTER", SV.Screen, "CENTER", 0, 0)
 		frame:SetFrameStrata("TOOLTIP");
@@ -55,7 +55,7 @@ function SV.Setup:SelectTheme()
 		local themeButton = SVUI_ThemeSelectFrame[themeName]
 		if(not themeButton) then
 			themeButton = CreateFrame("Frame", nil, SVUI_ThemeSelectFrame)
-			themeButton:ModSize(125, 125)
+			themeButton:SetSize(125, 125)
 			themeButton:SetPoint("TOP", SVUI_ThemeSelectFrame, "TOP", 0, yOffset)
 			themeButton.texture = themeButton:CreateTexture(nil, "BORDER")
 			themeButton.texture:SetAllPoints()
@@ -87,7 +87,7 @@ function SV.Setup:SelectTheme()
 
 	if(count > 1) then
 		SVUI_ThemeSelectFrame:ClearAllPoints()
-		SVUI_ThemeSelectFrame:ModSize(350, (135 * count) + 20)
+		SVUI_ThemeSelectFrame:SetSize(350, (135 * count) + 20)
 		SVUI_ThemeSelectFrame:SetPoint("CENTER", SV.Screen, "CENTER", 0, 0)
 		SVUI_ThemeSelectFrame:Show()
 	else

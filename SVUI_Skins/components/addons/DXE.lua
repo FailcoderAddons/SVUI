@@ -1,7 +1,7 @@
 --[[
 ##########################################################
 S V U I   By: Munglunch
-########################################################## 
+##########################################################
 LOCALIZED LUA FUNCTIONS
 ##########################################################
 ]]--
@@ -13,8 +13,8 @@ local pairs 	= _G.pairs;
 local string 	= _G.string;
 --[[ STRING METHODS ]]--
 local format = string.format;
---[[ 
-########################################################## 
+--[[
+##########################################################
 GET ADDON DATA
 ##########################################################
 ]]--
@@ -25,8 +25,8 @@ local Schema = MOD.Schema;
 local playerName = UnitName("player");
 local playerRealm = GetRealmName();
 local playerKey = ("%s - %s"):format(playerName, playerRealm)
---[[ 
-########################################################## 
+--[[
+##########################################################
 DXE
 ##########################################################
 ]]--
@@ -95,7 +95,7 @@ local function StyleDXE()
 
 	local DXEAlerts = DXE:GetModule("Alerts")
 	local frame = CreateFrame("Frame")
-	
+
 	frame.elapsed = 1
 	frame:SetScript("OnUpdate", function(frame,elapsed)
 		frame.elapsed = frame.elapsed + elapsed
@@ -116,7 +116,7 @@ local function StyleDXE()
 	if not DXEDB["profiles"][playerKey]["Globals"] then DXEDB["profiles"][playerKey]["Globals"] = {} end
 
 	DXEDB["profiles"][playerKey]["Globals"]["BackgroundTexture"] = [[Interface\BUTTONS\WHITE8X8]]
-	DXEDB["profiles"][playerKey]["Globals"]["BarTexture"] = SV.BaseTexture
+	DXEDB["profiles"][playerKey]["Globals"]["BarTexture"] = SV.media.statusbar.default
 	DXEDB["profiles"][playerKey]["Globals"]["Border"] = "None"
 	DXEDB["profiles"][playerKey]["Globals"]["Font"] = SV.media.font.dialog
 	DXEDB["profiles"][playerKey]["Globals"]["TimerFont"] = SV.media.font.dialog

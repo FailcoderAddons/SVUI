@@ -95,7 +95,7 @@ local function StyleRecount()
 
 	for _, frame in pairs(RecountFrames) do StyleFrame(frame) end
 
-	SV.API:Set("ScrollFrame", Recount_MainWindow_ScrollBarScrollBar)
+	SV.API:Set("ScrollBar", Recount_MainWindow_ScrollBarScrollBar)
 
 	Recount.MainWindow:HookScript('OnShow', function(self) if InCombatLockdown() then return end if MOD.Docklet:IsEmbedded("Recount") then MOD.Docklet:Show() end end)
 	Recount.MainWindow.FileButton:HookScript('OnClick', function(self) if LibDropdownFrame0 then SV.API:Set("Frame", LibDropdownFrame0) end end)
@@ -110,7 +110,7 @@ local function StyleRecount()
 		SV.API:Set("Frame", Recount_ReportWindow.Whisper)
 		Recount_ReportWindow.ReportButton:SetStyle("Button")
 		SV.API:Set("ScrollBar", Recount_ReportWindow_Slider)
-		Recount_ReportWindow_Slider:GetThumbTexture():ModSize(6,6)
+		Recount_ReportWindow_Slider:GetThumbTexture():SetSize(6,6)
 	end)
 end
 MOD:SaveAddonStyle("Recount", StyleRecount) 

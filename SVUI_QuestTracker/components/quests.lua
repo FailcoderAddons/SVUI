@@ -1,7 +1,7 @@
 --[[
 ##########################################################
 S V U I   By: Munglunch
-########################################################## 
+##########################################################
 LOCALIZED LUA FUNCTIONS
 ##########################################################
 ]]--
@@ -34,47 +34,8 @@ local CreateFrame           = _G.CreateFrame;
 local InCombatLockdown      = _G.InCombatLockdown;
 local GameTooltip           = _G.GameTooltip;
 local hooksecurefunc        = _G.hooksecurefunc;
-local IsAltKeyDown          = _G.IsAltKeyDown;
-local IsShiftKeyDown        = _G.IsShiftKeyDown;
-local IsControlKeyDown      = _G.IsControlKeyDown;
-local IsModifiedClick       = _G.IsModifiedClick;
-local PlaySound             = _G.PlaySound;
-local PlaySoundFile         = _G.PlaySoundFile;
-local PlayMusic             = _G.PlayMusic;
-local StopMusic             = _G.StopMusic;
-local GetTime               = _G.GetTime;
-local C_Timer               = _G.C_Timer;
-local IsQuestTask   		= _G.IsQuestTask;
-local GetCVarBool   		= _G.GetCVarBool;
-local AddQuestWatch   		= _G.AddQuestWatch;
-local GetQuestLink  		= _G.GetQuestLink;
-local GetQuestLogTitle  	= _G.GetQuestLogTitle;
-local SetSuperTrackedQuestID= _G.SetSuperTrackedQuestID;
-local GetNumQuestWatches  	= _G.GetNumQuestWatches;
-local GetQuestWatchInfo  	= _G.GetQuestWatchInfo;
-local GetQuestWatchIndex  	= _G.GetQuestWatchIndex;
-local GetDistanceSqToQuest  = _G.GetDistanceSqToQuest;
-local GetNumQuestLogEntries = _G.GetNumQuestLogEntries;
-local ShowQuestComplete  	= _G.ShowQuestComplete;
-local RemoveQuestWatch  	= _G.RemoveQuestWatch;
-local IsQuestComplete  		= _G.IsQuestComplete;
-local GetSuperTrackedQuestID= _G.GetSuperTrackedQuestID;
-local GetQuestLogIndexByID  = _G.GetQuestLogIndexByID;
-local AddQuestWatch   		= _G.AddQuestWatch;
-local IsPlayerInMicroDungeon= _G.IsPlayerInMicroDungeon;
-local GetCurrentMapAreaID   = _G.GetCurrentMapAreaID;
-local SetMapToCurrentZone   = _G.SetMapToCurrentZone;
-local AUTO_QUEST_WATCH     	= _G.AUTO_QUEST_WATCH;
-local TRACKER_HEADER_QUESTS = _G.TRACKER_HEADER_QUESTS;
-local GetQuestObjectiveInfo = _G.GetQuestObjectiveInfo;
-local GetQuestLogIsAutoComplete  	= _G.GetQuestLogIsAutoComplete;
-local GetQuestDifficultyColor  		= _G.GetQuestDifficultyColor;
-local GetQuestLogSpecialItemInfo 	= _G.GetQuestLogSpecialItemInfo;
-local GetQuestWorldMapAreaID  		= _G.GetQuestWorldMapAreaID;
-local GetTimeStringFromSeconds 		= _G.GetTimeStringFromSeconds;
-local GetQuestProgressBarPercent 	= _G.GetQuestProgressBarPercent;
---[[ 
-########################################################## 
+--[[
+##########################################################
 GET ADDON DATA
 ##########################################################
 ]]--
@@ -82,8 +43,8 @@ local SV = _G['SVUI']
 local L = SV.L
 local LSM = _G.LibStub("LibSharedMedia-3.0")
 local MOD = SV.QuestTracker;
---[[ 
-########################################################## 
+--[[
+##########################################################
 LOCALS
 ##########################################################
 ]]--
@@ -121,8 +82,8 @@ local ItemBlacklist = {
 	[110799] = true,
 	[109164] = true,
 };
---[[ 
-########################################################## 
+--[[
+##########################################################
 ITEM BAR/BUTTON CONSTRUCT
 ##########################################################
 ]]--
@@ -279,7 +240,7 @@ do
         local itembutton = CreateFrame('Button', buttonName, UIParent, 'SecureActionButtonTemplate, SecureHandlerStateTemplate, SecureHandlerAttributeTemplate');
         itembutton:SetAlpha(0);
         itembutton:SetStyle("Icon");
-        itembutton:ModSize(28, 28);
+        itembutton:SetSize(28, 28);
         itembutton:SetID(index);
         itembutton.___overflow = false;
         itembutton.SetUsage = Button_SetItem;
@@ -369,12 +330,14 @@ local function HideItemBarButtons()
 end
 
 local function ShowItemBarButtons()
+	ItemBar:FadeIn();
 	local maxIndex = #ItemBar.Buttons;
 	for link, index in pairs(ACTIVE_ITEMS) do
 		local button = ItemBar.Buttons[index];
 		button:FadeIn();
 	end
-	ItemBar:FadeIn();
+	MOD.Headers["Quests"]:Reset();
+	MOD.Headers["Quests"]:Refresh();
 end
 
 function ItemBar:Update()
@@ -383,12 +346,12 @@ function ItemBar:Update()
 		self.needsUpdate = true
 		return
 	end
-	wipe(SWAP_ITEMS);
+	wipe(ACTIVE_ITEMS);
 	local maxIndex = #self.Buttons;
 	local firstButton = self.Buttons[1];
 	local itemLink = firstButton.itemLink;
-	if(itemLink and ACTIVE_ITEMS[itemLink]) then
-		SWAP_ITEMS[itemLink] = 1
+	if(itemLink) then
+		ACTIVE_ITEMS[itemLink] = 1
 	end
 
 	firstButton:ClearAllPoints();
@@ -433,24 +396,22 @@ function ItemBar:Update()
 			lastButton = button
 
 			if(itemLink) then
-				if(ACTIVE_ITEMS[itemLink]) then
-					SWAP_ITEMS[itemLink] = i
-				end
+				ACTIVE_ITEMS[itemLink] = i
 			else
 				button:ClearUsage()
 			end
 		end
 	end
 
-	wipe(ACTIVE_ITEMS);
-	for k,v in pairs(SWAP_ITEMS) do
-		ACTIVE_ITEMS[k] = v
-	end
+	-- wipe(ACTIVE_ITEMS);
+	-- for k,v in pairs(SWAP_ITEMS) do
+	-- 	ACTIVE_ITEMS[k] = v
+	-- end
 
 	self.needsUpdate = nil
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 QUEST CACHING
 ##########################################################
 ]]--
@@ -516,17 +477,17 @@ local function UpdateCachedQuests(needsSorting)
 		end
 	end
 
-	tsort(QUESTS_BY_LOCATION, function(a,b) 
+	tsort(QUESTS_BY_LOCATION, function(a,b)
 		if(a[2] and b[2]) then
-			return a[2] < b[2] 
+			return a[2] < b[2]
 		else
 			return false
 		end
 	end);
 
-	tsort(QUESTS_BY_LOCATION, function(a,b) 
+	tsort(QUESTS_BY_LOCATION, function(a,b)
 		if(a[1] and b[1]) then
-			return a[1] < b[1] 
+			return a[1] < b[1]
 		else
 			return false
 		end
@@ -548,17 +509,17 @@ local function UpdateCachedDistance()
 		tinsert(QUESTS_BY_LOCATION, {distanceSq, header, questID});
 	end
 
-	tsort(QUESTS_BY_LOCATION, function(a,b) 
+	tsort(QUESTS_BY_LOCATION, function(a,b)
 		if(a[2] and b[2]) then
-			return a[2] < b[2] 
+			return a[2] < b[2]
 		else
 			return false
 		end
 	end);
 
-	tsort(QUESTS_BY_LOCATION, function(a,b) 
+	tsort(QUESTS_BY_LOCATION, function(a,b)
 		if(a[1] and b[1]) then
-			return a[1] < b[1] 
+			return a[1] < b[1]
 		else
 			return false
 		end
@@ -592,17 +553,17 @@ local function AddCachedQuest(questLogIndex)
 				local header = QUEST_HEADER_MAP[questID] or "Misc"
 				tinsert(QUESTS_BY_LOCATION, {distanceSq, header, questID});
 
-				tsort(QUESTS_BY_LOCATION, function(a,b) 
+				tsort(QUESTS_BY_LOCATION, function(a,b)
 					if(a[2] and b[2]) then
-						return a[2] < b[2] 
+						return a[2] < b[2]
 					else
 						return false
 					end
 				end);
 
-				tsort(QUESTS_BY_LOCATION, function(a,b) 
+				tsort(QUESTS_BY_LOCATION, function(a,b)
 					if(a[1] and b[1]) then
-						return a[1] < b[1] 
+						return a[1] < b[1]
 					else
 						return false
 					end
@@ -615,8 +576,8 @@ local function AddCachedQuest(questLogIndex)
 
 	return false;
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 SCRIPT HANDLERS
 ##########################################################
 ]]--
@@ -701,8 +662,8 @@ local ViewButton_OnClick = function(self, button)
 		end
 	end
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 TRACKER FUNCTIONS
 ##########################################################
 ]]--
@@ -711,7 +672,7 @@ local StartTimer = function(self, duration, elapsed)
 	local startTime = timeNow - elapsed;
 	local timeRemaining = duration - startTime;
 
-	self.Timer:ModHeight(INNER_HEIGHT);
+	self.Timer:SetHeight(INNER_HEIGHT);
 	self.Timer:FadeIn();
 	self.Timer.Bar.duration = duration or 1;
 	self.Timer.Bar.startTime = startTime;
@@ -737,7 +698,7 @@ local StopTimer = function(self)
 end
 
 local GetQuestRow = function(self, index)
-	if(not self.Rows[index]) then 
+	if(not self.Rows[index]) then
 		local previousFrame = self.Rows[#self.Rows]
 		local index = #self.Rows + 1;
 		local yOffset = -3;
@@ -753,11 +714,11 @@ local GetQuestRow = function(self, index)
 		local row = CreateFrame("Frame", nil, self)
 		row:SetPoint("TOPLEFT", anchorFrame, "BOTTOMLEFT", 0, yOffset);
 		row:SetPoint("TOPRIGHT", anchorFrame, "BOTTOMRIGHT", 0, yOffset);
-		row:ModHeight(QUEST_ROW_HEIGHT);
+		row:SetHeight(QUEST_ROW_HEIGHT);
 
 		row.Badge = CreateFrame("Frame", nil, row)
 		row.Badge:SetPoint("TOPLEFT", row, "TOPLEFT", 0, 0);
-		row.Badge:ModSize(QUEST_ROW_HEIGHT, QUEST_ROW_HEIGHT);
+		row.Badge:SetSize(QUEST_ROW_HEIGHT, QUEST_ROW_HEIGHT);
 		row.Badge:SetStyle("Frame", "Lite")
 
 		row.Badge.Icon = row.Badge:CreateTexture(nil,"OVERLAY")
@@ -778,7 +739,7 @@ local GetQuestRow = function(self, index)
 		row.Header = CreateFrame("Frame", nil, row)
 		row.Header:SetPoint("TOPLEFT", row, "TOPLEFT", (QUEST_ROW_HEIGHT + 6), 0);
 		row.Header:SetPoint("TOPRIGHT", row, "TOPRIGHT", -2, 0);
-		row.Header:ModHeight(INNER_HEIGHT);
+		row.Header:SetHeight(INNER_HEIGHT);
 
 		row.Header.Level = row.Header:CreateFontString(nil,"OVERLAY")
 		row.Header.Level:SetFontObject(SVUI_Font_Quest_Number);
@@ -805,7 +766,7 @@ local GetQuestRow = function(self, index)
 		row.Button = CreateFrame("Button", nil, row.Header)
 		row.Button:SetPoint("TOPLEFT", row, "TOPLEFT", (QUEST_ROW_HEIGHT + 6), 0);
 		row.Button:SetPoint("TOPRIGHT", row, "TOPRIGHT", -2, 0);
-		row.Button:ModHeight(INNER_HEIGHT + 2);
+		row.Button:SetHeight(INNER_HEIGHT + 2);
 		row.Button:SetStyle("LiteButton")
 		row.Button:SetID(0)
 		row.Button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
@@ -814,22 +775,22 @@ local GetQuestRow = function(self, index)
 		row.Button:SetScript("OnLeave", AnyButton_OnLeave)
 
 		row.Timer = CreateFrame("Frame", nil, row)
-		row.Timer:ModPoint("TOPLEFT", row, "BOTTOMLEFT", 0, 4);
-		row.Timer:ModPoint("TOPRIGHT", row, "BOTTOMRIGHT", 0, 4);
-		row.Timer:ModHeight(INNER_HEIGHT);
+		row.Timer:SetPoint("TOPLEFT", row, "BOTTOMLEFT", 0, 4);
+		row.Timer:SetPoint("TOPRIGHT", row, "BOTTOMRIGHT", 0, 4);
+		row.Timer:SetHeight(INNER_HEIGHT);
 
 		row.Timer.Bar = CreateFrame("StatusBar", nil, row.Timer);
-		row.Timer.Bar:ModPoint("TOPLEFT", row.Timer, "TOPLEFT", 4, -2);
-		row.Timer.Bar:ModPoint("BOTTOMRIGHT", row.Timer, "BOTTOMRIGHT", -4, 2);
+		row.Timer.Bar:SetPoint("TOPLEFT", row.Timer, "TOPLEFT", 4, -2);
+		row.Timer.Bar:SetPoint("BOTTOMRIGHT", row.Timer, "BOTTOMRIGHT", -4, 2);
 		row.Timer.Bar:SetStatusBarTexture(SV.media.statusbar.default)
 		row.Timer.Bar:SetStatusBarColor(0.5,0,1) --1,0.15,0.08
 		row.Timer.Bar:SetMinMaxValues(0, 1)
 		row.Timer.Bar:SetValue(0)
-		
+
 		local bgFrame = CreateFrame("Frame", nil, row.Timer.Bar)
 		bgFrame:InsetPoints(row.Timer.Bar, -2, -2)
 		bgFrame:SetFrameLevel(bgFrame:GetFrameLevel() - 1)
-		
+
 		bgFrame.bg = bgFrame:CreateTexture(nil, "BACKGROUND")
 		bgFrame.bg:SetAllPoints(bgFrame)
 		bgFrame.bg:SetTexture(SV.media.statusbar.default)
@@ -917,14 +878,14 @@ local SetQuestRow = function(self, index, watchIndex, title, level, icon, questI
 	row.Button:SetAlpha(1);
 	row.Button:Enable();
 	row.Button:SetID(questLogIndex);
-	row:ModHeight(QUEST_ROW_HEIGHT);
+	row:SetHeight(QUEST_ROW_HEIGHT);
 	row:FadeIn();
 
 	local objective_block = row.Objectives;
 	objective_block:Reset();
 
 	for i = 1, subCount do
-		local description, category, objective_completed = GetQuestObjectiveInfo(questID, i);
+		local description, category, objective_completed = GetQuestObjectiveInfo(questID, i, false);
 		if not objective_completed then iscomplete = false end
 		if(description) then
 			fill_height = fill_height + (INNER_HEIGHT + 4);
@@ -940,7 +901,7 @@ local SetQuestRow = function(self, index, watchIndex, title, level, icon, questI
 	end
 
 	if(objective_rows > 0) then
-		objective_block:ModHeight(fill_height);
+		objective_block:SetHeight(fill_height);
 		objective_block:FadeIn();
 	end
 
@@ -963,7 +924,7 @@ local SetZoneHeader = function(self, index, zoneName)
 	row.Badge.Button:Disable();
 	row.Header.Zone:SetTextColor(1,0.31,0.1)
 	row.Header.Zone:SetText(zoneName);
-	row:ModHeight(ROW_HEIGHT);
+	row:SetHeight(ROW_HEIGHT);
 	row:SetAlpha(1);
 
 	local objective_block = row.Objectives;
@@ -1000,7 +961,7 @@ local RefreshQuests = function(self, event, ...)
 		self:SetHeight(1);
 		self:SetAlpha(0);
 	else
-		self:ModHeight(fill_height + 2);
+		self:SetHeight(fill_height + 2);
 		self:FadeIn();
 	end
 
@@ -1021,7 +982,7 @@ local AddOneQuest = function(self, questID)
 			end
 		end
 
-		self:ModHeight(fill_height + 2);
+		self:SetHeight(fill_height + 2);
 	end
 
 	ItemBar:Update()
@@ -1064,8 +1025,8 @@ local _hook_WorldMapFrameOnHide = function()
 	MOD.Headers["Quests"]:Refresh()
 	MOD:UpdateDimensions();
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 CORE FUNCTIONS
 ##########################################################
 ]]--
@@ -1152,16 +1113,13 @@ end
 
 local ticker;
 local _hook_QuestDock_OnShow = function(self)
-	if(not self:IsShown()) then return end
+	if(not self.DockButton:GetAttribute("isActive")) then return end
 	if(not ticker) then
 		ticker = SV.Timers:ExecuteTimer(ShowItemBarButtons, 1)
 	end
-	MOD.Headers["Quests"]:Reset()
-	MOD.Headers["Quests"]:Refresh()
 end
 
 local _hook_QuestDock_OnHide = function(self)
-	if(self:IsShown()) then return end
 	if(ticker) then
 		SV.Timers:RemoveTimer(ticker)
 		ticker = nil
@@ -1173,16 +1131,17 @@ function MOD:InitializeQuests()
 	ItemBar:ClearAllPoints();
 	ItemBar:SetParent(SV.Screen);
 	if(SV.db.QuestTracker.itemBarDirection == 'HORIZONTAL') then
-		ItemBar:ModPoint("BOTTOMLEFT", SV.Dock.BottomRight, "TOPLEFT", 0, 4);
+		ItemBar:SetPoint("BOTTOMLEFT", SV.Dock.BottomRight, "TOPLEFT", 0, 4);
 		ItemBar:SetWidth(SV.Dock.BottomRight:GetWidth());
 		ItemBar:SetHeight(32);
 	else
-		ItemBar:ModPoint("TOPRIGHT", SV.Dock.BottomRight, "TOPLEFT", -4, 0);
+		ItemBar:SetPoint("TOPRIGHT", SV.Dock.BottomRight, "TOPLEFT", -4, 0);
 		ItemBar:SetWidth(32);
 		ItemBar:SetHeight(SV.Dock.BottomRight:GetHeight());
 	end
 
 	SV:NewAnchor(ItemBar, L["Quest Items"]);
+	
 	for i = 1, 5 do
 		ItemBar.Buttons[i] = CreateQuestItemButton(i)
 	end
@@ -1193,14 +1152,14 @@ function MOD:InitializeQuests()
 	local scrollChild = self.Docklet.ScrollFrame.ScrollChild;
 	local quests = CreateFrame("Frame", nil, scrollChild)
 	quests:SetWidth(ROW_WIDTH);
-	quests:ModHeight(ROW_HEIGHT);
+	quests:SetHeight(ROW_HEIGHT);
 	quests:SetPoint("TOPLEFT", self.Headers["Bonus"], "BOTTOMLEFT", 0, -4);
 	--quests:SetStyle()
 
 	quests.Header = CreateFrame("Frame", nil, quests)
 	quests.Header:SetPoint("TOPLEFT", quests, "TOPLEFT", 2, -2);
 	quests.Header:SetPoint("TOPRIGHT", quests, "TOPRIGHT", -2, -2);
-	quests.Header:ModHeight(INNER_HEIGHT);
+	quests.Header:SetHeight(INNER_HEIGHT);
 
 	quests.Header.Text = quests.Header:CreateFontString(nil,"OVERLAY")
 	quests.Header.Text:SetPoint("TOPLEFT", quests.Header, "TOPLEFT", 2, 0);
@@ -1229,7 +1188,7 @@ function MOD:InitializeQuests()
 
 	self:RegisterEvent("QUEST_LOG_UPDATE", self.UpdateObjectives);
 	self:RegisterEvent("QUEST_WATCH_LIST_CHANGED", self.UpdateObjectives);
-	self:RegisterEvent("QUEST_ACCEPTED", self.UpdateObjectives);	
+	self:RegisterEvent("QUEST_ACCEPTED", self.UpdateObjectives);
 	self:RegisterEvent("QUEST_POI_UPDATE", self.UpdateObjectives);
 	self:RegisterEvent("QUEST_TURNED_IN", self.UpdateObjectives);
 

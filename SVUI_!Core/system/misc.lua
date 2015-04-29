@@ -221,8 +221,8 @@ do
 
 	local RaidMarkButton_OnEnter = function(self)
 		self.Texture:ClearAllPoints()
-		self.Texture:ModPoint("TOPLEFT",-10,10)
-		self.Texture:ModPoint("BOTTOMRIGHT",10,-10)
+		self.Texture:SetPoint("TOPLEFT",-10,10)
+		self.Texture:SetPoint("BOTTOMRIGHT",10,-10)
 	end
 
 	local RaidMarkButton_OnLeave = function(self)

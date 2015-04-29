@@ -59,6 +59,12 @@ local FORCE_POSITION = false;
 local NewHook = hooksecurefunc;
 local lastQuality,lastID,lastName;
 local dead_rollz = {};
+-- UPVALUES
+local AUTOROLL_ENABLED = false;
+local AUTOROLL_SOULBOUND = false;
+local AUTOROLL_LEVEL = false;
+local AUTOROLL_QUALITY = 2;
+local AUTOROLL_DE = true;
 --[[
 ##########################################################
 MIRROR BARS
@@ -119,16 +125,16 @@ local function MirrorBarRegistry(barType)
 	bar.text:SetTextColor(1, 1, 1)
 	bar.text:SetPoint('LEFT', bar)
 	bar.text:SetPoint('RIGHT', bar)
-	bar.text:ModPoint('TOP', bar, 0, 2)
+	bar.text:SetPoint('TOP', bar, 0, 2)
 	bar.text:SetPoint('BOTTOM', bar)
-	bar:ModSize(222, 18)
+	bar:SetSize(222, 18)
 	bar:SetStatusBarTexture(SV.media.statusbar.gradient)
 	bar:SetStatusBarColor(r, g, b)
 	bar.type = barType;
 	bar.Start = MirrorBar_Start;
 
 	local yOffset = mirrorYOffset[bar.type]
-	bar:ModPoint("TOP", SV.Screen, "TOP", 0, -yOffset)
+	bar:SetPoint("TOP", SV.Screen, "TOP", 0, -yOffset)
 	RegisteredMirrorBars[barType] = bar;
 	return bar
 end
@@ -315,7 +321,7 @@ local LootRoll_OnUpdate = function(self)
 	if not self.parent.rollID then return end
 	local remaining = GetLootRollTimeLeft(self.parent.rollID)
 	local mu = remaining / self.parent.time;
-	self.spark:ModPoint("CENTER", self, "LEFT", mu * self:GetWidth(), 0)
+	self.spark:SetPoint("CENTER", self, "LEFT", mu * self:GetWidth(), 0)
 	self:SetValue(remaining)
 	if remaining > 1000000000 then
 		self:GetParent():Hide()
@@ -376,18 +382,18 @@ local function HandleSlots(frame)
 		local slot = frame.slots[i]
 		if slot:IsShown() then
 			counter = counter + 1;
-			slot:ModPoint("TOP", SVUI_LootFrame, 4, (-8 + scale) - (counter * scale))
+			slot:SetPoint("TOP", SVUI_LootFrame, 4, (-8 + scale) - (counter * scale))
 		end
 	end
-	frame:ModHeight(max(counter * scale + 16, 20))
+	frame:SetHeight(max(counter * scale + 16, 20))
 end
 
 local function MakeSlots(id)
 	local size = LOOT_HEIGHT;
 	local slot = CreateFrame("Button", "SVUI_LootSlot"..id, SVUI_LootFrame)
-	slot:ModPoint("LEFT", 8, 0)
-	slot:ModPoint("RIGHT", -8, 0)
-	slot:ModHeight(size)
+	slot:SetPoint("LEFT", 8, 0)
+	slot:SetPoint("RIGHT", -8, 0)
+	slot:SetHeight(size)
 	slot:SetID(id)
 	slot:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 	slot:SetScript("OnEnter", LootSlot_OnEnter)
@@ -396,8 +402,8 @@ local function MakeSlots(id)
 	slot:SetScript("OnShow", LootSlot_OnShow)
 
 	slot.iconFrame = CreateFrame("Frame", nil, slot)
-	slot.iconFrame:ModHeight(size)
-	slot.iconFrame:ModWidth(size)
+	slot.iconFrame:SetHeight(size)
+	slot.iconFrame:SetWidth(size)
 	slot.iconFrame:SetPoint("RIGHT", slot)
 	slot.iconFrame:SetStyle("Frame", "Transparent")
 
@@ -407,7 +413,7 @@ local function MakeSlots(id)
 
 	slot.count = slot.iconFrame:CreateFontString(nil, "OVERLAY")
 	slot.count:SetJustifyH("RIGHT")
-	slot.count:ModPoint("BOTTOMRIGHT", slot.iconFrame, -2, 2)
+	slot.count:SetPoint("BOTTOMRIGHT", slot.iconFrame, -2, 2)
 	slot.count:SetFontObject(SVUI_Font_Loot_Number)
 	slot.count:SetText(1)
 
@@ -435,10 +441,11 @@ local function MakeSlots(id)
 end
 
 local function CreateRollButton(rollFrame, type, locale, anchor)
+	local btnSize = LOOT_HEIGHT - 4;
 	local preset = RollTypePresets[type];
 	local rollButton = CreateFrame("Button", nil, rollFrame)
-	rollButton:ModPoint("LEFT", anchor, "RIGHT", tonumber(preset[4]), tonumber(preset[5]))
-	rollButton:ModSize(LOOT_HEIGHT - 4)
+	rollButton:SetPoint("LEFT", anchor, "RIGHT", tonumber(preset[4]), tonumber(preset[5]))
+	rollButton:SetSize(btnSize, btnSize)
 	rollButton:SetNormalTexture(preset[1])
 	if preset[2] and preset[2] ~= "" then
 		rollButton:SetPushedTexture(preset[2])
@@ -453,21 +460,22 @@ local function CreateRollButton(rollFrame, type, locale, anchor)
 	rollButton:SetMotionScriptsWhileDisabled(true)
 	local text = rollButton:CreateFontString(nil, nil)
 	text:SetFontObject(SVUI_Font_Roll)
-	text:ModPoint("CENTER", 0, ((type == 2 and 1) or (type == 0 and -1.2) or 0))
+	text:SetPoint("CENTER", 0, ((type == 2 and 1) or (type == 0 and -1.2) or 0))
 	return rollButton, text
 end
 
 local function CreateRollFrame()
 	UpdateLootUpvalues()
+	local btnSize = LOOT_HEIGHT - 2;
 	local rollFrame = CreateFrame("Frame", nil, UIParent)
-	rollFrame:ModSize(LOOT_WIDTH,LOOT_HEIGHT)
+	rollFrame:SetSize(LOOT_WIDTH,LOOT_HEIGHT)
 	rollFrame:SetStyle("!_Frame", 'Default')
 	rollFrame:SetScript("OnEvent",LootRoll_OnEvent)
 	rollFrame:RegisterEvent("CANCEL_LOOT_ROLL")
 	rollFrame:Hide()
 	rollFrame.button = CreateFrame("Button",nil,rollFrame)
-	rollFrame.button:ModPoint("RIGHT",rollFrame,'LEFT',0,0)
-	rollFrame.button:ModSize(LOOT_HEIGHT - 2)
+	rollFrame.button:SetPoint("RIGHT",rollFrame,'LEFT',0,0)
+	rollFrame.button:SetSize(btnSize, btnSize)
 	rollFrame.button:SetStyle("Frame", 'Default')
 	rollFrame.button:SetScript("OnEnter",LootItem_SetTooltip)
 	rollFrame.button:SetScript("OnLeave",LootItem_OnLeave)
@@ -477,8 +485,8 @@ local function CreateRollFrame()
 	rollFrame.button.icon:SetAllPoints()
 	rollFrame.button.icon:SetTexCoord(0.1,0.9,0.1,0.9 )
 	local border = rollFrame:CreateTexture(nil,"BORDER")
-	border:ModPoint("TOPLEFT",rollFrame,"TOPLEFT",4,0)
-	border:ModPoint("BOTTOMRIGHT",rollFrame,"BOTTOMRIGHT",-4,0)
+	border:SetPoint("TOPLEFT",rollFrame,"TOPLEFT",4,0)
+	border:SetPoint("BOTTOMRIGHT",rollFrame,"BOTTOMRIGHT",-4,0)
 	border:SetTexture("Interface\\ChatFrame\\ChatFrameBackground")
 	border:SetBlendMode("ADD")
 	border:SetGradientAlpha("VERTICAL",.1,.1,.1,0,.1,.1,.1,0)
@@ -494,7 +502,7 @@ local function CreateRollFrame()
 	rollFrame.status.bg:SetAllPoints()
 	rollFrame.status.bg:SetDrawLayer('BACKGROUND',2)
 	rollFrame.status.spark = rollFrame:CreateTexture(nil,"OVERLAY")
-	rollFrame.status.spark:ModSize(LOOT_HEIGHT * 0.5, LOOT_HEIGHT)
+	rollFrame.status.spark:SetSize(LOOT_HEIGHT * 0.5, LOOT_HEIGHT)
 	rollFrame.status.spark:SetTexture("Interface\\CastingBar\\UI-CastingBar-Spark")
 	rollFrame.status.spark:SetBlendMode("ADD")
 
@@ -505,19 +513,19 @@ local function CreateRollFrame()
 	rollFrame.NeedIt,rollFrame.WantIt,rollFrame.BreakIt = needButton,greedButton,deButton;
 	rollFrame.need,rollFrame.greed,rollFrame.pass,rollFrame.disenchant = needText,greedText,passText,deText;
 	rollFrame.bindText = rollFrame:CreateFontString()
-	rollFrame.bindText:ModPoint("LEFT",passButton,"RIGHT",3,1)
+	rollFrame.bindText:SetPoint("LEFT",passButton,"RIGHT",3,1)
 	rollFrame.bindText:SetFontObject(SVUI_Font_Roll_Number)
 	rollFrame.lootText = rollFrame:CreateFontString(nil,"ARTWORK")
 	rollFrame.lootText:SetFontObject(SVUI_Font_Roll_Number)
-	rollFrame.lootText:ModPoint("LEFT",rollFrame.bindText,"RIGHT",0,0)
-	rollFrame.lootText:ModPoint("RIGHT",rollFrame,"RIGHT",-5,0)
-	rollFrame.lootText:ModSize(200,10)
+	rollFrame.lootText:SetPoint("LEFT",rollFrame.bindText,"RIGHT",0,0)
+	rollFrame.lootText:SetPoint("RIGHT",rollFrame,"RIGHT",-5,0)
+	rollFrame.lootText:SetSize(200,10)
 	rollFrame.lootText:SetJustifyH("LEFT")
 
 	rollFrame.yourRoll = rollFrame:CreateFontString(nil,"ARTWORK")
 	rollFrame.yourRoll:SetFontObject(SVUI_Font_Roll_Number)
-	rollFrame.yourRoll:ModSize(22,22)
-	rollFrame.yourRoll:ModPoint("LEFT",rollFrame,"RIGHT",5,0)
+	rollFrame.yourRoll:SetSize(22,22)
+	rollFrame.yourRoll:SetPoint("LEFT",rollFrame,"RIGHT",5,0)
 	rollFrame.yourRoll:SetJustifyH("CENTER")
 
 	rollFrame.rolls = {}
@@ -531,7 +539,7 @@ local function FetchRollFrame()
 		end
 	end
 	local roll = CreateRollFrame()
-	roll:ModPoint("TOP", next(SV.RollFrames) and SV.RollFrames[#SV.RollFrames] or SVUI_AlertFrame, "BOTTOM", 0, -4);
+	roll:SetPoint("TOP", next(SV.RollFrames) and SV.RollFrames[#SV.RollFrames] or SVUI_AlertFrame, "BOTTOM", 0, -4);
 	tinsert(SV.RollFrames, roll)
 	return roll
 end
@@ -540,24 +548,47 @@ end
 CORE FUNCTIONS
 ##########################################################
 ]]--
+local function AutoGreed(rollID, quality, DE, BoP)
+	if(not AUTOROLL_ENABLED) then return end
+	if(AUTOROLL_LEVEL and (UnitLevel('player') < MAX_PLAYER_LEVEL)) then
+		return
+	end
+	if(quality <= AUTOROLL_QUALITY) then
+		if(DE and AUTOROLL_DE) then
+			if(not (BoP and (not AUTOROLL_SOULBOUND))) then
+				RollOnLoot(rollID, 3)
+			else
+				RollOnLoot(rollID, 2)
+			end
+		else
+			RollOnLoot(rollID, 2)
+		end
+	end
+end
+
 local EventFunc = {};
+
 EventFunc["CONFIRM_LOOT_ROLL"] = function(arg1, arg2, ...)
 	ConfirmLootRoll(arg1, arg2)
 	StaticPopup_Hide("CONFIRM_LOOT_ROLL")
 end
+
 EventFunc["CONFIRM_DISENCHANT_ROLL"] = function(arg1, arg2, ...)
 	ConfirmLootRoll(arg1, arg2)
 	StaticPopup_Hide("CONFIRM_LOOT_ROLL")
 end
+
 EventFunc["LOOT_BIND_CONFIRM"] = function(arg1, arg2, ...)
 	ConfirmLootSlot(arg1, arg2)
 	StaticPopup_Hide("LOOT_BIND", ...)
 end
+
 EventFunc["LOOT_SLOT_CLEARED"] = function(slot)
 	if not SVUI_LootFrame:IsShown() then return; end
 	SVUI_LootFrame.slots[slot]:Hide()
 	HandleSlots(SVUI_LootFrame)
 end
+
 EventFunc["LOOT_CLOSED"] = function(...)
 	StaticPopup_Hide("LOOT_BIND")
 	SVUI_LootFrame:Hide()
@@ -565,12 +596,15 @@ EventFunc["LOOT_CLOSED"] = function(...)
 		slot:Hide()
 	end
 end
+
 EventFunc["OPEN_MASTER_LOOT_LIST"] = function(...)
 	ToggleDropDownMenu(1, nil, GroupLootDropDown, SVUI_LootFrame.slots[lastID], 0, 0)
 end
+
 EventFunc["UPDATE_MASTER_LOOT_LIST"] = function(...)
 	MasterLooterFrame_UpdatePlayers()
 end
+
 EventFunc["LOOT_HISTORY_ROLL_CHANGED"] = function(arg1, arg2)
 	local rollID,_,_,_,_,_ = C_LootHistory.GetItem(arg1);
 	local name,_,rollType,rollResult,_ = C_LootHistory.GetPlayerInfo(arg1,arg2);
@@ -587,13 +621,14 @@ EventFunc["LOOT_HISTORY_ROLL_CHANGED"] = function(arg1, arg2)
 		end
 	end
 end
-EventFunc["START_LOOT_ROLL"] = function(arg1, arg2)
-	if dead_rollz[arg1] then return end
-	local texture,name,count,quality,bindOnPickUp,canNeed,canGreed,canBreak = GetLootRollItemInfo(arg1);
+
+EventFunc["START_LOOT_ROLL"] = function(rollID, rollTime)
+	if dead_rollz[rollID] then return end
+	local texture,name,count,quality,bindOnPickUp,canNeed,canGreed,canBreak = GetLootRollItemInfo(rollID);
 	local color = ITEM_QUALITY_COLORS[quality];
 	local rollFrame = FetchRollFrame();
-	rollFrame.rollID = arg1;
-	rollFrame.time = arg2;
+	rollFrame.rollID = rollID;
+	rollFrame.time = rollTime;
 	for i in pairs(rollFrame.rolls)do
 		rollFrame.rolls[i] = nil
 	end
@@ -602,7 +637,7 @@ EventFunc["START_LOOT_ROLL"] = function(arg1, arg2)
 	rollFrame.pass:SetText(0)
 	rollFrame.disenchant:SetText(0)
 	rollFrame.button.icon:SetTexture(texture)
-	rollFrame.button.link = GetLootRollItemLink(arg1)
+	rollFrame.button.link = GetLootRollItemLink(rollID)
 	if canNeed then
 		rollFrame.NeedIt:Enable()
 		rollFrame.NeedIt:SetAlpha(1)
@@ -633,18 +668,12 @@ EventFunc["START_LOOT_ROLL"] = function(arg1, arg2)
 	rollFrame.yourRoll:SetText("")
 	rollFrame.status:SetStatusBarColor(color.r,color.g,color.b,0.7)
 	rollFrame.status.bg:SetTexture(color.r,color.g,color.b)
-	rollFrame.status:SetMinMaxValues(0,arg2)
-	rollFrame.status:SetValue(arg2)
+	rollFrame.status:SetMinMaxValues(0,rollTime)
+	rollFrame.status:SetValue(rollTime)
 	rollFrame:SetPoint("CENTER",WorldFrame,"CENTER")
 	rollFrame:Show()
 	AlertFrame_FixAnchors()
-	if SV.db.Extras.autoRoll and UnitLevel('player') == MAX_PLAYER_LEVEL and quality == 2 and not bindOnPickUp then
-		if canBreak then
-			RollOnLoot(arg1,3)
-		else
-			RollOnLoot(arg1,2)
-		end
-	end
+	AutoGreed(rollID, quality, canBreak, bindOnPickUp)
 end
 EventFunc["LOOT_READY"] = function(autoLoot)
 	local drops = GetNumLootItems()
@@ -744,7 +773,7 @@ EventFunc["LOOT_READY"] = function(autoLoot)
 	titleWidth = titleWidth + 5;
 	local color = ITEM_QUALITY_COLORS[iQuality]
 	SVUI_LootFrame:SetBackdropBorderColor(color.r, color.g, color.b, .8)
-	SVUI_LootFrame:ModWidth(max(nameWidth, titleWidth))
+	SVUI_LootFrame:SetWidth(max(nameWidth, titleWidth))
 end
 
 local LootFrame_OnEvent = function(self, event, ...)
@@ -834,7 +863,7 @@ local CaptureBarHandler = function()
 			local captureBar = _G["WorldStateCaptureBar"..i]
 			if(captureBar and captureBar:IsVisible()) then
 				captureBar:ClearAllPoints()
-				captureBar:ModPoint("TOP", lastFrame, "TOP", 0, offset)
+				captureBar:SetPoint("TOP", lastFrame, "TOP", 0, offset)
 				lastFrame = captureBar
 				offset = (-45 * i);
 			end
@@ -846,9 +875,9 @@ local Vehicle_OnSetPoint = function(self, _, parent)
 	if(parent == "MinimapCluster" or parent == _G["MinimapCluster"]) then
 		VehicleSeatIndicator:ClearAllPoints()
 		if _G.VehicleSeatIndicator_MOVE then
-			VehicleSeatIndicator:ModPoint("BOTTOM", VehicleSeatIndicator_MOVE, "BOTTOM", 0, 0)
+			VehicleSeatIndicator:SetPoint("BOTTOM", VehicleSeatIndicator_MOVE, "BOTTOM", 0, 0)
 		else
-			VehicleSeatIndicator:ModPoint("TOPLEFT", SV.Dock.TopLeft, "TOPLEFT", 0, 0)
+			VehicleSeatIndicator:SetPoint("TOPLEFT", SV.Dock.TopLeft, "TOPLEFT", 0, 0)
 			SV:NewAnchor(VehicleSeatIndicator, L["Vehicle Seat Frame"])
 		end
 		VehicleSeatIndicator:SetScale(0.8)
@@ -858,7 +887,7 @@ end
 local Dura_OnSetPoint = function(self, _, parent)
 	if((parent == "MinimapCluster") or (parent == _G["MinimapCluster"])) then
 		self:ClearAllPoints()
-		self:ModPoint("RIGHT", Minimap, "RIGHT")
+		self:SetPoint("RIGHT", Minimap, "RIGHT")
 		self:SetScale(0.6)
 	end
 end
@@ -931,6 +960,18 @@ end
 LOAD
 ##########################################################
 ]]--
+local function UpdateLootingUpvalues()
+	AUTOROLL_ENABLED = SV.db.Extras.autoRoll;
+	AUTOROLL_SOULBOUND = SV.db.Extras.autoRollSoulbound;
+	AUTOROLL_LEVEL = SV.db.Extras.autoRollMaxLevel;
+	local dbQuality = SV.db.Extras.autoRollQuality;
+	AUTOROLL_QUALITY = tonumber(dbQuality);
+	if(type(AUTOROLL_QUALITY) ~= 'number') then
+		AUTOROLL_QUALITY = 2;
+	end
+	AUTOROLL_DE = SV.db.Extras.autoRollDisenchant;
+end
+
 local function SetOverrides()
 	if(CollectionsMicroButtonAlert) then
 		CollectionsMicroButtonAlert:Die()
@@ -953,11 +994,11 @@ local function SetOverrides()
 	NewHook(VehicleSeatIndicator, "SetPoint", Vehicle_OnSetPoint)
 	VehicleSeatIndicator:SetPoint("TOPLEFT", MinimapCluster, "TOPLEFT", 2, 2)
 
-	SVUI_WorldStateHolder:ModSize(200, 45)
+	SVUI_WorldStateHolder:SetSize(200, 45)
 	SV:NewAnchor(SVUI_WorldStateHolder, L["Capture Bars"])
 	NewHook("UIParent_ManageFramePositions", CaptureBarHandler)
 
-	SVUI_AltPowerBar:ModSize(128, 50)
+	SVUI_AltPowerBar:SetSize(128, 50)
 	PlayerPowerBarAlt:SetParent(SVUI_AltPowerBar)
 	PlayerPowerBarAlt:ClearAllPoints()
 	PlayerPowerBarAlt:SetPoint("CENTER", SVUI_AltPowerBar, "CENTER", 0, 0)
@@ -986,8 +1027,8 @@ local function SetOverrides()
 	SVUI_BailOut:Hide()
 
 	LossOfControlFrame:ClearAllPoints()
-	LossOfControlFrame:ModSize(75, 75)
-	LossOfControlFrame:ModPoint("CENTER", SV.Screen, "CENTER", -146, -40)
+	LossOfControlFrame:SetSize(75, 75)
+	LossOfControlFrame:SetPoint("CENTER", SV.Screen, "CENTER", -146, -40)
 	SV:NewAnchor(LossOfControlFrame, L["Loss Control Icon"], nil, nil, "LoC")
 
 	SV:RegisterEvent("CHAT_MSG_BG_SYSTEM_HORDE", PVPRaidNoticeHandler)
@@ -1007,10 +1048,10 @@ local function SetOverrides()
 		UIPARENT_MANAGED_FRAME_POSITIONS["GroupLootContainer"] = nil;
 		LootFrame:UnregisterAllEvents();
 
-		SVUI_LootFrameHolder:ModSize(150, 22);
+		SVUI_LootFrameHolder:SetSize(150, 22);
 		SV:NewAnchor(SVUI_LootFrameHolder, L["Loot Frame"], nil, nil, "SVUI_LootFrame");
 
-		SVUI_LootFrame:ModSize(256, 64);
+		SVUI_LootFrame:SetSize(256, 64);
 		SVUI_LootFrame:SetStyle("!_Frame", 'Transparent');
 		SVUI_LootFrame.title:SetFontObject(SVUI_Font_Header)
 		SV:ManageVisibility(SVUI_LootFrame);
@@ -1034,6 +1075,8 @@ local function SetOverrides()
 			LootingEventFrame:RegisterEvent("START_LOOT_ROLL");
 			UIParent:UnregisterEvent("START_LOOT_ROLL");
 			UIParent:UnregisterEvent("CANCEL_LOOT_ROLL");
+			SV.Events:On("LOOTING_UPVALUES_UPDATED", UpdateLootingUpvalues, true);
+			UpdateLootingUpvalues()
 		end
 
 		LootingEventFrame:SetScript("OnEvent", LootFrame_OnEvent);

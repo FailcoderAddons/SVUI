@@ -25,11 +25,11 @@
     <Frame name="SVUI_StyleTemplate_Minimap" virtual="true">
         <Attributes>
             <Attribute name="panelID" type="string" value="minimap" />
-            <Attribute name="panelPadding" type="number" value="2" />
+            <Attribute name="panelPadding" type="number" value="1" />
             <Attribute name="panelColor" type="string" value="transparent" />
             <Attribute name="panelGradient" type="string" value="light" />
             <Attribute name="panelTexUpdate" type="boolean" value="false" />
-            <Attribute name="panelOffset" type="number" value="2" />
+            <Attribute name="panelOffset" type="number" value="1" />
             <Attribute name="panelSkipUpdate" type="boolean" value="false" />
         </Attributes>
         <Backdrop bgFile="Interface\BUTTONS\WHITE8X8" edgeFile="Interface\BUTTONS\WHITE8X8" tile="false">
@@ -204,6 +204,6 @@
         </Anchors>
     </Frame>
 
-	<Script file='Loader.lua'/>	
+	<Script file='Loader.lua'/>
 	<Script file='SVUI_Maps.lua'/>
 </Ui>

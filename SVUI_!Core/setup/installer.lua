@@ -128,14 +128,13 @@ end
 local function BarShuffle()
 	if(not SV.ActionBars) then return end
 	local bS = SV.db.ActionBars.Bar1.buttonspacing;
-	local anchor = SV.ActionBars.MainAnchor
 
 	SV:ReAnchor("SVUI_ActionBar2", "BOTTOM", SVUI_ActionBar1, "TOP", 0, -bS);
 	SV:ReAnchor("SVUI_ActionBar3", "BOTTOMLEFT", SVUI_ActionBar1, "BOTTOMRIGHT", 4, 0);
 	SV:ReAnchor("SVUI_ActionBar5", "BOTTOMRIGHT", SVUI_ActionBar1, "BOTTOMLEFT", -4, 0);
-	SV:ReAnchor("SVUI_PetActionBar", "BOTTOMLEFT", anchor, "TOPLEFT", 0, 4);
-	SV:ReAnchor("SVUI_StanceBar", "BOTTOMRIGHT", anchor, "TOPRIGHT", 0, 4);
-	SV:ReAnchor("SVUI_SpecialAbility", "BOTTOM", anchor, "TOP", 0, 75);
+	SV:ReAnchor("SVUI_PetActionBar", "BOTTOMLEFT", SVUI_ActionBarMainAnchor, "TOPLEFT", 0, 4);
+	SV:ReAnchor("SVUI_StanceBar", "BOTTOMRIGHT", SVUI_ActionBarMainAnchor, "TOPRIGHT", 0, 4);
+	SV:ReAnchor("SVUI_SpecialAbility", "BOTTOM", SVUI_ActionBarMainAnchor, "TOP", 0, 75);
 end
 
 local function UFMoveBottomQuadrant(toggle)
@@ -267,7 +266,7 @@ function SV.Setup:UserScreen(rez, preserve)
 	end
 
 	if(not preserve and not mungs) then
-		BarShuffle()
+		-- BarShuffle()
     	SV:UpdateAnchors()
 		SVUILib:RefreshModule('Dock')
 		SVUILib:RefreshModule('Auras')
@@ -408,6 +407,12 @@ function SV.Setup:ChatConfigs(mungs)
 	end
 end
 
+function SV.Setup:RandomBackdrops()
+	self:GenerateBackdrops()
+	SV:UpdateSharedMedia()
+	if(SV.UnitFrames) then SVUILib:RefreshModule('UnitFrames') end
+end
+
 function SV.Setup:ColorTheme(style, preserve)
 	preset_mediastyle = style or "default";
 
@@ -465,7 +470,12 @@ function SV.Setup:UnitframeLayout(style, preserve)
 			end
 			SV:UpdateAnchors()
 		end
+		if(not preserve) then
+			--BarShuffle()
+			SV:UpdateAnchors()
+		end
 		SVUILib:RefreshModule('Dock')
+		SVUILib:RefreshModule('ActionBars')
 		SVUILib:RefreshModule('UnitFrames')
 		if(not preserve) then
 			SV:SavedPopup()
@@ -510,13 +520,11 @@ function SV.Setup:BarLayout(style, preserve)
 				UFMoveBottomQuadrant()
 			end
 		end
-		if(not preserve) then
-			BarShuffle()
-			SV:UpdateAnchors()
-		end
 		SVUILib:RefreshModule('Dock')
 		SVUILib:RefreshModule('ActionBars')
 		if(not preserve) then
+			--BarShuffle()
+			SV:UpdateAnchors()
 			SV:SavedPopup()
 		end
 	end
@@ -621,9 +629,9 @@ function SV.Setup:Minimalist()
 	end
 	if(SV.Maps) then
 		SV.db.Maps.customIcons = false;
-		SV.db.Maps.bordersize = 2;
+		SV.db.Maps.bordersize = 0;
 		SV.db.Maps.bordercolor = "dark";
-		SV.db.Maps.locationText = "HIDE";
+		SV.db.Maps.locationText = "SIMPLE";
 		SV.db.Maps.playercoords = "HIDE";
 	end
 	if(SV.NamePlates) then
@@ -663,6 +671,11 @@ function SV.Setup:Complete()
 	ReloadUI()
 end
 
+function SV.Setup:NewSettings()
+	CURRENT_PAGE = 2;
+	SVUI_InstallerFrame.Next:SetPage(CURRENT_PAGE)
+end
+
 local OptionButton_OnClick = function(self)
 	local fn = self.FuncName
 	if(self.ClickIndex) then
@@ -683,7 +696,7 @@ local InstallerFrame_PreparePage = function(self)
 	self.Option01.Arg = nil
 	self.Option01.ClickIndex = nil
 	self.Option01:SetWidth(160)
-	self.Option01.texture:ModSize(160, 160)
+	self.Option01.texture:SetSize(160, 160)
 	self.Option01.texture:SetPoint("CENTER", self.Option01, "BOTTOM", 0, -(160 * 0.09))
 	self.Option01:ClearAllPoints()
 	self.Option01:SetPoint("BOTTOM", 0, 15)
@@ -711,7 +724,7 @@ local InstallerFrame_PreparePage = function(self)
 	self.Option1.Arg = nil
 	self.Option1.ClickIndex = nil
 	self.Option1:SetWidth(160)
-	self.Option1.texture:ModSize(160, 160)
+	self.Option1.texture:SetSize(160, 160)
 	self.Option1.texture:SetPoint("CENTER", self.Option1, "BOTTOM", 0, -(160 * 0.09))
 	self.Option1:ClearAllPoints()
 	self.Option1:SetPoint("BOTTOM", 0, 15)
@@ -723,7 +736,7 @@ local InstallerFrame_PreparePage = function(self)
 	self.Option2.Arg = nil
 	self.Option2.ClickIndex = nil
 	self.Option2:SetWidth(120)
-	self.Option2.texture:ModSize(120, 120)
+	self.Option2.texture:SetSize(120, 120)
 	self.Option2.texture:SetPoint("CENTER", self.Option2, "BOTTOM", 0, -(120 * 0.09))
 	self.Option2:ClearAllPoints()
 	self.Option2:SetPoint("BOTTOMLEFT", self, "BOTTOM", 4, 15)
@@ -735,7 +748,7 @@ local InstallerFrame_PreparePage = function(self)
 	self.Option3.Arg = nil
 	self.Option3.ClickIndex = nil
 	self.Option3:SetWidth(120)
-	self.Option3.texture:ModSize(120, 120)
+	self.Option3.texture:SetSize(120, 120)
 	self.Option3.texture:SetPoint("CENTER", self.Option3, "BOTTOM", 0, -(120 * 0.09))
 	self.Option3:ClearAllPoints()
 	self.Option3:SetPoint("LEFT", self.Option2, "RIGHT", 4, 0)
@@ -747,7 +760,7 @@ local InstallerFrame_PreparePage = function(self)
 	self.Option4.Arg = nil
 	self.Option4.ClickIndex = nil
 	self.Option4:SetWidth(110)
-	self.Option4.texture:ModSize(110, 110)
+	self.Option4.texture:SetSize(110, 110)
 	self.Option4.texture:SetPoint("CENTER", self.Option4, "BOTTOM", 0, -(110 * 0.09))
 	self.Option4:ClearAllPoints()
 	self.Option4:SetPoint("LEFT", self.Option3, "RIGHT", 4, 0)
@@ -768,11 +781,11 @@ local InstallerFrame_PreparePage = function(self)
 	if CURRENT_PAGE == MAX_PAGE then
 		self.Next:Disable()
 		self.Next:Hide()
-		self:ModSize(550, 350)
+		self:SetSize(550, 350)
 	else
 		self.Next:Enable()
 		self.Next:Show()
-		self:ModSize(550,400)
+		self:SetSize(550,400)
 	end
 end
 
@@ -790,12 +803,19 @@ local InstallerFrame_SetPage = function(self, newPage)
 
 	for option, data in pairs(PageData) do
 		if(self[option]) then
-			if(type(data) == "table" and data[1] and data[2]) then
-				if(data[4] and not data[4]()) then return end;
+			if(type(data) == "table" and data[1]) then
+				if(type(data[1]) == 'function') then
+					local n,fn = data[1]()
+					self[option]:SetText(n)
+					self[option].FuncName = fn
+					self[option].Arg = nil
+				else
+					if(not data[2]) then return end
+					self[option]:SetText(data[1])
+					self[option].FuncName = data[2]
+					self[option].Arg = data[3]
+				end
 				self[option]:Show()
-				self[option]:SetText(data[1])
-				self[option].FuncName = data[2]
-				self[option].Arg = data[3]
 				local postclickIndex = ("%d_%s"):format(newPage, option)
 				self[option].ClickIndex = SV.Setup:CopyOnClick(postclickIndex)
 				self[option]:SetScript("OnClick", OptionButton_OnClick)
@@ -858,7 +878,7 @@ function SV.Setup:Install(autoLoaded)
 
 	if not SVUI_InstallerFrame then
 		local frame = CreateFrame("Button", "SVUI_InstallerFrame", UIParent)
-		frame:ModSize(550, 400)
+		frame:SetSize(550, 400)
 		frame:SetStyle("Frame", "Window2")
 		frame:SetPoint("TOP", SV.Screen, "TOP", 0, -150)
 		frame:SetFrameStrata("TOOLTIP")
@@ -870,11 +890,11 @@ function SV.Setup:Install(autoLoaded)
 
 		frame.Next = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
 		frame.Next:RemoveTextures()
-		frame.Next:ModSize(110, 25)
+		frame.Next:SetSize(110, 25)
 		frame.Next:SetPoint("BOTTOMRIGHT", 50, 5)
 		SetInstallButton(frame.Next)
 		frame.Next.texture = frame.Next:CreateTexture(nil, "BORDER")
-		frame.Next.texture:ModSize(110, 75)
+		frame.Next.texture:SetSize(110, 75)
 		frame.Next.texture:SetPoint("RIGHT")
 		frame.Next.texture:SetTexture(SV.media.button.arrow)
 		frame.Next.texture:SetVertexColor(1, 0.5, 0)
@@ -896,11 +916,11 @@ function SV.Setup:Install(autoLoaded)
 
 		frame.Prev = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
 		frame.Prev:RemoveTextures()
-		frame.Prev:ModSize(110, 25)
+		frame.Prev:SetSize(110, 25)
 		frame.Prev:SetPoint("BOTTOMLEFT", -50, 5)
 		SetInstallButton(frame.Prev)
 		frame.Prev.texture = frame.Prev:CreateTexture(nil, "BORDER")
-		frame.Prev.texture:ModSize(110, 75)
+		frame.Prev.texture:SetSize(110, 75)
 		frame.Prev.texture:SetPoint("LEFT")
 		frame.Prev.texture:SetTexture(SV.media.button.arrow)
 		frame.Prev.texture:SetTexCoord(1, 0, 1, 1, 0, 0, 0, 1)
@@ -923,12 +943,12 @@ function SV.Setup:Install(autoLoaded)
 
 		frame.Option01 = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
 		frame.Option01:RemoveTextures()
-		frame.Option01:ModSize(160, 30)
+		frame.Option01:SetSize(160, 30)
 		frame.Option01:SetPoint("BOTTOM", 0, 15)
 		frame.Option01:SetText("")
 		SetInstallButton(frame.Option01)
 		frame.Option01.texture = frame.Option01:CreateTexture(nil, "BORDER")
-		frame.Option01.texture:ModSize(160, 160)
+		frame.Option01.texture:SetSize(160, 160)
 		frame.Option01.texture:SetPoint("CENTER", frame.Option01, "BOTTOM", 0, -15)
 		frame.Option01.texture:SetTexture(SV.media.button.option)
 		frame.Option01.texture:SetGradient("VERTICAL", 0, 0.3, 0, 0, 0.7, 0)
@@ -945,12 +965,12 @@ function SV.Setup:Install(autoLoaded)
 
 		frame.Option02 = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
 		frame.Option02:RemoveTextures()
-		frame.Option02:ModSize(130, 30)
+		frame.Option02:SetSize(130, 30)
 		frame.Option02:SetPoint("BOTTOMLEFT", frame, "BOTTOM", 4, 15)
 		frame.Option02:SetText("")
 		SetInstallButton(frame.Option02)
 		frame.Option02.texture = frame.Option02:CreateTexture(nil, "BORDER")
-		frame.Option02.texture:ModSize(130, 110)
+		frame.Option02.texture:SetSize(130, 110)
 		frame.Option02.texture:SetPoint("CENTER", frame.Option02, "BOTTOM", 0, -15)
 		frame.Option02.texture:SetTexture(SV.media.button.option)
 		frame.Option02.texture:SetGradient("VERTICAL", 0, 0.1, 0.3, 0, 0.5, 0.7)
@@ -963,7 +983,7 @@ function SV.Setup:Install(autoLoaded)
 		frame.Option02:SetScript("OnShow", function()
 			if(not frame.Option03:IsShown()) then
 				frame.Option01:SetWidth(130)
-				frame.Option01.texture:ModSize(130, 130)
+				frame.Option01.texture:SetSize(130, 130)
 				frame.Option01.texture:SetPoint("CENTER", frame.Option01, "BOTTOM", 0, -(130 * 0.09))
 				frame.Option01:ClearAllPoints()
 				frame.Option01:SetPoint("BOTTOMRIGHT", frame, "BOTTOM", -4, 15)
@@ -976,12 +996,12 @@ function SV.Setup:Install(autoLoaded)
 
 		frame.Option03 = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
 		frame.Option03:RemoveTextures()
-		frame.Option03:ModSize(130, 30)
+		frame.Option03:SetSize(130, 30)
 		frame.Option03:SetPoint("BOTTOM", frame, "BOTTOM", 0, 15)
 		frame.Option03:SetText("")
 		SetInstallButton(frame.Option03)
 		frame.Option03.texture = frame.Option03:CreateTexture(nil, "BORDER")
-		frame.Option03.texture:ModSize(130, 110)
+		frame.Option03.texture:SetSize(130, 110)
 		frame.Option03.texture:SetPoint("CENTER", frame.Option03, "BOTTOM", 0, -15)
 		frame.Option03.texture:SetTexture(SV.media.button.option)
 		frame.Option03.texture:SetGradient("VERTICAL", 0.3, 0, 0, 0.7, 0, 0)
@@ -993,17 +1013,17 @@ function SV.Setup:Install(autoLoaded)
 		end)
 		frame.Option03:SetScript("OnShow", function(this)
 			this:SetWidth(130)
-			this.texture:ModSize(130, 130)
+			this.texture:SetSize(130, 130)
 			this.texture:SetPoint("CENTER", this, "BOTTOM", 0, -(130 * 0.09))
 
 			frame.Option01:SetWidth(130)
-			frame.Option01.texture:ModSize(130, 130)
+			frame.Option01.texture:SetSize(130, 130)
 			frame.Option01.texture:SetPoint("CENTER", frame.Option01, "BOTTOM", 0, -(130 * 0.09))
 			frame.Option01:ClearAllPoints()
 			frame.Option01:SetPoint("RIGHT", this, "LEFT", -8, 0)
 
 			frame.Option02:SetWidth(130)
-			frame.Option02.texture:ModSize(130, 130)
+			frame.Option02.texture:SetSize(130, 130)
 			frame.Option02.texture:SetPoint("CENTER", frame.Option02, "BOTTOM", 0, -(130 * 0.09))
 			frame.Option02:ClearAllPoints()
 			frame.Option02:SetPoint("LEFT", this, "RIGHT", 8, 0)
@@ -1015,12 +1035,12 @@ function SV.Setup:Install(autoLoaded)
 
 		frame.Option1 = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
 		frame.Option1:RemoveTextures()
-		frame.Option1:ModSize(160, 30)
+		frame.Option1:SetSize(160, 30)
 		frame.Option1:SetPoint("BOTTOM", 0, 15)
 		frame.Option1:SetText("")
 		SetInstallButton(frame.Option1)
 		frame.Option1.texture = frame.Option1:CreateTexture(nil, "BORDER")
-		frame.Option1.texture:ModSize(160, 160)
+		frame.Option1.texture:SetSize(160, 160)
 		frame.Option1.texture:SetPoint("CENTER", frame.Option1, "BOTTOM", 0, -15)
 		frame.Option1.texture:SetTexture(SV.media.button.option)
 		frame.Option1.texture:SetGradient("VERTICAL", 0.3, 0.3, 0.3, 0.7, 0.7, 0.7)
@@ -1037,12 +1057,12 @@ function SV.Setup:Install(autoLoaded)
 
 		frame.Option2 = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
 		frame.Option2:RemoveTextures()
-		frame.Option2:ModSize(120, 30)
+		frame.Option2:SetSize(120, 30)
 		frame.Option2:SetPoint("BOTTOMLEFT", frame, "BOTTOM", 4, 15)
 		frame.Option2:SetText("")
 		SetInstallButton(frame.Option2)
 		frame.Option2.texture = frame.Option2:CreateTexture(nil, "BORDER")
-		frame.Option2.texture:ModSize(120, 110)
+		frame.Option2.texture:SetSize(120, 110)
 		frame.Option2.texture:SetPoint("CENTER", frame.Option2, "BOTTOM", 0, -15)
 		frame.Option2.texture:SetTexture(SV.media.button.option)
 		frame.Option2.texture:SetGradient("VERTICAL", 0.3, 0.3, 0.3, 0.7, 0.7, 0.7)
@@ -1055,7 +1075,7 @@ function SV.Setup:Install(autoLoaded)
 		frame.Option2:SetScript("OnShow", function()
 			if(not frame.Option3:IsShown() and (not frame.Option4:IsShown())) then
 				frame.Option1:SetWidth(120)
-				frame.Option1.texture:ModSize(120, 120)
+				frame.Option1.texture:SetSize(120, 120)
 				frame.Option1.texture:SetPoint("CENTER", frame.Option1, "BOTTOM", 0, -(120 * 0.09))
 				frame.Option1:ClearAllPoints()
 				frame.Option1:SetPoint("BOTTOMRIGHT", frame, "BOTTOM", -4, 15)
@@ -1068,12 +1088,12 @@ function SV.Setup:Install(autoLoaded)
 
 		frame.Option3 = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
 		frame.Option3:RemoveTextures()
-		frame.Option3:ModSize(110, 30)
+		frame.Option3:SetSize(110, 30)
 		frame.Option3:SetPoint("LEFT", frame.Option2, "RIGHT", 4, 0)
 		frame.Option3:SetText("")
 		SetInstallButton(frame.Option3)
 		frame.Option3.texture = frame.Option3:CreateTexture(nil, "BORDER")
-		frame.Option3.texture:ModSize(110, 100)
+		frame.Option3.texture:SetSize(110, 100)
 		frame.Option3.texture:SetPoint("CENTER", frame.Option3, "BOTTOM", 0, -9)
 		frame.Option3.texture:SetTexture(SV.media.button.option)
 		frame.Option3.texture:SetGradient("VERTICAL", 0.3, 0.3, 0.3, 0.7, 0.7, 0.7)
@@ -1086,19 +1106,19 @@ function SV.Setup:Install(autoLoaded)
 		frame.Option3:SetScript("OnShow", function(this)
 			if(not frame.Option4:IsShown()) then
 				frame.Option2:SetWidth(110)
-				frame.Option2.texture:ModSize(110, 110)
+				frame.Option2.texture:SetSize(110, 110)
 				frame.Option2.texture:SetPoint("CENTER", frame.Option2, "BOTTOM", 0, -(110 * 0.09))
 				frame.Option2:ClearAllPoints()
 				frame.Option2:SetPoint("BOTTOM", frame, "BOTTOM", 0, 15)
 
 				frame.Option1:SetWidth(110)
-				frame.Option1.texture:ModSize(110, 110)
+				frame.Option1.texture:SetSize(110, 110)
 				frame.Option1.texture:SetPoint("CENTER", frame.Option1, "BOTTOM", 0, -(110 * 0.09))
 				frame.Option1:ClearAllPoints()
 				frame.Option1:SetPoint("RIGHT", frame.Option2, "LEFT", -4, 0)
 
 				this:SetWidth(110)
-				this.texture:ModSize(110, 110)
+				this.texture:SetSize(110, 110)
 				this.texture:SetPoint("CENTER", this, "BOTTOM", 0, -(110 * 0.09))
 				this:ClearAllPoints()
 				this:SetPoint("LEFT", frame.Option2, "RIGHT", 4, 0)
@@ -1111,12 +1131,12 @@ function SV.Setup:Install(autoLoaded)
 
 		frame.Option4 = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
 		frame.Option4:RemoveTextures()
-		frame.Option4:ModSize(110, 30)
+		frame.Option4:SetSize(110, 30)
 		frame.Option4:SetPoint("LEFT", frame.Option3, "RIGHT", 4, 0)
 		frame.Option4:SetText("")
 		SetInstallButton(frame.Option4)
 		frame.Option4.texture = frame.Option4:CreateTexture(nil, "BORDER")
-		frame.Option4.texture:ModSize(110, 100)
+		frame.Option4.texture:SetSize(110, 100)
 		frame.Option4.texture:SetPoint("CENTER", frame.Option4, "BOTTOM", 0, -9)
 		frame.Option4.texture:SetTexture(SV.media.button.option)
 		frame.Option4.texture:SetGradient("VERTICAL", 0.3, 0.3, 0.3, 0.7, 0.7, 0.7)
@@ -1128,20 +1148,20 @@ function SV.Setup:Install(autoLoaded)
 		end)
 		frame.Option4:SetScript("OnShow", function()
 
-			frame.Option2:ModWidth(110)
-			frame.Option2.texture:ModSize(110, 110)
+			frame.Option2:SetWidth(110)
+			frame.Option2.texture:SetSize(110, 110)
 			frame.Option2.texture:SetPoint("CENTER", frame.Option2, "BOTTOM", 0, -(110 * 0.09))
 			frame.Option2:ClearAllPoints()
 			frame.Option2:SetPoint("BOTTOMRIGHT", frame, "BOTTOM", -4, 15)
 
-			frame.Option1:ModWidth(110)
-			frame.Option1.texture:ModSize(110, 110)
+			frame.Option1:SetWidth(110)
+			frame.Option1.texture:SetSize(110, 110)
 			frame.Option1.texture:SetPoint("CENTER", frame.Option1, "BOTTOM", 0, -(110 * 0.09))
 			frame.Option1:ClearAllPoints()
 			frame.Option1:SetPoint("RIGHT", frame.Option2, "LEFT", -4, 0)
 
 			frame.Option3:SetWidth(110)
-			frame.Option3.texture:ModSize(110, 110)
+			frame.Option3.texture:SetSize(110, 110)
 			frame.Option3.texture:SetPoint("CENTER", frame.Option3, "BOTTOM", 0, -(110 * 0.09))
 			frame.Option3:ClearAllPoints()
 			frame.Option3:SetPoint("LEFT", frame.Option2, "RIGHT", 4, 0)
@@ -1154,8 +1174,8 @@ function SV.Setup:Install(autoLoaded)
 
 		local statusHolder = CreateFrame("Frame", nil, frame)
 		statusHolder:SetFrameLevel(statusHolder:GetFrameLevel() + 2)
-		statusHolder:ModSize(150, 30)
-		statusHolder:ModPoint("BOTTOM", frame, "TOP", 0, 2)
+		statusHolder:SetSize(150, 30)
+		statusHolder:SetPoint("BOTTOM", frame, "TOP", 0, 2)
 
 		frame.Status = statusHolder:CreateFontString(nil, "OVERLAY")
 		frame.Status:SetFont(SV.media.font.number, 22, "OUTLINE")
@@ -1164,27 +1184,27 @@ function SV.Setup:Install(autoLoaded)
 
 		local titleHolder = frame:CreateFontString(nil, "OVERLAY")
 		titleHolder:SetFont(SV.media.font.dialog, 22, "OUTLINE")
-		titleHolder:ModPoint("TOP", 0, -5)
+		titleHolder:SetPoint("TOP", 0, -5)
 		titleHolder:SetText(L["SVUI Installation"])
 
 		frame.SubTitle = frame:CreateFontString(nil, "OVERLAY")
 		frame.SubTitle:SetFont(SV.media.font.alert, 16, "OUTLINE")
-		frame.SubTitle:ModPoint("TOP", 0, -40)
+		frame.SubTitle:SetPoint("TOP", 0, -40)
 
 		frame.Desc1 = frame:CreateFontString(nil, "OVERLAY")
 		frame.Desc1:SetFont(SV.media.font.default, 14, "OUTLINE")
-		frame.Desc1:ModPoint("TOPLEFT", 20, -75)
-		frame.Desc1:ModWidth(frame:GetWidth()-40)
+		frame.Desc1:SetPoint("TOPLEFT", 20, -75)
+		frame.Desc1:SetWidth(frame:GetWidth()-40)
 
 		frame.Desc2 = frame:CreateFontString(nil, "OVERLAY")
 		frame.Desc2:SetFont(SV.media.font.default, 14, "OUTLINE")
-		frame.Desc2:ModPoint("TOPLEFT", 20, -125)
-		frame.Desc2:ModWidth(frame:GetWidth()-40)
+		frame.Desc2:SetPoint("TOPLEFT", 20, -125)
+		frame.Desc2:SetWidth(frame:GetWidth()-40)
 
 		frame.Desc3 = frame:CreateFontString(nil, "OVERLAY")
 		frame.Desc3:SetFont(SV.media.font.default, 14, "OUTLINE")
-		frame.Desc3:ModPoint("TOPLEFT", 20, -175)
-		frame.Desc3:ModWidth(frame:GetWidth()-40)
+		frame.Desc3:SetPoint("TOPLEFT", 20, -175)
+		frame.Desc3:SetWidth(frame:GetWidth()-40)
 
 		--[[ MISC ]]--
 
@@ -1193,9 +1213,9 @@ function SV.Setup:Install(autoLoaded)
 		closeButton:SetScript("OnClick", function() frame:Hide() end)
 
 		local tutorialImage = frame:CreateTexture(nil, "OVERLAY")
-		tutorialImage:ModSize(256, 128)
+		tutorialImage:SetSize(256, 128)
 		tutorialImage:SetTexture(SV.SplashImage)
-		tutorialImage:ModPoint("BOTTOM", 0, 70)
+		tutorialImage:SetPoint("BOTTOM", 0, 70)
 	end
 
 	SVUI_InstallerFrame:SetScript("OnHide", function()

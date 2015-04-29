@@ -100,15 +100,6 @@ SV.defaults[Schema] = {
 		["size"] = 36,
 		["attachTo"] = "LEFT",
 	},
-	["threat"] = {
-		["enable"] = false,
-		["goodScale"] = 1,
-		["badScale"] = 1,
-		["goodColor"] = {0.29, 0.68, 0.3},
-		["badColor"] = {0.78, 0.25, 0.25},
-		["goodTransitionColor"] = {0.85, 0.77, 0.36},
-		["badTransitionColor"] = {0.94, 0.6, 0.06},
-	},
 	["auras"] = {
 		["font"] = "SVUI Number Font",
 		["fontSize"] = 7,
@@ -122,6 +113,15 @@ SV.defaults[Schema] = {
 		["friendlyPlayer"] = {0.29, 0.68, 0.3},
 		["neutral"] = {0.85, 0.77, 0.36},
 		["enemy"] = {0.78, 0.25, 0.25},
+	},
+	["threat"] = {
+		["enable"] = false,
+		["goodScale"] = 1,
+		["badScale"] = 1,
+		["goodColor"] = {0.29, 0.68, 0.3},
+		["badColor"] = {0.78, 0.25, 0.25},
+		["goodTransitionColor"] = {0.85, 0.77, 0.36},
+		["badTransitionColor"] = {0.94, 0.6, 0.06},
 	},
 };
 
@@ -263,7 +263,8 @@ function MOD:LoadOptions()
 							colorNameByValue = {
 								type = "toggle",
 								order = 4,
-								name = L["Color Name By Health Value"]
+								name = L["Color Name By Health Value"],
+								width = 'full',
 							},
 							showthreat = {
 								type = "toggle",
@@ -284,13 +285,20 @@ function MOD:LoadOptions()
 								order = 7,
 								name = L["Non-Target Alpha"],
 								desc = L["Alpha of nameplates that are not your current target."],
+								width = 'full',
 								min = 0,
 								max = 1,
 								step = 0.01,
 								isPercent = true
 							},
+							spacer1 = {
+								order = 8,
+								type = "description",
+								name = "",
+								width = "full",
+							},
 							reactions = {
-								order = 200,
+								order = 9,
 								type = "group",
 								name = L["Reaction Coloring"],
 								guiInline = true,
@@ -335,6 +343,124 @@ function MOD:LoadOptions()
 										order = 5,
 										type = "color",
 										hasAlpha = false
+									},
+								}
+							},
+							threat = {
+								type = "group",
+								name = L["Threat Coloring"],
+								guiInline = true,
+								order = 10,
+								disabled = function(key) return not SV.db[Schema].threat.enable end,
+								args = {
+									enable = {
+										type = "toggle",
+										order = 1,
+										name = L["Enable Threat Coloring"],
+										width = "full",
+										get = function(key)return SV.db[Schema].threat.enable end,
+										set = function(key,value) SV.db[Schema].threat.enable = value; MOD:UpdateAllPlates() end,
+									},
+									goodColor = {
+										type = "color",
+										order = 2,
+										name = L["Good Threat"],
+										hasAlpha = false,
+										disabled = function(key) return not SV.db[Schema].threat.enable end,
+										get = function(key)
+											local color = SV.db[Schema].threat.goodColor
+											if color then
+												return color[1],color[2],color[3],color[4]
+											end
+										end,
+										set = function(key,r,g,b)
+											SV.db[Schema].threat.goodColor = {r,g,b}
+											MOD:UpdateAllPlates()
+										end,
+									},
+									badColor = {
+										name = L["Bad Threat"],
+										order = 3,
+										type = "color",
+										hasAlpha = false,
+										disabled = function(key) return not SV.db[Schema].threat.enable end,
+										get = function(key)
+											local color = SV.db[Schema].threat.badColor
+											if color then
+												return color[1],color[2],color[3],color[4]
+											end
+										end,
+										set = function(key,r,g,b)
+											SV.db[Schema].threat.badColor = {r,g,b}
+											MOD:UpdateAllPlates()
+										end,
+									},
+									goodTransitionColor = {
+										name = L["Good Threat Transition"],
+										order = 4,
+										type = "color",
+										hasAlpha = false,
+										disabled = function(key) return not SV.db[Schema].threat.enable end,
+										get = function(key)
+											local color = SV.db[Schema].threat.goodTransitionColor
+											if color then
+												return color[1],color[2],color[3],color[4]
+											end
+										end,
+										set = function(key,r,g,b)
+											SV.db[Schema].threat.goodTransitionColor = {r,g,b}
+											MOD:UpdateAllPlates()
+										end,
+									},
+									badTransitionColor = {
+										name = L["Bad Threat Transition"],
+										order = 5,
+										type = "color",
+										hasAlpha = false,
+										disabled = function(key) return not SV.db[Schema].threat.enable end,
+										get = function(key)
+											local color = SV.db[Schema].threat.badTransitionColor
+											if color then
+												return color[1],color[2],color[3],color[4]
+											end
+										end,
+										set = function(key,r,g,b)
+											SV.db[Schema].threat.badTransitionColor = {r,g,b}
+											MOD:UpdateAllPlates()
+										end,
+									},
+								}
+							},
+							scaling = {
+								type = "group",
+								name = L["Threat Scaling"],
+								guiInline = true,
+								order = 11,
+								disabled = function(key) return not SV.db[Schema].threat.enable end,
+								args = {
+									goodScale = {
+										type = "range",
+										name = L["Good"],
+										order = 1,
+										min = 0.5,
+										max = 1.5,
+										step = 0.01,
+										width = 'full',
+										isPercent = true,
+										get = function(key)return SV.db[Schema].threat.goodScale end,
+										set = function(key,value) SV.db[Schema].threat.goodScale = value; MOD:UpdateAllPlates() end,
+									},
+									badScale = {
+										type = "range",
+										name = L["Bad"],
+										order = 1,
+										min = 0.5,
+										max = 1.5,
+										step = 0.01,
+										width = 'full',
+										isPercent = true,
+										get = function(key)return SV.db[Schema].threat.badScale end,
+										set = function(key,value) SV.db[Schema].threat.badScale = value; MOD:UpdateAllPlates() end,
 									}
 								}
 							},
@@ -380,7 +506,7 @@ function MOD:LoadOptions()
 							fontGroup = {
 								order = 4,
 								type = "group",
-								name = L["Fonts"],
+								name = L["Texts"],
 								guiInline = true,
 								get = function(d)return SV.db[Schema].healthBar.text[d[#d]]end,
 								set = function(d,e)MOD:ChangeDBVar(e,d[#d],"healthBar","text");MOD:UpdateAllPlates()end,
@@ -648,92 +774,9 @@ function MOD:LoadOptions()
 							}
 						}
 					},
-					threat = {
-						type = "group",
-						order = 6,
-						name = L["Threat"],
-						get = function(d)return SV.db[Schema].threat[d[#d]]end,
-						set = function(d,e)MOD:ChangeDBVar(e,d[#d],"threat")MOD:UpdateAllPlates()end,
-						args = {
-							enable = {
-								type = "toggle",
-								order = 1,
-								name = L["Enable"]
-							},
-							scaling = {
-								type = "group",
-								name = L["Scaling"],
-								guiInline = true,
-								order = 2,
-								args = {
-									goodScale = {
-										type = "range",
-										name = L["Good"],
-										order = 1,
-										min = 0.5,
-										max = 1.5,
-										step = 0.01,
-										isPercent = true
-									},
-									badScale = {
-										type = "range",
-										name = L["Bad"],
-										order = 1,
-										min = 0.5,
-										max = 1.5,
-										step = 0.01,
-										isPercent = true
-									}
-								}
-							},
-							colors = {
-								order = 3,
-								type = "group",
-								name = L["Colors"],
-								guiInline = true,
-								get = function(key)
-									local color = SV.db[Schema].threat[key[#key]]
-									if color then
-										return color[1],color[2],color[3],color[4]
-									end
-								end,
-								set = function(key,r,g,b)
-									local color = {r,g,b}
-									MOD:ChangeDBVar(color, key[#key], "threat")
-									MOD:UpdateAllPlates()
-								end,
-								args = {
-									goodColor = {
-										type = "color",
-										order = 1,
-										name = L["Good"],
-										hasAlpha = false
-									},
-									badColor = {
-										name = L["Bad"],
-										order = 2,
-										type = "color",
-										hasAlpha = false
-									},
-									goodTransitionColor = {
-										name = L["Good Transition"],
-										order = 3,
-										type = "color",
-										hasAlpha = false
-									},
-									badTransitionColor = {
-										name = L["Bad Transition"],
-										order = 4,
-										type = "color",
-										hasAlpha = false
-									}
-								}
-							}
-						}
-					},
 					filters = {
 						type = "group",
-						order = 200,
+						order = 5,
 						name = L["Filters"],
 						args = {
 							addname = {

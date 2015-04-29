@@ -1,5 +1,5 @@
 --[[ Element: Portraits
-	
+
 	THIS FILE HEAVILY MODIFIED FOR USE WITH SUPERVILLAIN UI
 
 ]]
@@ -42,9 +42,9 @@ local Update = function(self, event, unit, forced)
 			portrait:SetModel([[Spells\Monk_travelingmist_missile.m2]])
 			portrait.guid = nil
 			portrait:SetBackdropColor(0.25,0.25,0.25)
-			if portrait.UpdateColor then 
+			if portrait.UpdateColor then
 				portrait:UpdateColor(0.25,0.25,0.25)
-			end 
+			end
 		elseif((forced) or (portrait.guid ~= guid) or (event == 'UNIT_MODEL_CHANGED')) then
 			portrait:ClearModel()
 			portrait:SetUnit(unit)
@@ -53,27 +53,28 @@ local Update = function(self, event, unit, forced)
 			portrait:SetPosition(0,0,0)
 			portrait.guid = guid
 
-			if(rotate and portrait:GetFacing() ~= rotate / 60) then 
+			if(rotate and portrait:GetFacing() ~= rotate / 60) then
 				portrait:SetFacing(rotate / 60)
 			end
 
 			local r, g, b, color = 0.25, 0.25, 0.25
-			if not UnitIsPlayer(unit)then 
+			if not UnitIsPlayer(unit)then
 				color = self.colors.reaction[UnitReaction(unit,"player")]
-				if(color ~= nil) then 
-					r,g,b = color[1], color[2], color[3] 
-				end 
-			else 
+				if(color ~= nil) then
+					r,g,b = color[1]*0.35, color[2]*0.35, color[3]*0.35
+				end
+			else
 				local _,unitClass = UnitClass(unit)
 				if unitClass then
 					color = self.colors.class[unitClass]
-					r,g,b = color[1], color[2], color[3]
-				end 
+					r,g,b = color[1]*0.65, color[2]*0.65, color[3]*0.65
+				end
 			end
 			portrait:SetBackdropColor(r,g,b)
-			if portrait.UpdateColor then 
+			if portrait.UpdateColor then
 				portrait:UpdateColor(r,g,b)
-			end 
+			end
+			portrait:RefreshCamera()
 		end
 	else
 		SetPortraitTexture(portrait, unit)
@@ -86,6 +87,11 @@ end
 
 local Path = function(self, ...)
 	return (self.Portrait.Override or Update) (self, ...)
+end
+
+local ForceTargetUpdate = function(self)
+	local portrait = self.Portrait
+	return Path(portrait.__owner, 'ForceUpdate', portrait.__owner.unit)
 end
 
 local ForceUpdate = function(element)
@@ -102,7 +108,7 @@ local Enable = function(self, unit)
 		self:RegisterEvent("UNIT_MODEL_CHANGED", Path)
 		self:RegisterEvent('UNIT_CONNECTION', Path)
 		if(unit == 'target' or unit == 'targettarget') then
-			self:RegisterEvent('PLAYER_TARGET_CHANGED', Path)
+			self:RegisterEvent('PLAYER_TARGET_CHANGED', ForceTargetUpdate)
 		end
 		-- The quest log uses PARTY_MEMBER_{ENABLE,DISABLE} to handle updating of
 		-- party members overlapping quests. This will probably be enough to handle
@@ -125,7 +131,7 @@ local Disable = function(self)
 		self:UnregisterEvent("UNIT_MODEL_CHANGED", Path)
 		self:UnregisterEvent('PARTY_MEMBER_ENABLE', Path)
 		self:UnregisterEvent('UNIT_CONNECTION', Path)
-		self:UnregisterEvent('PLAYER_TARGET_CHANGED', Path)
+		self:UnregisterEvent('PLAYER_TARGET_CHANGED', ForceTargetUpdate)
 	end
 end
 

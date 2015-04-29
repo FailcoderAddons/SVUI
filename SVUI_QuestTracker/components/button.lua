@@ -125,8 +125,8 @@ PACKAGE CALL
 ]]--
 function MOD:InitializeQuestItem()
 	SVUI_QuestItemBar:SetParent(SV.Screen)
-	SVUI_QuestItemBar:ModPoint("BOTTOM", SV.Screen, "BOTTOM", 0, 250)
-	SVUI_QuestItemBar:ModSize(40,40)
+	SVUI_QuestItemBar:SetPoint("BOTTOM", SV.Screen, "BOTTOM", 0, 250)
+	SVUI_QuestItemBar:SetSize(40,40)
 
 	SV:NewAnchor(SVUI_QuestItemBar, L["Quest Item Button"])
 

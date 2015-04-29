@@ -39,7 +39,7 @@ local function StyleTradeSkillDW()
 	TradeSkillListScrollFrame:RemoveTextures(true)
 	SV.API:Set("Frame", TradeSkillGuildFrame,"Transparent")
 	SV.API:Set("Frame", TradeSkillGuildFrameContainer,"Transparent")
-	TradeSkillGuildFrame:ModPoint("BOTTOMLEFT", TradeSkillFrame, "BOTTOMRIGHT", 3, 19)
+	TradeSkillGuildFrame:SetPoint("BOTTOMLEFT", TradeSkillFrame, "BOTTOMRIGHT", 3, 19)
 	SV.API:Set("CloseButton", TradeSkillGuildFrameCloseButton)
 
 	TradeSkillFrame:HookScript("OnShow", function()
@@ -52,7 +52,7 @@ local function StyleTradeSkillDW()
 		end
 	end)
 
-	TradeSkillFrame:ModHeight(TradeSkillFrame:GetHeight() + 12)
+	TradeSkillFrame:SetHeight(TradeSkillFrame:GetHeight() + 12)
 	TradeSkillRankFrame:SetStyle("Frame", 'Transparent')
 	TradeSkillRankFrame:SetStatusBarTexture(SV.media.statusbar.default)
 	TradeSkillCreateButton:SetStyle("Button")
@@ -64,13 +64,13 @@ local function StyleTradeSkillDW()
 	TradeSkillLinkButton:GetPushedTexture():SetTexCoord(0.25, 0.7, 0.45, 0.8)
 	TradeSkillLinkButton:GetHighlightTexture():Die()
 	SV.API:Set("Frame", TradeSkillLinkButton,"Transparent")
-	TradeSkillLinkButton:ModSize(17, 14)
-	TradeSkillLinkButton:ModPoint("LEFT", TradeSkillLinkFrame, "LEFT", 5, -1)
+	TradeSkillLinkButton:SetSize(17, 14)
+	TradeSkillLinkButton:SetPoint("LEFT", TradeSkillLinkFrame, "LEFT", 5, -1)
 	TradeSkillFrameSearchBox:SetStyle("Editbox")
 	TradeSkillInputBox:SetStyle("Editbox")
-	TradeSkillIncrementButton:ModPoint("RIGHT", TradeSkillCreateButton, "LEFT", -13, 0)
+	TradeSkillIncrementButton:SetPoint("RIGHT", TradeSkillCreateButton, "LEFT", -13, 0)
 	SV.API:Set("CloseButton", TradeSkillFrameCloseButton)
-	SV.API:Set("ScrollFrame", TradeSkillDetailScrollFrameScrollBar)
+	SV.API:Set("ScrollBar", TradeSkillDetailScrollFrameScrollBar)
 
 	local once = false
 	
@@ -80,8 +80,8 @@ local function StyleTradeSkillDW()
 		if TradeSkillSkillIcon:GetNormalTexture() then
 			TradeSkillSkillIcon:GetNormalTexture():SetTexCoord(0.1,0.9,0.1,0.9)
 			TradeSkillSkillIcon:GetNormalTexture():ClearAllPoints()
-			TradeSkillSkillIcon:GetNormalTexture():ModPoint("TOPLEFT", 2, -2)
-			TradeSkillSkillIcon:GetNormalTexture():ModPoint("BOTTOMRIGHT", -2, 2)
+			TradeSkillSkillIcon:GetNormalTexture():SetPoint("TOPLEFT", 2, -2)
+			TradeSkillSkillIcon:GetNormalTexture():SetPoint("BOTTOMRIGHT", -2, 2)
 		end
 
 		for i = 1, MAX_TRADE_SKILL_REAGENTS do
@@ -94,8 +94,8 @@ local function StyleTradeSkillDW()
 				icon.backdrop = CreateFrame("Frame", nil, button)
 				icon.backdrop:SetFrameLevel(button:GetFrameLevel() - 1)
 				SV.API:Set("Frame", icon.backdrop,"Transparent")
-				icon.backdrop:ModPoint("TOPLEFT", icon, "TOPLEFT", -2, 2)
-				icon.backdrop:ModPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", 2, -2)
+				icon.backdrop:SetPoint("TOPLEFT", icon, "TOPLEFT", -2, 2)
+				icon.backdrop:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", 2, -2)
 			end
 			icon:SetParent(icon.backdrop)
 			count:SetParent(icon.backdrop)
@@ -103,7 +103,7 @@ local function StyleTradeSkillDW()
 			if i > 2 and once == false then
 				local point, anchoredto, point2, x, y = button:GetPoint()
 				button:ClearAllPoints()
-				button:ModPoint(point, anchoredto, point2, x, y - 3)
+				button:SetPoint(point, anchoredto, point2, x, y - 3)
 				once = true
 			end
 			_G["TradeSkillReagent"..i.."NameFrame"]:Die()
@@ -129,7 +129,7 @@ local function StyleTradeSkillDW()
 	TradeSkillDW_QueueFrameDetailScrollFrameChildFrameReagent6:RemoveTextures()
 	TradeSkillDW_QueueFrameDetailScrollFrameChildFrameReagent7:RemoveTextures()
 	TradeSkillDW_QueueFrameDetailScrollFrameChildFrameReagent8:RemoveTextures()
-	SV.API:Set("ScrollFrame", TradeSkillDW_QueueFrameDetailScrollFrameScrollBar)
+	SV.API:Set("ScrollBar", TradeSkillDW_QueueFrameDetailScrollFrameScrollBar)
 	TradeSkillListScrollFrame:RemoveTextures()
 end
 --[[#################################################]]--

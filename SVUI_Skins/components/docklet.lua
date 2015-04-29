@@ -1,7 +1,7 @@
 --[[
 ##########################################################
 S V U I   By: Munglunch
-########################################################## 
+##########################################################
 LOCALIZED LUA FUNCTIONS
 ##########################################################
 ]]--
@@ -26,8 +26,8 @@ local floor = math.floor;
 local twipe, tcopy = table.wipe, table.copy;
 local IsAddOnLoaded = _G.IsAddOnLoaded;
 local LoadAddOn = _G.LoadAddOn;
---[[ 
-########################################################## 
+--[[
+##########################################################
 GET ADDON DATA
 ##########################################################
 ]]--
@@ -36,15 +36,15 @@ local L = SV.L;
 local MOD = SV.Skins;
 local Schema = MOD.Schema;
 local Librarian = _G.Librarian;
---[[ 
-########################################################## 
+--[[
+##########################################################
 LOCALS
 ##########################################################
 ]]--
 local TIP_RIGHT_PATTERN = " and %s";
 local DOCK_EMBEDS = {};
---[[ 
-########################################################## 
+--[[
+##########################################################
 HELPERS
 ##########################################################
 ]]--
@@ -53,19 +53,19 @@ local function RequestEmbedded(addon)
 	local embed2 = SV.private.Docks.Embed2 or "None";
 	local enabled1 = (embed1 ~= "None")
 	local enabled2 = ((embed2 ~= "None") and (embed2 ~= embed1))
-	
+
 	if(addon) then
 		local valid = false;
 		if(embed1:find(addon) or embed2:find(addon)) then
-			valid = true 
+			valid = true
 		end
 		return valid, enabled1, enabled2
 	end
-	
+
 	return embed1, embed2, enabled1, enabled2
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 SKADA
 ##########################################################
 ]]--
@@ -73,11 +73,11 @@ local Skada_PointLock = function(self, a1, p, a2, x, y)
 	if((x ~= 0) or (y ~= 0)) then
 		self:ClearAllPoints()
 		self:SetPoint("BOTTOM", p, "BOTTOM", 0, 0)
-	end  
+	end
 end
 
 local Skada_PointTest = function(self, p1, p2, p3, p4, p5)
-	print(p1 .. ", " .. p2:GetName() .. ", " .. p3 .. ", " .. p4 .. ", " .. p5) 
+	print(p1 .. ", " .. p2:GetName() .. ", " .. p3 .. ", " .. p4 .. ", " .. p5)
 end
 
 DOCK_EMBEDS["Skada"] = function(self)
@@ -98,8 +98,8 @@ DOCK_EMBEDS["Skada"] = function(self)
 
 					if(db) then
 						local curHeight = 0
-						if(db.enabletitle) then 
-							curHeight = db.title.height 
+						if(db.enabletitle) then
+							curHeight = db.title.height
 						end
 						db.barspacing = 1;
 						db.barwidth = width - 10;
@@ -117,7 +117,7 @@ DOCK_EMBEDS["Skada"] = function(self)
 					hooksecurefunc(window.bargroup, "SetPoint", Skada_PointLock)
 
 					local bgroup = window.bargroup.backdrop;
-					if(bgroup) then 
+					if(bgroup) then
 						bgroup:Show()
 						if(not bgroup.Panel) then
 							bgroup:SetStyle("!_Frame", 'Transparent', true)
@@ -136,16 +136,16 @@ DOCK_EMBEDS["Skada"] = function(self)
 			end
 		end
 	end
-	
+
 	return false
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 RECOUNT
 ##########################################################
 ]]--
 DOCK_EMBEDS["Recount"] = function(self)
-	if((not IsAddOnLoaded("Recount")) or (not _G.Recount)) then return false end 
+	if((not IsAddOnLoaded("Recount")) or (not _G.Recount)) then return false end
 
 	local width = self:GetWidth()
 	local height = SV.Dock.BottomRight.Window:GetHeight();
@@ -168,8 +168,8 @@ DOCK_EMBEDS["Recount"] = function(self)
 	self.Framelink = Recount.MainWindow
 	return true
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 OMEN
 ##########################################################
 ]]--
@@ -201,7 +201,7 @@ DOCK_EMBEDS["Omen"] = function(self)
 	db.profile.Bar.Spacing = 1;
 	db.profile.Bar.Texture = "SVUI MultiColorBar";
 
-	--[[ Titlebar Settings ]]--  
+	--[[ Titlebar Settings ]]--
 	db.profile.TitleBar.BorderColor.g = 0;
 	db.profile.TitleBar.BorderColor.r = 0;
 	db.profile.TitleBar.BorderTexture = "None";
@@ -232,13 +232,13 @@ DOCK_EMBEDS["Omen"] = function(self)
 	self.Framelink = OmenAnchor
 	return true
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 ALDAMAGEMETER
 ##########################################################
 ]]--
 DOCK_EMBEDS["alDamageMeter"] = function(self)
-	if((not IsAddOnLoaded("alDamageMeter")) or (not _G.alDamagerMeterFrame)) then return false end 
+	if((not IsAddOnLoaded("alDamageMeter")) or (not _G.alDamagerMeterFrame)) then return false end
 
 	local w,h = self:GetSize();
 	local count = dmconf.maxbars or 10;
@@ -256,8 +256,8 @@ DOCK_EMBEDS["alDamageMeter"] = function(self)
 	self.Framelink = alDamageMeterFrame
 	return true
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 TINYDPS
 ##########################################################
 ]]--
@@ -275,8 +275,33 @@ DOCK_EMBEDS["TinyDPS"] = function(self)
 	self.Framelink = tdpsFrame
 	return true
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
+!DETAILS (IN DEVELOPMENT)
+##########################################################
+]]--
+--/script print(table.tostring(_detailhes))
+DOCK_EMBEDS["Details"] = function(self)
+	if((not IsAddOnLoaded("Details")) or (not _G._detalhes)) then return false end
+
+	local width = self:GetWidth()
+	local height = SV.Dock.BottomRight.Window:GetHeight();
+	local _detalhes = _G._detalhes;
+	local details_window = _detalhes.baseframe;
+	if(details_window) then
+		details_window:ClearAllPoints()
+		details_window:SetParent(self)
+		details_window:SetSize(width, height)
+		details_window:SetPoint("BOTTOM", self, "BOTTOM", 0, 0)
+		self.Framelink = details_window
+		return true
+	else
+		return false
+	end
+end
+
+--[[
+##########################################################
 DOCK EMBED METHODS
 ##########################################################
 ]]--
@@ -329,8 +354,8 @@ local PARENT_UpdateEmbeds = function(self, ...)
 		end
 	end
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 CORE FUNCTIONS
 ##########################################################
 ]]--
@@ -342,7 +367,7 @@ function MOD:SetEmbedHandlers()
 	MOD.Docklet.Dock1.Embedded   = "NONE";
 	MOD.Docklet.Dock1.EmbedAddon = DOCK_EmbedAddon;
 	MOD.Docklet.Dock1.EmbedCheck = DOCK_EmbedCheck;
-	
+
 	MOD.Docklet.Dock2.EmbedKey   = "Embed2";
 	MOD.Docklet.Dock2.Embedded   = "NONE";
 	MOD.Docklet.Dock2.EmbedAddon = DOCK_EmbedAddon;
@@ -398,10 +423,7 @@ function MOD:RegisterAddonDocklets()
 		self.Docklet.Dock1:Hide()
 		self.Docklet.Dock2:Hide()
 		self.Docklet:Disable()
-
-		self.Docklet.Parent.Bar:UnsetDefault();
-		--Librarian:UnlockLibrary('LibWindow');
-	end 
+	end
 end
 
 function MOD:GetDockables()
@@ -422,7 +444,7 @@ function MOD:GetDockables()
 				    tinsert(t,{text = name, func = function() SV.private.Docks.Embed1 = key; MOD:RegisterAddonDocklets() end});
 				end
 			else
-				if IsAddOnLoaded(addon) or IsAddOnLoaded(addon) then 
+				if IsAddOnLoaded(addon) or IsAddOnLoaded(addon) then
 					tinsert(t,{text = addon, func = function() SV.private.Docks.Embed1 = addon; MOD:RegisterAddonDocklets() end});
 				end
 			end

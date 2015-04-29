@@ -1,4 +1,82 @@
 ﻿<Ui xmlns="http://www.blizzard.com/wow/ui/">
+    <Font name="SVUI_Font_Super_Text" inherits="SVUI_Font_Number" virtual="true">
+        <Shadow>
+            <Offset>
+                <AbsDimension x="2" y="-2"/>
+            </Offset>
+            <Color r="0" g="0" b="0" a="0.5"/>
+        </Shadow>
+        <FontHeight>
+            <AbsValue val="22"/>
+        </FontHeight>
+    </Font>
+    <Font name="SVUI_Font_Super_Title" inherits="SVUI_Font_Number_Huge" virtual="true">
+        <Shadow>
+            <Offset>
+                <AbsDimension x="2" y="-2"/>
+            </Offset>
+            <Color r="0" g="0" b="0" />
+        </Shadow>
+        <FontHeight>
+            <AbsValue val="128"/>
+        </FontHeight>
+    </Font>
+
+    <Frame name="SVUI_SuperTitleFrame" frameStrata="BACKGROUND" hidden="true">
+        <Size x="400" y="100"/>
+        <Anchors>
+            <Anchor point="LEFT" relativePoint="CENTER" x="150" y="-50" />
+        </Anchors>
+        <Layers>
+            <Layer level="ARTWORK">
+
+              <FontString name="$parentList" font="SVUI_Font_Super_Title">
+                <Color r="1" g="0.5" b="0" a="0.85"/>
+                <Anchors>
+                    <Anchor point="LEFT" x="0" y="0" />
+                </Anchors>
+                <Shadow>
+                    <Offset>
+                        <AbsDimension x="2" y="-2"/>
+                    </Offset>
+                    <Color r="0" g="0" b="0" />
+                </Shadow>
+              </FontString>
+
+              <FontString name="$parentTitle" inherits="SVUI_Font_Super_Text">
+                <Color r="1" g="1" b="0" a="0.85"/>
+                  <Anchors>
+                      <Anchor point="BOTTOMLEFT" relativeTo="$parentList" relativePoint="TOPLEFT" x="0" y="6" />
+                  </Anchors>
+              </FontString>
+          </Layer>
+        </Layers>
+    </Frame>
+
+    <Frame name="SVUI_CreditFrame" frameStrata="BACKGROUND" hidden="true">
+        <Size x="400" y="100"/>
+        <Anchors>
+            <Anchor point="LEFT" relativePoint="CENTER" x="200" y="-50" />
+        </Anchors>
+        <Layers>
+            <Layer level="ARTWORK">
+
+              <FontString name="$parentList" font="SystemFont_Shadow_Outline_Huge2" justifyH="LEFT">
+                <Color r="1" g="1" b="1" a="0.65"/>
+                <Anchors>
+                    <Anchor point="LEFT" x="0" y="0" />
+                </Anchors>
+              </FontString>
+
+              <FontString name="$parentTitle" inherits="SystemFont_Shadow_Large">
+                <Color r="1" g="1" b="1" a="0.65"/>
+                  <Anchors>
+                      <Anchor point="BOTTOMLEFT" relativeTo="$parentList" relativePoint="TOPLEFT" x="0" y="6" />
+                  </Anchors>
+              </FontString>
+          </Layer>
+        </Layers>
+    </Frame>
 
     <Frame name="SVUI_DropdownFrame" frameStrata="DIALOG" hidden="true" />
 
@@ -34,7 +112,7 @@
     <Frame name="SVUI_RaidMarkFrame" frameStrata="DIALOG" hidden="true" />
 
     <Frame name="SVUI_LayoutPrecision" hidden="true" frameStrata="DIALOG">
-        <Size x="130" y="60"/>
+        <Size x="200" y="60"/>
         <Anchors>
             <Anchor point="CENTER"/>
         </Anchors>
@@ -82,7 +160,7 @@
                 <Size x="50" y="17"/>
                 <Anchors>
                     <Anchor point="BOTTOMRIGHT" relativeTo="$parentBG" relativePoint="CENTER">
-                        <Offset x="-12" y="3"/>
+                        <Offset x="-36" y="3"/>
                     </Anchor>
                 </Anchors>
 
@@ -105,7 +183,7 @@
                 <Size x="50" y="17"/>
                 <Anchors>
                     <Anchor point="BOTTOMLEFT" relativeTo="$parentBG" relativePoint="CENTER">
-                        <Offset x="12" y="3"/>
+                        <Offset x="36" y="3"/>
                     </Anchor>
                 </Anchors>
                 <Scripts>
@@ -123,11 +201,23 @@
                 </Scripts>
             </EditBox>
 
+            <Button name="$parentResetButton" inherits="OptionsButtonTemplate" text="Reset">
+                <Size x="66" y="20"/>
+                <Anchors>
+                    <Anchor point="TOP" relativeTo="$parentBG" relativePoint="CENTER" x="0" y="-3" />
+                </Anchors>
+                <Scripts>
+                    <OnLoad>
+                        self:RegisterForClicks("AnyUp");
+                    </OnLoad>
+                </Scripts>
+            </Button>
+
             <Button name="$parentUpButton" inherits="UIPanelSquareButton">
                 <Size x="25" y="20"/>
                 <Anchors>
-                    <Anchor point="TOPLEFT" relativeTo="$parentBG" relativePoint="CENTER">
-                        <Offset x="10" y="-3"/>
+                    <Anchor point="LEFT" relativeTo="$parentResetButton" relativePoint="RIGHT">
+                        <Offset x="2" y="0"/>
                     </Anchor>
                 </Anchors>
                 <Scripts>
@@ -168,8 +258,8 @@
             <Button name="$parentRightButton" inherits="UIPanelSquareButton">
                 <Size x="25" y="20"/>
                 <Anchors>
-                    <Anchor point="RIGHT" relativeTo="$parentUpButton" relativePoint="LEFT">
-                        <Offset x="-20" y="0"/>
+                    <Anchor point="RIGHT" relativeTo="$parentResetButton" relativePoint="LEFT">
+                        <Offset x="-2" y="0"/>
                     </Anchor>
                 </Anchors>
                 <Scripts>

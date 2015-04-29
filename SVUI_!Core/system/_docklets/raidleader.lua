@@ -1,7 +1,7 @@
 --[[
 ##########################################################
 S V U I   By: Munglunch
-########################################################## 
+##########################################################
 LOCALIZED LUA FUNCTIONS
 ##########################################################
 ]]--
@@ -23,16 +23,16 @@ local IsInInstance          = _G.IsInInstance;
 local ROLE_POLL          	= _G.ROLE_POLL;
 local READY_CHECK          	= _G.READY_CHECK;
 local RAID_CONTROL          = _G.RAID_CONTROL;
---[[ 
-########################################################## 
+--[[
+##########################################################
 GET ADDON DATA
 ##########################################################
 ]]--
 local SV = select(2, ...)
 local L = SV.L
 local MOD = SV.Dock;
---[[ 
-########################################################## 
+--[[
+##########################################################
 LOCALS
 ##########################################################
 ]]--
@@ -50,7 +50,7 @@ local Button_OnEnter = function(self)
 end
 
 local Button_OnLeave = function(self)
-	self:SetPanelColor("inverse")
+	self:SetPanelColor("default")
 	GameTooltip:Hide()
 end
 
@@ -62,7 +62,7 @@ local ToolButton_OnEnter = function(self, ...)
 	GameTooltip:ClearLines()
 	GameTooltip:AddDoubleLine("[Left-Click]", RAID_CONTROL, 0, 1, 0, 1, 1, 1)
 	GameTooltip:Show()
-end 
+end
 
 local ToolButton_OnLeave = function(self, ...)
 	SVUI_RaidToolDockButton:SetPanelColor("default")
@@ -74,10 +74,10 @@ end
 local function NewToolButton(name, parent, template, width, height, point, relativeto, point2, xOfs, yOfs, textDisplay)
 	local button = CreateFrame("Button", name, parent, template)
 	button:RemoveTextures()
-	button:ModWidth(width)
-	button:ModHeight(height)
-	button:ModPoint(point, relativeto, point2, xOfs, yOfs)
-	button:SetStyle("DockButton") 
+	button:SetWidth(width)
+	button:SetHeight(height)
+	button:SetPoint(point, relativeto, point2, xOfs, yOfs)
+	button:SetStyle("DockButton")
 
 	if(textDisplay) then
 		local text = button:CreateFontString(nil,"OVERLAY")
@@ -86,7 +86,7 @@ local function NewToolButton(name, parent, template, width, height, point, relat
 		text:SetJustifyH("CENTER")
 		text:SetText(textDisplay)
 
-		button:SetFontString(text)	
+		button:SetFontString(text)
 	end
 
 	button:HookScript("OnEnter", Button_OnEnter)
@@ -95,36 +95,37 @@ local function NewToolButton(name, parent, template, width, height, point, relat
 	return button;
 end
 
-function MOD:UpdateRaidLeader(event) 
+function MOD:UpdateRaidLeader(event)
 	if InCombatLockdown() then
 		self.RaidLeaderNeedsUpdate = true;
 		self:RegisterEvent("PLAYER_REGEN_ENABLED");
 		return
 	end
 	if CheckRaidStatus() then
-		SV.Dock.TopLeft.Bar:Add(self.RaidTool)
+		self.RaidTool:DockAdd()
 		if self.RaidTool.Menu.toggled == true then
-			self.RaidTool.Menu:Show()		
+			self.RaidTool.Menu:Show()
 		else
 			self.RaidTool.Menu:Hide()
 		end
 	else
-		SV.Dock.TopLeft.Bar:Remove(self.RaidTool)
+		self.RaidTool:DockRemove()
 		self.RaidTool.Menu:Hide()
 	end
-end 
+end
 
 function MOD:LoadRaidLeaderTools()
 	if(not SV.db.Dock.dockTools.leader) then return end
-	local dock = SV.Dock.TopLeft.Bar
-	
+
 	self.RaidTool = SV.Dock:SetDockButton("TopLeft", RAID_CONTROL, SV.media.dock.raidToolIcon, nil, "SVUI_RaidToolDockButton");
 	self.RaidTool:SetAttribute("hasDropDown", false);
 
+	local dock = self.RaidTool.Parent
+
 	self.RaidTool.Menu = CreateFrame("Frame", "SVUI_RaidToolMenu", self.RaidTool, "SecureHandlerClickTemplate");
 	self.RaidTool.Menu:SetStyle("Frame", 'Transparent');
-	self.RaidTool.Menu:ModWidth(120);
-	self.RaidTool.Menu:ModHeight(140);
+	self.RaidTool.Menu:SetWidth(120);
+	self.RaidTool.Menu:SetHeight(140);
 	self.RaidTool.Menu:SetPoint("TOPLEFT", dock.ToolBar, "BOTTOMLEFT", 0, -2);
 	self.RaidTool.Menu:SetFrameLevel(3);
 	self.RaidTool.Menu.toggled = false;
@@ -140,17 +141,17 @@ function MOD:LoadRaidLeaderTools()
 	SVUI_RaidToolToggle:SetAttribute("_onclick", [=[
 		local raidUtil = self:GetFrameRef("SVUI_RaidToolMenu");
 		local closeButton = self:GetFrameRef("SVUI_RaidToolCloseButton");
-		raidUtil:Show(); 
-		local point = self:GetPoint();		
+		raidUtil:Show();
+		local point = self:GetPoint();
 		local raidUtilPoint, raidUtilRelative, closeButtonPoint, closeButtonRelative
 		if point:find("BOTTOM") then
 			raidUtilPoint = "BOTTOMLEFT"
-			raidUtilRelative = "TOPLEFT"				
+			raidUtilRelative = "TOPLEFT"
 		else
 			raidUtilPoint = "TOPLEFT"
-			raidUtilRelative = "BOTTOMLEFT"			
+			raidUtilRelative = "BOTTOMLEFT"
 		end
-		
+
 		raidUtil:ClearAllPoints()
 		closeButton:ClearAllPoints()
 		raidUtil:SetPoint(raidUtilPoint, self, raidUtilRelative, 2, -2)
@@ -201,10 +202,10 @@ function MOD:LoadRaidLeaderTools()
 		markerButton:ClearAllPoints()
 		markerButton:SetPoint("TOP", control, "BOTTOM", 0, -5)
 		markerButton:SetParent(self.RaidTool.Menu)
-		markerButton:ModHeight(18)
+		markerButton:SetHeight(18)
 		markerButton:SetWidth(109)
 		markerButton:RemoveTextures()
-		markerButton:SetStyle("DockButton") 
+		markerButton:SetStyle("DockButton")
 
 		local markersText = markerButton:CreateFontString(nil,"OVERLAY")
 		markersText:SetFont(SV.media.font.default, 14, "NONE")
@@ -231,5 +232,5 @@ function MOD:LoadRaidLeaderTools()
 
 	self:RegisterEvent("GROUP_ROSTER_UPDATE", "UpdateRaidLeader")
 	self:RegisterEvent("PLAYER_ENTERING_WORLD", "UpdateRaidLeader")
-	self:UpdateRaidLeader() 
+	self:UpdateRaidLeader()
 end

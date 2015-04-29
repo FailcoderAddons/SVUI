@@ -59,7 +59,6 @@ local StaticPopup_Hide      = _G.StaticPopup_Hide;
 local IsInInstance          = _G.IsInInstance;
 local hooksecurefunc        = _G.hooksecurefunc;
 local collectgarbage        = _G.collectgarbage;
-local CombatText_AddMessage = _G.CombatText_AddMessage;
 local ERR_NOT_IN_COMBAT     = _G.ERR_NOT_IN_COMBAT;
 
 local RequestBattlefieldScoreData = _G.RequestBattlefieldScoreData;
@@ -204,13 +203,12 @@ end
 -- has no method for parsing them in LUA.
 local SV = SVUILib:NewCore("SVUI_Global", "SVUI_Errors", "SVUI_Private", "SVUI_Media")
 
-SV.Scale              = 1;
 SV.ConfigID           = "SVUI_!Options";
 SV.class              = playerClass;
 SV.GUID               = UnitGUID('player');
 SV.Allegiance         = UnitFactionGroup("player");
 SV.ClassRole          = "";
-SV.UnitRole           = "NONE";
+SV.SpecificClassRole  = "NONE";
 SV.ConfigurationMode  = false;
 
 SV.Screen = CreateFrame("Frame", "SVUIParent", UIParent);
@@ -247,7 +245,9 @@ SV.defaults           = {
     },
     ["general"] = {
         ["loginmessage"] = true,
+        ["logincredits"] = true,
         ["cooldown"] = true,
+        ["useDraggable"] = true,
         ["saveDraggable"] = false,
         ["taintLog"] = false,
         ["stickyFrames"] = true,
@@ -311,6 +311,10 @@ SV.defaults           = {
     },
     ["Extras"] = {
         ["autoRoll"] = false,
+        ["autoRollDisenchant"] = false,
+        ["autoRollMaxLevel"] = false,
+        ["autoRollSoulbound"] = true,
+        ["autoRollQuality"] = '2',
         ["vendorGrays"] = true,
         ["autoAcceptInvite"] = false,
         ["autorepchange"] = false,
@@ -334,24 +338,25 @@ SV.defaults           = {
         ["stupidhat"] = true,
     },
     ["Gear"] = {
-        ["primary"] = "none",
-        ["secondary"] = "none",
-        ["equipmentset"] = "none",
         ["durability"] = {
             ["enable"] = true,
             ["onlydamaged"] = true,
         },
-        ["itemlevel"] = {
-            ["enable"] = true,
-        },
-        ["misc"] = {
-            ["setoverlay"] = true,
+        ["labels"] = {
+            ["characterItemLevel"] = true,
+            ["inventoryItemLevel"] = true,
+            ["characterGearSet"] = true,
+            ["inventoryGearSet"] = true,
         },
         ["specialization"] = {
             ["enable"] = false,
+            ["primary"] = "none",
+            ["secondary"] = "none",
         },
         ["battleground"] = {
             ["enable"] = false,
+            ["primary"] = "none",
+            ["secondary"] = "none",
         },
     },
     ["FunStuff"] = {
@@ -429,7 +434,7 @@ SV.Options = {
                 new = {
                     order = 1,
                     type = "description",
-                    name = function() return SV.Credits end
+                    name = function() return SV:PrintCredits() end
                 }
             }
         }
@@ -556,8 +561,9 @@ do
     end
 
     function SV:SCTMessage(message, r, g, b, displayType)
-        if not CombatText_AddMessage then return end
-        CombatText_AddMessage(message, COMBAT_TEXT_SCROLL_FUNCTION, r, g, b, displayType)
+        --/script CombatText_AddMessage("TESTING", COMBAT_TEXT_SCROLL_FUNCTION, 1, 1, 0)
+        if not _G.CombatText_AddMessage then return end
+        _G.CombatText_AddMessage(message, COMBAT_TEXT_SCROLL_FUNCTION, r, g, b, displayType)
     end
 
     function SV:AddonMessage(msg)
@@ -753,15 +759,16 @@ end
 
 function SV:PLAYER_ENTERING_WORLD()
     self.GUID = UnitGUID('player');
-    if(not self.RoleIsSet) then
+    if(not self.ClassRole or self.ClassRole == "") then
         self:PlayerInfoUpdate()
+    else
+        self:GearSwap()
     end
     if(not self.MediaInitialized) then
         self:RefreshAllMedia()
     end
     local _,instanceType = IsInInstance()
     if(instanceType == "pvp") then
-        self:GearSwap()
         self.BGTimer = self.Timers:ExecuteLoop(RequestBattlefieldScoreData, 5)
     elseif(self.BGTimer) then
         self.Timers:RemoveLoop(self.BGTimer)
@@ -776,10 +783,12 @@ end
 function SV:PET_BATTLE_CLOSE()
     self:AuditVisibility()
     SVUILib:LiveUpdate()
+    -- self.Events:Trigger("FONT_GROUP_UPDATED", "chatdialog", "chattab");
 end
 
 function SV:PET_BATTLE_OPENING_START()
-    self:AuditVisibility(true)
+    self:AuditVisibility(true);
+    -- self.Events:Trigger("FONT_GROUP_UPDATED", "chatdialog", "chattab");
 end
 
 function SV:PLAYER_REGEN_DISABLED()
@@ -872,6 +881,10 @@ function SV:Initialize()
     --print(p1 .. ", " .. p2:GetName() .. ", " .. p3 .. ", " .. p4 .. ", " .. p5)
 
     collectgarbage("collect");
+
+    if self.db.general.logincredits then
+        self.Timers:ExecuteTimer(self.RollCredits, 10)
+    end
 end
 --[[
 ##########################################################

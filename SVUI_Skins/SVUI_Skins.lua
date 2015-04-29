@@ -1,7 +1,7 @@
 --[[
 ##########################################################
 S V U I   By: Munglunch
-########################################################## 
+##########################################################
 LOCALIZED LUA FUNCTIONS
 ##########################################################
 ]]--
@@ -29,8 +29,8 @@ local LoadAddOn = _G.LoadAddOn;
 --BLIZZARD API
 local InCombatLockdown      = _G.InCombatLockdown;
 local CreateFrame           = _G.CreateFrame;
---[[ 
-########################################################## 
+--[[
+##########################################################
 GET ADDON DATA
 ##########################################################
 ]]--
@@ -41,8 +41,8 @@ if(not MOD) then return end;
 local NewHook = hooksecurefunc;
 local Schema = MOD.Schema;
 local VERSION = MOD.Version;
---[[ 
-########################################################## 
+--[[
+##########################################################
 CORE DATA
 ##########################################################
 ]]--
@@ -53,8 +53,8 @@ MOD.EventListeners = {};
 MOD.OnLoadAddons = {};
 MOD.SkinnedAddons = {};
 MOD.Debugging = false;
---[[ 
-########################################################## 
+--[[
+##########################################################
 CORE FUNCTIONS
 ##########################################################
 ]]--
@@ -76,6 +76,7 @@ end
 
 function MOD:Style(style, fn, ...)
 	local pass, catch = pcall(fn, ...)
+	--self.Debugging = true
 	if(catch and self.Debugging) then
 		SV:HandleError("SKINS", style, catch);
 		return
@@ -103,11 +104,11 @@ function MOD:SaveAddonStyle(addon, fn, force, passive, ...)
 	if(passive) then
 		self:DefineEventFunction("ADDON_LOADED", addon)
 	end
-	for i=1, select("#",...) do 
+	for i=1, select("#",...) do
 		local event = select(i,...)
 		if(event) then
 			self:DefineEventFunction(event, addon)
-		end  
+		end
 	end
 	if(SV.defaults.Skins.addons and SV.defaults.Skins.addons[addon] == nil) then
 		SV.defaults.Skins.addons[addon] = true
@@ -118,10 +119,10 @@ function MOD:SaveAddonStyle(addon, fn, force, passive, ...)
 	else
 		self.AddOnQueue[addon] = fn
 	end
-end 
+end
 
 function MOD:SaveBlizzardStyle(addon, fn, force)
-	if force then 
+	if force then
 		if(not IsAddOnLoaded(addon)) then
 			LoadAddOn(addon)
 		end
@@ -129,11 +130,11 @@ function MOD:SaveBlizzardStyle(addon, fn, force)
 	else
 		self.OnLoadAddons[addon] = fn
 	end
-end 
+end
 
 function MOD:SaveCustomStyle(fn)
 	tinsert(MOD.CustomQueue, fn)
-end 
+end
 
 function MOD:DefineEventFunction(addonEvent, addon)
 	if(not addon) then return end
@@ -143,41 +144,41 @@ function MOD:DefineEventFunction(addonEvent, addon)
 	self.EventListeners[addonEvent][addon] = true
 	if(not self[addonEvent]) then
 		self[addonEvent] = function(self, event, ...)
-			for name,fn in pairs(self.AddOnQueue) do 
+			for name,fn in pairs(self.AddOnQueue) do
 				if self:IsAddonReady(name) and self.EventListeners[event] and self.EventListeners[event][name] then
 					self:Style(name, fn, event, ...)
-				end 
-			end 
-		end 
+				end
+			end
+		end
 		self:RegisterEvent(addonEvent);
 	end
 end
 
 function MOD:SafeEventRemoval(addon, event)
-	if not self.EventListeners[event] then return end 
-	if not self.EventListeners[event][addon] then return end 
+	if not self.EventListeners[event] then return end
+	if not self.EventListeners[event][addon] then return end
 	self.EventListeners[event][addon] = nil;
 	local defined = false;
-	for name,_ in pairs(self.EventListeners[event]) do 
+	for name,_ in pairs(self.EventListeners[event]) do
 		if name then
 			defined = true;
-			break 
-		end 
-	end 
-	if not defined then 
-		self:UnregisterEvent(event) 
-	end 
+			break
+		end
+	end
+	if not defined then
+		self:UnregisterEvent(event)
+	end
 end
 
 function MOD:PLAYER_ENTERING_WORLD(event, ...)
 	for addonName,fn in pairs(self.OnLoadAddons) do
-		if(IsAddOnLoaded(addonName)) then 
+		if(IsAddOnLoaded(addonName)) then
 			self:Style(addonName, fn, event, ...)
 			self.OnLoadAddons[addonName] = nil
-		end 
+		end
 	end
 
-	for _,fn in pairs(self.CustomQueue)do 
+	for _,fn in pairs(self.CustomQueue)do
 		fn(event, ...)
 	end
 
@@ -190,7 +191,7 @@ function MOD:PLAYER_ENTERING_WORLD(event, ...)
 		end
 		if(listener[addonName] and self:IsAddonReady(addonName)) then
 			self:Style(addonName, fn, event, ...)
-		end 
+		end
 	end
 
 	SV.Events:Trigger("REQUEST_TEMPLATE_UPDATED");
@@ -209,11 +210,11 @@ function MOD:ADDON_LOADED(event, addon)
 
 	local listener = self.EventListeners[event]
 	if(listener) then
-		for name, fn in pairs(self.AddOnQueue) do 
+		for name, fn in pairs(self.AddOnQueue) do
 			if(listener[name] and self:IsAddonReady(name)) then
 				self:Style(name, fn, event, addon)
 				needsUpdate = true
-			end 
+			end
 		end
 	end
 
@@ -225,8 +226,8 @@ function MOD:ADDON_LOADED(event, addon)
 		SV.Events:Trigger("REQUEST_TEMPLATE_UPDATED");
 	end
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 CUSTOM HANDLERS
 ##########################################################
 ]]--
@@ -293,8 +294,8 @@ local function DockFadeOutDocklet()
 		MOD.Docklet.Dock2:Hide()
 	end
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 BUILD FUNCTION
 ##########################################################
 ]]--

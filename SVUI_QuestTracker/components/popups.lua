@@ -1,7 +1,7 @@
 --[[
 ##########################################################
 S V U I   By: Munglunch
-########################################################## 
+##########################################################
 LOCALIZED LUA FUNCTIONS
 ##########################################################
 ]]--
@@ -43,8 +43,8 @@ local RemoveAutoQuestPopUp 	= _G.RemoveAutoQuestPopUp;
 local AddAutoQuestPopUp  	= _G.AddAutoQuestPopUp;
 local GetAutoQuestPopUp 	= _G.GetAutoQuestPopUp;
 local GetNumAutoQuestPopUps = _G.GetNumAutoQuestPopUps;
---[[ 
-########################################################## 
+--[[
+##########################################################
 GET ADDON DATA
 ##########################################################
 ]]--
@@ -52,8 +52,8 @@ local SV = _G['SVUI']
 local L = SV.L
 local LSM = _G.LibStub("LibSharedMedia-3.0")
 local MOD = SV.QuestTracker;
---[[ 
-########################################################## 
+--[[
+##########################################################
 LOCALS
 ##########################################################
 ]]--
@@ -65,8 +65,8 @@ local LARGE_INNER_HEIGHT = LARGE_ROW_HEIGHT - 4;
 local OBJ_ICON_ACTIVE = [[Interface\COMMON\Indicator-Yellow]];
 local OBJ_ICON_COMPLETE = [[Interface\COMMON\Indicator-Green]];
 local OBJ_ICON_INCOMPLETE = [[Interface\COMMON\Indicator-Gray]];
---[[ 
-########################################################## 
+--[[
+##########################################################
 SCRIPT HANDLERS
 ##########################################################
 ]]--
@@ -82,13 +82,13 @@ local PopUpButton_OnClick = function(self, button)
 		MOD.Headers["Popups"]:RemovePopup(questID)
 	end
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 TRACKER FUNCTIONS
 ##########################################################
 ]]--
 local GetPopUpRow = function(self, index)
-	if(not self.Rows[index]) then 
+	if(not self.Rows[index]) then
 		local previousFrame = self.Rows[#self.Rows]
 		local index = #self.Rows + 1;
 		local row = CreateFrame("Frame", nil, self)
@@ -99,34 +99,34 @@ local GetPopUpRow = function(self, index)
 			row:SetPoint("TOPLEFT", self, "TOPLEFT", 0, -2);
 			row:SetPoint("TOPRIGHT", self, "TOPRIGHT", 0, -2);
 		end
-		row:ModHeight(LARGE_ROW_HEIGHT);
+		row:SetHeight(LARGE_ROW_HEIGHT);
 		row.Button = CreateFrame("Button", nil, row)
-		row.Button:ModPoint("TOPLEFT", row, "TOPLEFT", 0, 0);
-		row.Button:ModPoint("BOTTOMRIGHT", row, "BOTTOMRIGHT", 0, 0);
-		row.Button:SetStyle("DockButton")
+		row.Button:SetPoint("TOPLEFT", row, "TOPLEFT", 0, 0);
+		row.Button:SetPoint("BOTTOMRIGHT", row, "BOTTOMRIGHT", 0, 0);
+		row.Button:SetStyle("LiteButton")
 		row.Button:SetPanelColor("yellow")
 		row.Button:SetID(0)
 		row.Button.PopUpType = nil;
 		row.Button:SetScript("OnClick", PopUpButton_OnClick)
 		row.Badge = CreateFrame("Frame", nil, row.Button)
-		row.Badge:ModPoint("TOPLEFT", row.Button, "TOPLEFT", 4, -4);
-		row.Badge:ModSize((LARGE_INNER_HEIGHT - 4), (LARGE_INNER_HEIGHT - 4));
-		row.Badge:SetStyle("!_Frame", "Inset")
+		row.Badge:SetPoint("TOPLEFT", row.Button, "TOPLEFT", 4, -4);
+		row.Badge:SetSize((LARGE_INNER_HEIGHT - 4), (LARGE_INNER_HEIGHT - 4));
+		row.Badge:SetStyle("!_Frame", "Icon")
 		row.Badge.Icon = row.Badge:CreateTexture(nil,"OVERLAY")
 		row.Badge.Icon:InsetPoints(row.Badge);
 		row.Badge.Icon:SetTexture(MOD.media.incompleteIcon)
 		row.Badge.Icon:SetTexCoord(unpack(_G.SVUI_ICON_COORDS))
 		row.Header = CreateFrame("Frame", nil, row.Button)
-		row.Header:ModPoint("TOPLEFT", row.Badge, "TOPRIGHT", 4, -1);
-		row.Header:ModPoint("BOTTOMRIGHT", row.Button, "BOTTOMRIGHT", -2, 2);
+		row.Header:SetPoint("TOPLEFT", row.Badge, "TOPRIGHT", 4, -1);
+		row.Header:SetPoint("BOTTOMRIGHT", row.Button, "BOTTOMRIGHT", -5, 5);
 		row.Header:SetStyle("Frame")
 		row.Header.Text = row.Header:CreateFontString(nil,"OVERLAY")
 		row.Header.Text:SetFontObject(SVUI_Font_Quest);
 		row.Header.Text:SetJustifyH('LEFT')
 		row.Header.Text:SetTextColor(1,1,0)
 		row.Header.Text:SetText('')
-		row.Header.Text:ModPoint("TOPLEFT", row.Header, "TOPLEFT", 0, 0);
-		row.Header.Text:ModPoint("BOTTOMRIGHT", row.Header, "BOTTOMRIGHT", 0, 0);
+		row.Header.Text:SetPoint("TOPLEFT", row.Header, "TOPLEFT", 0, 0);
+		row.Header.Text:SetPoint("BOTTOMRIGHT", row.Header, "BOTTOMRIGHT", 0, 0);
 		row.RowID = 0;
 		self.Rows[index] = row;
 		return row;
@@ -147,7 +147,7 @@ local SetPopupRow = function(self, index, title, popUpType, questID, questLogInd
 	row.Button:Enable();
 	row.Button.PopUpType = popUpType;
 	row.Button:SetID(questLogIndex);
-	row:ModHeight(LARGE_ROW_HEIGHT);
+	row:SetHeight(LARGE_ROW_HEIGHT);
 	row:FadeIn();
 
 	local fill_height = LARGE_ROW_HEIGHT + 6;
@@ -175,7 +175,7 @@ local RefreshPopupObjective = function(self, event, ...)
 		self:SetHeight(1);
 		self:SetAlpha(0);
 	else
-		self:ModHeight(fill_height + 2);
+		self:SetHeight(fill_height + 2);
 		self:FadeIn();
 	end
 end
@@ -226,8 +226,8 @@ end
 local _hook_RemoveAutoPopUpQuests = function(questID)
 	MOD.Headers["Popups"]:RemovePopup(questID, true)
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 CORE FUNCTIONS
 ##########################################################
 ]]--

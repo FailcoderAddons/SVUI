@@ -14,17 +14,16 @@ local SV = _G['SVUI'];
 local L = SV.L;
 local MOD = SV.Skins;
 local Schema = MOD.Schema;
---[[ 
-########################################################## 
+--[[
+##########################################################
 HELPERS
 ##########################################################
 ]]--
 local RING_TEXTURE = [[Interface\AddOns\SVUI_Skins\artwork\FOLLOWER-RING]]
 local LVL_TEXTURE = [[Interface\AddOns\SVUI_Skins\artwork\FOLLOWER-LEVEL]]
-local HIGHLIGHT_TEXTURE = SV.BaseTexture
 local DEFAULT_COLOR = {r = 0.25, g = 0.25, b = 0.25};
---[[ 
-########################################################## 
+--[[
+##########################################################
 STYLE
 ##########################################################
 ]]--
@@ -40,6 +39,7 @@ local GarrMission_MaterialFrame = function(self)
   local frame = self:GetParent()
   frame:RemoveTextures()
   frame:SetStyle("Frame", "Inset", true, 1, -5, -7)
+	self:SetTexture("")
 end
 SV:SetAtlasFunc("GarrMission_MaterialFrame", GarrMission_MaterialFrame)
 

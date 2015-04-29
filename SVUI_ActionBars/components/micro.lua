@@ -43,14 +43,14 @@ local function RefreshMicrobar()
 	local buttonSize =  SV.db.ActionBars.Micro.buttonsize or 30;
 	local spacing =  SV.db.ActionBars.Micro.buttonspacing or 1;
 	local barWidth = (buttonSize + spacing) * 13;
-	SVUI_MicroBar_MOVE:ModSize(barWidth, buttonSize)
+	SVUI_MicroBar_MOVE:SetSize(barWidth, buttonSize)
 	SVUI_MicroBar:SetAllPoints(SVUI_MicroBar_MOVE)
 	for i=1,13 do
 		local data = MOD.media.microMenuCoords[i]
 		local button = _G[data[1]]
 		if(button) then
 			button:ClearAllPoints()
-			button:ModSize(buttonSize, buttonSize + 28)
+			button:SetSize(buttonSize, buttonSize + 28)
 			button._fade = SV.db.ActionBars.Micro.mouseover
 			if lastParent == SVUI_MicroBar then 
 				button:SetPoint("BOTTOMLEFT", lastParent, "BOTTOMLEFT", 0, 0)
@@ -130,10 +130,10 @@ function MOD:InitializeMicroBar()
 	local barWidth = (buttonSize + spacing) * 13;
 	local barHeight = (buttonSize + 6);
 	local microBar = NewFrame('Frame', 'SVUI_MicroBar', UIParent)
-	microBar:ModSize(barWidth, barHeight)
+	microBar:SetSize(barWidth, barHeight)
 	microBar:SetFrameStrata("HIGH")
 	microBar:SetFrameLevel(0)
-	microBar:ModPoint('BOTTOMLEFT', SV.Dock.TopLeft.Bar.ToolBar, 'BOTTOMRIGHT', 4, 0)
+	microBar:SetPoint('BOTTOMLEFT', SV.Dock.TopLeft.Bar.ToolBar, 'BOTTOMRIGHT', 4, 0)
 	SV:ManageVisibility(microBar)
 
 	for i=1,13 do
@@ -142,7 +142,7 @@ function MOD:InitializeMicroBar()
 			local button = _G[data[1]]
 			if(button) then
 				button:SetParent(SVUI_MicroBar)
-				button:ModSize(buttonSize, buttonSize + 28)
+				button:SetSize(buttonSize, buttonSize + 28)
 				button.Flash:SetTexture("")
 				if button.SetPushedTexture then 
 					button:SetPushedTexture("")

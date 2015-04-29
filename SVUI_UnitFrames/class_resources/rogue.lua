@@ -1,7 +1,7 @@
 --[[
 ##########################################################
 S V U I   By: Munglunch
-########################################################## 
+##########################################################
 LOCALIZED LUA FUNCTIONS
 ##########################################################
 ]]--
@@ -20,8 +20,8 @@ local assert 	= _G.assert;
 local math 		= _G.math;
 --[[ MATH METHODS ]]--
 local random = math.random;
---[[ 
-########################################################## 
+--[[
+##########################################################
 GET ADDON DATA
 ##########################################################
 ]]--
@@ -30,21 +30,21 @@ local L = SV.L;
 local LSM = _G.LibStub("LibSharedMedia-3.0")
 local MOD = SV.UnitFrames
 
-if(not MOD) then return end 
+if(not MOD) then return end
 
 local oUF_SVUI = MOD.oUF
 assert(oUF_SVUI, "SVUI UnitFrames: unable to locate oUF.")
-if(SV.class ~= "ROGUE") then return end 
---[[ 
-########################################################## 
+if(SV.class ~= "ROGUE") then return end
+--[[
+##########################################################
 LOCALS
 ##########################################################
 ]]--
 local TRACKER_FONT = [[Interface\AddOns\SVUI_!Core\assets\fonts\Combo.ttf]]
 local ICON_BG = [[Interface\Addons\SVUI_UnitFrames\assets\Class\ROGUE-SMOKE]];
 local ICON_ANTI = [[Interface\Addons\SVUI_UnitFrames\assets\Class\ROGUE-ANTICIPATION]];
---[[ 
-########################################################## 
+--[[
+##########################################################
 POSITIONING
 ##########################################################
 ]]--
@@ -59,31 +59,34 @@ local Reposition = function(self)
 	local height = db.classbar.height
 	local width = height * 3;
 	local textwidth = height * 1.25;
-	bar.Holder:ModSize(width, height)
-    if(not db.classbar.detachFromFrame) then
-    	SV:ResetAnchors(L["Classbar"])
-    end
-    local holderUpdate = bar.Holder:GetScript('OnSizeChanged')
-    if holderUpdate then
-        holderUpdate(bar.Holder)
-    end
 
-    bar:ClearAllPoints()
-    bar:SetAllPoints(bar.Holder)
+	bar.Holder:SetSize(width, height)
 
-    local points = bar.Combo;
+  if(not db.classbar.detachFromFrame) then
+  	SV:ResetAnchors(L["Classbar"])
+  end
+
+  local holderUpdate = bar.Holder:GetScript('OnSizeChanged')
+  if holderUpdate then
+      holderUpdate(bar.Holder)
+  end
+
+  bar:ClearAllPoints()
+  bar:SetAllPoints(bar.Holder)
+
+  local points = bar.Combo;
 	local max = MAX_COMBO_POINTS;
 	local size = height + 4
 	points:ClearAllPoints()
 	points:SetAllPoints(bar)
 	for i = 1, max do
 		points[i]:ClearAllPoints()
-		points[i]:ModSize(size, size)
+		points[i]:SetSize(size, size)
 
-		if i==1 then 
+		if i==1 then
 			points[i]:SetPoint("LEFT", points)
-		else 
-			points[i]:ModPoint("LEFT", points[i - 1], "RIGHT", -8, 0) 
+		else
+			points[i]:SetPoint("LEFT", points[i - 1], "RIGHT", -8, 0)
 		end
 	end
 
@@ -91,8 +94,8 @@ local Reposition = function(self)
 		bar.Guile:SetFont(TRACKER_FONT, height, 'OUTLINE')
 	end
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 ROGUE COMBO TRACKER
 ##########################################################
 ]]--
@@ -105,9 +108,9 @@ function MOD:CreateClassBar(playerFrame)
 	bar:SetFrameLevel(playerFrame.TextGrip:GetFrameLevel() + 30)
 
 	bar.Combo = CreateFrame("Frame",nil,bar)
-	for i = 1, max do 
+	for i = 1, max do
 		local cpoint = CreateFrame('Frame', nil, bar.Combo)
-		cpoint:ModSize(size,size)
+		cpoint:SetSize(size,size)
 
 		SV.SpecialFX:SetFXFrame(cpoint, "default")
 
@@ -128,8 +131,8 @@ function MOD:CreateClassBar(playerFrame)
 		anti:Hide()
 		cpoint.Anticipation = anti
 
-		bar.Combo[i] = cpoint 
-	end 
+		bar.Combo[i] = cpoint
+	end
 
 	local guile = bar:CreateFontString(nil, 'OVERLAY', nil, 7)
 	guile:SetPoint("RIGHT", bar, "LEFT", 0, -3)
@@ -139,7 +142,7 @@ function MOD:CreateClassBar(playerFrame)
 	bar.Guile = guile;
 
 	local classBarHolder = CreateFrame("Frame", "Player_ClassBar", bar)
-	classBarHolder:ModPoint("TOPLEFT", playerFrame, "BOTTOMLEFT", 0, -2)
+	classBarHolder:SetPoint("TOPLEFT", playerFrame, "BOTTOMLEFT", 0, -2)
 	bar:SetPoint("TOPLEFT", classBarHolder, "TOPLEFT", 0, 0)
 	bar.Holder = classBarHolder
 	SV:NewAnchor(bar.Holder, L["Classbar"], nil, OnMove)
@@ -147,5 +150,5 @@ function MOD:CreateClassBar(playerFrame)
 	playerFrame.MaxClassPower = 5;
 	playerFrame.RefreshClassBar = Reposition;
 	playerFrame.HyperCombo = bar
-	return 'HyperCombo' 
-end 
+	return 'HyperCombo'
+end

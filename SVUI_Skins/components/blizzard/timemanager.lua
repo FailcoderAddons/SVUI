@@ -39,22 +39,22 @@ local function TimeManagerStyle()
 	TimeManagerStopwatchCheck:GetNormalTexture():InsetPoints()
 	local sWatch = TimeManagerStopwatchCheck:CreateTexture(nil, "OVERLAY")
 	sWatch:SetTexture(1, 1, 1, 0.3)
-	sWatch:ModPoint("TOPLEFT", TimeManagerStopwatchCheck, 2, -2)
-	sWatch:ModPoint("BOTTOMRIGHT", TimeManagerStopwatchCheck, -2, 2)
+	sWatch:SetPoint("TOPLEFT", TimeManagerStopwatchCheck, 2, -2)
+	sWatch:SetPoint("BOTTOMRIGHT", TimeManagerStopwatchCheck, -2, 2)
 	TimeManagerStopwatchCheck:SetHighlightTexture(sWatch)
 
 	StopwatchFrame:RemoveTextures()
 	StopwatchFrame:SetStyle("Frame", 'Transparent')
-	StopwatchFrame.Panel:ModPoint("TOPLEFT", 0, -17)
-	StopwatchFrame.Panel:ModPoint("BOTTOMRIGHT", 0, 2)
+	StopwatchFrame.Panel:SetPoint("TOPLEFT", 0, -17)
+	StopwatchFrame.Panel:SetPoint("BOTTOMRIGHT", 0, 2)
 
 	StopwatchTabFrame:RemoveTextures()
 	
 	SV.API:Set("CloseButton", StopwatchCloseButton)
 	SV.API:Set("PageButton", StopwatchPlayPauseButton)
 	SV.API:Set("PageButton", StopwatchResetButton)
-	StopwatchPlayPauseButton:ModPoint("RIGHT", StopwatchResetButton, "LEFT", -4, 0)
-	StopwatchResetButton:ModPoint("BOTTOMRIGHT", StopwatchFrame, "BOTTOMRIGHT", -4, 6)
+	StopwatchPlayPauseButton:SetPoint("RIGHT", StopwatchResetButton, "LEFT", -4, 0)
+	StopwatchResetButton:SetPoint("BOTTOMRIGHT", StopwatchFrame, "BOTTOMRIGHT", -4, 6)
 end 
 --[[ 
 ########################################################## 

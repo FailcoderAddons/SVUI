@@ -39,7 +39,7 @@ local function QuestScrollHelper(b, c, d, e)
 	else
 		 b.spellTex:SetPoint("TOPLEFT")
 	end
-	b.spellTex:ModSize(c or 506, d or 615)
+	b.spellTex:SetSize(c or 506, d or 615)
 	b.spellTex:SetTexCoord(0, 1, 0.02, 1)
 end
 
@@ -47,10 +47,10 @@ local QuestRewardScrollFrame_OnShow = function(self)
 	if(not self.Panel) then
 		self:SetStyle("Frame", "Default")
 		QuestScrollHelper(self, 509, 630, false)
-		self:ModHeight(self:GetHeight() - 2)
+		self:SetHeight(self:GetHeight() - 2)
 	end
 	if(self.spellTex) then
-		self.spellTex:ModHeight(self:GetHeight() + 217)
+		self.spellTex:SetHeight(self:GetHeight() + 217)
 	end
 end
 
@@ -71,6 +71,10 @@ local function StyleQuestRewards()
 	end
 end
 
+local Hook_QuestFrame_SetTitleTextColor = function(fontString)
+	fontString:SetTextColor(1,1,0,1) 
+end
+
 local Hook_QuestInfoItem_OnClick = function(self)
 	_G.QuestInfoItemHighlight:ClearAllPoints()
 	_G.QuestInfoItemHighlight:SetAllPoints(self)
@@ -87,7 +91,7 @@ local _hook_DetailScrollShow = function(self)
 		self:SetStyle("Frame", "Default")
 		QuestScrollHelper(self, 509, 630, false)
 	end
-	self.spellTex:ModHeight(self:GetHeight() + 217)
+	self.spellTex:SetHeight(self:GetHeight() + 217)
 end
 
 local _hook_QuestLogPopupDetailFrameShow = function(self)
@@ -97,7 +101,7 @@ local _hook_QuestLogPopupDetailFrameShow = function(self)
 		QuestLogPopupDetailFrameScrollFrame.spellTex = QuestLogPopupDetailFrameScrollFrame:CreateTexture(nil, 'ARTWORK')
 		QuestLogPopupDetailFrameScrollFrame.spellTex:SetTexture([[Interface\QuestFrame\QuestBookBG]])
 		QuestLogPopupDetailFrameScrollFrame.spellTex:SetPoint("TOPLEFT", 2, -2)
-		QuestLogPopupDetailFrameScrollFrame.spellTex:ModSize(514, 616)
+		QuestLogPopupDetailFrameScrollFrame.spellTex:SetSize(514, 616)
 		QuestLogPopupDetailFrameScrollFrame.spellTex:SetTexCoord(0, 1, 0.02, 1)
 		QuestLogPopupDetailFrameScrollFrame.spellTex2 = QuestLogPopupDetailFrameScrollFrame:CreateTexture(nil, 'BORDER')
 		QuestLogPopupDetailFrameScrollFrame.spellTex2:SetTexture([[Interface\FrameGeneral\UI-Background-Rock]])
@@ -120,7 +124,7 @@ local function QuestFrameStyle()
 
 	QuestInfoItemHighlight:RemoveTextures()
 	QuestInfoItemHighlight:SetStyle("Frame", "Icon")
-	QuestInfoItemHighlight:ModSize(148, 40)
+	QuestInfoItemHighlight:SetSize(148, 40)
 
 	local choiceBG = QuestInfoItemHighlight:CreateTexture(nil, "BACKGROUND")
 	choiceBG:SetAllPoints(QuestInfoItemHighlight)
@@ -144,11 +148,11 @@ local function QuestFrameStyle()
 	QuestLogPopupDetailFrame:HookScript("OnShow", _hook_QuestLogPopupDetailFrameShow)
 
 	SV.API:Set("CloseButton", QuestLogPopupDetailFrameCloseButton)
-	SV.API:Set("ScrollFrame", QuestLogPopupDetailFrameScrollFrameScrollBar, 5)
-	SV.API:Set("ScrollFrame", QuestRewardScrollFrameScrollBar)
+	SV.API:Set("ScrollBar", QuestLogPopupDetailFrameScrollFrameScrollBar, 5)
+	SV.API:Set("ScrollBar", QuestRewardScrollFrameScrollBar)
 
 	QuestGreetingScrollFrame:RemoveTextures()
-	SV.API:Set("ScrollFrame", QuestGreetingScrollFrameScrollBar)
+	SV.API:Set("ScrollBar", QuestGreetingScrollFrameScrollBar)
 
 	for i = 1, 10 do
 		local name = ("QuestInfoRewardsFrameQuestInfoItem%d"):format(i)
@@ -161,7 +165,7 @@ local function QuestFrameStyle()
 	end
 
 	QuestInfoSkillPointFrame:RemoveTextures()
-	QuestInfoSkillPointFrame:ModWidth(QuestInfoSkillPointFrame:GetWidth() - 4)
+	QuestInfoSkillPointFrame:SetWidth(QuestInfoSkillPointFrame:GetWidth() - 4)
 
 	local curLvl = QuestInfoSkillPointFrame:GetFrameLevel() + 1
 	QuestInfoSkillPointFrame:SetFrameLevel(curLvl)
@@ -170,7 +174,7 @@ local function QuestFrameStyle()
 	QuestInfoSkillPointFrameIconTexture:SetTexCoord(unpack(_G.SVUI_ICON_COORDS))
 	QuestInfoSkillPointFrameIconTexture:SetDrawLayer("OVERLAY")
 	QuestInfoSkillPointFrameIconTexture:SetPoint("TOPLEFT", 2, -2)
-	QuestInfoSkillPointFrameIconTexture:ModSize(QuestInfoSkillPointFrameIconTexture:GetWidth()-2, QuestInfoSkillPointFrameIconTexture:GetHeight()-2)
+	QuestInfoSkillPointFrameIconTexture:SetSize(QuestInfoSkillPointFrameIconTexture:GetWidth()-2, QuestInfoSkillPointFrameIconTexture:GetHeight()-2)
 	QuestInfoSkillPointFrameCount:SetDrawLayer("OVERLAY")
 
 	hooksecurefunc("QuestInfoItem_OnClick", Hook_QuestInfoItem_OnClick)
@@ -205,11 +209,11 @@ local function QuestFrameStyle()
 		local texture = _G["QuestProgressItem"..j.."IconTexture"]
 		i:RemoveTextures()
 		i:SetStyle("!_Frame", "Inset")
-		i:ModWidth(_G["QuestProgressItem"..j]:GetWidth() - 4)
+		i:SetWidth(_G["QuestProgressItem"..j]:GetWidth() - 4)
 		texture:SetTexCoord(unpack(_G.SVUI_ICON_COORDS))
 		texture:SetDrawLayer("OVERLAY")
 		texture:SetPoint("TOPLEFT", 2, -2)
-		texture:ModSize(texture:GetWidth() - 2, texture:GetHeight() - 2)
+		texture:SetSize(texture:GetWidth() - 2, texture:GetHeight() - 2)
 		_G["QuestProgressItem"..j.."Count"]:SetDrawLayer("OVERLAY")
 	end
 
@@ -221,7 +225,7 @@ local function QuestFrameStyle()
 	QuestNPCModelTextFrame.Panel:SetPoint("TOPLEFT", QuestNPCModel.Panel, "BOTTOMLEFT", 0, -2)
 
 	hooksecurefunc("QuestFrame_ShowQuestPortrait", Hook_QuestNPCModel)
-
+	hooksecurefunc("QuestFrame_SetTitleTextColor", Hook_QuestFrame_SetTitleTextColor)
 end
 
 local function QuestChoiceFrameStyle()

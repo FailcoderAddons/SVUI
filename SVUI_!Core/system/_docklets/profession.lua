@@ -97,6 +97,8 @@ end
 local SetMacroTooltip = function(self)
 	local text1 = self:GetAttribute("tipText")
 	local text2 = self:GetAttribute("tipExtraText")
+	GameTooltip:AddLine(text1, 1, 1, 0)
+	GameTooltip:AddLine(" ", 1, 1, 1)
 	GameTooltip:AddDoubleLine("[Left-Click]", text1, 0, 1, 0, 1, 1, 1)
 	if(text2) then
 		GameTooltip:AddDoubleLine("[Right-Click]", "Use " .. text2, 0, 1, 0, 1, 1, 1)

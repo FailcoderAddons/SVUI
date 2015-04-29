@@ -1,5 +1,5 @@
 --[[ Element: Health Bar
-	
+
 	THIS FILE HEAVILY MODIFIED FOR USE WITH SUPERVILLAIN UI
 
 ]]
@@ -56,10 +56,13 @@ local Update = function(self, event, unit)
 		health:SetValue(disconnected and 0 or min)
 		health.percent = invisible and 100 or ((min / max) * 100)
 		health.disconnected = disconnected
-		
+
 		local bg = health.bg;
 		local r, g, b, t, t2;
-
+		local _, class = UnitClass(unit);
+		local reaction = UnitReaction(unit, 'player');
+		local classColors = oUF.colors.class[class];
+		local bgColors = classColors or oUF.colors.reaction[reaction];
 		if(health.colorTapping and not UnitPlayerControlled(unit) and UnitIsTapped(unit) and not UnitIsTappedByPlayer(unit) and not UnitIsTappedByAllThreatList(unit)) then
 			t = oUF.colors.tapped
 		elseif(health.colorDisconnected and not UnitIsConnected(unit)) then
@@ -67,17 +70,10 @@ local Update = function(self, event, unit)
 		elseif(health.colorClass and UnitIsPlayer(unit)) or
 			(health.colorClassNPC and not UnitIsPlayer(unit)) or
 			(health.colorClassPet and UnitPlayerControlled(unit) and not UnitIsPlayer(unit)) then
-			local _, class = UnitClass(unit)
-			local tmp = oUF.colors.class[class] or oUF.colors.health
+			local tmp = classColors or oUF.colors.health
 			t = {(tmp[1] * 0.75),(tmp[2] * 0.75),(tmp[3] * 0.75)}
-			if(bg and (health.colorBackdrop) and UnitIsPlayer(unit)) then
-				t2 = t
-			end
-		elseif(health.colorReaction and UnitReaction(unit, 'player')) then
-			t = oUF.colors.reaction[UnitReaction(unit, "player")]
-			if(bg and (health.colorBackdrop) and not UnitIsPlayer(unit) and UnitReaction(unit, "player")) then
-				t2 = t
-			end
+		elseif(health.colorReaction and reaction) then
+			t = oUF.colors.reaction[reaction]
 		elseif(health.colorSmooth) then
 			r, g, b = oUF.ColorGradient(min, max, unpack(health.smoothGradient or oUF.colors.smooth))
 		elseif(health.colorHealth) then
@@ -89,14 +85,18 @@ local Update = function(self, event, unit)
 		end
 
 		if(b) then
-			if((health.colorClass and health.colorSmooth) or (health.colorSmooth and self.isForced and not (UnitIsTapped(unit) and not UnitIsTappedByPlayer(unit)))) then 
+			if((health.colorClass and health.colorSmooth) or (health.colorSmooth and self.isForced and not (UnitIsTapped(unit) and not UnitIsTappedByPlayer(unit)))) then
 				r, g, b = self.ColorGradient(min,max,1,0,0,1,1,0,r,g,b)
 			end
 			health:SetStatusBarColor(r, g, b)
-			if(bg) then 
+			if(bg) then
 				local mu = bg.multiplier or 1
-				if(t2) then
-					r, g, b = t2[1], t2[2], t2[3] 
+				if(health.colorBackdrop and bgColors) then
+					r, g, b = bgColors[1], bgColors[2], bgColors[3]
+				elseif(oUF.colors.healthBackdrop) then
+					r, g, b = unpack(oUF.colors.healthBackdrop)
+				else
+					r, g, b = unpack(oUF.colors.health)
 				end
 				bg:SetVertexColor(r * mu, g * mu, b * mu)
 			end
@@ -107,16 +107,16 @@ local Update = function(self, event, unit)
 		UpdateFrequentUpdates(self)
 	end
 
-	if self.ResurrectIcon then 
+	if self.ResurrectIcon then
 		self.ResurrectIcon:SetAlpha(min == 0 and 1 or 0)
 	end
 
-	if self.isForced then 
+	if self.isForced then
 		min = random(1,max)
 		health:SetValue(min)
 	end
 
-	if(health.gridMode) then 
+	if(health.gridMode) then
 		health:SetOrientation("VERTICAL")
 	end
 
@@ -152,7 +152,7 @@ function UpdateFrequentUpdates(self)
 
 		if self:IsEventRegistered("UNIT_HEALTH_FREQUENT") then
 			self:UnregisterEvent("UNIT_HEALTH_FREQUENT", Update)
-		end		
+		end
 	end
 end
 
@@ -162,7 +162,7 @@ local Enable = function(self, unit)
 		health.__owner = self
 		health.ForceUpdate = ForceUpdate
 		health.__frequentUpdates = health.frequentUpdates
-		
+
 		if(health.frequentUpdates) then
 			self:RegisterEvent('UNIT_HEALTH_FREQUENT', Update)
 		else

@@ -330,8 +330,8 @@ local function LoadToolBreakStuff()
 
 	BreakStuffButton:SetParent(MOD.BottomRight.Bar.ToolBar)
 	local size = MOD.BottomRight.Bar.ToolBar:GetHeight()
-	BreakStuffButton:ModSize(size, size)
-	BreakStuffButton:ModPoint("RIGHT", MOD.BottomRight.Bar.ToolBar, "LEFT", -6, 0)
+	BreakStuffButton:SetSize(size, size)
+	BreakStuffButton:SetPoint("RIGHT", MOD.BottomRight.Bar.ToolBar, "LEFT", -6, 0)
 	BreakStuffButton.icon:SetTexture(SV.media.dock.breakStuffIcon)
 	BreakStuffButton:Show();
 	BreakStuffButton:SetStyle("DockButton") 

@@ -1,7 +1,7 @@
 --[[
 ##########################################################
 S V U I   By: S.Jackson
-########################################################## 
+##########################################################
 LOCALIZED LUA FUNCTIONS
 ##########################################################
 ]]--
@@ -60,8 +60,8 @@ local UnitInRange           = _G.UnitInRange;
 local GetMouseFocus         = _G.GetMouseFocus;
 local UnitIsConnected       = _G.UnitIsConnected;
 local GetNumGroupMembers    = _G.GetNumGroupMembers;
---[[ 
-########################################################## 
+--[[
+##########################################################
 GET ADDON DATA
 ##########################################################
 ]]--
@@ -78,8 +78,8 @@ local minThrottle = 0.02
 local numArrows, inRange, GPS
 local TriangulateUnit = TriangulateUnit
 local NewHook = hooksecurefunc;
---[[ 
-########################################################## 
+--[[
+##########################################################
 GPS CONSTRUCTOR
 ##########################################################
 ]]--
@@ -102,24 +102,8 @@ local GPS_Rotate_Arrow = function(self, angle)
     ULx = 0.5 + cos(radius) / sqrt2
     ULy =  0.5 + sin(radius) / sqrt2
     -- 5
-    
-    self.Arrow:SetTexCoord(ULx, ULy, LLx, LLy, URx, URy, LRx, LRy);
-end
 
-local RefreshGPS = function(self, frame, template)
-    if(frame.GPS) then
-        if(CONFIGS.groups) then
-            frame.GPS.OnlyProximity = CONFIGS.proximity
-            local actualSz = min(frame.GPS.DefaultSize, (frame:GetHeight() - 2))
-            if(not frame:IsElementEnabled("GPS")) then
-                frame:EnableElement("GPS")
-            end
-        else
-            if(frame:IsElementEnabled("GPS")) then
-                frame:DisableElement("GPS")
-            end
-        end
-    end 
+    self.Arrow:SetTexCoord(ULx, ULy, LLx, LLy, URx, URy, LRx, LRy);
 end
 
 local function CreateGPS(frame)
@@ -128,16 +112,16 @@ local function CreateGPS(frame)
 
     local gps = CreateFrame("Frame", nil, frame.TextGrip)
     gps:SetFrameLevel(99)
-    gps:ModSize(size, size)
+    gps:SetSize(size, size)
     gps.DefaultSize = size
-    gps:ModPoint("RIGHT", frame, "RIGHT", 0, 0)
+    gps:SetPoint("RIGHT", frame, "RIGHT", 0, 0)
 
     gps.Arrow = gps:CreateTexture(nil, "OVERLAY", nil, 7)
     gps.Arrow:SetTexture([[Interface\AddOns\SVUI_TrackOMatic\artwork\GPS-ARROW]])
-    gps.Arrow:ModSize(size, size)
+    gps.Arrow:SetSize(size, size)
     gps.Arrow:SetPoint("CENTER", gps, "CENTER", 0, 0)
     gps.Arrow:SetVertexColor(0.1, 0.8, 0.8)
-    gps.Arrow:SetBlendMode("ADD")
+    --gps.Arrow:SetBlendMode("ADD")
 
     gps.onMouseOver = true
     gps.OnlyProximity = false
@@ -146,8 +130,27 @@ local function CreateGPS(frame)
 
     frame.GPS = gps
 end
---[[ 
-########################################################## 
+
+local RefreshGPS = function(self, frame, template)
+    if(template:find("raid") or template:find("party")) then
+        if not frame.GPS then CreateGPS(frame) end
+        if(CONFIGS.groups) then
+            frame.GPS.OnlyProximity = CONFIGS.proximity
+            local actualSz = min(frame.GPS.DefaultSize, (frame:GetHeight() + 2))
+            frame.GPS:SetSize(actualSz, actualSz)
+            frame.GPS.Arrow:SetSize(actualSz, actualSz)
+            if(not frame:IsElementEnabled("GPS")) then
+                frame:EnableElement("GPS")
+            end
+        else
+            if(frame:IsElementEnabled("GPS")) then
+                frame:DisableElement("GPS")
+            end
+        end
+    end
+end
+--[[
+##########################################################
 GPS ELEMENT
 ##########################################################
 ]]--
@@ -170,7 +173,7 @@ local Update = function(self, elapsed)
 						GPS:Hide()
 					else
 						local distance, angle = self.Track(unit)
-						if not angle then 
+						if not angle then
 							GPS:Hide()
 						else
 							if(GPS.OnlyProximity == false) then
@@ -178,7 +181,7 @@ local Update = function(self, elapsed)
 							else
 								GPS:Hide()
 							end
-							
+
 							if GPS.Arrow then
 								if(distance > 40) then
 									GPS.Arrow:SetVertexColor(1,0.1,0.1)
@@ -203,7 +206,7 @@ local Update = function(self, elapsed)
 							if(GPS.PostUpdate) then GPS:PostUpdate(object, distance, angle) end
 							numArrows = numArrows + 1
 						end
-					end				
+					end
 				else
 					GPS:Hide()
 				end
@@ -225,16 +228,13 @@ local Update = function(self, elapsed)
 end
 
 local Enable = function(self)
-	local unit = self.unit 
-	if(unit:find("raid") or unit:find("party")) then
-		if not self.GPS then CreateGPS(self) end
+	if(self.GPS) then
 		tinsert(_FRAMES, self)
-
 		GPS_UpdateHandler:Show()
 		return true
 	end
 end
- 
+
 local Disable = function(self)
 	local GPS = self.GPS
 	if GPS then
@@ -255,9 +255,9 @@ end
 local taggedUnits = {}
 local groupTagManager = CreateFrame("Frame")
 function PLUGIN:EnableGPS()
-    if(not SV.UnitFrames) then return end;
+    if(not SV.UnitFrames) then print("No Units") return end;
     local oUF = SV.UnitFrames.oUF
-    if(not oUF) then return end;
+    if(not oUF) then print("No OUF") return end;
 
     CONFIGS = SV.db[self.Schema];
 
@@ -268,77 +268,77 @@ function PLUGIN:EnableGPS()
         if IsInRaid() then
             group = "raid"
             count = GetNumGroupMembers()
-        elseif IsInGroup() then 
+        elseif IsInGroup() then
             group = "party"
             count = GetNumGroupMembers() - 1;
-            taggedUnits["player"] = true 
+            taggedUnits["player"] = true
         else
             group = "solo"
-            count = 1 
-        end 
-        for i = 1, count do 
+            count = 1
+        end
+        for i = 1, count do
             local realName = group..i;
             if not UnitIsUnit(realName, "player") then
-                taggedUnits[realName] = true 
-            end 
-        end 
+                taggedUnits[realName] = true
+            end
+        end
     end);
 
     oUF.Tags.OnUpdateThrottle['nearbyplayers:8'] = 0.25
     oUF.Tags.Methods["nearbyplayers:8"] = function(unit)
         local unitsInRange, distance = 0;
-        if UnitIsConnected(unit)then 
-            for taggedUnit, _ in pairs(taggedUnits)do 
-                if not UnitIsUnit(unit, taggedUnit) and UnitIsConnected(taggedUnit)then 
+        if UnitIsConnected(unit)then
+            for taggedUnit, _ in pairs(taggedUnits)do
+                if not UnitIsUnit(unit, taggedUnit) and UnitIsConnected(taggedUnit)then
                     distance = TriangulateUnit(unit, taggedUnit, true)
-                    if distance and distance <= 8 then 
-                        unitsInRange = unitsInRange + 1 
-                    end 
-                end 
-            end 
-        end 
+                    if distance and distance <= 8 then
+                        unitsInRange = unitsInRange + 1
+                    end
+                end
+            end
+        end
         return unitsInRange
-    end 
+    end
 
     oUF.Tags.OnUpdateThrottle['nearbyplayers:10'] = 0.25
     oUF.Tags.Methods["nearbyplayers:10"] = function(unit)
         local unitsInRange, distance = 0;
-        if UnitIsConnected(unit)then 
-            for taggedUnit, _ in pairs(taggedUnits)do 
-                if not UnitIsUnit(unit, taggedUnit) and UnitIsConnected(taggedUnit)then 
+        if UnitIsConnected(unit)then
+            for taggedUnit, _ in pairs(taggedUnits)do
+                if not UnitIsUnit(unit, taggedUnit) and UnitIsConnected(taggedUnit)then
                     distance = TriangulateUnit(unit, taggedUnit, true)
-                    if distance and distance <= 10 then 
-                        unitsInRange = unitsInRange + 1 
-                    end 
-                end 
-            end 
-        end 
-        return unitsInRange 
-    end 
+                    if distance and distance <= 10 then
+                        unitsInRange = unitsInRange + 1
+                    end
+                end
+            end
+        end
+        return unitsInRange
+    end
 
     oUF.Tags.OnUpdateThrottle['nearbyplayers:30'] = 0.25
     oUF.Tags.Methods["nearbyplayers:30"] = function(unit)
         local unitsInRange, distance = 0;
-        if UnitIsConnected(unit)then 
-            for taggedUnit, _ in pairs(taggedUnits)do 
-                if not UnitIsUnit(unit, taggedUnit) and UnitIsConnected(taggedUnit)then 
+        if UnitIsConnected(unit)then
+            for taggedUnit, _ in pairs(taggedUnits)do
+                if not UnitIsUnit(unit, taggedUnit) and UnitIsConnected(taggedUnit)then
                     distance = TriangulateUnit(unit, taggedUnit, true)
-                    if distance and distance <= 30 then 
-                        unitsInRange = unitsInRange + 1 
-                    end 
-                end 
-            end 
-        end 
-        return unitsInRange 
-    end 
+                    if distance and distance <= 30 then
+                        unitsInRange = unitsInRange + 1
+                    end
+                end
+            end
+        end
+        return unitsInRange
+    end
 
     oUF.Tags.OnUpdateThrottle['distance'] = 0.25
     oUF.Tags.Methods["distance"] = function(unit)
-        if not UnitIsConnected(unit) or UnitIsUnit(unit, "player")then return "" end 
+        if not UnitIsConnected(unit) or UnitIsUnit(unit, "player")then return "" end
         local dst = TriangulateUnit("player", unit, true)
-        if dst and dst > 0 then 
+        if dst and dst > 0 then
             return format("%d", dst)
-        end 
+        end
         return ""
     end
 
@@ -346,6 +346,6 @@ function PLUGIN:EnableGPS()
     GPS_UpdateHandler:SetScript("OnUpdate", Update)
 
     oUF:AddElement('GPS', nil, Enable, Disable)
-    
+
     NewHook(SV.UnitFrames, "RefreshUnitLayout", RefreshGPS)
 end

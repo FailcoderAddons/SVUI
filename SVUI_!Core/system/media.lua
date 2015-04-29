@@ -44,6 +44,7 @@ local SV = select(2, ...)
 local SVUILib = Librarian("Registry")
 local L = SV.L
 local classToken = select(2,UnitClass("player"))
+SV.MaxBackdrops = {Pattern = 14, Art = 5, Unit = 17}
 --[[
 ##########################################################
 DEFINE SOUND EFFECTS
@@ -88,24 +89,19 @@ LSM:Register("background", "SVUI Default BG", [[Interface\AddOns\SVUI_!Core\asse
 LSM:Register("background", "SVUI Transparent BG", [[Interface\AddOns\SVUI_!Core\assets\backgrounds\TRANSPARENT]])
 LSM:Register("background", "SVUI Button BG", [[Interface\AddOns\SVUI_!Core\assets\backgrounds\BUTTON]])
 LSM:Register("background", "SVUI Model BG", [[Interface\AddOns\SVUI_!Core\assets\backgrounds\MODEL]])
-LSM:Register("background", "SVUI Backdrop 1", [[Interface\AddOns\SVUI_!Core\assets\backgrounds\pattern\PATTERN1]])
-LSM:Register("background", "SVUI Backdrop 2", [[Interface\AddOns\SVUI_!Core\assets\backgrounds\pattern\PATTERN2]])
-LSM:Register("background", "SVUI Backdrop 3", [[Interface\AddOns\SVUI_!Core\assets\backgrounds\pattern\PATTERN3]])
-LSM:Register("background", "SVUI Backdrop 4", [[Interface\AddOns\SVUI_!Core\assets\backgrounds\pattern\PATTERN4]])
-LSM:Register("background", "SVUI Backdrop 5", [[Interface\AddOns\SVUI_!Core\assets\backgrounds\pattern\PATTERN5]])
-LSM:Register("background", "SVUI Artwork 1", [[Interface\AddOns\SVUI_!Core\assets\backgrounds\art\ART1]])
-LSM:Register("background", "SVUI Artwork 2", [[Interface\AddOns\SVUI_!Core\assets\backgrounds\art\ART2]])
-LSM:Register("background", "SVUI Artwork 3", [[Interface\AddOns\SVUI_!Core\assets\backgrounds\art\ART3]])
-LSM:Register("background", "SVUI Artwork 4", [[Interface\AddOns\SVUI_!Core\assets\backgrounds\art\ART4]])
-LSM:Register("background", "SVUI Artwork 5", [[Interface\AddOns\SVUI_!Core\assets\backgrounds\art\ART5]])
-LSM:Register("background", "SVUI UnitBG 1", [[Interface\AddOns\SVUI_!Core\assets\backgrounds\unit\UNIT-BG1]])
-LSM:Register("background", "SVUI UnitBG 2", [[Interface\AddOns\SVUI_!Core\assets\backgrounds\unit\UNIT-BG2]])
-LSM:Register("background", "SVUI UnitBG 3", [[Interface\AddOns\SVUI_!Core\assets\backgrounds\unit\UNIT-BG3]])
-LSM:Register("background", "SVUI UnitBG 4", [[Interface\AddOns\SVUI_!Core\assets\backgrounds\unit\UNIT-BG4]])
-LSM:Register("background", "SVUI SmallUnitBG 1", [[Interface\AddOns\SVUI_!Core\assets\backgrounds\unit\UNIT-SMALL-BG1]])
-LSM:Register("background", "SVUI SmallUnitBG 2", [[Interface\AddOns\SVUI_!Core\assets\backgrounds\unit\UNIT-SMALL-BG2]])
-LSM:Register("background", "SVUI SmallUnitBG 3", [[Interface\AddOns\SVUI_!Core\assets\backgrounds\unit\UNIT-SMALL-BG3]])
-LSM:Register("background", "SVUI SmallUnitBG 4", [[Interface\AddOns\SVUI_!Core\assets\backgrounds\unit\UNIT-SMALL-BG4]])
+
+for i = 1, SV.MaxBackdrops.Pattern do
+	LSM:Register("background", "SVUI Backdrop "..i, [[Interface\AddOns\SVUI_!Core\assets\backgrounds\pattern\PATTERN]]..i)
+end
+
+for i = 1, SV.MaxBackdrops.Art do
+	LSM:Register("background", "SVUI Artwork "..i, [[Interface\AddOns\SVUI_!Core\assets\backgrounds\art\ART]]..i)
+end
+
+for i = 1, SV.MaxBackdrops.Unit do
+	LSM:Register("background", "SVUI UnitBG "..i, [[Interface\AddOns\SVUI_!Core\assets\backgrounds\unit\UNIT-BG]]..i)
+	LSM:Register("background", "SVUI SmallUnitBG "..i, [[Interface\AddOns\SVUI_!Core\assets\backgrounds\unit\UNIT-SMALL-BG]]..i)
+end
 
 LSM:Register("border", "SVUI Border", [[Interface\AddOns\SVUI_!Core\assets\borders\DEFAULT]])
 LSM:Register("border", "SVUI Border 2", [[Interface\BUTTONS\WHITE8X8]])
@@ -199,7 +195,7 @@ do
 				["default"] 	= {file = "SVUI Border", 		  	size = 1},
 				["transparent"] = {file = "SVUI Border", 			size = 1},
 				["button"]      = {file = "SVUI Border", 			size = 1},
-				["pattern"]     = {file = "SVUI Textured Border", 	size = 15},
+				["pattern"]     = {file = "SVUI Border", 		size = 1},
 				["premium"]     = {file = "SVUI Textured Border", 	size = 15},
 				["shadow"]      = {file = "SVUI Shadow Border",   	size = 3},
 				["inset"]       = {file = "SVUI Inset Shadow",   	size = 6},
@@ -277,7 +273,7 @@ do
 		["border"] = {
 			["default"] 	= [[Interface\AddOns\SVUI_!Core\assets\borders\DEFAULT]],
 			["button"]      = [[Interface\AddOns\SVUI_!Core\assets\borders\DEFAULT]],
-			["pattern"]     = [[Interface\AddOns\SVUI_!Core\assets\borders\TEXTURED]],
+			["pattern"]     = [[Interface\AddOns\SVUI_!Core\assets\borders\DEFAULT]],
 			["premium"]     = [[Interface\AddOns\SVUI_!Core\assets\borders\TEXTURED]],
 			["shadow"]      = [[Interface\AddOns\SVUI_!Core\assets\borders\SHADOW]],
 			["inset"]       = [[Interface\AddOns\SVUI_!Core\assets\borders\INSET]],
@@ -432,13 +428,13 @@ do
 			    tile = false,
 			    tileSize = 0,
 			    edgeFile = [[Interface\AddOns\SVUI_!Core\assets\borders\TEXTURED]],
-			    edgeSize = 15,
+					edgeSize = 1,
 			    insets =
 			    {
-			        left = 5,
-			        right = 5,
-			        top = 5,
-			        bottom = 5,
+			        left = 0,
+			        right = 0,
+			        top = 0,
+			        bottom = 0,
 			    },
 			},
 			["premium"] = {
@@ -449,10 +445,10 @@ do
 			    edgeSize = 15,
 			    insets =
 			    {
-			        left = 5,
-			        right = 5,
-			        top = 5,
-			        bottom = 5,
+							left = 3,
+							right = 3,
+							top = 3,
+							bottom = 3,
 			    },
 			},
 			["buttonred"] = {
@@ -672,9 +668,14 @@ function SV:FontManager(obj, template, arg, sizeMod, styleOverride, colorR, colo
 	obj.___fontSizeMod = sizeMod or 0;
 	obj:SetFont(file, (size + obj.___fontSizeMod), outline)
 
-	if(not isSystemFont) then
-		if(info.outline and info.outline ~= "NONE") then
+	if(arg == 'SHADOW') then
+		obj:SetShadowColor(0, 0, 0, 0.75)
+		obj:SetShadowOffset(2, -2)
+	elseif(not isSystemFont) then
+		if((not info.outline) or info.outline ~= "NONE") then
 			obj:SetShadowColor(0, 0, 0, 0)
+		elseif(info.outline and info.outline == "NONE") then
+			obj:SetShadowColor(0, 0, 0, 0.75)
 		else
 			obj:SetShadowColor(0, 0, 0, 0.2)
 		end
@@ -694,6 +695,13 @@ function SV:FontManager(obj, template, arg, sizeMod, styleOverride, colorR, colo
 	ManagedFonts[template][obj] = true
 end
 
+local function _shadowFont(globalName, template, sizeMod, styleOverride, cR, cG, cB)
+	if(not template) then return end
+	if(not _G[globalName]) then return end
+	styleOverride = styleOverride or "NONE"
+	SV:FontManager(_G[globalName], template, "SHADOW", sizeMod, styleOverride, cR, cG, cB);
+end
+
 local function _alterFont(globalName, template, sizeMod, styleOverride, cR, cG, cB)
 	if(not template) then return end
 	if(not _G[globalName]) then return end
@@ -702,7 +710,7 @@ local function _alterFont(globalName, template, sizeMod, styleOverride, cR, cG, 
 end
 
 local function ChangeSystemFonts()
-	--_alterFont("GameFontNormal", "default", fontsize - 2)
+	_shadowFont("GameFontNormal", "default", 0, "NONE")
 	_alterFont("GameFontWhite", "default", 0, 'OUTLINE', 1, 1, 1)
 	_alterFont("GameFontWhiteSmall", "default", 0, 'NONE', 1, 1, 1)
 	_alterFont("GameFontBlack", "default", 0, 'NONE', 0, 0, 0)
@@ -759,7 +767,7 @@ local function ChangeSystemFonts()
 	_alterFont("Game32Font", "number_big", 1)
 	_alterFont("NumberFont_OutlineThick_Mono_Small", "number", 0, "OUTLINE")
 	_alterFont("NumberFont_Outline_Huge", "number_big", 0, "OUTLINE")
-	_alterFont("NumberFont_Outline_Large", "number", 3, "OUTLINE")
+	_shadowFont("NumberFont_Outline_Large", "number", 2, "OUTLINE")
 	_alterFont("NumberFont_Outline_Med", "number", 1, "OUTLINE")
 	_alterFont("NumberFontNormal", "number", 0, "OUTLINE")
 	_alterFont("NumberFont_GameNormal", "number", 0, "OUTLINE")
@@ -782,6 +790,7 @@ end
 local function UpdateFontTemplate(template)
 	template = template or "default";
 	local info = SV.media.shared.font[template];
+	if(not info) then return end
 	local file = LSM:Fetch("font", info.file);
 	local size = info.size;
 	local line = info.outline;
@@ -981,10 +990,17 @@ function SV:UpdateSharedMedia()
 			local bordersetup = self.media.shared.border[name];
 			local bgsetup = self.media.shared.background[name];
 			bd.bgFile = self.media.background[name];
-		    bd.tile = bgsetup.tiled;
-		    bd.tileSize = bgsetup.size;
+		  bd.tile = bgsetup.tiled;
+		  bd.tileSize = bgsetup.size;
 			bd.edgeFile = self.media.border[name];
 			bd.edgeSize = bordersetup.size;
+			local offset = bordersetup.size * 0.2;
+			bd.insets = {
+				left = offset,
+				right = offset,
+				top = offset,
+				bottom = offset,
+			}
 		end
 	end
 
@@ -1008,6 +1024,9 @@ function SV:UpdateSharedMedia()
 	self.media.gradient.bizzaro = {"VERTICAL", ir2, ig2, ib2, ir1, ig1, ib1}
 
 	self.Events:Trigger("SHARED_MEDIA_UPDATED");
+	if(not InCombatLockdown()) then
+		collectgarbage("collect");
+	end
 end
 
 function SV:RefreshAllMedia()

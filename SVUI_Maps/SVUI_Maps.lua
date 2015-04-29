@@ -1,7 +1,7 @@
 --[[
 ##########################################################
 S V U I   By: Munglunch
-########################################################## 
+##########################################################
 LOCALIZED LUA FUNCTIONS
 ##########################################################
 ]]--
@@ -20,8 +20,8 @@ local lower, upper, len = string.lower, string.upper, string.len;
 local match, gsub, find = string.match, string.gsub, string.find;
 --[[ MATH METHODS ]]--
 local parsefloat = math.parsefloat;  -- Uncommon
---[[ 
-########################################################## 
+--[[
+##########################################################
 GET ADDON DATA
 ##########################################################
 ]]--
@@ -29,14 +29,14 @@ local SV = _G['SVUI']
 local L = SV.L
 local MOD = SV.Maps;
 if(not MOD) then return end;
---[[ 
-########################################################## 
+--[[
+##########################################################
 LOCALIZED GLOBALS
 ##########################################################
 ]]--
 local RAID_CLASS_COLORS = _G.RAID_CLASS_COLORS
---[[ 
-########################################################## 
+--[[
+##########################################################
 LOCAL VARS
 ##########################################################
 ]]--
@@ -48,8 +48,8 @@ local MMBHolder, MMBBar;
 local NewHook = hooksecurefunc
 local Initialized = false
 local CoordPattern = "%.1f";
---[[ 
-########################################################## 
+--[[
+##########################################################
 DATA UPVALUES
 ##########################################################
 ]]--
@@ -60,16 +60,18 @@ local WM_TINY = false;
 local MM_COLOR = "darkest"
 local MM_BRDR = 0
 local MM_SIZE = 240
+local MM_BTN_SIZE = 30
 local MM_OFFSET_TOP = (MM_SIZE * 0.07)
 local MM_OFFSET_BOTTOM = (MM_SIZE * 0.11)
 local MM_WIDTH = MM_SIZE + (MM_BRDR * 2)
 local MM_HEIGHT = (MM_SIZE - (MM_OFFSET_TOP + MM_OFFSET_BOTTOM) + (MM_BRDR * 2))
 local WM_ALPHA = false;
+local MM_BTN_SIZE = 30;
 local MM_SHAPE = 'RECTANGLE';
 local NARR_TEXT = "Meanwhile";
 local NARR_PREFIX = "In ";
---[[ 
-########################################################## 
+--[[
+##########################################################
 MODULE CHILDREN
 ##########################################################
 ]]--
@@ -82,35 +84,35 @@ local WorldMapCoords = _G["SVUI_WorldMapCoords"];
 --local SVUI_MinimapFrame = CreateFrame("Frame", "SVUI_MinimapFrame", UIParent)
 --local WMCoords = CreateFrame('Frame', 'SVUI_WorldMapCoords', WorldMapFrame)
 --SVUI_MinimapFrame:SetSize(MM_WIDTH, MM_HEIGHT);
---[[ 
-########################################################## 
+--[[
+##########################################################
 GENERAL HELPERS
 ##########################################################
 ]]--
 --[[
- /$$$$$$$  /$$   /$$ /$$$$$$$$/$$$$$$$$/$$$$$$  /$$   /$$  /$$$$$$ 
+ /$$$$$$$  /$$   /$$ /$$$$$$$$/$$$$$$$$/$$$$$$  /$$   /$$  /$$$$$$
 | $$__  $$| $$  | $$|__  $$__/__  $$__/$$__  $$| $$$ | $$ /$$__  $$
 | $$  \ $$| $$  | $$   | $$     | $$ | $$  \ $$| $$$$| $$| $$  \__/
-| $$$$$$$ | $$  | $$   | $$     | $$ | $$  | $$| $$ $$ $$|  $$$$$$ 
+| $$$$$$$ | $$  | $$   | $$     | $$ | $$  | $$| $$ $$ $$|  $$$$$$
 | $$__  $$| $$  | $$   | $$     | $$ | $$  | $$| $$  $$$$ \____  $$
 | $$  \ $$| $$  | $$   | $$     | $$ | $$  | $$| $$\  $$$ /$$  \ $$
 | $$$$$$$/|  $$$$$$/   | $$     | $$ |  $$$$$$/| $$ \  $$|  $$$$$$/
-|_______/  \______/    |__/     |__/  \______/ |__/  \__/ \______/                                                                
+|_______/  \______/    |__/     |__/  \______/ |__/  \__/ \______/
 --]]
 local MMB_OnEnter = function(self)
 	if(not SV.db.Maps.minimapbar.mouseover or SV.db.Maps.minimapbar.styleType == "NOANCHOR") then return end
 	UIFrameFadeIn(SVUI_MiniMapButtonBar, 0.2, SVUI_MiniMapButtonBar:GetAlpha(), 1)
-	if self:GetName() ~= "SVUI_MiniMapButtonBar" then 
+	if self:GetName() ~= "SVUI_MiniMapButtonBar" then
 		self:SetBackdropBorderColor(.7, .7, 0)
-	end 
-end 
+	end
+end
 
 local MMB_OnLeave = function(self)
 	if(not SV.db.Maps.minimapbar.mouseover or SV.db.Maps.minimapbar.styleType == "NOANCHOR") then return end
 	UIFrameFadeOut(SVUI_MiniMapButtonBar, 0.2, SVUI_MiniMapButtonBar:GetAlpha(), 0)
-	if self:GetName() ~= "SVUI_MiniMapButtonBar" then 
+	if self:GetName() ~= "SVUI_MiniMapButtonBar" then
 		self:SetBackdropBorderColor(0, 0, 0)
-	end 
+	end
 end
 
 do
@@ -120,8 +122,8 @@ do
 		if(not SV.db.Maps.minimapbar.enable) then return end
 
 		MMBBar:SetPoint("CENTER", MMBHolder, "CENTER", 0, 0)
-		MMBBar:ModHeight(SV.db.Maps.minimapbar.buttonSize + 4)
-		MMBBar:ModWidth(SV.db.Maps.minimapbar.buttonSize + 4)
+		MMBBar:SetHeight(MM_BTN_SIZE + 4)
+		MMBBar:SetWidth(MM_BTN_SIZE + 4)
 		MMBBar:SetFrameStrata("LOW")
 		MMBBar:SetFrameLevel(0)
 
@@ -129,16 +131,16 @@ do
 		local list  = MOD.MinimapButtons
 		local count = 1
 
-		for name,btn in pairs(list) do 
+		for name,btn in pairs(list) do
 			local preset = btn.preset;
-			if(SV.db.Maps.minimapbar.styleType == "NOANCHOR") then 
+			if(SV.db.Maps.minimapbar.styleType == "NOANCHOR") then
 				btn:SetParent(preset.Parent)
-				if preset.DragStart then 
+				if preset.DragStart then
 					btn:SetScript("OnDragStart", preset.DragStart)
-				end 
-				if preset.DragEnd then 
+				end
+				if preset.DragEnd then
 					btn:SetScript("OnDragStop", preset.DragEnd)
-				end 
+				end
 				btn:ClearAllPoints()
 				btn:SetSize(preset.Width, preset.Height)
 				btn:SetPoint(preset.Point, preset.relativeTo, preset.relativePoint, preset.xOfs, preset.yOfs)
@@ -146,7 +148,7 @@ do
 				btn:SetFrameLevel(preset.FrameLevel)
 				btn:SetScale(preset.Scale)
 				btn:SetMovable(true)
-			else 
+			else
 				btn:SetParent(MMBBar)
 				btn:SetMovable(false)
 				btn:SetScript("OnDragStart", nil)
@@ -154,49 +156,49 @@ do
 				btn:ClearAllPoints()
 				btn:SetFrameStrata("LOW")
 				btn:SetFrameLevel(20)
-				btn:ModSize(SV.db.Maps.minimapbar.buttonSize)
-				if SV.db.Maps.minimapbar.styleType == "HORIZONTAL"then 
+				btn:SetSize(MM_BTN_SIZE, MM_BTN_SIZE)
+				if SV.db.Maps.minimapbar.styleType == "HORIZONTAL"then
 					anchor = "RIGHT"
 					relative = "LEFT"
 					xPos = -2;
-					yPos = 0 
-				else 
+					yPos = 0
+				else
 					anchor = "TOP"
 					relative = "BOTTOM"
 					xPos = 0;
-					yPos = -2 
-				end 
-				if not lastButton then 
+					yPos = -2
+				end
+				if not lastButton then
 					btn:SetPoint(anchor, MMBBar, anchor, xPos, yPos)
-				else 
+				else
 					btn:SetPoint(anchor, lastButton, relative, xPos, yPos)
-				end 
-			end 
+				end
+			end
 			lastButton = btn
 			count = count + 1
-		end 
-		if (SV.db.Maps.minimapbar.styleType ~= "NOANCHOR" and (count > 0)) then 
-			if SV.db.Maps.minimapbar.styleType == "HORIZONTAL" then 
-				MMBBar:ModWidth((SV.db.Maps.minimapbar.buttonSize * count) + count * 2)
-			else 
-				MMBBar:ModHeight((SV.db.Maps.minimapbar.buttonSize * count) + count * 2)
-			end 
+		end
+		if (SV.db.Maps.minimapbar.styleType ~= "NOANCHOR" and (count > 0)) then
+			if SV.db.Maps.minimapbar.styleType == "HORIZONTAL" then
+				MMBBar:SetWidth((MM_BTN_SIZE * count) + count * 2)
+			else
+				MMBBar:SetHeight((MM_BTN_SIZE * count) + count * 2)
+			end
 			MMBHolder:SetSize(MMBBar:GetSize())
 			MMBBar:Show()
-		else 
+		else
 			MMBBar:Hide()
-		end 
-	end 
+		end
+	end
 
 	local function SetMinimapButton(btn)
-		if btn == nil or btn:GetName() == nil or btn:GetObjectType() ~= "Button" or not btn:IsVisible() then return end 
+		if btn == nil or btn:GetName() == nil or btn:GetObjectType() ~= "Button" or not btn:IsVisible() then return end
 		local name = btn:GetName()
 		local isLib = false;
 		if name:sub(1,len("LibDBIcon")) == "LibDBIcon" then isLib = true end
 		if(not isLib) then
 			local count = #reserved
 			for i = 1, count do
-				if name:sub(1,len(reserved[i])) == reserved[i] then return end 
+				if name:sub(1,len(reserved[i])) == reserved[i] then return end
 				if name:find(reserved[i]) ~= nil then return end
 			end
 		end
@@ -204,7 +206,7 @@ do
 		btn:SetPushedTexture("")
 		btn:SetHighlightTexture("")
 		btn:SetDisabledTexture("")
-		 
+
 		if not btn.isStyled then
 			btn:HookScript("OnEnter", MMB_OnEnter)
 			btn:HookScript("OnLeave", MMB_OnLeave)
@@ -216,38 +218,38 @@ do
 			btn.preset.FrameStrata = btn:GetFrameStrata()
 			btn.preset.FrameLevel = btn:GetFrameLevel()
 			btn.preset.Scale = btn:GetScale()
-			if btn:HasScript("OnDragStart") then 
+			if btn:HasScript("OnDragStart") then
 				btn.preset.DragStart = btn:GetScript("OnDragStart")
-			end 
-			if btn:HasScript("OnDragEnd") then 
+			end
+			if btn:HasScript("OnDragEnd") then
 				btn.preset.DragEnd = btn:GetScript("OnDragEnd")
 			end
-			for i = 1, btn:GetNumRegions() do 
+			for i = 1, btn:GetNumRegions() do
 				local frame = select(i, btn:GetRegions())
-				if frame:GetObjectType() == "Texture" then 
+				if frame:GetObjectType() == "Texture" then
 					local iconFile = frame:GetTexture()
-					if(iconFile ~= nil and (iconFile:find("Border") or iconFile:find("Background") or iconFile:find("AlphaMask"))) then 
+					if(iconFile ~= nil and (iconFile:find("Border") or iconFile:find("Background") or iconFile:find("AlphaMask"))) then
 						frame:SetTexture("")
-					else 
+					else
 						frame:ClearAllPoints()
-						frame:ModPoint("TOPLEFT", btn, "TOPLEFT", 2, -2)
-						frame:ModPoint("BOTTOMRIGHT", btn, "BOTTOMRIGHT", -2, 2)
+						frame:SetPoint("TOPLEFT", btn, "TOPLEFT", 2, -2)
+						frame:SetPoint("BOTTOMRIGHT", btn, "BOTTOMRIGHT", -2, 2)
 						frame:SetTexCoord(0.1, 0.9, 0.1, 0.9 )
 						frame:SetDrawLayer("ARTWORK")
-						if name == "PS_MinimapButton" then 
+						if name == "PS_MinimapButton" then
 							frame.SetPoint = SV.fubar
-						end 
-					end 
-				end 
+						end
+					end
+				end
 			end
 
 			btn:SetStyle("Button", -1, -1)
 
-			if(name == "DBMMinimapButton") then 
+			if(name == "DBMMinimapButton") then
 				btn:SetNormalTexture("Interface\\Icons\\INV_Helmet_87")
-			end 
+			end
 
-			if(name == "SmartBuff_MiniMapButton") then 
+			if(name == "SmartBuff_MiniMapButton") then
 				btn:SetNormalTexture(select(3, GetSpellInfo(12051)))
 			end
 
@@ -255,7 +257,7 @@ do
 
 			MOD.MinimapButtons[name] = btn
 		end
-	end 
+	end
 
 	local StyleMinimapButtons = function()
 		local count = Minimap:GetNumChildren()
@@ -267,9 +269,9 @@ do
 
 		UpdateMinimapButtons()
 
-		if SV.db.Maps.minimapbar.mouseover then 
+		if SV.db.Maps.minimapbar.mouseover then
 			MMBBar:SetAlpha(0)
-		else 
+		else
 			MMBBar:SetAlpha(1)
 		end
 	end
@@ -347,7 +349,7 @@ local function UpdateWorldMapCoords()
 		local cursorX, cursorY = GetCursorPosition()
 		local mouseX = (cursorX / scale - (centerX - (width / 2))) / width;
 		local mouseY = (centerY + (height / 2) - cursorY / scale) / height;
-		if(((mouseX >= 0) and (mouseX <= 1)) and ((mouseY >= 0) and (mouseY <= 1))) then 
+		if(((mouseX >= 0) and (mouseX <= 1)) and ((mouseY >= 0) and (mouseY <= 1))) then
 			mouseX = parsefloat(100 * mouseX, 2)
 			mouseY = parsefloat(100 * mouseY, 2)
 			if(not WorldMapCoords.Mouse:IsShown()) then
@@ -355,7 +357,7 @@ local function UpdateWorldMapCoords()
 			end
 			WorldMapCoords.Mouse.X:SetFormattedText(CoordPattern, mouseX)
 			WorldMapCoords.Mouse.Y:SetFormattedText(CoordPattern, mouseY)
-		else 
+		else
 			WorldMapCoords.Mouse:FadeOut(0.2, 1, 0, true)
 		end
 	end
@@ -366,19 +368,19 @@ local function UpdateWorldMapCoords()
 			WorldMapFrame:SetAlpha(0.2)
 		else
 			WorldMapFrame:SetAlpha(1)
-		end 
+		end
 	end
 end
 
 --[[
- /$$      /$$  /$$$$$$  /$$$$$$$  /$$       /$$$$$$$  /$$      /$$  /$$$$$$  /$$$$$$$ 
+ /$$      /$$  /$$$$$$  /$$$$$$$  /$$       /$$$$$$$  /$$      /$$  /$$$$$$  /$$$$$$$
 | $$  /$ | $$ /$$__  $$| $$__  $$| $$      | $$__  $$| $$$    /$$$ /$$__  $$| $$__  $$
 | $$ /$$$| $$| $$  \ $$| $$  \ $$| $$      | $$  \ $$| $$$$  /$$$$| $$  \ $$| $$  \ $$
 | $$/$$ $$ $$| $$  | $$| $$$$$$$/| $$      | $$  | $$| $$ $$/$$ $$| $$$$$$$$| $$$$$$$/
-| $$$$_  $$$$| $$  | $$| $$__  $$| $$      | $$  | $$| $$  $$$| $$| $$__  $$| $$____/ 
-| $$$/ \  $$$| $$  | $$| $$  \ $$| $$      | $$  | $$| $$\  $ | $$| $$  | $$| $$      
-| $$/   \  $$|  $$$$$$/| $$  | $$| $$$$$$$$| $$$$$$$/| $$ \/  | $$| $$  | $$| $$      
-|__/     \__/ \______/ |__/  |__/|________/|_______/ |__/     |__/|__/  |__/|__/                                                                                        
+| $$$$_  $$$$| $$  | $$| $$__  $$| $$      | $$  | $$| $$  $$$| $$| $$__  $$| $$____/
+| $$$/ \  $$$| $$  | $$| $$  \ $$| $$      | $$  | $$| $$\  $ | $$| $$  | $$| $$
+| $$/   \  $$|  $$$$$$/| $$  | $$| $$$$$$$$| $$$$$$$/| $$ \/  | $$| $$  | $$| $$
+|__/     \__/ \______/ |__/  |__/|________/|_______/ |__/     |__/|__/  |__/|__/
 --]]
 
 local function SetLargeWorldMap()
@@ -391,7 +393,7 @@ local function SetLargeWorldMap()
 		WorldMapFrame:SetScale(1)
 		if WorldMapFrame:GetAttribute('UIPanelLayout-area') ~= 'center'then
 			SetUIPanelAttribute(WorldMapFrame, "area", "center")
-		end 
+		end
 		if WorldMapFrame:GetAttribute('UIPanelLayout-allowOtherPanels') ~= true then
 			SetUIPanelAttribute(WorldMapFrame, "allowOtherPanels", true)
 		end
@@ -399,10 +401,10 @@ local function SetLargeWorldMap()
 
 	WorldMapFrameSizeUpButton:Hide()
 	WorldMapFrameSizeDownButton:Show()
-end 
+end
 
 local function SetSmallWorldMap()
-	if InCombatLockdown() then return end 
+	if InCombatLockdown() then return end
 	WorldMapFrameSizeUpButton:Show()
 	WorldMapFrameSizeDownButton:Hide()
 end
@@ -410,16 +412,16 @@ end
 local function AdjustMapSize()
 	if InCombatLockdown() then return end
 
-	if WORLDMAP_SETTINGS.size == WORLDMAP_FULLMAP_SIZE then 
+	if WORLDMAP_SETTINGS.size == WORLDMAP_FULLMAP_SIZE then
 		WorldMapFrame:SetPoint("TOP", SV.Screen, "TOP", 0, 0)
 	end
-	
+
 	if SV.db.Maps.tinyWorldMap == true then
 		BlackoutWorld:SetTexture("")
 	else
 		BlackoutWorld:SetTexture(0, 0, 0, 1)
 	end
-end  
+end
 
 local function UpdateWorldMapConfig()
 	if(not MM_XY_COORD) then
@@ -487,10 +489,10 @@ local function UpdateWorldMapConfig()
 		NewHook("WorldMap_ToggleSizeDown", SetSmallWorldMap)
 		MOD.WorldMapHooked = true
 	end
-	AdjustMapSize() 
+	AdjustMapSize()
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 HANDLERS
 ##########################################################
 ]]--
@@ -529,10 +531,10 @@ local Basic_OnEnter = function(self)
 	GameTooltip:ClearLines()
 	GameTooltip:AddLine(self.TText, 1, 1, 1)
 	GameTooltip:Show()
-end 
+end
 
 local Basic_OnLeave = function(self)
-	GameTooltip:Hide() 
+	GameTooltip:Hide()
 end
 
 local Tour_OnEnter = function(self, ...)
@@ -547,11 +549,11 @@ local Tour_OnEnter = function(self, ...)
 		GameTooltip:AddDoubleLine(L["ShiftClick : "], L["Announce your position in chat"],0.7, 0.7, 1, 0.7, 0.7, 1)
 		GameTooltip:Show()
 	end
-end 
+end
 
 local Tour_OnLeave = function(self, ...)
 	GameTooltip:Hide()
-end 
+end
 
 local Tour_OnClick = function(self, btn)
 	if IsShiftKeyDown() then
@@ -571,32 +573,32 @@ local Tour_OnClick = function(self, btn)
 		else
 			local message = ("%s (%s)"):format(zoneText, coords)
 			edit_box:Insert(message)
-		end 
+		end
 	else
 		ToggleFrame(WorldMapFrame)
 	end
 	GameTooltip:Hide()
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 HOOKS
 ##########################################################
 ]]--
 local _hook_WorldMapZoneDropDownButton_OnClick = function(self)
 	DropDownList1:ClearAllPoints()
-	DropDownList1:ModPoint("TOPRIGHT",self,"BOTTOMRIGHT",-17,-4)
-end 
+	DropDownList1:SetPoint("TOPRIGHT",self,"BOTTOMRIGHT",-17,-4)
+end
 
 local _hook_WorldMapFrame_OnShow = function()
 	MOD:RegisterEvent("PLAYER_REGEN_DISABLED");
 
 	if InCombatLockdown()then return end
 
-	if(not SV.db.Maps.tinyWorldMap and not Initialized) then 
+	if(not SV.db.Maps.tinyWorldMap and not Initialized) then
       WorldMap_ToggleSizeUp()
       Initialized = true
     end
-end 
+end
 
 local _hook_WorldMapFrame_OnHide = function()
 	MOD:UnregisterEvent("PLAYER_REGEN_DISABLED")
@@ -604,12 +606,12 @@ end
 
 local _hook_DropDownList1 = function(self)
 	local parentScale = UIParent:GetScale()
-	if(self:GetScale() ~= parentScale) then 
+	if(self:GetScale() ~= parentScale) then
 		self:SetScale(parentScale)
-	end 
+	end
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 EVENTS
 ##########################################################
 ]]--
@@ -672,21 +674,21 @@ function MOD:PLAYER_REGEN_ENABLED()
 		self:RefreshMiniMap()
 		self.CombatLocked = nil
 	end
-end 
+end
 
 function MOD:PLAYER_REGEN_DISABLED()
 	WorldMapFrameSizeDownButton:Disable()
 	WorldMapFrameSizeUpButton:Disable()
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 CORE FUNCTIONS
 ##########################################################
 ]]--
 function MOD:RefreshMiniMap()
-	if(InCombatLockdown()) then 
+	if(InCombatLockdown()) then
 		self.CombatLocked = true
-		return 
+		return
 	end
 
 	self:UpdateLocals()
@@ -695,24 +697,24 @@ function MOD:RefreshMiniMap()
 		local minimapRotationEnabled = GetCVar("rotateMinimap") ~= "0"
 
 		if(minimapRotationEnabled or (MM_SHAPE == 'ROUND')) then
-			SV.Dock.TopRight:ModSize(MM_WIDTH, (MM_WIDTH + 4))
-			self.Holder:ModSize(MM_WIDTH, MM_WIDTH)
-			Minimap:ModSize(MM_SIZE,MM_SIZE)
+			SV.Dock.TopRight:SetSize(MM_WIDTH, (MM_WIDTH + 4))
+			self.Holder:SetSize(MM_WIDTH, MM_WIDTH)
+			Minimap:SetSize(MM_SIZE,MM_SIZE)
 			self.Holder.Square:Hide()
 			self.Holder.Circle:Show()
 			Minimap:SetHitRectInsets(0, 0, 0, 0)
 			Minimap:InsetPoints(self.Holder, MM_BRDR, MM_BRDR)
 			Minimap:SetMaskTexture('Textures\\MinimapMask')
 		else
-			SV.Dock.TopRight:ModSize(MM_WIDTH, (MM_HEIGHT + 4))
-			self.Holder:ModSize(MM_WIDTH, MM_HEIGHT)
-			Minimap:ModSize(MM_SIZE,MM_SIZE)
+			SV.Dock.TopRight:SetSize(MM_WIDTH, (MM_HEIGHT + 4))
+			self.Holder:SetSize(MM_WIDTH, MM_HEIGHT)
+			Minimap:SetSize(MM_SIZE,MM_SIZE)
 			self.Holder.Circle:Hide()
 			self.Holder.Square:Show()
 			self.Holder.Square:SetPanelColor(MM_COLOR)
 
 			if MM_SHAPE == 'RECTANGLE' then
-				Minimap:SetPoint("BOTTOMLEFT", self.Holder, "BOTTOMLEFT", MM_BRDR, -(MM_OFFSET_BOTTOM - MM_BRDR))
+				Minimap:SetPoint("BOTTOMLEFT", self.Holder, "BOTTOMLEFT", MM_BRDR, (MM_OFFSET_BOTTOM - MM_BRDR) * -1)
 				Minimap:SetPoint("TOPRIGHT", self.Holder, "TOPRIGHT", -MM_BRDR, (MM_OFFSET_TOP - MM_BRDR))
 				Minimap:SetMaskTexture(MOD.media.rectangleMask)
 			else
@@ -729,13 +731,13 @@ function MOD:RefreshMiniMap()
 			SV.Auras:UpdateAuraHolder(MM_HEIGHT, self.Holder.Grip)
 		end
 	else
-		SV.Dock.TopRight:ModSize(MM_WIDTH, (MM_HEIGHT + 4))
+		SV.Dock.TopRight:SetSize(MM_WIDTH, (MM_HEIGHT + 4))
 	end
 
 	self.InfoTop.Text:SetSize(MM_WIDTH,28)
 	self.InfoBottom.Text:SetSize(MM_WIDTH,32)
 	self:RefreshZoneText()
-		
+
 	if TimeManagerClockButton then
 		TimeManagerClockButton:Die()
 	end
@@ -746,8 +748,8 @@ end
 local function RotationHook()
 	MOD:RefreshMiniMap()
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 BUILD FUNCTION / UPDATE
 ##########################################################
 ]]--
@@ -766,6 +768,7 @@ function MOD:UpdateLocals()
 	MM_OFFSET_BOTTOM = (MM_SIZE * 0.11)
 	MM_WIDTH = MM_SIZE + (MM_BRDR * 2)
 	MM_SHAPE = db.mapShape;
+	MM_BTN_SIZE = db.minimapbar.buttonSize;
 	MM_HEIGHT = (MM_SHAPE == 'RECTANGLE') and (MM_SIZE - (MM_OFFSET_TOP + MM_OFFSET_BOTTOM) + (MM_BRDR * 2)) or MM_WIDTH
 	WM_ALPHA = GetCVarBool("mapFade")
 end
@@ -801,12 +804,12 @@ function MOD:Load()
 	else
 		Minimap:SetBlipTexture(MOD.media.defaultBlips)
 	end
-	
+
 	Minimap:SetClampedToScreen(false)
 
 	self.Holder:SetFrameStrata(Minimap:GetFrameStrata())
-	self.Holder:ModPoint("TOPRIGHT", SV.Screen, "TOPRIGHT", -10, -15)
-	self.Holder:ModSize(MM_WIDTH, MM_HEIGHT)
+	self.Holder:SetPoint("TOPRIGHT", SV.Screen, "TOPRIGHT", -15, -20)
+	self.Holder:SetSize(MM_WIDTH, MM_HEIGHT)
 
 	self.Holder.Square = CreateFrame("Frame", nil, Minimap)
 	self.Holder.Square:WrapPoints(self.Holder, 2)
@@ -823,7 +826,7 @@ function MOD:Load()
 		TimeManagerClockButton:Die()
 	end
 
-	Minimap:SetQuestBlobRingAlpha(0) 
+	Minimap:SetQuestBlobRingAlpha(0)
 	Minimap:SetArchBlobRingAlpha(0)
 	Minimap:SetParent(self.Holder)
 	Minimap:SetFrameStrata("LOW")
@@ -841,38 +844,38 @@ function MOD:Load()
 	MinimapZoneTextButton:Hide()
 	MiniMapTracking:Hide()
 	MiniMapMailFrame:ClearAllPoints()
-	MiniMapMailFrame:ModPoint("TOPRIGHT", self.Holder, 3, 4)
+	MiniMapMailFrame:SetPoint("TOPRIGHT", self.Holder, 3, 4)
 	MiniMapMailBorder:Hide()
 	MiniMapMailIcon:SetTexture(MOD.media.mailIcon)
 	MiniMapWorldMapButton:Hide()
 
 	MiniMapInstanceDifficulty:ClearAllPoints()
 	MiniMapInstanceDifficulty:SetParent(Minimap)
-	MiniMapInstanceDifficulty:ModPoint("LEFT", self.Holder, "LEFT", 0, 0)
+	MiniMapInstanceDifficulty:SetPoint("LEFT", self.Holder, "LEFT", 0, 0)
 
 	GuildInstanceDifficulty:ClearAllPoints()
 	GuildInstanceDifficulty:SetParent(Minimap)
-	GuildInstanceDifficulty:ModPoint("LEFT", self.Holder, "LEFT", 0, 0)
+	GuildInstanceDifficulty:SetPoint("LEFT", self.Holder, "LEFT", 0, 0)
 
 	MiniMapChallengeMode:ClearAllPoints()
 	MiniMapChallengeMode:SetParent(Minimap)
-	MiniMapChallengeMode:ModPoint("LEFT", self.Holder, "LEFT", 12, 0)
+	MiniMapChallengeMode:SetPoint("LEFT", self.Holder, "LEFT", 12, 0)
 
 	QueueStatusMinimapButton:ClearAllPoints()
-	QueueStatusMinimapButton:ModPoint("BOTTOMLEFT", self.Holder, "BOTTOMLEFT", 2, 1)
+	QueueStatusMinimapButton:SetPoint("BOTTOMLEFT", self.Holder, "BOTTOMLEFT", 2, 1)
 	QueueStatusMinimapButton:SetStyle("Frame", "Default", true, 1, -4, -4)
 
 	QueueStatusFrame:SetClampedToScreen(true)
 	QueueStatusMinimapButtonBorder:Hide()
 	QueueStatusMinimapButton:SetScript("OnShow", function()
-		MiniMapInstanceDifficulty:ModPoint("BOTTOMLEFT", QueueStatusMinimapButton, "TOPLEFT", 0, 0)
-		GuildInstanceDifficulty:ModPoint("BOTTOMLEFT", QueueStatusMinimapButton, "TOPLEFT", 0, 0)
-		MiniMapChallengeMode:ModPoint("BOTTOMLEFT", QueueStatusMinimapButton, "TOPRIGHT", 0, 0)
+		MiniMapInstanceDifficulty:SetPoint("BOTTOMLEFT", QueueStatusMinimapButton, "TOPLEFT", 0, 0)
+		GuildInstanceDifficulty:SetPoint("BOTTOMLEFT", QueueStatusMinimapButton, "TOPLEFT", 0, 0)
+		MiniMapChallengeMode:SetPoint("BOTTOMLEFT", QueueStatusMinimapButton, "TOPRIGHT", 0, 0)
 	end)
 	QueueStatusMinimapButton:SetScript("OnHide", function()
-		MiniMapInstanceDifficulty:ModPoint("LEFT", self.Holder, "LEFT", 0, 0)
-		GuildInstanceDifficulty:ModPoint("LEFT", self.Holder, "LEFT", 0, 0)
-		MiniMapChallengeMode:ModPoint("LEFT", self.Holder, "LEFT", 12, 0)
+		MiniMapInstanceDifficulty:SetPoint("LEFT", self.Holder, "LEFT", 0, 0)
+		GuildInstanceDifficulty:SetPoint("LEFT", self.Holder, "LEFT", 0, 0)
+		MiniMapChallengeMode:SetPoint("LEFT", self.Holder, "LEFT", 12, 0)
 	end)
 
 	if FeedbackUIButton then
@@ -881,7 +884,7 @@ function MOD:Load()
 
 	local mwfont = SV.media.font.narrator
 
-	self.InfoTop:ModPoint("TOPLEFT", self.Holder, "TOPLEFT", 2, -2)
+	self.InfoTop:SetPoint("TOPLEFT", self.Holder, "TOPLEFT", 2, -2)
 	self.InfoTop:SetSize(100, 22)
 	self.InfoTop:SetStyle("Frame")
   	self.InfoTop:SetPanelColor("yellow")
@@ -891,7 +894,7 @@ function MOD:Load()
 	self.InfoTop.Text:SetShadowColor(0, 0, 0, 0.3)
 	self.InfoTop.Text:SetShadowOffset(2, -2)
 
-	self.InfoBottom:ModPoint("BOTTOMRIGHT", self.Holder, "BOTTOMRIGHT", 2, -3)
+	self.InfoBottom:SetPoint("BOTTOMRIGHT", self.Holder, "BOTTOMRIGHT", 2, -3)
 	self.InfoBottom:SetSize(MM_WIDTH, 28)
 	self.InfoBottom:SetFrameLevel(Minimap:GetFrameLevel() + 1)
 
@@ -901,10 +904,10 @@ function MOD:Load()
 	self.InfoBottom:SetScript("OnLeave", InfoBottom_OnLeave)
 
 	Minimap:EnableMouseWheel(true)
-	Minimap:SetScript("OnMouseWheel", MiniMap_MouseWheel)	
+	Minimap:SetScript("OnMouseWheel", MiniMap_MouseWheel)
 	Minimap:SetScript("OnMouseUp", MiniMap_MouseUp)
 
-	SV:NewAnchor(self.Holder, L["Minimap"]) 
+	SV:NewAnchor(self.Holder, L["Minimap"])
 
 	if(SV.db.Maps.tinyWorldMap) then
 		setfenv(WorldMapFrame_OnShow, setmetatable({ UpdateMicroButtons = SV.fubar }, { __index = _G }))
@@ -968,8 +971,8 @@ function MOD:Load()
 
 	if(SV.db.Maps.minimapbar.enable == true) then
 		MMBHolder = CreateFrame("Frame", "SVUI_MiniMapButtonHolder", self.Holder)
-		MMBHolder:ModPoint("TOPRIGHT", SV.Dock.TopRight, "BOTTOMRIGHT", 0, -4)
-		MMBHolder:ModSize(self.Holder:GetWidth(), 32)
+		MMBHolder:SetPoint("TOPRIGHT", SV.Dock.TopRight, "BOTTOMRIGHT", 0, -4)
+		MMBHolder:SetSize(self.Holder:GetWidth(), 32)
 		MMBHolder:SetFrameStrata("BACKGROUND")
 		MMBBar = CreateFrame("Frame", "SVUI_MiniMapButtonBar", MMBHolder)
 		MMBBar:SetFrameStrata("LOW")
@@ -990,6 +993,6 @@ function MOD:Load()
 	self:RegisterEvent("ZONE_CHANGED_NEW_AREA", "RefreshZoneText")
 
 	NewHook("Minimap_UpdateRotationSetting", RotationHook)
-	
+
 	SV.Events:On("CORE_INITIALIZED", MapTriggerFired);
 end

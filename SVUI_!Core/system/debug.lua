@@ -1,7 +1,7 @@
 --[[
 ##############################################################################
 S V U I   By: Munglunch
-############################################################################## ]]-- 
+############################################################################## ]]--
 --[[ GLOBALS ]]--
 local _G = _G;
 local unpack            = _G.unpack;
@@ -33,8 +33,8 @@ local floor, abs, min, max = math.floor, math.abs, math.min, math.max;
 --[[ TABLE METHODS ]]--
 local tremove, tcopy, twipe, tsort, tconcat = table.remove, table.copy, table.wipe, table.sort, table.concat;
 local tprint = table.tostring;
---[[ 
-########################################################## 
+--[[
+##########################################################
 GET ADDON DATA
 ##########################################################
 ]]--
@@ -46,8 +46,8 @@ local ScriptErrorScrollBar = _G["SVUI_ScriptErrorDialogScrollBar"];
 
 local DevTools_Dump = _G.DevTools_Dump;
 local DevTools_RunDump = _G.DevTools_RunDump;
---[[ 
-########################################################## 
+--[[
+##########################################################
 CUSTOM MESSAGE WINDOW
 ##########################################################
 ]]--
@@ -59,7 +59,7 @@ local ScriptError_OnShow = function(self)
 end
 
 local ScriptError_OnTextChanged = function(self, userInput)
-    if userInput then return end 
+    if userInput then return end
     local _, max = ScriptErrorScrollBar:GetMinMaxValues()
     for i = 1, max do
       ScrollFrameTemplate_OnMouseWheel(ScriptErrorDialog, -1)
@@ -79,22 +79,22 @@ local function getOriginalContext()
 end
 
 local function formatValueString(value)
-    if "string" == type(value) then 
+    if "string" == type(value) then
         value = gsub(value,"\n","\\n")
-        if match(gsub(value,"[^'\"]",""),'^"+$') then 
-            return "'"..value.."'"; 
-        else 
+        if match(gsub(value,"[^'\"]",""),'^"+$') then
+            return "'"..value.."'";
+        else
             return '"'..gsub(value,'"','\\"')..'"';
-        end 
-    else 
+        end
+    else
         return tprint(value, true);
     end
 end
 
 local function formatKeyString(text)
-    if("string" == type(text) and match(text,"^[_%a][_%a%d]*$")) then 
+    if("string" == type(text) and match(text,"^[_%a][_%a%d]*$")) then
         return text;
-    else 
+    else
         return "["..formatValueString(text).."]";
     end
 end
@@ -115,7 +115,7 @@ end
 local function DebugDump(arg)
     if(arg == nil) then
         return "No Result"
-    elseif(type(arg) == "string") then 
+    elseif(type(arg) == "string") then
         return arg
     elseif(type(arg) == "table") then
         loadDumpTable(arg)
@@ -126,14 +126,14 @@ local function DebugDump(arg)
         --     context.Write = function(self, msg)
         --         buffer = buffer.."\n"..msg
         --     end
-         
+
         --     DevTools_RunDump(arg, context)
         --     return buffer .. "\n" .. tableOutput(arg)
         -- else
         --     return tableOutput(arg)
         -- end
-    elseif(type(arg) == "number") then 
-        return tostring(arg) 
+    elseif(type(arg) == "number") then
+        return tostring(arg)
     end
     return arg
 end
@@ -143,11 +143,11 @@ function SV.ScriptError:DebugOutput(msg)
         self:Show()
     end
     ScriptErrorDialog.Input:SetText(msg)
-end 
+end
 
 function SV.ScriptError:TableDump(t)
     self:DebugOutput(tprint(t))
-end 
+end
 
 function SV.ScriptError:ShowDebug(header, ...)
     wipe(DUMPTABLE);
@@ -159,7 +159,7 @@ function SV.ScriptError:ShowDebug(header, ...)
         local var;
         if(data.GetRegions) then
             var = DebugDump(data:GetRegions())
-        else    
+        else
             var = DebugDump(data)
         end
         value = format("%s    [%d] = { %s\n    }\n", value, i, var)
@@ -364,14 +364,15 @@ local function InitializeScriptError()
     SV.ScriptError:SetStyle("!_Frame", "Transparent")
     SV.ScriptError.Clear:SetStyle("Button")
     SV.ScriptError:SetScript("OnShow", ScriptError_OnShow)
+    SV.API:Set("ScrollBar", SVUI_ScriptErrorDialogScrollBar)
     ScriptErrorDialog:SetStyle("!_Frame", "Transparent")
     ScriptErrorDialog.Input:SetScript("OnTextChanged", ScriptError_OnTextChanged)
     SV.ScriptError:RegisterForDrag("LeftButton");
 end
 
 SV.Events:On("LOAD_ALL_ESSENTIALS", InitializeScriptError);
---[[ 
-########################################################## 
+--[[
+##########################################################
 REVEAL INTERNAL ERRORS
 ##########################################################
 ]]--
@@ -405,3 +406,23 @@ end
 
 _G.SlashCmdList["SVUI_SHOW_ERRORS"] = _showErrors;
 _G.SLASH_SVUI_SHOW_ERRORS1 = "/showerrors"
+
+--[[
+##########################################################
+FIX BAD INTERACTION WITH FSTACK
+##########################################################
+]]--
+_G.FrameStackTooltip_Toggle = function(showHidden, showRegions)
+	local tooltip = _G["FrameStackTooltip"];
+	if ( tooltip:IsVisible() ) then
+		tooltip:Hide();
+		FrameStackHighlight:Hide();
+	else
+		tooltip:SetOwner(UIParent, "ANCHOR_NONE");
+		tooltip:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", -CONTAINER_OFFSET_X - 13, CONTAINER_OFFSET_Y);
+		tooltip.default = 1;
+		tooltip.showRegions = showRegions;
+		tooltip.showHidden = showHidden;
+        local pass, catch = pcall(tooltip.SetFrameStack, tooltip, showHidden, showRegions)
+	end
+end

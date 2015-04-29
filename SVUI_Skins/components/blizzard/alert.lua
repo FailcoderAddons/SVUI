@@ -307,8 +307,8 @@ local function AlertStyle()
 			frame.copper:SetStyle("Editbox")
 
 			frame.input:SetStyle("Editbox")
-			frame.input.Panel:ModPoint("TOPLEFT", -2, -4)
-			frame.input.Panel:ModPoint("BOTTOMRIGHT", 2, 4)
+			frame.input.Panel:SetPoint("TOPLEFT", -2, -4)
+			frame.input.Panel:SetPoint("BOTTOMRIGHT", 2, 4)
 		end
 	end
 

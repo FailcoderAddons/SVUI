@@ -61,584 +61,382 @@ assert(oUF_SVUI, "SVUI UnitFrames: unable to locate oUF.")
 LOCALS
 ##########################################################
 ]]--
-local BodyGuard = {};
+local BodyGuard = {
+  CurrentName = false,
+  CurrentHealth = 1,
+  CurrentMaxHealth = 1,
+  CurrentStatus = 0,
+  Initialized = false,
+};
+BodyGuard.UF = CreateFrame("Button", "SVUI_BodyGuard", UIParent, "SecureActionButtonTemplate")
+local EventListener = CreateFrame("Frame");
+local CONTINENT_DRAENOR = 7;
+local BODYGUARD_IDS, BODYGUARD_NAMES, BARRACKS_LIST, BODYGUARD_BANNED_ZONES = {}, {}, {[27]=true,[28]=true}, {[978]=true,[1009]=true,[1011]=true};
+local FLAGMASK = bor(COMBATLOG_OBJECT_TYPE_GUARDIAN, COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_AFFILIATION_MINE);
 
-local defeated_spells = {
-    [173663] = true, -- Aeda Brightdawn
-    [173662] = true, -- Defender Illona
-    [173664] = true, -- Delvar Ironfist
-    [173977] = true, -- Leorajh
-    [173665] = true, -- Talonpriest Ishaal
-    [173656] = true, -- Tormmok
-    [173666] = true  -- Vivianne
-}
-
-local defeated_debuffs = {
-    [173660] = true, -- Aeda Brightdawn
-    [173657] = true, -- Defender Illona
-    [173658] = true, -- Delvar Ironfist
-    [173976] = true, -- Leorajh
-    [173659] = true, -- Talonpriest Ishaal
-    [173649] = true, -- Tormmok
-    [173661] = true  -- Vivianne
-}
-
-local defeated_pattern = "^([%w%s]+) %w+"
-
--- Get follower names for the defeated spells
-for id, _ in pairs(defeated_spells) do
+do
+  local AURA_SEARCH = {
+    [173663]=true,[173662]=true,[173664]=true,[173977]=true,[173665]=true,[173656]=true,[173666]=true,
+    [173660]=true,[173657]=true,[173658]=true,[173976]=true,[173659]=true,[173649]=true,[173661]=true
+  };
+  for id, _ in pairs(AURA_SEARCH) do
     local spellName = GetSpellInfo(id)
-    local name = spellName:match(defeated_pattern)
+    local name = spellName:match("^([%w%s]+) %w+")
     if name then
-        defeated_spells[id] = name
+      BODYGUARD_NAMES[name] = true
+      BODYGUARD_IDS[id] = name
     end
+  end
 end
 
--- Do the same for debuffs
-for id, _ in pairs(defeated_debuffs) do
-    local spellName = GetSpellInfo(id)
-    local name = spellName:match(defeated_pattern)
-    if name then
-        defeated_debuffs[id] = name
-    end
+local function ZoneTest()
+  SetMapToCurrentZone()
+  if(GetCurrentMapContinent() ~= 7) then return false; end
+  local zone = GetCurrentMapAreaID()
+  if(BODYGUARD_BANNED_ZONES[zone]) then return false; end
+  return true
 end
 
--- Valid barracks IDs, 27 = lvl 2 barracks, 28 = lvl 3 barracks
-local barracks_ids = {[27] = true, [28] = true}
+function BodyGuard:RefreshData()
+  self.CurrentName = false
+  self.CurrentHealth = 1
+  self.CurrentMaxHealth = 1
+  self.CurrentStatus = 0
+  self.Initialized = true
 
---- Bodyguard status values.
--- @class table
--- @name BodyGuard.Status
--- @field Inactive Bodyguard is not with the player (stationed at barracks).
--- @field Active Bodyguard is with the player.
--- @field Unknown Status of bodyguard is unknown (this includes death).
-BodyGuard.Status = {
-    Inactive = 0,
-    Active = 1,
-    Unknown = 2
-}
+  local buildings = C_Garrison.GetBuildings()
 
-local bodyguard = {}
-
-local function ResetBodyguard()
-    bodyguard.name = nil
-    bodyguard.level = 0
-    bodyguard.health = 0
-    bodyguard.max_health = 0
-    bodyguard.npc_id = 0
-    bodyguard.follower_id = 0
-    bodyguard.last_known_guid = nil
-    bodyguard.status = BodyGuard.Status.Unknown
-    bodyguard.loaded_from_building = false
-end
-
-ResetBodyguard()
-
-local callbacks = {
-    guid = {},
-    name = {},
-    level = {},
-    health = {},
-    status = {},
-    gossip_opened = {},
-    gossip_closed = {}
-}
-
-local function RunCallback(cb_type, ...)
-    for func, enabled in pairs(callbacks[cb_type]) do
-        if enabled then pcall(func, BodyGuard, ...) end
-    end
-end
-
-local frame = CreateFrame("Frame")
-
-local events = {
-    player = {}
-}
-
-local function UpdateFromBuildings()
-    ResetBodyguard()
-    bodyguard.loaded_from_building = true
-    local buildings = C_Garrison.GetBuildings()
-    for i = 1, #buildings do
-        local building = buildings[i]
-        local building_id = building.buildingID
-        local plot_id = building.plotID
-        if barracks_ids[building_id] then
-            local name, level, quality, displayID, followerID, garrFollowerID, status, portraitIconID = C_Garrison.GetFollowerInfoForBuilding(plot_id)
-            if not name then
-                bodyguard.status = BodyGuard.Status.Inactive
-                RunCallback("status", bodyguard.status)
-                return
-            end
-            bodyguard.name = name
-            bodyguard.level = level
-            bodyguard.follower_id = type(garrFollowerID) == "string" and tonumber(garrFollowerID, 16) or garrFollowerID
-            RunCallback("name", bodyguard.name)
-            RunCallback("level", bodyguard.level)
-            break
-        end
-    end
-end
-
-local function UpdateFromUnit(unit)
-    local name = UnitName(unit)
-    if name ~= bodyguard.name then return end
-    bodyguard.last_known_guid = UnitGUID(unit)
-    bodyguard.health = UnitHealth(unit)
-    bodyguard.max_health = UnitHealthMax(unit)
-    RunCallback("guid", bodyguard.last_known_guid)
-    RunCallback("health", bodyguard.health, bodyguard.max_health)
-end
-
-function events.GARRISON_BUILDINGS_SWAPPED()
-    UpdateFromBuildings()
-end
-
-function events.GARRISON_BUILDING_ACTIVATED()
-    UpdateFromBuildings()
-end
-
-function events.GARRISON_BUILDING_UPDATE(buildingID)
-    if barracks_ids[buildingID] then UpdateFromBuildings() end
-end
-
-function events.GARRISON_FOLLOWER_REMOVED()
-    UpdateFromBuildings()
-end
-
-function events.GARRISON_UPDATE()
-    UpdateFromBuildings()
-end
-
-function events.PLAYER_TARGET_CHANGED(cause)
-    if not bodyguard.name then return end
-    if cause ~= "LeftButton" and cause ~= "up" then return end
-    UpdateFromUnit("target")
-end
-
-function events.UPDATE_MOUSEOVER_UNIT()
-    if not bodyguard.name then return end
-    UpdateFromUnit("mouseover")
-end
-
-function events.UNIT_HEALTH(unit)
-    if not bodyguard.name then return end
-    UpdateFromUnit(unit)
-end
-
-local FLAGMASK = bor(COMBATLOG_OBJECT_TYPE_GUARDIAN, COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_AFFILIATION_MINE)
-function events.COMBAT_LOG_EVENT_UNFILTERED(timestamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, ...)
-    if not bodyguard.name or (not sourceName and not destName) then return end
-    if sourceName == bodyguard.name then
-        local isBodyguard = band(sourceFlags, FLAGMASK) == FLAGMASK
-        if not isBodyguard then return end
-        bodyguard.status = BodyGuard.Status.Active
-        bodyguard.last_known_guid = sourceGUID
-        RunCallback("guid", bodyguard.last_known_guid)
-        RunCallback("status", bodyguard.status)
-    elseif destName == bodyguard.name and bodyguard.status ~= BodyGuard.Status.Inactive then
-        local isBodyguard = band(destFlags, FLAGMASK) == FLAGMASK
-        if not isBodyguard then return end
-        local prefix, suffix = event:match("^([A-Z_]+)_([A-Z]+)$")
-
-        local amount = 0;
-        if prefix:match("^SPELL") then
-					amount = select(4, ...);
-        elseif prefix == "ENVIRONMENTAL" then
-					amount = select(2, ...);
-				else
-					amount = select(1, ...);
-        end
-
-        local changed = false
-
-        if suffix == "DAMAGE" then
-            bodyguard.health = bodyguard.health - amount
-            changed = true
-        elseif suffix == "HEAL" then
-            bodyguard.health = bodyguard.health + amount
-            if bodyguard.health >= bodyguard.max_health then
-                bodyguard.health = bodyguard.max_health
-            end
-            changed = true
-        elseif suffix == "INSTAKILL" then
-            bodyguard.health = 0
-            changed = true
-        end
-
-        if changed then
-            if bodyguard.health <= 0 then
-                bodyguard.health = 0
-                bodyguard.status = BodyGuard.Status.Unknown
-            else
-                bodyguard.status = BodyGuard.Status.Active
-            end
-            RunCallback("health", bodyguard.health, bodyguard.max_health)
-            RunCallback("status", bodyguard.status)
-        end
-    end
-end
-
-function events.PLAYER_REGEN_ENABLED()
-    if bodyguard.health <= 0 then return end
-    bodyguard.health = bodyguard.max_health
-    RunCallback("health", bodyguard.health, bodyguard.max_health)
-end
-
-local bodyguard_gossip_open = false
-local bodyguard_confirm_showing = false
-
-function events.GOSSIP_SHOW()
-    if not BodyGuard:Exists() or UnitName("target") ~= bodyguard.name then return end
-    bodyguard_gossip_open = true
-    RunCallback("gossip_opened")
-end
-
-function events.GOSSIP_CLOSED()
-    if bodyguard_gossip_open then RunCallback("gossip_closed") end
-    bodyguard_gossip_open = false
-    bodyguard_confirm_showing = false
-end
-
-function events.GOSSIP_CONFIRM(index, message, cost)
-    if not bodyguard_gossip_open or cost ~= 0 then return end
-    bodyguard_confirm_showing = true
-end
-
-function events.player.UNIT_AURA()
-    for i = 1, 40 do
-        local _, _, _, _, _, duration, expireTime, _, _, _, id = UnitDebuff("player", i)
-        if not defeated_debuffs[id] then return end
-        local name = defeated_debuffs[id]
-        if name == bodyguard.name then
-            bodyguard.status = BodyGuard.Status.Inactive
-            bodyguard.health = 0
-            RunCallback("status", bodyguard.status)
-            RunCallback("health", bodyguard.health, bodyguard.max_health)
-            return
-        end
-    end
-end
-
-function event:PLAYER_ENTERING_WORLD(event)
-	self:Update_AllFrames()
-
-    local showing = BodyGuard:IsShowing()
-
-    if not BodyGuard:Exists() and not BodyGuard.db.Active then
-        if showing then BodyGuard:HideFrame() end
+  for i = 1, #buildings do
+    local building = buildings[i]
+    local building_id = building.buildingID
+    if(building_id and BARRACKS_LIST[building_id]) then
+      local name, level, quality, displayID, followerID, garrFollowerID, status, portraitIconID = C_Garrison.GetFollowerInfoForBuilding(building.plotID)
+      if(not name) then
+        self.CurrentStatus = 0;
+        self:StatusUpdate()
         return
+      end
+      self.CurrentName = name
+      self.CurrentStatus = 2
+      self:NameUpdate()
+      break
     end
-
-    if(not BodyGuard:IsValidZone()) then
-		BodyGuard:HideFrame()
-    elseif showing then
-        BodyGuard:UpdateSettings()
-    elseif BodyGuard:GetStatus() ~= BodyGuard.Status.Inactive and BodyGuard.db.Active then
-        BodyGuard:ShowFrame()
-    end
+  end
 end
 
-function event:ZONE_CHANGED_NEW_AREA()
-    local validZone = BodyGuard:IsValidZone()
-    if not validZone then
-        if not BodyGuard:IsShowing() then return end
-		BodyGuard:HideFrame()
-    elseif BodyGuard.db.Active and BodyGuard:GetStatus() ~= BodyGuard.Status.Inactive then
-        BodyGuard:ShowFrame()
-    end
+function BodyGuard:GARRISON_BUILDINGS_SWAPPED()
+  self:RefreshData()
 end
 
-frame:SetScript("OnEvent", function(f, e, ...)
-    if events[e] then events[e](...) return end
+function BodyGuard:GARRISON_BUILDING_ACTIVATED()
+  self:RefreshData()
+end
 
-    for key, val in pairs(events) do
-        if type(val) == "table" then
-            if val[e] then val[e](...) return end
-        end
+function BodyGuard:GARRISON_BUILDING_UPDATE(buildingID)
+  if BARRACKS_LIST[buildingID] then self:RefreshData() end
+end
+
+function BodyGuard:GARRISON_FOLLOWER_REMOVED()
+  self:RefreshData()
+end
+
+function BodyGuard:GARRISON_FOLLOWER_ADDED()
+  self:RefreshData()
+end
+
+function BodyGuard:GARRISON_UPDATE()
+  self:RefreshData()
+end
+
+function BodyGuard:PLAYER_TARGET_CHANGED(arg)
+  if(not self.CurrentName) then return end
+  if((arg ~= "LeftButton") and (arg ~= "up")) then return end
+  local unit = "target"
+  if(self.CurrentName ~= UnitName(unit)) then return end
+  self.CurrentHealth = UnitHealth(unit)
+  self.CurrentMaxHealth = UnitHealthMax(unit)
+  self:HealthUpdate()
+end
+
+function BodyGuard:UPDATE_MOUSEOVER_UNIT()
+  if(not self.CurrentName) then return end
+  local unit = "mouseover"
+  local mouseover_name = UnitName(unit)
+  if(self.CurrentName == mouseover_name) then
+    local tip = _G["GameTooltipTextLeft2"]
+    if tip and tip.GetText then
+      local text = tip:GetText()
+      if(text:find("Bodyguard")) then
+        if(self.CurrentStatus == 2) then self.CurrentStatus = 1 end
+      else
+        self.CurrentStatus = 0
+      end
     end
-end)
+    if(self.CurrentStatus == 1) then
+      self.CurrentHealth = UnitHealth(unit)
+      self.CurrentMaxHealth = UnitHealthMax(unit)
+    end
+    self:StatusUpdate()
+  end
+end
 
-for key, val in pairs(events) do
-    if key:match("^[A-Z0-9_]+$") then
-        frame:RegisterEvent(key)
+function BodyGuard:UNIT_HEALTH(unit)
+  if(not self.CurrentName) then return end
+  if(self.CurrentName ~= UnitName(unit)) then return end
+  self.CurrentHealth = UnitHealth(unit)
+  self.CurrentMaxHealth = UnitHealthMax(unit)
+  self:HealthUpdate()
+end
+
+function BodyGuard:COMBAT_LOG_EVENT_UNFILTERED(timestamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, ...)
+  if(not self.CurrentName) then return end
+  if(sourceName and (sourceName == self.CurrentName)) then
+    if(not band(sourceFlags, FLAGMASK) == FLAGMASK) then return end
+    self.CurrentStatus = 1
+    self:StatusUpdate()
+  elseif(destName and (destName == self.CurrentName)) then
+    if(not band(destFlags, FLAGMASK) == FLAGMASK) then return end
+    local prefix, suffix = event:match("^([A-Z_]+)_([A-Z]+)$")
+    local value, updated = 0;
+
+    if prefix:match("^SPELL") then
+      value = select(4, ...);
+    elseif prefix == "ENVIRONMENTAL" then
+      value = select(2, ...);
     else
-        for event, _ in pairs(events[key]) do
-            frame:RegisterUnitEvent(event, key)
-        end
+      value = select(1, ...);
     end
+
+    if suffix == "DAMAGE" then
+      self.CurrentHealth = self.CurrentHealth - value
+      updated = true
+    elseif suffix == "HEAL" then
+      self.CurrentHealth = self.CurrentHealth + value
+      if self.CurrentMaxHealth <= self.CurrentHealth then
+        self.CurrentHealth = self.CurrentMaxHealth
+      end
+      updated = true
+    elseif suffix == "INSTAKILL" then
+      self.CurrentHealth = 0
+      updated = true
+    end
+
+    if(updated) then
+      if self.CurrentHealth <= 0 then
+        self.CurrentHealth = 0
+        self.CurrentStatus = 2
+      else
+        self.CurrentStatus = 1
+      end
+      self:HealthUpdate()
+    end
+
+    self:StatusUpdate()
+  end
 end
 
--- Function hooks
-
-function BodyGuard:GOSSIP_CONFIRM_Hook(s, data)
-    if not bodyguard_confirm_showing then return end
-
-    bodyguard.status = BodyGuard.Status.Inactive
-    bodyguard.health = bodyguard.max_health
-    RunCallback("status", bodyguard.status)
-    RunCallback("health", bodyguard.health, bodyguard.max_health)
+function BodyGuard:PLAYER_REGEN_ENABLED()
+  if(self.CurrentHealth <= 0) then return end
+  self.CurrentHealth = self.CurrentMaxHealth
+  self:HealthUpdate()
 end
 
-if not BodyGuard.GOSSIP_CONFIRM_Hooked then
-    hooksecurefunc(StaticPopupDialogs.GOSSIP_CONFIRM, "OnAccept", function(self, data)
-			BodyGuard:GOSSIP_CONFIRM_Hook(self, data)
-    end)
-
-		BodyGuard.GOSSIP_CONFIRM_Hooked = true
+function BodyGuard:UNIT_AURA()
+  for i = 1, 40 do
+    local _, _, _, _, _, duration, expireTime, _, _, _, id = UnitDebuff("player", i)
+    if not BODYGUARD_IDS[id] then return end
+    local name = BODYGUARD_IDS[id]
+    if name == self.CurrentName then
+      self.CurrentStatus = 0
+      self.CurrentHealth = 0
+      self:HealthUpdate()
+      self:StatusUpdate()
+      return
+    end
+  end
 end
 
-function BodyGuard:Exists()
-    return bodyguard.name and bodyguard.loaded_from_building
+function BodyGuard:PLAYER_ENTERING_WORLD()
+  local showing = self:IsShowing()
+
+  if(not self.Initialized) then
+    self:RefreshData()
+  end
+
+  if((not self.CurrentName) or (self.CurrentStatus == 0)) then
+    self:ToggleVisibility("Hide")
+    return
+  end
+  if(not ZoneTest()) then
+    self:ToggleVisibility("Hide")
+  elseif showing then
+    self:UpdateSettings()
+  elseif self.CurrentStatus == 1 then
+    self:ToggleVisibility("Show")
+  end
 end
 
-function BodyGuard:UpdateFromBuilding()
-    UpdateFromBuildings()
-end
-
-function BodyGuard:GetInfo()
-    return setmetatable({}, {__index = function(t, k) return bodyguard[k] end, __metatable = 'Forbidden'})
-end
-
-function BodyGuard:GetGUID()
-    return bodyguard.last_known_guid
-end
-
-function BodyGuard:GetStatus()
-    return bodyguard.status
-end
-
-function BodyGuard:GetName()
-    return bodyguard.name
-end
-
-function BodyGuard:GetLevel()
-    return bodyguard.level
-end
-
-function BodyGuard:GetHealth()
-    return bodyguard.health
-end
-
-function BodyGuard:GetMaxHealth()
-    return bodyguard.max_health
-end
-
-function BodyGuard:IsAlive()
-    return self:GetHealth() > 0
-end
-
-function BodyGuard:RegisterCallback(cb_type, cb_func)
-    if not callbacks[cb_type] then error("Invalid callback type: " .. tostring(cb_type)) end
-    if callbacks[cb_type][cb_func] then return end
-    callbacks[cb_type][cb_func] = true
-end
-
-function BodyGuard:UnregisterCallback(cb_type, cb_func)
-    if not callbacks[cb_type] then error("Invalid callback type: " .. tostring(cb_type)) end
-    callbacks[cb_type][cb_func] = nil
-end
-
-
-local CONTINENT_DRAENOR = 7
-local BODYGUARD_BANNED_ZONES = {
-    [978] = true,  -- Ashran
-    [1009] = true, -- Stormshield
-    [1011] = true  -- Warspear
-}
-
-function BodyGuard:IsValidZone()
-    SetMapToCurrentZone()
-    local currentContinent = GetCurrentMapContinent()
-    local currentMapAreaID = GetCurrentMapAreaID()
-    local valid = currentContinent == CONTINENT_DRAENOR and not BODYGUARD_BANNED_ZONES[currentMapAreaID]
-    BodyGuard.db.IsInValidZone = valid
-
-    return valid
+function BodyGuard:ZONE_CHANGED_NEW_AREA()
+  if(not ZoneTest()) then
+    if not self:IsShowing() then return end
+    self:ToggleVisibility("Hide")
+  elseif self.CurrentStatus == 1 then
+    self:ToggleVisibility("Show")
+  end
 end
 
 function BodyGuard:IsShowing()
-	if(self.frame:IsShown() or self.combatEvent == self.showFrame) then
-		return true
-	else
-		return false
-	end
+  if(self.UF and (self.UF:IsShown() or self.UF.VisualState == "Show")) then
+    return true
+  else
+    return false
+  end
 end
 
-function BodyGuard:HideFrame()
-	if(InCombatLockdown()) then
-		self.frame:RegisterEvent("COMBAT_REGEN_ENABLED")
-		self.combatEvent = self.HideFrame
-		return
-	elseif(self.frame:IsEventRegistered("COMBAT_REGEN_ENABLED")) then
-		self.frame:UnregisterEvent("COMBAT_REGEN_ENABLED")
-	end
-
-	self.frame:Hide()
-end
-
-function BodyGuard:ShowFrame()
-	if(InCombatLockdown()) then
-		self.frame:RegisterEvent("COMBAT_REGEN_ENABLED")
-		self.combatEvent = self.ShowFrame
-		return
-	elseif(self.frame:IsEventRegistered("COMBAT_REGEN_ENABLED")) then
-		self.frame:UnregisterEvent("COMBAT_REGEN_ENABLED")
-	end
-
-	self.frame:Show()
-end
-
-local function OnEvent(self, event)
-	if(event == "PLAYER_REGEN_ENABLED") then
-		self.combatEvent(BodyGuard, event)
-	elseif(event == "PLAYER_TARGET_CHANGED") then
-		if(UnitExists("target") and UnitName("target") == BodyGuard:GetName()) then
-			self.targetGlow:Show()
-		else
-			self.targetGlow:Hide()
-		end
-	end
-end
-
-local isCreated = false
-
-function BodyGuard:CreateFrame()
-	if(isCreated) then return end
-	local frame = CreateFrame("Button", "SVUI_BodyGuard", SV.Screen, "SecureActionButtonTemplate")
-	frame:SetScript("OnEvent", OnEvent)
-	frame:RegisterEvent("PLAYER_TARGET_CHANGED")
-
-	frame:SetStyle("Frame", "Icon")
-	frame.targetGlow = frame.Panel.Shadow
-	frame.targetGlow:SetBackdropBorderColor(0, 1, 0, 0.5)
-	frame.targetGlow:Hide()
-
-	BodyGuard.frame = frame
-	local name = self:GetName()
-	frame:SetAttribute("type1", "macro")
-	if name then
-		frame:SetAttribute("macrotext1", "/targetexact " .. name)
-	end
-
-	self:HideFrame()
-
-	frame:SetTemplate("Default", nil, true)
-	frame:SetPoint("CENTER", SV.Screen, "CENTER")
-	frame:SetWidth(SV.db.UnitFrames.bodyguard.width)
-	frame:SetHeight(SV.db.UnitFrames.bodyguard.height)
-
-	frame.healthBar = CreateFrame("StatusBar", nil, frame)
-	frame.healthBar:InsetPoints(frame)
-	frame.healthBar:SetMinMaxValues(0, 1)
-	frame.healthBar:SetValue(1)
-	frame.healthBar:SetStatusBarTexture(LSM:Fetch("statusbar", SV.db.UnitFrames.statusbar))
-
-	frame.healthBar.name = frame.healthBar:CreateFontString(nil, 'OVERLAY')
-	SV:FontManager(frame.healthBar.name, "unitsecondary")
-	frame.healthBar.name:SetPoint("CENTER", frame, "CENTER")
-
-	frame.healthBar.name:SetTextColor(unpack(oUF_SVUI.colors.reaction[5]))
-
-	SV:NewAnchor(frame, L["BodyGuard Frame"])
-
-	isCreated = true
+function BodyGuard:ToggleVisibility(state)
+  if(InCombatLockdown()) then
+    self.UF:RegisterEvent("PLAYER_REGEN_ENABLED")
+    self.UF.VisualState = state
+    return
+  elseif(self.UF:IsEventRegistered("PLAYER_REGEN_ENABLED")) then
+    self.UF:UnregisterEvent("PLAYER_REGEN_ENABLED")
+  end
+  if(state == "Hide") then self.UF:Hide() else self.UF:Show() end
 end
 
 function BodyGuard:UpdateSettings()
-	if(SV.db.UnitFrames.bodyguard.enable) then
-		self.frame:SetParent(SV.Screen)
-	else
-		self.frame:SetParent(SV.Hidden)
-	end
+  if(not self.UF) then return end
+  if(SV.db.UnitFrames.bodyguard.enable) then
+    self.UF:SetParent(SV.Screen)
+  else
+    self.UF:SetParent(SV.Hidden)
+  end
 
-	self:HealthUpdate(self.db.Health, self.db.MaxHealth)
-	self.frame:SetWidth(SV.db.UnitFrames.bodyguard.width)
-	self.frame:SetHeight(SV.db.UnitFrames.bodyguard.height)
+  self:HealthUpdate()
+  self.UF:SetWidth(SV.db.UnitFrames.bodyguard.width)
+  self.UF:SetHeight(SV.db.UnitFrames.bodyguard.height)
 end
 
-
-function BodyGuard:GUIDUpdate(GUID)
-
-end
-
-function BodyGuard:StatusUpdate(status)
-	if status == self.Status.Active then
-		self:NameUpdate(self:GetName())
-		self:HealthUpdate(self.db.Health, self.db.MaxHealth)
-		self:ShowFrame()
-	elseif status == self.Status.Inactive then
-		self:HideFrame()
-	end
-
-	self.db.Active = status ~= self.Status.Inactive
-end
-
-function BodyGuard:NameUpdate(name)
-	if(not InCombatLockdown() and name) then
-		self.frame:SetAttribute("macrotext1", "/targetexact " .. name)
-	end
-
-	self.frame.healthBar.name:SetText(name)
-end
-
-function BodyGuard:LevelUpdate(...)
-
-end
-
-function BodyGuard:HealthUpdate(health, maxHealth)
-	self.frame.healthBar:SetMinMaxValues(0, maxHealth)
-	self.frame.healthBar:SetValue(health)
-
-	local r, g, b = unpack(oUF_SVUI.colors.health)
-	if SV.db.UnitFrames.colors.healthclass then
-		r, g, b = unpack(oUF_SVUI.colors.reaction[5])
-	end
-
-	if SV.db.UnitFrames.colors.colorhealthbyvalue then
-		r, g, b = oUF_SVUI.ColorGradient(health, maxHealth, 1, 0, 0, 1, 1, 0, r, g, b)
-	end
-
-	self.frame.healthBar:SetStatusBarColor(r, g, b)
-
-	if(SV.db.UnitFrames.colors.customhealthbackdrop) then
-		self.frame.backdropTexture:SetVertexColor(SV.db.UnitFrames.colors.health_backdrop.r, SV.db.UnitFrames.colors.health_backdrop.g, SV.db.UnitFrames.colors.health_backdrop.b)
-	else
-		self.frame.backdropTexture:SetVertexColor(r * 0.35, g * 0.35, b * 0.35)
-	end
-
-	self.db.Health = health
-	self.db.MaxHealth = maxHealth
-end
-
--- function BodyGuard:GossipOpened(...)
---
--- end
---
--- function BodyGuard:GossipClosed(...)
---
--- end
-
-function BodyGuard:Init(...)
-	self:UpdateFromBuilding()
-
-	self:CreateFrame()
-	self.LoginHealth = true
-	self:RegisterCallback('guid', self.GUIDUpdate)
-	self:RegisterCallback('status', self.StatusUpdate)
-	self:RegisterCallback('name', self.NameUpdate)
-	self:RegisterCallback('level', self.LevelUpdate)
-	self:RegisterCallback('health', self.HealthUpdate)
-	--self:RegisterCallback('gossip_opened', self.GossipOpened)
-	--self:RegisterCallback('gossip_closed', self.GossipClosed)
-
-    if type(self.db.IsInValidZone) ~= "boolean" then
-			self.db.IsInValidZone = self:IsValidZone()
-    end
-
-	if self.db.Active and self.db.IsInValidZone then
-		self:ShowFrame()
-		self:HealthUpdate(self.db.Health, self.db.MaxHealth)
+function BodyGuard:StatusUpdate()
+  if self.CurrentStatus == 1 then
+    self:NameUpdate()
+    self:HealthUpdate()
+    self:ToggleVisibility("Show")
+  else
+    self:ToggleVisibility("Hide")
   end
 end
+
+function BodyGuard:NameUpdate()
+  if(not InCombatLockdown() and self.CurrentName) then
+    self.UF:SetAttribute("macrotext1", "/targetexact " .. self.CurrentName)
+  end
+  if(not self.UF.Name) then return end
+  self.UF.Name:SetText(self.CurrentName)
+end
+
+function BodyGuard:HealthUpdate()
+  if(not self.UF) then return end
+  local health = self.CurrentHealth;
+  local maxHealth = self.CurrentMaxHealth;
+
+  self.UF.Health:SetMinMaxValues(0, maxHealth)
+  self.UF.Health:SetValue(health)
+
+  local r, g, b = unpack(oUF_SVUI.colors.health)
+  r, g, b = oUF_SVUI.ColorGradient(health, maxHealth, 1, 0, 0, 1, 1, 0, r, g, b)
+
+  self.UF.Health:SetStatusBarColor(r, g, b)
+  self.UF.Health.bg:SetVertexColor(r * 0.25, g * 0.25, b * 0.25)
+end
+
+-- LOAD
+
+local EventListener_OnEvent = function(self, event, ...)
+    local fn = BodyGuard[event]
+    if(fn and type(fn) == "function") then
+        local _, catch = pcall(fn, BodyGuard, ...)
+        if(catch) then
+            SV:HandleError("UnitFrames [BodyGuard]", event, catch)
+        end
+    end
+end
+
+local _hook_GOSSIP_CONFIRM = function(...)
+  if(not BodyGuard:IsShowing()) then return end
+  BodyGuard.CurrentStatus = 0
+  BodyGuard.CurrentHealth = BodyGuard.CurrentMaxHealth
+  BodyGuard:StatusUpdate()
+  BodyGuard:HealthUpdate()
+end
+
+function MOD:InitializeBodyGuard()
+  BodyGuard.UF.VisualState = "Hide"
+  BodyGuard.UF:SetPoint("BOTTOMRIGHT", SV.Dock.BottomLeft, "TOPRIGHT", 0, 10)
+  BodyGuard.UF:SetWidth(SV.db.UnitFrames.bodyguard.width)
+  BodyGuard.UF:SetHeight(SV.db.UnitFrames.bodyguard.height)
+  BodyGuard.UF:SetScript("OnEvent", function(self, event)
+    if(event == "PLAYER_REGEN_ENABLED") then
+      BodyGuard:ToggleVisibility(self.VisualState)
+    elseif(event == "PLAYER_TARGET_CHANGED") then
+      if(UnitExists("target") and UnitName("target") == BodyGuard.CurrentName) then
+        self.TargetGlow:Show()
+      else
+        self.TargetGlow:Hide()
+      end
+    end
+  end)
+  BodyGuard.UF:SetStyle("Frame", "Icon")
+
+  BodyGuard.UF.TargetGlow = BodyGuard.UF.Panel.Shadow
+  BodyGuard.UF.TargetGlow:SetBackdropBorderColor(0, 1, 0, 0.5)
+  BodyGuard.UF.TargetGlow:Hide()
+
+  BodyGuard.UF:RegisterEvent("PLAYER_TARGET_CHANGED")
+  BodyGuard.UF.Health = CreateFrame("StatusBar", nil, BodyGuard.UF)
+  BodyGuard.UF.Health:InsetPoints(BodyGuard.UF)
+  BodyGuard.UF.Health:SetMinMaxValues(0, 1)
+  BodyGuard.UF.Health:SetValue(1)
+  BodyGuard.UF.Health:SetStatusBarTexture(LSM:Fetch("statusbar", SV.db.UnitFrames.statusbar))
+
+  BodyGuard.UF.Health.bg = BodyGuard.UF.Health:CreateTexture(nil, "BORDER")
+  BodyGuard.UF.Health.bg:SetAllPoints()
+  BodyGuard.UF.Health.bg:SetTexture(SV.media.statusbar.gradient)
+  BodyGuard.UF.Health.bg:SetVertexColor(0.1, 0.1, 0.1)
+
+  BodyGuard.UF.Name = BodyGuard.UF.Health:CreateFontString(nil, 'OVERLAY')
+  SV:FontManager(BodyGuard.UF.Name, "unitsecondary")
+  BodyGuard.UF.Name:SetPoint("CENTER", BodyGuard.UF, "CENTER")
+  BodyGuard.UF.Name:SetTextColor(unpack(oUF_SVUI.colors.reaction[5]))
+
+  SV:NewAnchor(BodyGuard.UF, L["BodyGuard Frame"])
+
+  BodyGuard.UF:SetAttribute("type1", "macro")
+  if BodyGuard.CurrentName then
+    BodyGuard.UF:SetAttribute("macrotext1", "/targetexact " .. BodyGuard.CurrentName)
+  end
+  BodyGuard:RefreshData()
+  BodyGuard:HealthUpdate()
+  BodyGuard.UF:Hide()
+
+  EventListener:SetScript("OnEvent", EventListener_OnEvent)
+
+  EventListener:RegisterEvent("GARRISON_BUILDINGS_SWAPPED")
+  EventListener:RegisterEvent("GARRISON_BUILDING_ACTIVATED")
+  EventListener:RegisterEvent("GARRISON_BUILDING_UPDATE")
+  EventListener:RegisterEvent("GARRISON_FOLLOWER_REMOVED")
+  EventListener:RegisterEvent("GARRISON_FOLLOWER_ADDED")
+  EventListener:RegisterEvent("GARRISON_UPDATE")
+  EventListener:RegisterEvent("PLAYER_TARGET_CHANGED")
+  EventListener:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
+  EventListener:RegisterEvent("UNIT_HEALTH")
+  EventListener:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+  EventListener:RegisterEvent("PLAYER_REGEN_ENABLED")
+  EventListener:RegisterEvent("PLAYER_ENTERING_WORLD")
+  EventListener:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+  EventListener:RegisterUnitEvent("UNIT_AURA", "player")
+
+  hooksecurefunc(StaticPopupDialogs.GOSSIP_CONFIRM, "OnAccept", _hook_GOSSIP_CONFIRM)
+end
+
+BodyGuard:RefreshData()

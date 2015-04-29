@@ -279,7 +279,7 @@ do
 		button:SetStyle("!_Frame", "Transparent")
 		button.Panel:SetFrameLevel(0)
 		button:SetNormalTexture(nil)
-		button:ModSize(BUTTONSIZE, BUTTONSIZE)
+		button:SetSize(BUTTONSIZE, BUTTONSIZE)
 		button.sortname = name
 		button.itemId = index
 		button.allowDrop = allowDrop
@@ -446,8 +446,8 @@ function PLUGIN:RefreshFarmingTools()
 		if(seedButtons[i]) then
 			for i, button in ipairs(seedButtons[i]) do
 				local BUTTONSIZE = seedBar.ButtonSize;
-				button:ModPoint("TOPLEFT", seedBar, "TOPLEFT", horizontal and (count * (BUTTONSIZE + BUTTONSPACE) + 1) or 1, horizontal and -1 or -(count * (BUTTONSIZE + BUTTONSPACE) + 1))
-				button:ModSize(BUTTONSIZE,BUTTONSIZE)
+				button:SetPoint("TOPLEFT", seedBar, "TOPLEFT", horizontal and (count * (BUTTONSIZE + BUTTONSPACE) + 1) or 1, horizontal and -1 or -(count * (BUTTONSIZE + BUTTONSPACE) + 1))
+				button:SetSize(BUTTONSIZE,BUTTONSIZE)
 				if (not CONFIGS.farming.onlyactive or (CONFIGS.farming.onlyactive and button.items > 0)) then
 					button.icon:SetVertexColor(1,1,1)
 					count = count + 1
@@ -480,8 +480,8 @@ function PLUGIN:RefreshFarmingTools()
 	FarmToolBar:SetAllPoints(FarmToolBarAnchor)
 	for i, button in ipairs(farmToolButtons) do
 		local BUTTONSIZE = FarmToolBar.ButtonSize;
-		button:ModPoint("TOPLEFT", FarmToolBar, "TOPLEFT", horizontal and (count * (BUTTONSIZE + BUTTONSPACE) + 1) or 1, horizontal and -1 or -(count * (BUTTONSIZE + BUTTONSPACE) + 1))
-		button:ModSize(BUTTONSIZE,BUTTONSIZE)
+		button:SetPoint("TOPLEFT", FarmToolBar, "TOPLEFT", horizontal and (count * (BUTTONSIZE + BUTTONSPACE) + 1) or 1, horizontal and -1 or -(count * (BUTTONSIZE + BUTTONSPACE) + 1))
+		button:SetSize(BUTTONSIZE,BUTTONSIZE)
 		if (not CONFIGS.farming.onlyactive or (CONFIGS.farming.onlyactive and button.items > 0)) then
 			button:Show()
 			button.icon:SetVertexColor(1,1,1)
@@ -508,8 +508,8 @@ function PLUGIN:RefreshFarmingTools()
 	FarmPortalBar:SetAllPoints(FarmPortalBarAnchor)
 	for i, button in ipairs(portalButtons) do
 		local BUTTONSIZE = FarmPortalBar.ButtonSize;
-		button:ModPoint("TOPLEFT", FarmPortalBar, "TOPLEFT", horizontal and (count * (BUTTONSIZE + BUTTONSPACE) + 1) or 1, horizontal and -1 or -(count * (BUTTONSIZE + BUTTONSPACE) + 1))
-		button:ModSize(BUTTONSIZE,BUTTONSIZE)
+		button:SetPoint("TOPLEFT", FarmPortalBar, "TOPLEFT", horizontal and (count * (BUTTONSIZE + BUTTONSPACE) + 1) or 1, horizontal and -1 or -(count * (BUTTONSIZE + BUTTONSPACE) + 1))
+		button:SetSize(BUTTONSIZE,BUTTONSIZE)
 		if (not CONFIGS.farming.onlyactive or (CONFIGS.farming.onlyactive and button.items > 0)) then
 			button:Show()
 			button.icon:SetVertexColor(1,1,1)
@@ -578,33 +578,33 @@ function PLUGIN:PrepareFarmingTools()
 
 		-- FARM TOOLS
 		local farmToolBarAnchor = CreateFrame("Frame", "FarmToolBarAnchor", farmingDockletSlots)
-		farmToolBarAnchor:ModPoint("TOPLEFT", farmingDockletSlots, "TOPLEFT", 0, 0)
-		farmToolBarAnchor:ModSize(horizontal and ((TOOLSIZE + BUTTONSPACE) * 4) or (TOOLSIZE + BUTTONSPACE), horizontal and (TOOLSIZE + BUTTONSPACE) or ((TOOLSIZE + BUTTONSPACE) * 4))
+		farmToolBarAnchor:SetPoint("TOPLEFT", farmingDockletSlots, "TOPLEFT", 0, 0)
+		farmToolBarAnchor:SetSize(horizontal and ((TOOLSIZE + BUTTONSPACE) * 4) or (TOOLSIZE + BUTTONSPACE), horizontal and (TOOLSIZE + BUTTONSPACE) or ((TOOLSIZE + BUTTONSPACE) * 4))
 
 		local farmToolBar = CreateFrame("Frame", "FarmToolBar", farmToolBarAnchor)
-		farmToolBar:ModSize(horizontal and ((TOOLSIZE + BUTTONSPACE) * 4) or (TOOLSIZE + BUTTONSPACE), horizontal and (TOOLSIZE + BUTTONSPACE) or ((TOOLSIZE + BUTTONSPACE) * 4))
+		farmToolBar:SetSize(horizontal and ((TOOLSIZE + BUTTONSPACE) * 4) or (TOOLSIZE + BUTTONSPACE), horizontal and (TOOLSIZE + BUTTONSPACE) or ((TOOLSIZE + BUTTONSPACE) * 4))
 		farmToolBar:SetPoint("TOPLEFT", farmToolBarAnchor, "TOPLEFT", (horizontal and BUTTONSPACE or (TOOLSIZE + BUTTONSPACE)), (horizontal and -(TOOLSIZE + BUTTONSPACE) or -BUTTONSPACE))
 		farmToolBar.ButtonSize = TOOLSIZE;
 
 		-- PORTALS
 		local farmPortalBarAnchor = CreateFrame("Frame", "FarmPortalBarAnchor", farmingDockletSlots)
-		farmPortalBarAnchor:ModPoint("TOPLEFT", farmToolBarAnchor, "TOPRIGHT", 0, 0)
-		farmPortalBarAnchor:ModSize(horizontal and ((TOOLSIZE + BUTTONSPACE) * 4) or (TOOLSIZE + BUTTONSPACE), horizontal and (TOOLSIZE + BUTTONSPACE) or ((TOOLSIZE + BUTTONSPACE) * 4))
+		farmPortalBarAnchor:SetPoint("TOPLEFT", farmToolBarAnchor, "TOPRIGHT", 0, 0)
+		farmPortalBarAnchor:SetSize(horizontal and ((TOOLSIZE + BUTTONSPACE) * 4) or (TOOLSIZE + BUTTONSPACE), horizontal and (TOOLSIZE + BUTTONSPACE) or ((TOOLSIZE + BUTTONSPACE) * 4))
 
 		local farmPortalBar = CreateFrame("Frame", "FarmPortalBar", farmPortalBarAnchor)
-		farmPortalBar:ModSize(horizontal and ((TOOLSIZE + BUTTONSPACE) * 4) or (TOOLSIZE + BUTTONSPACE), horizontal and (TOOLSIZE + BUTTONSPACE) or ((TOOLSIZE + BUTTONSPACE) * 4))
+		farmPortalBar:SetSize(horizontal and ((TOOLSIZE + BUTTONSPACE) * 4) or (TOOLSIZE + BUTTONSPACE), horizontal and (TOOLSIZE + BUTTONSPACE) or ((TOOLSIZE + BUTTONSPACE) * 4))
 		farmPortalBar:SetPoint("TOPLEFT", farmPortalBarAnchor, "TOPLEFT", (horizontal and BUTTONSPACE or (TOOLSIZE + BUTTONSPACE)), (horizontal and -(TOOLSIZE + BUTTONSPACE) or -BUTTONSPACE))
 		farmPortalBar.ButtonSize = TOOLSIZE;
 
 		-- SEEDS
 		local farmSeedBarAnchor = CreateFrame("Frame", "FarmSeedBarAnchor", farmingDockletSlots)
-		farmSeedBarAnchor:ModPoint("TOPLEFT", farmPortalBarAnchor, horizontal and "BOTTOMLEFT" or "TOPRIGHT", 0, 0)
-		farmSeedBarAnchor:ModSize(horizontal and ((BUTTONSIZE + BUTTONSPACE) * 10) or ((BUTTONSIZE + BUTTONSPACE) * 8), horizontal and ((BUTTONSIZE + BUTTONSPACE) * 8) or ((BUTTONSIZE + BUTTONSPACE) * 10))
+		farmSeedBarAnchor:SetPoint("TOPLEFT", farmPortalBarAnchor, horizontal and "BOTTOMLEFT" or "TOPRIGHT", 0, 0)
+		farmSeedBarAnchor:SetSize(horizontal and ((BUTTONSIZE + BUTTONSPACE) * 10) or ((BUTTONSIZE + BUTTONSPACE) * 8), horizontal and ((BUTTONSIZE + BUTTONSPACE) * 8) or ((BUTTONSIZE + BUTTONSPACE) * 10))
 
 		for i = 1, NUM_SEED_BARS do
 			local seedBar = CreateFrame("Frame", "FarmSeedBar"..i, farmSeedBarAnchor)
 			seedBar.ButtonSize = BUTTONSIZE;
-			seedBar:ModSize(horizontal and ((BUTTONSIZE + BUTTONSPACE) * 10) or (BUTTONSIZE + BUTTONSPACE), horizontal and (BUTTONSIZE + BUTTONSPACE) or ((BUTTONSIZE + BUTTONSPACE) * 10))
+			seedBar:SetSize(horizontal and ((BUTTONSIZE + BUTTONSPACE) * 10) or (BUTTONSIZE + BUTTONSPACE), horizontal and (BUTTONSIZE + BUTTONSPACE) or ((BUTTONSIZE + BUTTONSPACE) * 10))
 			if i == 1 then
 				seedBar:SetPoint("TOPLEFT", farmSeedBarAnchor, "TOPLEFT", 0, 0)
 			else
@@ -618,11 +618,11 @@ function PLUGIN:PrepareFarmingTools()
 
 		-- SEEDS
 		local farmSeedBarAnchor = CreateFrame("Frame", "FarmSeedBarAnchor", UIParent)
-		farmSeedBarAnchor:ModPoint("TOPRIGHT", SV.Screen, "TOPRIGHT", -40, -300)
-		farmSeedBarAnchor:ModSize(horizontal and ((BUTTONSIZE + BUTTONSPACE) * 10) or ((BUTTONSIZE + BUTTONSPACE) * 8), horizontal and ((BUTTONSIZE + BUTTONSPACE) * 8) or ((BUTTONSIZE + BUTTONSPACE) * 10))
+		farmSeedBarAnchor:SetPoint("TOPRIGHT", SV.Screen, "TOPRIGHT", -40, -300)
+		farmSeedBarAnchor:SetSize(horizontal and ((BUTTONSIZE + BUTTONSPACE) * 10) or ((BUTTONSIZE + BUTTONSPACE) * 8), horizontal and ((BUTTONSIZE + BUTTONSPACE) * 8) or ((BUTTONSIZE + BUTTONSPACE) * 10))
 		for i = 1, NUM_SEED_BARS do
 			local seedBar = CreateFrame("Frame", "FarmSeedBar"..i, farmSeedBarAnchor)
-			seedBar:ModSize(horizontal and ((BUTTONSIZE + BUTTONSPACE) * 10) or (BUTTONSIZE + BUTTONSPACE), horizontal and (BUTTONSIZE + BUTTONSPACE) or ((BUTTONSIZE + BUTTONSPACE) * 10))
+			seedBar:SetSize(horizontal and ((BUTTONSIZE + BUTTONSPACE) * 10) or (BUTTONSIZE + BUTTONSPACE), horizontal and (BUTTONSIZE + BUTTONSPACE) or ((BUTTONSIZE + BUTTONSPACE) * 10))
 			seedBar:SetPoint("TOPRIGHT", _G["FarmSeedBarAnchor"], "TOPRIGHT", (horizontal and 0 or -((BUTTONSIZE + BUTTONSPACE) * i)), (horizontal and -((BUTTONSIZE + BUTTONSPACE) * i) or 0))
 			seedBar.ButtonSize = BUTTONSIZE;
 		end
@@ -630,20 +630,20 @@ function PLUGIN:PrepareFarmingTools()
 
 		-- FARM TOOLS
 		local farmToolBarAnchor = CreateFrame("Frame", "FarmToolBarAnchor", UIParent)
-		farmToolBarAnchor:ModPoint("TOPRIGHT", farmSeedBarAnchor, horizontal and "BOTTOMRIGHT" or "TOPLEFT", horizontal and 0 or -(BUTTONSPACE * 2), horizontal and -(BUTTONSPACE * 2) or 0)
-		farmToolBarAnchor:ModSize(horizontal and ((BUTTONSIZE + BUTTONSPACE) * 4) or (BUTTONSIZE + BUTTONSPACE), horizontal and (BUTTONSIZE + BUTTONSPACE) or ((BUTTONSIZE + BUTTONSPACE) * 4))
+		farmToolBarAnchor:SetPoint("TOPRIGHT", farmSeedBarAnchor, horizontal and "BOTTOMRIGHT" or "TOPLEFT", horizontal and 0 or -(BUTTONSPACE * 2), horizontal and -(BUTTONSPACE * 2) or 0)
+		farmToolBarAnchor:SetSize(horizontal and ((BUTTONSIZE + BUTTONSPACE) * 4) or (BUTTONSIZE + BUTTONSPACE), horizontal and (BUTTONSIZE + BUTTONSPACE) or ((BUTTONSIZE + BUTTONSPACE) * 4))
 		local farmToolBar = CreateFrame("Frame", "FarmToolBar", farmToolBarAnchor)
-		farmToolBar:ModSize(horizontal and ((BUTTONSIZE + BUTTONSPACE) * 4) or (BUTTONSIZE + BUTTONSPACE), horizontal and (BUTTONSIZE + BUTTONSPACE) or ((BUTTONSIZE + BUTTONSPACE) * 4))
+		farmToolBar:SetSize(horizontal and ((BUTTONSIZE + BUTTONSPACE) * 4) or (BUTTONSIZE + BUTTONSPACE), horizontal and (BUTTONSIZE + BUTTONSPACE) or ((BUTTONSIZE + BUTTONSPACE) * 4))
 		farmToolBar:SetPoint("TOPRIGHT", farmToolBarAnchor, "TOPRIGHT", (horizontal and -BUTTONSPACE or -(BUTTONSIZE + BUTTONSPACE)), (horizontal and -(BUTTONSIZE + BUTTONSPACE) or -BUTTONSPACE))
 		farmToolBar.ButtonSize = BUTTONSIZE;
 		SV.Mentalo:Add(farmToolBarAnchor, "Farming Tools")
 
 		-- PORTALS
 		local farmPortalBarAnchor = CreateFrame("Frame", "FarmPortalBarAnchor", UIParent)
-		farmPortalBarAnchor:ModPoint("TOPRIGHT", farmToolBarAnchor, horizontal and "BOTTOMRIGHT" or "TOPLEFT", horizontal and 0 or -(BUTTONSPACE * 2), horizontal and -(BUTTONSPACE * 2) or 0)
-		farmPortalBarAnchor:ModSize(horizontal and ((BUTTONSIZE + BUTTONSPACE) * 4) or (BUTTONSIZE + BUTTONSPACE), horizontal and (BUTTONSIZE + BUTTONSPACE) or ((BUTTONSIZE + BUTTONSPACE) * 4))
+		farmPortalBarAnchor:SetPoint("TOPRIGHT", farmToolBarAnchor, horizontal and "BOTTOMRIGHT" or "TOPLEFT", horizontal and 0 or -(BUTTONSPACE * 2), horizontal and -(BUTTONSPACE * 2) or 0)
+		farmPortalBarAnchor:SetSize(horizontal and ((BUTTONSIZE + BUTTONSPACE) * 4) or (BUTTONSIZE + BUTTONSPACE), horizontal and (BUTTONSIZE + BUTTONSPACE) or ((BUTTONSIZE + BUTTONSPACE) * 4))
 		local farmPortalBar = CreateFrame("Frame", "FarmPortalBar", farmPortalBarAnchor)
-		farmPortalBar:ModSize(horizontal and ((BUTTONSIZE + BUTTONSPACE) * 4) or (BUTTONSIZE + BUTTONSPACE), horizontal and (BUTTONSIZE + BUTTONSPACE) or ((BUTTONSIZE + BUTTONSPACE) * 4))
+		farmPortalBar:SetSize(horizontal and ((BUTTONSIZE + BUTTONSPACE) * 4) or (BUTTONSIZE + BUTTONSPACE), horizontal and (BUTTONSIZE + BUTTONSPACE) or ((BUTTONSIZE + BUTTONSPACE) * 4))
 		farmPortalBar:SetPoint("TOPRIGHT", farmPortalBarAnchor, "TOPRIGHT", (horizontal and -BUTTONSPACE or -(BUTTONSIZE + BUTTONSPACE)), (horizontal and -(BUTTONSIZE + BUTTONSPACE) or -BUTTONSPACE))
 		farmPortalBar.ButtonSize = BUTTONSIZE;
 		SV.Mentalo:Add(farmPortalBarAnchor, "Farming Portals")

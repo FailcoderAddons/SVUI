@@ -15,7 +15,7 @@ local GetActiveSpecGroup = _G.GetActiveSpecGroup;
 local _, ns = ...
 local oUF = oUF or ns.oUF
 if not oUF then return end
- 
+
 local playerClass = select(2,UnitClass("player"))
 local CanDispel = {
 	PRIEST = { Magic = true, Disease = true },
@@ -44,6 +44,7 @@ local blackList = {
 	[GetSpellInfo(136182)] = true, --Improved Synapses
 	[GetSpellInfo(136180)] = true, --Keen Eyesight
 }
+
 local function GetDebuffType(unit, filter)
 	if not unit or not UnitCanAssist("player", unit) then return nil end
 	local i = 1
@@ -57,45 +58,46 @@ local function GetDebuffType(unit, filter)
 	end
 end
 
-local function CheckTalentTree(tree)
-	local activeGroup = GetActiveSpecGroup()
-	if activeGroup and GetSpecialization(false, false, activeGroup) then
-		return tree == GetSpecialization(false, false, activeGroup)
-	end
-end
- 
-local function CheckSpec(self, event, levels)
+local function UpdateTalentSpec(self, event, levels)
 	if event == "CHARACTER_POINTS_CHANGED" and levels > 0 then return end
+
+	local currentSpec = 0;
+	local activeGroup = GetActiveSpecGroup()
+
+	if(activeGroup) then
+		currentSpec = GetSpecialization(false, false, activeGroup)
+	end;
+
 	if playerClass == "PRIEST" then
-		if CheckTalentTree(3) then
+		if currentSpec == 3 then
 			dispellist.Disease = false
 		else
-			dispellist.Disease = true	
-		end		
+			dispellist.Disease = true
+		end
 	elseif playerClass == "PALADIN" then
-		if CheckTalentTree(1) then
+		if currentSpec == 1 then
 			dispellist.Magic = true
 		else
-			dispellist.Magic = false	
+			dispellist.Magic = false
 		end
 	elseif playerClass == "SHAMAN" then
-		if CheckTalentTree(3) then
+		if currentSpec == 3 then
 			dispellist.Magic = true
 		else
-			dispellist.Magic = false	
+			dispellist.Magic = false
 		end
 	elseif playerClass == "DRUID" then
-		if CheckTalentTree(4) then
+		if currentSpec == 4 then
 			dispellist.Magic = true
 		else
-			dispellist.Magic = false	
+			dispellist.Magic = false
 		end
 	elseif playerClass == "MONK" then
-		if CheckTalentTree(2) then
+		if currentSpec == 2 then
 			dispellist.Magic = true
 		else
-			dispellist.Magic = false	
-		end		
+			dispellist.Magic = false
+		end
 	end
 end
 
@@ -106,46 +108,53 @@ local function CheckSymbiosis()
 		dispellist.Disease = false
 	end
 end
- 
-local function Update(object, event, unit)
-	if unit ~= object.unit then return; end
-	local debuffType, texture  = GetDebuffType(unit, object.AfflictedFilter)
+
+local function Update(self, event, unit)
+	if unit ~= self.unit then return; end
+	local afflicted = self.Afflicted
+	local debuffType, texture  = GetDebuffType(unit, afflicted.ClassFilter)
 	if debuffType then
 		local color = AfflictedColor[debuffType]
-		object.Afflicted:SetVertexColor(color.r, color.g, color.b, object.AfflictedAlpha or .5)
+		afflicted:SetVertexColor(color.r, color.g, color.b, afflicted.MaxAlpha)
 	else
-		object.Afflicted:SetVertexColor(0,0,0,0)
+		afflicted:SetVertexColor(0,0,0,0)
 	end
 end
- 
-local function Enable(object)
-	if not object.Afflicted then
-		return
-	end
-	if object.AfflictedFilter and not CanDispel[playerClass] then
-		return
-	end
-	object:RegisterEvent("UNIT_AURA", Update)
-	object:RegisterEvent("PLAYER_TALENT_UPDATE", CheckSpec)
-	object:RegisterEvent("CHARACTER_POINTS_CHANGED", CheckSpec)
-	CheckSpec(object)
 
-	object:RegisterUnitEvent("UNIT_AURA", object.unit)
+local function Enable(self)
+	local afflicted = self.Afflicted
+	if(not afflicted) then return end
+	if(afflicted.ClassFilter and (not CanDispel[playerClass])) then return end
+
+	afflicted.MaxAlpha = afflicted.MaxAlpha or 0.7
+
+  self:RegisterEvent("UNIT_AURA", Update)
+  self:RegisterEvent("PLAYER_TALENT_UPDATE", UpdateTalentSpec)
+  self:RegisterEvent("CHARACTER_POINTS_CHANGED", UpdateTalentSpec)
+
+	UpdateTalentSpec(self)
+
+  self:RegisterUnitEvent("UNIT_AURA", self.unit)
+
 	if playerClass == "DRUID" then
-		object:RegisterEvent("SPELLS_CHANGED", CheckSymbiosis)
-	end 
+    self:RegisterEvent("SPELLS_CHANGED", CheckSymbiosis)
+	end
+
 	return true
 end
- 
-local function Disable(object)
-	object:UnregisterEvent("UNIT_AURA", Update)
-	object:UnregisterEvent("PLAYER_TALENT_UPDATE", CheckSpec)
-	object:UnregisterEvent("CHARACTER_POINTS_CHANGED", CheckSpec)
+
+local function Disable(self)
+	local afflicted = self.Afflicted
+	if(not afflicted) then return end
+  self:UnregisterEvent("UNIT_AURA", Update)
+  self:UnregisterEvent("PLAYER_TALENT_UPDATE", UpdateTalentSpec)
+  self:UnregisterEvent("CHARACTER_POINTS_CHANGED", UpdateTalentSpec)
 
 	if playerClass == "DRUID" then
-		object:UnregisterEvent("SPELLS_CHANGED", CheckSymbiosis)
+    self:UnregisterEvent("SPELLS_CHANGED", CheckSymbiosis)
 	end
-	object.Afflicted:SetVertexColor(0,0,0,0)	
+
+	afflicted:SetVertexColor(0,0,0,0)
 end
- 
+
 oUF:AddElement('Afflicted', Update, Enable, Disable)

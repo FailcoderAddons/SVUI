@@ -406,7 +406,7 @@ local function LoadGarrisonStyle()
 	GarrisonMissionFrame.MissionCompleteBackground:DisableDrawLayer("BACKGROUND")
 
 	GarrisonMissionFrameMissionsListScrollFrame:RemoveTextures()
-	SV.API:Set("ScrollFrame", GarrisonMissionFrameMissionsListScrollFrame)
+	SV.API:Set("ScrollBar", GarrisonMissionFrameMissionsListScrollFrame)
 
 	SV.API:Set("Tab", GarrisonMissionFrameMissionsTab1, nil, 10, 4)
 	SV.API:Set("Tab", GarrisonMissionFrameMissionsTab2, nil, 10, 4)
@@ -530,9 +530,9 @@ local function LoadGarrisonStyle()
 		SV.API:Set("PageButton", GarrisonCapacitiveDisplayFrame.IncrementButton)
 	end
 
-	SV.API:Set("ScrollFrame", GarrisonLandingPageReportListListScrollFrameScrollBar)
-	SV.API:Set("ScrollFrame", GarrisonMissionFrameMissionsListScrollFrameScrollBar)
-	SV.API:Set("ScrollFrame", GarrisonMissionFrameFollowersListScrollFrameScrollBar)
+	SV.API:Set("ScrollBar", GarrisonLandingPageReportListListScrollFrameScrollBar)
+	SV.API:Set("ScrollBar", GarrisonMissionFrameMissionsListScrollFrameScrollBar)
+	SV.API:Set("ScrollBar", GarrisonMissionFrameFollowersListScrollFrameScrollBar)
 	SV.API:Set("CloseButton", GarrisonLandingPage.CloseButton)
 	SV.API:Set("CloseButton", GarrisonMissionFrame.MissionTab.MissionPage.CloseButton)
 	GarrisonLandingPage.CloseButton:SetFrameStrata("HIGH")
@@ -546,7 +546,7 @@ local function LoadGarrisonStyle()
 		end
 	end
 
-	SV.API:Set("ScrollFrame", GarrisonLandingPageListScrollFrameScrollBar)
+	SV.API:Set("ScrollBar", GarrisonLandingPageListScrollFrameScrollBar)
 
 	SV.API:Set("Window", GarrisonRecruiterFrame, true)
 	GarrisonRecruiterFrameInset:RemoveTextures()

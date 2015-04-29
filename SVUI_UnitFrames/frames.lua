@@ -43,12 +43,12 @@ local L = SV.L;
 local LSM = _G.LibStub("LibSharedMedia-3.0")
 local MOD = SV.UnitFrames
 
-if(not MOD) then return end 
+if(not MOD) then return end
 
 local oUF_SVUI = MOD.oUF
 assert(oUF_SVUI, "SVUI UnitFrames: unable to locate oUF.")
---[[ 
-########################################################## 
+--[[
+##########################################################
 LOCALIZED GLOBALS
 ##########################################################
 ]]--
@@ -79,33 +79,33 @@ local FACTION_BAR_COLORS         = _G.FACTION_BAR_COLORS;
 local RAID_CLASS_COLORS          = _G.RAID_CLASS_COLORS;
 local CUSTOM_CLASS_COLORS        = _G.CUSTOM_CLASS_COLORS
 local LOCALIZED_CLASS_NAMES_MALE = _G.LOCALIZED_CLASS_NAMES_MALE;
---[[ 
-########################################################## 
+--[[
+##########################################################
 LOCAL DATA
 ##########################################################
 ]]--
 local CONSTRUCTORS = {}
 local lastArenaFrame, lastBossFrame
---[[ 
-########################################################## 
+--[[
+##########################################################
 ALL UNIT HELPERS
 ##########################################################
 ]]--
 local UpdateTargetGlow = function(self)
-    if not self.unit then return end 
+    if not self.unit then return end
     local unit = self.unit;
-    if(UnitIsUnit(unit, "target")) then 
+    if(UnitIsUnit(unit, "target")) then
         self.TargetGlow:Show()
         local reaction = UnitReaction(unit, "player")
-        if(reaction) then 
+        if(reaction) then
             local colors = FACTION_BAR_COLORS[reaction]
             self.TargetGlow:SetBackdropBorderColor(colors.r, colors.g, colors.b)
-        else 
+        else
             self.TargetGlow:SetBackdropBorderColor(0.2, 1, 0.3)
-        end 
-    else 
+        end
+    else
         self.TargetGlow:Hide()
-    end 
+    end
 end
 
 local AllowElement = function(self)
@@ -113,7 +113,7 @@ local AllowElement = function(self)
     -- print('Allowed')
     -- print(self.unit)
     -- print(self.isForced)
-    if not self.isForced then 
+    if not self.isForced then
         self.sourceElement = self.unit;
         self.unit = "player"
         self.isForced = true;
@@ -126,9 +126,9 @@ local AllowElement = function(self)
     RegisterUnitWatch(self, true)
 
     self:Show()
-    if self:IsVisible() and self.Update then 
+    if self:IsVisible() and self.Update then
         self:Update()
-    end 
+    end
 end
 
 local RestrictElement = function(self)
@@ -142,19 +142,19 @@ local RestrictElement = function(self)
     UnregisterUnitWatch(self)
     RegisterUnitWatch(self)
 
-    if self.sourceEvent then 
+    if self.sourceEvent then
         self:SetScript("OnUpdate", self.sourceEvent)
-        self.sourceEvent = nil 
+        self.sourceEvent = nil
     end
 
     self.unit = self.sourceElement or self.unit;
 
-    if self:IsVisible() and self.Update then 
+    if self:IsVisible() and self.Update then
         self:Update()
-    end 
+    end
 end
 --[[
-########################################################## 
+##########################################################
 PLAYER
 ##########################################################
 ]]--
@@ -165,91 +165,90 @@ local UpdatePlayerFrame = function(self)
     local USE_CLASSBAR = db.classbar.enable;
     local classBarHeight = db.classbar.height;
     local classBarWidth = db.width * 0.4;
-    local MASTER_GRIP = self.MasterGrip
     local iconDB = db.icons
     self:RegisterForClicks(SV.db.UnitFrames.fastClickTarget and "AnyDown" or "AnyUp")
 
     MOD.RefreshUnitMedia(self, "player")
 
     self.colors = oUF_SVUI.colors;
-    self:ModSize(UNIT_WIDTH, UNIT_HEIGHT)
+    self:SetSize(UNIT_WIDTH, UNIT_HEIGHT)
     local lossSize = UNIT_WIDTH * 0.6
     self.LossOfControl.stunned:SetSize(lossSize, lossSize)
-    _G[self:GetName().."_MOVE"]:ModSize(self:GetSize())
+    _G[self:GetName().."_MOVE"]:SetSize(self:GetSize())
 
     MOD:RefreshUnitLayout(self, "player")
 
-    do 
+    do
         local resting = self.Resting;
         if resting then
             if iconDB and iconDB.restIcon and iconDB.restIcon.enable then
                 local size = iconDB.restIcon.size;
                 resting:ClearAllPoints()
-                resting:ModSize(size)
-                SV:SetReversePoint(resting, iconDB.restIcon.attachTo, MASTER_GRIP, iconDB.restIcon.xOffset, iconDB.restIcon.yOffset)
-                if not self:IsElementEnabled("Resting")then 
+                resting:SetSize(size, size)
+                SV:SetReversePoint(resting, iconDB.restIcon.attachTo, self, iconDB.restIcon.xOffset, iconDB.restIcon.yOffset)
+                if not self:IsElementEnabled("Resting")then
                     self:EnableElement("Resting")
-                end 
-            elseif self:IsElementEnabled("Resting")then 
+                end
+            elseif self:IsElementEnabled("Resting")then
                 self:DisableElement("Resting")
                 resting:Hide()
             end
         end
-    end 
-    do 
+    end
+    do
         local combat = self.Combat;
         if combat then
             if iconDB and iconDB.combatIcon and iconDB.combatIcon.enable then
                 local size = iconDB.combatIcon.size;
                 combat:ClearAllPoints()
-                combat:ModSize(size)
-                SV:SetReversePoint(combat, iconDB.combatIcon.attachTo, MASTER_GRIP, iconDB.combatIcon.xOffset, iconDB.combatIcon.yOffset)
-                if not self:IsElementEnabled("Combat")then 
+                combat:SetSize(size, size)
+                SV:SetReversePoint(combat, iconDB.combatIcon.attachTo, self, iconDB.combatIcon.xOffset, iconDB.combatIcon.yOffset)
+                if not self:IsElementEnabled("Combat")then
                     self:EnableElement("Combat")
-                end 
-            elseif self:IsElementEnabled("Combat")then 
+                end
+            elseif self:IsElementEnabled("Combat")then
                 self:DisableElement("Combat")
                 combat:Hide()
             end
         end
-    end 
-    do 
+    end
+    do
         local pvp = self.PvPText;
         local point = db.pvp.position;
         pvp:ClearAllPoints()
-        pvp:ModPoint(db.pvp.position, MASTER_GRIP, db.pvp.position)
+        pvp:SetPoint(db.pvp.position, self, db.pvp.position)
         self:Tag(pvp, db.pvp.tags)
-    end 
+    end
     do
         if(self.ClassBar) then
-            if USE_CLASSBAR and self.RefreshClassBar then 
+            if USE_CLASSBAR and self.RefreshClassBar then
                 self.RefreshClassBar(self)
-            end 
+            end
             if(self.ClassBar) then
                 local classBar = self[self.ClassBar];
                 if USE_CLASSBAR then
-                    if(not self:IsElementEnabled(self.ClassBar)) then 
+                    if(not self:IsElementEnabled(self.ClassBar)) then
                         self:EnableElement(self.ClassBar)
                     end
                     classBar:Show()
                 else
-                    if(self:IsElementEnabled(self.ClassBar)) then 
+                    if(self:IsElementEnabled(self.ClassBar)) then
                         self:DisableElement(self.ClassBar)
                     end
                     classBar:Hide()
                 end
             end
         end
-    end 
+    end
 
-    do 
-        if db.combatfade and not self:IsElementEnabled("CombatFade")then 
+    do
+        if db.combatfade and not self:IsElementEnabled("CombatFade")then
             self:EnableElement("CombatFade")
-        elseif 
-            not db.combatfade and self:IsElementEnabled("CombatFade")then 
+        elseif
+            not db.combatfade and self:IsElementEnabled("CombatFade")then
             self:DisableElement("CombatFade")
-        end 
-    end 
+        end
+    end
     self:UpdateAllElements()
 end
 
@@ -280,16 +279,16 @@ CONSTRUCTORS["player"] = function(self, unit)
     self.HealPrediction = MOD:CreateHealPrediction(self, true)
     self.ResolveBar = MOD:CreateResolveBar(self)
     self.CombatFade = true;
-    self:ModPoint("BOTTOMLEFT", SV.Screen, "BOTTOM", -413, 182)
+    self:SetPoint("BOTTOMRIGHT", SV.Screen, "BOTTOM", -80, 182)
     SV:NewAnchor(self, L["Player Frame"])
 
     self.MediaUpdate = MOD.RefreshUnitMedia
     self.Update = UpdatePlayerFrame
-    
-    return self 
+
+    return self
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 TARGET
 ##########################################################
 ]]--
@@ -303,23 +302,23 @@ local UpdateTargetFrame = function(self)
 
     MOD.RefreshUnitMedia(self, "target")
     self.colors = oUF_SVUI.colors;
-    self:ModSize(UNIT_WIDTH, UNIT_HEIGHT)
-    _G[self:GetName().."_MOVE"]:ModSize(self:GetSize())
-    if not self:IsElementEnabled("ActionPanel")then 
+    self:SetSize(UNIT_WIDTH, UNIT_HEIGHT)
+    _G[self:GetName().."_MOVE"]:SetSize(self:GetSize())
+    if not self:IsElementEnabled("ActionPanel")then
         self:EnableElement("ActionPanel")
     end
 
-    if not self:IsElementEnabled("Friendship")then 
+    if not self:IsElementEnabled("Friendship")then
         self:EnableElement("Friendship")
     end
     MOD:RefreshUnitLayout(self, "target")
 
-    if(not IsAddOnLoaded("Clique")) then 
-        if db.middleClickFocus then 
+    if(not IsAddOnLoaded("Clique")) then
+        if db.middleClickFocus then
             self:SetAttribute("type3", "focus")
-        elseif self:GetAttribute("type3") == "focus"then 
+        elseif self:GetAttribute("type3") == "focus"then
             self:SetAttribute("type3", nil)
-        end 
+        end
     end
 
     self:UpdateAllElements()
@@ -357,7 +356,7 @@ CONSTRUCTORS["target"] = function(self, unit)
     xray:RegisterForClicks("AnyUp")
     xray:SetAttribute("type", "macro")
     xray:SetAttribute("macrotext", "/focus")
-    xray:ModSize(64,64)
+    xray:SetSize(64,64)
     xray:SetFrameStrata("MEDIUM")
     xray.icon = xray:CreateTexture(nil,"ARTWORK")
     xray.icon:SetTexture([[Interface\Addons\SVUI_!Core\assets\textures\Doodads\UNIT-XRAY]])
@@ -366,26 +365,26 @@ CONSTRUCTORS["target"] = function(self, unit)
     xray:SetScript("OnLeave", function(self) GameTooltip:Hide() self.icon:SetAlpha(0) end)
     xray:SetScript("OnEnter", function(self)
         self.icon:SetAlpha(1)
-        local anchor1, anchor2 = SV:GetScreenXY(self) 
+        local anchor1, anchor2 = SV:GetScreenXY(self)
         GameTooltip:SetOwner(self, "ANCHOR_NONE")
         GameTooltip:SetPoint(anchor1, self, anchor2)
         GameTooltip:SetText(FOCUSTARGET)
     end)
-    
-    self.XRay = xray 
+
+    self.XRay = xray
 
     self.Friendship = MOD:CreateFriendshipBar(self)
     self.Range = { insideAlpha = 1, outsideAlpha = 1 }
-    
-    self:ModPoint("BOTTOMRIGHT", SV.Screen, "BOTTOM", 413, 182)
+
+    self:SetPoint("BOTTOMLEFT", SV.Screen, "BOTTOM", 80, 182)
     SV:NewAnchor(self, L["Target Frame"])
 
     self.MediaUpdate = MOD.RefreshUnitMedia
     self.Update = UpdateTargetFrame
-    return self 
-end 
---[[ 
-########################################################## 
+    return self
+end
+--[[
+##########################################################
 TARGET OF TARGET
 ##########################################################
 ]]--
@@ -396,8 +395,8 @@ local UpdateTargetTargetFrame = function(self)
     self:RegisterForClicks(SV.db.UnitFrames.fastClickTarget and "AnyDown" or "AnyUp")
     MOD.RefreshUnitMedia(self, "targettarget")
     self.colors = oUF_SVUI.colors;
-    self:ModSize(UNIT_WIDTH, UNIT_HEIGHT)
-    _G[self:GetName().."_MOVE"]:ModSize(self:GetSize())
+    self:SetSize(UNIT_WIDTH, UNIT_HEIGHT)
+    _G[self:GetName().."_MOVE"]:SetSize(self:GetSize())
     MOD:RefreshUnitLayout(self, "targettarget")
     self:UpdateAllElements()
 end
@@ -418,15 +417,15 @@ CONSTRUCTORS["targettarget"] = function(self, unit)
     MOD:CreateAuraFrames(self, key)
     self.RaidIcon = MOD:CreateRaidIcon(self)
     self.Range = { insideAlpha = 1, outsideAlpha = 1 }
-    self:ModPoint("LEFT", SVUI_Target, "RIGHT", 2, 0)
+    self:SetPoint("LEFT", SVUI_Target, "RIGHT", 4, 0)
     SV:NewAnchor(self, L["TargetTarget Frame"])
 
     self.MediaUpdate = MOD.RefreshUnitMedia
     self.Update = UpdateTargetTargetFrame
-    return self 
+    return self
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 PET
 ##########################################################
 ]]--
@@ -437,14 +436,14 @@ local UpdatePetFrame = function(self)
     self:RegisterForClicks(SV.db.UnitFrames.fastClickTarget and "AnyDown" or "AnyUp")
     MOD.RefreshUnitMedia(self, "pet")
     self.colors = oUF_SVUI.colors;
-    self:ModSize(UNIT_WIDTH, UNIT_HEIGHT)
-    _G[self:GetName().."_MOVE"]:ModSize(self:GetSize())
+    self:SetSize(UNIT_WIDTH, UNIT_HEIGHT)
+    _G[self:GetName().."_MOVE"]:SetSize(self:GetSize())
     MOD:RefreshUnitLayout(self, "pet")
-    do 
-        if SVUI_Player and not InCombatLockdown()then 
+    do
+        if SVUI_Player and not InCombatLockdown()then
             self:SetParent(SVUI_Player)
-        end 
-    end 
+        end
+    end
     self:UpdateAllElements()
 end
 
@@ -467,14 +466,14 @@ CONSTRUCTORS["pet"] = function(self, unit)
     self.AuraWatch = MOD:CreateAuraWatch(self, key)
     self.RaidIcon = MOD:CreateRaidIcon(self)
     self.Range = { insideAlpha = 1, outsideAlpha = 1 }
-    self:ModPoint("RIGHT", SVUI_Player, "LEFT", -2, 0)
+    self:SetPoint("RIGHT", SVUI_Player, "LEFT", -4, 0)
     SV:NewAnchor(self, L["Pet Frame"])
     self.MediaUpdate = MOD.RefreshUnitMedia
     self.Update = UpdatePetFrame
-    return self 
-end 
---[[ 
-########################################################## 
+    return self
+end
+--[[
+##########################################################
 TARGET OF PET
 ##########################################################
 ]]--
@@ -485,14 +484,14 @@ local UpdatePetTargetFrame = function(self)
     self:RegisterForClicks(SV.db.UnitFrames.fastClickTarget and "AnyDown" or "AnyUp")
     MOD.RefreshUnitMedia(self, "pettarget")
     self.colors = oUF_SVUI.colors;
-    self:ModSize(UNIT_WIDTH, UNIT_HEIGHT)
-    _G[self:GetName().."_MOVE"]:ModSize(self:GetSize())
+    self:SetSize(UNIT_WIDTH, UNIT_HEIGHT)
+    _G[self:GetName().."_MOVE"]:SetSize(self:GetSize())
     MOD:RefreshUnitLayout(self, "pettarget")
-    do 
-        if SVUI_Pet and not InCombatLockdown()then 
+    do
+        if SVUI_Pet and not InCombatLockdown()then
             self:SetParent(SVUI_Pet)
-        end 
-    end 
+        end
+    end
     self:UpdateAllElements()
 end
 
@@ -504,22 +503,22 @@ CONSTRUCTORS["pettarget"] = function(self, unit)
     self:SetScript("OnEnter", UnitFrame_OnEnter)
     self:SetScript("OnLeave", UnitFrame_OnLeave)
     self:SetFrameLevel(2)
-    
+
     MOD:SetActionPanel(self, key)
     self.Health = MOD:CreateHealthBar(self, true)
     self.Power = MOD:CreatePowerBar(self)
     MOD:CreateAuraFrames(self, key)
     self.Range = { insideAlpha = 1, outsideAlpha = 1 }
-    self:ModPoint("BOTTOM", SVUI_Pet, "TOP", 0, 7)
+    self:SetPoint("BOTTOM", SVUI_Pet, "TOP", 0, 7)
     self.snapOffset = -7
     SV:NewAnchor(self, L["PetTarget Frame"])
 
     self.MediaUpdate = MOD.RefreshUnitMedia
     self.Update = UpdatePetTargetFrame
-    return self 
-end 
---[[ 
-########################################################## 
+    return self
+end
+--[[
+##########################################################
 FOCUS
 ##########################################################
 ]]--
@@ -530,8 +529,8 @@ local UpdateFocusFrame = function(self)
     self:RegisterForClicks(SV.db.UnitFrames.fastClickTarget and "AnyDown" or "AnyUp")
     MOD.RefreshUnitMedia(self, "focus")
     self.colors = oUF_SVUI.colors;
-    self:ModSize(UNIT_WIDTH, UNIT_HEIGHT)
-    _G[self:GetName().."_MOVE"]:ModSize(self:GetSize())
+    self:SetSize(UNIT_WIDTH, UNIT_HEIGHT)
+    _G[self:GetName().."_MOVE"]:SetSize(self:GetSize())
     MOD:RefreshUnitLayout(self, "focus")
 
     self:UpdateAllElements()
@@ -545,9 +544,9 @@ CONSTRUCTORS["focus"] = function(self, unit)
     self:SetScript("OnEnter", UnitFrame_OnEnter)
     self:SetScript("OnLeave", UnitFrame_OnLeave)
     self:SetFrameLevel(2)
-    
+
     MOD:SetActionPanel(self, key)
-    
+
     self.Health = MOD:CreateHealthBar(self, true)
     self.Health.frequentUpdates = true
 
@@ -569,7 +568,7 @@ CONSTRUCTORS["focus"] = function(self, unit)
     xray:RegisterForClicks("AnyUp")
     xray:SetAttribute("type", "macro")
     xray:SetAttribute("macrotext", "/clearfocus")
-    xray:ModSize(50,50)
+    xray:SetSize(50,50)
     xray:SetFrameStrata("MEDIUM")
     xray.icon = xray:CreateTexture(nil,"ARTWORK")
     xray.icon:SetTexture([[Interface\Addons\SVUI_!Core\assets\textures\Doodads\UNIT-XRAY-CLOSE]])
@@ -579,7 +578,7 @@ CONSTRUCTORS["focus"] = function(self, unit)
     xray:SetScript("OnLeave", function(self) GameTooltip:Hide() self.icon:SetAlpha(0) end)
     xray:SetScript("OnEnter",function(self)
         self.icon:SetAlpha(1)
-        local anchor1, anchor2 = SV:GetScreenXY(self) 
+        local anchor1, anchor2 = SV:GetScreenXY(self)
         GameTooltip:SetOwner(self, "ANCHOR_NONE")
         GameTooltip:SetPoint(anchor1, self, anchor2)
         GameTooltip:SetText(CLEAR_FOCUS)
@@ -587,15 +586,15 @@ CONSTRUCTORS["focus"] = function(self, unit)
 
     self.XRay = xray
 
-    self:ModPoint("BOTTOMRIGHT", SVUI_Target, "TOPRIGHT", 0, 220)
+    self:SetPoint("BOTTOMRIGHT", SVUI_Target, "TOPRIGHT", 0, 220)
     SV:NewAnchor(self, L["Focus Frame"])
 
     self.MediaUpdate = MOD.RefreshUnitMedia
     self.Update = UpdateFocusFrame
-    return self 
+    return self
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 TARGET OF FOCUS
 ##########################################################
 ]]--
@@ -606,8 +605,8 @@ local UpdateFocusTargetFrame = function(self)
     self:RegisterForClicks(SV.db.UnitFrames.fastClickTarget and "AnyDown" or "AnyUp")
     MOD.RefreshUnitMedia(self, "focustarget")
     self.colors = oUF_SVUI.colors;
-    self:ModSize(UNIT_WIDTH, UNIT_HEIGHT)
-    _G[self:GetName().."_MOVE"]:ModSize(self:GetSize())
+    self:SetSize(UNIT_WIDTH, UNIT_HEIGHT)
+    _G[self:GetName().."_MOVE"]:SetSize(self:GetSize())
     MOD:RefreshUnitLayout(self, "focustarget")
     self:UpdateAllElements()
 end
@@ -620,23 +619,23 @@ CONSTRUCTORS["focustarget"] = function(self, unit)
     self:SetScript("OnEnter", UnitFrame_OnEnter)
     self:SetScript("OnLeave", UnitFrame_OnLeave)
     self:SetFrameLevel(2)
-    
+
     MOD:SetActionPanel(self, key)
     self.Health = MOD:CreateHealthBar(self, true)
     self.Power = MOD:CreatePowerBar(self)
     MOD:CreateAuraFrames(self, key)
     self.RaidIcon = MOD:CreateRaidIcon(self)
     self.Range = { insideAlpha = 1, outsideAlpha = 1 }
-    self:ModPoint("LEFT", SVUI_Focus, "RIGHT", 12, 0)
+    self:SetPoint("LEFT", SVUI_Focus, "RIGHT", 12, 0)
     self.snapOffset = -7
     SV:NewAnchor(self, L["FocusTarget Frame"])
 
     self.MediaUpdate = MOD.RefreshUnitMedia
     self.Update = UpdateFocusTargetFrame
-    return self 
-end 
---[[ 
-########################################################## 
+    return self
+end
+--[[
+##########################################################
 BOSS
 ##########################################################
 ]]--
@@ -650,25 +649,25 @@ local UpdateBossFrame = function(self)
     MOD.RefreshUnitMedia(self, "boss")
 
     self.colors = oUF_SVUI.colors;
-    self:ModSize(UNIT_WIDTH, UNIT_HEIGHT)
+    self:SetSize(UNIT_WIDTH, UNIT_HEIGHT)
     self:ClearAllPoints()
 
     if(tonumber(INDEX) == 1) then
-        holder:ModWidth(UNIT_WIDTH)
-        holder:ModHeight(UNIT_HEIGHT + (UNIT_HEIGHT + 12 + db.castbar.height) * 4)
-        if db.showBy == "UP"then 
-            self:ModPoint("BOTTOMRIGHT", holder, "BOTTOMRIGHT")
-        else 
-            self:ModPoint("TOPRIGHT", holder, "TOPRIGHT")
-        end 
+        holder:SetWidth(UNIT_WIDTH)
+        holder:SetHeight(UNIT_HEIGHT + (UNIT_HEIGHT + 12 + db.castbar.height) * 4)
+        if db.showBy == "UP"then
+            self:SetPoint("BOTTOMRIGHT", holder, "BOTTOMRIGHT")
+        else
+            self:SetPoint("TOPRIGHT", holder, "TOPRIGHT")
+        end
     else
         local yOffset = (UNIT_HEIGHT + 12 + db.castbar.height) * (INDEX - 1)
-        if db.showBy == "UP"then 
-            self:ModPoint("BOTTOMRIGHT", holder, "BOTTOMRIGHT", 0, yOffset)
-        else 
-            self:ModPoint("TOPRIGHT", holder, "TOPRIGHT", 0, -yOffset)
-        end 
-    end 
+        if db.showBy == "UP"then
+            self:SetPoint("BOTTOMRIGHT", holder, "BOTTOMRIGHT", 0, yOffset)
+        else
+            self:SetPoint("TOPRIGHT", holder, "TOPRIGHT", 0, -yOffset)
+        end
+    end
 
     self:RegisterForClicks(SV.db.UnitFrames.fastClickTarget and "AnyDown" or "AnyUp")
     MOD:RefreshUnitLayout(self, "boss")
@@ -685,7 +684,7 @@ CONSTRUCTORS["boss"] = function(self, unit)
     self:SetScript("OnEnter", UnitFrame_OnEnter)
     self:SetScript("OnLeave", UnitFrame_OnLeave)
     self:SetFrameLevel(2)
-    
+
     MOD:SetActionPanel(self, key)
     self.Health = MOD:CreateHealthBar(self, true)
     self.Health.frequentUpdates = true
@@ -704,19 +703,19 @@ CONSTRUCTORS["boss"] = function(self, unit)
     self:SetAttribute("type2", "focus")
 
     if(not _G["SVUI_Boss_MOVE"]) then
-        self:ModPoint("RIGHT", SV.Screen, "RIGHT", -105, 0)
+        self:SetPoint("RIGHT", SV.Screen, "RIGHT", -105, 0)
         SV:NewAnchor(self, L["Boss Frames"], nil, nil, "SVUI_Boss")
     else
-        self:ModPoint("TOPRIGHT", lastBossFrame, "BOTTOMRIGHT", 0, -20)
+        self:SetPoint("TOPRIGHT", lastBossFrame, "BOTTOMRIGHT", 0, -20)
     end
 
     self.MediaUpdate = MOD.RefreshUnitMedia
     self.Update = UpdateBossFrame
     lastBossFrame = self
-    return self 
+    return self
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 ARENA
 ##########################################################
 ]]--
@@ -730,26 +729,26 @@ local UpdateArenaFrame = function(self)
     MOD.RefreshUnitMedia(self, "arena")
 
     self.colors = oUF_SVUI.colors;
-    self:ModSize(UNIT_WIDTH, UNIT_HEIGHT)
+    self:SetSize(UNIT_WIDTH, UNIT_HEIGHT)
     self:RegisterForClicks(SV.db.UnitFrames.fastClickTarget and "AnyDown" or "AnyUp")
 
     self:ClearAllPoints()
 
     if(tonumber(INDEX) == 1) then
-        holder:ModWidth(UNIT_WIDTH)
-        holder:ModHeight(UNIT_HEIGHT + (UNIT_HEIGHT + 12 + db.castbar.height) * 4)
-        if(db.showBy == "UP") then 
-            self:ModPoint("BOTTOMRIGHT", holder, "BOTTOMRIGHT")
-        else 
-            self:ModPoint("TOPRIGHT", holder, "TOPRIGHT")
-        end 
+        holder:SetWidth(UNIT_WIDTH)
+        holder:SetHeight(UNIT_HEIGHT + (UNIT_HEIGHT + 12 + db.castbar.height) * 4)
+        if(db.showBy == "UP") then
+            self:SetPoint("BOTTOMRIGHT", holder, "BOTTOMRIGHT")
+        else
+            self:SetPoint("TOPRIGHT", holder, "TOPRIGHT")
+        end
     else
         local yOffset = (UNIT_HEIGHT + 12 + db.castbar.height) * (INDEX - 1)
-        if(db.showBy == "UP") then 
-            self:ModPoint("BOTTOMRIGHT", holder, "BOTTOMRIGHT", 0, yOffset)
-        else 
-            self:ModPoint("TOPRIGHT", holder, "TOPRIGHT", 0, -yOffset)
-        end 
+        if(db.showBy == "UP") then
+            self:SetPoint("BOTTOMRIGHT", holder, "BOTTOMRIGHT", 0, yOffset)
+        else
+            self:SetPoint("TOPRIGHT", holder, "TOPRIGHT", 0, -yOffset)
+        end
     end
 
     MOD:RefreshUnitLayout(self, "arena")
@@ -758,27 +757,31 @@ local UpdateArenaFrame = function(self)
         local pvp = self.Gladiator
         local trinket = pvp.Trinket
         local badge = pvp.Badge
+        local trinketsize = db.pvp.trinketSize
+        local specsize = db.pvp.specSize
 
         local leftAnchor = self
         local rightAnchor = self
 
-        trinket:ModSize(db.pvp.trinketSize)
+        local trinketSize = db.pvp.trinketSize
+        local specSize = db.pvp.specSize
+        trinket:SetSize(trinketSize, trinketSize)
         trinket:ClearAllPoints()
-        if(db.pvp.trinketPosition == "RIGHT") then 
-            trinket:ModPoint("LEFT", rightAnchor, "RIGHT", db.pvp.trinketX, db.pvp.trinketY)
+        if(db.pvp.trinketPosition == "RIGHT") then
+            trinket:SetPoint("LEFT", rightAnchor, "RIGHT", db.pvp.trinketX, db.pvp.trinketY)
             rightAnchor = trinket
-        else 
-            trinket:ModPoint("RIGHT", leftAnchor, "LEFT", db.pvp.trinketX, db.pvp.trinketY)
+        else
+            trinket:SetPoint("RIGHT", leftAnchor, "LEFT", db.pvp.trinketX, db.pvp.trinketY)
             leftAnchor = trinket
         end
 
-        badge:ModSize(db.pvp.specSize)
+        badge:SetSize(specSize, specSize)
         badge:ClearAllPoints()
-        if(db.pvp.specPosition == "RIGHT") then 
-            badge:ModPoint("LEFT", rightAnchor, "RIGHT", db.pvp.specX, db.pvp.specY)
+        if(db.pvp.specPosition == "RIGHT") then
+            badge:SetPoint("LEFT", rightAnchor, "RIGHT", db.pvp.specX, db.pvp.specY)
             rightAnchor = badge
-        else 
-            badge:ModPoint("RIGHT", leftAnchor, "LEFT", db.pvp.specX, db.pvp.specY)
+        else
+            badge:SetPoint("RIGHT", leftAnchor, "LEFT", db.pvp.specX, db.pvp.specY)
             leftAnchor = badge
         end
 
@@ -789,7 +792,7 @@ local UpdateArenaFrame = function(self)
         if(db.pvp.enable and (not self:IsElementEnabled("Gladiator"))) then
             self:EnableElement("Gladiator")
             pvp:Show()
-        elseif((not db.pvp.enable) and self:IsElementEnabled("Gladiator")) then 
+        elseif((not db.pvp.enable) and self:IsElementEnabled("Gladiator")) then
             self:DisableElement("Gladiator")
             pvp:Hide()
         end
@@ -808,10 +811,10 @@ CONSTRUCTORS["arena"] = function(self, unit)
     self:SetScript("OnEnter", UnitFrame_OnEnter)
     self:SetScript("OnLeave", UnitFrame_OnLeave)
     self:SetFrameLevel(2)
-    
+
     local selfName = self:GetName()
     local prepName = selfName.."PrepFrame";
-    
+
 
     MOD:SetActionPanel(self, key)
     self.Health = MOD:CreateHealthBar(self, true)
@@ -842,15 +845,15 @@ CONSTRUCTORS["arena"] = function(self, unit)
         icon:SetSize(45,45)
         icon:SetPoint("LEFT", prep, "RIGHT", 2, 0)
         icon:SetBackdrop({
-            bgFile = [[Interface\BUTTONS\WHITE8X8]], 
-            tile = false, 
-            tileSize = 0, 
-            edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
-            edgeSize = 2, 
+            bgFile = [[Interface\BUTTONS\WHITE8X8]],
+            tile = false,
+            tileSize = 0,
+            edgeFile = [[Interface\BUTTONS\WHITE8X8]],
+            edgeSize = 2,
             insets = {
-                left = 0, 
-                right = 0, 
-                top = 0, 
+                left = 0,
+                right = 0,
+                top = 0,
                 bottom = 0
             }
         })
@@ -871,19 +874,19 @@ CONSTRUCTORS["arena"] = function(self, unit)
     end
 
     if(not _G["SVUI_Arena_MOVE"]) then
-        self:ModPoint("RIGHT", SV.Screen, "RIGHT", -105, 0)
+        self:SetPoint("RIGHT", SV.Screen, "RIGHT", -105, 0)
         SV:NewAnchor(self, L["Arena Frames"], nil, nil, "SVUI_Arena")
     else
-        self:ModPoint("TOPRIGHT", lastArenaFrame, "BOTTOMRIGHT", 0, -20)
+        self:SetPoint("TOPRIGHT", lastArenaFrame, "BOTTOMRIGHT", 0, -20)
     end
 
     self.MediaUpdate = MOD.RefreshUnitMedia
     self.Update = UpdateArenaFrame
     lastArenaFrame = self
-    return self 
+    return self
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 PREP FRAME
 ##########################################################
 ]]--
@@ -951,15 +954,15 @@ local ArenaPrepHandler_OnEvent = function(self, event)
             end
         end
     end
-end 
+end
 
 ArenaPrepHandler:RegisterEvent("PLAYER_LOGIN")
 ArenaPrepHandler:RegisterEvent("PLAYER_ENTERING_WORLD")
 ArenaPrepHandler:RegisterEvent("ARENA_OPPONENT_UPDATE")
 ArenaPrepHandler:RegisterEvent("ARENA_PREP_OPPONENT_SPECIALIZATIONS")
 ArenaPrepHandler:SetScript("OnEvent", ArenaPrepHandler_OnEvent)
---[[ 
-########################################################## 
+--[[
+##########################################################
 LOAD/UPDATE METHOD
 ##########################################################
 ]]--
@@ -978,10 +981,10 @@ function MOD:SetUnitFrame(key)
     else
         frame = self.Units[unit]
     end
-    if frame:GetParent() ~= SVUI_UnitFrameParent then 
+    if frame:GetParent() ~= SVUI_UnitFrameParent then
         frame:SetParent(SVUI_UnitFrameParent)
     end
-    if(SV.db.UnitFrames[key].enable) then 
+    if(SV.db.UnitFrames[key].enable) then
         frame:Enable()
         frame:Update()
     else
@@ -1005,17 +1008,17 @@ function MOD:SetEnemyFrame(key, maxCount)
         else
             frame = self.Units[unit]
         end
-        if frame:GetParent() ~= SVUI_UnitFrameParent then 
+        if frame:GetParent() ~= SVUI_UnitFrameParent then
             frame:SetParent(SVUI_UnitFrameParent)
         end
-        if(SV.db.UnitFrames[key].enable) then 
+        if(SV.db.UnitFrames[key].enable) then
             frame:Enable()
-            frame:Update() 
-        else 
+            frame:Update()
+        else
             frame:Disable()
         end
 
-        if(frame.isForced) then 
+        if(frame.isForced) then
             frame:Allow()
         end
     end

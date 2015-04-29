@@ -226,8 +226,8 @@ PACKAGE CALL
 function MOD:InitializeZoneButton()
 	local size = SVUI_DraenorButtonHolder:GetHeight()
     local draenor = CreateFrame('Button', "SVUI_DraenorZoneAbility", UIParent, 'SecureActionButtonTemplate, SecureHandlerStateTemplate, SecureHandlerAttributeTemplate');
-    draenor:ModSize(size,size);
-    draenor:ModPoint("CENTER", SVUI_DraenorButtonHolder, "CENTER", 0, 0);
+    draenor:SetSize(size,size);
+    draenor:SetPoint("CENTER", SVUI_DraenorButtonHolder, "CENTER", 0, 0);
     draenor:SetAlpha(0);
     draenor:SetStyle("Icon");
 
@@ -243,7 +243,7 @@ function MOD:InitializeZoneButton()
     
     local Artwork = draenor.Panel:CreateTexture('$parentArtwork', 'BACKGROUND')
     Artwork:SetPoint('CENTER', -2, 2)
-    Artwork:ModSize(size * 4.2, size * 2.1)
+    Artwork:SetSize(size * 4.2, size * 2.1)
     Artwork:SetTexture(texture)
     draenor.Artwork = Artwork
 

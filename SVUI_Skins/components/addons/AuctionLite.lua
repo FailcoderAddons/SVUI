@@ -30,8 +30,8 @@ AUCTIONLITE
 local function BGHelper(parent)
   parent.bg = CreateFrame("Frame", nil, parent)
   parent.bg:SetStyle("!_Frame", "Inset")
-  parent.bg:ModPoint("TOPLEFT", parent, "TOPLEFT", 16, -103)
-  parent.bg:ModPoint("BOTTOMRIGHT", AuctionFrame, "BOTTOMRIGHT", -8, 36)
+  parent.bg:SetPoint("TOPLEFT", parent, "TOPLEFT", 16, -103)
+  parent.bg:SetPoint("BOTTOMRIGHT", AuctionFrame, "BOTTOMRIGHT", -8, 36)
   parent.bg:SetFrameLevel(parent.bg:GetFrameLevel() - 1)
 end
 

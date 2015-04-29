@@ -103,7 +103,7 @@ local function TalentFrameStyle()
 	PlayerTalentFrameTalents:RemoveTextures()
 	PlayerTalentFrameTalentsClearInfoFrame:RemoveTextures()
 
-	PlayerTalentFrame.Panel:ModPoint("BOTTOMRIGHT", PlayerTalentFrame, "BOTTOMRIGHT", 0, -5)
+	PlayerTalentFrame.Panel:SetPoint("BOTTOMRIGHT", PlayerTalentFrame, "BOTTOMRIGHT", 0, -5)
 	PlayerTalentFrameSpecializationTutorialButton:Die()
 	PlayerTalentFrameTalentsTutorialButton:Die()
 	PlayerTalentFramePetSpecializationTutorialButton:Die()
@@ -122,23 +122,23 @@ local function TalentFrameStyle()
 
 	PlayerTalentFrameTalents:SetStyle("!_Frame", "Inset")
 	PlayerTalentFrameTalentsClearInfoFrame.icon:SetTexCoord(unpack(_G.SVUI_ICON_COORDS))
-	PlayerTalentFrameTalentsClearInfoFrame:ModWidth(PlayerTalentFrameTalentsClearInfoFrame:GetWidth()-2)
-	PlayerTalentFrameTalentsClearInfoFrame:ModHeight(PlayerTalentFrameTalentsClearInfoFrame:GetHeight()-2)
-	PlayerTalentFrameTalentsClearInfoFrame.icon:ModSize(PlayerTalentFrameTalentsClearInfoFrame:GetSize())
-	PlayerTalentFrameTalentsClearInfoFrame:ModPoint('TOPLEFT', PlayerTalentFrameTalents, 'BOTTOMLEFT', 8, -8)
+	PlayerTalentFrameTalentsClearInfoFrame:SetWidth(PlayerTalentFrameTalentsClearInfoFrame:GetWidth()-2)
+	PlayerTalentFrameTalentsClearInfoFrame:SetHeight(PlayerTalentFrameTalentsClearInfoFrame:GetHeight()-2)
+	PlayerTalentFrameTalentsClearInfoFrame.icon:SetSize(PlayerTalentFrameTalentsClearInfoFrame:GetSize())
+	PlayerTalentFrameTalentsClearInfoFrame:SetPoint('TOPLEFT', PlayerTalentFrameTalents, 'BOTTOMLEFT', 8, -8)
 
 	for i = 1, 4 do
 		SV.API:Set("Tab", _G["PlayerTalentFrameTab"..i])
 		if i == 1 then 
 			local d, e, k, g = _G["PlayerTalentFrameTab"..i]:GetPoint()
-			_G["PlayerTalentFrameTab"..i]:ModPoint(d, e, k, g, -4)
+			_G["PlayerTalentFrameTab"..i]:SetPoint(d, e, k, g, -4)
 		end 
 	end 
 
 	hooksecurefunc("PlayerTalentFrame_UpdateTabs", function()
 		for i = 1, 4 do 
 			local d, e, k, g = _G["PlayerTalentFrameTab"..i]:GetPoint()
-			_G["PlayerTalentFrameTab"..i]:ModPoint(d, e, k, g, -4)
+			_G["PlayerTalentFrameTab"..i]:SetPoint(d, e, k, g, -4)
 		end 
 	end)
 
@@ -153,7 +153,7 @@ local function TalentFrameStyle()
 
 	hooksecurefunc("PlayerTalentFrame_UpdateSpecs", function()
 		local d, x, f, g, h = PlayerSpecTab1:GetPoint()
-		PlayerSpecTab1:ModPoint(d, x, f, -1, h)
+		PlayerSpecTab1:SetPoint(d, x, f, -1, h)
 	end)
 
 	local maxTiers = MAX_TALENT_TIERS
@@ -167,8 +167,8 @@ local function TalentFrameStyle()
 
 			rowFrame:DisableDrawLayer("BORDER")
 			rowFrame:RemoveTextures()
-			rowFrame.TopLine:ModPoint("TOP", 0, 4)
-			rowFrame.BottomLine:ModPoint("BOTTOM", 0, -4)
+			rowFrame.TopLine:SetPoint("TOP", 0, 4)
+			rowFrame.BottomLine:SetPoint("BOTTOM", 0, -4)
 
 			for z = 1, NUM_TALENT_COLUMNS do 
 				local talentItem = _G[("%sTalent%d"):format(gName, z)]
@@ -237,7 +237,7 @@ local function TalentFrameStyle()
 				button.icon:SetTexture(icon)
 				if not button.restyled then
 					button.restyled = true;
-					button:ModSize(30, 30)
+					button:SetSize(30, 30)
 					button.ring:Hide()
 					button:SetStyle("!_Frame", "Inset")
 					button.icon:SetTexCoord(unpack(_G.SVUI_ICON_COORDS))
@@ -268,7 +268,7 @@ local function TalentFrameStyle()
 			button.specIcon:SetTexture(icon)
 			button.specIcon:SetTexCoord(unpack(_G.SVUI_ICON_COORDS))
 			button.specIcon:SetSize(50, 50)
-			button.specIcon:ModPoint("LEFT", button, "LEFT", 15, 0)
+			button.specIcon:SetPoint("LEFT", button, "LEFT", 15, 0)
 			button.SelectedTexture = button:CreateTexture(nil, 'ARTWORK')
 			button.SelectedTexture:SetTexture(1, 1, 0, 0.1)
 		end
@@ -315,7 +315,7 @@ local function TalentFrameStyle()
 			A.specIcon:SetTexture(icon)
 			A.specIcon:SetTexCoord(unpack(_G.SVUI_ICON_COORDS))
 			A.specIcon:SetSize(50, 50)
-			A.specIcon:ModPoint("LEFT", A, "LEFT", 15, 0)
+			A.specIcon:SetPoint("LEFT", A, "LEFT", 15, 0)
 			A.SelectedTexture = A:CreateTexture(nil, 'ARTWORK')
 			A.SelectedTexture:SetTexture(1, 1, 0, 0.1)
 		end 
@@ -363,7 +363,7 @@ local function GlyphStyle()
 	end
 
 	SV.API:Set("DropDown", GlyphFrameFilterDropDown, 212)
-	SV.API:Set("ScrollFrame", GlyphFrameScrollFrameScrollBar, 5)
+	SV.API:Set("ScrollBar", GlyphFrameScrollFrameScrollBar, 5)
 
 	for i = 1, 10 do 
 		local button = _G["GlyphFrameScrollFrameButton"..i]

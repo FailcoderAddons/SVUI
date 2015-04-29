@@ -225,25 +225,25 @@ local GetBonusRow = function(self, index)
 			row:SetPoint("TOPLEFT", self, "TOPLEFT", 0, 0);
 			row:SetPoint("TOPRIGHT", self, "TOPRIGHT", 0, 0);
 		end
-		row:ModHeight(ROW_HEIGHT);
+		row:SetHeight(ROW_HEIGHT);
 
 		row.Header = CreateFrame("Frame", nil, row)
-		row.Header:ModPoint("TOPLEFT", row, "TOPLEFT", 2, -2);
-		row.Header:ModPoint("TOPRIGHT", row, "TOPRIGHT", -2, -2);
-		row.Header:ModHeight(INNER_HEIGHT);
+		row.Header:SetPoint("TOPLEFT", row, "TOPLEFT", 2, -2);
+		row.Header:SetPoint("TOPRIGHT", row, "TOPRIGHT", -2, -2);
+		row.Header:SetHeight(INNER_HEIGHT);
 
 		row.Header.Text = row.Header:CreateFontString(nil,"OVERLAY")
 		row.Header.Text:SetFontObject(SVUI_Font_Quest_Header);
 		row.Header.Text:SetJustifyH('LEFT')
 		row.Header.Text:SetTextColor(0.2,0.75,1)
 		row.Header.Text:SetText('')
-		row.Header.Text:ModPoint("TOPLEFT", row.Header, "TOPLEFT", 0, 0);
-		row.Header.Text:ModPoint("BOTTOMRIGHT", row.Header, "BOTTOMRIGHT", 0, 0);
+		row.Header.Text:SetPoint("TOPLEFT", row.Header, "TOPLEFT", 0, 0);
+		row.Header.Text:SetPoint("BOTTOMRIGHT", row.Header, "BOTTOMRIGHT", 0, 0);
 
 		row.Objectives = MOD:NewObjectiveHeader(row);
-		row.Objectives:ModPoint("TOPLEFT", row, "BOTTOMLEFT", 0, 0);
-		row.Objectives:ModPoint("TOPRIGHT", row, "BOTTOMRIGHT", 0, 0);
-		row.Objectives:ModHeight(1);
+		row.Objectives:SetPoint("TOPLEFT", row, "BOTTOMLEFT", 0, 0);
+		row.Objectives:SetPoint("TOPRIGHT", row, "BOTTOMRIGHT", 0, 0);
+		row.Objectives:SetHeight(1);
 
 		row.RowID = 0;
 
@@ -264,7 +264,7 @@ local SetCriteriaRow = function(self, index, bonusStepIndex, subCount, hasFailed
 	local row = self:Get(index);
 	row.RowID = 0
 	row.Header.Text:SetText(TRACKER_HEADER_BONUS_OBJECTIVES)
-	row:ModHeight(ROW_HEIGHT);
+	row:SetHeight(ROW_HEIGHT);
 	row:SetAlpha(1);
 
 	local objective_block = row.Objectives;
@@ -292,7 +292,7 @@ local SetCriteriaRow = function(self, index, bonusStepIndex, subCount, hasFailed
 	end
 
 	if(objective_rows > 0) then
-		objective_block:ModHeight(fill_height);
+		objective_block:SetHeight(fill_height);
 	end
 
 	fill_height = fill_height + (ROW_HEIGHT + 2);
@@ -324,11 +324,11 @@ local SetBonusRow = function(self, index, questID, subCount)
 	if(not iscomplete) then
 		row.RowID = questID
 		row.Header.Text:SetText(TRACKER_HEADER_BONUS_OBJECTIVES)
-		row:ModHeight(ROW_HEIGHT);
+		row:SetHeight(ROW_HEIGHT);
 		row:FadeIn();
 
 		if(objective_rows > 0) then
-			objective_block:ModHeight(fill_height);
+			objective_block:SetHeight(fill_height);
 		end
 
 		fill_height = fill_height + (ROW_HEIGHT + 2);
@@ -407,7 +407,7 @@ local UpdateBonusObjectives = function(self)
 		self:SetAlpha(0);
 		self:Reset();
 	else
-		self:ModHeight(fill_height + 2);
+		self:SetHeight(fill_height + 2);
 		self:FadeIn();
 	end
 end

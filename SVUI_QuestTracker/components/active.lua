@@ -1,7 +1,7 @@
 --[[
 ##########################################################
 S V U I   By: Munglunch
-########################################################## 
+##########################################################
 LOCALIZED LUA FUNCTIONS
 ##########################################################
 ]]--
@@ -65,8 +65,8 @@ local GetQuestLogSpecialItemInfo 	= _G.GetQuestLogSpecialItemInfo;
 local GetQuestWorldMapAreaID  		= _G.GetQuestWorldMapAreaID;
 local GetTimeStringFromSeconds 		= _G.GetTimeStringFromSeconds;
 local GetQuestProgressBarPercent 	= _G.GetQuestProgressBarPercent;
---[[ 
-########################################################## 
+--[[
+##########################################################
 GET ADDON DATA
 ##########################################################
 ]]--
@@ -74,8 +74,8 @@ local SV = _G['SVUI']
 local L = SV.L
 local LSM = _G.LibStub("LibSharedMedia-3.0")
 local MOD = SV.QuestTracker;
---[[ 
-########################################################## 
+--[[
+##########################################################
 LOCALS
 ##########################################################
 ]]--
@@ -88,8 +88,8 @@ local OBJ_ICON_ACTIVE = [[Interface\COMMON\Indicator-Yellow]];
 local OBJ_ICON_COMPLETE = [[Interface\COMMON\Indicator-Green]];
 local OBJ_ICON_INCOMPLETE = [[Interface\COMMON\Indicator-Gray]];
 local DEFAULT_COLOR = {r = 1, g = 0.68, b = 0.1}
---[[ 
-########################################################## 
+--[[
+##########################################################
 SCRIPT HANDLERS
 ##########################################################
 ]]--
@@ -176,8 +176,8 @@ end
 local CloseButton_OnLeave = function(self)
     self:SetBackdropBorderColor(0,0,0,1)
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 TRACKER FUNCTIONS
 ##########################################################
 ]]--
@@ -200,6 +200,9 @@ local UnsetActiveData = function(self, bypass)
 	-- 	MOD.QuestItem.Artwork:SetTexture("");
 	-- 	MOD.QuestItem:ClearUsage();
 	-- end
+	if(block.Badge.StopTracking) then
+		block.Badge:StopTracking()
+	end
 	if(not bypass and MOD.Headers["Quests"]) then
 		MOD:UpdateObjectives('FORCED_UPDATE')
 	end
@@ -238,14 +241,14 @@ local SetActiveData = function(self, title, level, icon, questID, questLogIndex,
 	end
 
 	if(objective_rows > 0) then
-		objective_block:ModHeight(fill_height);
+		objective_block:SetHeight(fill_height);
 		objective_block:FadeIn();
 		fill_height = fill_height + ((INNER_HEIGHT + 4) + (LARGE_INNER_HEIGHT));
 	else
 		fill_height = fill_height + LARGE_INNER_HEIGHT + 12;
 	end
 
-	block:ModHeight(fill_height);
+	block:SetHeight(fill_height);
 
 	MOD.Docklet.ScrollFrame.ScrollBar:SetValue(0);
 
@@ -256,8 +259,8 @@ local SetActiveData = function(self, title, level, icon, questID, questLogIndex,
 	end
 	block.Badge.Icon:SetTexture(icon);
 
-	if(block.Badge.PostUpdate) then
-		block.Badge:PostUpdate(questID)
+	if(block.Badge.StartTracking) then
+		block.Badge:StartTracking(questID)
 	end
 
 	self:RefreshHeight()
@@ -277,7 +280,7 @@ local RefreshActiveObjective = function(self, event, ...)
 	-- print('<-----ACTIVE')
 	-- print(event)
 	-- print(...)
-	if(event) then 
+	if(event) then
 		if(event == 'ACTIVE_QUEST_LOADED') then
 			self.ActiveQuestID = 0;
 			self:Set(...)
@@ -310,8 +313,8 @@ local RefreshActiveObjective = function(self, event, ...)
 		end
 	end
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 CORE FUNCTIONS
 ##########################################################
 ]]--
@@ -349,13 +352,13 @@ function MOD:InitializeActive()
 	active:SetPoint("TOPLEFT", self.Headers["Popups"], "BOTTOMLEFT", 0, 0);
 
 	local block = CreateFrame("Frame", nil, active)
-	block:ModPoint("TOPLEFT", active, "TOPLEFT", 2, -4);
-	block:ModPoint("TOPRIGHT", active, "TOPRIGHT", -2, -4);
-	block:ModHeight(LARGE_INNER_HEIGHT);
+	block:SetPoint("TOPLEFT", active, "TOPLEFT", 2, -4);
+	block:SetPoint("TOPRIGHT", active, "TOPRIGHT", -2, -4);
+	block:SetHeight(LARGE_INNER_HEIGHT);
 
 	block.Button = CreateFrame("Button", nil, block)
-	block.Button:ModPoint("TOPLEFT", block, "TOPLEFT", 0, 0);
-	block.Button:ModPoint("BOTTOMRIGHT", block, "BOTTOMRIGHT", 0, 8);
+	block.Button:SetPoint("TOPLEFT", block, "TOPLEFT", 0, 0);
+	block.Button:SetPoint("BOTTOMRIGHT", block, "BOTTOMRIGHT", 0, 8);
 	block.Button:SetStyle("DockButton", "Transparent")
 	block.Button:SetBackdropBorderColor(0, 0.9, 0, 0.5)
 	block.Button:SetID(0)
@@ -371,14 +374,14 @@ function MOD:InitializeActive()
 	block.CloseButton:SetNormalTexture(SV.media.icon.close)
     block.CloseButton:HookScript("OnEnter", CloseButton_OnEnter)
     block.CloseButton:HookScript("OnLeave", CloseButton_OnLeave)
-	block.CloseButton:ModPoint("TOPRIGHT", block.Button, "TOPRIGHT", 4, 4);
+	block.CloseButton:SetPoint("TOPRIGHT", block.Button, "TOPRIGHT", 4, 4);
 	block.CloseButton:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 	block.CloseButton.Parent = active;
 	block.CloseButton:SetScript("OnClick", ActiveButton_OnClick)
 
 	block.Badge = CreateFrame("Frame", nil, block.Button)
-	block.Badge:ModPoint("TOPLEFT", block.Button, "TOPLEFT", 4, -4);
-	block.Badge:ModSize((LARGE_INNER_HEIGHT - 4), (LARGE_INNER_HEIGHT - 4));
+	block.Badge:SetPoint("TOPLEFT", block.Button, "TOPLEFT", 4, -4);
+	block.Badge:SetSize((LARGE_INNER_HEIGHT - 4), (LARGE_INNER_HEIGHT - 4));
 	block.Badge:SetStyle("!_Frame", "Inset")
 
 	block.Badge.Icon = block.Badge:CreateTexture(nil,"OVERLAY")
@@ -389,43 +392,43 @@ function MOD:InitializeActive()
 	block.Header = CreateFrame("Frame", nil, block)
 	block.Header:SetPoint("TOPLEFT", block.Badge, "TOPRIGHT", 4, 0);
 	block.Header:SetPoint("TOPRIGHT", block.Button, "TOPRIGHT", -24, -4);
-	block.Header:ModHeight(INNER_HEIGHT - 2);
+	block.Header:SetHeight(INNER_HEIGHT - 2);
 	block.Header:SetStyle("Frame")
 
 	block.Header.Level = block.Header:CreateFontString(nil,"OVERLAY")
 	block.Header.Level:SetFontObject(SVUI_Font_Quest);
 	block.Header.Level:SetJustifyH('LEFT')
 	block.Header.Level:SetText('')
-	block.Header.Level:ModPoint("TOPLEFT", block.Header, "TOPLEFT", 4, 0);
-	block.Header.Level:ModPoint("BOTTOMLEFT", block.Header, "BOTTOMLEFT", 4, 0);
+	block.Header.Level:SetPoint("TOPLEFT", block.Header, "TOPLEFT", 4, 0);
+	block.Header.Level:SetPoint("BOTTOMLEFT", block.Header, "BOTTOMLEFT", 4, 0);
 
 	block.Header.Text = block.Header:CreateFontString(nil,"OVERLAY")
 	block.Header.Text:SetFontObject(SVUI_Font_Quest);
 	block.Header.Text:SetJustifyH('LEFT')
 	block.Header.Text:SetTextColor(1,1,0)
 	block.Header.Text:SetText('')
-	block.Header.Text:ModPoint("TOPLEFT", block.Header.Level, "TOPRIGHT", 4, 0);
-	block.Header.Text:ModPoint("BOTTOMRIGHT", block.Header, "BOTTOMRIGHT", 0, 0);
+	block.Header.Text:SetPoint("TOPLEFT", block.Header.Level, "TOPRIGHT", 4, 0);
+	block.Header.Text:SetPoint("BOTTOMRIGHT", block.Header, "BOTTOMRIGHT", 0, 0);
 
 	block.Details = CreateFrame("Frame", nil, block.Header)
-	block.Details:ModPoint("TOPLEFT", block.Header, "BOTTOMLEFT", 0, -2);
-	block.Details:ModPoint("TOPRIGHT", block.Header, "BOTTOMRIGHT", 0, -2);
+	block.Details:SetPoint("TOPLEFT", block.Header, "BOTTOMLEFT", 0, -2);
+	block.Details:SetPoint("TOPRIGHT", block.Header, "BOTTOMRIGHT", 0, -2);
 
 	if(SV.AddQuestCompass) then
-		block.Details:ModHeight(INNER_HEIGHT - 4);
+		block.Details:SetHeight(INNER_HEIGHT - 4);
 		SV:AddQuestCompass(block, block.Badge)
 		block.Badge.Compass.Range:ClearAllPoints()
-		block.Badge.Compass.Range:ModPoint("TOPLEFT", block.Details, "TOPLEFT", 4, 0);
-		block.Badge.Compass.Range:ModPoint("BOTTOMLEFT", block.Details, "BOTTOMLEFT", 4, 0);
+		block.Badge.Compass.Range:SetPoint("TOPLEFT", block.Details, "TOPLEFT", 4, 0);
+		block.Badge.Compass.Range:SetPoint("BOTTOMLEFT", block.Details, "BOTTOMLEFT", 4, 0);
 		block.Badge.Compass.Range:SetJustifyH("LEFT");
 	else
-		block.Details:ModHeight(1);
+		block.Details:SetHeight(1);
 	end
 
 	block.Objectives = MOD:NewObjectiveHeader(block);
-	block.Objectives:ModPoint("TOPLEFT", block.Details, "BOTTOMLEFT", 0, -2);
-	block.Objectives:ModPoint("TOPRIGHT", block.Details, "BOTTOMRIGHT", 0, -2);
-	block.Objectives:ModHeight(1);
+	block.Objectives:SetPoint("TOPLEFT", block.Details, "BOTTOMLEFT", 0, -2);
+	block.Objectives:SetPoint("TOPRIGHT", block.Details, "BOTTOMRIGHT", 0, -2);
+	block.Objectives:SetHeight(1);
 
 	active.Block = block;
 

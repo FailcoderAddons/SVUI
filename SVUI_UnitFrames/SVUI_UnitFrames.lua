@@ -75,14 +75,6 @@ LOCALS
 ##########################################################
 ]]--
 local LoadedUnitFrames, LoadedGroupHeaders;
-local ReversedUnit = {
-	["target"] = true,
-	["targettarget"] = true,
-	["pettarget"] = true,
-	["focustarget"] = true,
-	["boss"] = true,
-	["arena"] = true,
-};
 
 local function FindAnchorFrame(frame, anchor, badPoint)
 	if badPoint or anchor == 'FRAME' then
@@ -155,7 +147,7 @@ do
 		elseif(unit == "targettarget") then
 			deactivate(TargetFrameToT)
 		elseif(unit:match("(boss)%d?$") == "boss") then
-		local id = unit:match("boss(%d)")
+			local id = unit:match("boss(%d)")
 			if(id) then
 				deactivate("Boss"..id.."TargetFrame")
 			else
@@ -339,13 +331,28 @@ function MOD:RefreshUnitMedia(unitName)
     end
 end
 
+local POWER_ANCHORS = {
+	["BOTTOM"] = {"BOTTOMLEFT", "BOTTOMLEFT", 1, 1, "BOTTOMRIGHT", "BOTTOMRIGHT", -1, 1},
+	["TOP"] = {"TOPLEFT", "TOPLEFT", 1, -1, "TOPRIGHT", "TOPRIGHT", -1, -1},
+	["LEFT"] = {"TOPLEFT", "TOPLEFT", 1, -1, "BOTTOMLEFT", "BOTTOMLEFT", 1, 1},
+	["RIGHT"] = {"TOPRIGHT", "TOPRIGHT", -1, -1, "BOTTOMRIGHT", "BOTTOMRIGHT", -1, 1},
+}
+
+local POWER_DETACHED_ANCHORS = {
+	["BOTTOM"] = {"TOP", "BOTTOM", 0, -1},
+	["TOP"] = {"BOTTOM", "TOP", 0, 1},
+	["LEFT"] = {"RIGHT", "LEFT", -1, 0},
+	["RIGHT"] = {"LEFT", "RIGHT", 1, 0},
+}
+
 function MOD:RefreshUnitLayout(frame, template)
 	local db = SV.db.UnitFrames[template]
 	if(not db) then return end
 
 	local TOP_ANCHOR1, TOP_ANCHOR2, TOP_MODIFIER = "TOPRIGHT", "TOPLEFT", 1;
 	local BOTTOM_ANCHOR1, BOTTOM_ANCHOR2, BOTTOM_MODIFIER = "BOTTOMLEFT", "BOTTOMRIGHT", -1;
-	if(ReversedUnit[template]) then
+	local REVERSED_LAYOUT = db.reverseLayout;
+	if(REVERSED_LAYOUT) then
 		TOP_ANCHOR1 = "TOPLEFT"
 		TOP_ANCHOR2 = "TOPRIGHT"
 		TOP_MODIFIER = -1
@@ -354,26 +361,50 @@ function MOD:RefreshUnitLayout(frame, template)
 		BOTTOM_MODIFIER = 1
 	end
 
-	local MASTER_GRIP = frame.MasterGrip;
+	local MASTER_GRIP = frame.ActionPanel;
 	local TEXT_GRIP = frame.TextGrip;
 
 	local UNIT_WIDTH, UNIT_HEIGHT, BEST_SIZE = self:GetActiveSize(db);
 	local GRID_MODE = (db.grid and db.grid.enable);
 	local MINI_GRID = (GRID_MODE and BEST_SIZE < 26);
+	local RESIZE_NEEDED = false;
+	local MASTER_X1_OFFSET, MASTER_X2_OFFSET, MASTER_TOP_OFFSET, MASTER_BOTTOM_OFFSET = 0, 0, 0, 0;
 
 	local POWER_GRIP = frame.Power;
-	local POWER_ENABLED = false;
-	local POWER_HEIGHT = 1;
+	local POWER_POINT;
+	local POWER_ENABLED, POWER_DETACHED = false, false;
+	local POWER_HEIGHT, POWER_WIDTH = 1, UNIT_WIDTH;
 	if(POWER_GRIP and db.power) then
 		POWER_ENABLED = (GRID_MODE and db.grid.powerEnable) or db.power.enable;
-		POWER_HEIGHT = POWER_ENABLED and (db.power.height - 1) or 1;
+		POWER_DETACHED = db.power.detached;
+		RESIZE_NEEDED = POWER_DETACHED
+		if(POWER_ENABLED) then
+			if(db.power.height) then POWER_HEIGHT = db.power.height - 1; end
+			if(db.power.width and POWER_DETACHED) then POWER_WIDTH = db.power.width; end
+		end
+		if(db.power.anchor) then
+			POWER_POINT = POWER_DETACHED and POWER_DETACHED_ANCHORS[db.power.anchor] or POWER_ANCHORS[db.power.anchor]
+			if(POWER_DETACHED) then
+				if(db.power.anchor == "TOP") then
+					MASTER_TOP_OFFSET = POWER_HEIGHT
+				elseif(db.power.anchor == "BOTTOM") then
+					MASTER_BOTTOM_OFFSET = POWER_HEIGHT
+				else
+					if((REVERSED_LAYOUT and db.power.anchor == "LEFT") or ((not REVERSED_LAYOUT) and db.power.anchor == "RIGHT")) then
+						MASTER_X2_OFFSET = MASTER_X2_OFFSET + POWER_WIDTH
+					else
+						MASTER_X1_OFFSET = MASTER_X1_OFFSET + POWER_WIDTH
+					end
+				end
+			end
+		end
 	end
 
 	local PORTRAIT_GRIP = false;
 	local PORTRAIT_ENABLED = false;
 	local PORTRAIT_OVERLAY = false;
 	local PORTRAIT_OVERLAY_ANIMATION = false;
-	local PORTRAIT_WIDTH = (1 * TOP_MODIFIER);
+	local PORTRAIT_WIDTH = 0;
 	local PORTRAIT_STYLE = 'None';
 	if(db.portrait) then
 		PORTRAIT_ENABLED = (not GRID_MODE and db.portrait.enable);
@@ -382,15 +413,24 @@ function MOD:RefreshUnitLayout(frame, template)
 		PORTRAIT_OVERLAY_ANIMATION = (PORTRAIT_OVERLAY) and SV.db.UnitFrames.overlayAnimation or false;
 		if(PORTRAIT_ENABLED and (not PORTRAIT_OVERLAY)) then
 			if(PORTRAIT_STYLE == '2D') then
-				PORTRAIT_WIDTH = ((UNIT_HEIGHT * TOP_MODIFIER) + (1 * TOP_MODIFIER));
+				PORTRAIT_WIDTH = UNIT_HEIGHT;
 			else
-				PORTRAIT_WIDTH = ((db.portrait.width * TOP_MODIFIER) + (1 * TOP_MODIFIER));
+				PORTRAIT_WIDTH = db.portrait.width;
 			end
+			RESIZE_NEEDED = true
 		end
- 		if(frame.PortraitModel) then
+
+		if(frame.PortraitModel) then
 			frame.PortraitModel:Hide()
 			frame.PortraitModel:ClearAllPoints()
 		end
+
+		if(frame.PortraitTexture) then
+			local parent2D = frame.PortraitTexture:GetParent();
+			parent2D:Hide()
+			parent2D:ClearAllPoints()
+		end
+
 		if(frame.PortraitTexture and frame.PortraitModel) then
 			if(PORTRAIT_STYLE == '2D') then
 				frame.Portrait = frame.PortraitTexture
@@ -411,9 +451,13 @@ function MOD:RefreshUnitLayout(frame, template)
 	local DEBUFF_GRIP = frame.Debuffs;
 	local DEBUFF_ENABLED = (db.debuffs and db.debuffs.enable) or false;
 
+	if(RESIZE_NEEDED) then
+		frame:SetSize(UNIT_WIDTH + (MASTER_X1_OFFSET + MASTER_X2_OFFSET), UNIT_HEIGHT + (MASTER_TOP_OFFSET + MASTER_BOTTOM_OFFSET))
+	end
+
 	MASTER_GRIP:ClearAllPoints();
-	MASTER_GRIP:ModPoint(TOP_ANCHOR1, frame, TOP_ANCHOR1, (1 * BOTTOM_MODIFIER), -1);
-	MASTER_GRIP:ModPoint(BOTTOM_ANCHOR1, frame, BOTTOM_ANCHOR1, PORTRAIT_WIDTH, 1);
+	MASTER_GRIP:SetPoint(TOP_ANCHOR2, frame, TOP_ANCHOR2, ((MASTER_X1_OFFSET + PORTRAIT_WIDTH) * TOP_MODIFIER), MASTER_TOP_OFFSET);
+	MASTER_GRIP:SetPoint(BOTTOM_ANCHOR2, frame, BOTTOM_ANCHOR2, (MASTER_X2_OFFSET * BOTTOM_MODIFIER), MASTER_BOTTOM_OFFSET);
 
 	if(frame.StatusPanel) then
 		if(template ~= "player" and template ~= "pet" and template ~= "target" and template ~= "targettarget" and template ~= "focus" and template ~= "focustarget") then
@@ -421,6 +465,7 @@ function MOD:RefreshUnitLayout(frame, template)
 			frame.StatusPanel:SetSize(size, size)
 			frame.StatusPanel:SetPoint("CENTER", MASTER_GRIP, "CENTER", 0, 0)
 		end
+		self:UpdateStatusMedia(frame)
 	end
 
 	if(frame.InfoPanelBG) then
@@ -453,10 +498,10 @@ function MOD:RefreshUnitLayout(frame, template)
 	if frame.TargetGlow then
 		local glow = frame.TargetGlow;
 		glow:ClearAllPoints()
-		glow:ModPoint("TOPLEFT", -3, 3)
-		glow:ModPoint("TOPRIGHT", 3, 3)
-		glow:ModPoint("BOTTOMLEFT", -3, -3)
-		glow:ModPoint("BOTTOMRIGHT", 3, -3)
+		glow:SetPoint("TOPLEFT", -3, 3)
+		glow:SetPoint("TOPRIGHT", 3, 3)
+		glow:SetPoint("BOTTOMLEFT", -3, -3)
+		glow:SetPoint("BOTTOMRIGHT", 3, -3)
 	end
 
 	--[[ INFO TEXTS ]]--
@@ -466,7 +511,7 @@ function MOD:RefreshUnitLayout(frame, template)
 		local nametext = TEXT_GRIP.Name
 		if(GRID_MODE) then
 			nametext:ClearAllPoints()
-			nametext:ModPoint("CENTER", frame, "CENTER", 0, 0)
+			nametext:SetPoint("CENTER", frame, "CENTER", 0, 0)
 			nametext:SetJustifyH("CENTER")
 			nametext:SetJustifyV("MIDDLE")
 			if(db.name.tags ~= nil and db.name.tags ~= '') then
@@ -573,7 +618,7 @@ function MOD:RefreshUnitLayout(frame, template)
 			health.colorReaction = CLASSCOLOR;
 			health.colorSmooth = VALUECOLOR;
 			health.colorHealth = ((not CLASSCOLOR) and (not VALUECOLOR)) or false;
-			health.colorBackdrop = (CLASSCOLOR and db.health.classBackdrop) or false;
+			health.colorBackdrop = db.health.classBackdrop;
 		end
 
 		health:ClearAllPoints()
@@ -613,14 +658,40 @@ function MOD:RefreshUnitLayout(frame, template)
 				POWER_GRIP.frequentUpdates = db.power.frequentUpdates;
 
 				POWER_GRIP:ClearAllPoints()
-				POWER_GRIP:ModHeight(POWER_HEIGHT - 2)
 
-				if(not PORTRAIT_OVERLAY) then
-					POWER_GRIP:ModPoint(BOTTOM_ANCHOR1, frame, BOTTOM_ANCHOR1, PORTRAIT_WIDTH, 1)
-					POWER_GRIP:ModPoint(BOTTOM_ANCHOR2, frame, BOTTOM_ANCHOR2, (1 * BOTTOM_MODIFIER), 1)
+				if(db.power and POWER_POINT) then
+					local a1,a2,ax,ay,b1,b2,bx,by = unpack(POWER_POINT)
+
+					POWER_GRIP:SetPoint(a1, MASTER_GRIP, a2, ax, ay)
+					if(b1) then
+						POWER_GRIP:SetPoint(b1, MASTER_GRIP, b2, bx, by)
+					end
+					POWER_GRIP:SetSize((POWER_WIDTH - 2), (POWER_HEIGHT - 2))
+					POWER_GRIP.Panel:ClearAllPoints()
+
+					if(POWER_DETACHED) then
+						POWER_GRIP.Panel:WrapPoints(POWER_GRIP,2,2)
+						if(frame.InfoPanel) then
+							frame.InfoPanel:ClearAllPoints()
+							if(db.power.anchor == "BOTTOM") then
+								frame.InfoPanel:SetPoint("TOPLEFT", POWER_GRIP, "BOTTOMLEFT", 0, 1)
+								frame.InfoPanel:SetPoint("TOPRIGHT", POWER_GRIP, "BOTTOMRIGHT", 0, 1)
+							else
+								frame.InfoPanel:SetPoint("TOPLEFT", frame, "BOTTOMLEFT", 0, 1)
+								frame.InfoPanel:SetPoint("TOPRIGHT", frame, "BOTTOMRIGHT", 0, 1)
+							end
+						end
+					else
+						POWER_GRIP.Panel:WrapPoints(POWER_GRIP)
+					end
 				else
-					POWER_GRIP:ModPoint(BOTTOM_ANCHOR1, frame, BOTTOM_ANCHOR1, (PORTRAIT_WIDTH - (1 * BOTTOM_MODIFIER)), 2)
-					POWER_GRIP:ModPoint(BOTTOM_ANCHOR2, frame, BOTTOM_ANCHOR2, (2 * BOTTOM_MODIFIER), 2)
+					POWER_GRIP:SetHeight(POWER_HEIGHT - 2)
+					POWER_GRIP:SetPoint(BOTTOM_ANCHOR1, MASTER_GRIP, BOTTOM_ANCHOR1, (1 * TOP_MODIFIER), 1)
+					POWER_GRIP:SetPoint(BOTTOM_ANCHOR2, MASTER_GRIP, BOTTOM_ANCHOR2, (1 * BOTTOM_MODIFIER), 1)
+				end
+
+				if(db.power and db.power.orientation) then
+					POWER_GRIP:SetOrientation(db.power.orientation)
 				end
 			elseif(frame:IsElementEnabled('Power')) then
 				frame:DisableElement('Power')
@@ -632,21 +703,27 @@ function MOD:RefreshUnitLayout(frame, template)
 
 		if(frame.AltPowerBar) then
 			local altPower = frame.AltPowerBar;
-			local Alt_OnShow = function()
-				MASTER_GRIP:ModPoint(TOP_ANCHOR2, PORTRAIT_WIDTH, -(POWER_HEIGHT + 1))
-			end
-			local Alt_OnHide = function()
-				MASTER_GRIP:ModPoint(TOP_ANCHOR2, PORTRAIT_WIDTH, -1)
-				altPower.text:SetText("")
-			end
-			if db.power.enable then
+			if(db.power.enable) then
+				local Alt_OnShow = function()
+					if(not POWER_DETACHED) then
+						MASTER_GRIP:SetPoint(TOP_ANCHOR2, frame, TOP_ANCHOR2, PORTRAIT_WIDTH, -(POWER_HEIGHT + 1))
+					end
+				end
+
+				local Alt_OnHide = function()
+					if(not POWER_DETACHED) then
+						MASTER_GRIP:SetPoint(TOP_ANCHOR2, frame, TOP_ANCHOR2, PORTRAIT_WIDTH, -1)
+					end
+					altPower.text:SetText("")
+				end
+
 				frame:EnableElement('AltPowerBar')
 				if(TEXT_GRIP.Health) then
 					altPower.text:SetFont(TEXT_GRIP.Health:GetFont())
 				end
 				altPower.text:SetAlpha(1)
-				altPower:ModPoint(TOP_ANCHOR2, frame, TOP_ANCHOR2, PORTRAIT_WIDTH, -1)
-				altPower:ModPoint(TOP_ANCHOR1, frame, TOP_ANCHOR1, (1 * BOTTOM_MODIFIER), -1)
+				altPower:SetPoint(TOP_ANCHOR2, frame, TOP_ANCHOR2, PORTRAIT_WIDTH, -1)
+				altPower:SetPoint(TOP_ANCHOR1, frame, TOP_ANCHOR1, (1 * BOTTOM_MODIFIER), -1)
 				altPower:SetHeight(POWER_HEIGHT)
 				altPower.Smooth = SV.db.UnitFrames.smoothbars;
 				altPower:HookScript("OnShow", Alt_OnShow)
@@ -672,10 +749,13 @@ function MOD:RefreshUnitLayout(frame, template)
 			PORTRAIT_GRIP:SetAlpha(1)
 			PORTRAIT_GRIP:ClearAllPoints()
 			if(PORTRAIT_OVERLAY) then
-				PORTRAIT_GRIP:SetAllPoints(MASTER_GRIP)
+				PORTRAIT_GRIP:InsetPoints(MASTER_GRIP,2,2)
+				PORTRAIT_GRIP.Outline:Hide()
 			else
-				PORTRAIT_GRIP:ModPoint(TOP_ANCHOR2, frame, TOP_ANCHOR2, (1 * TOP_MODIFIER), -1)
-				PORTRAIT_GRIP:ModPoint(BOTTOM_ANCHOR2, MASTER_GRIP, BOTTOM_ANCHOR1, (1 * BOTTOM_MODIFIER), 1)
+				PORTRAIT_GRIP:SetPoint(TOP_ANCHOR1, MASTER_GRIP, TOP_ANCHOR2, 0, -2)
+				PORTRAIT_GRIP:SetPoint(BOTTOM_ANCHOR2, MASTER_GRIP, BOTTOM_ANCHOR1, 0, 2)
+				PORTRAIT_GRIP:SetWidth(PORTRAIT_WIDTH - 2)
+				PORTRAIT_GRIP.Outline:Show()
 			end
 
 			if(PORTRAIT.ForceUpdate) then PORTRAIT:ForceUpdate() end
@@ -788,12 +868,14 @@ function MOD:RefreshUnitLayout(frame, template)
 			if(not frame:IsElementEnabled('Aura')) then
 				frame:EnableElement('Aura')
 			end
+
 			if(BUFF_GRIP) then
 				if(BUFF_ENABLED) then
 					BUFF_GRIP:Show()
 
 					local rows 		= db.buffs.numrows;
-					local columns 	= db.buffs.perrow;
+					local columns = db.buffs.perrow;
+					local spacing = db.buffs.spacing;
 					local count 	= columns * rows;
 					local auraSize;
 
@@ -824,11 +906,18 @@ function MOD:RefreshUnitLayout(frame, template)
 						if(db.buffs.sizeOverride and db.buffs.sizeOverride > 0) then
 							auraSize = db.buffs.sizeOverride
 						else
-							local tempSize = (((UNIT_WIDTH + 2) - (DEBUFF_GRIP.spacing * (columns - 1))) / columns);
+							local tempSize = (((UNIT_WIDTH + spacing) - (spacing * (columns - 1))) / columns);
 							auraSize = min(BEST_SIZE, tempSize)
 						end
 					end
 
+					if(db.buffs.barWidthOverride and db.buffs.barWidthOverride > 0) then
+						BUFF_GRIP.barWidth = db.buffs.barWidthOverride
+					else
+						BUFF_GRIP.barWidth = nil
+					end
+
+					BUFF_GRIP.spacing  		= spacing;
 					BUFF_GRIP.auraSize  	= auraSize;
 					BUFF_GRIP.maxCount 		= GRID_MODE and 0 or count;
 					BUFF_GRIP.maxRows 		= rows;
@@ -855,7 +944,8 @@ function MOD:RefreshUnitLayout(frame, template)
 				if(DEBUFF_ENABLED) then
 					DEBUFF_GRIP:Show()
 					local rows 		= db.debuffs.numrows;
-					local columns 	= db.debuffs.perrow;
+					local columns = db.debuffs.perrow;
+					local spacing = db.debuffs.spacing;
 					local count 	= columns * rows;
 					local auraSize;
 
@@ -883,11 +973,18 @@ function MOD:RefreshUnitLayout(frame, template)
 						if(db.debuffs.sizeOverride and db.debuffs.sizeOverride > 0) then
 							auraSize = db.debuffs.sizeOverride
 						else
-							local tempSize = (((UNIT_WIDTH + 2) - (DEBUFF_GRIP.spacing * (columns - 1))) / columns);
+							local tempSize = (((UNIT_WIDTH + spacing) - (spacing * (columns - 1))) / columns);
 							auraSize = min(BEST_SIZE, tempSize)
 						end
 					end
 
+					if(db.debuffs.barWidthOverride and db.debuffs.barWidthOverride > 0) then
+						DEBUFF_GRIP.barWidth = db.debuffs.barWidthOverride
+					else
+						DEBUFF_GRIP.barWidth = nil
+					end
+
+					DEBUFF_GRIP.spacing  = spacing;
 					DEBUFF_GRIP.auraSize  	= auraSize;
 					DEBUFF_GRIP.maxRows 	= rows;
 					DEBUFF_GRIP.maxColumns 	= columns;
@@ -929,7 +1026,7 @@ function MOD:RefreshUnitLayout(frame, template)
 					classIcon:ClearAllPoints()
 
 					classIcon:SetAlpha(1)
-					classIcon:ModSize(size)
+					classIcon:SetSize(size, size)
 					SV:SetReversePoint(classIcon, ico.classIcon.attachTo, MASTER_GRIP, ico.classIcon.xOffset, ico.classIcon.yOffset)
 				else
 					classIcon:Hide()
@@ -948,11 +1045,11 @@ function MOD:RefreshUnitLayout(frame, template)
 
 					if(GRID_MODE) then
 						raidIcon:SetAlpha(0.7)
-						raidIcon:ModSize(10)
-						raidIcon:ModPoint("TOP", MASTER_GRIP, "TOP", 0, 0)
+						raidIcon:SetSize(10, 10)
+						raidIcon:SetPoint("TOP", MASTER_GRIP, "TOP", 0, 0)
 					else
 						raidIcon:SetAlpha(1)
-						raidIcon:ModSize(size)
+						raidIcon:SetSize(size, size)
 						SV:SetReversePoint(raidIcon, ico.raidicon.attachTo, MASTER_GRIP, ico.raidicon.xOffset, ico.raidicon.yOffset)
 					end
 				else
@@ -973,11 +1070,11 @@ function MOD:RefreshUnitLayout(frame, template)
 
 					if(GRID_MODE) then
 						lfd:SetAlpha(0.7)
-						lfd:ModSize(10)
-						lfd:ModPoint("BOTTOM", MASTER_GRIP, "BOTTOM", 0, 0)
+						lfd:SetSize(10, 10)
+						lfd:SetPoint("BOTTOM", MASTER_GRIP, "BOTTOM", 0, 0)
 					else
 						lfd:SetAlpha(1)
-						lfd:ModSize(size)
+						lfd:SetSize(size, size)
 						SV:SetReversePoint(lfd, ico.roleIcon.attachTo, MASTER_GRIP, ico.roleIcon.xOffset, ico.roleIcon.yOffset)
 					end
 				else
@@ -999,11 +1096,11 @@ function MOD:RefreshUnitLayout(frame, template)
 
 					if(GRID_MODE) then
 						roles:SetAlpha(0.7)
-						roles:ModSize(10)
-						roles:ModPoint("CENTER", MASTER_GRIP, "TOPLEFT", 0, 2)
+						roles:SetSize(10, 10)
+						roles:SetPoint("CENTER", MASTER_GRIP, "TOPLEFT", 0, 2)
 					else
 						roles:SetAlpha(1)
-						roles:ModSize(size)
+						roles:SetSize(size, size)
 						SV:SetReversePoint(roles, ico.raidRoleIcons.attachTo, MASTER_GRIP, ico.raidRoleIcons.xOffset, ico.raidRoleIcons.yOffset)
 					end
 				else
@@ -1292,6 +1389,8 @@ function MOD:Load()
 	end
 
 	SV.Events:On("AURA_FILTER_OPTIONS_CHANGED", UpdateUnitFrames, true);
+
+	self:InitializeBodyGuard()
 
 	local rDebuffs = SV.oUF_RaidDebuffs or oUF_RaidDebuffs;
 	if not rDebuffs then return end

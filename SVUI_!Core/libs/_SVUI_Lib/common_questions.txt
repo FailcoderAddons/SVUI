@@ -1,0 +1,9 @@
+How do I set health values to percent?
+
+Go into options ("/sv") and click UnitFrames on the left.
+Then click on any unit you would like to change.
+Once those options appear, click the dropdown box on the upper right and select "Health".
+Now scroll down and look under "Text Settings" for the option "Text Format".
+Click that dropdown and you will see the "percent" options among others.
+
+--###############################################

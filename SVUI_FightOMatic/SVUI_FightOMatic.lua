@@ -509,7 +509,23 @@ function PLUGIN:ScannerLog(enemy)
 end
 
 function PLUGIN:UpdateCommunicator()
-	if(not self.InPVP) then
+	if(self.InPVP) then
+		self.COMM.Unavailable:Show()
+		for i = 1, 5 do
+			local nodeName = ("SVUI_PVPNode%d"):format(i)
+			local node = _G[nodeName]
+			local safe = node.Safe
+			local help = node.Help
+			safe.name = ""
+			help.name = ""
+			node.Text:SetText("")
+			node:Hide()
+		end
+		self.InPVP = nil
+		self:RegisterEvent("UPDATE_BATTLEFIELD_SCORE")
+		self.Scanning = true
+		self:PopulateScans()
+	else
 		local mapID = GetCurrentMapAreaID()
 		if(mapID) then
 			local points = PVP_NODES[mapID]
@@ -539,23 +555,6 @@ function PLUGIN:UpdateCommunicator()
 				self:PauseScanner()
 			end
 		end
-	elseif(self.InPVP) then
-		self.COMM.Unavailable:Show()
-		for i = 1, 5 do
-			local nodeName = ("SVUI_PVPNode%d"):format(i)
-			local node = _G[nodeName]
-			local safe = node.Safe
-			local help = node.Help
-			safe.name = ""
-			help.name = ""
-			node.Text:SetText("")
-			node:Hide()
-		end
-		self.InPVP = nil
-		self:RegisterEvent("UPDATE_BATTLEFIELD_SCORE")
-		self.Scanning = true
-
-		self:PopulateScans()
 	end
 end
 
@@ -863,15 +862,15 @@ local function MakeInfoWindow()
 	local DATA_HEIGHT = frame:GetHeight() - 2;
 
 	local leftColumn = CreateFrame("Frame", "SVUI_FightOMaticInfoLeft", frame)
-	leftColumn:ModSize(DATA_WIDTH, DATA_HEIGHT)
-	leftColumn:ModPoint("LEFT", frame, "LEFT", 0, 0)
+	leftColumn:SetSize(DATA_WIDTH, DATA_HEIGHT)
+	leftColumn:SetPoint("LEFT", frame, "LEFT", 0, 0)
 	leftColumn.lockedOpen = true
 	SV.Reports:NewHolder(leftColumn, 3, "ANCHOR_CURSOR", 1, "Transparent")
 	leftColumn:SetFrameLevel(0)
 
 	local rightColumn = CreateFrame("Frame", "SVUI_FightOMaticInfoRight", frame)
-	rightColumn:ModSize(DATA_WIDTH, DATA_HEIGHT)
-	rightColumn:ModPoint("LEFT", leftColumn, "RIGHT", 2, 0)
+	rightColumn:SetSize(DATA_WIDTH, DATA_HEIGHT)
+	rightColumn:SetPoint("LEFT", leftColumn, "RIGHT", 2, 0)
 	rightColumn.lockedOpen = true
 	SV.Reports:NewHolder(rightColumn, 3, "ANCHOR_CURSOR", 2, "Transparent")
 	rightColumn:SetFrameLevel(0)

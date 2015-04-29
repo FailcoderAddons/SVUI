@@ -24,8 +24,8 @@ local function ReforgingStyle()
 
 	ReforgingFrame.ButtonFrame:RemoveTextures()
 	ReforgingFrameReforgeButton:ClearAllPoints()
-	ReforgingFrameReforgeButton:ModPoint("LEFT", ReforgingFrameRestoreButton, "RIGHT", 2, 0)
-	ReforgingFrameReforgeButton:ModPoint("BOTTOMRIGHT", -3, 3)
+	ReforgingFrameReforgeButton:SetPoint("LEFT", ReforgingFrameRestoreButton, "RIGHT", 2, 0)
+	ReforgingFrameReforgeButton:SetPoint("BOTTOMRIGHT", -3, 3)
 	ReforgingFrame.RestoreMessage:SetTextColor(1, 1, 1)
 
 	ReforgingFrameRestoreButton:RemoveTextures()

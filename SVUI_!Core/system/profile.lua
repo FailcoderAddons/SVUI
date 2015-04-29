@@ -1,7 +1,7 @@
 --[[
 ##############################################################################
 S V U I   By: Munglunch
-############################################################################## ]]-- 
+############################################################################## ]]--
 --[[ GLOBALS ]]--
 local _G = _G;
 local unpack            = _G.unpack;
@@ -33,8 +33,8 @@ local floor, abs, min, max = math.floor, math.abs, math.min, math.max;
 --[[ TABLE METHODS ]]--
 local tremove, tcopy, twipe, tsort, tconcat = table.remove, table.copy, table.wipe, table.sort, table.concat;
 local tprint = table.tostring;
---[[ 
-########################################################## 
+--[[
+##########################################################
 GET ADDON DATA
 ##########################################################
 ]]--
@@ -46,8 +46,8 @@ SV.ProfileInterface = _G["SVUI_ProfileInterface"];
 local ProfileInterfaceDialog = _G["SVUI_ProfileInterfaceDialog"];
 local ProfileInterfaceHelp = _G["SVUI_ProfileInterfaceHelp"];
 local ProfileInterfaceScrollBar = _G["SVUI_ProfileInterfaceDialogScrollBar"];
---[[ 
-########################################################## 
+--[[
+##########################################################
 CUSTOM MESSAGE WINDOW
 ##########################################################
 ]]--
@@ -75,13 +75,13 @@ function SV.ProfileInterface:Toggle()
 end
 
 function SV:LinkProfile(key)
-    self.SystemAlert["COPY_PROFILE_PROMPT"].text = "Are you sure you want to link to the profile '" .. key .. "'?"
+    self.SystemAlert["COPY_PROFILE_PROMPT"].text = "Are you sure you want to use the shared profile '" .. key .. "'?"
     self.SystemAlert["COPY_PROFILE_PROMPT"].OnAccept = function() SVUILib:CopyDatabase(key, true) end
     self:StaticPopup_Show("COPY_PROFILE_PROMPT")
 end
 
 function SV:CopyProfile(key)
-    self.SystemAlert["COPY_PROFILE_PROMPT"].text = "Are you sure you want to copy the profile '" .. key .. "'?"
+    self.SystemAlert["COPY_PROFILE_PROMPT"].text = "Are you sure you want to copy from the profile '" .. key .. "'?"
     self.SystemAlert["COPY_PROFILE_PROMPT"].OnAccept = function() SVUILib:CopyDatabase(key) end
     self:StaticPopup_Show("COPY_PROFILE_PROMPT")
 end

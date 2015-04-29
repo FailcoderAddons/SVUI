@@ -45,9 +45,9 @@ local DEMO_SPELLS = {47540, 47540, 47540, 47540, 47540}
 
 local function FormatTime(seconds)
 	if seconds < MINUTE then
-		return ("%.1fs"):format(seconds)
+		return ("%.1f"):format(seconds)
 	elseif seconds < HOUR then
-		return ("%dm %ds"):format(seconds/60%60, seconds%60)
+		return ("%d:%d"):format(seconds/60%60, seconds%60)
 	elseif seconds < DAY then
 		return ("%dh %dm"):format(seconds/(60*60), seconds/60%60)
 	else
@@ -172,7 +172,7 @@ end
 local SetBarLayout = function(self, visible, cache)
 	local auras = self.Bars;
 
-	local width = self:GetParent():GetWidth();
+	local width = self.barWidth or self:GetParent():GetWidth();
 	local height = self.barHeight or 16;
 	local growDown = self.down or false;
 	local spacing = self.spacing or 0;

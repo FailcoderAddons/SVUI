@@ -343,8 +343,8 @@ local ForceUpdate = function(self)
 				aura.missingAlpha = aura.onlyShowMissing and 1 or 0;
 				aura.textThreshold = data.textThreshold or -1;
 				aura.displayText = data.displayText;
-				aura:ModWidth(watchsize)
-				aura:ModHeight(watchsize)
+				aura:SetWidth(watchsize)
+				aura:SetHeight(watchsize)
 				aura:ClearAllPoints()
 
 				aura:SetPoint(data.point, frame.Health, data.point, data.xOffset, data.yOffset)
@@ -354,8 +354,8 @@ local ForceUpdate = function(self)
 				end  
 				if not aura.border then 
 					aura.border = aura:CreateTexture(nil, "BACKGROUND")
-					aura.border:ModPoint("TOPLEFT", -1, 1)
-					aura.border:ModPoint("BOTTOMRIGHT", 1, -1)
+					aura.border:SetPoint("TOPLEFT", -1, 1)
+					aura.border:SetPoint("BOTTOMRIGHT", 1, -1)
 					aura.border:SetTexture([[Interface\BUTTONS\WHITE8X8]])
 					aura.border:SetVertexColor(0, 0, 0)
 				end 

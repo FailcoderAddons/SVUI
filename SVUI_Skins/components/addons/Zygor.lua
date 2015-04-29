@@ -30,11 +30,11 @@ ZYGOR
 local function StyleZygorTabs()
 	if(not ZGVCharacterGearFinderButton) then return end
 	ZGVCharacterGearFinderButton.Highlight:SetTexture(1, 1, 1, 0.3)
-	ZGVCharacterGearFinderButton.Highlight:ModPoint("TOPLEFT", 3, -4)
-	ZGVCharacterGearFinderButton.Highlight:ModPoint("BOTTOMRIGHT", -1, 0)
+	ZGVCharacterGearFinderButton.Highlight:SetPoint("TOPLEFT", 3, -4)
+	ZGVCharacterGearFinderButton.Highlight:SetPoint("BOTTOMRIGHT", -1, 0)
 	ZGVCharacterGearFinderButton.Hider:SetTexture(0.4, 0.4, 0.4, 0.4)
-	ZGVCharacterGearFinderButton.Hider:ModPoint("TOPLEFT", 3, -4)
-	ZGVCharacterGearFinderButton.Hider:ModPoint("BOTTOMRIGHT", -1, 0)
+	ZGVCharacterGearFinderButton.Hider:SetPoint("TOPLEFT", 3, -4)
+	ZGVCharacterGearFinderButton.Hider:SetPoint("BOTTOMRIGHT", -1, 0)
 	ZGVCharacterGearFinderButton.TabBg:Die()
 	if i == 1 then
 		for x = 1, ZGVCharacterGearFinderButton:GetNumRegions()do 
@@ -43,8 +43,8 @@ local function StyleZygorTabs()
 		end 
 	end 
 	ZGVCharacterGearFinderButton:SetStyle("Frame", "Default", true, 2)
-	ZGVCharacterGearFinderButton.Panel:ModPoint("TOPLEFT", 2, -3)
-	ZGVCharacterGearFinderButton.Panel:ModPoint("BOTTOMRIGHT", 0, -2)
+	ZGVCharacterGearFinderButton.Panel:SetPoint("TOPLEFT", 2, -3)
+	ZGVCharacterGearFinderButton.Panel:SetPoint("BOTTOMRIGHT", 0, -2)
 end 
 
 local function StyleZygor()

@@ -30,8 +30,8 @@ POSTAL
 local function StylePostal()
 	assert(PostalOpenAllButton, "AddOn Not Loaded")
 
-	InboxPrevPageButton:ModPoint("CENTER", InboxFrame, "BOTTOMLEFT", 45, 112)
-	InboxNextPageButton:ModPoint("CENTER", InboxFrame, "BOTTOMLEFT", 295, 112)
+	InboxPrevPageButton:SetPoint("CENTER", InboxFrame, "BOTTOMLEFT", 45, 112)
+	InboxNextPageButton:SetPoint("CENTER", InboxFrame, "BOTTOMLEFT", 295, 112)
 
 	for i = 1, INBOXITEMS_TO_DISPLAY do
 		local b = _G["MailItem"..i.."ExpireTime"]
@@ -47,7 +47,7 @@ local function StylePostal()
 	if PostalSelectOpenButton and not PostalSelectOpenButton.handled then
 		PostalSelectOpenButton:SetStyle("Button")
 		PostalSelectOpenButton.handled = true
-		PostalSelectOpenButton:ModPoint("RIGHT", InboxFrame, "TOP", -41, -48)
+		PostalSelectOpenButton:SetPoint("RIGHT", InboxFrame, "TOP", -41, -48)
 	end
 	if Postal_OpenAllMenuButton and not Postal_OpenAllMenuButton.handled then
 		SV.API:Set("PageButton", Postal_OpenAllMenuButton, true)
@@ -57,12 +57,12 @@ local function StylePostal()
 	if PostalOpenAllButton and not PostalOpenAllButton.handled then
 		PostalOpenAllButton:SetStyle("Button")
 		PostalOpenAllButton.handled = true
-		PostalOpenAllButton:ModPoint("CENTER", InboxFrame, "TOP", -34, -400)
+		PostalOpenAllButton:SetPoint("CENTER", InboxFrame, "TOP", -34, -400)
 	end
 	if PostalSelectReturnButton and not PostalSelectReturnButton.handled then
 		PostalSelectReturnButton:SetStyle("Button")
 		PostalSelectReturnButton.handled = true
-		PostalSelectReturnButton:ModPoint("LEFT", InboxFrame, "TOP", -5, -48)
+		PostalSelectReturnButton:SetPoint("LEFT", InboxFrame, "TOP", -5, -48)
 	end
 	if Postal_PackageMenuButton and not Postal_PackageMenuButton.handled then
 		SV.API:Set("PageButton", Postal_PackageMenuButton, true)

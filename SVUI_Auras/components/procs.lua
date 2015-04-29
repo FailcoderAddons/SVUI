@@ -113,10 +113,12 @@ local PROC_UNIT_AURA = function(self, event, unit)
 	if(not unit) then return end
 
 	local index = 1
-	local PROCS = self.cache
+	local SPELLS = self.cache
+	local PROCS = self.slots
 	local _, name, texture, count, duration, expiration, caster, key, spellID
 	local filter = "HELPFUL";
 	local lastProc;
+	local lastIndex = 1;
 
 	while true do
 		name, _, texture, count, _, duration, expiration, caster, _, _, spellID = UnitAura(unit, index, filter)
@@ -128,9 +130,8 @@ local PROC_UNIT_AURA = function(self, event, unit)
 				break
 			end
 		else
-			local procID = tostring(spellID);
-			local aura = PROCS[procID]
-			if(aura and duration and (duration > 0)) then
+			local aura = PROCS[lastIndex]
+			if(SPELLS[spellID] and aura and duration and (duration > 0)) then
 				aura:ClearAllPoints()
 				if(not lastProc) then
 					aura:SetPoint('RIGHT', self, 'RIGHT', 0, 0)
@@ -139,15 +140,16 @@ local PROC_UNIT_AURA = function(self, event, unit)
 				end
 				local timeleft = expiration - duration;
 				local lastTimer = aura.LastTimer or 0
-				
+
 				if(lastTimer < expiration) then
 					aura.anim:Stop()
+					aura.icon:SetTexture(texture)
 					aura:Show()
 					aura.anim[2]:SetDuration(duration)
-            		aura.anim:Play()
-            		aura.cd:SetCooldown(timeleft, duration)
-            	end
-            	aura.LastTimer = expiration
+      		aura.anim:Play()
+      		aura.cd:SetCooldown(timeleft, duration)
+      	end
+      	aura.LastTimer = expiration
 
 				local textCount = '';
 				if(count and (count > 1)) then
@@ -156,29 +158,35 @@ local PROC_UNIT_AURA = function(self, event, unit)
 				aura.count:SetText(textCount);
 
 				lastProc = aura;
+				lastIndex = lastIndex + 1;
 			end
 			index = index + 1
 		end
+	end
+
+	for x=lastIndex, #PROCS do
+		PROCS[x]:Hide()
 	end
 end
 
 function MOD:UpdateProcWatch()
 	ProcWatch.cache = {}
+	ProcWatch.slots = {}
 	local pwSize = SV.db.Auras.procSize or 40;
 	local CONFIG = SV.db.Filters.Procs
-	local i = 1;
+	local i,j = 1,1;
 	for procID,procData in pairs(CONFIG) do
 		if(procData.enable) then
 			local spellID = tonumber(procID);
 			local spellName,_,spellTexture = GetSpellInfo(spellID)
 			if spellName then
-				local proc = ProcWatch.cache[procID];
-
+				local proc = ProcWatch.slots[j];
+				ProcWatch.cache[spellID] = true
 				if(not proc) then
 					proc = CreateProcIcon()
-					ProcWatch.cache[procID] = proc
+					ProcWatch.slots[j] = proc
 				end;
-
+				j = j + 1;
 				proc.name = spellName;
 				proc.index = i;
 				proc.spellID = spellID;

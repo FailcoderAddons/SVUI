@@ -34,7 +34,7 @@ local Update = function(self, event, unit)
 	if(UnitIsDeadOrGhost(unit)) then
 		r,g,b = 0.15,0.1,0.2;
 	else
-		if(category == "elite") then 
+		if(category == "elite") then
 			r,g,b = 1,0.75,0;
 			showSpecial = canShowSpecial
 		elseif(category == "rare" or category == "rareelite") then
@@ -54,7 +54,7 @@ local Update = function(self, event, unit)
 		if(showSpecial) then
 			special[1]:SetVertexColor(r,g,b)
 			special[2]:SetVertexColor(r,g,b)
-			special[3]:SetVertexColor(r,g,b)
+			--special[3]:SetVertexColor(r,g,b)
 			special:Show()
 		else
 			special:Hide()

@@ -1,7 +1,7 @@
 --[[
 ##########################################################
 S V U I   By: Munglunch
-########################################################## 
+##########################################################
 LOCALIZED LUA FUNCTIONS
 ##########################################################
 ]]--
@@ -41,16 +41,16 @@ local ReloadUI              = _G.ReloadUI;
 local PlaySound             = _G.PlaySound;
 local PlaySoundFile         = _G.PlaySoundFile;
 local RAID_CLASS_COLORS     = _G.RAID_CLASS_COLORS;
---[[ 
-########################################################## 
+--[[
+##########################################################
 GET ADDON DATA
 ##########################################################
 ]]--
 local SV = select(2, ...)
 local SVUILib = Librarian("Registry");
 local L = SV.L;
---[[ 
-########################################################## 
+--[[
+##########################################################
 LOCAL VARS
 ##########################################################
 ]]--
@@ -62,44 +62,42 @@ local NewHook = hooksecurefunc;
 local SVUI_AlertFrame = CreateFrame("Frame", "SVUI_AlertFrame", UIParent);
 SVUI_AlertFrame:SetPoint("TOP", SVUI_DockTopCenter, "BOTTOM", 0, -115);
 SVUI_AlertFrame:SetSize(180, 20);
---[[ 
-########################################################## 
+--[[
+##########################################################
 DEFINITIONS
 ##########################################################
 ]]--
 SV.SystemAlert["CLIENT_UPDATE_REQUEST"] = {
-	text = L["Detected that your SVUI Config addon is out of date. Update as soon as possible."], 
-	button1 = OKAY, 
-	OnAccept = SV.fubar, 
+	text = L["Detected that your SVUI Config addon is out of date. Update as soon as possible."],
+	button1 = OKAY,
+	OnAccept = SV.fubar,
 	state1 = 1
 };
 
-SV.SystemAlert["FAILED_UISCALE"] = {
-	text = L["You have changed your UIScale, however you still have the AutoScale option enabled in SV. Press accept if you would like to disable the Auto Scale option."], 
-	button1 = ACCEPT, 
-	button2 = CANCEL, 
-	OnAccept = function() SV.db.screen.autoScale = false; ReloadUI(); end,
-	OnCancel = function() ReloadUI() end,
-	timeout = 0, 
-	whileDead = 1, 	
-	hideOnEscape = false, 
+SV.SystemAlert["CHANGED_MANAGED_UISCALE"] = {
+	text = L["You have changed your UIScale, because you have enabled SVUI managed scaling, we will have to reload the UI to properly align everything."],
+	button1 = OKAY,
+	OnAccept = function() ReloadUI(); end,
+	timeout = 0,
+	whileDead = 1,
+	hideOnEscape = false,
 }
 SV.SystemAlert["TAINT_RL"] = {
-	text = L["SVUI has lost it's damned mind! I need to reload your UI to fix it."], 
-	button1 = ACCEPT, 
-	button2 = CANCEL, 
-	OnAccept = function()ReloadUI()end, 
-	timeout = 0, 
-	whileDead = 1, 
+	text = L["SVUI has lost it's damned mind! I need to reload your UI to fix it."],
+	button1 = ACCEPT,
+	button2 = CANCEL,
+	OnAccept = function()ReloadUI()end,
+	timeout = 0,
+	whileDead = 1,
 	hideOnEscape = true
 };
 SV.SystemAlert["RL_CLIENT"] = {
-	text = L["A setting you have changed requires that you reload your User Interface."], 
-	button1 = ACCEPT, 
-	button2 = CANCEL, 
-	OnAccept = function()ReloadUI()end, 
-	timeout = 0, 
-	whileDead = 1, 
+	text = L["A setting you have changed requires that you reload your User Interface."],
+	button1 = ACCEPT,
+	button2 = CANCEL,
+	OnAccept = function()ReloadUI()end,
+	timeout = 0,
+	whileDead = 1,
 	hideOnEscape = false
 };
 SV.SystemAlert["DISBAND_RAID"] = {
@@ -111,76 +109,76 @@ SV.SystemAlert["DISBAND_RAID"] = {
 	whileDead = 1,
 };
 SV.SystemAlert["RESETMOVERS_CHECK"] = {
-	text = L["Are you sure you want to reset every mover back to it's default position?"], 
-	button1 = ACCEPT, 
-	button2 = CANCEL, 
-	OnAccept = function(a)SV:ResetUI(true)end, 
-	timeout = 0, 
+	text = L["Are you sure you want to reset every mover back to it's default position?"],
+	button1 = ACCEPT,
+	button2 = CANCEL,
+	OnAccept = function(a)SV:ResetUI(true)end,
+	timeout = 0,
 	whileDead = 1
 };
 SV.SystemAlert["RESET_UI_CHECK"] = {
-	text = L["I will attempt to preserve some of your basic settings but no promises. This will clean out everything else. Are you sure you want to reset everything?"], 
-	button1 = ACCEPT, 
-	button2 = CANCEL, 
-	OnAccept = function(a)SV:ResetAllUI(true)end, 
-	timeout = 0, 
+	text = L["I will attempt to preserve some of your basic settings but no promises. This will clean out everything else. Are you sure you want to reset everything?"],
+	button1 = ACCEPT,
+	button2 = CANCEL,
+	OnAccept = function(a)SV:ResetAllUI(true)end,
+	timeout = 0,
 	whileDead = 1
 };
 SV.SystemAlert["RESETDOCKS_CHECK"] = {
-	text = L["Are you sure you want to reset every dock button back to it's default position?"], 
-	button1 = ACCEPT, 
-	button2 = CANCEL, 
-	OnAccept = function(a)SV.Dock:ResetAllButtons()end, 
-	timeout = 0, 
+	text = L["Are you sure you want to reset every dock button back to it's default position?"],
+	button1 = ACCEPT,
+	button2 = CANCEL,
+	OnAccept = function(a)SV.Dock:ResetAllButtons()end,
+	timeout = 0,
 	whileDead = 1
 };
 SV.SystemAlert["CONFIRM_LOOT_DISTRIBUTION"] = {
-	text = CONFIRM_LOOT_DISTRIBUTION, 
-	button1 = YES, 
-	button2 = NO, 
-	timeout = 0, 
+	text = CONFIRM_LOOT_DISTRIBUTION,
+	button1 = YES,
+	button2 = NO,
+	timeout = 0,
 	hideOnEscape = 1
 };
 SV.SystemAlert["RESET_PROFILE_PROMPT"] = {
-	text = L["Are you sure you want to reset all the settings on this profile?"], 
-	button1 = YES, 
-	button2 = NO, 
-	timeout = 0, 
-	hideOnEscape = 1, 
+	text = L["Are you sure you want to reset all the settings on this profile?"],
+	button1 = YES,
+	button2 = NO,
+	timeout = 0,
+	hideOnEscape = 1,
 	OnAccept = function()
 		SVUILib:WipeDatabase()
 		ReloadUI()
 	end
 };
 SV.SystemAlert["COPY_PROFILE_PROMPT"] = {
-	text = L["Are you sure you want to copy all settings from this profile?"], 
-	button1 = YES, 
-	button2 = NO, 
-	timeout = 0, 
-	hideOnEscape = 1, 
+	text = L["Are you sure you want to copy all settings from this profile?"],
+	button1 = YES,
+	button2 = NO,
+	timeout = 0,
+	hideOnEscape = 1,
 	OnAccept = SV.fubar
 };
 SV.SystemAlert["IMPORT_PROFILE_PROMPT"] = {
-	text = L["Are you certain that you have pasted the FULL block of encoded text?"], 
-	button1 = YES, 
-	button2 = NO, 
-	timeout = 0, 
-	hideOnEscape = 1, 
+	text = L["Are you certain that you have pasted the FULL block of encoded text?"],
+	button1 = YES,
+	button2 = NO,
+	timeout = 0,
+	hideOnEscape = 1,
 	OnAccept = SV.fubar
 };
 SV.SystemAlert["DELETE_GRAYS"] = {
-	text = L["Are you sure you want to delete all your gray items?"], 
-	button1 = YES, 
-	button2 = NO, 
-	OnAccept = function() SV:VendorGrays(true) end, 
-	OnShow = function(self) MoneyFrame_Update(self.moneyFrame, SV.SystemAlert["DELETE_GRAYS"].Money) end, 
-	timeout = 0, 
-	whileDead = 1, 
-	hideOnEscape = false, 
+	text = L["Are you sure you want to delete all your gray items?"],
+	button1 = YES,
+	button2 = NO,
+	OnAccept = function() SV:VendorGrays(true) end,
+	OnShow = function(self) MoneyFrame_Update(self.moneyFrame, SV.SystemAlert["DELETE_GRAYS"].Money) end,
+	timeout = 0,
+	whileDead = 1,
+	hideOnEscape = false,
 	hasMoneyFrame = 1
 };
---[[ 
-########################################################## 
+--[[
+##########################################################
 CORE FUNCTIONS
 ##########################################################
 ]]--
@@ -240,7 +238,7 @@ end
 local SysPop_Move = function(self)
 	if ( not tContains(ACTIVE_ALERTS, self) ) then
 		local lastFrame = ACTIVE_ALERTS[#ACTIVE_ALERTS];
-		if ( lastFrame ) then	
+		if ( lastFrame ) then
 			self:SetPoint("TOP", lastFrame, "BOTTOM", 0, -4);
 		else
 			self:SetPoint("TOP", SV.Screen, "TOP", 0, -100);
@@ -315,7 +313,7 @@ local SysPop_Event_Hide = function(self)
 	PlaySound("igMainMenuClose");
 
 	SysPop_Close_Table();
-	
+
 	local dialog = SV.SystemAlert[self.which];
 	local OnHide = dialog.OnHide;
 	if ( OnHide ) then
@@ -344,7 +342,7 @@ local SysPop_Event_Update = function(self, elapsed)
 		end
 		self.timeleft = timeleft;
 	end
-	
+
 	if ( self.startDelay ) then
 		local which = self.which;
 		local timeleft = self.startDelay - elapsed;
@@ -410,10 +408,10 @@ local SysPop_Size = function(self, which)
 	local text = _G[self:GetName().."Text"];
 	local editBox = _G[self:GetName().."EditBox"];
 	local button1 = _G[self:GetName().."Button1"];
-	
+
 	local maxHeightSoFar, maxWidthSoFar = (self.maxHeightSoFar or 0), (self.maxWidthSoFar or 0);
 	local width = 320;
-	
+
 	if ( self.numButtons == 3 ) then
 		width = 440;
 	elseif (info.showAlert or info.showAlertGear or info.closeButton) then
@@ -422,12 +420,12 @@ local SysPop_Size = function(self, which)
 	elseif ( info.editBoxWidth and info.editBoxWidth > 260 ) then
 		width = width + (info.editBoxWidth - 260);
 	end
-	
+
 	if ( width > maxWidthSoFar )  then
 		self:SetWidth(width);
 		self.maxWidthSoFar = width;
 	end
-	
+
 	local height = 32 + text:GetHeight() + 8 + button1:GetHeight();
 	if ( info.hasEditBox ) then
 		height = height + 8 + editBox:GetHeight();
@@ -464,8 +462,8 @@ local SysPop_Find = function(which, data)
 	end
 	return nil;
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 CORE FUNCTIONS
 ##########################################################
 ]]--
@@ -727,8 +725,8 @@ function SV:StaticPopup_Show(which, text_arg1, text_arg2, data)
 	end
 	return dialog;
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 ALERT HOOKS
 ##########################################################
 ]]--
@@ -739,100 +737,100 @@ local _hook_AlertFrame_SetLootAnchors = function(self)
 		if GroupLootContainer:IsShown() then
 			GroupLootContainer:ClearAllPoints()
 			GroupLootContainer:SetPoint(POSITION, MissingLootFrame, ANCHOR_POINT, 0, YOFFSET)
-		end 
-	elseif GroupLootContainer:IsShown() or FORCE_POSITION then 
+		end
+	elseif GroupLootContainer:IsShown() or FORCE_POSITION then
 		GroupLootContainer:ClearAllPoints()
 		GroupLootContainer:SetPoint(POSITION, self, ANCHOR_POINT)
-	end 
-end 
+	end
+end
 
 local _hook_AlertFrame_SetLootWonAnchors = function(self)
-	for i = 1, #LOOT_WON_ALERT_FRAMES do 
+	for i = 1, #LOOT_WON_ALERT_FRAMES do
 		local frame = LOOT_WON_ALERT_FRAMES[i]
 		if(frame and frame:IsShown()) then
 			frame:ClearAllPoints()
 			frame:SetPoint(POSITION, self, ANCHOR_POINT, 0, YOFFSET)
-			self = frame 
-		end 
-	end 
-end 
+			self = frame
+		end
+	end
+end
 
 local _hook_AlertFrame_SetMoneyWonAnchors = function(self)
-	for i = 1, #MONEY_WON_ALERT_FRAMES do 
+	for i = 1, #MONEY_WON_ALERT_FRAMES do
 		local frame = MONEY_WON_ALERT_FRAMES[i]
 		if(frame and frame:IsShown()) then
 			frame:ClearAllPoints()
 			frame:SetPoint(POSITION, self, ANCHOR_POINT, 0, YOFFSET)
-			self = frame 
-		end 
-	end 
-end 
+			self = frame
+		end
+	end
+end
 
 local _hook_AlertFrame_SetAchievementAnchors = function(self)
 	if AchievementAlertFrame1 then
-		for i = 1, MAX_ACHIEVEMENT_ALERTS do 
+		for i = 1, MAX_ACHIEVEMENT_ALERTS do
 			local frame = _G["AchievementAlertFrame"..i]
 			if(frame and frame:IsShown()) then
 				frame:ClearAllPoints()
 				frame:SetPoint(POSITION, self, ANCHOR_POINT, 0, YOFFSET)
-				self = frame 
-			end 
-		end 
-	end 
-end 
+				self = frame
+			end
+		end
+	end
+end
 
 local _hook_AlertFrame_SetCriteriaAnchors = function(self)
 	if CriteriaAlertFrame1 then
-		for i = 1, MAX_ACHIEVEMENT_ALERTS do 
+		for i = 1, MAX_ACHIEVEMENT_ALERTS do
 			local frame = _G["CriteriaAlertFrame"..i]
 			if(frame and frame:IsShown()) then
 				frame:ClearAllPoints()
 				frame:SetPoint(POSITION, self, ANCHOR_POINT, 0, YOFFSET)
-				self = frame 
-			end 
-		end 
-	end 
-end 
+				self = frame
+			end
+		end
+	end
+end
 
 local _hook_AlertFrame_SetChallengeModeAnchors = function(self)
 	local frame = ChallengeModeAlertFrame1;
 	if(frame and frame:IsShown()) then
 		frame:ClearAllPoints()
 		frame:SetPoint(POSITION, self, ANCHOR_POINT, 0, YOFFSET)
-	end 
-end 
+	end
+end
 
 local _hook_AlertFrame_SetDungeonCompletionAnchors = function(self)
 	local frame = DungeonCompletionAlertFrame1;
 	if(frame and frame:IsShown()) then
 		frame:ClearAllPoints()
 		frame:SetPoint(POSITION, self, ANCHOR_POINT, 0, YOFFSET)
-	end 
-end 
+	end
+end
 
 local _hook_AlertFrame_SetStorePurchaseAnchors = function(self)
 	local frame = StorePurchaseAlertFrame;
 	if(frame and frame:IsShown()) then
 		frame:ClearAllPoints()
 		frame:SetPoint(POSITION, self, ANCHOR_POINT, 0, YOFFSET)
-	end 
-end 
+	end
+end
 
 local _hook_AlertFrame_SetScenarioAnchors = function(self)
 	local frame = ScenarioAlertFrame1;
 	if(frame and frame:IsShown()) then
 		frame:ClearAllPoints()
 		frame:SetPoint(POSITION, self, ANCHOR_POINT, 0, YOFFSET)
-	end 
-end 
+	end
+end
 
 local _hook_AlertFrame_SetGuildChallengeAnchors = function(self)
 	local frame = GuildChallengeAlertFrame;
 	if(frame and frame:IsShown()) then
 		frame:ClearAllPoints()
 		frame:SetPoint(POSITION, self, ANCHOR_POINT, 0, YOFFSET)
-	end 
-end 
+	end
+end
 
 local AlertFramePostMove_Hook = function(forced)
 	local b, c = SVUI_AlertFrame_MOVE:GetCenter()
@@ -847,40 +845,40 @@ local AlertFramePostMove_Hook = function(forced)
 		ANCHOR_POINT = "TOP"
 		YOFFSET = 10;
 		SVUI_AlertFrame_MOVE:SetText(SVUI_AlertFrame_MOVE.textString.." (Grow Up)")
-	end 
-	if(SV.RollFrames and SV.RollFrames[1]) then 
+	end
+	if(SV.RollFrames and SV.RollFrames[1]) then
 		local lastFrame = SVUI_AlertFrame;
 		local newAnchor;
 		for index, rollFrame in pairs(SV.RollFrames) do
 			rollFrame:ClearAllPoints()
-			if(POSITION == "TOP") then 
-				rollFrame:ModPoint("TOP", lastFrame, "BOTTOM", 0, -4)
+			if(POSITION == "TOP") then
+				rollFrame:SetPoint("TOP", lastFrame, "BOTTOM", 0, -4)
 			else
-				rollFrame:ModPoint("BOTTOM", lastFrame, "TOP", 0, 4)
-			end 
+				rollFrame:SetPoint("BOTTOM", lastFrame, "TOP", 0, 4)
+			end
 			lastFrame = rollFrame;
 			if(rollFrame:IsShown()) then
-				newAnchor = rollFrame 
-			end 
-		end 
+				newAnchor = rollFrame
+			end
+		end
 		AlertFrame:ClearAllPoints()
 		if(newAnchor) then
 			AlertFrame:SetAllPoints(newAnchor)
 		else
 			AlertFrame:SetAllPoints(SVUI_AlertFrame)
-		end 
+		end
 	else
 		AlertFrame:ClearAllPoints()
 		AlertFrame:SetAllPoints(SVUI_AlertFrame)
-	end 
+	end
 	if(forced) then
 		FORCE_POSITION = true;
 		AlertFrame_FixAnchors()
-		FORCE_POSITION = false 
-	end 
-end 
---[[ 
-########################################################## 
+		FORCE_POSITION = false
+	end
+end
+--[[
+##########################################################
 PACKAGE CALL
 ##########################################################
 ]]--
@@ -916,7 +914,7 @@ local function SetConfigAlertAnim(f)
 end
 
 function SV:SavedPopup()
-	if not _G["SVUI_ConfigAlert"] then return end 
+	if not _G["SVUI_ConfigAlert"] then return end
 	local alert = _G["SVUI_ConfigAlert"]
 	local x = random(10,70)
 	local y = random(10,70)
@@ -931,7 +929,7 @@ function SV:SavedPopup()
 	alert.fg.trans[2]:SetOffset(x*.5,y*.5)
 	alert.bg.trans:Play()
 	alert.fg.trans:Play()
-		
+
 	PlaySoundFile("Sound\\Interface\\uCharacterSheetOpen.wav")
 end
 
@@ -940,17 +938,17 @@ local AlertButton_OnClick = function(self)
 end
 
 local function LoadSystemAlerts()
-	if not _G["SVUI_ConfigAlert"] then 
+	if not _G["SVUI_ConfigAlert"] then
 		local configAlert = CreateFrame("Frame", "SVUI_ConfigAlert", UIParent)
 		configAlert:SetFrameStrata("TOOLTIP")
 		configAlert:SetFrameLevel(979)
-		configAlert:ModSize(300, 300)
-		configAlert:ModPoint("CENTER", 200, -150)
+		configAlert:SetSize(300, 300)
+		configAlert:SetPoint("CENTER", 200, -150)
 		configAlert:Hide()
 
 		configAlert.bg = CreateFrame("Frame", nil, configAlert)
-		configAlert.bg:ModSize(300, 300)
-		configAlert.bg:ModPoint("CENTER")
+		configAlert.bg:SetSize(300, 300)
+		configAlert.bg:SetPoint("CENTER")
 		configAlert.bg:SetFrameStrata("TOOLTIP")
 		configAlert.bg:SetFrameLevel(979)
 		local bgtex = configAlert.bg:CreateTexture(nil, "BACKGROUND")
@@ -959,8 +957,8 @@ local function LoadSystemAlerts()
 		SetConfigAlertAnim(configAlert.bg)
 
 		configAlert.fg = CreateFrame("Frame", nil, configAlert)
-		configAlert.fg:ModSize(300, 300)
-		configAlert.fg:ModPoint("CENTER", bgtex, "CENTER")
+		configAlert.fg:SetSize(300, 300)
+		configAlert.fg:SetPoint("CENTER", bgtex, "CENTER")
 		configAlert.fg:SetFrameStrata("TOOLTIP")
 		configAlert.fg:SetFrameLevel(999)
 		local fgtex = configAlert.fg:CreateTexture(nil, "ARTWORK")
@@ -969,8 +967,8 @@ local function LoadSystemAlerts()
 		SetConfigAlertAnim(configAlert.fg)
 
 		SV.Animate:Orbit(configAlert.bg, 10, false, true)
-	end 
-	for i = 1, 4 do 
+	end
+	for i = 1, 4 do
 		local alert = CreateFrame("Frame", "SVUI_SystemAlert"..i, UIParent, "StaticPopupTemplate")
 		alert:SetID(i)
 		alert:SetScript("OnShow", SysPop_Event_Show)
@@ -989,7 +987,7 @@ local function LoadSystemAlerts()
 			local button = _G["SVUI_SystemAlert"..i.."Button"..b];
 			button:SetScript("OnClick", AlertButton_OnClick)
 			alert.buttons[b] = button
-		end 
+		end
 		_G["SVUI_SystemAlert"..i.."ItemFrameNameFrame"]:Die()
 		_G["SVUI_SystemAlert"..i.."ItemFrame"]:GetNormalTexture():Die()
 		_G["SVUI_SystemAlert"..i.."ItemFrame"]:SetStyle("Button")
@@ -997,7 +995,7 @@ local function LoadSystemAlerts()
 		_G["SVUI_SystemAlert"..i.."ItemFrameIconTexture"]:InsetPoints()
 	end
 
-	SVUI_AlertFrame:ModSize(180, 20);
+	SVUI_AlertFrame:SetSize(180, 20);
 	SVUI_AlertFrame.callbackOnEnter = true;
 	SV:NewAnchor(SVUI_AlertFrame, L["Loot / Alert Frames"], nil, AlertFramePostMove_Hook, nil)
 

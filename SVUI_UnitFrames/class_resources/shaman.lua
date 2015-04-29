@@ -1,7 +1,7 @@
 --[[
 ##########################################################
 S V U I   By: Munglunch
-########################################################## 
+##########################################################
 LOCALIZED LUA FUNCTIONS
 ##########################################################
 ]]--
@@ -20,8 +20,8 @@ local assert 	= _G.assert;
 local math 		= _G.math;
 --[[ MATH METHODS ]]--
 local random = math.random;
---[[ 
-########################################################## 
+--[[
+##########################################################
 GET ADDON DATA
 ##########################################################
 ]]--
@@ -30,13 +30,13 @@ local L = SV.L;
 local LSM = _G.LibStub("LibSharedMedia-3.0")
 local MOD = SV.UnitFrames
 
-if(not MOD) then return end 
+if(not MOD) then return end
 
 local oUF_SVUI = MOD.oUF
 assert(oUF_SVUI, "SVUI UnitFrames: unable to locate oUF.")
-if(SV.class ~= "SHAMAN") then return end 
---[[ 
-########################################################## 
+if(SV.class ~= "SHAMAN") then return end
+--[[
+##########################################################
 LOCALS
 ##########################################################
 ]]--
@@ -46,10 +46,27 @@ local totemTextures = {
 	[EARTH_TOTEM_SLOT] 	= [[Interface\Addons\SVUI_UnitFrames\assets\Class\SHAMAN-EARTH]],
 	[FIRE_TOTEM_SLOT] 	= [[Interface\Addons\SVUI_UnitFrames\assets\Class\SHAMAN-FIRE]],
 	[WATER_TOTEM_SLOT] 	= [[Interface\Addons\SVUI_UnitFrames\assets\Class\SHAMAN-WATER]],
-	[AIR_TOTEM_SLOT] 	= [[Interface\Addons\SVUI_UnitFrames\assets\Class\SHAMAN-AIR]],
+	[AIR_TOTEM_SLOT] 		= [[Interface\Addons\SVUI_UnitFrames\assets\Class\SHAMAN-AIR]],
 };
---[[ 
-########################################################## 
+
+-- [[Spells\Flowingwater_high.m2]]
+-- [[Spells\Cyclonewater_state.m2]]
+-- [[Spells\Shaman_water_precast.m2]]
+-- [[Spells\Monk_rushingjadewind_grey.m2]]
+-- [[Spells\Missile_bomb.m2]]
+
+SV.SpecialFX:Register("shaman_fire", [[Spells\Bloodlust_state_hand.m2]], -8, 16, 8, -16, 0.23, 0.05, -0.1)
+SV.SpecialFX:Register("shaman_earth", [[Spells\Sand_precast_hand.m2]], -8, 16, 8, -16, 0.20, -0.04, -0.08)
+SV.SpecialFX:Register("shaman_air", [[Spells\Monk_rushingjadewind_grey.m2]], -8, 16, 8, -16, 1.8, 0, 2)
+SV.SpecialFX:Register("shaman_water", [[Spells\Flowingwater_high.m2]], -8, 16, 8, -16, 0.008, -0.02, -0.22)
+local specEffects = {
+	[EARTH_TOTEM_SLOT] 	= "shaman_earth",
+	[FIRE_TOTEM_SLOT] 	= "shaman_fire",
+	[WATER_TOTEM_SLOT] 	= "shaman_water",
+	[AIR_TOTEM_SLOT] 		= "shaman_air",
+};
+--[[
+##########################################################
 POSITIONING
 ##########################################################
 ]]--
@@ -62,7 +79,7 @@ local Reposition = function(self)
 	local bar = self.TotemBars
 	local size = db.classbar.height
 	local width = size * totemMax
-	bar.Holder:ModSize(width, size)
+	bar.Holder:SetSize(width, size)
     if(not db.classbar.detachFromFrame) then
     	SV:ResetAnchors(L["Classbar"])
     end
@@ -74,42 +91,67 @@ local Reposition = function(self)
     bar:ClearAllPoints()
     bar:SetAllPoints(bar.Holder)
 	for i = 1, totemMax do
-		bar[i]:ClearAllPoints()
-		bar[i]:SetHeight(size)
-		bar[i]:SetWidth(size)
+		bar[i].holder:ClearAllPoints()
+		bar[i].holder:SetHeight(size)
+		bar[i].holder:SetWidth(size)
 		bar[i]:GetStatusBarTexture():SetHorizTile(false)
-		if i==1 then 
-			bar[i]:SetPoint("TOPLEFT", bar, "TOPLEFT", 0, 0)
-		else 
-			bar[i]:ModPoint("LEFT", bar[i - 1], "RIGHT", -1, 0) 
+		if i==1 then
+			bar[i].holder:SetPoint("TOPLEFT", bar, "TOPLEFT", 0, 0)
+		else
+			bar[i].holder:SetPoint("LEFT", bar[i - 1].holder, "RIGHT", -1, 0)
 		end
-	end 
-end 
---[[ 
-########################################################## 
+	end
+end
+--[[
+##########################################################
 SHAMAN
 ##########################################################
 ]]--
+local SFXUpdate = function(self, value)
+	if(not value) then return end
+	if(not self.FX:IsShown()) then
+		if(value > 0.02) then
+			self.FX:Show()
+			self.FX:UpdateEffect()
+		end
+	elseif(value <= 0.02) then
+		self.FX:Hide()
+	end
+end
+
 function MOD:CreateClassBar(playerFrame)
 	local bar = CreateFrame("Frame",nil,playerFrame)
 	bar:SetFrameLevel(playerFrame.TextGrip:GetFrameLevel() + 30)
 	for i=1, totemMax do
 		local iconfile = totemTextures[totemPriorities[i]]
-		bar[i] = CreateFrame("StatusBar",nil,bar)
+		local holder = CreateFrame("Frame", nil, bar)
+		holder:SetFrameLevel(bar:GetFrameLevel() - 1)
+
+		bar[i] = CreateFrame("StatusBar",nil,holder)
+		bar[i]:SetAllPoints(holder)
 		bar[i]:SetStatusBarTexture(iconfile)
 		bar[i]:GetStatusBarTexture():SetHorizTile(false)
 		bar[i]:SetOrientation("VERTICAL")
+		bar[i]:SetFrameLevel(bar:GetFrameLevel() + 1)
+		hooksecurefunc(bar[i], "SetValue", SFXUpdate)
 		bar[i].noupdate=true;
-		bar[i].backdrop = bar[i]:CreateTexture(nil,"BACKGROUND")
-		bar[i].backdrop:SetAllPoints(bar[i])
+
+		bar[i].backdrop = holder:CreateTexture(nil,"BACKGROUND")
+		bar[i].backdrop:SetAllPoints(holder)
 		bar[i].backdrop:SetTexture(iconfile)
 		bar[i].backdrop:SetDesaturated(true)
 		bar[i].backdrop:SetVertexColor(0.2,0.2,0.2,0.7)
+
 		bar[i]:EnableMouse(true)
-	end 
+
+		bar[i].holder = holder
+
+		SV.SpecialFX:SetFXFrame(bar[i], specEffects[totemPriorities[i]], true)
+		bar[i].FX:SetFrameLevel(bar:GetFrameLevel())
+	end
 
 	local classBarHolder = CreateFrame("Frame", "Player_ClassBar", bar)
-	classBarHolder:ModPoint("TOPLEFT", playerFrame, "BOTTOMLEFT", 0, -2)
+	classBarHolder:SetPoint("TOPLEFT", playerFrame, "BOTTOMLEFT", 0, -2)
 	bar:SetPoint("TOPLEFT", classBarHolder, "TOPLEFT", 0, 0)
 	bar.Holder = classBarHolder
 	SV:NewAnchor(bar.Holder, L["Classbar"], nil, OnMove)
@@ -117,5 +159,5 @@ function MOD:CreateClassBar(playerFrame)
 	playerFrame.MaxClassPower = totemMax;
 	playerFrame.RefreshClassBar = Reposition;
 	playerFrame.TotemBars = bar
-	return 'TotemBars' 
-end 
+	return 'TotemBars'
+end

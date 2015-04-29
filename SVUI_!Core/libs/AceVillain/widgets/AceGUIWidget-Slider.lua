@@ -115,11 +115,11 @@ local function EditBox_OnEnterPressed(frame)
 end
 
 local function EditBox_OnEnter(frame)
-	frame:SetBackdropBorderColor(0.5, 0.5, 0.5, 1)
+	frame:SetBackdropBorderColor(0.2, 0.2, 0.2)
 end
 
 local function EditBox_OnLeave(frame)
-	frame:SetBackdropBorderColor(0.3, 0.3, 0.3, 0.8)
+	frame:SetBackdropBorderColor(0, 0, 0)
 end
 
 --[[-----------------------------------------------------------------------------

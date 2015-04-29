@@ -71,7 +71,7 @@ local LibAB = LibStub("LibActionButton-1.0");
 local Masque = LibStub("Masque", true);
 local DEFAULT_MAIN_ANCHOR = _G["SVUI_DockBottomCenter"];
 MOD.ButtonCache = {};
-MOD.MainAnchor = DEFAULT_MAIN_ANCHOR;
+MOD.MainAnchor = CreateFrame("Frame", "SVUI_ActionBarMainAnchor");
 --[[
 ##########################################################
 LOCAL VARS
@@ -91,6 +91,7 @@ local SEQUENCE_PATTERN = '%s [bar:%d] %d;';
 	and once when the mod is loaded.
 ]]--
 local TOTAL_BARS = 6;
+local SELF_CASTING = false;
 --[[
 ##########################################################
 LOCAL FUNCTIONS
@@ -590,6 +591,23 @@ end
 CORE FUNCTIONS
 ##########################################################
 ]]--
+function MOD:RefreshMainAnchor()
+	if(InCombatLockdown()) then self:RegisterEvent("PLAYER_REGEN_ENABLED"); return end
+	local newAnchor = DEFAULT_MAIN_ANCHOR
+	for i = 1, TOTAL_BARS do
+		id = ("Bar%d"):format(i);
+		bar = _G[("SVUI_Action%s"):format(id)];
+		if((i < 3) or (i > 5)) then
+			local enabled = SV.db.ActionBars[id].enable;
+			if(bar and enabled) then
+				newAnchor = bar
+			end
+		end
+	end
+	self.MainAnchor:ClearAllPoints()
+	self.MainAnchor:SetAllPoints(newAnchor)
+end
+
 do
 	local Button_OnEnter = function(self)
 		local parent = self:GetParent()
@@ -606,7 +624,7 @@ do
 		end
 	end
 
-	local function _refreshButtons(bar, id, max, space, cols, totalButtons, size, point, selfcast)
+	local function _refreshButtons(bar, id, max, space, cols, totalButtons, size, point)
 		if InCombatLockdown() then return end
 		if not bar then return end
 		local hideByScale = id == "Pet" and true or false;
@@ -619,10 +637,10 @@ do
 			lastRow = bar.buttons[i - cols]
 			button:SetParent(bar)
 			button:ClearAllPoints()
-			button:ModSize(size)
+			button:SetSize(size, size)
 			button:SetAttribute("showgrid",1)
 
-			if(selfcast) then
+			if(SELF_CASTING) then
 				button:SetAttribute("unit2", "player")
 			end
 
@@ -646,7 +664,7 @@ do
 				elseif(point:find("LEFT")) then
 					x = space
 				end
-				button:ModPoint(point,bar,point,x,y)
+				button:SetPoint(point,bar,point,x,y)
 			elseif((i - 1) % cols == 0) then
 				x, y = 0, -space
 				anchor1, anchor2 = "TOP", "BOTTOM"
@@ -655,7 +673,7 @@ do
 		        	anchor1 = "BOTTOM"
 		        	anchor2 = "TOP"
 		      	end
-				button:ModPoint(anchor1,lastRow,anchor2,x,y)
+				button:SetPoint(anchor1,lastRow,anchor2,x,y)
 			else
 				x, y = space, 0
 		      	anchor1, anchor2 = "LEFT", "RIGHT";
@@ -664,7 +682,7 @@ do
 		        	anchor1 = "RIGHT"
 		        	anchor2 = "LEFT"
 		      	end
-				button:ModPoint(anchor1,lastButton,anchor2,x,y)
+				button:SetPoint(anchor1,lastButton,anchor2,x,y)
 			end
 
 			if(i > totalButtons) then
@@ -734,7 +752,6 @@ do
 
 		if(not bar or not db) then return end
 
-		local selfcast = db.rightClickSelf
 		local space = db.buttonspacing;
 		local cols = db.buttonsPerRow;
 		local size = db.buttonsize;
@@ -747,8 +764,8 @@ do
 		if max < cols then cols = max end
 		if rows < 1 then rows = 1 end
 		bar.maxButtons = max;
-		bar:ModWidth(space  +  (size  *  cols)  +  ((space  *  (cols - 1))  +  space));
-		bar:ModHeight((space  +  (size  *  rows))  +  ((space  *  (rows - 1))  +  space));
+		bar:SetWidth(space  +  (size  *  cols)  +  ((space  *  (cols - 1))  +  space));
+		bar:SetHeight((space  +  (size  *  rows))  +  ((space  *  (rows - 1))  +  space));
 		bar.backdrop:ClearAllPoints()
 	  	bar.backdrop:SetAllPoints()
 		bar._fade = db.mouseover;
@@ -771,7 +788,8 @@ do
 			bar._fade = false
 		end
 
-		_refreshButtons(bar, id, max, space, cols, totalButtons, size, point, selfcast);
+		_refreshButtons(bar, id, max, space, cols, totalButtons, size, point);
+		self:RefreshMainAnchor()
 
 		if(isPet or isStance) then
 			if db.enable then
@@ -823,20 +841,6 @@ do
 	end
 end
 
-function MOD:RefreshMainAnchor()
-	if(InCombatLockdown()) then self:RegisterEvent("PLAYER_REGEN_ENABLED"); return end
-	for i = 1, TOTAL_BARS do
-		id = ("Bar%d"):format(i);
-		bar = _G[("SVUI_Action%s"):format(id)];
-		if((i < 3) or (i > 5)) then
-			local enabled = SV.db.ActionBars[id].enable;
-			if(bar and enabled and bar.Grip and (not bar.Grip:HasMoved())) then
-				self.MainAnchor = bar
-			end
-		end
-	end
-end
-
 function MOD:RefreshActionBars()
 	if(InCombatLockdown()) then self:RegisterEvent("PLAYER_REGEN_ENABLED"); return end
 	self:UpdateBarPagingDefaults()
@@ -860,8 +864,6 @@ function MOD:RefreshActionBars()
 		self:SetBarConfigData(bar);
 	end
 
-	self:RefreshMainAnchor()
-
 	self:RefreshBar("Pet")
 	self:RefreshBar("Stance")
 	self:UpdateBarBindings(true, true)
@@ -879,9 +881,9 @@ local Vehicle_Updater = function()
 	local columns = ceil(total / rows)
 	if (HasOverrideActionBar() or HasVehicleActionBar()) and total == 12 then
 		bar.backdrop:ClearAllPoints()
-		bar.backdrop:ModPoint(SV.db.ActionBars["Bar1"].point, bar, SV.db.ActionBars["Bar1"].point)
-		bar.backdrop:ModWidth(space + ((size * rows) + (space * (rows - 1)) + space))
-		bar.backdrop:ModHeight(space + ((size * columns) + (space * (columns - 1)) + space))
+		bar.backdrop:SetPoint(SV.db.ActionBars["Bar1"].point, bar, SV.db.ActionBars["Bar1"].point)
+		bar.backdrop:SetWidth(space + ((size * rows) + (space * (rows - 1)) + space))
+		bar.backdrop:SetHeight(space + ((size * columns) + (space * (columns - 1)) + space))
 		bar.backdrop:SetFrameLevel(0);
 	else
 		bar.backdrop:SetAllPoints()
@@ -961,16 +963,18 @@ CreateActionBars = function(self)
 		thisBar.page = barPageIndex[i]
 
 		if(i == 3) then
-			thisBar:ModPoint("BOTTOMLEFT", _G["SVUI_ActionBar1"], "BOTTOMRIGHT", space, 0)
+			thisBar:SetPoint("BOTTOMLEFT", _G["SVUI_ActionBar1"], "BOTTOMRIGHT", space, 0)
 		elseif(i == 4) then
-			thisBar:ModPoint("RIGHT", SV.Screen, "RIGHT", -space, 0)
+			thisBar:SetPoint("RIGHT", SV.Screen, "RIGHT", -space, 0)
 		elseif(i == 5) then
-			thisBar:ModPoint("BOTTOMRIGHT", _G["SVUI_ActionBar1"], "BOTTOMLEFT", -space, 0)
+			thisBar:SetPoint("BOTTOMRIGHT", _G["SVUI_ActionBar1"], "BOTTOMLEFT", -space, 0)
 		else
-			thisBar:ModPoint("BOTTOM", DEFAULT_MAIN_ANCHOR, "TOP", 0, space)
+			local nextGap = (i == 2) and -space or space
+			thisBar:SetPoint("BOTTOM", DEFAULT_MAIN_ANCHOR, "TOP", 0, nextGap)
 			DEFAULT_MAIN_ANCHOR = thisBar
 			if(enabled) then
-				self.MainAnchor = thisBar
+				self.MainAnchor:ClearAllPoints()
+				self.MainAnchor:SetAllPoints(thisBar)
 			end
 		end
 
@@ -1156,7 +1160,7 @@ do
 	  local stanceBar = NewActionBar("SVUI_StanceBar")
 	  stanceBar.binding = "CLICK SVUI_StanceBarButton%d:LeftButton"
 
-	  stanceBar:ModPoint("BOTTOMRIGHT", self.MainAnchor, "TOPRIGHT", 0, 2);
+	  stanceBar:SetPoint("BOTTOMRIGHT", self.MainAnchor, "TOPRIGHT", 0, 2);
 	  stanceBar:SetFrameLevel(5);
 
 	  local bg = CreateFrame("Frame", nil, stanceBar)
@@ -1264,7 +1268,7 @@ do
 		local petBar = NewActionBar("SVUI_PetActionBar")
 		petBar.binding = "BONUSACTIONBUTTON%d"
 
-		petBar:ModPoint("BOTTOMLEFT", self.MainAnchor, "TOPLEFT", 0, 2);
+		petBar:SetPoint("BOTTOMLEFT", self.MainAnchor, "TOPLEFT", 0, 2);
 		petBar:SetFrameLevel(5);
 		local bg = CreateFrame("Frame", nil, petBar)
 		bg:SetAllPoints();
@@ -1300,8 +1304,8 @@ end
 
 local CreateExtraBar = function(self)
 	local specialBar = CreateFrame("Frame", "SVUI_SpecialAbility", SV.Screen)
-	specialBar:ModPoint("BOTTOM", SV.Screen, "BOTTOM", 0, 360)
-	specialBar:ModSize(ExtraActionBarFrame:GetSize())
+	specialBar:SetPoint("BOTTOM", SV.Screen, "BOTTOM", 0, 360)
+	specialBar:SetSize(ExtraActionBarFrame:GetSize())
 	ExtraActionBarFrame:SetParent(specialBar)
 	ExtraActionBarFrame:ClearAllPoints()
 	ExtraActionBarFrame:SetPoint("CENTER", specialBar, "CENTER")
@@ -1425,9 +1429,10 @@ local function RemoveDefaults()
 	MultiCastActionBarFrame:UnregisterAllEvents()
 	MultiCastActionBarFrame:Hide()
 	MultiCastActionBarFrame:SetParent(removalManager)
-	IconIntroTracker:UnregisterAllEvents()
-	IconIntroTracker:Hide()
-	IconIntroTracker:SetParent(removalManager)
+
+	-- IconIntroTracker:UnregisterAllEvents()
+	-- IconIntroTracker:Hide()
+	-- IconIntroTracker:SetParent(removalManager)
 
 	InterfaceOptionsCombatPanelActionButtonUseKeyDown:SetScale(0.0001)
 	InterfaceOptionsCombatPanelActionButtonUseKeyDown:SetAlpha(0)
@@ -1449,6 +1454,58 @@ local function RemoveDefaults()
 	end
 
 	MOD.DefaultsRemoved = true
+end
+
+local function pushSpellToActionBar(self,spellID,slotIndex,slotPos)
+	local slotParent = _G["SVUI_Bar1Button"..slotPos];
+	if(not slotParent) then return end
+	local _, _, icon = GetSpellInfo(spellID);
+	local freeIcon;
+
+	for a,b in pairs(self.iconList) do
+		if b.isFree then
+			freeIcon = b;
+		end
+	end
+
+	if not freeIcon then -- Make a new one
+		freeIcon = CreateFrame("FRAME", self:GetName().."Icon"..(#self.iconList+1), UIParent, "IconIntroTemplate");
+		self.iconList[#self.iconList+1] = freeIcon;
+	end
+
+	freeIcon.icon.icon:SetTexture(icon);
+	freeIcon.icon.slot = slotIndex;
+	freeIcon:ClearAllPoints();
+	freeIcon:SetPoint("CENTER", slotParent, 0, 0);
+	freeIcon:SetFrameLevel(slotParent:GetFrameLevel() + 1);
+	freeIcon.icon.flyin:Play(1);
+	freeIcon.isFree = false;
+
+	if not HasAction(slotPos) then
+		PickupSpell(spellID)
+		PlaceAction(slotPos)
+	end
+end
+
+IconIntroTracker_OnEvent = function(self, event, ...)
+  if event == "SPELL_PUSHED_TO_ACTIONBAR" or event == "COMBAT_LOG_EVENT_UNFILTERED" then
+		if InCombatLockdown() then
+			if not self.queue then
+				self.queue={}
+			end
+			local spellID, slotIndex, slotPos = ...;
+			tinsert(self.queue,{spellID,slotIndex,slotPos})
+			self:RegisterEvent("PLAYER_REGEN_ENABLED")
+		else
+			pushSpellToActionBar(self,...)
+		end
+	elseif event == "PLAYER_REGEN_ENABLED" then
+		for i=1,#self.queue do
+			pushSpellToActionBar(self,unpack(self.queue[i]))
+		end
+		wipe(self.queue)
+		self:UnregisterEvent("PLAYER_REGEN_ENABLED")
+    end
 end
 
 function MOD:PLAYER_REGEN_ENABLED()
@@ -1486,6 +1543,7 @@ function MOD:UpdateLocals()
 	if not db then return end
 
 	TOTAL_BARS = db.barCount
+	SELF_CASTING = db.rightClickSelf
 end
 
 function MOD:ReLoad()
@@ -1494,7 +1552,9 @@ end
 
 function MOD:Load()
 	RemoveDefaults();
-
+	self.MainAnchor:ClearAllPoints()
+	self.MainAnchor:SetAllPoints(DEFAULT_MAIN_ANCHOR)
+	self.MainAnchor:SetParent(SV.Screen)
 	self:UpdateLocals()
 
 	self:UpdateBarPagingDefaults()
@@ -1508,7 +1568,6 @@ function MOD:Load()
 	self:InitializeTotemBar()
 
 	self:LoadKeyBinder()
-	self:RefreshMainAnchor()
 
 	self:RegisterEvent("UPDATE_BINDINGS", "UpdateAllBindings")
 	self:RegisterEvent("PET_BATTLE_CLOSE", "UpdateAllBindings")

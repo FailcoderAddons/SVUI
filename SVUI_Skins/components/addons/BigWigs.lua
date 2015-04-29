@@ -62,7 +62,7 @@ end
 
 local function applystyle(bar)
 	if not FreeBG then FreeBG = {} end
-	bar:ModHeight(20)
+	bar:SetHeight(20)
 	local bg = nil
 	if #FreeBG > 0 then
 		bg = tremove(FreeBG)
@@ -96,8 +96,8 @@ local function applystyle(bar)
 	bar.candyBarLabel:ClearAllPoints()
 	bar.candyBarDuration:SetJustifyH("RIGHT")
 	bar.candyBarDuration:ClearAllPoints()
-	bar.candyBarLabel:ModPoint("LEFT", bar, "LEFT", 4, 0)
-	bar.candyBarDuration:ModPoint("RIGHT", bar, "RIGHT", -4, 0)
+	bar.candyBarLabel:SetPoint("LEFT", bar, "LEFT", 4, 0)
+	bar.candyBarDuration:SetPoint("RIGHT", bar, "RIGHT", -4, 0)
 	bar.candyBarBar:ClearAllPoints()
 	bar.candyBarBar:SetAllPoints(bar)
 	bar.candyBarBar.OldSetPoint = bar.candyBarBar.SetPoint
@@ -105,7 +105,7 @@ local function applystyle(bar)
 	bar.candyBarIconFrame.OldSetWidth = bar.candyBarIconFrame.SetWidth
 	bar.candyBarIconFrame.SetWidth = SV.fubar
 	bar.candyBarIconFrame:ClearAllPoints()
-	bar.candyBarIconFrame:ModPoint("BOTTOMRIGHT", bar, "BOTTOMLEFT", -1, 0)
+	bar.candyBarIconFrame:SetPoint("BOTTOMRIGHT", bar, "BOTTOMLEFT", -1, 0)
 	bar.candyBarIconFrame:SetSize(20, 20)
 	bar.candyBarIconFrame:SetTexCoord(0.1,0.9,0.1,0.9)
 end

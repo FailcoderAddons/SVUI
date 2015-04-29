@@ -14,17 +14,18 @@ local SV = _G['SVUI'];
 local L = SV.L;
 local MOD = SV.Skins;
 local Schema = MOD.Schema;
---[[ 
-########################################################## 
+--[[
+##########################################################
 HELPERS
 ##########################################################
 ]]--
 local RING_TEXTURE = [[Interface\AddOns\SVUI_Skins\artwork\FOLLOWER-RING]]
 local LVL_TEXTURE = [[Interface\AddOns\SVUI_Skins\artwork\FOLLOWER-LEVEL]]
-local HIGHLIGHT_TEXTURE = SV.BaseTexture
+local HIGHLIGHT_TEXTURE = SV.media.background.default
 local DEFAULT_COLOR = {r = 0.25, g = 0.25, b = 0.25};
---[[ 
-########################################################## 
+local FOCUS_RINGS = {}
+--[[
+##########################################################
 STYLE
 ##########################################################
 ]]--
@@ -40,13 +41,23 @@ local StyleRewardIcon = function(self)
   end
 end
 
-local MasterPlan_GarrPortraits = function(self, atlas)
+local MasterPlan_GarrPortraits = function(self)
   local parent = self:GetParent()
+  parent:RemoveTextures()
   self:ClearAllPoints()
   self:SetPoint("TOPLEFT", parent, "TOPLEFT", -3, 0)
   self:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", 3, -6)
   self:SetTexture(RING_TEXTURE)
   self:SetVertexColor(1, 0.86, 0)
+  if(parent:GetWidth() == 36) then
+    tinsert(FOCUS_RINGS, parent)
+  end
+end
+
+local GarrMission_FocusRings = function(self)
+  for k,frame in pairs(FOCUS_RINGS) do
+    frame:RemoveTextures()
+  end
 end
 
 local GarrMission_Rewards = function(self)
@@ -106,12 +117,14 @@ local function StyleMasterPlan()
   SV:SetAtlasFilter("GarrMission_TopBorderCorner");
   SV:SetAtlasFilter("Garr_MissionList-IconBG");
 
+  -- SV:SetAtlasFunc("GarrMission_FocusRings", GarrMission_FocusRings)
+  -- SV:SetAtlasFilter("GarrMission_MissionParchment", "GarrMission_FocusRings");
 
 	SV.API:Set("Tab", GarrisonMissionFrameTab3)
 	SV.API:Set("Tab", GarrisonMissionFrameTab4)
-end 
---[[ 
-########################################################## 
+end
+--[[
+##########################################################
 MOD LOADING
 ##########################################################
 ]]--

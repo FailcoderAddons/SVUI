@@ -81,11 +81,11 @@ local function RaidInfoStyle()
 
 	RaidInfoScrollFrame:RemoveTextures()
 	RaidInfoFrame:SetStyle("Frame", 'Transparent')
-	RaidInfoFrame.Panel:ModPoint("TOPLEFT", RaidInfoFrame, "TOPLEFT")
-	RaidInfoFrame.Panel:ModPoint("BOTTOMRIGHT", RaidInfoFrame, "BOTTOMRIGHT")
+	RaidInfoFrame.Panel:SetPoint("TOPLEFT", RaidInfoFrame, "TOPLEFT")
+	RaidInfoFrame.Panel:SetPoint("BOTTOMRIGHT", RaidInfoFrame, "BOTTOMRIGHT")
 
 	SV.API:Set("CloseButton", RaidInfoCloseButton, RaidInfoFrame)
-	SV.API:Set("ScrollFrame", RaidInfoScrollFrameScrollBar)
+	SV.API:Set("ScrollBar", RaidInfoScrollFrameScrollBar)
 	
 	if RaidFrameRaidBrowserButton then RaidFrameRaidBrowserButton:SetStyle("Button") end
 	RaidFrameAllAssistCheckButton:SetStyle("Checkbox")

@@ -60,7 +60,7 @@ local function BlackMarketStyle()
 	BlackMarketFrame.Inset:SetStyle("!_Frame", "Inset")
 
 	SV.API:Set("CloseButton", BlackMarketFrame.CloseButton)
-	SV.API:Set("ScrollFrame", BlackMarketScrollFrameScrollBar, 4)
+	SV.API:Set("ScrollBar", BlackMarketScrollFrameScrollBar, 4)
 
 	ChangeTab(BlackMarketFrame.ColumnName)
 	ChangeTab(BlackMarketFrame.ColumnLevel)
@@ -71,8 +71,8 @@ local function BlackMarketStyle()
 
 	BlackMarketFrame.MoneyFrameBorder:RemoveTextures()
 	BlackMarketBidPriceGold:SetStyle("Editbox")
-	BlackMarketBidPriceGold.Panel:ModPoint("TOPLEFT", -2, 0)
-	BlackMarketBidPriceGold.Panel:ModPoint("BOTTOMRIGHT", -2, 0)
+	BlackMarketBidPriceGold.Panel:SetPoint("TOPLEFT", -2, 0)
+	BlackMarketBidPriceGold.Panel:SetPoint("BOTTOMRIGHT", -2, 0)
 	BlackMarketFrame.BidButton:SetStyle("Button")
 
 	hooksecurefunc("BlackMarketScrollFrame_Update", _hook_ScrollFrameUpdate)

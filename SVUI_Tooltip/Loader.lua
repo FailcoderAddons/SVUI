@@ -1,7 +1,7 @@
 --[[
 ##########################################################
 S V U I   By: Munglunch
-########################################################## 
+##########################################################
 LOCALIZED LUA FUNCTIONS
 ##########################################################
 ]]--
@@ -27,24 +27,25 @@ MOD.media.leftArt = [[Interface\AddOns\SVUI_Tooltip\assets\TT-LEFT]];
 
 SV.defaults[Schema] = {
 	["themed"] = true,
-	["cursorAnchor"] = false, 
-	["targetInfo"] = true, 
-	["playerTitles"] = true, 
-	["guildRanks"] = true, 
-	["inspectInfo"] = false, 
-	["itemCount"] = true, 
-	["spellID"] = false, 
-	["progressInfo"] = true, 
+	["cursorAnchor"] = false,
+	["targetInfo"] = true,
+	["playerTitles"] = true,
+	["playerGender"] = false,
+	["guildRanks"] = true,
+	["inspectInfo"] = false,
+	["itemCount"] = true,
+	["spellID"] = false,
+	["progressInfo"] = true,
 	["visibility"] = {
-		["unitFrames"] = "NONE", 
-		["combat"] = false, 
-	}, 
+		["unitFrames"] = "NONE",
+		["combat"] = false,
+	},
 	["healthBar"] = {
-		["text"] = true, 
-		["height"] = 10, 
-		["font"] = "SVUI Default Font", 
-		["fontSize"] = 10, 
-	}, 
+		["text"] = true,
+		["height"] = 10,
+		["font"] = "SVUI Default Font",
+		["fontSize"] = 10,
+	},
 };
 
 SV:AssignMedia("font", "tipdialog", "SVUI Default Font", 12, "OUTLINE");
@@ -63,77 +64,83 @@ function MOD:LoadOptions()
 			desc = "Font used in tooltips to display large names."
 		},
 	};
-	
+
 	SV:GenerateFontOptionGroup("Tooltip", 8, "Fonts used in tooltips.", tipFonts)
-	
+
 	SV.Options.args[Schema] = {
-		type = "group", 
-		name = Schema, 
-		childGroups = "tab", 
-		get = function(a)return SV.db[Schema][a[#a]] end, 
-		set = function(a, b) MOD:ChangeDBVar(b,a[#a]); end, 
+		type = "group",
+		name = Schema,
+		childGroups = "tab",
+		get = function(a)return SV.db[Schema][a[#a]] end,
+		set = function(a, b) MOD:ChangeDBVar(b,a[#a]); end,
 		args = {
 			commonGroup = {
-				order = 1, 
-				type = "group", 
+				order = 1,
+				type = "group",
 				name = L["Tooltip Options"],
-				guiInline = true, 
+				guiInline = true,
 				args = {
 					intro = {
-						order = 1, 
-						type = "description", 
+						order = 1,
+						type = "description",
 						name = L["TOOLTIP_DESC"]
 					},
 					common = {
-						order = 3, 
-						type = "group", 
+						order = 3,
+						type = "group",
 						name = L["General"],
-						guiInline = true, 
+						guiInline = true,
 						args = {
 							cursorAnchor = {
-								order = 1, 
+								order = 1,
 								type = "toggle",
-								name = L["Cursor Anchor"], 
+								name = L["Cursor Anchor"],
 								desc = L["Should tooltip be anchored to mouse cursor"]
 							},
 							targetInfo = {
-								order = 2, 
-								type = "toggle", 
-								name = L["Target Info"], 
+								order = 2,
+								type = "toggle",
+								name = L["Target Info"],
 								desc = L["When in a raid group display if anyone in your raid is targeting the current tooltip unit."]
 							},
 							playerTitles = {
-								order = 3, 
-								type = "toggle", 
-								name = L["Player Titles"], 
+								order = 3,
+								type = "toggle",
+								name = L["Player Titles"],
 								desc = L["Display player titles."]
 							},
+							playerGender = {
+								order = 4,
+								type = "toggle",
+								name = L["Player Gender"],
+								desc = L["Display player gender."]
+							},
 							guildRanks = {
-								order = 4, 
-								type = "toggle", 
-								name = L["Guild Ranks"], 
+								order = 5,
+								type = "toggle",
+								name = L["Guild Ranks"],
 								desc = L["Display guild ranks if a unit is guilded."]
 							},
 							inspectInfo = {
-								order = 5, 
-								type = "toggle", 
-								name = L["Talent Spec"], 
+								order = 6,
+								type = "toggle",
+								name = L["Talent Spec"],
 								desc = L["Display the players talent spec in the tooltip, this may not immediately update when mousing over a unit."]
 							},
 							spellID = {
-								order = 6, 
-								type = "toggle", 
-								name = L["Spell/Item IDs"], 
+								order = 7,
+								type = "toggle",
+								name = L["Spell/Item IDs"],
 								desc = L["Display the spell or item ID when mousing over a spell or item tooltip."],
-								get = function(a)return SV.db[Schema].spellID end, 
+								get = function(a)return SV.db[Schema].spellID end,
 								set = function(a, b) MOD:ChangeDBVar(b, "spellID") end,
 							},
 							itemCount = {
-								order = 7, 
-								type = "toggle", 
-								name = L["Item Counts"], 
+								order = 8,
+								type = "toggle",
+								name = L["Item Counts"],
 								desc = L["Display the total owned of an item across all recently played characters."],
-								get = function(a)return SV.db[Schema].itemCount end, 
+								get = function(a)return SV.db[Schema].itemCount end,
 								set = function(a, b) MOD:ChangeDBVar(b, "itemCount") end,
 							},
 						}
@@ -142,7 +149,7 @@ function MOD:LoadOptions()
 					visibility={
 						order=100,
 						type="group",
-						guiInline = true, 
+						guiInline = true,
 						name=L["Visibility"],
 						get=function(a)return SV.db[Schema].visibility[a[#a]]end,
 						set=function(a,b)SV.db[Schema].visibility[a[#a]]=b end,
@@ -154,20 +161,20 @@ function MOD:LoadOptions()
 					healthBar={
 						order=200,
 						type="group",
-						guiInline = true, 
+						guiInline = true,
 						name=L["Health Bar"],
 						get=function(a)return SV.db[Schema].healthBar[a[#a]]end,
 						set=function(a,b)SV.db[Schema].healthBar[a[#a]]=b end,
 						args={
 							height = {
-								order = 1, 
-								name = L["Height"], 
-								type = "range", 
-								min = 1, 
-								max = 15, 
-								step = 1, 
-								width = "full", 
-								set = function(a,b)SV.db[Schema].healthBar.height = b;GameTooltipStatusBar:ModHeight(b)end
+								order = 1,
+								name = L["Height"],
+								type = "range",
+								min = 1,
+								max = 15,
+								step = 1,
+								width = "full",
+								set = function(a,b)SV.db[Schema].healthBar.height = b;GameTooltipStatusBar:SetHeight(b)end
 							},
 						}
 					}

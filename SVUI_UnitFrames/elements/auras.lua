@@ -200,7 +200,7 @@ local PostCreateAuraBars = function(self)
 	local bar = self.statusBar
 	local barTexture = LSM:Fetch("statusbar", SV.db.UnitFrames.auraBarStatusbar)
 	bar:SetStatusBarTexture(barTexture)
-	bar.spelltime:SetFontObject(SVUI_Font_UnitAura);
+	bar.spelltime:SetFontObject(SVUI_Font_UnitAura_Bar);
 	bar.spelltime:SetTextColor(1 ,1, 1)
 	bar.spelltime:SetShadowOffset(1, -1)
   	bar.spelltime:SetShadowColor(0, 0, 0)

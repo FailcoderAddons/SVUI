@@ -106,7 +106,7 @@ local _hook_ActionPanel_OnSizeChanged = function(self)
 
 	self.special[1]:SetSize(widthScale, heightScale)
 	self.special[2]:SetSize(widthScale, heightScale)
-	self.special[3]:SetSize(height * 0.5, height)
+	--self.special[3]:SetSize(height * 0.5, height)
 end
 -- local MISSING_MODEL_FILE = [[Spells\Blackmagic_precast_base.m2]];
 -- local MISSING_MODEL_FILE = [[Spells\Crow_baked.m2]];
@@ -232,23 +232,23 @@ end
 
 local function ADDInfoBG(frame)
 	local bg = frame.InfoPanel:CreateTexture(nil, "BACKGROUND")
-	bg:ModPoint("TOPLEFT", frame.ActionPanel, "BOTTOMLEFT", 0, 1)
-	bg:ModPoint("BOTTOMRIGHT", frame.InfoPanel, "BOTTOMRIGHT", 0, 0)
+	bg:SetPoint("TOPLEFT", frame.InfoPanel, "TOPLEFT", 0, 1)
+	bg:SetPoint("BOTTOMRIGHT", frame.InfoPanel, "BOTTOMRIGHT", 0, 1)
 	bg:SetTexture(1, 1, 1, 1)
 	bg:SetGradientAlpha("VERTICAL", 0, 0, 0, 0, 0, 0, 0, 0.7)
 	frame.InfoPanelBG = bg
 
 	local left = frame.InfoPanel:CreateTexture(nil, "BACKGROUND")
-	left:ModPoint("TOPLEFT", frame.ActionPanel, "TOPLEFT", 0, 1)
-	left:ModPoint("BOTTOMLEFT", frame.InfoPanel, "BOTTOMLEFT", 0, 0)
+	left:SetPoint("TOPLEFT", frame.InfoPanel, "TOPLEFT", 0, -1)
+	left:SetPoint("BOTTOMLEFT", frame.InfoPanel, "BOTTOMLEFT", 0, -2)
 	left:SetWidth(2)
 	left:SetTexture(1, 1, 1, 1)
 	left:SetGradientAlpha("VERTICAL", 0, 0, 0, 0, 0, 0, 0, 1)
 	frame.InfoPanelLeft = left
 
 	local right = frame.InfoPanel:CreateTexture(nil, "BACKGROUND")
-	right:ModPoint("TOPRIGHT", frame.ActionPanel, "TOPRIGHT", 0, 1)
-	right:ModPoint("BOTTOMRIGHT", frame.InfoPanel, "BOTTOMRIGHT", 0, 0)
+	right:SetPoint("TOPRIGHT", frame.InfoPanel, "TOPRIGHT", 0, -1)
+	right:SetPoint("BOTTOMRIGHT", frame.InfoPanel, "BOTTOMRIGHT", 0, -2)
 	right:SetWidth(2)
 	right:SetTexture(1, 1, 1, 1)
 	right:SetGradientAlpha("VERTICAL", 0, 0, 0, 0, 0, 0, 0, 1)
@@ -258,13 +258,14 @@ end
 function MOD:SetActionPanel(frame, unit, noHealthText, noPowerText, noMiscText)
 	if(frame.ActionPanel) then return; end
 	frame:SetStyle("Frame", "ActionPanel")
+	frame.ActionPanel = frame.Panel
 	local baseSize = SV.media.shared.font.unitprimary.size / 0.48;
 	if(unit and (unit == "target" or unit == "player")) then
 		local info = CreateFrame("Frame", nil, frame)
 		info:SetFrameStrata("BACKGROUND")
 		info:SetFrameLevel(0)
-		info:ModPoint("TOPLEFT", frame.ActionPanel, "BOTTOMLEFT", 0, 1)
-		info:ModPoint("TOPRIGHT", frame.ActionPanel, "BOTTOMRIGHT", 0, 1)
+		info:SetPoint("TOPLEFT", frame, "BOTTOMLEFT", 0, 1)
+		info:SetPoint("TOPRIGHT", frame, "BOTTOMRIGHT", 0, 1)
 		info:SetHeight(baseSize)
 
 		frame.TextGrip = CreateFrame("Frame", nil, info)
@@ -296,13 +297,13 @@ function MOD:SetActionPanel(frame, unit, noHealthText, noPowerText, noMiscText)
 				frame.ActionPanel.special[2]:SetTexture(ELITE_BOTTOM)
 				frame.ActionPanel.special[2]:SetVertexColor(1, 0.75, 0)
 				frame.ActionPanel.special[2]:SetBlendMode("BLEND")
-				frame.ActionPanel.special[3] = frame.ActionPanel.special:CreateTexture(nil, "OVERLAY", nil, 1)
-				frame.ActionPanel.special[3]:SetPoint("LEFT", frame.ActionPanel.special, "RIGHT", 0, 0)
-				frame.ActionPanel.special[3]:SetHeight(frame.ActionPanel:GetHeight())
-				frame.ActionPanel.special[3]:SetWidth(frame.ActionPanel:GetHeight() * 0.5)
-				frame.ActionPanel.special[3]:SetTexture(ELITE_RIGHT)
-				frame.ActionPanel.special[3]:SetVertexColor(1, 0.75, 0)
-				frame.ActionPanel.special[3]:SetBlendMode("BLEND")
+				-- frame.ActionPanel.special[3] = frame.ActionPanel.special:CreateTexture(nil, "OVERLAY", nil, 1)
+				-- frame.ActionPanel.special[3]:SetPoint("LEFT", frame.ActionPanel.special, "RIGHT", 0, 0)
+				-- frame.ActionPanel.special[3]:SetHeight(frame.ActionPanel:GetHeight())
+				-- frame.ActionPanel.special[3]:SetWidth(frame.ActionPanel:GetHeight() * 0.5)
+				-- frame.ActionPanel.special[3]:SetTexture(ELITE_RIGHT)
+				-- frame.ActionPanel.special[3]:SetVertexColor(1, 0.75, 0)
+				-- frame.ActionPanel.special[3]:SetBlendMode("BLEND")
 				frame.ActionPanel.special:SetAlpha(0.7)
 				frame.ActionPanel.special:Hide()
 
@@ -310,8 +311,8 @@ function MOD:SetActionPanel(frame, unit, noHealthText, noPowerText, noMiscText)
 			end
 
 			frame.ActionPanel.class = CreateFrame("Frame", nil, frame.TextGrip)
-			frame.ActionPanel.class:ModSize(18)
-			frame.ActionPanel.class:ModPoint("TOPLEFT", frame.ActionPanel, "TOPLEFT", 2, -2)
+			frame.ActionPanel.class:SetSize(18, 18)
+			frame.ActionPanel.class:SetPoint("TOPLEFT", frame.ActionPanel, "TOPLEFT", 2, -2)
 			frame.ActionPanel.class:SetStyle("Frame", "Default", true, 2, 0, 0)
 
 			frame.ActionPanel.class.texture = frame.ActionPanel.class.Panel:CreateTexture(nil, "BORDER")
@@ -355,26 +356,14 @@ function MOD:SetActionPanel(frame, unit, noHealthText, noPowerText, noMiscText)
 			SV.Animate:Sprite4(stunned, 0.12, false, true)
 			frame.LossOfControl.stunned = stunned
 
-			--stunned:Hide()
-			-- LossOfControlFrame:HookScript("OnShow", function()
-			-- 	if(_G["SVUI_Player"] and _G["SVUI_Player"].LossOfControl) then
-			-- 		_G["SVUI_Player"].LossOfControl:Show()
-			-- 	end
-			-- end)
-			-- LossOfControlFrame:HookScript("OnHide", function()
-			-- 	if(_G["SVUI_Player"] and _G["SVUI_Player"].LossOfControl) then
-			-- 		_G["SVUI_Player"].LossOfControl:Hide()
-			-- 	end
-			-- end)
-
 			frame.LossOfControl:SetParent(LossOfControlFrame)
 		end
 	elseif(unit and (unit == 'pet' or unit == 'targettarget')) then
 		local info = CreateFrame("Frame", nil, frame)
 		info:SetFrameStrata("BACKGROUND")
 		info:SetFrameLevel(0)
-		info:ModPoint("TOPLEFT", frame.ActionPanel, "BOTTOMLEFT", 0, 1)
-		info:ModPoint("TOPRIGHT", frame.ActionPanel, "BOTTOMRIGHT", 0, 1)
+		info:SetPoint("TOPLEFT", frame, "BOTTOMLEFT", 0, 1)
+		info:SetPoint("TOPRIGHT", frame, "BOTTOMRIGHT", 0, 1)
 		info:SetHeight(baseSize)
 
 		frame.InfoPanel = info;
@@ -388,8 +377,8 @@ function MOD:SetActionPanel(frame, unit, noHealthText, noPowerText, noMiscText)
 		frame.TextGrip = CreateFrame("Frame", nil, frame)
 		frame.TextGrip:SetFrameStrata("LOW")
 		frame.TextGrip:SetFrameLevel(20)
-		frame.TextGrip:ModPoint("TOPLEFT", frame.ActionPanel, "TOPLEFT", 2, -2)
-		frame.TextGrip:ModPoint("BOTTOMRIGHT", frame.ActionPanel, "BOTTOMRIGHT", -2, 2)
+		frame.TextGrip:SetPoint("TOPLEFT", frame.ActionPanel, "TOPLEFT", 2, -2)
+		frame.TextGrip:SetPoint("BOTTOMRIGHT", frame.ActionPanel, "BOTTOMRIGHT", -2, 2)
 	end
 
 	frame.TextGrip.Name = CreateNameText(frame.TextGrip, unit)
@@ -402,7 +391,7 @@ function MOD:SetActionPanel(frame, unit, noHealthText, noPowerText, noMiscText)
 		frame.TextGrip.Health:SetFontObject(_G[fontgroup])
 		offset = reverse and 2 or -2;
 		direction = reverse and "LEFT" or "RIGHT";
-		frame.TextGrip.Health:ModPoint(direction, frame.TextGrip, direction, offset, 0)
+		frame.TextGrip.Health:SetPoint(direction, frame.TextGrip, direction, offset, 0)
 	end
 
 	if(not noPowerText) then
@@ -410,23 +399,20 @@ function MOD:SetActionPanel(frame, unit, noHealthText, noPowerText, noMiscText)
 		frame.TextGrip.Power:SetFontObject(_G[fontgroup])
 		offset = reverse and -2 or 2;
 		direction = reverse and "RIGHT" or "LEFT";
-		frame.TextGrip.Power:ModPoint(direction, frame.TextGrip, direction, offset, 0)
+		frame.TextGrip.Power:SetPoint(direction, frame.TextGrip, direction, offset, 0)
 	end
 
 	if(not noMiscText) then
 		frame.TextGrip.Misc = frame.TextGrip:CreateFontString(nil, "OVERLAY")
 		frame.TextGrip.Misc:SetFontObject(_G[fontgroup])
-		frame.TextGrip.Misc:ModPoint("CENTER", frame, "CENTER", 0, 0)
+		frame.TextGrip.Misc:SetPoint("CENTER", frame, "CENTER", 0, 0)
 	end
 
-	frame.MasterGrip = CreateFrame("Frame", nil, frame)
-	frame.MasterGrip:SetAllPoints(frame)
-
-	frame.StatusPanel = CreateFrame("Frame", nil, frame.MasterGrip)
+	frame.StatusPanel = CreateFrame("Frame", nil, frame)
 	frame.StatusPanel:EnableMouse(false)
 
 	if(unit and (unit == "player" or unit == "pet" or unit == "target" or unit == "targettarget" or unit == "focus" or unit == "focustarget")) then
-		frame.StatusPanel:SetAllPoints(frame.MasterGrip)
+		frame.StatusPanel:SetAllPoints(frame)
 		frame.StatusPanel.media = {
 			[[Interface\Addons\SVUI_UnitFrames\assets\TARGET-DC]],
 			[[Interface\Addons\SVUI_UnitFrames\assets\TARGET-DEAD]],
@@ -434,7 +420,7 @@ function MOD:SetActionPanel(frame, unit, noHealthText, noPowerText, noMiscText)
 		}
 	else
 		frame.StatusPanel:SetSize(50, 50)
-		frame.StatusPanel:SetPoint("CENTER", frame.MasterGrip, "CENTER", 0, 0)
+		frame.StatusPanel:SetPoint("CENTER", frame, "CENTER", 0, 0)
 		frame.StatusPanel.media = {
 			[[Interface\Addons\SVUI_UnitFrames\assets\UNIT-DC]],
 			[[Interface\Addons\SVUI_UnitFrames\assets\UNIT-DEAD]],
@@ -448,6 +434,23 @@ function MOD:SetActionPanel(frame, unit, noHealthText, noPowerText, noMiscText)
 	frame.StatusPanel:SetFrameLevel(28)
 	if(ThreatMapping[unit]) then
 		frame.Threat = CreateThreat(frame, unit)
+	end
+end
+
+function MOD:UpdateStatusMedia(frame)
+	local width,height = frame:GetSize()
+	if((height > (width * 0.5)) or (width < 75)) then
+		frame.StatusPanel.media = {
+			[[Interface\Addons\SVUI_UnitFrames\assets\UNIT-DC]],
+			[[Interface\Addons\SVUI_UnitFrames\assets\UNIT-DEAD]],
+			[[Interface\Addons\SVUI_UnitFrames\assets\UNIT-TAPPED]]
+		}
+	else
+		frame.StatusPanel.media = {
+			[[Interface\Addons\SVUI_UnitFrames\assets\TARGET-DC]],
+			[[Interface\Addons\SVUI_UnitFrames\assets\TARGET-DEAD]],
+			[[Interface\Addons\SVUI_UnitFrames\assets\TARGET-TAPPED]]
+		}
 	end
 end
 --[[
@@ -577,7 +580,7 @@ local OverlayHealthUpdate = function(health, unit, min, max)
 		local t = oUF_SVUI.colors.health
 		health:SetStatusBarColor(t[1], t[2], t[3], 0.9)
 	else
-		health:SetStatusBarColor(1, 0.25 * mu, 0, 0.85)
+		health:SetStatusBarColor(1-(0.65 * mu), 0.9 * mu, 0, 0.85)
 		health.animation[1]:SetVertexColor(1, 0.1 * mu, 0, 0.5)
 	end
 
@@ -666,9 +669,9 @@ local PostUpdateAltPower = function(self, min, current, max)
 	elseif(unit and unit:find("boss%d") and self.text) then
 		self.text:SetTextColor(self:GetStatusBarColor())
 		if not parent.TextGrip.Power:GetText() or parent.TextGrip.Power:GetText() == "" then
-			self.text:ModPoint("BOTTOMRIGHT", parent.Health, "BOTTOMRIGHT")
+			self.text:SetPoint("BOTTOMRIGHT", parent.Health, "BOTTOMRIGHT")
 		else
-			self.text:ModPoint("RIGHT", parent.TextGrip.Power, "LEFT", 2, 0)
+			self.text:SetPoint("RIGHT", parent.TextGrip.Power, "LEFT", 2, 0)
 		end
 		if remaining > 0 then
 			self.text:SetText("|cffD7BEA5[|r"..format("%d%%", remaining).."|cffD7BEA5]|r")
@@ -681,11 +684,15 @@ end
 function MOD:CreatePowerBar(frame)
 	local power = CreateFrame("StatusBar", nil, frame)
 	power:SetStatusBarTexture(SV.media.statusbar.default)
-	power:SetStyle("Frame", "Bar")
 	power:SetFrameStrata("LOW")
 	power:SetFrameLevel(6)
-	power.bg = power.Panel.Skin
-	power.bg.multiplier = 0.2
+	power:SetStyle("Frame", "Bar")
+	power.bg = power:CreateTexture(nil, "BORDER")
+	power.bg:SetAllPoints()
+	power.bg:SetTexture(SV.media.statusbar.gradient)
+	power.bg:SetVertexColor(0.4, 0.1, 0.1)
+	power.bg.multiplier = 0.25
+
 	power.colorDisconnected = false;
 	power.colorTapping = false;
 	power.PostUpdate = MOD.PostUpdatePower;
@@ -750,6 +757,10 @@ function MOD:CreatePortrait(frame,smallUnit,isPlayer)
 		portrait3D:SetStyle("Frame", "UnitLarge")
 	end
 
+	portrait3D.Outline = CreateFrame("Frame", nil, portrait3D)
+	portrait3D.Outline:WrapPoints(portrait3D)
+	portrait3D.Outline:SetStyle("Frame", "ActionPanel")
+
 	portrait3D.UserRotation = 0;
 	portrait3D.UserCamDistance = 1.3;
 
@@ -758,14 +769,15 @@ function MOD:CreatePortrait(frame,smallUnit,isPlayer)
 	portrait2Danchor:SetFrameStrata("LOW")
 	portrait2Danchor:SetFrameLevel(2)
 
-	if smallUnit then
-		portrait2Danchor:SetStyle("Frame", "UnitSmall")
-	else
-		portrait2Danchor:SetStyle("Frame", "UnitLarge")
-	end
+	portrait2Danchor:SetStyle("Frame")
+	portrait2Danchor:SetPanelColor("darkest")
+
+	portrait2Danchor.Outline = CreateFrame("Frame", nil, portrait2Danchor)
+	portrait2Danchor.Outline:WrapPoints(portrait2Danchor)
+	portrait2Danchor.Outline:SetStyle("Frame", "ActionPanel")
 
 	local portrait2D = portrait2Danchor:CreateTexture(nil,'OVERLAY')
-	portrait2D:InsetPoints(portrait2Danchor)
+	portrait2D:SetAllPoints()
 	portrait2D:SetTexCoord(0.15,0.85,0.15,0.85)
 	portrait2D:SetBlendMode("ADD")
 

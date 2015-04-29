@@ -81,7 +81,7 @@ function Totems:Update()
 		local button = self[i]
 		if(button) then
 			local lastButton = self[i - 1]
-			button:ModSize(totemSize)
+			button:SetSize(totemSize, totemSize)
 			button:ClearAllPoints()
 			if(totemGrowth == "HORIZONTAL" and totemSort == "ASCENDING") then
 				if(i == 1) then
@@ -120,7 +120,7 @@ function Totems:Update()
 		calcHeight = ((totemSize * MAX_TOTEMS) + (totemSpace * MAX_TOTEMS) + totemSpace);
 	end
 
-	self:ModSize(calcWidth, calcHeight);
+	self:SetSize(calcWidth, calcHeight);
 	self:Refresh()
 end
 

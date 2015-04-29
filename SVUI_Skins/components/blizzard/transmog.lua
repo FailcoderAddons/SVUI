@@ -50,7 +50,7 @@ TRANSMOG MODR
 local function TransmogStyle()
 	if SV.db.Skins.blizzard.enable ~= true or SV.db.Skins.blizzard.transmogrify ~= true then return end
 
-	TransmogrifyFrame:ModSize(500, 600)
+	TransmogrifyFrame:SetSize(500, 600)
 	SV.API:Set("Window", TransmogrifyFrame, true)
 
 	for p, texture in pairs(TransmogFrameList)do
@@ -60,14 +60,14 @@ local function TransmogStyle()
 	select(2, TransmogrifyModelFrame:GetRegions()):Die()
 
 	TransmogrifyModelFrame:ClearAllPoints()
-	TransmogrifyModelFrame:ModPoint("TOPLEFT", TransmogrifyFrame, "TOPLEFT", 12, -22)
-	TransmogrifyModelFrame:ModPoint("BOTTOMRIGHT", TransmogrifyFrame, "BOTTOMRIGHT", -12, 36)
+	TransmogrifyModelFrame:SetPoint("TOPLEFT", TransmogrifyFrame, "TOPLEFT", 12, -22)
+	TransmogrifyModelFrame:SetPoint("BOTTOMRIGHT", TransmogrifyFrame, "BOTTOMRIGHT", -12, 36)
 	TransmogrifyModelFrame:SetStyle("!_Frame", "Model")
 
 	TransmogrifyFrameButtonFrame:GetRegions():Die()
 	TransmogrifyApplyButton:RemoveTextures()
 	TransmogrifyApplyButton:SetStyle("Button")
-	TransmogrifyApplyButton:ModPoint("BOTTOMRIGHT", TransmogrifyFrame, "BOTTOMRIGHT", -4, 4)
+	TransmogrifyApplyButton:SetPoint("BOTTOMRIGHT", TransmogrifyFrame, "BOTTOMRIGHT", -4, 4)
 	SV.API:Set("CloseButton", TransmogrifyArtFrameCloseButton)
 	TransmogrifyArtFrame:RemoveTextures()
 

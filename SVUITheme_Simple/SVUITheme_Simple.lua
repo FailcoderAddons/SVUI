@@ -1,8 +1,8 @@
 --[[
 ##############################################################################
-S U P E R - V I L L A I N - T H E M E   By: Munglunch                        
+S U P E R - V I L L A I N - T H E M E   By: Munglunch
 ##############################################################################
-########################################################## 
+##########################################################
 LOCALIZED LUA FUNCTIONS
 ##########################################################
 ]]--
@@ -13,8 +13,8 @@ local select 	= _G.select;
 local math 		= _G.math;
 --[[ MATH METHODS ]]--
 local random = math.random;
---[[ 
-########################################################## 
+--[[
+##########################################################
 GET ADDON DATA
 ##########################################################
 ]]--
@@ -27,13 +27,12 @@ SV.DialogFontDefault = "SVUI Default Font";
 
 if(GetLocale() == "enUS") then
 	SV:AssignMedia("font", "dialog", "SVUI Dialog Font", 10, "OUTLINE")
-	SV:AssignMedia("font", "title", "SVUI Dialog Font", 16, "OUTLINE")
 end
 
 SV:AssignMedia("font", "number", "SVUI Caps Font", 14, "OUTLINE");
 SV:AssignMedia("font", "number_big", "SVUI Caps Font", 18, "OUTLINE");
-SV:AssignMedia("font", "header", "SVUI Caps Font", 18, "OUTLINE");  
-SV:AssignMedia("font", "combat", "SVUI Combat Font", 64, "OUTLINE"); 
+SV:AssignMedia("font", "header", "SVUI Caps Font", 18, "OUTLINE");
+SV:AssignMedia("font", "combat", "SVUI Combat Font", 64, "OUTLINE");
 SV:AssignMedia("font", "alert", "SVUI Default Font", 20, "OUTLINE");
 SV:AssignMedia("font", "zone", "SVUI Default Font", 16, "OUTLINE");
 SV:AssignMedia("font", "aura", "SVUI Caps Font", 14, "OUTLINE");
@@ -79,35 +78,35 @@ local _SetDockStyleTheme = function(frame, isBottom)
 	backdrop:SetAllPoints(frame)
 	backdrop:SetFrameStrata("BACKGROUND")
 	backdrop:SetBackdrop({
-	    bgFile = [[Interface\DialogFrame\UI-DialogBox-Background]], 
-	    tile = false, 
-	    tileSize = 0, 
+	    bgFile = [[Interface\DialogFrame\UI-DialogBox-Background]],
+	    tile = false,
+	    tileSize = 0,
 	    edgeFile = [[Interface\BUTTONS\WHITE8X8]],
 	    edgeSize = 1,
-	    insets = 
+	    insets =
 	    {
-	        left = 0, 
-	        right = 0, 
-	        top = 0, 
-	        bottom = 0, 
-	    }, 
+	        left = 0,
+	        right = 0,
+	        top = 0,
+	        bottom = 0,
+	    },
 	});
 	backdrop:SetBackdropColor(0,0,0,0.5);
 	backdrop:SetBackdropBorderColor(0,0,0,0.8);
 
-	return backdrop 
+	return backdrop
 end
 
 local _SetBorderTheme = function(self)
-	self.Border.Top:ModPoint("TOPLEFT", SV.Screen, "TOPLEFT", -1, 1)
-	self.Border.Top:ModPoint("TOPRIGHT", SV.Screen, "TOPRIGHT", 1, 1)
-	self.Border.Top:ModHeight(10)
+	self.Border.Top:SetPoint("TOPLEFT", SV.Screen, "TOPLEFT", -1, 1)
+	self.Border.Top:SetPoint("TOPRIGHT", SV.Screen, "TOPRIGHT", 1, 1)
+	self.Border.Top:SetHeight(10)
 	self.Border.Top:SetBackdrop({
-		bgFile = [[Interface\BUTTONS\WHITE8X8]], 
-		edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
-		tile = false, 
-		tileSize = 0, 
-		edgeSize = 1, 
+		bgFile = [[Interface\BUTTONS\WHITE8X8]],
+		edgeFile = [[Interface\BUTTONS\WHITE8X8]],
+		tile = false,
+		tileSize = 0,
+		edgeSize = 1,
 		insets = {left = 0, right = 0, top = 0, bottom = 0}
 	})
 	self.Border.Top:SetBackdropColor(0,0,0,0)
@@ -119,15 +118,15 @@ local _SetBorderTheme = function(self)
 		self:SetFrameStrata('BACKGROUND')
 	end)
 
-	self.Border.Bottom:ModPoint("BOTTOMLEFT", SV.Screen, "BOTTOMLEFT", -1, -1)
-	self.Border.Bottom:ModPoint("BOTTOMRIGHT", SV.Screen, "BOTTOMRIGHT", 1, -1)
-	self.Border.Bottom:ModHeight(10)
+	self.Border.Bottom:SetPoint("BOTTOMLEFT", SV.Screen, "BOTTOMLEFT", -1, -1)
+	self.Border.Bottom:SetPoint("BOTTOMRIGHT", SV.Screen, "BOTTOMRIGHT", 1, -1)
+	self.Border.Bottom:SetHeight(10)
 	self.Border.Bottom:SetBackdrop({
-		bgFile = [[Interface\BUTTONS\WHITE8X8]], 
-		edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
-		tile = false, 
-		tileSize = 0, 
-		edgeSize = 1, 
+		bgFile = [[Interface\BUTTONS\WHITE8X8]],
+		edgeFile = [[Interface\BUTTONS\WHITE8X8]],
+		tile = false,
+		tileSize = 0,
+		edgeSize = 1,
 		insets = {left = 0, right = 0, top = 0, bottom = 0}
 	})
 	self.Border.Bottom:SetBackdropColor(0,0,0,0)
@@ -151,7 +150,7 @@ function SV:LoadTheme()
 		self:AssignMedia("font", "mapinfo", "SVUI Default Font", 14, "OUTLINE");
 		self:AssignMedia("font", "mapcoords", "SVUI Caps Font", 14, "OUTLINE");
 		self.defaults.Maps.locationText = "SIMPLE";
-		self.defaults.Maps.bordersize = 1;
+		self.defaults.Maps.bordersize = 0;
 		self.defaults.Maps.bordercolor = "dark";
 	end
 	if(self.Maps) then

@@ -135,7 +135,7 @@ local function SetCastTicks(bar,count,mod)
 			ticks[i] = bar:CreateTexture(nil,'OVERLAY')
 			ticks[i]:SetTexture(SV.media.statusbar.lazer)
 			ticks[i]:SetVertexColor(0,0,0,0.8)
-			ticks[i]:ModWidth(1)
+			ticks[i]:SetWidth(1)
 			ticks[i]:SetHeight(bar:GetHeight())
 		end 
 		ticks[i]:ClearAllPoints()
@@ -527,8 +527,8 @@ function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss, ha
 	castbar.Icon = buttonIcon;
 
 	local shieldIcon = iconHolder:CreateTexture(nil, "ARTWORK")
-	shieldIcon:ModPoint("TOPLEFT", buttonIcon, "TOPLEFT", -7, 7)
-	shieldIcon:ModPoint("BOTTOMRIGHT", buttonIcon, "BOTTOMRIGHT", 7, -8)
+	shieldIcon:SetPoint("TOPLEFT", buttonIcon, "TOPLEFT", -7, 7)
+	shieldIcon:SetPoint("BOTTOMRIGHT", buttonIcon, "BOTTOMRIGHT", 7, -8)
 	shieldIcon:SetTexture("Interface\\Addons\\SVUI_UnitFrames\\assets\\Castbar\\SHIELD")
 	castbar.Shield = shieldIcon;
 
@@ -563,7 +563,7 @@ function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss, ha
 		hadouken:SetWidth(50)
 		hadouken:SetAlpha(0.9)
 
-		castbarHolder:ModPoint("TOP", frame, "BOTTOM", 0, isBoss and -4 or -35)
+		castbarHolder:SetPoint("TOP", frame, "BOTTOM", 0, isBoss and -4 or -35)
 
 		if reversed then 
 			castbar:SetReverseFill(true)
@@ -597,10 +597,10 @@ function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss, ha
 
 			SV.Animate:Sprite4(hadouken[2],false,false,true)
 
-			castbar:ModPoint("BOTTOMLEFT", castbarHolder, "BOTTOMLEFT", 1, 1)
-			organizer:ModPoint("LEFT", castbar, "RIGHT", 4, 0)
+			castbar:SetPoint("BOTTOMLEFT", castbarHolder, "BOTTOMLEFT", 1, 1)
+			organizer:SetPoint("LEFT", castbar, "RIGHT", 4, 0)
 
-			castbar.Time:ModPoint("RIGHT", castbar, "LEFT", -4, 0)
+			castbar.Time:SetPoint("RIGHT", castbar, "LEFT", -4, 0)
 		else
 			hadouken[1] = hadouken:CreateTexture(nil, "ARTWORK")
 			hadouken[1]:SetAllPoints(hadouken)
@@ -632,13 +632,13 @@ function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss, ha
 
 			SV.Animate:Sprite4(hadouken[2],false,false,true)
 			
-			castbar:ModPoint("BOTTOMRIGHT", castbarHolder, "BOTTOMRIGHT", -1, 1)
-			organizer:ModPoint("RIGHT", castbar, "LEFT", -4, 0)
+			castbar:SetPoint("BOTTOMRIGHT", castbarHolder, "BOTTOMRIGHT", -1, 1)
+			organizer:SetPoint("RIGHT", castbar, "LEFT", -4, 0)
 
-			castbar.Time:ModPoint("LEFT", castbar, "RIGHT", 4, 0)
+			castbar.Time:SetPoint("LEFT", castbar, "RIGHT", 4, 0)
 		end
 
-		-- castbar.Time:ModPoint("CENTER", organizer, "CENTER", 0, 0)
+		-- castbar.Time:SetPoint("CENTER", organizer, "CENTER", 0, 0)
 		-- castbar.Time:SetJustifyH("CENTER")
 
 		castbar.Text:SetAllPoints(castbar)
@@ -655,7 +655,7 @@ function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss, ha
 		castbar.pewpew = false
 
 		castbar:SetStatusBarTexture(SV.media.statusbar.glow)
-		castbarHolder:ModPoint("TOP", frame, "BOTTOM", 0, -4)
+		castbarHolder:SetPoint("TOP", frame, "BOTTOM", 0, -4)
 		castbar:InsetPoints(castbarHolder, 2, 2)
 
 		bgFrame:SetAllPoints(castbarHolder)
@@ -666,9 +666,9 @@ function MOD:CreateCastbar(frame, reversed, moverName, ryu, useFader, isBoss, ha
 
 		if reversed then 
 			castbar:SetReverseFill(true)
-			organizer:ModPoint("LEFT", castbar, "RIGHT", 6, 0)
+			organizer:SetPoint("LEFT", castbar, "RIGHT", 6, 0)
 		else
-			organizer:ModPoint("RIGHT", castbar, "LEFT", -6, 0)
+			organizer:SetPoint("RIGHT", castbar, "LEFT", -6, 0)
 		end
 	end
 

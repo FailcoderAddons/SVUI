@@ -126,11 +126,11 @@ local function StyleCharacterSlots()
 		if(tab) then
 			if(not tab.Panel) then
 				tab.Highlight:SetTexture(1, 1, 1, 0.3)
-				tab.Highlight:ModPoint("TOPLEFT", 3, -4)
-				tab.Highlight:ModPoint("BOTTOMRIGHT", -1, 0)
+				tab.Highlight:SetPoint("TOPLEFT", 3, -4)
+				tab.Highlight:SetPoint("BOTTOMRIGHT", -1, 0)
 				tab.Hider:SetTexture(0.4, 0.4, 0.4, 0.4)
-				tab.Hider:ModPoint("TOPLEFT", 3, -4)
-				tab.Hider:ModPoint("BOTTOMRIGHT", -1, 0)
+				tab.Hider:SetPoint("TOPLEFT", 3, -4)
+				tab.Hider:SetPoint("BOTTOMRIGHT", -1, 0)
 				tab.TabBg:Die()
 				if i == 1 then
 					for x = 1, tab:GetNumRegions()do 
@@ -139,8 +139,8 @@ local function StyleCharacterSlots()
 					end 
 				end 
 				tab:SetStyle("Frame", "Default", true, 2)
-				tab.Panel:ModPoint("TOPLEFT", 2, -3)
-				tab.Panel:ModPoint("BOTTOMRIGHT", 0, -2)
+				tab.Panel:SetPoint("TOPLEFT", 2, -3)
+				tab.Panel:SetPoint("BOTTOMRIGHT", 0, -2)
 			end
 			if(i == 1) then
 				tab:ClearAllPoints()
@@ -210,7 +210,7 @@ local function PaperDollEquipmentManagerPane_OnShow()
 			btn.BgTop:SetTexture("")
 			btn.BgBottom:SetTexture("")
 			btn.BgMiddle:SetTexture("")
-			btn.icon:ModSize(36, 36)
+			btn.icon:SetSize(36, 36)
 			btn.Check:SetTexture("")
 			btn.icon:SetTexCoord(unpack(_G.SVUI_ICON_COORDS))
 			btn.icon:SetPoint("LEFT", btn, "LEFT", 4, 0)
@@ -222,7 +222,7 @@ local function PaperDollEquipmentManagerPane_OnShow()
 
 	GearManagerDialogPopup:RemoveTextures()
 	GearManagerDialogPopup:SetStyle("Frame", "Inset", true)
-	GearManagerDialogPopup:ModPoint("LEFT", PaperDollFrame, "RIGHT", 4, 0)
+	GearManagerDialogPopup:SetPoint("LEFT", PaperDollFrame, "RIGHT", 4, 0)
 	GearManagerDialogPopupScrollFrame:RemoveTextures()
 	GearManagerDialogPopupEditBox:RemoveTextures()
 	GearManagerDialogPopupEditBox:SetStyle("Frame", 'Inset')
@@ -256,10 +256,10 @@ local function CharacterFrameStyle()
 	SV.API:Set("Window", CharacterFrame, true, true, 1, 3, 3)
 
 	SV.API:Set("CloseButton", CharacterFrameCloseButton)
-	SV.API:Set("ScrollFrame", CharacterStatsPaneScrollBar)
-	SV.API:Set("ScrollFrame", ReputationListScrollFrameScrollBar)
-	SV.API:Set("ScrollFrame", TokenFrameContainerScrollBar)
-	SV.API:Set("ScrollFrame", GearManagerDialogPopupScrollFrameScrollBar)
+	SV.API:Set("ScrollBar", CharacterStatsPaneScrollBar)
+	SV.API:Set("ScrollBar", ReputationListScrollFrameScrollBar)
+	SV.API:Set("ScrollBar", TokenFrameContainerScrollBar)
+	SV.API:Set("ScrollBar", GearManagerDialogPopupScrollFrameScrollBar)
 	
 	StyleCharacterSlots()
 
@@ -267,23 +267,23 @@ local function CharacterFrameStyle()
 	SlotListener:SetScript("OnEvent", StyleCharacterSlots)
 	CharacterFrame:HookScript("OnShow", StyleCharacterSlots)
 
-	SV.API:Set("PageButton", CharacterFrameExpandButton)
+	-- if GetCVar("characterFrameCollapsed") ~= "0" then
+	-- 	 SquareButton_SetIcon(CharacterFrameExpandButton, 'RIGHT')
+	-- else
+	-- 	 SquareButton_SetIcon(CharacterFrameExpandButton, 'LEFT')
+	-- end 
+	CharacterFrameExpandButton:RemoveTextures(true)
+	SV.API:Set("!_PageButton", CharacterFrameExpandButton)
 
 	hooksecurefunc('CharacterFrame_Collapse', function()
-		CharacterFrameExpandButton:RemoveTextures()
+		SV.API:Set("!_PageButton", CharacterFrameExpandButton)
 		SquareButton_SetIcon(CharacterFrameExpandButton, 'RIGHT')
 	end)
 
 	hooksecurefunc('CharacterFrame_Expand', function()
-		CharacterFrameExpandButton:RemoveTextures()
+		SV.API:Set("!_PageButton", CharacterFrameExpandButton)
 		SquareButton_SetIcon(CharacterFrameExpandButton, 'LEFT')
 	end)
-
-	if GetCVar("characterFrameCollapsed") ~= "0" then
-		 SquareButton_SetIcon(CharacterFrameExpandButton, 'RIGHT')
-	else
-		 SquareButton_SetIcon(CharacterFrameExpandButton, 'LEFT')
-	end 
 
 	SV.API:Set("CloseButton", ReputationDetailCloseButton)
 	SV.API:Set("CloseButton", TokenFramePopupCloseButton)
@@ -297,8 +297,8 @@ local function CharacterFrameStyle()
 	EquipmentFlyoutFrame:HookScript("OnShow", EquipmentFlyout_OnShow)
 	hooksecurefunc("EquipmentFlyout_Show", EquipmentFlyout_OnShow)
 	CharacterFramePortrait:Die()
-	SV.API:Set("ScrollFrame", _G["PaperDollTitlesPaneScrollBar"], 5)
-	SV.API:Set("ScrollFrame", _G["PaperDollEquipmentManagerPaneScrollBar"], 5)
+	SV.API:Set("ScrollBar", _G["PaperDollTitlesPaneScrollBar"], 5)
+	SV.API:Set("ScrollBar", _G["PaperDollEquipmentManagerPaneScrollBar"], 5)
 
 	for _,gName in pairs(CharFrameList) do
 		if(_G[gName]) then _G[gName]:RemoveTextures(true) end
@@ -329,10 +329,10 @@ local function CharacterFrameStyle()
 	PaperDollEquipmentManagerPane:SetStyle("Frame", 'Inset')
 	PaperDollEquipmentManagerPaneEquipSet:SetStyle("Button")
 	PaperDollEquipmentManagerPaneSaveSet:SetStyle("Button")
-	PaperDollEquipmentManagerPaneEquipSet:ModWidth(PaperDollEquipmentManagerPaneEquipSet:GetWidth()-8)
-	PaperDollEquipmentManagerPaneSaveSet:ModWidth(PaperDollEquipmentManagerPaneSaveSet:GetWidth()-8)
-	PaperDollEquipmentManagerPaneEquipSet:ModPoint("TOPLEFT", PaperDollEquipmentManagerPane, "TOPLEFT", 8, 0)
-	PaperDollEquipmentManagerPaneSaveSet:ModPoint("LEFT", PaperDollEquipmentManagerPaneEquipSet, "RIGHT", 4, 0)
+	PaperDollEquipmentManagerPaneEquipSet:SetWidth(PaperDollEquipmentManagerPaneEquipSet:GetWidth()-8)
+	PaperDollEquipmentManagerPaneSaveSet:SetWidth(PaperDollEquipmentManagerPaneSaveSet:GetWidth()-8)
+	PaperDollEquipmentManagerPaneEquipSet:SetPoint("TOPLEFT", PaperDollEquipmentManagerPane, "TOPLEFT", 8, 0)
+	PaperDollEquipmentManagerPaneSaveSet:SetPoint("LEFT", PaperDollEquipmentManagerPaneEquipSet, "RIGHT", 4, 0)
 	PaperDollEquipmentManagerPaneEquipSet.ButtonBackground:SetTexture("")
 
 	PaperDollEquipmentManagerPane:HookScript("OnShow", PaperDollEquipmentManagerPane_OnShow)
@@ -347,7 +347,7 @@ local function CharacterFrameStyle()
 	ReputationListScrollFrame:SetStyle("Frame", "Inset")
 	ReputationDetailFrame:RemoveTextures()
 	ReputationDetailFrame:SetStyle("Frame", "Inset", true)
-	ReputationDetailFrame:ModPoint("TOPLEFT", ReputationFrame, "TOPRIGHT", 4, -28)
+	ReputationDetailFrame:SetPoint("TOPLEFT", ReputationFrame, "TOPRIGHT", 4, -28)
 	ReputationFrame:HookScript("OnShow", Reputation_OnShow)
 	hooksecurefunc("ExpandFactionHeader", Reputation_OnShow)
 	hooksecurefunc("CollapseFactionHeader", Reputation_OnShow)
@@ -368,7 +368,7 @@ local function CharacterFrameStyle()
 		end 
 		TokenFramePopup:RemoveTextures()
 		TokenFramePopup:SetStyle("Frame", "Inset", true)
-		TokenFramePopup:ModPoint("TOPLEFT", TokenFrame, "TOPRIGHT", 4, -28)
+		TokenFramePopup:SetPoint("TOPLEFT", TokenFrame, "TOPRIGHT", 4, -28)
 	end)
 
 	PetModelFrame:SetStyle("Frame", "Premium", false, 1, -7, -7)
@@ -376,7 +376,7 @@ local function CharacterFrameStyle()
 	PetPaperDollPetInfo:SetFrameLevel(PetPaperDollPetInfo:GetFrameLevel() + 10)
 	PetPaperDollPetInfo:SetStyle("Frame", "Icon")
 	PetPaperDollPetInfo.Panel:SetFrameLevel(0)
-	PetPaperDollPetInfo:ModSize(24, 24)
+	PetPaperDollPetInfo:SetSize(24, 24)
 end 
 --[[ 
 ########################################################## 

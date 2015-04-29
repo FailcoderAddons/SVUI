@@ -1,7 +1,7 @@
 --[[
 ##########################################################
 S V U I   By: Munglunch
-########################################################## 
+##########################################################
 LOCALIZED LUA FUNCTIONS
 ##########################################################
 ]]--
@@ -24,7 +24,7 @@ MOD.media.completeIcon = [[Interface\AddOns\SVUI_QuestTracker\assets\QUEST-COMPL
 MOD.media.incompleteIcon = [[Interface\AddOns\SVUI_QuestTracker\assets\QUEST-INCOMPLETE-ICON]];
 
 SV.defaults[Schema] = {
-	["itemBarDirection"] = 'VERTICAL', 
+	["itemBarDirection"] = 'VERTICAL',
 };
 
 SV:AssignMedia("font", "questdialog", "SVUI Default Font", 12, "OUTLINE");
@@ -46,28 +46,28 @@ function MOD:LoadOptions()
 			order = 2,
 			name = "Quest Tracker Titles",
 			desc = "Font used in the quest tracker for listing headers."
-		}, 
+		},
 		["questnumber"] = {
 			order = 3,
 			name = "Quest Tracker Numbers",
 			desc = "Font used in the quest tracker to display numeric values."
 		},
 	};
-	
+
 	SV:GenerateFontOptionGroup("QuestTracker", 6, "Fonts used in the SVUI Quest Tracker.", questFonts)
-	
+
 	SV.Options.args[Schema] = {
-		type = "group", 
-		name = Schema, 
-		get = function(a)return SV.db[Schema][a[#a]]end, 
-		set = function(a,b)MOD:ChangeDBVar(b,a[#a]); end, 
+		type = "group",
+		name = Schema,
+		get = function(a)return SV.db[Schema][a[#a]] end,
+		set = function(a,b)MOD:ChangeDBVar(b,a[#a]); SV:StaticPopup_Show("RL_CLIENT") end,
 		args = {
 			itemBarDirection = {
-				order = 1, 
-				type = 'select', 
-				name = L["Item Bar Direction"], 
+				order = 1,
+				type = 'select',
+				name = L["Item Bar Direction"],
 				values = {
-					['VERTICAL'] = L['Vertical'], 
+					['VERTICAL'] = L['Vertical'],
 					['HORIZONTAL'] = L['Horizontal']
 				},
 			},

@@ -1,7 +1,7 @@
 --[[
 ##############################################################################
 S V U I   By: Munglunch
-############################################################################## ]]-- 
+############################################################################## ]]--
 --[[ GLOBALS ]]--
 local _G = _G;
 local unpack        = _G.unpack;
@@ -24,7 +24,7 @@ local find          = string.find;
 local match         = string.match;
 local gsub          = string.gsub;
 --TABLE
-local table 		= _G.table; 
+local table 		= _G.table;
 local tinsert       = _G.tinsert;
 local tremove       = _G.tremove;
 local wipe 			= _G.wipe;
@@ -57,8 +57,8 @@ local PlaySoundFile         = _G.PlaySoundFile;
 local UnitName              = _G.UnitName;
 local ToggleFrame           = _G.ToggleFrame;
 local ERR_NOT_IN_COMBAT     = _G.ERR_NOT_IN_COMBAT;
---[[ 
-########################################################## 
+--[[
+##########################################################
 ADDON
 ##########################################################
 ]]--
@@ -66,8 +66,8 @@ local SV = select(2, ...);
 local L = SV.L;
 local MOD = SV:NewPackage("Dock", L["Docks"]);
 MOD.Border = {};
---[[ 
-########################################################## 
+--[[
+##########################################################
 LOCALS
 ##########################################################
 ]]--
@@ -79,12 +79,12 @@ local DOCK_LOCATIONS = {
 	["TopLeft"] = {1, "LEFT", false, "ANCHOR_BOTTOMLEFT"},
 	["TopRight"] = {-1, "RIGHT", false, "ANCHOR_BOTTOMLEFT"},
 };
-DOCK_DROPDOWN_OPTIONS["BottomLeft"] = { text = "To BottomLeft", func = function(button) MOD.BottomLeft.Bar:Add(button) end };
-DOCK_DROPDOWN_OPTIONS["BottomRight"] = { text = "To BottomRight", func = function(button) MOD.BottomRight.Bar:Add(button) end };
-DOCK_DROPDOWN_OPTIONS["TopLeft"] = { text = "To TopLeft", func = function(button) MOD.TopLeft.Bar:Add(button) end };
+DOCK_DROPDOWN_OPTIONS["BottomLeft"] = { text = "To BottomLeft", func = function(button) MOD.BottomLeft.Bar:Add(button); end };
+DOCK_DROPDOWN_OPTIONS["BottomRight"] = { text = "To BottomRight", func = function(button) MOD.BottomRight.Bar:Add(button); end };
+DOCK_DROPDOWN_OPTIONS["TopLeft"] = { text = "To TopLeft", func = function(button) MOD.TopLeft.Bar:Add(button); end };
 --DOCK_DROPDOWN_OPTIONS["TopRight"] = { text = "To TopRight", func = function(button) MOD.TopRight.Bar:Add(button) end };
---[[ 
-########################################################## 
+--[[
+##########################################################
 THEMEABLE ITEMS
 ##########################################################
 ]]--
@@ -99,7 +99,7 @@ function MOD.SetThemeDockStyle(frame, isBottom)
 	local bg = backdrop:CreateTexture(nil, "BORDER")
 	bg:InsetPoints(backdrop)
 	bg:SetTexture(1, 1, 1, 1)
-	
+
 	if(isBottom) then
 		bg:SetGradientAlpha("VERTICAL", 0, 0, 0, 0.8, 0, 0, 0, 0)
 	else
@@ -108,9 +108,9 @@ function MOD.SetThemeDockStyle(frame, isBottom)
 
 	local left = backdrop:CreateTexture(nil, "OVERLAY")
 	left:SetTexture(1, 1, 1, 1)
-	left:ModPoint("TOPLEFT", 1, -1)
-	left:ModPoint("BOTTOMLEFT", -1, -1)
-	left:ModWidth(4)
+	left:SetPoint("TOPLEFT", 1, -1)
+	left:SetPoint("BOTTOMLEFT", -1, -1)
+	left:SetWidth(2)
 	if(isBottom) then
 		left:SetGradientAlpha("VERTICAL", 0, 0, 0, 1, 0, 0, 0, 0)
 	else
@@ -119,9 +119,9 @@ function MOD.SetThemeDockStyle(frame, isBottom)
 
 	local right = backdrop:CreateTexture(nil, "OVERLAY")
 	right:SetTexture(1, 1, 1, 1)
-	right:ModPoint("TOPRIGHT", -1, -1)
-	right:ModPoint("BOTTOMRIGHT", -1, -1)
-	right:ModWidth(4)
+	right:SetPoint("TOPRIGHT", -1, -1)
+	right:SetPoint("BOTTOMRIGHT", -1, -1)
+	right:SetWidth(2)
 	if(isBottom) then
 		right:SetGradientAlpha("VERTICAL", 0, 0, 0, 1, 0, 0, 0, 0)
 	else
@@ -129,42 +129,42 @@ function MOD.SetThemeDockStyle(frame, isBottom)
 	end
 
 	local bottom = backdrop:CreateTexture(nil, "OVERLAY")
-	bottom:ModPoint("BOTTOMLEFT", 1, -1)
-	bottom:ModPoint("BOTTOMRIGHT", -1, -1)
+	bottom:SetPoint("BOTTOMLEFT", 1, -1)
+	bottom:SetPoint("BOTTOMRIGHT", -1, -1)
 	if(isBottom) then
 		bottom:SetTexture(0, 0, 0, 1)
-		bottom:ModHeight(4)
+		bottom:SetHeight(2)
 	else
 		bottom:SetTexture(0, 0, 0, 0)
 		bottom:SetAlpha(0)
-		bottom:ModHeight(1)
+		bottom:SetHeight(1)
 	end
 
 	local top = backdrop:CreateTexture(nil, "OVERLAY")
-	top:ModPoint("TOPLEFT", 1, -1)
-	top:ModPoint("TOPRIGHT", -1, 1)
+	top:SetPoint("TOPLEFT", 1, -1)
+	top:SetPoint("TOPRIGHT", -1, 1)
 	if(isBottom) then
 		top:SetTexture(0, 0, 0, 0)
 		top:SetAlpha(0)
-		top:ModHeight(1)
+		top:SetHeight(1)
 	else
 		top:SetTexture(0, 0, 0, 1)
-		top:ModHeight(4)
+		top:SetHeight(2)
 	end
 
-	return backdrop 
+	return backdrop
 end
 
-function MOD:SetBorderTheme()	
-	self.Border.Top:ModPoint("TOPLEFT", SV.Screen, "TOPLEFT", -1, 1)
-	self.Border.Top:ModPoint("TOPRIGHT", SV.Screen, "TOPRIGHT", 1, 1)
-	self.Border.Top:ModHeight(10)
+function MOD:SetBorderTheme()
+	self.Border.Top:SetPoint("TOPLEFT", SV.Screen, "TOPLEFT", -1, 1)
+	self.Border.Top:SetPoint("TOPRIGHT", SV.Screen, "TOPRIGHT", 1, 1)
+	self.Border.Top:SetHeight(10)
 	self.Border.Top:SetBackdrop({
-		bgFile = SV.media.background.button, 
-		edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
-		tile = false, 
-		tileSize = 0, 
-		edgeSize = 1, 
+		bgFile = SV.media.background.button,
+		edgeFile = [[Interface\BUTTONS\WHITE8X8]],
+		tile = false,
+		tileSize = 0,
+		edgeSize = 1,
 		insets = {left = 0, right = 0, top = 0, bottom = 0}
 	})
 	self.Border.Top:SetBackdropColor(unpack(SV.media.color.dark))
@@ -176,15 +176,15 @@ function MOD:SetBorderTheme()
 		self:SetFrameStrata('BACKGROUND')
 	end)
 
-	self.Border.Bottom:ModPoint("BOTTOMLEFT", SV.Screen, "BOTTOMLEFT", -1, -1)
-	self.Border.Bottom:ModPoint("BOTTOMRIGHT", SV.Screen, "BOTTOMRIGHT", 1, -1)
-	self.Border.Bottom:ModHeight(10)
+	self.Border.Bottom:SetPoint("BOTTOMLEFT", SV.Screen, "BOTTOMLEFT", -1, -1)
+	self.Border.Bottom:SetPoint("BOTTOMRIGHT", SV.Screen, "BOTTOMRIGHT", 1, -1)
+	self.Border.Bottom:SetHeight(10)
 	self.Border.Bottom:SetBackdrop({
-		bgFile = SV.media.background.button, 
-		edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
-		tile = false, 
-		tileSize = 0, 
-		edgeSize = 1, 
+		bgFile = SV.media.background.button,
+		edgeFile = [[Interface\BUTTONS\WHITE8X8]],
+		tile = false,
+		tileSize = 0,
+		edgeSize = 1,
 		insets = {left = 0, right = 0, top = 0, bottom = 0}
 	})
 	self.Border.Bottom:SetBackdropColor(unpack(SV.media.color.dark))
@@ -204,7 +204,7 @@ function MOD:SetButtonTheme(button, size)
     button:SetStyle("DockButton")
 
 	local sparks = button:CreateTexture(nil, "OVERLAY", nil, 2)
-	sparks:ModSize(sparkSize, sparkSize)
+	sparks:SetSize(sparkSize, sparkSize)
 	sparks:SetPoint("CENTER", button, "BOTTOMRIGHT", -sparkOffset, 4)
 	sparks:SetTexture(SV.media.dock.sparks[1])
 	sparks:SetVertexColor(0.7, 0.6, 0.5)
@@ -220,8 +220,8 @@ function MOD:SetButtonTheme(button, size)
 		self.Sparks.anim:Play()
 	end
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 CORE FUNCTIONS
 ##########################################################
 ]]--
@@ -248,13 +248,13 @@ _G.ToggleSuperDockLeft = function(self, button)
 		MOD:UpdateDockBackdrops()
 		SV.Events:Trigger("DOCK_LEFT_EXPANDED");
 	else
-		if MOD.private.LeftFaded then 
+		if MOD.private.LeftFaded then
 			MOD.private.LeftFaded = nil;
 			MOD.BottomLeft:FadeIn(0.2, MOD.BottomLeft:GetAlpha(), 1)
 			MOD.BottomLeft.Bar:FadeIn(0.2, MOD.BottomLeft.Bar:GetAlpha(), 1)
 			SV.Events:Trigger("DOCK_LEFT_FADE_IN");
 			PlaySoundFile([[sound\doodad\be_scryingorb_explode.ogg]])
-		else 
+		else
 			MOD.private.LeftFaded = true;
 			MOD.BottomLeft:FadeOut(0.2, MOD.BottomLeft:GetAlpha(), 0)
 			MOD.BottomLeft.Bar:FadeOut(0.2, MOD.BottomLeft.Bar:GetAlpha(), 0)
@@ -287,13 +287,13 @@ _G.ToggleSuperDockRight = function(self, button)
 		MOD:UpdateDockBackdrops()
 		SV.Events:Trigger("DOCK_RIGHT_EXPANDED");
 	else
-		if MOD.private.RightFaded then 
+		if MOD.private.RightFaded then
 			MOD.private.RightFaded = nil;
 			MOD.BottomRight:FadeIn(0.2, MOD.BottomRight:GetAlpha(), 1)
 			MOD.BottomRight.Bar:FadeIn(0.2, MOD.BottomRight.Bar:GetAlpha(), 1)
 			SV.Events:Trigger("DOCK_RIGHT_FADE_IN");
 			PlaySoundFile([[sound\doodad\be_scryingorb_explode.ogg]])
-		else 
+		else
 			MOD.private.RightFaded = true;
 			MOD.BottomRight:FadeOut(0.2, MOD.BottomRight:GetAlpha(), 0)
 			MOD.BottomRight.Bar:FadeOut(0.2, MOD.BottomRight.Bar:GetAlpha(), 0)
@@ -340,7 +340,7 @@ function MOD:EnterFade()
 		self.BottomRight.Bar:FadeIn(0.2, self.BottomRight.Bar:GetAlpha(), 1)
 		SV.Events:Trigger("DOCK_RIGHT_FADE_IN");
 	end
-end 
+end
 
 function MOD:ExitFade()
 	if MOD.private.LeftFaded then
@@ -354,47 +354,36 @@ function MOD:ExitFade()
 		SV.Events:Trigger("DOCK_RIGHT_FADE_OUT");
 	end
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 SET DOCKBAR FUNCTIONS
 ##########################################################
 ]]--
 local RefreshDockWindows = function(self)
-	--print('RefreshDockWindows')
-	local dd = self.Data.Default
-	local button = _G[dd]
-	local default
-	if(button) then
-		default = button:GetAttribute("ownerFrame")
+	local default = '';
+	if(_G[self.Data.Default]) then
+		default = _G[self.Data.Default]:GetAttribute("ownerFrame")
 	end
 	for name,window in pairs(self.Data.Windows) do
-		if(window ~= default) then
-			if(window.DockButton) then
-				window.DockButton:Deactivate()
-			end
+		if(name ~= default and window.DockButton) then
+			--print('RefreshDockWindows:'..default.." ~= "..name)
+			window.DockButton:Deactivate()
 		end
 	end
 end
 
 local RefreshDockButtons = function(self)
-	-- if(InCombatLockdown()) then
-	-- 	self:RegisterEvent("PLAYER_REGEN_ENABLED")
-	-- 	return
-	-- end
 	for name,docklet in pairs(DOCK_REGISTRY) do
-		if(docklet) then
-			if(docklet.DockButton) then
-				docklet.DockButton:Deactivate()
-			end
+		if(docklet and docklet.DockButton) then
+			docklet.DockButton:Deactivate()
 		end
 	end
 end
 
 local GetDefault = function(self)
-	--print('GetDefault')
 	local default = self.Data.Default
 	local button = _G[default]
-	if(button) then
+	if(button and button.Activate) then
 		local window = button:GetAttribute("ownerFrame")
 		if window and _G[window] then
 			self:Refresh()
@@ -402,36 +391,54 @@ local GetDefault = function(self)
 			self.Parent.Window:FadeIn()
 			_G[window]:Show()
 			button:Activate()
+			--print('GetDefault: ' .. default .. " - " .. window .. " - " .. self.Data.Location)
 		end
 	end
 end
 
-local OldDefault = function(self)
-	--print('OldDefault')
-	local default = self.Data.OriginalDefault
-	local button = _G[default]
-	if(button) then
-		local window = button:GetAttribute("ownerFrame")
-		if window and _G[window] then
-			self:Refresh()
-			self.Parent.Window.FrameLink = _G[window]
-			self.Parent.Window:FadeIn()
-			_G[window]:Show()
-			button:Activate()
+local NextDefault = function(self)
+	print('NextDefault '..self.Data.Location)
+	for i = 1, #self.Data.Order do
+		local nextName = self.Data.Order[i];
+		print(nextName)
+		local nextButton = self.Data.Buttons[nextName];
+		local button = _G[nextButton]
+		if(button and button.Activate) then
+			print('Set NextDefault '..nextName)
+			local window = button:GetAttribute("ownerFrame")
+			if window and _G[window] then
+				print(nextName)
+				self.Data.Default = nextName;
+				self:Refresh()
+				self.Parent.Window.FrameLink = _G[window]
+				self.Parent.Window:FadeIn()
+				_G[window]:Show()
+				_G[window]:FadeIn()
+				button:Activate()
+				return
+			end
 		end
 	end
+end
+
+local DockButtonMakeDefault = function(self)
+	local name = self:GetName()
+	--print('DockButtonMakeDefault' .. name)
+	self.Parent.Data.Default = self:GetName()
+	self.Parent:GetDefault()
 end
 
 local ToggleDockletWindow = function(self, button)
-	--print('ToggleDockletWindow')
 	local frame  = button.FrameLink
+	self:Refresh()
+	self:Cycle()
 	if(frame) then
 		self.Parent.Window.FrameLink = frame
 		self.Parent.Window:FadeIn()
-		self:Cycle()
 		--frame:FadeIn()
 		button:Activate()
 	else
+		--print('ToggleDockletWindow Failed:' .. self:GetName())
 		button:Deactivate()
 		self:GetDefault()
 	end
@@ -439,15 +446,15 @@ end
 
 local AlertActivate = function(self, child)
 	local size = SV.db.Dock.buttonSize or 22;
-	self:ModHeight(size)
+	self:SetHeight(size)
 	self.backdrop:Show()
 	child:ClearAllPoints()
 	child:SetAllPoints(self)
-end 
+end
 
 local AlertDeactivate = function(self)
 	self.backdrop:Hide()
-	self:ModHeight(1)
+	self:SetHeight(1)
 end
 
 local Docklet_OnShow = function(self)
@@ -457,11 +464,11 @@ local Docklet_OnShow = function(self)
 			self.FrameLink:SetFrameLevel(10)
 		end
 		self.FrameLink:FadeIn()
-	end 
+	end
 end
 
 local Docklet_OnHide = function(self)
-	--print('Docklet_OnHide')
+	--print('Docklet_OnHide:' .. self:GetName())
 	if(self.FrameLink) then
 		if(not InCombatLockdown()) then
 			self.FrameLink:SetFrameLevel(0)
@@ -469,19 +476,10 @@ local Docklet_OnHide = function(self)
 		else
 			self.FrameLink:FadeOut(0.2, 1, 0, true)
 		end
-	end 
+	end
 end
 
-local DockButtonMakeDefault = function(self)
-	self.Parent.Data.Default = self:GetName()
-	self.Parent:GetDefault()
-	if(not self.Parent.Data.OriginalDefault) then
-		self.Parent.Data.OriginalDefault = self:GetName()
-	end
-end 
-
 local DockButtonActivate = function(self)
-	--print('DockButtonActivate')
 	self:SetAttribute("isActive", true)
 	self:SetPanelColor("default")
 	self.Icon:SetGradient(unpack(SV.media.gradient.checked))
@@ -490,8 +488,9 @@ local DockButtonActivate = function(self)
 			self.FrameLink:SetFrameLevel(10)
 		end
 		self.FrameLink:FadeIn()
+		--print('DockButtonActivate:' .. self:GetName())
 	end
-end 
+end
 
 local DockButtonDeactivate = function(self)
 	--print('DockButtonDeactivate')
@@ -545,7 +544,7 @@ local DockletButton_OnEnter = function(self, ...)
 		GameTooltip:AddDoubleLine("[Alt + Click]", "Docking Options", 0, 0.5, 1, 0.5, 1, 0.5)
 	end
 	GameTooltip:Show()
-end 
+end
 
 local DockletButton_OnLeave = function(self, ...)
 	MOD:ExitFade()
@@ -580,9 +579,9 @@ local DockletButton_OnClick = function(self, ...)
 end
 
 local DockletButton_OnPostClick = function(self, ...)
-	if InCombatLockdown() then 
+	if InCombatLockdown() then
 		MOD.ErrorSound()
-		return 
+		return
 	end
 	if(self.ClickTheme) then
 		self:ClickTheme()
@@ -615,10 +614,10 @@ local DockletRelocate = function(self, location)
 	if(not newParent) then return end
 
 	if(self.DockButton) then
-		newParent.Bar:Add(self.DockButton) 
+		newParent.Bar:Add(self.DockButton)
 	end
-	
-	if(self.Bar) then 
+
+	if(self.Bar) then
 		local height = newParent.Bar.ToolBar:GetHeight();
 		local mod = newParent.Bar.Data[1];
 		local barAnchor = newParent.Bar.Data[2];
@@ -626,7 +625,7 @@ local DockletRelocate = function(self, location)
 		local spacing = SV.db.Dock.buttonSpacing;
 
 		self.Bar:ClearAllPoints();
-		self.Bar:ModPoint(barAnchor, newParent.Bar.ToolBar, barReverse, (spacing * mod), 0)
+		self.Bar:SetPoint(barAnchor, newParent.Bar.ToolBar, barReverse, (spacing * mod), 0)
 	end
 end
 
@@ -738,27 +737,25 @@ local RefreshBarLayout = function(self)
 	local count = #self.Data.Order;
 	local offset = 1;
 	local safeIndex = 1;
-	for i = 1, count do
-		local nextName = self.Data.Order[i];
-		local nextButton = self.Data.Buttons[nextName];
-		if(nextButton) then
-			offset = (safeIndex - 1) * (size + 6) + 6
-			nextButton:ClearAllPoints();
-			nextButton:SetSize(size, size);
-			nextButton:SetPoint(anchor, self.ToolBar, anchor, (offset * mod), 0);
-			if(not nextButton:IsShown()) then
-				nextButton:Show();
+	if(count > 0) then
+		for i = 1, count do
+			local nextName = self.Data.Order[i];
+			local nextButton = self.Data.Buttons[nextName];
+			if(nextButton) then
+				offset = (safeIndex - 1) * (size + 6) + 6
+				nextButton:ClearAllPoints();
+				nextButton:SetSize(size, size);
+				nextButton:SetPoint(anchor, self.ToolBar, anchor, (offset * mod), 0);
+				if(not nextButton:IsShown()) then
+					nextButton:Show();
+				end
+				nextButton.OrderIndex = safeIndex;
+				safeIndex = safeIndex + 1;
 			end
-			nextButton.OrderIndex = safeIndex;
-			safeIndex = safeIndex + 1;
 		end
 	end
 
 	self.ToolBar:SetWidth(offset + size);
-
-	if(SV.Dropdown:IsShown()) then
-		ToggleFrame(SV.Dropdown)
-	end
 end
 
 local AddToDock = function(self, button)
@@ -772,7 +769,7 @@ local AddToDock = function(self, button)
 	if(registeredLocation) then
 		if(registeredLocation ~= currentLocation) then
 			if(MOD[registeredLocation].Bar.Data.Buttons[name]) then
-				MOD[registeredLocation].Bar:Remove(button);
+				MOD[registeredLocation].Bar:Remove(button, true);
 			else
 				MOD[registeredLocation].Bar:Add(button);
 				return
@@ -782,7 +779,7 @@ local AddToDock = function(self, button)
 
 	self.Data.Buttons[name] = button;
 	self:CheckOrder(name);
-	
+
 	MOD.private.Locations[name] = currentLocation;
 	button.Parent = self;
 	button:SetParent(self.ToolBar);
@@ -797,19 +794,28 @@ local AddToDock = function(self, button)
 		frame:SetParent(self.Parent.Window)
 		frame:InsetPoints(self.Parent.Window)
 		frame.Parent = self.Parent
+		frame:FadeIn()
+		if((not self.Data.Default) or (self.Data.Default == "") or (#self.Data.Order == 1)) then
+			--print('Set New Default: '..name..', TO: '..currentLocation)
+			self.Data.Default = name
+			self:GetDefault()
+		end
 	end
 
-	-- self:UpdateOrder()
+	if(#self.Data.Order > 0) then
+		self.Parent.backdrop:Show()
+	end
+
 	self:Update()
 end
 
-local RemoveFromDock = function(self, button)
-	if not button then return end 
+local RemoveFromDock = function(self, button, isMoving)
+	if not button then return end
 	local name = button:GetName();
 	local registeredLocation = MOD.private.Locations[name];
 	local currentLocation = self.Data.Location
 
-	if(registeredLocation and (registeredLocation == currentLocation)) then 
+	if(registeredLocation and (registeredLocation == currentLocation)) then
 		MOD.private.Locations[name] = nil;
 	end
 
@@ -821,27 +827,46 @@ local RemoveFromDock = function(self, button)
 		end
 	end
 
+	if((not self.Data.Default) or (self.Data.Default == "") or (self.Data.Default == name) or (#self.Data.Order > 0)) then
+		--print('Remove Default: '..name..', FROM: '..currentLocation)
+		self:NextDefault()
+	end
 	if(not self.Data.Buttons[name]) then return end
 
 	button:Hide()
+	button.OrderIndex = 0;
 	if(button.FrameLink) then
 		local frameName = button.FrameLink:GetName()
 		MOD.private.Locations[frameName] = nil;
-		button.FrameLink:FadeOut(0.2, 1, 0, true)
+		if(not isMoving) then
+			button.FrameLink:FadeOut(0.2, 1, 0, true)
+		end
 		self.Data.Windows[frameName] = nil;
 	end
 
-	button.OrderIndex = 0;
+	if(#self.Data.Order == 0) then
+		self.Data.Default = "";
+		self.Parent.backdrop:Hide()
+	end
+
 	self.Data.Buttons[name] = nil;
 	self:UpdateOrder()
 	self:Update()
 end
 
+local AddToParentDock = function(self)
+	if((not self.Parent) or (not self.Parent.Add)) then return end
+	self.Parent:Add(self)
+end
+
+local RemoveFromParentDock = function(self)
+	if((not self.Parent) or (not self.Parent.Remove)) then return end
+	self.Parent:Remove(self)
+end
+
 local ActivateDockletButton = function(self, button, clickFunction, tipFunction, isAction)
-	button.Activate = DockButtonActivate
-	button.Deactivate = DockButtonDeactivate
-	button.MakeDefault = DockButtonMakeDefault
-	button.GetMenuList = GetDockablePositions
+	button.DockAdd = AddToParentDock
+	button.DockRemove = RemoveFromParentDock
 
 	if(tipFunction and type(tipFunction) == "function") then
 		button.CustomTooltip = tipFunction
@@ -863,7 +888,7 @@ local ActivateDockletButton = function(self, button, clickFunction, tipFunction,
 	end
 end
 
-local CreateBasicToolButton = function(self, displayName, texture, onclick, globalName, tipFunction, primaryTemplate)
+local CreateBasicToolButton = function(self, displayName, texture, onclick, globalName, tipFunction, primaryTemplate, frameLink)
 	local dockIcon = texture or [[Interface\AddOns\SVUI_!Core\assets\textures\Dock\DOCK-ICON-ADDON]];
 	local size = self.ToolBar:GetHeight();
 	local template = "SVUI_DockletButtonTemplate"
@@ -875,22 +900,32 @@ local CreateBasicToolButton = function(self, displayName, texture, onclick, glob
 	local button = _G[globalName .. "DockletButton"] or CreateFrame("Button", globalName, self.ToolBar, template)
 
 	button:ClearAllPoints()
-	button:SetSize(size, size) 
+	button:SetSize(size, size)
 	MOD:SetButtonTheme(button, size)
 	button.Icon:SetTexture(dockIcon)
 	button:SetAttribute("tipText", displayName)
 	button:SetAttribute("tipAnchor", self.Data.TipAnchor)
-    button:SetAttribute("ownerFrame", globalName)
 
-    button.OrderIndex = 0;
+  button.OrderIndex = 0;
+	button.Activate = DockButtonActivate
+	button.Deactivate = DockButtonDeactivate
+	button.MakeDefault = DockButtonMakeDefault
+	button.GetMenuList = GetDockablePositions
 
-    self:Add(button)
+	if(frameLink) then
+		button.FrameLink = frameLink
+		button:SetAttribute("ownerFrame", frameLink:GetName())
+	else
+		button:SetAttribute("ownerFrame", globalName)
+	end
+
+  self:Add(button)
 	self:Initialize(button, onclick, tipFunction, primaryTemplate)
-	
+
 	return button
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 DOCKS
 ##########################################################
 ]]--
@@ -912,7 +947,7 @@ for location, settings in pairs(DOCK_LOCATIONS) do
 	MOD[location].Bar.Refresh = RefreshDockButtons;
 	MOD[location].Bar.Cycle = RefreshDockWindows;
 	MOD[location].Bar.GetDefault = GetDefault;
-	MOD[location].Bar.UnsetDefault = OldDefault;
+	MOD[location].Bar.NextDefault = NextDefault;
 	MOD[location].Bar.Toggle = ToggleDockletWindow;
 	MOD[location].Bar.Update = RefreshBarLayout;
 	MOD[location].Bar.UpdateOrder = RefreshBarOrder;
@@ -958,8 +993,8 @@ local function BorderColorUpdates()
 end
 
 --SV.Events:On("SHARED_MEDIA_UPDATED", BorderColorUpdates, true)
---[[ 
-########################################################## 
+--[[
+##########################################################
 EXTERNALLY ACCESSIBLE METHODS
 ##########################################################
 ]]--
@@ -1021,8 +1056,7 @@ function MOD:NewDocklet(location, globalName, readableName, texture, onclick)
 	newParent.Bar.Data.Windows[globalName] = frame;
 
 	local buttonName = ("%sButton"):format(globalName)
-	frame.DockButton = newParent.Bar:Create(readableName, texture, onclick, buttonName);
-	frame.DockButton.FrameLink = frame
+	frame.DockButton = newParent.Bar:Create(readableName, texture, onclick, buttonName, false, false, frame);
 	DOCK_REGISTRY[globalName] = frame;
 	frame:SetAlpha(0)
 	DOCK_CHECK = true
@@ -1062,15 +1096,15 @@ function MOD:NewAdvancedDocklet(location, globalName)
 
 	frame.Bar = CreateFrame("Frame", nil, newParent);
 	frame.Bar:SetSize(1, height);
-	frame.Bar:ModPoint(barAnchor, newParent.Bar.ToolBar, barReverse, (spacing * mod), 0)
+	frame.Bar:SetPoint(barAnchor, newParent.Bar.ToolBar, barReverse, (spacing * mod), 0)
 	SV:NewAnchor(frame.Bar, globalName .. " Dock Bar");
 
 	DOCK_REGISTRY[globalName] = frame;
 	DOCK_CHECK = true
 	return frame
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 BUILD/UPDATE
 ##########################################################
 ]]--
@@ -1095,22 +1129,22 @@ function MOD:UpdateDockBackdrops()
 	else
 		MOD.BottomLeft.backdrop:Hide()
 	end
-end 
+end
 
 function MOD:BottomBorderVisibility()
-	if SV.db.Dock.bottomPanel then 
+	if SV.db.Dock.bottomPanel then
 		SVUIDock_BottomBorder:Show()
-	else 
+	else
 		SVUIDock_BottomBorder:Hide()
-	end 
-end 
+	end
+end
 
 function MOD:TopBorderVisibility()
-	if SV.db.Dock.topPanel then 
+	if SV.db.Dock.topPanel then
 		SVUIDock_TopBorder:Show()
-	else 
+	else
 		SVUIDock_TopBorder:Hide()
-	end 
+	end
 end
 
 function MOD:ResetAllButtons()
@@ -1124,22 +1158,20 @@ function MOD:Refresh()
 	local spacing = SV.db.Dock.buttonSpacing;
 
 	for location, settings in pairs(DOCK_LOCATIONS) do
-		if(location ~= "TopRight") then
-			local width, height = self:GetDimensions(location);
-			local dock = self[location];
+		local width, height = self:GetDimensions(location);
+		local dock = self[location];
 
-			dock.Bar:SetSize(width, buttonsize)
-		    dock.Bar.ToolBar:SetHeight(buttonsize)
-		    dock:SetSize(width, height)
-		    dock.Alert:SetSize(width, 1)
-		    dock.Window:SetSize(width, height)
+		dock.Bar:SetSize(width, buttonsize)
+    dock.Bar.ToolBar:SetHeight(buttonsize)
+    dock:SetSize(width, height)
+    dock.Alert:SetSize(width, 1)
+    dock.Window:SetSize(width, height)
 
-		    if(dock.Bar.Button) then
-		    	dock.Bar.Button:SetSize(buttonsize, buttonsize)
-		    end
+    if(dock.Bar.Button) then
+    	dock.Bar.Button:SetSize(buttonsize, buttonsize)
+    end
 
-		    dock.Bar:Update()
-		end
+    dock.Bar:Update()
 	end
 
 	local centerWidth = SV.db.Dock.dockCenterWidth;
@@ -1191,32 +1223,32 @@ function MOD:Load()
 	end
 
 	self.private = SV.private.Docks;
-	
-	if(not self.private.AllFaded) then 
+
+	if(not self.private.AllFaded) then
 		self.private.AllFaded = false
 	end
 
-	if(not self.private.LeftFaded) then 
+	if(not self.private.LeftFaded) then
 		self.private.LeftFaded = false
 	end
 
-	if(not self.private.RightFaded) then 
+	if(not self.private.RightFaded) then
 		self.private.RightFaded = false
 	end
 
-	if(not self.private.LeftExpanded) then 
+	if(not self.private.LeftExpanded) then
 		self.private.LeftExpanded = false
 	end
 
-	if(not self.private.RightExpanded) then 
+	if(not self.private.RightExpanded) then
 		self.private.RightExpanded = false
 	end
 
-	if(not self.private.Order) then 
+	if(not self.private.Order) then
 		self.private.Order = {}
 	end
 
-	if(not self.private.Locations) then 
+	if(not self.private.Locations) then
 		self.private.Locations = {}
 	end
 
@@ -1249,7 +1281,7 @@ function MOD:Load()
 		dock.Bar:SetSize(width, buttonsize)
 		dock.Bar:SetPoint(anchor, SV.Screen, anchor, (2 * mod), (2 * vertMod))
 
-		if(not MOD.private.Order[location]) then 
+		if(not MOD.private.Order[location]) then
 			MOD.private.Order[location] = {}
 		end
 
@@ -1258,42 +1290,39 @@ function MOD:Load()
 		dock.Bar.ToolBar:ClearAllPoints()
 
 		if(dock.Bar.Button) then
-	    	dock.Bar.Button:SetSize(buttonsize, buttonsize)
-	    	self:SetButtonTheme(dock.Bar.Button, buttonsize)
-	    	dock.Bar.Button.Icon:SetTexture(SV.media.icon.default)
-	    	dock.Bar.ToolBar:SetSize(1, buttonsize)
-	    	dock.Bar.ToolBar:ModPoint(barAnchor, dock.Bar.Button, barReverse, (spacing * mod), 0)
-	    	InitDockButton(dock.Bar.Button, location)
-	    else
-	    	dock.Bar.ToolBar:SetSize(1, buttonsize)
-	    	dock.Bar.ToolBar:ModPoint(barAnchor, dock.Bar, barAnchor, 0, 0)
-	    end
+    	dock.Bar.Button:SetSize(buttonsize, buttonsize)
+    	self:SetButtonTheme(dock.Bar.Button, buttonsize)
+    	dock.Bar.Button.Icon:SetTexture(SV.media.icon.default)
+    	dock.Bar.ToolBar:SetSize(1, buttonsize)
+    	dock.Bar.ToolBar:SetPoint(barAnchor, dock.Bar.Button, barReverse, (spacing * mod), 0)
+    	InitDockButton(dock.Bar.Button, location)
+    else
+    	dock.Bar.ToolBar:SetSize(1, buttonsize)
+    	dock.Bar.ToolBar:SetPoint(barAnchor, dock.Bar, barAnchor, 0, 0)
+    end
 
-	    dock:SetParent(SV.Screen)
-	    dock:ClearAllPoints()
-	    dock:SetPoint(anchor, dock.Bar, reverse, 0, (12 * vertMod))
-	    dock:SetSize(width, height)
-	    dock:SetAttribute("buttonSize", buttonsize)
-	    dock:SetAttribute("spacingSize", spacing)
+    dock:SetParent(SV.Screen)
+    dock:ClearAllPoints()
+    dock:SetPoint(anchor, dock.Bar, reverse, 0, (12 * vertMod))
+    dock:SetSize(width, height)
+    dock:SetAttribute("buttonSize", buttonsize)
+    dock:SetAttribute("spacingSize", spacing)
 
-	    dock.Alert:ClearAllPoints()
-	    dock.Alert:SetSize(width, 1)
-	    dock.Alert:SetPoint(anchor, dock, anchor, 0, 0)
+    dock.Alert:ClearAllPoints()
+    dock.Alert:SetSize(width, 1)
+    dock.Alert:SetPoint(anchor, dock, anchor, 0, 0)
 
-	    dock.Window:ClearAllPoints()
-	    dock.Window:SetSize(width, height)
-	    dock.Window:SetPoint(anchor, dock.Alert, reverse, 0, (4 * vertMod))
-
-		if(isBottom) then
-			dock.backdrop = self.SetThemeDockStyle(dock.Window, isBottom)
-			dock.backdrop:Hide()
-			dock.Alert.backdrop = self.SetThemeDockStyle(dock.Alert, isBottom)
-			dock.Alert.backdrop:Hide()
-			SV:NewAnchor(dock.Bar, location .. " Dock ToolBar");
-			SV:NewAnchor(dock, location .. " Dock Window")
-		end
+    dock.Window:ClearAllPoints()
+    dock.Window:SetSize(width, height)
+    dock.Window:SetPoint(anchor, dock.Alert, reverse, 0, (4 * vertMod))
+		dock.backdrop = self.SetThemeDockStyle(dock.Window, isBottom)
+		dock.backdrop:Hide()
+		dock.Alert.backdrop = self.SetThemeDockStyle(dock.Alert, isBottom)
+		dock.Alert.backdrop:Hide()
+		SV:NewAnchor(dock.Bar, location .. " Dock ToolBar");
+		SV:NewAnchor(dock, location .. " Dock Window")
 	end
-	
+
 	if MOD.private.LeftFaded then MOD.BottomLeft:Hide() end
 	if MOD.private.RightFaded then MOD.BottomRight:Hide() end
 

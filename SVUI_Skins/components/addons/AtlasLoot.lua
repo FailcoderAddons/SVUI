@@ -33,38 +33,38 @@ local SetTemplateDefault = {"AtlasLootCompareFrameSortButton_Name","AtlasLootCom
 local buttons = {"AtlasLoot_AtlasInfoFrame_ToggleALButton","AtlasLootPanelSearch_SearchButton","AtlasLootDefaultFrame_CompareFrame","AtlasLootPanelSearch_ClearButton","AtlasLootPanelSearch_LastResultButton","AtlasLoot10Man25ManSwitch","AtlasLootItemsFrame_BACK","AtlasLootCompareFrameSearch_ClearButton","AtlasLootCompareFrameSearch_SearchButton","AtlasLootCompareFrame_WishlistButton","AtlasLootCompareFrame_CloseButton2"}
 
 local function AL_OnShow(self, event, ...)
-	AtlasLootPanel:ModPoint("TOP", AtlasLootDefaultFrame, "BOTTOM", 0, -1)
-	AtlasLootQuickLooksButton:ModPoint("BOTTOM", AtlasLootItemsFrame, "BOTTOM", 53, 33)
+	AtlasLootPanel:SetPoint("TOP", AtlasLootDefaultFrame, "BOTTOM", 0, -1)
+	AtlasLootQuickLooksButton:SetPoint("BOTTOM", AtlasLootItemsFrame, "BOTTOM", 53, 33)
 	AtlasLootPanelSearch_Box:ClearAllPoints()
-	AtlasLootPanelSearch_Box:ModPoint("TOP", AtlasLoot_PanelButton_7, "BOTTOM", 80, -10)
-	AtlasLootPanelSearch_SearchButton:ModPoint("LEFT", AtlasLootPanelSearch_Box, "RIGHT", 5, 0)
-	AtlasLootPanelSearch_SelectModuel:ModPoint("LEFT", AtlasLootPanelSearch_SearchButton, "RIGHT", 5, 0)
-	AtlasLootPanelSearch_ClearButton:ModPoint("LEFT", AtlasLootPanelSearch_SelectModuel, "RIGHT", 5, 0)
-	AtlasLootPanelSearch_LastResultButton:ModPoint("LEFT", AtlasLootPanelSearch_ClearButton, "RIGHT", 5, 0)
-	AtlasLoot10Man25ManSwitch:ModPoint("BOTTOM", AtlasLootItemsFrame, "BOTTOM", -130, 4)
-	if AtlasLoot_PanelButton_2 then AtlasLoot_PanelButton_2:ModPoint("LEFT", AtlasLoot_PanelButton_1, "RIGHT", 1, 0) end
-	if AtlasLoot_PanelButton_3 then AtlasLoot_PanelButton_3:ModPoint("LEFT", AtlasLoot_PanelButton_2, "RIGHT", 1, 0) end
-	if AtlasLoot_PanelButton_4 then AtlasLoot_PanelButton_4:ModPoint("LEFT", AtlasLoot_PanelButton_3, "RIGHT", 1, 0) end
-	if AtlasLoot_PanelButton_5 then AtlasLoot_PanelButton_5:ModPoint("LEFT", AtlasLoot_PanelButton_4, "RIGHT", 1, 0) end
-	if AtlasLoot_PanelButton_6 then AtlasLoot_PanelButton_6:ModPoint("LEFT", AtlasLoot_PanelButton_5, "RIGHT", 1, 0) end
-	if AtlasLoot_PanelButton_8 then AtlasLoot_PanelButton_8:ModPoint("LEFT", AtlasLoot_PanelButton_7, "RIGHT", 1, 0) end
-	if AtlasLoot_PanelButton_9 then AtlasLoot_PanelButton_9:ModPoint("LEFT", AtlasLoot_PanelButton_8, "RIGHT", 1, 0) end
-	if AtlasLoot_PanelButton_10 then AtlasLoot_PanelButton_10:ModPoint("LEFT", AtlasLoot_PanelButton_9, "RIGHT", 1, 0) end
-	if AtlasLoot_PanelButton_11 then AtlasLoot_PanelButton_11:ModPoint("LEFT", AtlasLoot_PanelButton_10, "RIGHT", 1, 0) end
-	if AtlasLoot_PanelButton_12 then AtlasLoot_PanelButton_12:ModPoint("LEFT", AtlasLoot_PanelButton_11, "RIGHT", 1, 0) end
-	AtlasLootCompareFrameSortButton_Rarity:ModPoint("LEFT", AtlasLootCompareFrameSortButton_Name, "RIGHT", 1, 0)
-	AtlasLootCompareFrameSortButton_Rarity:ModWidth(80)
-	AtlasLootCompareFrameSortButton_Name:ModWidth(80)
-	AtlasLootCompareFrameSortButton_1:ModPoint("LEFT", AtlasLootCompareFrameSortButton_Rarity, "RIGHT", 1, 0)
-	AtlasLootCompareFrameSortButton_2:ModPoint("LEFT", AtlasLootCompareFrameSortButton_1, "RIGHT", 1, 0)
-	AtlasLootCompareFrameSortButton_3:ModPoint("LEFT", AtlasLootCompareFrameSortButton_2, "RIGHT", 1, 0)
-	AtlasLootCompareFrameSortButton_4:ModPoint("LEFT", AtlasLootCompareFrameSortButton_3, "RIGHT", 1, 0)
-	AtlasLootCompareFrameSortButton_5:ModPoint("LEFT", AtlasLootCompareFrameSortButton_4, "RIGHT", 1, 0)
-	AtlasLootCompareFrameSortButton_6:ModPoint("LEFT", AtlasLootCompareFrameSortButton_5, "RIGHT", 1, 0)
-	AtlasLootCompareFrame_CloseButton2:ModPoint("BOTTOMRIGHT", AtlasLootCompareFrame, "BOTTOMRIGHT", -7, 10)
-	AtlasLootCompareFrame_WishlistButton:ModPoint("RIGHT", AtlasLootCompareFrame_CloseButton2, "LEFT", -1, 0)
-	AtlasLootCompareFrameSearch_SearchButton:ModPoint("LEFT", AtlasLootCompareFrameSearch_Box, "RIGHT", 5, 0)
-	AtlasLootCompareFrameSearch_SelectModuel:ModPoint("LEFT", AtlasLootCompareFrameSearch_SearchButton, "RIGHT", 5, 0)
+	AtlasLootPanelSearch_Box:SetPoint("TOP", AtlasLoot_PanelButton_7, "BOTTOM", 80, -10)
+	AtlasLootPanelSearch_SearchButton:SetPoint("LEFT", AtlasLootPanelSearch_Box, "RIGHT", 5, 0)
+	AtlasLootPanelSearch_SelectModuel:SetPoint("LEFT", AtlasLootPanelSearch_SearchButton, "RIGHT", 5, 0)
+	AtlasLootPanelSearch_ClearButton:SetPoint("LEFT", AtlasLootPanelSearch_SelectModuel, "RIGHT", 5, 0)
+	AtlasLootPanelSearch_LastResultButton:SetPoint("LEFT", AtlasLootPanelSearch_ClearButton, "RIGHT", 5, 0)
+	AtlasLoot10Man25ManSwitch:SetPoint("BOTTOM", AtlasLootItemsFrame, "BOTTOM", -130, 4)
+	if AtlasLoot_PanelButton_2 then AtlasLoot_PanelButton_2:SetPoint("LEFT", AtlasLoot_PanelButton_1, "RIGHT", 1, 0) end
+	if AtlasLoot_PanelButton_3 then AtlasLoot_PanelButton_3:SetPoint("LEFT", AtlasLoot_PanelButton_2, "RIGHT", 1, 0) end
+	if AtlasLoot_PanelButton_4 then AtlasLoot_PanelButton_4:SetPoint("LEFT", AtlasLoot_PanelButton_3, "RIGHT", 1, 0) end
+	if AtlasLoot_PanelButton_5 then AtlasLoot_PanelButton_5:SetPoint("LEFT", AtlasLoot_PanelButton_4, "RIGHT", 1, 0) end
+	if AtlasLoot_PanelButton_6 then AtlasLoot_PanelButton_6:SetPoint("LEFT", AtlasLoot_PanelButton_5, "RIGHT", 1, 0) end
+	if AtlasLoot_PanelButton_8 then AtlasLoot_PanelButton_8:SetPoint("LEFT", AtlasLoot_PanelButton_7, "RIGHT", 1, 0) end
+	if AtlasLoot_PanelButton_9 then AtlasLoot_PanelButton_9:SetPoint("LEFT", AtlasLoot_PanelButton_8, "RIGHT", 1, 0) end
+	if AtlasLoot_PanelButton_10 then AtlasLoot_PanelButton_10:SetPoint("LEFT", AtlasLoot_PanelButton_9, "RIGHT", 1, 0) end
+	if AtlasLoot_PanelButton_11 then AtlasLoot_PanelButton_11:SetPoint("LEFT", AtlasLoot_PanelButton_10, "RIGHT", 1, 0) end
+	if AtlasLoot_PanelButton_12 then AtlasLoot_PanelButton_12:SetPoint("LEFT", AtlasLoot_PanelButton_11, "RIGHT", 1, 0) end
+	AtlasLootCompareFrameSortButton_Rarity:SetPoint("LEFT", AtlasLootCompareFrameSortButton_Name, "RIGHT", 1, 0)
+	AtlasLootCompareFrameSortButton_Rarity:SetWidth(80)
+	AtlasLootCompareFrameSortButton_Name:SetWidth(80)
+	AtlasLootCompareFrameSortButton_1:SetPoint("LEFT", AtlasLootCompareFrameSortButton_Rarity, "RIGHT", 1, 0)
+	AtlasLootCompareFrameSortButton_2:SetPoint("LEFT", AtlasLootCompareFrameSortButton_1, "RIGHT", 1, 0)
+	AtlasLootCompareFrameSortButton_3:SetPoint("LEFT", AtlasLootCompareFrameSortButton_2, "RIGHT", 1, 0)
+	AtlasLootCompareFrameSortButton_4:SetPoint("LEFT", AtlasLootCompareFrameSortButton_3, "RIGHT", 1, 0)
+	AtlasLootCompareFrameSortButton_5:SetPoint("LEFT", AtlasLootCompareFrameSortButton_4, "RIGHT", 1, 0)
+	AtlasLootCompareFrameSortButton_6:SetPoint("LEFT", AtlasLootCompareFrameSortButton_5, "RIGHT", 1, 0)
+	AtlasLootCompareFrame_CloseButton2:SetPoint("BOTTOMRIGHT", AtlasLootCompareFrame, "BOTTOMRIGHT", -7, 10)
+	AtlasLootCompareFrame_WishlistButton:SetPoint("RIGHT", AtlasLootCompareFrame_CloseButton2, "LEFT", -1, 0)
+	AtlasLootCompareFrameSearch_SearchButton:SetPoint("LEFT", AtlasLootCompareFrameSearch_Box, "RIGHT", 5, 0)
+	AtlasLootCompareFrameSearch_SelectModuel:SetPoint("LEFT", AtlasLootCompareFrameSearch_SearchButton, "RIGHT", 5, 0)
 	AtlasLootDefaultFrame_CloseButton:ClearAllPoints()
 	AtlasLootDefaultFrame_CloseButton:SetPoint("TOPRIGHT", AtlasLootDefaultFrame, "TOPRIGHT", -5 -2)
 	AtlasLootDefaultFrame:SetFrameLevel(0)
@@ -90,9 +90,9 @@ local function Nine_IsThere(self, elapsed)
 	end
 	for i = 1, 9 do local f = _G["AtlasLootCompareFrameSortButton_"..i]f:SetWidth(44.44)end 
 	for _, object in pairs(nineisthere) do SV.API:Set("Frame", _G[object]) end 
-	AtlasLootCompareFrameSortButton_7:ModPoint("LEFT", AtlasLootCompareFrameSortButton_6, "RIGHT", 1, 0)
-	AtlasLootCompareFrameSortButton_8:ModPoint("LEFT", AtlasLootCompareFrameSortButton_7, "RIGHT", 1, 0)
-	AtlasLootCompareFrameSortButton_9:ModPoint("LEFT", AtlasLootCompareFrameSortButton_8, "RIGHT", 1, 0)
+	AtlasLootCompareFrameSortButton_7:SetPoint("LEFT", AtlasLootCompareFrameSortButton_6, "RIGHT", 1, 0)
+	AtlasLootCompareFrameSortButton_8:SetPoint("LEFT", AtlasLootCompareFrameSortButton_7, "RIGHT", 1, 0)
+	AtlasLootCompareFrameSortButton_9:SetPoint("LEFT", AtlasLootCompareFrameSortButton_8, "RIGHT", 1, 0)
 end
 
 local function Compare_OnShow(self, event, ...)
@@ -199,8 +199,8 @@ local function StyleAtlasLoot(event, addon)
 
 	AtlasLootPanel.Titel:SetTextColor(23/255, 132/255, 209/255)
 	AtlasLootPanel.Titel:SetPoint("BOTTOM", AtlasLootPanel.TitelBg, "BOTTOM", 0, 40)
-	SV.API:Set("ScrollFrame", AtlasLootCompareFrame_ScrollFrameItemFrameScrollBar)
-	SV.API:Set("ScrollFrame", AtlasLootCompareFrame_WishlistScrollFrameScrollBar)
+	SV.API:Set("ScrollBar", AtlasLootCompareFrame_ScrollFrameItemFrameScrollBar)
+	SV.API:Set("ScrollBar", AtlasLootCompareFrame_WishlistScrollFrameScrollBar)
 	AtlasLootDefaultFrame:HookScript("OnShow", AL_OnShow)
 	AtlasLootCompareFrame:HookScript("OnShow", Compare_OnShow)
 	AtlasLootPanel.timeLapse = 0;

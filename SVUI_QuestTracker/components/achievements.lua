@@ -1,7 +1,7 @@
 --[[
 ##########################################################
 S V U I   By: Munglunch
-########################################################## 
+##########################################################
 LOCALIZED LUA FUNCTIONS
 ##########################################################
 ]]--
@@ -50,8 +50,8 @@ local GetAchievementCriteriaInfo  	= _G.GetAchievementCriteriaInfo;
 local CRITERIA_TYPE_ACHIEVEMENT  	= _G.CRITERIA_TYPE_ACHIEVEMENT;
 local TRACKER_HEADER_ACHIEVEMENTS  	= _G.TRACKER_HEADER_ACHIEVEMENTS;
 local EVALUATION_TREE_FLAG_PROGRESS_BAR = _G.EVALUATION_TREE_FLAG_PROGRESS_BAR;
---[[ 
-########################################################## 
+--[[
+##########################################################
 GET ADDON DATA
 ##########################################################
 ]]--
@@ -59,8 +59,8 @@ local SV = _G['SVUI']
 local L = SV.L
 local LSM = _G.LibStub("LibSharedMedia-3.0")
 local MOD = SV.QuestTracker;
---[[ 
-########################################################## 
+--[[
+##########################################################
 LOCALS
 ##########################################################
 ]]--
@@ -76,8 +76,8 @@ local OBJ_ICON_COMPLETE = [[Interface\COMMON\Indicator-Green]];
 local OBJ_ICON_INCOMPLETE = [[Interface\COMMON\Indicator-Gray]];
 local LINE_ACHIEVEMENT_ICON = [[Interface\ICONS\Achievement_General]];
 local MAX_OBJECTIVES_SHOWN = 8;
---[[ 
-########################################################## 
+--[[
+##########################################################
 SCRIPT HANDLERS
 ##########################################################
 ]]--
@@ -120,13 +120,13 @@ local ViewButton_OnClick = function(self, button)
 		end
 	end
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 TRACKER FUNCTIONS
 ##########################################################
 ]]--
 local GetAchievementRow = function(self, index)
-	if(not self.Rows[index]) then 
+	if(not self.Rows[index]) then
 		local previousFrame = self.Rows[#self.Rows]
 		local index = #self.Rows + 1;
 
@@ -140,7 +140,7 @@ local GetAchievementRow = function(self, index)
 		local row = CreateFrame("Frame", nil, self)
 		row:SetPoint("TOPLEFT", anchorFrame, "BOTTOMLEFT", 0, -2);
 		row:SetPoint("TOPRIGHT", anchorFrame, "BOTTOMRIGHT", 0, -2);
-		row:ModHeight(ROW_HEIGHT);
+		row:SetHeight(ROW_HEIGHT);
 
 		row.Badge = CreateFrame("Frame", nil, row)
 		row.Badge:SetPoint("TOPLEFT", row, "TOPLEFT", 2, -2);
@@ -154,7 +154,7 @@ local GetAchievementRow = function(self, index)
 		row.Header = CreateFrame("Frame", nil, row)
 		row.Header:SetPoint("TOPLEFT", row.Badge, "TOPRIGHT", 2, 0);
 		row.Header:SetPoint("TOPRIGHT", row, "TOPRIGHT", -2, 0);
-		row.Header:ModHeight(INNER_HEIGHT);
+		row.Header:SetHeight(INNER_HEIGHT);
 		row.Header.Text = row.Header:CreateFontString(nil,"OVERLAY")
 		row.Header.Text:SetFontObject(SVUI_Font_Quest);
 		row.Header.Text:SetJustifyH('LEFT')
@@ -175,7 +175,7 @@ local GetAchievementRow = function(self, index)
 		row.Objectives = MOD:NewObjectiveHeader(row);
 		row.Objectives:SetPoint("TOPLEFT", row, "BOTTOMLEFT", 0, 0);
 		row.Objectives:SetPoint("TOPRIGHT", row, "BOTTOMRIGHT", 0, 0);
-		row.Objectives:ModHeight(1);
+		row.Objectives:SetHeight(1);
 
 		row.RowID = 0;
 		self.Rows[index] = row;
@@ -200,7 +200,7 @@ local SetAchievementRow = function(self, index, title, details, icon, achievemen
 	row.Badge:SetAlpha(1);
 	row.Button:Enable();
 	row.Button:SetID(achievementID);
-	row:ModHeight(ROW_HEIGHT);
+	row:SetHeight(ROW_HEIGHT);
 	row:FadeIn();
 	row.Header:FadeIn();
 
@@ -225,22 +225,22 @@ local SetAchievementRow = function(self, index, title, details, icon, achievemen
 					_, description = GetAchievementInfo(assetID);
 				end
 			end
-			
+
 			if(description and description ~= '') then
 				shown_objectives = shown_objectives + 1;
-				
-				fill_height = fill_height + (INNER_HEIGHT + 2);
+
+				fill_height = fill_height + (ROW_HEIGHT + 2);
 				objective_rows = objective_block:SetInfo(objective_rows, description, completed)
 				if(duration and elapsed and elapsed < duration) then
-					fill_height = fill_height + (INNER_HEIGHT + 2);
+					fill_height = fill_height + (ROW_HEIGHT + 2);
 					objective_rows = objective_block:SetTimer(objective_rows, duration, elapsed);
 				end
-			end					
+			end
 		end
 	end
 
 	if(objective_rows > 0) then
-		objective_block:ModHeight(fill_height);
+		objective_block:SetHeight(fill_height);
 		objective_block:FadeIn();
 	end
 
@@ -272,7 +272,7 @@ local RefreshAchievements = function(self, event, ...)
 		self.Header:SetAlpha(0);
 		self:SetAlpha(0);
 	else
-		self:ModHeight(fill_height + 2);
+		self:SetHeight(fill_height + 2);
 		self.Header.Text:SetText(TRACKER_HEADER_ACHIEVEMENTS);
 		self:FadeIn();
 		self.Header:FadeIn();
@@ -296,8 +296,8 @@ local ResetAchievementBlock = function(self)
 		end
 	end
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 CORE FUNCTIONS
 ##########################################################
 ]]--
@@ -316,13 +316,13 @@ function MOD:InitializeAchievements()
 
     local achievements = CreateFrame("Frame", nil, scrollChild)
     achievements:SetWidth(ROW_WIDTH);
-	achievements:ModHeight(ROW_HEIGHT);
+	achievements:SetHeight(ROW_HEIGHT);
 	achievements:SetPoint("TOPLEFT", self.Headers["Quests"], "BOTTOMLEFT", 0, -6);
 
 	achievements.Header = CreateFrame("Frame", nil, achievements)
 	achievements.Header:SetPoint("TOPLEFT", achievements, "TOPLEFT", 2, -2);
 	achievements.Header:SetPoint("TOPRIGHT", achievements, "TOPRIGHT", -2, -2);
-	achievements.Header:ModHeight(INNER_HEIGHT);
+	achievements.Header:SetHeight(INNER_HEIGHT);
 
 	achievements.Header.Text = achievements.Header:CreateFontString(nil,"OVERLAY")
 	achievements.Header.Text:SetPoint("TOPLEFT", achievements.Header, "TOPLEFT", 2, 0);

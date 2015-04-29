@@ -1,7 +1,7 @@
 --[[
 ##########################################################
 S V U I   By: Munglunch
-########################################################## 
+##########################################################
 LOCALIZED LUA FUNCTIONS
 ##########################################################
 ]]--
@@ -17,14 +17,14 @@ local L = SV.L
 local MOD = SV:NewModule(...);
 local Schema = MOD.Schema;
 local textSelect = {
-	['HIDE'] = L['Hide This'], 
-	['CUSTOM'] = L['Use Custom Style'], 
+	['HIDE'] = L['Hide This'],
+	['CUSTOM'] = L['Use Custom Style'],
 	['SIMPLE'] = L['Use Simple Style']
 };
 local colorSelect = {
-	['light'] = L['Light'], 
+	['light'] = L['Light'],
 	['dark'] = L['Dark'],
-	['darkest'] = L['Darkest'], 
+	['darkest'] = L['Darkest'],
 	['class'] = L['Class']
 };
 
@@ -54,22 +54,21 @@ SV.defaults[Schema] = {
 		["PocketPlot"] = true,
 	},
 	["customIcons"] = true,
-	["mapAlpha"] = 1, 
-	["tinyWorldMap"] = true, 
-	["size"] = 240, 
-	["mapShape"] = 'RECTANGLE',  
+	["tinyWorldMap"] = true,
+	["size"] = 240,
+	["mapShape"] = 'RECTANGLE',
 	["miniPlayerXY"] = true,
 	["worldPlayerXY"] = true,
 	["worldMouseXY"] = true,
-	["bordersize"] = 4, 
-	["bordercolor"] = "light", 
+	["bordersize"] = 4,
+	["bordercolor"] = "light",
 	["locationText"] = "CUSTOM",
 	["minimapbar"] = {
-		["enable"] = true, 
-		["styleType"] = "HORIZONTAL", 
-		["layoutDirection"] = "NORMAL", 
-		["buttonSize"] = 28, 
-		["mouseover"] = false, 
+		["enable"] = true,
+		["styleType"] = "HORIZONTAL",
+		["layoutDirection"] = "NORMAL",
+		["buttonSize"] = 28,
+		["mouseover"] = false,
 	},
 };
 
@@ -86,13 +85,13 @@ function MOD:LoadOptions()
 			desc = "Font used for coordinates."
 		},
 	};
-	
+
 	SV:GenerateFontOptionGroup("Maps", 10, "Fonts used for the minimap.", mapFonts)
 
-	SV.Options.args[Schema] = { 
-		name = Schema, 
+	SV.Options.args[Schema] = {
+		name = Schema,
 		type = 'group',
-		childGroups = "tree", 
+		childGroups = "tree",
 		get = function(a)return SV.db[Schema][a[#a]]end,
 		set = function(a,b)MOD:ChangeDBVar(b,a[#a]);MOD:ReLoad()end,
 		args = {
@@ -104,7 +103,7 @@ function MOD:LoadOptions()
 			},
 			common = {
 				order = 2,
-				type = "group", 
+				type = "group",
 				name = MINIMAP_LABEL,
 				desc = L['General display settings'],
 				guiInline = true,
@@ -114,8 +113,8 @@ function MOD:LoadOptions()
 						type = "range",
 						name = L["Size"],
 						desc = L['Adjust the size of the minimap.'],
-						min = 120,
-						max = 240,
+						min = 100,
+						max = 1000,
 						width = "full",
 						step = 1
 					},
@@ -158,14 +157,14 @@ function MOD:LoadOptions()
 			},
 			spacer1 = {
 				order = 4,
-				type = "group", 
+				type = "group",
 				name = "",
-				guiInline = true, 
-				args = {} 
+				guiInline = true,
+				args = {}
 			},
 			common2 = {
 				order = 5,
-				type = "group", 
+				type = "group",
 				name = "Labels and Info",
 				desc = L['Configure various worldmap and minimap texts'],
 				guiInline = true,
@@ -199,9 +198,9 @@ function MOD:LoadOptions()
 			},
 			spacer2 = {
 				order = 6,
-				type = "group", 
+				type = "group",
 				name = "",
-				guiInline = true, 
+				guiInline = true,
 				args = {}
 			},
 			mmButtons = {
@@ -219,9 +218,9 @@ function MOD:LoadOptions()
 						set = function(a,b)MOD:ChangeDBVar(b,a[#a],"minimapbar")SV:StaticPopup_Show("RL_CLIENT")end,
 					},
 					mouseover = {
-						order = 2, 
-						name = L["Mouse Over"], 
-						desc = L["Hidden unless you mouse over the frame."], 
+						order = 2,
+						name = L["Mouse Over"],
+						desc = L["Hidden unless you mouse over the frame."],
 						type = "toggle",
 						set = function(a,b) MOD:ChangeDBVar(b,a[#a],"minimapbar") MOD:UpdateMinimapButtonSettings(true) end,
 					},
@@ -254,16 +253,16 @@ function MOD:LoadOptions()
 			},
 			spacer3 = {
 				order = 8,
-				type = "group", 
+				type = "group",
 				name = "",
-				guiInline = true, 
+				guiInline = true,
 				args = {}
 			},
 			worldMap = {
 				order = 9,
 				type = "group",
 				name = "WorldMap",
-				guiInline = true, 
+				guiInline = true,
 				args = {
 					tinyWorldMap = {
 						order = 1,
@@ -273,7 +272,7 @@ function MOD:LoadOptions()
 						set = function(a,b)MOD:ChangeDBVar(b,a[#a])MOD:ReLoad()end
 					},
 				}
-			},  
+			},
 		}
 	}
 end

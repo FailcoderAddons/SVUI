@@ -42,12 +42,12 @@ local L = SV.L;
 local LSM = _G.LibStub("LibSharedMedia-3.0")
 local MOD = SV.UnitFrames
 
-if(not MOD) then return end 
+if(not MOD) then return end
 
 local oUF_SVUI = MOD.oUF
 assert(oUF_SVUI, "SVUI UnitFrames: unable to locate oUF.")
---[[ 
-########################################################## 
+--[[
+##########################################################
 LOCALIZED GLOBALS
 ##########################################################
 ]]--
@@ -70,15 +70,15 @@ local RegisterUnitWatch     = _G.RegisterUnitWatch;
 local UnregisterUnitWatch   = _G.UnregisterUnitWatch;
 local FACTION_BAR_COLORS    = _G.FACTION_BAR_COLORS;
 local RAID_CLASS_COLORS     = _G.RAID_CLASS_COLORS
---[[ 
-########################################################## 
+--[[
+##########################################################
 LOCAL DATA
 ##########################################################
 ]]--
 local GroupCounts = {
     ['raid'] = 8,
     ['raidpet'] = 2,
-    ['party'] = 1    
+    ['party'] = 1
 };
 
 local sortMapping = {
@@ -161,27 +161,27 @@ FRAME HELPERS
 ##########################################################
 ]]--
 local DetachSubFrames = function(...)
-    for i = 1, select("#", ...) do 
+    for i = 1, select("#", ...) do
         local frame = select(i,...)
         frame:ClearAllPoints()
-    end 
+    end
 end
 
 local UpdateTargetGlow = function(self)
-    if not self.unit then return end 
+    if not self.unit then return end
     local unit = self.unit;
-    if(UnitIsUnit(unit, "target")) then 
+    if(UnitIsUnit(unit, "target")) then
         self.TargetGlow:Show()
         local reaction = UnitReaction(unit, "player")
-        if(reaction) then 
+        if(reaction) then
             local colors = FACTION_BAR_COLORS[reaction]
             self.TargetGlow:SetBackdropBorderColor(colors.r, colors.g, colors.b)
-        else 
+        else
             self.TargetGlow:SetBackdropBorderColor(0.2, 1, 0.3)
-        end 
-    else 
+        end
+    else
         self.TargetGlow:Hide()
-    end 
+    end
 end
 --[[
 ##########################################################
@@ -190,15 +190,15 @@ TEMPLATES AND PROTOTYPES
 ]]--
 local BuildTemplates = {};
 local UpdateTemplates = {};
---[[ 
-########################################################## 
+--[[
+##########################################################
 COMMON
 ##########################################################
 ]]--
 local AllowElement = function(self)
     if InCombatLockdown() then return; end
-    
-    if not self.isForced then 
+
+    if not self.isForced then
         self.sourceElement = self.unit;
         self.unit = "player"
         self.isForced = true;
@@ -211,9 +211,9 @@ local AllowElement = function(self)
     RegisterUnitWatch(self, true)
 
     self:Show()
-    if self:IsVisible() and self.Update then 
+    if self:IsVisible() and self.Update then
         self:Update()
-    end 
+    end
 end
 
 local RestrictElement = function(self)
@@ -224,19 +224,19 @@ local RestrictElement = function(self)
     UnregisterUnitWatch(self)
     RegisterUnitWatch(self)
 
-    if self.sourceEvent then 
+    if self.sourceEvent then
         self:SetScript("OnUpdate", self.sourceEvent)
-        self.sourceEvent = nil 
+        self.sourceEvent = nil
     end
 
     self.unit = self.sourceElement or self.unit;
 
-    if self:IsVisible() and self.Update then 
+    if self:IsVisible() and self.Update then
         self:Update()
-    end 
+    end
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 PARTY FRAMES
 ##########################################################
 ]]--
@@ -246,27 +246,27 @@ local PartyUnitUpdate = function(self)
     self:RegisterForClicks(SV.db.UnitFrames.fastClickTarget and 'AnyDown' or 'AnyUp')
     MOD.RefreshUnitMedia(self, "party")
 
-    if self.isChild then 
+    if self.isChild then
         local altDB = db.petsGroup;
-        if self == _G[self.originalParent:GetName()..'Target'] then 
-            altDB = db.targetsGroup 
-        end 
-        if not self.originalParent.childList then 
+        if self == _G[self.originalParent:GetName()..'Target'] then
+            altDB = db.targetsGroup
+        end
+        if not self.originalParent.childList then
             self.originalParent.childList = {}
-        end 
+        end
         self.originalParent.childList[self] = true;
-        if not InCombatLockdown()then 
+        if not InCombatLockdown()then
             if altDB.enable then
-                local UNIT_WIDTH, UNIT_HEIGHT = MOD:GetActiveSize(altDB) 
+                local UNIT_WIDTH, UNIT_HEIGHT = MOD:GetActiveSize(altDB)
                 self:SetParent(self.originalParent)
-                self:ModSize(UNIT_WIDTH, UNIT_HEIGHT)
+                self:SetSize(UNIT_WIDTH, UNIT_HEIGHT)
                 self:ClearAllPoints()
                 SV:SetReversePoint(self, altDB.anchorPoint, self.originalParent, altDB.xOffset, altDB.yOffset)
-            else 
+            else
                 self:SetParent(SV.Hidden)
-            end 
-        end 
-        do 
+            end
+        end
+        do
             local health = self.Health;
             health.Smooth = nil;
             health.frequentUpdates = nil;
@@ -275,20 +275,20 @@ local PartyUnitUpdate = function(self)
             health.colorClass = true;
             health.colorReaction = true;
             health:ClearAllPoints()
-            health:ModPoint("TOPRIGHT", self, "TOPRIGHT", -1, -1)
-            health:ModPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 1, 1)
-        end 
-        do 
+            health:SetPoint("TOPRIGHT", self, "TOPRIGHT", -1, -1)
+            health:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 1, 1)
+        end
+        do
             local nametext = self.TextGrip.Name
             self:Tag(nametext, altDB.tags)
-        end 
-    else 
+        end
+    else
         if not InCombatLockdown() then
             local UNIT_WIDTH, UNIT_HEIGHT = MOD:GetActiveSize(db, "party")
-            self:ModSize(UNIT_WIDTH, UNIT_HEIGHT) 
-        end 
+            self:SetSize(UNIT_WIDTH, UNIT_HEIGHT)
+        end
         MOD:RefreshUnitLayout(self, "party")
-    end 
+    end
     self:EnableElement('ReadyCheck')
     self:UpdateAllElements()
 end
@@ -298,9 +298,9 @@ UpdateTemplates["party"] = function(self)
     local db = SV.db.UnitFrames.party
     local groupFrame = self:GetParent()
 
-    if not groupFrame.positioned then 
+    if not groupFrame.positioned then
         groupFrame:ClearAllPoints()
-        groupFrame:ModPoint("BOTTOMLEFT", SV.Dock.BottomLeft, "TOPLEFT", 0, 80)
+        groupFrame:SetPoint("BOTTOMLEFT", SV.Dock.BottomLeft, "TOPLEFT", 0, 80)
         RegisterStateDriver(groupFrame, "visibility", "[group:party,nogroup:raid][@raid6,noexists,group:raid] show;hide")
         SV:NewAnchor(groupFrame, L['Party Frames']);
         groupFrame.positioned = true;
@@ -317,12 +317,12 @@ UpdateTemplates["party"] = function(self)
         childName = childFrame:GetName()
         petFrame = _G[("%sPet"):format(childName)]
         targetFrame = _G[("%sTarget"):format(childName)]
-        
-        if(petFrame) then 
+
+        if(petFrame) then
             petFrame:UnitUpdate()
         end
 
-        if(targetFrame) then 
+        if(targetFrame) then
             targetFrame:UnitUpdate()
         end
 
@@ -361,7 +361,7 @@ BuildTemplates["party"] = function(self, unit)
         self:RegisterEvent("PLAYER_TARGET_CHANGED", UpdateTargetGlow)
         self:RegisterEvent("PLAYER_ENTERING_WORLD", UpdateTargetGlow)
         self:RegisterEvent("GROUP_ROSTER_UPDATE", UpdateTargetGlow)
-    end 
+    end
 
     self.Range = { insideAlpha = 1, outsideAlpha = 1 }
 
@@ -369,10 +369,10 @@ BuildTemplates["party"] = function(self, unit)
     self.Allow = AllowElement
     self.UnitUpdate = PartyUnitUpdate
 
-    return self 
+    return self
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 RAID FRAMES
 ##########################################################
 ]]--
@@ -383,9 +383,9 @@ local RaidUnitUpdate = function(self)
     self:RegisterForClicks(SV.db.UnitFrames.fastClickTarget and "AnyDown" or "AnyUp")
 
     local UNIT_WIDTH, UNIT_HEIGHT = MOD:GetActiveSize(db)
-    if not InCombatLockdown() then 
-        self:ModSize(UNIT_WIDTH, UNIT_HEIGHT) 
-    end 
+    if not InCombatLockdown() then
+        self:SetSize(UNIT_WIDTH, UNIT_HEIGHT)
+    end
 
     do
         local rdBuffs = self.RaidDebuffs;
@@ -394,13 +394,13 @@ local RaidUnitUpdate = function(self)
                 self:EnableElement("RaidDebuffs")
             end
             local actualSz = numMin(db.rdebuffs.size, (UNIT_HEIGHT - 8))
-            rdBuffs:ModSize(actualSz)
-            rdBuffs:ModPoint("CENTER", self, "CENTER", db.rdebuffs.xOffset, db.rdebuffs.yOffset)
+            rdBuffs:SetSize(actualSz, actualSz)
+            rdBuffs:SetPoint("CENTER", self, "CENTER", db.rdebuffs.xOffset, db.rdebuffs.yOffset)
             rdBuffs:Show()
-        else 
+        else
             self:DisableElement("RaidDebuffs")
             rdBuffs:Hide()
-        end 
+        end
     end
 
     MOD.RefreshUnitMedia(self, token)
@@ -419,10 +419,10 @@ UpdateTemplates["raid"] = function(self)
     local groupFrame = self:GetParent()
     if not groupFrame.positioned then
         groupFrame:ClearAllPoints()
-        groupFrame:ModPoint("BOTTOMLEFT", SV.Dock.BottomLeft, "TOPLEFT", 0, 80)
+        groupFrame:SetPoint("BOTTOMLEFT", SV.Dock.BottomLeft, "TOPLEFT", 0, 80)
         RegisterStateDriver(groupFrame, "visibility", "[@raid6,exists,group:raid] show;hide")
         SV:NewAnchor(groupFrame, "Raid Frames")
-        groupFrame.positioned = true 
+        groupFrame.positioned = true
     end
 
     local index = 1;
@@ -436,12 +436,12 @@ UpdateTemplates["raid"] = function(self)
         childName = childFrame:GetName()
         petFrame = _G[("%sPet"):format(childName)]
         targetFrame = _G[("%sTarget"):format(childName)]
-        
-        if(petFrame) then 
+
+        if(petFrame) then
             petFrame:UnitUpdate()
         end
 
-        if(targetFrame) then 
+        if(targetFrame) then
             targetFrame:UnitUpdate()
         end
 
@@ -484,8 +484,8 @@ BuildTemplates["raid"] = function(self, unit)
 
     return self
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 RAID PETS
 ##########################################################
 ]]--
@@ -494,9 +494,9 @@ UpdateTemplates["raidpet"] = function(self)
     local db = SV.db.UnitFrames.raidpet
     local groupFrame = self:GetParent()
 
-    if not groupFrame.positioned then 
+    if not groupFrame.positioned then
         groupFrame:ClearAllPoints()
-        groupFrame:ModPoint("BOTTOMLEFT", SV.Screen, "BOTTOMLEFT", 4, 433)
+        groupFrame:SetPoint("BOTTOMLEFT", SV.Screen, "BOTTOMLEFT", 4, 433)
         RegisterStateDriver(groupFrame, "visibility", "[group:raid] show;hide")
         SV:NewAnchor(groupFrame, L["Raid Pet Frames"])
         groupFrame.positioned = true;
@@ -513,12 +513,12 @@ UpdateTemplates["raidpet"] = function(self)
         childName = childFrame:GetName()
         petFrame = _G[("%sPet"):format(childName)]
         targetFrame = _G[("%sTarget"):format(childName)]
-        
-        if(petFrame) then 
+
+        if(petFrame) then
             petFrame:UnitUpdate()
         end
 
-        if(targetFrame) then 
+        if(targetFrame) then
             targetFrame:UnitUpdate()
         end
 
@@ -551,10 +551,10 @@ BuildTemplates["raidpet"] = function(self, unit)
 
     self:RegisterEvent("PLAYER_TARGET_CHANGED", UpdateTargetGlow)
     self:RegisterEvent("PLAYER_ENTERING_WORLD", UpdateTargetGlow)
-    return self 
+    return self
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 TANK
 ##########################################################
 ]]--
@@ -563,36 +563,36 @@ local TankUnitUpdate = function(self)
     self.colors = oUF_SVUI.colors;
     self:RegisterForClicks(SV.db.UnitFrames.fastClickTarget and "AnyDown" or "AnyUp")
     MOD.RefreshUnitMedia(self, "tank")
-    if self.isChild and self.originalParent then 
+    if self.isChild and self.originalParent then
         local targets = db.targetsGroup;
-        if not self.originalParent.childList then 
+        if not self.originalParent.childList then
             self.originalParent.childList = {}
-        end 
+        end
         self.originalParent.childList[self] = true;
-        if not InCombatLockdown()then 
+        if not InCombatLockdown()then
             if targets.enable then
                 local UNIT_WIDTH, UNIT_HEIGHT = MOD:GetActiveSize(targets)
                 self:SetParent(self.originalParent)
-                self:ModSize(UNIT_WIDTH, UNIT_HEIGHT)
+                self:SetSize(UNIT_WIDTH, UNIT_HEIGHT)
                 self:ClearAllPoints()
                 SV:SetReversePoint(self, targets.anchorPoint, self.originalParent, targets.xOffset, targets.yOffset)
-            else 
+            else
                 self:SetParent(SV.Hidden)
-            end 
-        end 
+            end
+        end
     elseif not InCombatLockdown() then
         local UNIT_WIDTH, UNIT_HEIGHT = MOD:GetActiveSize(db)
-        self:ModSize(UNIT_WIDTH, UNIT_HEIGHT)
-    end 
+        self:SetSize(UNIT_WIDTH, UNIT_HEIGHT)
+    end
     MOD:RefreshUnitLayout(self, "tank")
-    do 
+    do
         local nametext = self.TextGrip.Name;
-        if oUF_SVUI.colors.healthclass then 
+        if oUF_SVUI.colors.healthclass then
             self:Tag(nametext, "[name:10]")
-        else 
+        else
             self:Tag(nametext, "[name:color][name:10]")
-        end 
-    end 
+        end
+    end
     self:UpdateAllElements()
 end
 
@@ -600,10 +600,10 @@ UpdateTemplates["tank"] = function(self)
     if(SV.NeedsFrameAudit) then return end
     local db = SV.db.UnitFrames.tank
 
-    if db.enable ~= true then 
+    if db.enable ~= true then
         UnregisterAttributeDriver(self, "state-visibility")
         self:Hide()
-        return 
+        return
     end
 
     self:Hide()
@@ -618,18 +618,18 @@ UpdateTemplates["tank"] = function(self)
     DetachSubFrames(self:GetChildren())
     self:SetAttribute("yOffset", 7)
 
-    if not self.positioned then 
+    if not self.positioned then
         self:ClearAllPoints()
-        self:ModPoint("BOTTOMLEFT", SV.Dock.TopLeft, "BOTTOMLEFT", 0, 0)
+        self:SetPoint("BOTTOMLEFT", SV.Dock.TopLeft, "BOTTOMLEFT", 0, 0)
         SV:NewAnchor(self, L["Tank Frames"])
         self.Grip.positionOverride = "TOPLEFT"
         self:SetAttribute("minHeight", self.dirtyHeight)
         self:SetAttribute("minWidth", self.dirtyWidth)
-        self.positioned = true 
+        self.positioned = true
     end
 
     local childFrame, childName, petFrame, targetFrame
-    for i = 1, self:GetNumChildren() do 
+    for i = 1, self:GetNumChildren() do
         childFrame = select(i, self:GetChildren())
         childFrame:UnitUpdate()
 
@@ -637,10 +637,10 @@ UpdateTemplates["tank"] = function(self)
         petFrame = _G[("%sPet"):format(childName)]
         targetFrame = _G[("%sTarget"):format(childName)]
 
-        if(petFrame) then 
+        if(petFrame) then
             petFrame:UnitUpdate()
         end
-        if(targetFrame) then 
+        if(targetFrame) then
             targetFrame:UnitUpdate()
         end
     end
@@ -665,10 +665,10 @@ BuildTemplates["tank"] = function(self, unit)
     self.originalParent = self:GetParent()
 
     self:UnitUpdate()
-    return self 
+    return self
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 ASSIST
 ##########################################################
 ]]--
@@ -677,38 +677,38 @@ local AssistUnitUpdate = function(self)
     self.colors = oUF_SVUI.colors;
     self:RegisterForClicks(SV.db.UnitFrames.fastClickTarget and "AnyDown" or "AnyUp")
     MOD.RefreshUnitMedia(self, "assist")
-    if self.isChild and self.originalParent then 
+    if self.isChild and self.originalParent then
         local targets = db.targetsGroup;
-        if not self.originalParent.childList then 
+        if not self.originalParent.childList then
             self.originalParent.childList = {}
-        end 
+        end
         self.originalParent.childList[self] = true;
-        if not InCombatLockdown()then 
+        if not InCombatLockdown()then
             if targets.enable then
                 local UNIT_WIDTH, UNIT_HEIGHT = MOD:GetActiveSize(targets)
                 self:SetParent(self.originalParent)
-                self:ModSize(UNIT_WIDTH, UNIT_HEIGHT)
+                self:SetSize(UNIT_WIDTH, UNIT_HEIGHT)
                 self:ClearAllPoints()
                 SV:SetReversePoint(self, targets.anchorPoint, self.originalParent, targets.xOffset, targets.yOffset)
-            else 
+            else
                 self:SetParent(SV.Hidden)
-            end 
-        end 
+            end
+        end
     elseif not InCombatLockdown() then
         local UNIT_WIDTH, UNIT_HEIGHT = MOD:GetActiveSize(db)
-        self:ModSize(UNIT_WIDTH, UNIT_HEIGHT)
-    end 
+        self:SetSize(UNIT_WIDTH, UNIT_HEIGHT)
+    end
 
     MOD:RefreshUnitLayout(self, "assist")
 
-    do 
+    do
         local nametext = self.TextGrip.Name;
-        if oUF_SVUI.colors.healthclass then 
+        if oUF_SVUI.colors.healthclass then
             self:Tag(nametext, "[name:10]")
-        else 
+        else
             self:Tag(nametext, "[name:color][name:10]")
-        end 
-    end 
+        end
+    end
     self:UpdateAllElements()
 end
 
@@ -728,18 +728,18 @@ UpdateTemplates["assist"] = function(self)
     DetachSubFrames(self:GetChildren())
     self:SetAttribute("yOffset", 7)
 
-    if not self.positioned then 
+    if not self.positioned then
         self:ClearAllPoints()
-        self:ModPoint("TOPLEFT", SV.Dock.TopLeft, "BOTTOMLEFT", 0, -10)
+        self:SetPoint("TOPLEFT", SV.Dock.TopLeft, "BOTTOMLEFT", 0, -10)
         SV:NewAnchor(self, L["Assist Frames"])
         self.Grip.positionOverride = "TOPLEFT"
         self:SetAttribute("minHeight", self.dirtyHeight)
         self:SetAttribute("minWidth", self.dirtyWidth)
-        self.positioned = true 
+        self.positioned = true
     end
 
     local childFrame, childName, petFrame, targetFrame
-    for i = 1, self:GetNumChildren() do 
+    for i = 1, self:GetNumChildren() do
         childFrame = select(i, self:GetChildren())
         childFrame:UnitUpdate()
 
@@ -747,10 +747,10 @@ UpdateTemplates["assist"] = function(self)
         petFrame = _G[("%sPet"):format(childName)]
         targetFrame = _G[("%sTarget"):format(childName)]
 
-        if(petFrame) then 
+        if(petFrame) then
             petFrame:UnitUpdate()
         end
-        if(targetFrame) then 
+        if(targetFrame) then
             targetFrame:UnitUpdate()
         end
     end
@@ -775,7 +775,7 @@ BuildTemplates["assist"] = function(self, unit)
     self.originalParent = self:GetParent()
 
     self:UnitUpdate()
-    return self 
+    return self
 end
 --[[
 ##########################################################
@@ -791,16 +791,16 @@ local HeaderMediaUpdate = function(self)
 
     while childFrame do
         MOD.RefreshUnitMedia(childFrame, token)
-        
+
         childName = childFrame:GetName()
         petFrame = _G[("%sPet"):format(childName)]
         targetFrame = _G[("%sTarget"):format(childName)]
-        
-        if(petFrame) then 
+
+        if(petFrame) then
             MOD.RefreshUnitMedia(petFrame, token)
         end
 
-        if(targetFrame) then 
+        if(targetFrame) then
             MOD.RefreshUnitMedia(targetFrame, token)
         end
 
@@ -843,19 +843,19 @@ local HeaderEnableChildren = function(self)
             childFrame.TargetGlow:SetAlpha(0)
             childFrame:Allow()
         end
-    end  
+    end
 end
 
 local HeaderDisableChildren = function(self)
     self.isForced = nil;
-    for i=1, select("#", self:GetChildren()) do 
+    for i=1, select("#", self:GetChildren()) do
         local childFrame = select(i, self:GetChildren())
         if(childFrame and childFrame.RegisterForClicks) then
             childFrame:RegisterForClicks(SV.db.UnitFrames.fastClickTarget and 'AnyDown' or 'AnyUp')
             childFrame.TargetGlow:SetAlpha(1)
             childFrame:Restrict()
         end
-    end 
+    end
 end
 
 function MOD:SetGroupHeader(parentFrame, filter, layout, headerName, token, groupTag)
@@ -876,12 +876,12 @@ function MOD:SetGroupHeader(parentFrame, filter, layout, headerName, token, grou
     end
 
     local UNIT_WIDTH, UNIT_HEIGHT = self:GetActiveSize(db)
-    local groupHeader = oUF_SVUI:SpawnHeader(headerName, template2, nil, 
-        "oUF-initialConfigFunction", ("self:SetWidth(%d); self:SetHeight(%d); self:SetFrameLevel(5)"):format(UNIT_WIDTH, UNIT_HEIGHT), 
-        "groupFilter", filter, 
-        "showParty", true, 
-        "showRaid", true, 
-        "showSolo", true, 
+    local groupHeader = oUF_SVUI:SpawnHeader(headerName, template2, nil,
+        "oUF-initialConfigFunction", ("self:SetWidth(%d); self:SetHeight(%d); self:SetFrameLevel(5)"):format(UNIT_WIDTH, UNIT_HEIGHT),
+        "groupFilter", filter,
+        "showParty", true,
+        "showRaid", true,
+        "showSolo", true,
         template1 and "template", template1
     )
     groupHeader.___groupkey = token;
@@ -904,7 +904,7 @@ function MOD:SetGroupHeader(parentFrame, filter, layout, headerName, token, grou
         groupHeader.GroupTag = tag
     end
 
-    return groupHeader 
+    return groupHeader
 end
 --[[
 ##########################################################
@@ -913,14 +913,14 @@ GROUP CONSTRUCTS
 ]]--
 local GroupUpdate = function(self)
     local token = self.___groupkey
-    if SV.db.UnitFrames[token].enable ~= true then 
+    if SV.db.UnitFrames[token].enable ~= true then
         UnregisterAttributeDriver(self, "state-visibility")
         self:Hide()
-        return 
+        return
     end
     for i=1,#self.groups do
         self.groups[i]:Update()
-    end 
+    end
 end
 
 local GroupMediaUpdate = function(self)
@@ -938,18 +938,18 @@ local GroupSetVisibility = function(self)
                 local frame = self.groups[i]
                 if(db.allowedGroup[i]) then
                     frame:Show()
-                else 
-                    if frame.forceShow then 
+                else
+                    if frame.forceShow then
                         frame:Hide()
                         frame:DisableChildren()
                         frame:SetAttribute('startingIndex',1)
-                    else 
+                    else
                         frame:UnsetAttributes()
-                    end 
+                    end
                 end
             end
-        end 
-    end 
+        end
+    end
 end
 
 local GroupConfigure = function(self)
@@ -970,29 +970,29 @@ local GroupConfigure = function(self)
         local frameEnabled = true;
 
         if(frame) then
-            if(settings.showBy == "UP") then 
+            if(settings.showBy == "UP") then
                 settings.showBy = "UP_RIGHT"
             end
 
-            if(settings.showBy == "DOWN") then 
+            if(settings.showBy == "DOWN") then
                 settings.showBy = "DOWN_RIGHT"
             end
 
-            if(isHorizontal) then 
+            if(isHorizontal) then
                 frame:SetAttribute("xOffset", settings.wrapXOffset * horizontal)
                 frame:SetAttribute("yOffset", 0)
                 frame:SetAttribute("columnSpacing", settings.wrapYOffset)
-            else 
+            else
                 frame:SetAttribute("xOffset", 0)
                 frame:SetAttribute("yOffset", settings.wrapYOffset * vertical)
                 frame:SetAttribute("columnSpacing", settings.wrapXOffset)
             end
 
-            if(not frame.isForced) then 
-                if not frame.initialized then 
+            if(not frame.isForced) then
+                if not frame.initialized then
                     frame:SetAttribute("startingIndex", -4)
                     frame:Show()
-                    frame.initialized = true 
+                    frame.initialized = true
                 end
                 frame:SetAttribute("startingIndex", 1)
             end
@@ -1026,14 +1026,14 @@ local GroupConfigure = function(self)
                         heightCalc = size + 10
                     end
                     frame.GroupTag:Show()
-                    frame.GroupTag:ModSize(size)
+                    frame.GroupTag:SetSize(size, size)
                     frame.GroupTag:SetPoint(tagPoint1, frame, tagPoint2, x, y)
                 else
                     frame.GroupTag:Hide()
                 end
             end
 
-            if(not settings.allowedGroup[i]) then 
+            if(not settings.allowedGroup[i]) then
                 frame:Hide()
                 frameEnabled = false;
             else
@@ -1042,50 +1042,50 @@ local GroupConfigure = function(self)
         end
 
         if(frameEnabled) then
-            if (i - 1) % settings.gRowCol == 0 then 
-                if isHorizontal then 
-                    if(frame) then 
+            if (i - 1) % settings.gRowCol == 0 then
+                if isHorizontal then
+                    if(frame) then
                         frame:SetPoint(anchorPoint, self, anchorPoint, 0, heightCalc * vertical)
                     end
 
                     heightCalc = heightCalc + UNIT_HEIGHT + settings.wrapYOffset;
-                    yCalc = yCalc + 1 
-                else 
+                    yCalc = yCalc + 1
+                else
                     if(frame) then frame:SetPoint(anchorPoint, self, anchorPoint, widthCalc * horizontal, 0) end
 
                     widthCalc = widthCalc + UNIT_WIDTH + settings.wrapXOffset;
-                    xCalc = xCalc + 1 
-                end 
+                    xCalc = xCalc + 1
+                end
             else
-                if isHorizontal then 
-                    if yCalc == 1 then 
-                        if(frame) then 
+                if isHorizontal then
+                    if yCalc == 1 then
+                        if(frame) then
                             frame:SetPoint(anchorPoint, self, anchorPoint, widthCalc * horizontal, 0)
                         end
 
                         widthCalc = widthCalc + (UNIT_WIDTH + settings.wrapXOffset) * 5;
-                        xCalc = xCalc + 1 
-                    elseif(frame) then 
+                        xCalc = xCalc + 1
+                    elseif(frame) then
                         frame:SetPoint(anchorPoint, self, anchorPoint, (((UNIT_WIDTH + settings.wrapXOffset) * 5) * ((i - 1) % settings.gRowCol)) * horizontal, ((UNIT_HEIGHT + settings.wrapYOffset) * (yCalc - 1)) * vertical)
-                    end 
-                else 
-                    if xCalc == 1 then 
-                        if(frame) then 
+                    end
+                else
+                    if xCalc == 1 then
+                        if(frame) then
                             frame:SetPoint(anchorPoint, self, anchorPoint, 0, heightCalc * vertical)
                         end
 
                         heightCalc = heightCalc + (UNIT_HEIGHT + settings.wrapYOffset) * 5;
-                        yCalc = yCalc + 1 
-                    elseif(frame) then 
+                        yCalc = yCalc + 1
+                    elseif(frame) then
                         frame:SetPoint(anchorPoint, self, anchorPoint, ((UNIT_WIDTH + settings.wrapXOffset) * (xCalc - 1)) * horizontal, (((UNIT_HEIGHT + settings.wrapYOffset) * 5) * ((i - 1) % settings.gRowCol)) * vertical)
-                    end 
-                end 
+                    end
+                end
             end
 
-            if heightCalc == 0 then 
-                heightCalc = heightCalc + (UNIT_HEIGHT + settings.wrapYOffset) * 5 
-            elseif widthCalc == 0 then 
-                widthCalc = widthCalc + (UNIT_WIDTH + settings.wrapXOffset) * 5 
+            if heightCalc == 0 then
+                heightCalc = heightCalc + (UNIT_HEIGHT + settings.wrapYOffset) * 5
+            elseif widthCalc == 0 then
+                widthCalc = widthCalc + (UNIT_WIDTH + settings.wrapXOffset) * 5
             end
         end
     end
@@ -1094,7 +1094,7 @@ local GroupConfigure = function(self)
 end
 
 function MOD:GetGroupFrame(token, layout)
-    if(not self.Headers[token]) then 
+    if(not self.Headers[token]) then
         oUF_SVUI:RegisterStyle(layout, BuildTemplates[token])
         oUF_SVUI:SetActiveStyle(layout)
         local groupFrame = CreateFrame("Frame", layout, _G.SVUI_UnitFrameParent, "SecureHandlerStateTemplate")
@@ -1113,7 +1113,7 @@ function MOD:GetGroupFrame(token, layout)
 end
 
 function MOD:SetCustomFrame(token, layout)
-    if(not self.Headers[token]) then 
+    if(not self.Headers[token]) then
         oUF_SVUI:RegisterStyle(layout, BuildTemplates[token])
         oUF_SVUI:SetActiveStyle(layout)
         local groupFrame = self:SetGroupHeader(_G.SVUI_UnitFrameParent, nil, layout, layout, token)
@@ -1138,7 +1138,7 @@ function MOD:SetGroupFrame(token, forceUpdate)
     if(token ~= "raidpet" and settings.enable ~= true) then
         UnregisterStateDriver(groupFrame, "visibility")
         groupFrame:Hide()
-        return 
+        return
     end
 
     local groupCount = GroupCounts[token] or 1
@@ -1153,19 +1153,19 @@ function MOD:SetGroupFrame(token, forceUpdate)
 
     groupFrame:SetVisibility()
 
-    if(forceUpdate or not groupFrame.Grip) then 
+    if(forceUpdate or not groupFrame.Grip) then
         groupFrame:Configure()
-        if(not groupFrame.isForced and settings.visibility) then 
+        if(not groupFrame.isForced and settings.visibility) then
             RegisterStateDriver(groupFrame, "visibility", settings.visibility)
-        end 
-    else 
+        end
+    else
         groupFrame:Configure()
         groupFrame:Update()
     end
 
-    if(token == "raidpet" and settings.enable ~= true) then 
+    if(token == "raidpet" and settings.enable ~= true) then
         UnregisterStateDriver(groupFrame, "visibility")
         groupFrame:Hide()
-        return 
+        return
     end
 end

@@ -74,37 +74,37 @@ local function HelpFrameStyle()
 	HelpFrameKnowledgebaseErrorFrame:SetFrameLevel(HelpFrameKnowledgebaseErrorFrame:GetFrameLevel()+2)
 	HelpFrameReportBugScrollFrame:RemoveTextures()
 	HelpFrameReportBugScrollFrame:SetStyle("Frame", "Default")
-	HelpFrameReportBugScrollFrame.Panel:ModPoint("TOPLEFT", -4, 4)
-	HelpFrameReportBugScrollFrame.Panel:ModPoint("BOTTOMRIGHT", 6, -4)
+	HelpFrameReportBugScrollFrame.Panel:SetPoint("TOPLEFT", -4, 4)
+	HelpFrameReportBugScrollFrame.Panel:SetPoint("BOTTOMRIGHT", 6, -4)
 	for d = 1, HelpFrameReportBug:GetNumChildren()do 
 		local e = select(d, HelpFrameReportBug:GetChildren())
 		if not e:GetName() then
 			e:RemoveTextures()
 		end 
 	end 
-	SV.API:Set("ScrollFrame", HelpFrameReportBugScrollFrameScrollBar)
+	SV.API:Set("ScrollBar", HelpFrameReportBugScrollFrameScrollBar)
 	HelpFrameSubmitSuggestionScrollFrame:RemoveTextures()
 	HelpFrameSubmitSuggestionScrollFrame:SetStyle("Frame", "Default")
-	HelpFrameSubmitSuggestionScrollFrame.Panel:ModPoint("TOPLEFT", -4, 4)
-	HelpFrameSubmitSuggestionScrollFrame.Panel:ModPoint("BOTTOMRIGHT", 6, -4)
+	HelpFrameSubmitSuggestionScrollFrame.Panel:SetPoint("TOPLEFT", -4, 4)
+	HelpFrameSubmitSuggestionScrollFrame.Panel:SetPoint("BOTTOMRIGHT", 6, -4)
 	for d = 1, HelpFrameSubmitSuggestion:GetNumChildren()do 
 		local e = select(d, HelpFrameSubmitSuggestion:GetChildren())
 		if not e:GetName() then
 			e:RemoveTextures()
 		end 
 	end 
-	SV.API:Set("ScrollFrame", HelpFrameSubmitSuggestionScrollFrameScrollBar)
+	SV.API:Set("ScrollBar", HelpFrameSubmitSuggestionScrollFrameScrollBar)
 	HelpFrameTicketScrollFrame:RemoveTextures()
 	HelpFrameTicketScrollFrame:SetStyle("Frame", "Default")
-	HelpFrameTicketScrollFrame.Panel:ModPoint("TOPLEFT", -4, 4)
-	HelpFrameTicketScrollFrame.Panel:ModPoint("BOTTOMRIGHT", 6, -4)
+	HelpFrameTicketScrollFrame.Panel:SetPoint("TOPLEFT", -4, 4)
+	HelpFrameTicketScrollFrame.Panel:SetPoint("BOTTOMRIGHT", 6, -4)
 	for d = 1, HelpFrameTicket:GetNumChildren()do 
 		local e = select(d, HelpFrameTicket:GetChildren())
 		if not e:GetName() then
 			e:RemoveTextures()
 		end 
 	end 
-	SV.API:Set("ScrollFrame", HelpFrameKnowledgebaseScrollFrame2ScrollBar)
+	SV.API:Set("ScrollBar", HelpFrameKnowledgebaseScrollFrame2ScrollBar)
 	for d = 1, #HelpFrameButtonList do
 		_G[HelpFrameButtonList[d]]:RemoveTextures(true)
 		_G[HelpFrameButtonList[d]]:SetStyle("Button")
@@ -127,14 +127,14 @@ local function HelpFrameStyle()
 		f:SetStyle("Button")
 	end 
 	HelpFrameKnowledgebaseSearchBox:ClearAllPoints()
-	HelpFrameKnowledgebaseSearchBox:ModPoint("TOPLEFT", HelpFrameMainInset, "TOPLEFT", 13, -10)
+	HelpFrameKnowledgebaseSearchBox:SetPoint("TOPLEFT", HelpFrameMainInset, "TOPLEFT", 13, -10)
 	HelpFrameKnowledgebaseNavBarOverlay:Die()
 	HelpFrameKnowledgebaseNavBar:RemoveTextures()
 	HelpFrame:RemoveTextures(true)
 	HelpFrame:SetStyle("Frame", "Window")
 	HelpFrameKnowledgebaseSearchBox:SetStyle("Editbox")
-	SV.API:Set("ScrollFrame", HelpFrameKnowledgebaseScrollFrameScrollBar, 5)
-	SV.API:Set("ScrollFrame", HelpFrameTicketScrollFrameScrollBar, 4)
+	SV.API:Set("ScrollBar", HelpFrameKnowledgebaseScrollFrameScrollBar, 5)
+	SV.API:Set("ScrollBar", HelpFrameTicketScrollFrameScrollBar, 4)
 	SV.API:Set("CloseButton", HelpFrameCloseButton, HelpFrame.Panel)
 	SV.API:Set("CloseButton", HelpFrameKnowledgebaseErrorFrameCloseButton, HelpFrameKnowledgebaseErrorFrame.Panel)
 	HelpFrameCharacterStuckHearthstone:SetStyle("Button")

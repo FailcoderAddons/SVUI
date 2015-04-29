@@ -34,11 +34,11 @@ local function MacroUIStyle()
 	SV.API:Set("Window", MacroFrame, true)
 
 	SV.API:Set("CloseButton", MacroFrameCloseButton)
-	SV.API:Set("ScrollFrame", MacroButtonScrollFrameScrollBar)
-	SV.API:Set("ScrollFrame", MacroFrameScrollFrameScrollBar)
-	SV.API:Set("ScrollFrame", MacroPopupScrollFrameScrollBar)
+	SV.API:Set("ScrollBar", MacroButtonScrollFrameScrollBar)
+	SV.API:Set("ScrollBar", MacroFrameScrollFrameScrollBar)
+	SV.API:Set("ScrollBar", MacroPopupScrollFrameScrollBar)
 
-	MacroFrame:ModWidth(360)
+	MacroFrame:SetWidth(360)
 
 	local parentStrata = MacroFrame:GetFrameStrata()
 	local parentLevel = MacroFrame:GetFrameLevel()
@@ -65,12 +65,12 @@ local function MacroUIStyle()
 	for i = 1, 2 do
 		local tab = _G[("MacroFrameTab%d"):format(i)]
 		if(tab) then
-			tab:ModHeight(22)
+			tab:SetHeight(22)
 			if(i == 1) then
-				tab:ModPoint("TOPLEFT", MacroFrame, "TOPLEFT", 85, -39)
+				tab:SetPoint("TOPLEFT", MacroFrame, "TOPLEFT", 85, -39)
 				firstTab = tab
 			elseif(firstTab) then
-				tab:ModPoint("LEFT", firstTab, "RIGHT", 4, 0)
+				tab:SetPoint("LEFT", firstTab, "RIGHT", 4, 0)
 			end
 		end
 	end 
@@ -84,8 +84,8 @@ local function MacroUIStyle()
 
 	MacroPopupScrollFrame:RemoveTextures()
 	MacroPopupScrollFrame:SetStyle("Frame", "Pattern")
-	MacroPopupScrollFrame.Panel:ModPoint("TOPLEFT", 51, 2)
-	MacroPopupScrollFrame.Panel:ModPoint("BOTTOMRIGHT", -4, 4)
+	MacroPopupScrollFrame.Panel:SetPoint("TOPLEFT", 51, 2)
+	MacroPopupScrollFrame.Panel:SetPoint("BOTTOMRIGHT", -4, 4)
 	MacroPopupEditBox:SetStyle("Editbox")
 	MacroPopupNameLeft:SetTexture("")
 	MacroPopupNameMiddle:SetTexture("")
@@ -94,12 +94,12 @@ local function MacroUIStyle()
 	MacroFrameInset:Die()
 
 	MacroButtonContainer:RemoveTextures()
-	SV.API:Set("ScrollFrame", MacroButtonScrollFrame)
+	SV.API:Set("ScrollBar", MacroButtonScrollFrame)
 	MacroButtonScrollFrame:SetStyle("!_Frame", "Inset")
 
 	MacroPopupFrame:HookScript("OnShow", function(c)
 		c:ClearAllPoints()
-		c:ModPoint("TOPLEFT", MacroFrame, "TOPRIGHT", 5, -2)
+		c:SetPoint("TOPLEFT", MacroFrame, "TOPRIGHT", 5, -2)
 	end)
 
 	MacroFrameSelectedMacroButton:SetFrameStrata(parentStrata)
@@ -110,10 +110,10 @@ local function MacroUIStyle()
 	MacroFrameSelectedMacroButtonIcon:InsetPoints()
 
 	MacroEditButton:ClearAllPoints()
-	MacroEditButton:ModPoint("BOTTOMLEFT", MacroFrameSelectedMacroButton.Panel, "BOTTOMRIGHT", 10, 0)
+	MacroEditButton:SetPoint("BOTTOMLEFT", MacroFrameSelectedMacroButton.Panel, "BOTTOMRIGHT", 10, 0)
 
 	MacroFrameCharLimitText:ClearAllPoints()
-	MacroFrameCharLimitText:ModPoint("BOTTOM", MacroFrameTextBackground, -25, -35)
+	MacroFrameCharLimitText:SetPoint("BOTTOM", MacroFrameTextBackground, -25, -35)
 
 	for i = 1, MAX_ACCOUNT_MACROS do 
 		local button = _G["MacroButton"..i]

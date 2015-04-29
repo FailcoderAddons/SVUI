@@ -1,6 +1,6 @@
 ## Interface: 60100
 ## Author: Munglunch
-## Version: 1.1.6
+## Version: 1.1.95
 ## Title: |cffFF9900SuperVillain UI: |r|cffFFEF00UnitFrames|r
 ## Notes: UnitFrames Plugin for [|cff9911FFSVUI|r].
 ## OptionalDeps: LibSharedMedia-3.0
@@ -11,7 +11,7 @@
 ## X-Email: munglunch@gmail.com
 ## X-Website: http://www.supervillainui.com
 ## X-Donate: PayPal:munglunch@gmail.com
-## X-License: All Rights Reserved
+## X-License: MIT
 ## X-Category: Interface Enhancements
 
 SVUI_UnitFrames.xml

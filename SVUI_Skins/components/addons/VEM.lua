@@ -1,7 +1,7 @@
 --[[
 ##########################################################
 S V U I   By: Munglunch
-########################################################## 
+##########################################################
 LOCALIZED LUA FUNCTIONS
 ##########################################################
 ]]--
@@ -13,8 +13,8 @@ local pairs 	= _G.pairs;
 local string 	= _G.string;
 --[[ STRING METHODS ]]--
 local format = string.format;
---[[ 
-########################################################## 
+--[[
+##########################################################
 GET ADDON DATA
 ##########################################################
 ]]--
@@ -22,8 +22,8 @@ local SV = _G['SVUI'];
 local L = SV.L;
 local MOD = SV.Skins;
 local Schema = MOD.Schema;
---[[ 
-########################################################## 
+--[[
+##########################################################
 VEM
 ##########################################################
 ]]--
@@ -47,15 +47,15 @@ local function StyleBars(self)
 					icon1.overlay = CreateFrame('Frame', '$parentIcon1Overlay', tbar)
 					icon1.overlay:SetStyle("!_Frame")
 					icon1.overlay:SetFrameLevel(0)
-					icon1.overlay:ModSize(22)
-					icon1.overlay:ModPoint('BOTTOMRIGHT', frame, 'BOTTOMLEFT', -2, 0)
+					icon1.overlay:SetSize(22, 22)
+					icon1.overlay:SetPoint('BOTTOMRIGHT', frame, 'BOTTOMLEFT', -2, 0)
 				end
 				if not icon2.overlay then
 					icon2.overlay = CreateFrame('Frame', '$parentIcon2Overlay', tbar)
 					icon2.overlay:SetStyle("!_Frame")
 					icon2.overlay:SetFrameLevel(0)
-					icon2.overlay:ModSize(22)
-					icon2.overlay:ModPoint('BOTTOMLEFT', frame, 'BOTTOMRIGHT', 2, 0)
+					icon2.overlay:SetSize(22, 22)
+					icon2.overlay:SetPoint('BOTTOMLEFT', frame, 'BOTTOMRIGHT', 2, 0)
 				end
 
 				if bar.color then
@@ -85,7 +85,7 @@ local function StyleBars(self)
 				icon2:ClearAllPoints()
 				icon2:InsetPoints(icon2.overlay)
 
-				texture:SetTexture(SV.BaseTexture)
+				texture:SetTexture(SV.media.statusbar.default)
 				tbar:InsetPoints(frame)
 
 				frame:SetStyle("!_Frame")
@@ -100,8 +100,8 @@ local function StyleBars(self)
 				timer:SetShadowColor(0, 0, 0, 0)
 
 				frame:SetHeight(22)
-				name:ModPoint('LEFT', frame, 'LEFT', 4, 0)
-				timer:ModPoint('RIGHT', frame, 'RIGHT', -4, 0)
+				name:SetPoint('LEFT', frame, 'LEFT', 4, 0)
+				timer:SetPoint('RIGHT', frame, 'RIGHT', -4, 0)
 
 				name:SetFont(SV.media.font.dialog, 12, 'OUTLINE')
 				timer:SetFont(SV.media.font.dialog, 12, 'OUTLINE')
@@ -132,7 +132,7 @@ local StyleBossTitle = function()
 			header[1]:SetFont(SV.media.font.dialog, 12, 'OUTLINE')
 			header[1]:SetTextColor(1, 1, 1)
 			header[1]:SetShadowColor(0, 0, 0, 0)
-			anchor.styled = true	
+			anchor.styled = true
 		end
 		header = nil
 	end
@@ -147,20 +147,20 @@ local StyleBoss = function()
 		local progress = _G[bar:GetName()..'Bar']
 		local name = _G[bar:GetName()..'BarName']
 		local timer = _G[bar:GetName()..'BarTimer']
-		local prev = _G[format('VEM_BossHealth_Bar_%d', count-1)]	
+		local prev = _G[format('VEM_BossHealth_Bar_%d', count-1)]
 		local _, anch, _ ,_, _ = bar:GetPoint()
 		bar:ClearAllPoints()
 		if count == 1 then
 			if VEM_SavedOptions.HealthFrameGrowUp then
-				bar:ModPoint('BOTTOM', anch, 'TOP' , 0 , 12)
+				bar:SetPoint('BOTTOM', anch, 'TOP' , 0 , 12)
 			else
-				bar:ModPoint('TOP', anch, 'BOTTOM' , 0, -22)
+				bar:SetPoint('TOP', anch, 'BOTTOM' , 0, -22)
 			end
 		else
 			if VEM_SavedOptions.HealthFrameGrowUp then
-				bar:ModPoint('TOPLEFT', prev, 'TOPLEFT', 0, 26)
+				bar:SetPoint('TOPLEFT', prev, 'TOPLEFT', 0, 26)
 			else
-				bar:ModPoint('TOPLEFT', prev, 'TOPLEFT', 0, -26)
+				bar:SetPoint('TOPLEFT', prev, 'TOPLEFT', 0, -26)
 			end
 		end
 		bar:SetStyle("!_Frame", 'Transparent')
@@ -174,10 +174,10 @@ local StyleBoss = function()
 		timer:ClearAllPoints()
 		timer:SetJustifyH('RIGHT')
 		timer:SetShadowColor(0, 0, 0, 0)
-		
+
 		bar:SetHeight(22)
-		name:ModPoint('LEFT', bar, 'LEFT', 4, 0)
-		timer:ModPoint('RIGHT', bar, 'RIGHT', -4, 0)
+		name:SetPoint('LEFT', bar, 'LEFT', 4, 0)
+		timer:SetPoint('RIGHT', bar, 'RIGHT', -4, 0)
 
 		name:SetFont(SV.media.font.dialog, 12, 'OUTLINE')
 		timer:SetFont(SV.media.font.dialog, 12, 'OUTLINE')
@@ -232,7 +232,7 @@ local function StyleVEM(event, addon)
 		SV.API:Set("Tab", VEM_GUI_OptionsFrameTab2)
 		VEM_GUI_OptionsFrameOkay:SetStyle("Button")
 		VEM_GUI_OptionsFrameWebsiteButton:SetStyle("Button")
-		SV.API:Set("ScrollFrame", VEM_GUI_OptionsFramePanelContainerFOVScrollBar)
+		SV.API:Set("ScrollBar", VEM_GUI_OptionsFramePanelContainerFOVScrollBar)
 		MOD:SafeEventRemoval("VEM", event)
 	end
 end

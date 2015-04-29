@@ -138,12 +138,12 @@ local UpdateAnchor = function()
 		end
 
 		for i = 1, numPoints do
-			slots[i]:ModWidth(width)
-			slots[i]:ModHeight(height)
+			slots[i]:SetWidth(width)
+			slots[i]:SetHeight(height)
 			if(i == 1) then
-				slots[i]:ModPoint(point1, parent, point1, x, y)
+				slots[i]:SetPoint(point1, parent, point1, x, y)
 			else
-				slots[i]:ModPoint(point1, slots[i - 1], point2, x, y)
+				slots[i]:SetPoint(point1, slots[i - 1], point2, x, y)
 			end
 		end
 	end
@@ -151,7 +151,7 @@ end
 
 local _hook_TooltipOnShow = function(self)
 	self:SetBackdrop({
-		bgFile = SV.BaseTexture,
+		bgFile = SV.media.background.transparent,
 		edgeFile = [[Interface\BUTTONS\WHITE8X8]],
 		tile = false,
 		edgeSize = 1
@@ -218,16 +218,16 @@ local function GetDataSlot(parent, index)
 		slot:SetStyle(parent.Stats.templateType, parent.Stats.templateName, false, 2, 0, 0)
 
 		if(not SV.db.Reports.backdrop) then
-			slot.barframe:ModPoint("TOPLEFT", slot, "TOPLEFT", 24, 2)
-			slot.barframe:ModPoint("BOTTOMRIGHT", slot, "BOTTOMRIGHT", 2, -2)
+			slot.barframe:SetPoint("TOPLEFT", slot, "TOPLEFT", 24, 2)
+			slot.barframe:SetPoint("BOTTOMRIGHT", slot, "BOTTOMRIGHT", 2, -2)
 			slot.barframe.bg = slot.barframe:CreateTexture(nil, "BORDER")
 			slot.barframe.bg:InsetPoints(slot.barframe, 2, 2)
 			slot.barframe.bg:SetTexture([[Interface\BUTTONS\WHITE8X8]])
 			slot.barframe.bg:SetGradient(unpack(SV.media.gradient.dark))
 			slot.Panel:Hide()
 		else
-			slot.barframe:ModPoint("TOPLEFT", slot, "TOPLEFT", 24, -2)
-			slot.barframe:ModPoint("BOTTOMRIGHT", slot, "BOTTOMRIGHT", -2, 2)
+			slot.barframe:SetPoint("TOPLEFT", slot, "TOPLEFT", 24, -2)
+			slot.barframe:SetPoint("BOTTOMRIGHT", slot, "BOTTOMRIGHT", -2, 2)
 			slot.Panel:Show()
 		end
 
@@ -244,8 +244,8 @@ local function GetDataSlot(parent, index)
 		slot.barframe:SetBackdropBorderColor(0, 0, 0, 0.8)
 
 		slot.barframe.icon = CreateFrame("Frame", nil, slot.barframe)
-		slot.barframe.icon:ModPoint("TOPLEFT", slot, "TOPLEFT", 0, 6)
-		slot.barframe.icon:ModPoint("BOTTOMRIGHT", slot, "BOTTOMLEFT", 26, -6)
+		slot.barframe.icon:SetPoint("TOPLEFT", slot, "TOPLEFT", 0, 6)
+		slot.barframe.icon:SetPoint("BOTTOMRIGHT", slot, "BOTTOMLEFT", 26, -6)
 		slot.barframe.icon.texture = slot.barframe.icon:CreateTexture(nil, "OVERLAY")
 		slot.barframe.icon.texture:InsetPoints(slot.barframe.icon, 2, 2)
 		slot.barframe.icon.texture:SetTexture("")
@@ -628,9 +628,9 @@ function MOD:NewHolder(parent, maxCount, tipAnchor, pvpSet, customTemplate, isVe
 	for i = 1, maxCount do
 		local slot = GetDataSlot(parent, i)
 		if(i == 1) then
-			parent.Stats.Slots[i]:ModPoint(point1, parent, point1, x, y)
+			parent.Stats.Slots[i]:SetPoint(point1, parent, point1, x, y)
 		else
-			parent.Stats.Slots[i]:ModPoint(point1, parent.Stats.Slots[i - 1], point2, x, y)
+			parent.Stats.Slots[i]:SetPoint(point1, parent.Stats.Slots[i - 1], point2, x, y)
 		end
 	end
 
@@ -666,6 +666,14 @@ function MOD:SetAccountantData(dataType, cacheType, defaultValue)
 	end
 end
 
+function MOD:SetSubSettingsData(dataType, cacheType, defaultValue)
+	self.SubSettings[dataType] = self.SubSettings[dataType] or {};
+	local cache = self.SubSettings[dataType];
+	if(not cache[playerName] or type(cache[playerName]) ~= cacheType) then
+		cache[playerName] = defaultValue;
+	end
+end
+
 function MOD:ReportAdded(event, dataName, dataObj, noupdate)
 	local t = dataObj.type
 	if(t) then
@@ -692,6 +700,10 @@ function MOD:Load()
 	local accountant = SVLib:NewGlobal("Accountant")
 	accountant[playerRealm] = accountant[playerRealm] or {};
 	self.Accountant = accountant[playerRealm];
+
+	local subsettings = SVLib:NewGlobal("ReportSubSettings")
+	subsettings[playerRealm] = subsettings[playerRealm] or {};
+	self.SubSettings = subsettings[playerRealm];
 
 	--BOTTOM CENTER BARS
 	local bottomLeft = CreateFrame("Frame", "SVUI_ReportsGroup1", SV.Dock.BottomCenter)

@@ -105,7 +105,7 @@ local function CollectionsJournalStyle()
 	MountJournalMountButton:SetStyle("Button")
 	MountJournalSearchBox:SetStyle("Editbox")
 
-	SV.API:Set("ScrollFrame", MountJournalListScrollFrameScrollBar)
+	SV.API:Set("ScrollBar", MountJournalListScrollFrameScrollBar)
 	MountJournal.MountDisplay:SetStyle("!_Frame", "Model")
 
 	local buttons = MountJournal.ListScrollFrame.buttons
@@ -146,7 +146,7 @@ local function CollectionsJournalStyle()
 	PetJournalFilterButton:RemoveTextures(true)
 	PetJournalFilterButton:SetStyle("Button")
 	PetJournalListScrollFrame:RemoveTextures()
-	SV.API:Set("ScrollFrame", PetJournalListScrollFrameScrollBar)
+	SV.API:Set("ScrollBar", PetJournalListScrollFrameScrollBar)
 
 	for i = 1, #PetJournal.listScroll.buttons do 
 		local button = _G["PetJournalListScrollFrameButton" .. i]

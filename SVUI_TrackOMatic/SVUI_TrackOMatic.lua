@@ -1,7 +1,7 @@
 --[[
 ##########################################################
 S V U I   By: S.Jackson
-########################################################## 
+##########################################################
 LOCALIZED LUA FUNCTIONS
 ##########################################################
 ]]--
@@ -61,8 +61,8 @@ local CUSTOM_CLASS_COLORS   = _G.CUSTOM_CLASS_COLORS;
 
 _G.BINDING_HEADER_SVUITRACK = "Supervillain UI: Track-O-Matic";
 _G.BINDING_NAME_SVUITRACK_DOODAD = "Toggle Tracking Device";
---[[ 
-########################################################## 
+--[[
+##########################################################
 GET ADDON DATA
 ##########################################################
 ]]--
@@ -70,16 +70,16 @@ local SV = _G["SVUI"];
 local L = SV.L;
 local PLUGIN = select(2, ...)
 local CONFIGS = SV.defaults[PLUGIN.Schema];
---[[ 
-########################################################## 
+--[[
+##########################################################
 LOCALS
 ##########################################################
 ]]--
 local NewHook = hooksecurefunc;
 local playerGUID = UnitGUID('player')
 local classColor = RAID_CLASS_COLORS
---[[ 
-########################################################## 
+--[[
+##########################################################
 BUILD
 ##########################################################
 ]]--
@@ -95,9 +95,9 @@ function SVUIToggleTrackingDoodad()
         SVUI_UnitTrackingCompass:Hide()
         SV:AddonMessage("Tracking Device |cffFF0000Disabled|r")
     end
-end 
---[[ 
-########################################################## 
+end
+--[[
+##########################################################
 MAIN MOVABLE TRACKER
 ##########################################################
 ]]--
@@ -131,12 +131,12 @@ local Rotate_Arrow = function(self, angle)
     ULx = 0.5 + cos(radius) / sqrt2
     ULy =  0.5 + sin(radius) / sqrt2
     -- 5
-    
+
     self.Arrow:SetTexCoord(ULx, ULy, LLx, LLy, URx, URy, LRx, LRy);
 end
 
 local UnitTracker_OnUpdate = function(self, elapsed)
-    if self.elapsed and self.elapsed > (self.throttle or 0.02) then
+    if self.elapsed and self.elapsed > (self.throttle or 0.08) then
         if(self.Trackable) then
             local distance, angle = TriangulateUnit("target", true)
             if not angle then
@@ -146,7 +146,7 @@ local UnitTracker_OnUpdate = function(self, elapsed)
                 -- self.Border:SetVertexColor(1,0,0,0.15)
                 self.BG:SetVertexColor(1,0,0,0.15)
             else
-                self.throttle = 0.02
+                self.throttle = 0.08
                 local range = floor(distance)
                 self:Spin(angle)
                 if(range > 0) then
@@ -182,7 +182,7 @@ local UnitTracker_OnUpdate = function(self, elapsed)
                     self.BG:SetAlpha(0)
                     self.Range:SetText("")
                 end
-            end            
+            end
         else
             self:Hide()
         end
@@ -193,9 +193,10 @@ local UnitTracker_OnUpdate = function(self, elapsed)
 end
 
 local QuestTracker_OnUpdate = function(self, elapsed)
-    if self.elapsed and self.elapsed > (self.throttle or 0.02) then
+    if self.elapsed and self.elapsed > (self.throttle or 0.08) then
         if(self.questID) then
             local distance, angle = TriangulateQuest(self.questID)
+            --print(angle)
             if not angle then
                 self.questID = nil
                 self.throttle = 4
@@ -203,7 +204,7 @@ local QuestTracker_OnUpdate = function(self, elapsed)
                 self.BG:SetVertexColor(0.1,0.1,0.1,0)
                 self.Range:SetTextColor(1,1,1,1)
             else
-                self.throttle = 0.02
+                self.throttle = 0.08
                 local range = floor(distance)
                 self:Spin(angle)
                 if(range > 25) then
@@ -227,9 +228,10 @@ local QuestTracker_OnUpdate = function(self, elapsed)
                     self.BG:SetAlpha(0)
                     self.Range:SetText("")
                 end
-            end            
+            end
         else
             self:Hide()
+            self:SetScript("OnUpdate", nil)
         end
         self.elapsed = 0
     else
@@ -244,9 +246,11 @@ local StartTrackingQuest = function(self, questID)
         end
         self.Compass.questID = questID
         self.Compass:Show()
+        self.Compass:SetScript("OnUpdate", QuestTracker_OnUpdate)
     else
         self.Compass.questID = nil
         self.Compass:Hide()
+        self.Compass:SetScript("OnUpdate", nil)
     end
 end
 
@@ -267,15 +271,14 @@ function SV:AddQuestCompass(parent, anchor)
     compass.Range:SetFontObject(SVUI_Font_Tracking);
     compass.Range:SetTextColor(1, 1, 1, 0.75)
     compass.Spin = Rotate_Arrow
-
-    compass:SetScript("OnUpdate", QuestTracker_OnUpdate)
     compass:Hide()
 
     anchor.Compass = compass
-    anchor.PostUpdate = StartTrackingQuest
+    anchor.StartTracking = StartTrackingQuest
+    anchor.StopTracking = function(self) self.Compass:SetScript("OnUpdate", nil) end
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 CORE
 ##########################################################
 ]]--

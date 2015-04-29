@@ -15,8 +15,8 @@ local SV = _G['SVUI'];
 local L = SV.L;
 local MOD = SV.Skins;
 local Schema = MOD.Schema;
---[[ 
-########################################################## 
+--[[
+##########################################################
 HELPERS
 ##########################################################
 ]]--
@@ -34,8 +34,8 @@ local ClassTrainerTextureList = {
 	"ClassTrainerScrollFrameScrollBarBottom",
 	"ClassTrainerScrollFrameScrollBarMiddle"
 };
---[[ 
-########################################################## 
+--[[
+##########################################################
 TRAINER MODR
 ##########################################################
 ]]--
@@ -48,7 +48,7 @@ local function TrainerStyle()
 	for i=1, 8 do
 		_G["ClassTrainerScrollFrameButton"..i]:RemoveTextures()
 		_G["ClassTrainerScrollFrameButton"..i]:SetStyle("!_Frame")
-		_G["ClassTrainerScrollFrameButton"..i]:SetStyle("Button")
+		--_G["ClassTrainerScrollFrameButton"..i]:SetStyle("Button")
 		_G["ClassTrainerScrollFrameButton"..i.."Icon"]:SetTexCoord(unpack(_G.SVUI_ICON_COORDS))
 		_G["ClassTrainerScrollFrameButton"..i].Panel:WrapPoints(_G["ClassTrainerScrollFrameButton"..i.."Icon"])
 		_G["ClassTrainerScrollFrameButton"..i.."Icon"]:SetParent(_G["ClassTrainerScrollFrameButton"..i].Panel)
@@ -56,7 +56,7 @@ local function TrainerStyle()
 		_G["ClassTrainerScrollFrameButton"..i].selectedTex:InsetPoints()
 	end
 
-	SV.API:Set("ScrollFrame", ClassTrainerScrollFrameScrollBar, 5)
+	SV.API:Set("ScrollBar", ClassTrainerScrollFrameScrollBar, 5)
 
 	for _,frame in pairs(ClassTrainerFrameList)do
 		_G[frame]:RemoveTextures()
@@ -78,13 +78,13 @@ local function TrainerStyle()
 	ClassTrainerFrameSkillStepButtonHighlight:SetTexture(1, 1, 1, 0.3)
 	ClassTrainerFrameSkillStepButton.selectedTex:SetTexture(1, 1, 1, 0.3)
 	ClassTrainerStatusBar:RemoveTextures()
-	ClassTrainerStatusBar:SetStatusBarTexture(SV.media.statusbar.default)
-	ClassTrainerStatusBar:SetStyle("Frame", "Icon", true, 1, 2, 2)
+	ClassTrainerStatusBar:SetStatusBarTexture(SV.media.statusbar.gradient)
+	ClassTrainerStatusBar:SetStyle("Frame", "Inset", true, 1, 2, 2)
 	ClassTrainerStatusBar.rankText:ClearAllPoints()
 	ClassTrainerStatusBar.rankText:SetPoint("CENTER", ClassTrainerStatusBar, "CENTER")
-end 
---[[ 
-########################################################## 
+end
+--[[
+##########################################################
 MOD LOADING
 ##########################################################
 ]]--

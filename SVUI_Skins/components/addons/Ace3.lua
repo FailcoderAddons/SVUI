@@ -43,7 +43,7 @@ local function Widget_OnLeave(b)
 end
 
 local function Widget_ScrollStyle(frame, arg)
-	return SV.API:Set("ScrollFrame", frame) 
+	return SV.API:Set("ScrollBar", frame) 
 end 
 
 local function Widget_ButtonStyle(frame, strip, bypass)
@@ -111,7 +111,7 @@ local function StyleAceGUI(event, addon)
 			SV.API:Set("!_Frame", widgetFrame, "Default", true)
 			SV.API:Set("Frame", widget.scrollBG, "Lite", true) 
 			Widget_ButtonStyle(widget.button)
-			SV.API:Set("ScrollFrame", widget.scrollBar) 
+			SV.API:Set("ScrollBar", widget.scrollBar) 
 			widget.scrollBar:SetPoint("RIGHT", widgetFrame, "RIGHT", -4)
 			widget.scrollBG:SetPoint("TOPRIGHT", widget.scrollBar, "TOPLEFT", -2, 19)
 			widget.scrollBG:SetPoint("BOTTOMLEFT", widget.button, "TOPLEFT")
@@ -133,7 +133,7 @@ local function StyleAceGUI(event, addon)
 
 			widgetDropdown:RemoveTextures()
 			widgetButton:ClearAllPoints()
-			widgetButton:ModPoint("RIGHT", widgetDropdown, "RIGHT", -20, 0)
+			widgetButton:SetPoint("RIGHT", widgetDropdown, "RIGHT", -20, 0)
 			widgetButton:SetFrameLevel(widgetButton:GetFrameLevel() + 1)
 			Widget_PaginationStyle(widgetButton, true)
 
@@ -158,11 +158,11 @@ local function StyleAceGUI(event, addon)
 
 			SV.API:Set("!_Frame", widgetSlider, "Bar")
 
-			widgetSlider:ModHeight(20)
+			widgetSlider:SetHeight(20)
 			widgetSlider:SetThumbTexture("Interface\\Buttons\\UI-ScrollBar-Knob")
 			widgetSlider:GetThumbTexture():SetVertexColor(0.8, 0.8, 0.8)
 
-			widgetEditbox:ModHeight(15)
+			widgetEditbox:SetHeight(15)
 			widgetEditbox:SetPoint("TOP", widgetSlider, "BOTTOM", 0, -1)
 
 			widget.lowtext:SetPoint("TOPLEFT", widgetSlider, "BOTTOMLEFT", 2, -2)
@@ -175,15 +175,15 @@ local function StyleAceGUI(event, addon)
 			widgetFrame:RemoveTextures()
 			Widget_PaginationStyle(dropButton, true)
 			widgetFrame.text:ClearAllPoints()
-			widgetFrame.text:ModPoint("RIGHT", dropButton, "LEFT", -2, 0)
+			widgetFrame.text:SetPoint("RIGHT", dropButton, "LEFT", -2, 0)
 			dropButton:ClearAllPoints()
-			dropButton:ModPoint("RIGHT", widgetFrame, "RIGHT", -10, -6)
+			dropButton:SetPoint("RIGHT", widgetFrame, "RIGHT", -10, -6)
 			if(not widgetFrame.Panel) then 
 				if(widgetType == "LSM30_Sound") then 
 					SetAdjustedStyle(widgetFrame, 20, -17, 2, -2)
 					widget.soundbutton:SetParent(widgetFrame.Panel)
 					widget.soundbutton:ClearAllPoints()
-					widget.soundbutton:ModPoint("LEFT", widgetFrame.Panel, "LEFT", 2, 0)
+					widget.soundbutton:SetPoint("LEFT", widgetFrame.Panel, "LEFT", 2, 0)
 				elseif(widgetType == "LSM30_Statusbar") then 
 					SetAdjustedStyle(widgetFrame, 20, -17, 2, -2)
 					widget.bar:SetParent(widgetFrame.Panel)
@@ -193,7 +193,7 @@ local function StyleAceGUI(event, addon)
 				else
 					SetAdjustedStyle(widgetFrame, 20, -17, 2, -2)
 				end 
-				widgetFrame.Panel:ModPoint("BOTTOMRIGHT", dropButton, "BOTTOMRIGHT", 2, -2)
+				widgetFrame.Panel:SetPoint("BOTTOMRIGHT", dropButton, "BOTTOMRIGHT", 2, -2)
 			end 
 			dropButton:SetParent(widgetFrame.Panel)
 			widgetFrame.text:SetParent(widgetFrame.Panel)
@@ -208,7 +208,7 @@ local function StyleAceGUI(event, addon)
 		-- print("RegisterAsContainer: " .. widgetType);
 		local widgetParent = widget.content:GetParent()
 		if widgetType == "ScrollFrame" then 
-			SV.API:Set("ScrollFrame", widget.scrollBar) 
+			SV.API:Set("ScrollBar", widget.scrollBar) 
 		elseif widgetType == "Frame" then
 			for i = 1, widgetParent:GetNumChildren()do 
 				local childFrame = select(i, widgetParent:GetChildren())
@@ -251,7 +251,7 @@ local function StyleAceGUI(event, addon)
 			end
 
 			if widget.scrollbar then 
-				SV.API:Set("ScrollFrame", widget.scrollBar) 
+				SV.API:Set("ScrollBar", widget.scrollBar) 
 			end 
 		end
 		return regContainer(self, widget)

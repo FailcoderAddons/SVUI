@@ -67,12 +67,12 @@ local L = SV.L;
 local LSM = _G.LibStub("LibSharedMedia-3.0")
 local MOD = SV.UnitFrames
 
-if(not MOD) then return end 
+if(not MOD) then return end
 
 local oUF_SVUI = MOD.oUF
 assert(oUF_SVUI, "SVUI UnitFrames: unable to locate oUF.")
---[[ 
-########################################################## 
+--[[
+##########################################################
 LOCAL VARIABLES
 ##########################################################
 ]]--
@@ -84,23 +84,23 @@ local ROLE_ICON_DATA = {
 
 local function BasicBG(frame)
 	frame:SetBackdrop({
-    	bgFile = [[Interface\BUTTONS\WHITE8X8]], 
-		tile = false, 
-		tileSize = 0, 
-		edgeFile = [[Interface\BUTTONS\WHITE8X8]], 
-        edgeSize = 2, 
+    	bgFile = [[Interface\BUTTONS\WHITE8X8]],
+		tile = false,
+		tileSize = 0,
+		edgeFile = [[Interface\BUTTONS\WHITE8X8]],
+        edgeSize = 2,
         insets = {
-            left = 0, 
-            right = 0, 
-            top = 0, 
+            left = 0,
+            right = 0,
+            top = 0,
             bottom = 0
         }
     })
     frame:SetBackdropColor(0, 0, 0, 0)
     frame:SetBackdropBorderColor(0, 0, 0)
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 RAID DEBUFFS / DEBUFF HIGHLIGHT
 ##########################################################
 ]]--
@@ -120,7 +120,7 @@ function MOD:CreateRaidDebuffs(frame)
 	raidDebuff.time:SetTextColor(1, .9, 0)
 	raidDebuff:SetParent(frame.TextGrip)
 	return raidDebuff
-end 
+end
 
 function MOD:CreateAfflicted(frame)
 	local holder = CreateFrame("Frame", nil, frame.Health)
@@ -131,32 +131,32 @@ function MOD:CreateAfflicted(frame)
 	afflicted:SetTexture(MOD.media.afflicted)
 	afflicted:SetVertexColor(0, 0, 0, 0)
 	afflicted:SetBlendMode("ADD")
-	frame.AfflictedFilter = true
-	frame.AfflictedAlpha = 0.75
-	
+	afflicted.ClassFilter = true
+	afflicted.MaxAlpha = 0.75
+
 	return afflicted
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 VARIOUS ICONS
 ##########################################################
 ]]--
 function MOD:CreateResurectionIcon(frame)
 	local rez = frame.TextGrip:CreateTexture(nil, "OVERLAY")
-	rez:ModPoint("CENTER", frame.TextGrip.Health, "CENTER")
-	rez:ModSize(30, 25)
+	rez:SetPoint("CENTER", frame.TextGrip.Health, "CENTER")
+	rez:SetSize(30, 25)
 	rez:SetDrawLayer("OVERLAY", 7)
-	return rez 
-end 
+	return rez
+end
 
 function MOD:CreateReadyCheckIcon(frame)
 	local rdyHolder = CreateFrame("Frame", nil, frame.TextGrip)
 	rdyHolder:SetAllPoints(frame)
 	local rdy = rdyHolder:CreateTexture(nil, "OVERLAY", nil, 7)
-	rdy:ModSize(18)
-	rdy:ModPoint("RIGHT", rdyHolder, "RIGHT", 0, 0)
-	return rdy 
-end 
+	rdy:SetSize(18, 18)
+	rdy:SetPoint("RIGHT", rdyHolder, "RIGHT", 0, 0)
+	return rdy
+end
 
 function MOD:CreateGladiator(frame)
 	local pvp = CreateFrame("Frame", nil, frame)
@@ -189,7 +189,7 @@ function MOD:CreateGladiator(frame)
 
 	pvp.Badge = badge
 
-	return pvp 
+	return pvp
 end
 
 function MOD:CreateFriendshipBar(frame)
@@ -205,32 +205,32 @@ function MOD:CreateFriendshipBar(frame)
 	icon:SetSize(22,22)
 	icon:SetTexture(MOD.media.buddy)
 
-	return buddy 
+	return buddy
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 CONFIGURABLE ICONS
 ##########################################################
 ]]--
 function MOD:CreateRaidIcon(frame)
 	local rIcon = frame.TextGrip:CreateTexture(nil, "OVERLAY", nil, 2)
 	rIcon:SetTexture([[Interface\TargetingFrame\UI-RaidTargetingIcons]])
-	rIcon:ModSize(18)
-	rIcon:ModPoint("CENTER", frame.TextGrip, "TOP", 0, 2)
-	return rIcon 
-end 
+	rIcon:SetSize(18, 18)
+	rIcon:SetPoint("CENTER", frame.TextGrip, "TOP", 0, 2)
+	return rIcon
+end
 
 local UpdateRoleIcon = function(self)
 	local key = self.___key
 	local db = SV.db.UnitFrames[key]
-	if(not db or not db.icons or (db.icons and not db.icons.roleIcon)) then return end 
+	if(not db or not db.icons or (db.icons and not db.icons.roleIcon)) then return end
 	local lfd = self.LFDRole
-	if(not db.icons.roleIcon.enable) then lfd:Hide() return end 
+	if(not db.icons.roleIcon.enable) then lfd:Hide() return end
 	local unitRole = UnitGroupRolesAssigned(self.unit)
-	if(self.isForced and unitRole == "NONE") then 
+	if(self.isForced and unitRole == "NONE") then
 		local rng = random(1, 3)
-		unitRole = rng == 1 and "TANK" or rng == 2 and "HEALER" or rng == 3 and "DAMAGER" 
-	end 
+		unitRole = rng == 1 and "TANK" or rng == 2 and "HEALER" or rng == 3 and "DAMAGER"
+	end
 	if(unitRole ~= "NONE" and (self.isForced or UnitIsConnected(self.unit))) then
 		local coords = ROLE_ICON_DATA[unitRole]
 		lfd:SetTexture(MOD.media.roles)
@@ -242,52 +242,52 @@ local UpdateRoleIcon = function(self)
 		lfd:Show()
 	else
 		lfd:Hide()
-	end 
-end 
+	end
+end
 
 function MOD:CreateRoleIcon(frame)
 	local parent = frame.TextGrip or frame;
 	local rIconHolder = CreateFrame("Frame", nil, parent)
 	rIconHolder:SetAllPoints()
 	local rIcon = rIconHolder:CreateTexture(nil, "ARTWORK", nil, 2)
-	rIcon:ModSize(14)
-	rIcon:ModPoint("BOTTOMRIGHT", rIconHolder, "BOTTOMRIGHT")
+	rIcon:SetSize(14, 14)
+	rIcon:SetPoint("BOTTOMRIGHT", rIconHolder, "BOTTOMRIGHT")
 	rIcon.Override = UpdateRoleIcon;
 	frame:RegisterEvent("UNIT_CONNECTION", UpdateRoleIcon)
-	return rIcon 
-end 
+	return rIcon
+end
 
 function MOD:CreateRaidRoleFrames(frame)
 	local parent = frame.TextGrip or frame;
 	local raidRoles = CreateFrame("Frame", nil, frame)
-	raidRoles:ModSize(24, 12)
-	raidRoles:ModPoint("TOPLEFT", frame.ActionPanel, "TOPLEFT", -2, 4)
+	raidRoles:SetSize(24, 12)
+	raidRoles:SetPoint("TOPLEFT", frame.ActionPanel, "TOPLEFT", -2, 4)
 	raidRoles:SetFrameLevel(parent:GetFrameLevel() + 50)
 
 	frame.Leader = raidRoles:CreateTexture(nil, "OVERLAY")
-	frame.Leader:ModSize(12, 12)
+	frame.Leader:SetSize(12, 12)
 	frame.Leader:SetTexture(MOD.media.lml)
 	frame.Leader:SetTexCoord(0, 0.5, 0, 0.5)
 	frame.Leader:SetVertexColor(1, 0.85, 0)
-	frame.Leader:ModPoint("LEFT")
+	frame.Leader:SetPoint("LEFT")
 
 	frame.MasterLooter = raidRoles:CreateTexture(nil, "OVERLAY")
-	frame.MasterLooter:ModSize(12, 12)
+	frame.MasterLooter:SetSize(12, 12)
 	frame.MasterLooter:SetTexture(MOD.media.lml)
 	frame.MasterLooter:SetTexCoord(0.5, 1, 0, 0.5)
 	frame.MasterLooter:SetVertexColor(1, 0.6, 0)
-	frame.MasterLooter:ModPoint("RIGHT")
+	frame.MasterLooter:SetPoint("RIGHT")
 
 	frame.Leader.PostUpdate = MOD.RaidRoleUpdate;
 	frame.MasterLooter.PostUpdate = MOD.RaidRoleUpdate;
-	return raidRoles 
-end 
+	return raidRoles
+end
 
 function MOD:RaidRoleUpdate()
 	local frame = self:GetParent()
 	local leaderIcon = frame.Leader;
 	local looterIcon = frame.MasterLooter;
-	if not leaderIcon or not looterIcon then return end 
+	if not leaderIcon or not looterIcon then return end
 		local key = frame.___key;
 		local db = SV.db.UnitFrames[key];
 		local leaderShown = leaderIcon:IsShown()
@@ -296,21 +296,21 @@ function MOD:RaidRoleUpdate()
 		looterIcon:ClearAllPoints()
 		if db and db.icons and db.icons.raidRoleIcons then
 			local settings = db.icons.raidRoleIcons
-			if leaderShown and settings.position == "TOPLEFT"then 
-				leaderIcon:ModPoint("LEFT", frame, "LEFT")
-				looterIcon:ModPoint("RIGHT", frame, "RIGHT")
-			elseif leaderShown and settings.position == "TOPRIGHT" then 
-				leaderIcon:ModPoint("RIGHT", frame, "RIGHT")
-				looterIcon:ModPoint("LEFT", frame, "LEFT")
-			elseif looterShown and settings.position == "TOPLEFT" then 
-				looterIcon:ModPoint("LEFT", frame, "LEFT")
-			else 
-			looterIcon:ModPoint("RIGHT", frame, "RIGHT")
-		end 
-	end 
+			if leaderShown and settings.position == "TOPLEFT"then
+				leaderIcon:SetPoint("LEFT", frame, "LEFT")
+				looterIcon:SetPoint("RIGHT", frame, "RIGHT")
+			elseif leaderShown and settings.position == "TOPRIGHT" then
+				leaderIcon:SetPoint("RIGHT", frame, "RIGHT")
+				looterIcon:SetPoint("LEFT", frame, "LEFT")
+			elseif looterShown and settings.position == "TOPLEFT" then
+				looterIcon:SetPoint("LEFT", frame, "LEFT")
+			else
+			looterIcon:SetPoint("RIGHT", frame, "RIGHT")
+		end
+	end
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 PLAYER ONLY COMPONENTS
 ##########################################################
 ]]--
@@ -318,18 +318,18 @@ function MOD:CreatePlayerIndicators(frame)
 	local resting = CreateFrame("Frame",nil,frame)
 	resting:SetFrameStrata("MEDIUM")
 	resting:SetFrameLevel(20)
-	resting:ModSize(26,26)
-	resting:ModPoint("BOTTOMRIGHT", frame.Health, "BOTTOMRIGHT", 0, 0)
+	resting:SetSize(26,26)
+	resting:SetPoint("BOTTOMRIGHT", frame.Health, "BOTTOMRIGHT", 0, 0)
 	resting.bg = resting:CreateTexture(nil,"OVERLAY",nil,1)
 	resting.bg:SetAllPoints(resting)
 	resting.bg:SetTexture(MOD.media.playerstate)
 	resting.bg:SetTexCoord(0.5,1,0,0.5)
-	
+
 	local combat = CreateFrame("Frame",nil,frame)
 	combat:SetFrameStrata("MEDIUM")
 	combat:SetFrameLevel(30)
-	combat:ModSize(26,26)
-	combat:ModPoint("BOTTOMLEFT", frame , "TOPRIGHT", 3, 3)
+	combat:SetSize(26,26)
+	combat:SetPoint("BOTTOMLEFT", frame , "TOPRIGHT", 3, 3)
 	combat.bg = combat:CreateTexture(nil,"OVERLAY",nil,5)
 	combat.bg:SetAllPoints(combat)
 	combat.bg:SetTexture(MOD.media.playerstate)
@@ -354,13 +354,13 @@ function MOD:CreatePlayerIndicators(frame)
 	frame.Combat = combat
 end
 
-local ExRep_OnEnter = function(self)if self:IsShown() then UIFrameFadeIn(self,.1,0,1) end end 
-local ExRep_OnLeave = function(self)if self:IsShown() then UIFrameFadeOut(self,.2,1,0) end end 
+local ExRep_OnEnter = function(self)if self:IsShown() then UIFrameFadeIn(self,.1,0,1) end end
+local ExRep_OnLeave = function(self)if self:IsShown() then UIFrameFadeOut(self,.2,1,0) end end
 
 function MOD:CreateExperienceRepBar(frame)
 	local db = SV.db.UnitFrames.player;
-	
-	if db.playerExpBar then 
+
+	if db.playerExpBar then
 		local xp = CreateFrame("StatusBar", "PlayerFrameExperienceBar", frame.Power)
 		xp:InsetPoints(frame.Power, 0, 0)
 		xp:SetStyle("Frame")
@@ -385,10 +385,10 @@ function MOD:CreateExperienceRepBar(frame)
 		xp:SetScript("OnEnter", ExRep_OnEnter)
 		xp:SetScript("OnLeave", ExRep_OnLeave)
 		xp:SetAlpha(0)
-		frame.Experience = xp 
-	end 
+		frame.Experience = xp
+	end
 
-	if db.playerRepBar then 
+	if db.playerRepBar then
 		local rep = CreateFrame("StatusBar", "PlayerFrameReputationBar", frame.Power)
 		rep:InsetPoints(frame.Power, 0, 0)
 		rep:SetStyle("Frame")
@@ -407,11 +407,11 @@ function MOD:CreateExperienceRepBar(frame)
 		rep:SetScript("OnEnter", ExRep_OnEnter)
 		rep:SetScript("OnLeave", ExRep_OnLeave)
 		rep:SetAlpha(0)
-		frame.Reputation = rep 
-	end 
-end 
---[[ 
-########################################################## 
+		frame.Reputation = rep
+	end
+end
+--[[
+##########################################################
 HEAL PREDICTION
 ##########################################################
 ]]--
@@ -545,8 +545,8 @@ function MOD:CreateHealPrediction(frame, fullSet)
 
 	return healPrediction
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 RESOLVE
 ##########################################################
 ]]--
@@ -557,7 +557,7 @@ local function Short(value)
 	local fmt
 	if value >= 10000 then
 		fmt = "%.0fk"
-		value = value / 1000	
+		value = value / 1000
 	elseif value >= 1000 then
 		fmt = "%.1fk"
 		value = value / 1000
@@ -569,7 +569,7 @@ end
 
 local function IsTank()
 	local _, playerclass = UnitClass("player")
-	local masteryIndex 
+	local masteryIndex
 	local tank = false
 	if playerclass == "DEATHKNIGHT" then
 		masteryIndex = GetSpecialization()
@@ -612,7 +612,7 @@ local ResolveBar_OnEvent = function(self, event, unit)
 					self.bar.text:SetText(Short(amount))
 					self:FadeIn()
 					cached_resolve = amount
-				end		
+				end
 			end
 		else
 			if IsTank() then
@@ -638,8 +638,8 @@ end
 
 function MOD:CreateResolveBar(frame)
 	local resolve = CreateFrame("Frame", nil, frame)
-	resolve:ModPoint("TOPLEFT", frame.Health, "TOPLEFT", 0, 0)
-	resolve:ModPoint("TOPRIGHT", frame.Health, "TOPRIGHT", 0, 0)
+	resolve:SetPoint("TOPLEFT", frame.Health, "TOPLEFT", 0, 0)
+	resolve:SetPoint("TOPRIGHT", frame.Health, "TOPRIGHT", 0, 0)
 	resolve:SetHeight(8)
 
 	local bar = CreateFrame('StatusBar', nil, resolve)
@@ -659,7 +659,7 @@ function MOD:CreateResolveBar(frame)
 	resolve:RegisterEvent("PLAYER_TALENT_UPDATE")
 	resolve:RegisterEvent("PLAYER_ENTERING_WORLD")
 	resolve:SetScript('OnEvent', ResolveBar_OnEvent)
-	
+
 	ResolveBar_OnEvent(resolve)
 	return resolve
 end

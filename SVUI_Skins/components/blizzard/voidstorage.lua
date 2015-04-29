@@ -63,7 +63,7 @@ local function ChangeTabHelper(this)
   this:SetScript("OnLeave", Tab_OnLeave)
 
   local a,b,c,d,e = this:GetPoint()
-  this:ModPoint(a,b,c,1,e)
+  this:SetPoint(a,b,c,1,e)
 end
 
 local SlotBorderColor_Hook = function(self, ...)
@@ -133,8 +133,8 @@ local function VoidStorageStyle()
   SV.API:Set("CloseButton", VoidStorageBorderFrame.CloseButton)
 
   VoidItemSearchBox:SetStyle("Frame", "Inset")
-  VoidItemSearchBox.Panel:ModPoint("TOPLEFT", 10, -1)
-  VoidItemSearchBox.Panel:ModPoint("BOTTOMRIGHT", 4, 1)
+  VoidItemSearchBox.Panel:SetPoint("TOPLEFT", 10, -1)
+  VoidItemSearchBox.Panel:SetPoint("BOTTOMRIGHT", 4, 1)
 
   for i = 1, 9 do
     VoidSlotStyler("VoidStorageDeposit", i)

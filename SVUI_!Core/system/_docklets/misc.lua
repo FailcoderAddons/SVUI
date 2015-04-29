@@ -1,7 +1,7 @@
 --[[
 ##########################################################
 S V U I   By: Munglunch
-########################################################## 
+##########################################################
 LOCALIZED LUA FUNCTIONS
 ##########################################################
 ]]--
@@ -27,7 +27,7 @@ local find          = string.find;
 local match         = string.match;
 local gsub          = string.gsub;
 --TABLE
-local table 		= _G.table; 
+local table 		= _G.table;
 local tinsert       = _G.tinsert;
 local tremove       = _G.tremove;
 local twipe 		= _G.wipe;
@@ -61,8 +61,8 @@ local GetNumSpecGroups    	= _G.GetNumSpecGroups;
 local GetActiveSpecGroup    = _G.GetActiveSpecGroup;
 local SetActiveSpecGroup    = _G.SetActiveSpecGroup;
 local GetSpecializationInfo = _G.GetSpecializationInfo;
---[[ 
-########################################################## 
+--[[
+##########################################################
 ADDON
 ##########################################################
 ]]--
@@ -70,8 +70,8 @@ local SV = select(2, ...)
 local L = SV.L
 
 local MOD = SV.Dock;
---[[ 
-########################################################## 
+--[[
+##########################################################
 LOCALS
 ##########################################################
 ]]--
@@ -80,13 +80,13 @@ local HEARTH_SPELLS = {556,50977,18960,126892}
 local function GetMacroCooldown(itemID)
 	local start,duration = GetItemCooldown(itemID)
 	local expires = duration - (GetTime() - start)
-	if expires > 0.05 then 
+	if expires > 0.05 then
 		local timeLeft = 0;
 		local calc = 0;
 		if expires < 4 then
 			return format("|cffff0000%.1f|r", expires)
-		elseif expires < 60 then 
-			return format("|cffffff00%d|r", floor(expires)) 
+		elseif expires < 60 then
+			return format("|cffffff00%d|r", floor(expires))
 		elseif expires < 3600 then
 			timeLeft = ceil(expires / 60);
 			calc = floor((expires / 60) + .5);
@@ -100,20 +100,24 @@ local function GetMacroCooldown(itemID)
 			calc = floor((expires / 86400) + .5);
 			return format("|cff6666ff%dd|r", timeLeft)
 		end
-	else 
+	else
 		return "|cff6666ffReady|r"
-	end 
+	end
 end
 
 local SetHearthTooltip = function(self)
-	local text1 = self:GetAttribute("tipText")
-	local text2 = self:GetAttribute("tipExtraText")
-	GameTooltip:AddDoubleLine("[Left-Click]", text1, 0, 1, 0, 1, 1, 1)
+	GameTooltip:AddLine(HELPFRAME_STUCK_HEARTHSTONE_HEADER, 1, 1, 0)
+	GameTooltip:AddLine(" ", 1, 1, 1)
+	local location = GetBindLocation()
+	GameTooltip:AddDoubleLine(LOCATION_COLON, location, 1, 0.5, 0, 1, 1, 1)
 	if InCombatLockdown() then return end
 	local remaining = GetMacroCooldown(6948)
-	GameTooltip:AddDoubleLine(L["Time Remaining"], remaining, 1, 1, 1, 0, 1, 1)
+	GameTooltip:AddDoubleLine(L["Time Remaining"], remaining, 1, 0.5, 0, 1, 1, 1)
+	local text1 = self:GetAttribute("tipText")
+	local text2 = self:GetAttribute("tipExtraText")
+	GameTooltip:AddLine(" ", 1, 1, 1)
+	GameTooltip:AddDoubleLine("[Left-Click]", text1, 0, 1, 0, 1, 1, 1)
 	if(text2) then
-		GameTooltip:AddLine(" ", 1, 1, 1)
 		GameTooltip:AddDoubleLine("[Right Click]", text2, 0, 1, 0, 1, 1, 1)
 	end
 end
@@ -133,15 +137,18 @@ local SetSpecSwapTooltip = function(self)
 	local currentSpec = GetSpecialization(false, false, currentGroup);
 	local text1 = currentSpec and select(2, GetSpecializationInfo(currentSpec)) or "None"
 	local otherGroup = 1;
-	local activeText = "Active Spec";
-	local otherText = "Inactive Spec";
+	local activeText = SPECIALIZATION_SECONDARY_ACTIVE;
+	local otherText = SPECIALIZATION_PRIMARY;
 	if(currentGroup == 1) then
 		otherGroup = 2
+		activeText = SPECIALIZATION_PRIMARY_ACTIVE;
+		otherText = SPECIALIZATION_SECONDARY;
 	end
 	local otherSpec = GetSpecialization(false, false, otherGroup);
 	local text2 = otherSpec and select(2, GetSpecializationInfo(otherSpec)) or "None"
-	GameTooltip:AddDoubleLine("[Click]", "Swap Active Spec", 0, 1, 0, 1, 1, 1)
-	GameTooltip:AddDoubleLine(activeText, text1, 1, 1, 0, 1, 1, 1)
+	GameTooltip:AddLine(GARRISON_SWITCH_SPECIALIZATIONS, 1, 1, 0)
+	GameTooltip:AddLine(" ", 1, 1, 1)
+	GameTooltip:AddDoubleLine(activeText, text1, 1, 0.5, 0, 1, 1, 1)
 	GameTooltip:AddDoubleLine(otherText, text2, 1, 0.5, 0, 1, 1, 1)
 end
 
@@ -156,18 +163,20 @@ local PowerButton_OnClick = function(self, button)
 end
 
 local SetPowerButtonTooltip = function(self)
-	GameTooltip:AddDoubleLine("[Click]", "Log Out", 0, 1, 0, 1, 1, 1)
-	GameTooltip:AddDoubleLine("[SHIFT + Left Click]", "Reload", 1, 1, 0, 1, 1, 1)
-	GameTooltip:AddDoubleLine("[SHIFT + Right Click]", "Exit Game", 1, 0.5, 0, 1, 1, 1)
+	GameTooltip:AddLine(OTHER .. " " .. OPTIONS_MENU, 1, 1, 0)
+	GameTooltip:AddLine(" ", 1, 1, 1)
+	GameTooltip:AddDoubleLine("[Click]", LOGOUT, 0, 1, 0, 1, 1, 1)
+	GameTooltip:AddDoubleLine("[SHIFT + Left Click]", RELOADUI, 0, 1, 0, 1, 1, 1)
+	GameTooltip:AddDoubleLine("[SHIFT + Right Click]", EXIT_GAME, 0, 1, 0, 1, 1, 1)
 end
 
 local function LoadMiscTools()
 	if(MOD.MiscToolsLoaded) then return end
 
-	if(InCombatLockdown()) then 
-		MOD.MiscNeedsUpdate = true; 
-		MOD:RegisterEvent("PLAYER_REGEN_ENABLED"); 
-		return 
+	if(InCombatLockdown()) then
+		MOD.MiscNeedsUpdate = true;
+		MOD:RegisterEvent("PLAYER_REGEN_ENABLED");
+		return
 	end
 
 	-- HEARTH BUTTON
@@ -206,15 +215,15 @@ local function LoadMiscTools()
 
 	MOD.MiscToolsLoaded = true
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 BUILD/UPDATE
 ##########################################################
 ]]--
-function MOD:UpdateMiscTools() 
+function MOD:UpdateMiscTools()
 	if(self.MiscToolsLoaded) then return end
 	LoadMiscTools()
-end 
+end
 
 function MOD:LoadAllMiscTools()
 	if(self.MiscToolsLoaded) then return end

@@ -67,7 +67,6 @@ LOCALS
 ]]--
 local MAC_DISPLAY;
 local BASE_MOD = 0.64;
-local SCREEN_MOD = 1;
 local LIVE_UPDATE_FRAMES = {};
 --[[
 ##########################################################
@@ -146,15 +145,16 @@ local function ScreenUpdate()
 
         gxScale = BASE_MOD;
     else
+        -- local default_autoscale = true;
+		-- if(BlizzardOptionsPanel_GetCVarSafe("useUiScale") ~= 0) then
+        --     default_autoscale = false;
+		-- end
         if(SV.db.screen.autoScale) then
             gxScale = max(0.64, min(1.15, gxMod));
         else
             gxScale = max(0.64, min(1.15, GetCVar("uiScale") or UIParent:GetScale() or gxMod));
         end
     end
-
-    SCREEN_MOD = (gxMod / gxScale);
-    SV.Scale = SCREEN_MOD;
 
     return gxWidth, gxHeight, gxScale, customScale
 end
@@ -163,63 +163,33 @@ end
 APPENDED POSITIONING METHODS
 ##########################################################
 ]]--
-local function _scale(value)
-    return SCREEN_MOD * floor(value / SCREEN_MOD + .5);
-end
-
 local ModSize = function(self, width, height)
     if(type(width) == "number") then
         local h = (height and type(height) == "number") and height or width
-        self:SetSize(_scale(width), _scale(h))
-    end
-end
-
-local ModWidth = function(self, width)
-    if(type(width) == "number") then
-        self:SetWidth(_scale(width))
-    end
-end
-
-local ModHeight = function(self, height)
-    if(type(height) == "number") then
-        self:SetHeight(_scale(height))
+        self:SetSize(width, h)
     end
 end
 
 local WrapPoints = function(self, parent, x, y)
     x = type(x) == "number" and x or 1
     y = y or x
-    local nx = _scale(x);
-    local ny = _scale(y);
     parent = parent or self:GetParent()
     if self:GetPoint() then
         self:ClearAllPoints()
     end
-    self:SetPoint("TOPLEFT", parent, "TOPLEFT", -nx, ny)
-    self:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", nx, -ny)
+    self:SetPoint("TOPLEFT", parent, "TOPLEFT", -x, y)
+    self:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", x, -y)
 end
 
 local InsetPoints = function(self, parent, x, y)
     x = type(x) == "number" and x or 1
     y = y or x
-    local nx = _scale(x);
-    local ny = _scale(y);
     parent = parent or self:GetParent()
     if self:GetPoint() then
         self:ClearAllPoints()
     end
-    self:SetPoint("TOPLEFT", parent, "TOPLEFT", nx, -ny)
-    self:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", -nx, ny)
-end
-
-local ModPoint= function(self, ...)
-    for i = 1, select('#', ...) do
-        local arg = select(i, ...)
-        if(arg and type(arg) == "number") then
-            arg = _scale(arg)
-        end
-    end
-    self:SetPoint(...)
+    self:SetPoint("TOPLEFT", parent, "TOPLEFT", x, -y)
+    self:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", -x, y)
 end
 --[[
 ##########################################################
@@ -487,15 +457,14 @@ local HookCustomBackdrop = function(self)
         if(bdSet) then
             if(not self.Panel:GetAttribute("panelLocked")) then
                 local edgeSize = bdSet.edgeSize;
-                if(edgeSize and edgeSize > 0) then
-                    --if(bgid == "premium") then print("SetPoint from Backdrop1") end
-                    local offset = ceil(edgeSize * 0.25)
+                if(edgeSize and type(edgeSize) == 'number') then
+                    local offset = ceil(edgeSize * 0.2);
                     self.Panel:ClearAllPoints()
                     self.Panel:SetPoint("TOPLEFT", self, "TOPLEFT", -offset, offset)
                     self.Panel:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", offset, -offset)
                 end
             end
-            self.Panel:SetBackdrop(SV.media.backdrop[bgid])
+            self.Panel:SetBackdrop(bdSet)
             self.Panel:SetBackdropBorderColor(0,0,0,1)
         else
             local newBgFile = SV.media.background[bgid]
@@ -504,7 +473,7 @@ local HookCustomBackdrop = function(self)
                 local w,h = self:GetSize()
                 local sizeMod = max(w,h)
                 local edgeSize = self.Panel:GetAttribute("panelPadding") or 1
-                local offset = ceil(edgeSize * 0.25)
+                local offset = ceil(edgeSize * 0.2)
                 self.Panel:SetBackdrop({
                     bgFile = newBgFile,
                     edgeFile = newBorderFile,
@@ -520,9 +489,7 @@ local HookCustomBackdrop = function(self)
                     },
                 })
                 self.Panel:SetBackdropBorderColor(0,0,0,1)
-                if(edgeSize and edgeSize > 0 and (not self.Panel:GetAttribute("panelLocked"))) then
-                    --if(bgid == "premium") then print("SetPoint from Backdrop2") end
-                    local offset = ceil(edgeSize * 0.25)
+                if(not self.Panel:GetAttribute("panelLocked")) then
                     self.Panel:ClearAllPoints()
                     self.Panel:SetPoint("TOPLEFT", self, "TOPLEFT", -offset, offset)
                     self.Panel:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", offset, -offset)
@@ -788,6 +755,10 @@ function MOD:APPLY(frame, templateName, underlay, padding, xOffset, yOffset, def
         panel:SetAttribute("panelLocked", true)
     end
 
+    if(frame.noStyleUpdate) then
+        panel:SetAttribute("panelSkipUpdate", true)
+    end
+
     padding = padding or panel:GetAttribute("panelPadding")
     if(forcedOffset) then
         xOffset = xOffset or forcedOffset
@@ -800,29 +771,6 @@ function MOD:APPLY(frame, templateName, underlay, padding, xOffset, yOffset, def
     --panel:WrapPoints(frame, xOffset, yOffset)
     panel:SetPoint("TOPLEFT", frame, "TOPLEFT", -xOffset, yOffset)
     panel:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", xOffset, -yOffset)
-
-    if(padding and panel.BorderLeft) then
-        panel.BorderLeft:SetWidth(padding)
-        panel.BorderRight:SetWidth(padding)
-        panel.BorderTop:SetHeight(padding)
-        panel.BorderBottom:SetHeight(padding)
-    end
-
-    if(panel.Shadow) then
-        --panel.Shadow:SetAllPoints(panel)
-        panel.Shadow:SetPoint('TOPLEFT', panel, 'TOPLEFT', -2, 2)
-        panel.Shadow:SetPoint('BOTTOMRIGHT', panel, 'BOTTOMRIGHT', 2, -2)
-
-        local alpha = panel.Shadow:GetAttribute("shadowAlpha") or 0.5
-        panel.Shadow:SetBackdropBorderColor(0,0,0,alpha)
-
-        local level = panel.Shadow:GetFrameLevel() - 1
-        if(level >= 0) then
-            panel.Shadow:SetFrameLevel(level)
-        else
-            panel.Shadow:SetFrameLevel(0)
-        end
-    end
 
     local bgColor = SV.media.color[colorName] or SV.media.color.default;
     local borderColor = SV.media.bordercolor[panelID] or SV.media.bordercolor.default;
@@ -854,6 +802,29 @@ function MOD:APPLY(frame, templateName, underlay, padding, xOffset, yOffset, def
         end
     end
 
+    if(padding and panel.BorderLeft) then
+        panel.BorderLeft:SetWidth(padding)
+        panel.BorderRight:SetWidth(padding)
+        panel.BorderTop:SetHeight(padding)
+        panel.BorderBottom:SetHeight(padding)
+    end
+
+    if(panel.Shadow) then
+        --panel.Shadow:SetAllPoints(panel)
+        panel.Shadow:SetPoint('TOPLEFT', panel, 'TOPLEFT', -2, 2)
+        panel.Shadow:SetPoint('BOTTOMRIGHT', panel, 'BOTTOMRIGHT', 2, -2)
+
+        local alpha = panel.Shadow:GetAttribute("shadowAlpha") or 0.5
+        panel.Shadow:SetBackdropBorderColor(0,0,0,alpha)
+
+        local level = panel.Shadow:GetFrameLevel() - 1
+        if(level >= 0) then
+            panel.Shadow:SetFrameLevel(level)
+        else
+            panel.Shadow:SetFrameLevel(0)
+        end
+    end
+
     if(panel.Skin) then
         panel.Skin:ClearAllPoints()
         panel.Skin:SetAllPoints(panel)
@@ -875,9 +846,11 @@ function MOD:APPLY(frame, templateName, underlay, padding, xOffset, yOffset, def
         end
     end
 
-    local overrideName = panel:GetAttribute("panelKeyOverride")
-    if(overrideName) then
-        frame[overrideName] = panel;
+    if(panel.TopLeft and (not underlay)) then
+        panel.TopLeft:SetParent(frame)
+        panel.TopRight:SetParent(frame)
+        panel.BottomLeft:SetParent(frame)
+        panel.BottomRight:SetParent(frame)
     end
 
     frame.Panel = panel;
@@ -1132,10 +1105,10 @@ MOD.Methods["Frame"] = function(self, frame, inverse, styleName, noupdate, overr
     end
     styleName = styleName or "Default";
     local underlay = (not inverse)
-    self:APPLY(frame, styleName, underlay, padding, xOffset, yOffset, defaultColor)
     if(noupdate) then
-        frame.Panel:SetAttribute("panelSkipUpdate", true)
+        frame.noStyleUpdate = true
     end
+    self:APPLY(frame, styleName, underlay, padding, xOffset, yOffset, defaultColor)
     if(not noupdate) then
         tinsert(LIVE_UPDATE_FRAMES, frame);
     end
@@ -1153,6 +1126,7 @@ local SetPanelColor = function(self, ...)
             if(arg1 == "VERTICAL" or arg1 == "HORIZONTAL") then
                 self.Panel.Skin:SetGradient(...)
             elseif(SV.media.gradient[arg1]) then
+                self.Panel:SetAttribute("panelColor", arg1)
                 self.Panel.Skin:SetGradient(unpack(SV.media.gradient[arg1]))
                 if(SV.media.color[arg1]) then
                     local t = SV.media.color[arg1]
@@ -1162,6 +1136,7 @@ local SetPanelColor = function(self, ...)
         end
     elseif(type(arg1) == "string" and SV.media.color[arg1]) then
         local t = SV.media.color[arg1]
+        self.Panel:SetAttribute("panelColor", arg1)
         self:SetBackdropColor(t[1], t[2], t[3], t[4])
     elseif(arg1 and type(arg1) == "number") then
         self:SetBackdropColor(...)
@@ -1272,94 +1247,110 @@ function SV:SetAtlasFilter(atlas, fn)
     end
     ATLAS_THIEF[atlas] = fn
 end
-
+--[[
+##########################################################
+SCREEN HANDLER (IN DEVELOPMENT)
+##########################################################
+]]--
 function SV:UI_SCALE_CHANGED(event)
+    local managedScale = self.db.screen.autoScale;
     local gxWidth, gxHeight, gxScale, customScale = ScreenUpdate();
-    local needCalc = true;
-    if(self.db.screen.advanced) then
-        if(self.db.screen.forcedWidth ~= gxWidth) then
-            gxWidth = self.db.screen.forcedWidth
-            needCalc = false;
-        end
-        if(self.db.screen.forcedHeight ~= gxHeight) then
-            gxHeight = self.db.screen.forcedHeight
-            needCalc = false;
-        end
-    end
-    if(needCalc) then
-        if(gxWidth < 1600) then
-            self.LowRez = true;
-        elseif(gxWidth >= 3840) then
-            self.LowRez = nil
-            local evalwidth;
-            if(self.db.screen.multiMonitor) then
-                if(gxWidth < 4080) then
-                    evalwidth = 1224;
-                elseif(gxWidth < 4320) then
-                    evalwidth = 1360;
-                elseif(gxWidth < 4680) then
-                    evalwidth = 1400;
-                elseif(gxWidth < 4800) then
-                    evalwidth = 1440;
-                elseif(gxWidth < 5760) then
-                    if(gxHeight == 900) then evalwidth = 1600 else evalwidth = 1680 end
-                elseif(gxWidth < 7680) then
-                    evalwidth = 1920;
-                elseif(gxWidth < 9840) then
-                    evalwidth = 2560;
-                elseif(gxWidth > 9839) then
-                    evalwidth = 3280;
-                end
-            else
-                if(gxWidth < 4080) then
-                    evalwidth = 3840;
-                elseif(gxWidth < 4320) then
-                    evalwidth = 4080;
-                elseif(gxWidth < 4680) then
-                    evalwidth = 4320;
-                elseif(gxWidth < 4800) then
-                    evalwidth = 4680;
-                elseif(gxWidth < 5040) then
-                    evalwidth = 4800;
-                elseif(gxWidth < 5760) then
-                    evalwidth = 5040;
-                elseif(gxWidth < 7680) then
-                    evalwidth = 5760;
-                elseif(gxWidth < 9840) then
-                    evalwidth = 7680;
-                elseif(gxWidth > 9839) then
-                    evalwidth = 9840;
-                end
-            end
 
-            gxWidth = evalwidth;
+    if(managedScale) then
+        local needCalc = true;
+        if(self.db.screen.advanced) then
+            if(self.db.screen.forcedWidth ~= gxWidth) then
+                gxWidth = self.db.screen.forcedWidth
+                needCalc = false;
+            end
+            if(self.db.screen.forcedHeight ~= gxHeight) then
+                gxHeight = self.db.screen.forcedHeight
+                needCalc = false;
+            end
+        end
+        if(needCalc) then
+            if(gxWidth < 1600) then
+                self.LowRez = true;
+            elseif(gxWidth >= 3840) then
+                self.LowRez = nil
+                local evalwidth;
+                if(self.db.screen.multiMonitor) then
+                    if(gxWidth < 4080) then
+                        evalwidth = 1224;
+                    elseif(gxWidth < 4320) then
+                        evalwidth = 1360;
+                    elseif(gxWidth < 4680) then
+                        evalwidth = 1400;
+                    elseif(gxWidth < 4800) then
+                        evalwidth = 1440;
+                    elseif(gxWidth < 5760) then
+                        if(gxHeight == 900) then evalwidth = 1600 else evalwidth = 1680 end
+                    elseif(gxWidth < 7680) then
+                        evalwidth = 1920;
+                    elseif(gxWidth < 9840) then
+                        evalwidth = 2560;
+                    elseif(gxWidth > 9839) then
+                        evalwidth = 3280;
+                    end
+                else
+                    if(gxWidth < 4080) then
+                        evalwidth = 3840;
+                    elseif(gxWidth < 4320) then
+                        evalwidth = 4080;
+                    elseif(gxWidth < 4680) then
+                        evalwidth = 4320;
+                    elseif(gxWidth < 4800) then
+                        evalwidth = 4680;
+                    elseif(gxWidth < 5040) then
+                        evalwidth = 4800;
+                    elseif(gxWidth < 5760) then
+                        evalwidth = 5040;
+                    elseif(gxWidth < 7680) then
+                        evalwidth = 5760;
+                    elseif(gxWidth < 9840) then
+                        evalwidth = 7680;
+                    elseif(gxWidth > 9839) then
+                        evalwidth = 9840;
+                    end
+                end
+
+                gxWidth = evalwidth;
+            end
         end
     end
 
     if(event == 'PLAYER_LOGIN' or event == 'UI_SCALE_CHANGED') then
-        local testScale1 = parsefloat(UIParent:GetScale(), 5)
-        local testScale2 = parsefloat(gxScale, 5)
-        local ignoreChange = false;
-
-        if(event == "PLAYER_LOGIN" and (testScale1 ~= testScale2)) then
-            SetCVar("useUiScale", 1)
-            SetCVar("uiScale", gxScale)
-            WorldMapFrame.hasTaint = true;
-            ignoreChange = true;
-        end
-
         self.Screen:ClearAllPoints()
         self.Screen:SetPoint("CENTER")
+        local ignoreChange = false;
 
-        if gxWidth then
-            local width = gxWidth
-            local height = gxHeight;
-            if(not self.db.screen.autoScale or height > 1200) then
-                height = UIParent:GetHeight();
-                local ratio = gxHeight / height;
-                width = gxWidth / ratio;
+        if(managedScale) then
+            local testScale1 = parsefloat(UIParent:GetScale(), 5);
+            local testScale2 = parsefloat(gxScale, 5);
+
+            if(event == "PLAYER_LOGIN" and (testScale1 ~= testScale2)) then
+                SetCVar("useUiScale", 1)
+                SetCVar("uiScale", gxScale)
+                WorldMapFrame.hasTaint = true;
+                ignoreChange = true;
+                _G.Advanced_UseUIScale:SetScale(0.0001)
+                _G.Advanced_UseUIScale:SetAlpha(0)
+                _G.Advanced_UIScaleSlider:SetScale(0.0001)
+                _G.Advanced_UIScaleSlider:SetAlpha(0)
             end
-            self.Screen:SetSize(width, height);
+
+            if(gxWidth) then
+                local width = gxWidth
+                local height = gxHeight;
+                if(height > 1200) then
+                    height = UIParent:GetHeight();
+                    local ratio = gxHeight / height;
+                    width = gxWidth / ratio;
+                end
+                self.Screen:SetSize(width, height);
+            else
+                self.Screen:SetSize(UIParent:GetSize());
+            end
         else
             self.Screen:SetSize(UIParent:GetSize());
         end
@@ -1367,10 +1358,10 @@ function SV:UI_SCALE_CHANGED(event)
         if((not customScale) and (not ignoreChange) and (event == 'UI_SCALE_CHANGED')) then
             local change = abs((testScale1 * 100) - (testScale2 * 100))
             if(change > 1) then
-                if(self.db.screen.autoScale) then
-                    self:StaticPopup_Show('FAILED_UISCALE')
-                else
-                    self:StaticPopup_Show('RL_CLIENT')
+                if(managedScale) then
+                    self:StaticPopup_Show('CHANGED_MANAGED_UISCALE')
+                elseif(BlizzardOptionsPanel_GetCVarSafe("useUiScale") ~= 0) then
+                    self:StaticPopup_Show('RELOAD_UI')
                 end
             end
         end
@@ -1391,9 +1382,9 @@ local function AppendFrameMethods(OBJECT)
         if not OBJECT.SetStyle then META.SetStyle = SetStyle end
         if not OBJECT.SetPanelColor then META.SetPanelColor = SetPanelColor end
         if not OBJECT.ModSize then META.ModSize = ModSize end
-        if not OBJECT.ModWidth then META.ModWidth = ModWidth end
-        if not OBJECT.ModHeight then META.ModHeight = ModHeight end
-        if not OBJECT.ModPoint then META.ModPoint = ModPoint end
+        if not OBJECT.ModWidth then META.ModWidth = META.SetWidth end
+        if not OBJECT.ModHeight then META.ModHeight = META.SetHeight end
+        if not OBJECT.ModPoint then META.ModPoint = META.SetPoint end
         if not OBJECT.WrapPoints then META.WrapPoints = WrapPoints end
         if not OBJECT.InsetPoints then META.InsetPoints = InsetPoints end
         if not OBJECT.Die then META.Die = Die end
@@ -1408,9 +1399,9 @@ end
 local function AppendTextureMethods(OBJECT)
     local META = getmetatable(OBJECT).__index
     if not OBJECT.ModSize then META.ModSize = ModSize end
-    if not OBJECT.ModWidth then META.ModWidth = ModWidth end
-    if not OBJECT.ModHeight then META.ModHeight = ModHeight end
-    if not OBJECT.ModPoint then META.ModPoint = ModPoint end
+    if not OBJECT.ModWidth then META.ModWidth = META.SetWidth end
+    if not OBJECT.ModHeight then META.ModHeight = META.SetHeight end
+    if not OBJECT.ModPoint then META.ModPoint = META.SetPoint end
     if not OBJECT.WrapPoints then META.WrapPoints = WrapPoints end
     if not OBJECT.InsetPoints then META.InsetPoints = InsetPoints end
     if not OBJECT.Die then META.Die = Die end
@@ -1422,9 +1413,9 @@ end
 local function AppendFontStringMethods(OBJECT)
     local META = getmetatable(OBJECT).__index
     if not OBJECT.ModSize then META.ModSize = ModSize end
-    if not OBJECT.ModWidth then META.ModWidth = ModWidth end
-    if not OBJECT.ModHeight then META.ModHeight = ModHeight end
-    if not OBJECT.ModPoint then META.ModPoint = ModPoint end
+    if not OBJECT.ModWidth then META.ModWidth = META.SetWidth end
+    if not OBJECT.ModHeight then META.ModHeight = META.SetHeight end
+    if not OBJECT.ModPoint then META.ModPoint = META.SetPoint end
     if not OBJECT.WrapPoints then META.WrapPoints = WrapPoints end
     if not OBJECT.InsetPoints then META.InsetPoints = InsetPoints end
 end
@@ -1631,7 +1622,7 @@ MOD.Concepts["ItemButton"] = function(self, adjustable, frame, noScript)
 end
 
 MOD.Concepts["PageButton"] = function(self, adjustable, frame, isVertical, isLeft)
-    if((not frame) or (frame.Panel)) then return end
+    if(not frame) then return end
 
     local bName = frame:GetName()
     local leftDown;
@@ -1642,18 +1633,19 @@ MOD.Concepts["PageButton"] = function(self, adjustable, frame, isVertical, isLef
         leftDown = isLeft or false
     end
 
-    RemoveTextures(frame)
-
     frame:SetNormalTexture("")
     frame:SetPushedTexture("")
     frame:SetHighlightTexture("")
     frame:SetDisabledTexture("")
 
-    self.Methods["Button"](self, frame, adjustable, -4, -4)
+    if(not frame.Panel) then
+        RemoveTextures(frame)
+        self.Methods["Button"](self, frame, adjustable, -4, -4)
+    end
 
     if not frame.icon then
         frame.icon = frame:CreateTexture(nil,'ARTWORK')
-        frame.icon:ModSize(13)
+        frame.icon:SetSize(13, 13)
         frame.icon:SetPoint('CENTER')
         frame.icon:SetTexture(SV.media.button.radio)
         frame.icon:SetTexCoord(0.02, 0.2, 0.02, 0.2)
@@ -1690,11 +1682,17 @@ MOD.Concepts["PageButton"] = function(self, adjustable, frame, isVertical, isLef
     end
 end
 
-MOD.Concepts["ScrollFrame"] = function(self, adjustable, frame, scale, yOffset)
+MOD.Concepts["ScrollBar"] = function(self, adjustable, frame, scale, yOffset)
     if(not frame or (frame and frame.Panel)) then return end
 
     scale = scale or 5
     local scrollName = frame:GetName()
+    local testForBar = _G[("%sScrollBar"):format(scrollName)]
+    if(testForBar) then
+        scrollName = testForBar:GetName()
+        RemoveTextures(frame)
+        frame = testForBar
+    end
     local bg, track, top, bottom, mid, upButton, downButton
     bg = _G[("%sBG"):format(scrollName)]
     if(bg) then bg:SetTexture("") end
@@ -1715,7 +1713,7 @@ MOD.Concepts["ScrollFrame"] = function(self, adjustable, frame, scale, yOffset)
             local upW, upH = upButton:GetSize()
             self.Concepts["PageButton"](self, false, upButton)
             SquareButton_SetIcon(upButton, "UP")
-            upButton:ModSize(upW + scale, upH + scale)
+            upButton:SetSize(upW + scale, upH + scale)
             if(yOffset) then
                 local anchor, parent, relative, xBase, yBase = upButton:GetPoint()
                 local yAdjust = (yOffset or 0) + yBase
@@ -1728,7 +1726,7 @@ MOD.Concepts["ScrollFrame"] = function(self, adjustable, frame, scale, yOffset)
             local dnW, dnH = downButton:GetSize()
             self.Concepts["PageButton"](self, false, downButton)
             SquareButton_SetIcon(downButton, "DOWN")
-            downButton:ModSize(dnW + scale, dnH + scale)
+            downButton:SetSize(dnW + scale, dnH + scale)
             if(yOffset) then
                 local anchor, parent, relative, xBase, yBase = downButton:GetPoint()
                 local yAdjust = ((yOffset or 0) * -1) + yBase
@@ -1751,32 +1749,28 @@ MOD.Concepts["ScrollFrame"] = function(self, adjustable, frame, scale, yOffset)
         if(frame.SetThumbTexture) then
             frame:SetThumbTexture(SV.media.button.knob)
         end
-    end
-end
-
-MOD.Concepts["ScrollBar"] = function(self, adjustable, frame)
-    if(not frame or (frame and (not frame.GetOrientation or frame.Panel))) then return end
-
-    if(frame:GetOrientation() == "VERTICAL") then
-        frame:SetWidth(12)
-    else
-        frame:SetHeight(12)
-        for i=1, frame:GetNumRegions() do
-            local child = select(i, frame:GetRegions())
-            if(child and child:GetObjectType() == "FontString") then
-                local anchor, parent, relative, x, y = child:GetPoint()
-                if relative:find("BOTTOM") then
-                    child:SetPoint(anchor, parent, relative, x, y - 4)
+    elseif(frame.GetOrientation) then
+        if(frame:GetOrientation() == "VERTICAL") then
+            frame:SetWidth(12)
+        else
+            frame:SetHeight(12)
+            for i=1, frame:GetNumRegions() do
+                local child = select(i, frame:GetRegions())
+                if(child and child:GetObjectType() == "FontString") then
+                    local anchor, parent, relative, x, y = child:GetPoint()
+                    if relative:find("BOTTOM") then
+                        child:SetPoint(anchor, parent, relative, x, y - 4)
+                    end
                 end
             end
         end
-    end
 
-    RemoveTextures(frame)
-    frame:SetBackdrop(nil)
-    self.Methods["Frame"](self, frame, (not adjustable), "Transparent", true)
-    frame:SetBackdropBorderColor(0.2,0.2,0.2)
-    frame:SetThumbTexture(SV.media.button.knob)
+        RemoveTextures(frame)
+        frame:SetBackdrop(nil)
+        self.Methods["Frame"](self, frame, (not adjustable), "Transparent", true)
+        frame:SetBackdropBorderColor(0.2,0.2,0.2)
+        frame:SetThumbTexture(SV.media.button.knob)
+    end
 end
 
 MOD.Concepts["Tab"] = function(self, adjustable, frame, addBackground, xOffset, yOffset)

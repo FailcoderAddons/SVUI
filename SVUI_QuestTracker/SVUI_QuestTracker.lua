@@ -1,7 +1,7 @@
 --[[
 ##########################################################
 S V U I   By: Munglunch
-########################################################## 
+##########################################################
 LOCALIZED LUA FUNCTIONS
 ##########################################################
 ]]--
@@ -45,8 +45,8 @@ local RAID_CLASS_COLORS     = _G.RAID_CLASS_COLORS;
 local CUSTOM_CLASS_COLORS   = _G.CUSTOM_CLASS_COLORS;
 local GetTimeStringFromSeconds = _G.GetTimeStringFromSeconds;
 local GetQuestProgressBarPercent = _G.GetQuestProgressBarPercent;
---[[ 
-########################################################## 
+--[[
+##########################################################
 GET ADDON DATA
 ##########################################################
 ]]--
@@ -55,8 +55,8 @@ local L = SV.L
 local LSM = _G.LibStub("LibSharedMedia-3.0")
 local MOD = SV.QuestTracker;
 if(not MOD) then return end;
---[[ 
-########################################################## 
+--[[
+##########################################################
 LOCALS
 ##########################################################
 ]]--
@@ -68,8 +68,8 @@ local LARGE_INNER_HEIGHT = LARGE_ROW_HEIGHT - 4;
 local OBJ_ICON_ACTIVE = [[Interface\COMMON\Indicator-Yellow]];
 local OBJ_ICON_COMPLETE = [[Interface\COMMON\Indicator-Green]];
 local OBJ_ICON_INCOMPLETE = [[Interface\COMMON\Indicator-Gray]];
---[[ 
-########################################################## 
+--[[
+##########################################################
 OBJECTIVE SCRIPT HANDLERS
 ##########################################################
 ]]--
@@ -101,8 +101,8 @@ end
 
 local OBJECTIVE_UpdateProgress = function(self, event, ...)
 	if(not self.Status) then
-		self:UnregisterEvent("QUEST_LOG_UPDATE") 
-		return 
+		self:UnregisterEvent("QUEST_LOG_UPDATE")
+		return
 	end
 	local status = self.Status;
 	local percent = 100;
@@ -118,7 +118,7 @@ local OBJECTIVE_StartTimer = function(self, ...)
 	local timeNow = GetTime();
 	local startTime = timeNow - elapsed;
 	local timeRemaining = duration - startTime;
-	
+
 	local status = self:GetStatus();
 	status:FadeIn();
 	status.Bar.duration = duration or 1;
@@ -147,8 +147,8 @@ end
 
 local OBJECTIVE_UpdateTimer = function(self, ...)
 	if(not self.Status) then
-		self:SetScript("OnUpdate", nil); 
-		return 
+		self:SetScript("OnUpdate", nil);
+		return
 	end
 	local status = self.Status;
 	local timeNow = GetTime();
@@ -181,8 +181,8 @@ local OBJECTIVE_GetStatus = function(self)
 		status:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 0, 0);
 
 		status.Bar = CreateFrame("StatusBar", nil, status);
-		status.Bar:ModPoint("TOPLEFT", status, "TOPLEFT", 4, -2);
-		status.Bar:ModPoint("BOTTOMRIGHT", status, "BOTTOMRIGHT", -4, 2);
+		status.Bar:SetPoint("TOPLEFT", status, "TOPLEFT", 4, -2);
+		status.Bar:SetPoint("BOTTOMRIGHT", status, "BOTTOMRIGHT", -4, 2);
 		status.Bar:SetStatusBarTexture(SV.media.statusbar.default)
 		status.Bar:SetStatusBarColor(0.15,0.5,1) --1,0.15,0.08
 		status.Bar:SetMinMaxValues(0, 1)
@@ -191,7 +191,7 @@ local OBJECTIVE_GetStatus = function(self)
 		local bgFrame = CreateFrame("Frame", nil, status.Bar)
 		bgFrame:InsetPoints(status.Bar, -2, -2)
 		bgFrame:SetFrameLevel(bgFrame:GetFrameLevel() - 1)
-		
+
 		bgFrame.bg = bgFrame:CreateTexture(nil, "BACKGROUND")
 		bgFrame.bg:SetAllPoints(bgFrame)
 		bgFrame.bg:SetTexture(SV.media.statusbar.default)
@@ -238,8 +238,8 @@ local OBJECTIVE_GetStatus = function(self)
 
 	return self.Status;
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 OBJECTIVE CONSTRUCTOR
 ##########################################################
 ]]--
@@ -249,7 +249,7 @@ function MOD:NewObjectiveRow(header, index)
 	local objective = CreateFrame("Frame", nil, header);
 	objective:SetPoint("TOPLEFT", header, "TOPLEFT", 22, -yOffset);
 	objective:SetPoint("TOPRIGHT", header, "TOPRIGHT", 0, -yOffset);
-	objective:ModHeight(ROW_HEIGHT);
+	objective:SetHeight(ROW_HEIGHT);
 
 	objective.Icon = objective:CreateTexture(nil,"OVERLAY");
 	objective.Icon:SetPoint("TOPLEFT", objective, "TOPLEFT", 4, -2);
@@ -260,7 +260,7 @@ function MOD:NewObjectiveRow(header, index)
 	objective.Text = objective:CreateFontString(nil,"OVERLAY");
 	objective.Text:SetPoint("TOPLEFT", objective, "TOPLEFT", 20 + 6, -2);
 	objective.Text:SetPoint("TOPRIGHT", objective, "TOPRIGHT", 0, -2);
-	objective.Text:ModHeight(INNER_HEIGHT);
+	objective.Text:SetHeight(INNER_HEIGHT);
 	objective.Text:SetFontObject(SVUI_Font_Quest);
 	objective.Text:SetJustifyH('LEFT')
 	objective.Text:SetTextColor(0.6,0.6,0.6);
@@ -276,8 +276,8 @@ function MOD:NewObjectiveRow(header, index)
 
 	return objective;
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 OBJECTIVE HEADER METHODS
 ##########################################################
 ]]--
@@ -327,7 +327,7 @@ local OBJECTIVE_HEADER_SetInfo = function(self, index, ...)
 		objective.Icon:SetTexture(OBJ_ICON_INCOMPLETE)
 	end
 	objective.Text:SetText(description);
-	objective:ModHeight(INNER_HEIGHT);
+	objective:SetHeight(INNER_HEIGHT);
 	objective:FadeIn();
 
 	return index;
@@ -338,7 +338,7 @@ local OBJECTIVE_HEADER_SetTimer = function(self, index, ...)
 
 	local objective = self:Get(index);
 	objective.Text:SetText('')
-	objective:ModHeight(INNER_HEIGHT);
+	objective:SetHeight(INNER_HEIGHT);
 	objective:FadeIn();
 
 	objective:StartTimer(...)
@@ -351,15 +351,15 @@ local OBJECTIVE_HEADER_SetProgress = function(self, index, ...)
 
 	local objective = self:Get(index);
 	objective.Text:SetText('')
-	objective:ModHeight(INNER_HEIGHT);
+	objective:SetHeight(INNER_HEIGHT);
 	objective:FadeIn();
 
 	objective:StartProgress(...)
 
 	return index;
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 OBJECTIVE CONSTRUCTOR
 ##########################################################
 ]]--
@@ -375,15 +375,15 @@ function MOD:NewObjectiveHeader(parent)
 
 	return header;
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 CORE FUNCTIONS
 ##########################################################
 ]]--
 function MOD:GetTimerTextColor(duration, elapsed)
 	local yellowPercent = .66
 	local redPercent = .33
-	
+
 	local percentageLeft = 1 - ( elapsed / duration )
 	if(percentageLeft > yellowPercent) then
 		return 1, 1, 1;
@@ -429,7 +429,7 @@ end
 function MOD:ReLoad()
 	-- DO STUFF
 	self:UpdateDimensions()
-end 
+end
 
 function MOD:Load()
 	self.Docklet = SV.Dock:NewDocklet("BottomRight", "SVUI_QuestTracker", "Quest Tracker", MOD.media.dockIcon);
@@ -467,12 +467,12 @@ function MOD:Load()
 	scrollFrame:SetScript("OnMouseWheel", function(self, delta)
 		local scroll = self:GetVerticalScroll();
 		local value = (scroll - (20  *  delta));
-		if value < -1 then 
+		if value < -1 then
 			value = 0
-		end 
-		if value > self.MaxVal then 
+		end
+		if value > self.MaxVal then
 			value = self.MaxVal
-		end 
+		end
 		self:SetVerticalScroll(value)
 		self.ScrollBar:SetValue(value)
 	end)
@@ -493,7 +493,7 @@ function MOD:Load()
 	self:InitializeAchievements()
 
 	self:UpdateDimensions();
-	self.Docklet.DockButton:MakeDefault();
+	--self.Docklet.DockButton:MakeDefault();
 	self.Docklet:Show();
 
 	ObjectiveTrackerFrame:UnregisterAllEvents();
