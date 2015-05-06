@@ -417,8 +417,7 @@ function MOD:RegisterAddonDocklets()
 			self.Docklet.Dock2:Hide()
 		end
 
-		self.Docklet.DockButton:SetAttribute("tipText", ("%s%s"):format(addon1, extraTip));
-		self.Docklet.DockButton:MakeDefault();
+		self.Docklet.Button:SetAttribute("tipText", ("%s%s"):format(addon1, extraTip));
 	else
 		self.Docklet.Dock1:Hide()
 		self.Docklet.Dock2:Hide()

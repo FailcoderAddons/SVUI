@@ -216,8 +216,8 @@ local function CreateNameText(frame, unitName)
 	end
 	local name = frame:CreateFontString(nil, "OVERLAY")
 	name:SetFont(LSM:Fetch("font", db.font), db.fontSize, db.fontOutline)
-	name:SetShadowOffset(2, -2)
-	name:SetShadowColor(0, 0, 0, 1)
+	name:SetShadowOffset(1.5, -1.5)
+	name:SetShadowColor(0, 0, 0, 0.5)
 	if unitName == "target" then
 		name:SetPoint("RIGHT", frame)
 		name:SetJustifyH("RIGHT")
@@ -370,15 +370,16 @@ function MOD:SetActionPanel(frame, unit, noHealthText, noPowerText, noMiscText)
 		ADDInfoBG(frame)
 
 		frame.TextGrip = CreateFrame("Frame", nil, info)
-		frame.TextGrip:SetFrameStrata("LOW")
+		-- frame.TextGrip:SetFrameStrata("LOW")
 		frame.TextGrip:SetFrameLevel(20)
 		frame.TextGrip:SetAllPoints(info)
 	else
-		frame.TextGrip = CreateFrame("Frame", nil, frame)
-		frame.TextGrip:SetFrameStrata("LOW")
-		frame.TextGrip:SetFrameLevel(20)
-		frame.TextGrip:SetPoint("TOPLEFT", frame.ActionPanel, "TOPLEFT", 2, -2)
-		frame.TextGrip:SetPoint("BOTTOMRIGHT", frame.ActionPanel, "BOTTOMRIGHT", -2, 2)
+		local info = CreateFrame("Frame", nil, frame)
+		info:SetFrameLevel(20)
+		info:SetAllPoints(frame)
+		frame.TextGrip = CreateFrame("Frame", nil, info)
+		--frame.TextGrip:SetFrameStrata("LOW")
+		frame.TextGrip:SetAllPoints(info)
 	end
 
 	frame.TextGrip.Name = CreateNameText(frame.TextGrip, unit)

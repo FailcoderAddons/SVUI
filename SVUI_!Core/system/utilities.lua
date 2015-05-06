@@ -28,31 +28,20 @@ local tinsert       = _G.tinsert;
 local tremove       = _G.tremove;
 local twipe         = _G.wipe;
 --[[ STRING METHODS ]]--
-local match, format = string.match, string.format;
+local lower, upper = string.lower, string.upper;
+local find, format, len, split = string.find, string.format, string.len, string.split;
+local match, sub, join = string.match, string.sub, string.join;
 local gmatch, gsub = string.gmatch, string.gsub;
 --[[ MATH METHODS ]]--
-local floor, modf = math.floor, math.modf;
+local abs, ceil, floor, round, mod, modf = math.abs, math.ceil, math.floor, math.round, math.fmod, math.modf;  -- Basic
+--[[ TABLE METHODS ]]--
+local twipe, tsort = table.wipe, table.sort;
 --BLIZZARD API
 local CreateFrame           = _G.CreateFrame;
 local InCombatLockdown      = _G.InCombatLockdown;
 local GameTooltip           = _G.GameTooltip;
 local ReloadUI              = _G.ReloadUI;
 local hooksecurefunc        = _G.hooksecurefunc;
-local IsAltKeyDown          = _G.IsAltKeyDown;
-local IsShiftKeyDown        = _G.IsShiftKeyDown;
-local IsControlKeyDown      = _G.IsControlKeyDown;
-local IsModifiedClick       = _G.IsModifiedClick;
-local UnitName              = _G.UnitName;
-local UnitStat              = _G.UnitStat;
-local UnitClass             = _G.UnitClass;
-local UnitExists            = _G.UnitExists;
-local UnitLevel             = _G.UnitLevel;
-local UnitInRaid            = _G.UnitInRaid;
-local GetItemInfo           = _G.GetItemInfo;
-local GetInventorySlotInfo  = _G.GetInventorySlotInfo;
-local GetInventoryItemLink  = _G.GetInventoryItemLink;
-local GetSpecialization     = _G.GetSpecialization;
-local GetSpecializationInfo = _G.GetSpecializationInfo;
 --[[
 ##########################################################
 GET ADDON DATA
@@ -313,4 +302,78 @@ function SV:ParseSeconds(seconds)
     else
         return ("%s%d:%02d:%02d"):format(negative, seconds / SECONDS_PER_HOUR, math.fmod(seconds / 60, 60), math.fmod(seconds, 60))
     end
+end
+--[[
+##########################################################
+CONTROL UTILITIES
+##########################################################
+]]--
+local Frame_ForceHide = function(self, locked)
+  if(locked) then
+    self.Show = self.___HideFunc
+    self.___visibilityLocked = true
+  elseif(self.___visibilityLocked) then
+    self.Show = self.___ShowFunc
+    self.___visibilityLocked = nil
+  end
+end
+
+local Frame_ForceShow = function(self, locked)
+  if(locked) then
+    self.Hide = self.___ShowFunc
+    self.___visibilityLocked = true
+  elseif(self.___visibilityLocked) then
+    self.Hide = self.___HideFunc
+    self.___visibilityLocked = nil
+  end
+end
+
+function SV:SetFrameVisibilityLocks(frame)
+    if(frame.___ShowFunc or frame.___HideFunc or frame.ForceHide or frame.ForceShow) then return end
+    local fnShow = frame.Show
+    local fnHide = frame.Hide
+    frame.___ShowFunc = fnShow
+    frame.___HideFunc = fnHide
+    frame.ForceHide = Frame_ForceHide
+    frame.ForceShow = Frame_ForceShow
+end
+--[[
+##########################################################
+MISC HELPERS
+##########################################################
+]]--
+do
+  local COPPER_PATTERN = "%d" .. L.copperabbrev;
+  local SILVER_PATTERN = "%d" .. L.silverabbrev .. " %.2d" .. L.copperabbrev;
+  local GOLD_PATTERN = "%s" .. L.goldabbrev .. " %.2d" .. L.silverabbrev .. " %.2d" .. L.copperabbrev;
+  local SILVER_ABBREV_PATTERN = "%d" .. L.silverabbrev;
+  local GOLD_ABBREV_PATTERN = "%s" .. L.goldabbrev;
+
+  local function _formatCurrency(amount, short)
+  	if not amount then return end
+  	local gold, silver, copper = floor(abs(amount/10000)), abs(mod(amount/100,100)), abs(mod(amount,100))
+  	if(short) then
+  		if gold ~= 0 then
+  			gold = BreakUpLargeNumbers(gold)
+  			return GOLD_ABBREV_PATTERN:format(gold)
+  		elseif silver ~= 0 then
+  			return SILVER_ABBREV_PATTERN:format(silver)
+  		else
+  			return COPPER_PATTERN:format(copper)
+  		end
+  	else
+  		if gold ~= 0 then
+  			gold = BreakUpLargeNumbers(gold)
+  			return GOLD_PATTERN:format(gold, silver, copper)
+  		elseif silver ~= 0 then
+  			return SILVER_PATTERN:format(silver, copper)
+  		else
+  			return COPPER_PATTERN:format(copper)
+  		end
+  	end
+  end
+
+  function SV:FormatCurrency(...)
+    return _formatCurrency(...)
+  end
 end

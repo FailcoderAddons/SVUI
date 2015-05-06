@@ -5,6 +5,11 @@ local unpack        = _G.unpack;
 local select        = _G.select;
 local assert        = _G.assert;
 local type         	= _G.type;
+--MATH
+local math          = _G.math;
+local floor         = math.floor
+local ceil          = math.ceil
+local random 				= math.random
 --BLIZZARD API
 local UnitAura       	 = _G.UnitAura;
 local UnitCanAssist      = _G.UnitCanAssist;
@@ -33,6 +38,8 @@ AfflictedColor["Curse"]    = { r = 0.4, g = 0, b = 1 };
 AfflictedColor["Disease"]  = { r = 1, g = 0.4, b = 0 };
 AfflictedColor["Poison"]   = { r = 0.4, g = 1, b = 0 };
 AfflictedColor[""] = AfflictedColor["none"];
+
+local DEMO_COLORS = {"none", "Magic", "Curse", "Disease", "Poison"};
 
 local SymbiosisName = GetSpellInfo(110309)
 local CleanseName = GetSpellInfo(4987)
@@ -110,14 +117,19 @@ local function CheckSymbiosis()
 end
 
 local function Update(self, event, unit)
-	if unit ~= self.unit then return; end
+	if(unit ~= self.unit and (not self.Afflicted.forceShow)) then return; end
 	local afflicted = self.Afflicted
-	local debuffType, texture  = GetDebuffType(unit, afflicted.ClassFilter)
-	if debuffType then
-		local color = AfflictedColor[debuffType]
-		afflicted:SetVertexColor(color.r, color.g, color.b, afflicted.MaxAlpha)
+	if afflicted.forceShow then
+		local color = AfflictedColor[DEMO_COLORS[random(1,#DEMO_COLORS)]]
+		afflicted.Texture:SetVertexColor(color.r, color.g, color.b, afflicted.MaxAlpha)
 	else
-		afflicted:SetVertexColor(0,0,0,0)
+		local debuffType, texture  = GetDebuffType(unit, afflicted.ClassFilter)
+		if debuffType then
+			local color = AfflictedColor[debuffType]
+			afflicted.Texture:SetVertexColor(color.r, color.g, color.b, afflicted.MaxAlpha)
+		else
+			afflicted.Texture:SetVertexColor(0,0,0,0)
+		end
 	end
 end
 
@@ -154,7 +166,7 @@ local function Disable(self)
     self:UnregisterEvent("SPELLS_CHANGED", CheckSymbiosis)
 	end
 
-	afflicted:SetVertexColor(0,0,0,0)
+	afflicted.Texture:SetVertexColor(0,0,0,0)
 end
 
 oUF:AddElement('Afflicted', Update, Enable, Disable)

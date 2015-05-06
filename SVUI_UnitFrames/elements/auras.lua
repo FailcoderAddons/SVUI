@@ -113,38 +113,38 @@ local CreateAuraIcon = function(icons, index)
 	aura:SetHeight(baseSize)
 
 	aura:SetBackdrop({
-    	bgFile = [[Interface\BUTTONS\WHITE8X8]],
+    bgFile = [[Interface\BUTTONS\WHITE8X8]],
 		tile = false,
 		tileSize = 0,
 		edgeFile = [[Interface\BUTTONS\WHITE8X8]],
-        edgeSize = 1,
-        insets = {
-            left = 0,
-            right = 0,
-            top = 0,
-            bottom = 0
-        }
-    })
-    aura:SetBackdropColor(0, 0, 0, 0)
-    aura:SetBackdropBorderColor(0, 0, 0)
+      edgeSize = 1,
+      insets = {
+          left = 0,
+          right = 0,
+          top = 0,
+          bottom = 0
+      }
+  });
+  aura:SetBackdropColor(0, 0, 0, 0)
+  aura:SetBackdropBorderColor(0, 0, 0)
 
-    local bg = CreateFrame("Frame", nil, aura)
-    bg:SetFrameStrata("BACKGROUND")
-    bg:SetFrameLevel(0)
-    bg:WrapPoints(aura, 2, 2)
-    bg:SetBackdrop(SV.media.backdrop.aura)
-    bg:SetBackdropColor(0, 0, 0, 0)
-    bg:SetBackdropBorderColor(0, 0, 0, 0)
-    aura.bg = bg;
+  local bg = CreateFrame("Frame", nil, aura)
+  bg:SetFrameStrata("BACKGROUND")
+  bg:SetFrameLevel(0)
+  bg:WrapPoints(aura, 2, 2)
+  bg:SetBackdrop(SV.media.backdrop.aura)
+  bg:SetBackdropColor(0, 0, 0, 0)
+  bg:SetBackdropBorderColor(0, 0, 0, 0)
+  aura.bg = bg;
 
-    --hooksecurefunc(aura, "SetBackdropBorderColor", _hook_AuraBGBorderColor)
+  --hooksecurefunc(aura, "SetBackdropBorderColor", _hook_AuraBGBorderColor)
 
-    local fontgroup = "SVUI_Font_UnitAura";
-    if(baseSize < 18) then
-    	fontgroup = "SVUI_Font_UnitAura_Small";
-    end
-    --print(baseSize)
-    --print(fontgroup)
+  local fontgroup = "SVUI_Font_UnitAura";
+  if(baseSize < 18) then
+  	fontgroup = "SVUI_Font_UnitAura_Small";
+  end
+  --print(baseSize)
+  --print(fontgroup)
 
 	local cd = CreateFrame("Cooldown", nil, aura, "CooldownFrameTemplate");
 	cd:InsetPoints(aura, 1, 1);
@@ -154,7 +154,7 @@ local CreateAuraIcon = function(icons, index)
 	cd:SetHideCountdownNumbers(true);
 
 	local fg = CreateFrame("Frame", nil, aura)
-    fg:WrapPoints(aura, 2, 2)
+  fg:WrapPoints(aura, 2, 2)
 
 	local text = fg:CreateFontString(nil, 'OVERLAY');
 	text:SetFontObject(_G[fontgroup]);
@@ -168,7 +168,7 @@ local CreateAuraIcon = function(icons, index)
 	local icon = aura:CreateTexture(nil, "BACKGROUND");
 	icon:SetAllPoints(aura);
 	icon:InsetPoints(aura, 1, 1);
-    icon:SetTexCoord(unpack(_G.SVUI_ICON_COORDS));
+  icon:SetTexCoord(unpack(_G.SVUI_ICON_COORDS));
 
 	local overlay = aura:CreateTexture(nil, "OVERLAY");
 	overlay:InsetPoints(aura, 1, 1);

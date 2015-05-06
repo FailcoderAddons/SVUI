@@ -183,18 +183,18 @@ local function StyleAtlasLoot(event, addon)
 	AtlasLootCompareFrameSearch_Box:SetStyle("Editbox")
 
 	if AtlasLootFilterCheck then 
-		AtlasLootFilterCheck:SetStyle("Checkbox") 
+		AtlasLootFilterCheck:SetStyle("CheckButton") 
 	end
 	if AtlasLootItemsFrame_Heroic then 
-		AtlasLootItemsFrame_Heroic:SetStyle("Checkbox") 
+		AtlasLootItemsFrame_Heroic:SetStyle("CheckButton") 
 	end
-	if AtlasLootCompareFrameSearch_FilterCheck then AtlasLootCompareFrameSearch_FilterCheck:SetStyle("Checkbox")
+	if AtlasLootCompareFrameSearch_FilterCheck then AtlasLootCompareFrameSearch_FilterCheck:SetStyle("CheckButton")
 	end
 	if AtlasLootItemsFrame_RaidFinder then 
-		AtlasLootItemsFrame_RaidFinder:SetStyle("Checkbox") 
+		AtlasLootItemsFrame_RaidFinder:SetStyle("CheckButton") 
 	end
 	if AtlasLootItemsFrame_Thunderforged then 
-		AtlasLootItemsFrame_Thunderforged:SetStyle("Checkbox") 
+		AtlasLootItemsFrame_Thunderforged:SetStyle("CheckButton") 
 	end
 
 	AtlasLootPanel.Titel:SetTextColor(23/255, 132/255, 209/255)

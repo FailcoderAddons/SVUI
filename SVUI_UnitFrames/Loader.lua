@@ -69,7 +69,6 @@ MOD.media.lml = [[Interface\AddOns\SVUI_UnitFrames\assets\UNIT-LML]];
 MOD.media.roles = [[Interface\AddOns\SVUI_UnitFrames\assets\UNIT-ROLES]];
 MOD.media.buddy = [[Interface\AddOns\SVUI_UnitFrames\assets\UNIT-FRIENDSHIP]];
 MOD.media.playerstate = [[Interface\AddOns\SVUI_UnitFrames\assets\UNIT-PLAYER-STATE]];
-MOD.media.afflicted = [[Interface\AddOns\SVUI_UnitFrames\assets\UNIT-AFFLICTED]];
 
 SV:AssignMedia("font", "unitprimary", "SVUI Number Font", 11, "OUTLINE");
 SV:AssignMedia("font", "unitsecondary", "SVUI Number Font", 11, "OUTLINE");
@@ -1637,7 +1636,7 @@ SV.defaults[Schema] = {
 		["showPlayer"] = true,
 		["predict"] = false,
 		["width"] = 115,
-		["height"] = 30,
+		["height"] = 50,
 		["reverseLayout"] = false,
 		["grid"] = {
 			["enable"] = false,
@@ -1746,6 +1745,13 @@ SV.defaults[Schema] = {
 			["yOffset"] = 0,
 			["sizeOverride"] = 22,
 			["spacing"] = 2,
+		},
+		["rdebuffs"] =
+		{
+			["enable"] = true,
+			["size"] = 35,
+			["xOffset"] = 0,
+			["yOffset"] = 0,
 		},
 		["auraWatch"] =
 		{
@@ -1946,9 +1952,9 @@ SV.defaults[Schema] = {
 		["rdebuffs"] =
 		{
 			["enable"] = true,
-			["size"] = 22,
+			["size"] = 25,
 			["xOffset"] = 0,
-			["yOffset"] = 2,
+			["yOffset"] = 0,
 		},
 		["auraWatch"] =
 		{

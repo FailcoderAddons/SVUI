@@ -40,7 +40,7 @@ local function StylePostal()
 			b.returnicon:SetPoint("TOPRIGHT", b, "TOPRIGHT", 20, 0)
 		end
 		if _G['PostalInboxCB'..i] and not _G['PostalInboxCB'..i].handled then
-			_G['PostalInboxCB'..i]:SetStyle("Checkbox")
+			_G['PostalInboxCB'..i]:SetStyle("CheckButton")
 			_G['PostalInboxCB'..i].handled = true
 		end
 	end

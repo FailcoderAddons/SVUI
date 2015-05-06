@@ -424,7 +424,7 @@ function PLUGIN:EndJobModes()
 		self[currentModeKey].Disable()
 	end
 	currentModeKey = false;
-	--if self.Docklet:IsShown() then self.Docklet.DockButton:Click() end
+	--if self.Docklet:IsShown() then self.Docklet.Button:Click() end
 	self:ChangeModeGear()
 	self.ModeAlert:Hide();
 	SV:SCTMessage("Mode Disabled", 1, 0.35, 0);

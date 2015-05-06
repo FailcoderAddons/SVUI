@@ -112,7 +112,7 @@
     <Frame name="SVUI_RaidMarkFrame" frameStrata="DIALOG" hidden="true" />
 
     <Frame name="SVUI_LayoutPrecision" hidden="true" frameStrata="DIALOG">
-        <Size x="200" y="60"/>
+        <Size x="200" y="144"/>
         <Anchors>
             <Anchor point="CENTER"/>
         </Anchors>
@@ -123,32 +123,35 @@
             <Layer level="OVERLAY">
                 <Texture name="$parentTitleBG">
                     <Anchors>
-                        <Anchor point="BOTTOMLEFT" relativeTo="$parentBG" relativePoint="TOPLEFT"/>
+                        <Anchor point="TOPLEFT" relativeTo="$parentBG" relativePoint="TOPLEFT">
+                            <Offset x="30" y="0"/>
+                        </Anchor>
                         <Anchor point="TOPRIGHT" relativeTo="$parentBG" relativePoint="TOPRIGHT">
-                            <Offset x="0" y="30"/>
+                            <Offset x="-30" y="0"/>
                         </Anchor>
                     </Anchors>
+                    <Size y="20"/>
                 </Texture>
             </Layer>
             <Layer level="ARTWORK">
-                <FontString parentKey="Title" inherits="GameFontNormal" text="Focused Position">
+                <FontString parentKey="Title" inherits="GameFontNormal" justifyV="TOP" text="Focused Position">
                     <Anchors>
                         <Anchor point="TOPLEFT" relativeTo="$parentTitleBG" relativePoint="TOPLEFT"/>
-                        <Anchor point="BOTTOMRIGHT" relativeTo="$parentTitleBG" relativePoint="BOTTOMRIGHT"/>
+                        <Anchor point="TOPRIGHT" relativeTo="$parentTitleBG" relativePoint="TOPRIGHT"/>
                     </Anchors>
                 </FontString>
                 <FontString inherits="NumberFont_Outline_Huge" text="X">
                     <Anchors>
-                        <Anchor point="RIGHT" relativeTo="$parent" relativePoint="LEFT">
-                            <Offset x="-3" y="0"/>
+                        <Anchor point="TOPRIGHT" relativeTo="$parentTitleBG" relativePoint="BOTTOMLEFT">
+                            <Offset x="-8" y="-10"/>
                         </Anchor>
                     </Anchors>
                     <Color r="1" g="0.5" b="0" a="1"/>
                 </FontString>
                 <FontString inherits="NumberFont_Outline_Huge" text="Y">
                     <Anchors>
-                        <Anchor point="LEFT" relativeTo="$parent" relativePoint="RIGHT">
-                            <Offset x="3" y="0"/>
+                        <Anchor point="TOPLEFT" relativeTo="$parentTitleBG" relativePoint="BOTTOMRIGHT">
+                            <Offset x="8" y="-10"/>
                         </Anchor>
                     </Anchors>
                     <Color r="1" g="0.5" b="0" a="1"/>
@@ -156,11 +159,18 @@
             </Layer>
         </Layers>
         <Frames>
+          <Button name="$parentCloseButton" parentKey="Close" inherits="UIPanelCloseButton">
+              <Anchors>
+                  <Anchor point="TOPRIGHT" relativeTo="$parentBG" relativePoint="TOPRIGHT">
+                      <Offset x="6" y="6"/>
+                  </Anchor>
+              </Anchors>
+          </Button>
             <EditBox name="$parentSetX" inherits="InputBoxTemplate" autoFocus="false">
                 <Size x="50" y="17"/>
                 <Anchors>
-                    <Anchor point="BOTTOMRIGHT" relativeTo="$parentBG" relativePoint="CENTER">
-                        <Offset x="-36" y="3"/>
+                    <Anchor point="TOPRIGHT" relativeTo="$parentTitleBG" relativePoint="BOTTOM">
+                        <Offset x="-27" y="0"/>
                     </Anchor>
                 </Anchors>
 
@@ -182,8 +192,8 @@
             <EditBox name="$parentSetY" inherits="InputBoxTemplate" autoFocus="false">
                 <Size x="50" y="17"/>
                 <Anchors>
-                    <Anchor point="BOTTOMLEFT" relativeTo="$parentBG" relativePoint="CENTER">
-                        <Offset x="36" y="3"/>
+                    <Anchor point="TOPLEFT" relativeTo="$parentTitleBG" relativePoint="BOTTOM">
+                        <Offset x="27" y="0"/>
                     </Anchor>
                 </Anchors>
                 <Scripts>
@@ -202,9 +212,9 @@
             </EditBox>
 
             <Button name="$parentResetButton" inherits="OptionsButtonTemplate" text="Reset">
-                <Size x="66" y="20"/>
+                <Size x="48" y="20"/>
                 <Anchors>
-                    <Anchor point="TOP" relativeTo="$parentBG" relativePoint="CENTER" x="0" y="-3" />
+                    <Anchor point="TOP" relativeTo="$parentTitleBG" relativePoint="BOTTOM" x="0" y="-22" />
                 </Anchors>
                 <Scripts>
                     <OnLoad>
@@ -296,6 +306,44 @@
                     </OnClick>
                 </Scripts>
             </Button>
+
+            <Slider name="$parentWidthAdjust" inherits="SVUI_HSliderTemplate">
+      				<Size x="132" y="12"/>
+      				<Anchors>
+      					<Anchor point="TOP" relativeTo="$parentResetButton" relativePoint="BOTTOM">
+      						<Offset>
+      							<AbsDimension x="0" y="-20"/>
+      						</Offset>
+      					</Anchor>
+      				</Anchors>
+      				<Scripts>
+      					<OnLoad>
+      						local name = self:GetName();
+                  self.rangeLow = _G[name.."Low"];
+                  self.rangeHigh = _G[name.."High"];
+                  self.rangeValue = _G[name.."Text"];
+      					</OnLoad>
+      				</Scripts>
+      			</Slider>
+
+            <Slider name="$parentHeightAdjust" inherits="SVUI_HSliderTemplate">
+      				<Size x="132" y="12"/>
+      				<Anchors>
+      					<Anchor point="TOP" relativeTo="$parentWidthAdjust" relativePoint="BOTTOM">
+      						<Offset>
+      							<AbsDimension x="0" y="-20"/>
+      						</Offset>
+      					</Anchor>
+      				</Anchors>
+      				<Scripts>
+      					<OnLoad>
+      						local name = self:GetName();
+                  self.rangeLow = _G[name.."Low"];
+                  self.rangeHigh = _G[name.."High"];
+                  self.rangeValue = _G[name.."Text"];
+      					</OnLoad>
+      				</Scripts>
+      			</Slider>
         </Frames>
     </Frame>
 

@@ -355,7 +355,7 @@ CORE FUNCTIONS
 ]]--
 function PLUGIN.Archaeology:Enable()
 	PLUGIN.Archaeology:Update()
-	if(not PLUGIN.Docklet:IsShown()) then PLUGIN.Docklet.DockButton:Click() end
+	if(not PLUGIN.Docklet:IsShown()) then PLUGIN.Docklet.Button:Click() end
 
 	PlaySoundFile("Sound\\Item\\UseSounds\\UseCrinklingPaper.wav")
 	PLUGIN.ModeAlert:SetBackdropColor(0.25, 0.52, 0.1)

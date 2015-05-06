@@ -58,9 +58,9 @@ LAYOUT PRESETS
 local hasOldConfigs = function()
 	local installed = SVUILib:GetSafeData("install_version")
 	if(installed) then
-		return USE.."\n"..GARRISON_SHIPYARD_SHIP_SAVED.."\n"..SETTINGS, "Complete"
+		return USE.."\nSaved\n"..SETTINGS, "Complete"
 	else
-		return LFG_LIST_SELECT.."\n"..NEW.."\n"..SETTINGS, "NewSettings"
+		return "Select\n"..NEW.."\n"..SETTINGS, "NewSettings"
 	end
 end
 
@@ -551,77 +551,77 @@ local function LoadPresetData()
 			},
 			["simple"] = {
 				["player"] = {
-					portrait = {
-						enable = true,
-						overlay = false,
-						style = "2D",
-					}
+					["portrait"] = {
+						["enable"] = true,
+						["overlay"] = false,
+						["style"] = "2D",
+					},
 				},
 				["target"] = {
-					portrait = {
-						enable = true,
-						overlay = false,
-						style = "2D",
-					}
+					["portrait"] = {
+						["enable"] = true,
+						["overlay"] = false,
+						["style"] = "2D",
+					},
 				},
 				["pet"] = {
-					portrait = {
-						enable = true,
-						overlay = false,
-						style = "2D",
+					["portrait"] = {
+						["enable"] = true,
+						["overlay"] = false,
+						["style"] = "2D",
 					},
 				},
 				["targettarget"] = {
-					portrait = {
-						enable = false,
-						overlay = false,
-						style = "2D",
+					["portrait"] = {
+						["enable"] = false,
+						["overlay"] = false,
+						["style"] = "2D",
 					},
 				},
 				["boss"] = {
-					portrait = {
-						enable = true,
-						overlay = false,
-						style = "2D",
-					}
+					["portrait"] = {
+						["enable"] = true,
+						["overlay"] = false,
+						["style"] = "2D",
+					},
 				},
 				["party"] = {
-					portrait = {
-						enable = true,
-						overlay = false,
-						style = "2D",
+					["portrait"] = {
+						["enable"] = true,
+						["overlay"] = false,
+						["style"] = "2D",
 					},
 				},
 			},
 			["compact"] = {
 				["player"] = {
-					portrait = {
-						enable = false
+					["portrait"] = {
+						["enable"] = false
 					}
 				},
 				["target"] = {
-					portrait = {
-						enable = false
+					["portrait"] = {
+						["enable"] = false
 					}
 				},
 				["pet"] = {
-					portrait = {
-						enable = false
+					["portrait"] = {
+						["enable"] = false
 					},
 				},
 				["targettarget"] = {
-					portrait = {
-						enable = false
+					["portrait"] = {
+						["enable"] = false
 					},
 				},
 				["boss"] = {
-					portrait = {
-						enable = false
+					["portrait"] = {
+						["enable"] = false
 					}
 				},
 				["party"] = {
-					portrait = {
-						enable = false
+					["portrait"] = {
+						["enable"] = false
 					},
 				},
 			},
@@ -630,17 +630,17 @@ local function LoadPresetData()
 			["link"] = "UnitFrames",
 			["default"] = {
 				["party"] = {
-					width = 75,
-					height = 60,
-					wrapXOffset = 9,
-					wrapYOffset = 13,
-					portrait = {
-						enable = true,
-						overlay = true,
-						style = "3DOVERLAY",
+					["width"] = 75,
+					["height"] = 60,
+					["wrapXOffset"] = 9,
+					["wrapYOffset"] = 13,
+					["portrait"] = {
+						["enable"] = true,
+						["overlay"] = true,
+						["style"] = "3DOVERLAY",
 					},
-					icons = {
-						roleIcon = {
+					["icons"] = {
+						["roleIcon"] = {
 							["attachTo"] = "INNERBOTTOMRIGHT",
 							["xOffset"] = 0,
 							["yOffset"] = 0,
@@ -658,12 +658,12 @@ local function LoadPresetData()
 					},
 				},
 				["raid"] = {
-					width = 50,
-					height = 30,
-					gRowCol = 1,
-					wrapXOffset = 9,
-					wrapYOffset = 13,
-					showBy = "RIGHT_DOWN",
+					["width"] = 50,
+					["height"] = 30,
+					["gRowCol"] = 1,
+					["wrapXOffset"] = 9,
+					["wrapYOffset"] = 13,
+					["showBy"] = "RIGHT_DOWN",
 					["power"] = {
 						["enable"] = false,
 					},
@@ -687,14 +687,14 @@ local function LoadPresetData()
 			},
 			["healer"] = {
 				["party"] = {
-					width = 75,
-					height = 60,
-					wrapXOffset = 9,
-					wrapYOffset = 13,
-					portrait = {
-						enable = true,
-						overlay = true,
-						style = "3DOVERLAY",
+					["width"] = 75,
+					["height"] = 60,
+					["wrapXOffset"] = 9,
+					["wrapYOffset"] = 13,
+					["portrait"] = {
+						["enable"] = true,
+						["overlay"] = true,
+						["style"] = "3DOVERLAY",
 					},
 					["power"] = {
 						["enable"] = true,
@@ -718,8 +718,8 @@ local function LoadPresetData()
 					},
 				},
 				["raid"] = {
-					width = 50,
-					height = 30,
+					["width"] = 50,
+					["height"] = 30,
 					["showBy"] = "DOWN_RIGHT",
 					["gRowCol"] = 1,
 					["wrapXOffset"] = 4,
@@ -747,18 +747,18 @@ local function LoadPresetData()
 			},
 			["dps"] = {
 				["party"] = {
-					width = 115,
-					height = 25,
-					wrapXOffset = 9,
-					wrapYOffset = 13,
+					["width"] = 115,
+					["height"] = 50,
+					["wrapXOffset"] = 9,
+					["wrapYOffset"] = 13,
 					["power"] = {
 						["enable"] = false,
 					},
-					portrait = {
-						enable = false,
-						overlay = false,
-						style = "2D",
-						width = 35,
+					["portrait"] = {
+						["enable"] = false,
+						["overlay"] = false,
+						["style"] = "2D",
+						["width"] = 35,
 					},
 					["icons"] = {
 						["roleIcon"] = {
@@ -813,8 +813,8 @@ local function LoadPresetData()
 					["power"] = {
 						["enable"] = false,
 					},
-					portrait = {
-						enable = false,
+					["portrait"] = {
+						["enable"] = false,
 					},
 					["grid"] = {
 						["enable"] = true,

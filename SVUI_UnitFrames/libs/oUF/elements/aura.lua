@@ -41,7 +41,7 @@ local DEBUFF_FILTER = 'HARMFUL';
 local VISIBLE = 1;
 local HIDDEN = 0;
 
-local DEMO_SPELLS = {47540, 47540, 47540, 47540, 47540}
+local DEMO_SPELLS = {47540, 974, 111264, 57934, 124081}
 
 local function FormatTime(seconds)
 	if seconds < MINUTE then
@@ -492,7 +492,8 @@ local UpdateIconAuras = function(self, cache, unit, index, filter, visible, isEn
 
 	if(name) then
 		local show = true
-		local isPlayer = (caster and (caster == "player" or caster == "vehicle")) or false;
+		local isPlayer = false;
+		if((not caster) or (caster == "player" or caster == "vehicle")) then isPlayer = true end;
 		if(self.CustomFilter and (not self.forceShow)) then
 			show = self:CustomFilter(isEnemy, isPlayer, name, spellID, debuffType, duration, shouldConsolidate)
 		end
@@ -611,7 +612,8 @@ local UpdateBarAuras = function(self, cache, unit, index, filter, visible, isEne
 
 	if(name) then
 		local show = true
-		local isPlayer = (caster and (caster == "player" or caster == "vehicle")) or false;
+		local isPlayer = false;
+		if((not caster) or (caster == "player" or caster == "vehicle")) then isPlayer = true end;
 		if((not self.forceShow) and self.CustomFilter) then
 			show = self:CustomFilter(isEnemy, isPlayer, name, spellID, debuffType, duration, shouldConsolidate)
 		end

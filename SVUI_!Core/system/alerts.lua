@@ -997,7 +997,7 @@ local function LoadSystemAlerts()
 
 	SVUI_AlertFrame:SetSize(180, 20);
 	SVUI_AlertFrame.callbackOnEnter = true;
-	SV:NewAnchor(SVUI_AlertFrame, L["Loot / Alert Frames"], nil, AlertFramePostMove_Hook, nil)
+	SV:NewAnchor(SVUI_AlertFrame, L["Loot / Alert Frames"], AlertFramePostMove_Hook)
 
 	NewHook('AlertFrame_FixAnchors', AlertFramePostMove_Hook)
 	NewHook('AlertFrame_SetLootAnchors', _hook_AlertFrame_SetLootAnchors)

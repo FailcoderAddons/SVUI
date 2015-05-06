@@ -141,20 +141,20 @@ local function UFMoveBottomQuadrant(toggle)
 	if(not SV.UnitFrames) then return end
 	local x, y, x2, y2, x3, y3;
 	if(SV.LowRez) then
-		x, y, x2, y2, x3, y3 = 136, 135, 136, 285, 495, 135;
+		x, y, x2, y2, x3, y3 = 80, 135, 136, 285, 495, 135;
 	elseif(not toggle) then
-		x, y, x2, y2, x3, y3 = 278, 182, 310, 432, 495, 182;
+		x, y, x2, y2, x3, y3 = 80, 182, 310, 432, 495, 182;
 	else
-		x, y, x2, y2, x3, y3 = 278, 210, 310, 432, 495, 210;
+		x, y, x2, y2, x3, y3 = 80, 210, 310, 432, 495, 210;
 	end
 
-	SV:ReAnchor("SVUI_Player", "BOTTOM", SV.Screen, "BOTTOM", -x, y);
-	SV:ReAnchor("SVUI_PlayerCastbar", "BOTTOM", SV.Screen, "BOTTOM", -x, y-60);
+	SV:ReAnchor("SVUI_Player", "BOTTOMRIGHT", SV.Screen, "BOTTOM", -x, y);
+	SV:ReAnchor("SVUI_PlayerCastbar", "BOTTOMRIGHT", SV.Screen, "BOTTOM", -x, y-60);
 	SV:ReAnchor("SVUI_Pet", "RIGHT", SVUI_Player, "LEFT", -2, 0);
-	SV:ReAnchor("SVUI_Target", "BOTTOM", SV.Screen, "BOTTOM", x, y);
-	SV:ReAnchor("SVUI_TargetCastbar", "BOTTOM", SV.Screen, "BOTTOM", x, y-60);
+	SV:ReAnchor("SVUI_Target", "BOTTOMLEFT", SV.Screen, "BOTTOM", x, y);
+	SV:ReAnchor("SVUI_TargetCastbar", "BOTTOMLEFT", SV.Screen, "BOTTOM", x, y-60);
 	SV:ReAnchor("SVUI_TargetTarget", "LEFT", SVUI_Target, "RIGHT", 2, 0);
-	SV:ReAnchor("SVUI_Focus", "BOTTOM", SV.Screen, "BOTTOM", x2, y2);
+	SV:ReAnchor("SVUI_Focus", "BOTTOMLEFT", SV.Screen, "BOTTOM", x2, y2);
 	SV:ReAnchor("SVUI_ThreatBar", "BOTTOMRIGHT", SV.Screen, "BOTTOMRIGHT", -x3, y3);
 end
 
@@ -231,24 +231,22 @@ function SV.Setup:UserScreen(rez, preserve)
 			end
 			if(SV.UnitFrames) then
 				SV.db.UnitFrames.fontSize = 10;
-				SV.db.UnitFrames.player.width = 200;
-				SV.db.UnitFrames.player.castbar.width = 200;
+				SV.db.UnitFrames.player.width = 150;
+				SV.db.UnitFrames.player.castbar.width = 150;
 				SV.db.UnitFrames.player.classbar.fill = "fill"
 				SV.db.UnitFrames.player.health.tags = "[health:color][health:current]"
-				SV.db.UnitFrames.target.width = 200;
-				SV.db.UnitFrames.target.castbar.width = 200;
+				SV.db.UnitFrames.target.width = 150;
+				SV.db.UnitFrames.target.castbar.width = 150;
 				SV.db.UnitFrames.target.health.tags = "[health:color][health:current]"
 				SV.db.UnitFrames.pet.power.enable = false;
-				SV.db.UnitFrames.pet.width = 200;
-				SV.db.UnitFrames.pet.height = 26;
+				SV.db.UnitFrames.pet.width = 75;
 				SV.db.UnitFrames.targettarget.debuffs.enable = false;
 				SV.db.UnitFrames.targettarget.power.enable = false;
-				SV.db.UnitFrames.targettarget.width = 200;
-				SV.db.UnitFrames.targettarget.height = 26;
-				SV.db.UnitFrames.boss.width = 200;
-				SV.db.UnitFrames.boss.castbar.width = 200;
-				SV.db.UnitFrames.arena.width = 200;
-				SV.db.UnitFrames.arena.castbar.width = 200
+				SV.db.UnitFrames.targettarget.width = 75;
+				SV.db.UnitFrames.boss.width = 150;
+				SV.db.UnitFrames.boss.castbar.width = 150;
+				SV.db.UnitFrames.arena.width = 150;
+				SV.db.UnitFrames.arena.castbar.width = 150
 			end
 		end
 		SV.LowRez = true
@@ -258,16 +256,9 @@ function SV.Setup:UserScreen(rez, preserve)
 		SV.LowRez = nil
 	end
 
-	if not mungs then
-		UFMoveBottomQuadrant()
-		UFMoveLeftQuadrant()
-		UFMoveTopQuadrant()
-		UFMoveRightQuadrant()
-	end
-
 	if(not preserve and not mungs) then
 		-- BarShuffle()
-    	SV:UpdateAnchors()
+    SV:UpdateAnchors()
 		SVUILib:RefreshModule('Dock')
 		SVUILib:RefreshModule('Auras')
 		SVUILib:RefreshModule('ActionBars')
@@ -673,7 +664,7 @@ end
 
 function SV.Setup:NewSettings()
 	CURRENT_PAGE = 2;
-	SVUI_InstallerFrame.Next:SetPage(CURRENT_PAGE)
+	SVUI_InstallerFrame:SetPage(CURRENT_PAGE)
 end
 
 local OptionButton_OnClick = function(self)
@@ -980,13 +971,16 @@ function SV.Setup:Install(autoLoaded)
 		frame.Option02:SetScript("OnLeave", function(this)
 			this.texture:SetGradient("VERTICAL", 0, 0.1, 0.3, 0, 0.5, 0.7)
 		end)
-		frame.Option02:SetScript("OnShow", function()
+		frame.Option02:SetScript("OnShow", function(self)
 			if(not frame.Option03:IsShown()) then
 				frame.Option01:SetWidth(130)
 				frame.Option01.texture:SetSize(130, 130)
 				frame.Option01.texture:SetPoint("CENTER", frame.Option01, "BOTTOM", 0, -(130 * 0.09))
 				frame.Option01:ClearAllPoints()
 				frame.Option01:SetPoint("BOTTOMRIGHT", frame, "BOTTOM", -4, 15)
+
+				self:SetWidth(130)
+				self.texture:SetSize(130, 130)
 			end
 		end)
 		frame.Option02:SetFrameLevel(frame.Option01:GetFrameLevel() + 10)
@@ -1220,7 +1214,7 @@ function SV.Setup:Install(autoLoaded)
 
 	SVUI_InstallerFrame:SetScript("OnHide", function()
 		StopMusic()
-		SetCVar("Sound_MusicVolume", user_music_vol or 0)
+		SetCVar("Sound_MusicVolume", 0)
 		musicIsPlaying = nil;
 		ShowLayout()
 		ShowAuras()

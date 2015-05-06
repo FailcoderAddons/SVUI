@@ -936,12 +936,13 @@ SV.Options.args.Core.args.Extras = {
 					order = 2,
 					type = 'select',
 					name = L["Comic Popups"],
+					desc = '"All Popups" will include non-comic styles (ie.. TOASTY!)',
 					get = function(j)return SV.db.FunStuff.comix end,
 					set = function(j,value) SV.db.FunStuff.comix = value; SV.Comix:Toggle() end,
 					values = {
 						['NONE'] = NONE,
 						['1'] = 'All Popups',
-						['2'] = 'Only Small Popups',
+						['2'] = 'Comic Style Only',
 					}
 				},
 				afk = {
@@ -1306,11 +1307,11 @@ SV.Options.args.Fonts = {
 	}
 }
 SV.Options.args.Dock = {
-  	type = "group",
-  	order = 5,
-  	name = SV.Dock.TitleID,
-  	args = {
-	  	intro = {
+	type = "group",
+	order = 5,
+	name = SV.Dock.TitleID,
+	args = {
+  	intro = {
 			order = 1,
 			type = "description",
 			name = "Configure the various frame docks around the screen"
@@ -1331,16 +1332,16 @@ SV.Options.args.Dock = {
 					type = 'toggle',
 					name = L['Bottom Panel'],
 					desc = L['Display a border across the bottom of the screen.'],
-					get = function(j)return SV.db.Dock.bottomPanel end,
-					set = function(key,value)SV.Dock:ChangeDBVar(value,key[#key]);SV.Dock:BottomBorderVisibility()end
+					get = function(j) return SV.db.Dock.bottomPanel end,
+					set = function(key,value) SV.Dock:ChangeDBVar(value,key[#key]); end
 				},
 				topPanel = {
 					order = 2,
 					type = 'toggle',
 					name = L['Top Panel'],
 					desc = L['Display a border across the top of the screen.'],
-					get = function(j)return SV.db.Dock.topPanel end,
-					set = function(key,value)SV.Dock:ChangeDBVar(value,key[#key]);SV.Dock:TopBorderVisibility()end
+					get = function(j) return SV.db.Dock.topPanel end,
+					set = function(key,value) SV.Dock:ChangeDBVar(value,key[#key]); end
 				},
 				buttonSize = {
 					order = 3,

@@ -76,7 +76,7 @@ local function StyleLightHeaded()
 	if lhopts:IsVisible() then
 		for i = 1, 9 do
 			local cbox = _G["LightHeaded_Panel_Toggle"..i]
-			cbox:SetStyle("Checkbox")
+			cbox:SetStyle("CheckButton")
 		end
 		local buttons = {
 			"LightHeaded_Panel_Button1",

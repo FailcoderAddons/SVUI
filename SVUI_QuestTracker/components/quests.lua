@@ -48,6 +48,8 @@ local MOD = SV.QuestTracker;
 LOCALS
 ##########################################################
 ]]--
+local ITEM_BUTTON_SIZE = 28;
+local ITEMS_PER_ROW = 5;
 local ROW_WIDTH = 300;
 local ROW_HEIGHT = 20;
 local QUEST_ROW_HEIGHT = ROW_HEIGHT + 2;
@@ -119,16 +121,10 @@ do
             GameTooltip:SetOwner(self, 'ANCHOR_LEFT')
             GameTooltip:SetHyperlink(self.itemLink)
         end
-        if(self.___overflow) then
-            self:FadeIn()
-        end
     end
 
     local Button_OnLeave = function(self)
     	GameTooltip_Hide()
-        if(self.___overflow) then
-            self:FadeOut()
-        end
     end
 
     local Button_OnEvent = function(self, event)
@@ -237,57 +233,57 @@ do
 
     CreateQuestItemButton = function(index)
     	local buttonName = "SVUI_QuestButton" .. index
-        local itembutton = CreateFrame('Button', buttonName, UIParent, 'SecureActionButtonTemplate, SecureHandlerStateTemplate, SecureHandlerAttributeTemplate');
-        itembutton:SetAlpha(0);
-        itembutton:SetStyle("Icon");
-        itembutton:SetSize(28, 28);
-        itembutton:SetID(index);
-        itembutton.___overflow = false;
-        itembutton.SetUsage = Button_SetItem;
-        itembutton.ClearUsage = Button_ClearItem;
-        itembutton.Update = Button_UpdateItem;
-        itembutton.UpdateCooldown = Button_UpdateCooldown;
+      local itembutton = CreateFrame('Button', buttonName, UIParent, 'SecureActionButtonTemplate, SecureHandlerStateTemplate, SecureHandlerAttributeTemplate');
+      itembutton:SetAlpha(0);
+      itembutton:SetStyle("!_ActionSlot");
+      itembutton:SetSize(ITEM_BUTTON_SIZE, ITEM_BUTTON_SIZE);
+      itembutton:SetID(index);
+      itembutton.___overflow = false;
+      itembutton.SetUsage = Button_SetItem;
+      itembutton.ClearUsage = Button_ClearItem;
+      itembutton.Update = Button_UpdateItem;
+      itembutton.UpdateCooldown = Button_UpdateCooldown;
 
-        local Icon = itembutton:CreateTexture('$parentIcon', 'BACKGROUND')
-        Icon:SetTexCoord(unpack(_G.SVUI_ICON_COORDS))
-        Icon:SetAllPoints()
-        itembutton.Icon = Icon
+      local Icon = itembutton:CreateTexture('$parentIcon', 'BACKGROUND')
+      Icon:SetTexCoord(unpack(_G.SVUI_ICON_COORDS))
+      Icon:SetAllPoints()
+      itembutton.Icon = Icon
 
-        local Cooldown = CreateFrame('Cooldown', '$parentCooldown', itembutton, 'CooldownFrameTemplate')
-        Cooldown:ClearAllPoints()
-        Cooldown:SetPoint('TOPRIGHT', -2, -3)
-        Cooldown:SetPoint('BOTTOMLEFT', 2, 1)
-        Cooldown:Hide()
-        itembutton.Cooldown = Cooldown
+      local Cooldown = CreateFrame('Cooldown', '$parentCooldown', itembutton, 'CooldownFrameTemplate')
+      Cooldown:ClearAllPoints()
+      Cooldown:SetPoint('TOPRIGHT', -2, -3)
+      Cooldown:SetPoint('BOTTOMLEFT', 2, 1)
+      Cooldown:Hide()
+      itembutton.Cooldown = Cooldown
 
-        --RegisterStateDriver(itembutton, 'visible', '[petbattle] hide; show')
-        itembutton:SetAttribute('type', 'item');
-        itembutton:SetAttribute('_onattributechanged', [[
-            if(name == 'item') then
-                if(value and not self:IsShown()) then
-                    self:Show()
-                    self:SetAlpha(1)
-                elseif(not value) then
-                	self:SetAlpha(0)
-                    self:Hide()
-                end
-            end
-        ]]);
+      --RegisterStateDriver(itembutton, 'visible', '[petbattle] hide; show')
+      itembutton:SetAttribute('type', 'item');
+      itembutton:SetAttribute('_onattributechanged', [[
+          if(name == 'item') then
+              if(value and not self:IsShown()) then
+                  self:Show()
+                  self:SetAlpha(1)
+              elseif(not value) then
+              	self:SetAlpha(0)
+                  self:Hide()
+              end
+          end
+      ]]);
 
-        itembutton:SetScript('OnEnter', Button_OnEnter);
-        itembutton:SetScript('OnLeave', Button_OnLeave);
+      itembutton:SetScript('OnEnter', Button_OnEnter);
+      itembutton:SetScript('OnLeave', Button_OnLeave);
 
-        itembutton:RegisterEvent('UPDATE_EXTRA_ACTIONBAR');
-		itembutton:RegisterEvent('BAG_UPDATE_COOLDOWN');
-		itembutton:RegisterEvent('BAG_UPDATE_DELAYED');
-		itembutton:RegisterEvent('WORLD_MAP_UPDATE');
-		itembutton:RegisterEvent('QUEST_LOG_UPDATE');
-		itembutton:RegisterEvent('QUEST_POI_UPDATE');
-        itembutton:SetScript('OnEvent', Button_OnEvent);
+      itembutton:RegisterEvent('UPDATE_EXTRA_ACTIONBAR');
+			itembutton:RegisterEvent('BAG_UPDATE_COOLDOWN');
+			itembutton:RegisterEvent('BAG_UPDATE_DELAYED');
+			itembutton:RegisterEvent('WORLD_MAP_UPDATE');
+			itembutton:RegisterEvent('QUEST_LOG_UPDATE');
+			itembutton:RegisterEvent('QUEST_POI_UPDATE');
+      itembutton:SetScript('OnEvent', Button_OnEvent);
 
-        SV:ManageVisibility(itembutton)
+      SV:ManageVisibility(itembutton)
 
-        return itembutton
+      return itembutton
     end
 
     function ItemBar:SetQuestItem(itemLink, texture, completed)
@@ -350,25 +346,59 @@ function ItemBar:Update()
 	local maxIndex = #self.Buttons;
 	local firstButton = self.Buttons[1];
 	local itemLink = firstButton.itemLink;
+
 	if(itemLink) then
 		ACTIVE_ITEMS[itemLink] = 1
 	end
 
+	local dockletLocation = MOD.Docklet.Parent.Bar.Data.Location;
+	local isHorizontal = (SV.db.QuestTracker.itemBarDirection == 'HORIZONTAL');
+	local anchor1 = isHorizontal and "LEFT" or "TOP";
+	local anchor2 = isHorizontal and "RIGHT" or "BOTTOM";
+	local switch1 = isHorizontal and "BOTTOM" or "RIGHT";
+	local switch2 = isHorizontal and "TOP" or "LEFT";
+	local xOff = isHorizontal and 2 or 0;
+	local yOff = isHorizontal and 0 or -2;
+	local xChange = isHorizontal and 0 or -2;
+	local yChange = isHorizontal and 2 or 0;
+
+	local itemScale = ITEM_BUTTON_SIZE + 2;
+	if(self.Grip and (not self.Grip:HasMoved())) then
+		local dockWidth,dockHeight = MOD.Docklet:GetSize()
+		ITEMS_PER_ROW = isHorizontal and (dockWidth / itemScale) or (dockHeight / itemScale);
+	end
+
 	firstButton:ClearAllPoints();
 
-	local a1, a2, x, y = "BOTTOM", "TOP", 0, 2;
-	if(SV.db.QuestTracker.itemBarDirection == 'HORIZONTAL') then
-		a1, a2, x, y = "LEFT", "RIGHT", 2, 0;
-		firstButton:SetPoint("LEFT", self, "LEFT", 2, 0);
+	if(dockletLocation:find('Left')) then
+		anchor1 = isHorizontal and "RIGHT" or "TOP";
+		anchor2 = isHorizontal and "LEFT" or "BOTTOM";
+		switch1 = isHorizontal and "BOTTOM" or "LEFT";
+		switch2 = isHorizontal and "TOP" or "RIGHT";
+		xOff = isHorizontal and -2 or 0;
+		xChange = isHorizontal and 0 or 2;
+	end
+
+	if(dockletLocation:find('Top')) then
+		if(not isHorizontal) then
+			anchor1 = "BOTTOM";
+			anchor2 = "TOP";
+			yOff = 2;
+		else
+			switch1 = "TOP";
+			switch2 = "BOTTOM";
+			yChange = -2;
+		end
+	end
+
+	if(isHorizontal) then
+		firstButton:SetPoint(anchor1, self, anchor1, 0, 0);
 		if(SV.Tooltip and (not self.tipanchorchecked) and SV.Tooltip.Holder and SV.Tooltip.Holder.Grip and (not SV.Tooltip.Holder.Grip:HasMoved())) then
 			SV.Tooltip.DefaultPadding = 56
 			self.tipanchorchecked = true
 		end
-		-- if(SV.Tooltip and SV.Tooltip.Holder and SV.Tooltip.Holder.Grip) then
-		-- 	print(SV.Tooltip.Holder.Grip:GetPoint())
-		-- end
 	else
-		firstButton:SetPoint("TOP", self, "TOP", 0, -2);
+		firstButton:SetPoint(anchor2, self, anchor2, 0, 0);
 	end
 
 	local lastButton, totalShown, button = firstButton, 1;
@@ -378,21 +408,21 @@ function ItemBar:Update()
 		itemLink = button.itemLink;
 
 		button:ClearAllPoints();
+		button:SetSize(ITEM_BUTTON_SIZE, ITEM_BUTTON_SIZE);
 		if(button:IsShown()) then
 			totalShown = totalShown + 1;
-			if(totalShown > 5) then
-				if(totalShown == 6) then
-					button:SetPoint(a1, firstButton, a2, x, y)
+			if(totalShown == (ITEMS_PER_ROW + 1)) then
+				totalShown = 1;
+				local lastRowButton = self.Buttons[i - ITEMS_PER_ROW];
+				if(lastRowButton) then
+					button:SetPoint(switch1, lastRowButton, switch2, xChange, yChange)
 				else
-					button:SetPoint(a1, lastButton, a2, x, y)
+					button:SetPoint(switch1, firstButton, switch2, xChange, yChange)
 				end
-				button.___overflow = true;
-				button:FadeOut();
 			else
-				button:SetPoint(a2, lastButton, a1, x, -y)
-				button.___overflow = false;
-				button:FadeIn();
+				button:SetPoint(anchor2, lastButton, anchor1, xOff, -yOff)
 			end
+			button:FadeIn();
 			lastButton = button
 
 			if(itemLink) then
@@ -1106,48 +1136,90 @@ function MOD:UpdateObjectives(event, ...)
 	end
 end
 
+local function ReAnchorItemBar()
+	local dockletLocation = MOD.Docklet.Parent.Bar.Data.Location;
+	local isHorizontal = (SV.db.QuestTracker.itemBarDirection == 'HORIZONTAL');
+	local anchor1 = isHorizontal and "LEFT" or "RIGHT";
+	local anchor2 = "LEFT";
+	local xOff = isHorizontal and 0 or -4;
+	local yOff = isHorizontal and 4 or 0;
+
+	if(dockletLocation:find('Left')) then
+		anchor1 = isHorizontal and "RIGHT" or "LEFT";
+		anchor2 = "RIGHT";
+		xOff = isHorizontal and 0 or 4;
+	end
+
+	local prefix1 = isHorizontal and "BOTTOM" or "TOP";
+	local prefix2 = "TOP";
+
+	if(dockletLocation:find('Top')) then
+		prefix1 = isHorizontal and "TOP" or "BOTTOM";
+		prefix2 = "BOTTOM";
+		yOff = -4;
+	end
+
+	anchor1 = prefix1 .. anchor1;
+	anchor2 = prefix2 .. anchor2;
+
+	ItemBar:ClearAllPoints();
+	ItemBar:SetParent(SV.Screen);
+	ItemBar:SetPoint(anchor1, MOD.Docklet.Parent, anchor2, xOff, yOff);
+	if(isHorizontal) then
+		ItemBar:SetWidth(MOD.Docklet.Parent:GetWidth());
+		ItemBar:SetHeight(32);
+	else
+		ItemBar:SetWidth(32);
+		ItemBar:SetHeight(MOD.Docklet.Parent:GetHeight());
+	end
+end
+
 local function UpdateQuestLocals(...)
 	ROW_WIDTH, ROW_HEIGHT, INNER_HEIGHT, LARGE_ROW_HEIGHT, LARGE_INNER_HEIGHT = ...;
 	QUEST_ROW_HEIGHT = ROW_HEIGHT + 2;
+	ITEM_BUTTON_SIZE = SV.db.QuestTracker.itemButtonSize;
+	ITEMS_PER_ROW = SV.db.QuestTracker.itemButtonsPerRow;
+	ReAnchorItemBar();
+
 end
 
-local ticker;
-local _hook_QuestDock_OnShow = function(self)
-	if(not self.DockButton:GetAttribute("isActive")) then return end
-	if(not ticker) then
-		ticker = SV.Timers:ExecuteTimer(ShowItemBarButtons, 1)
+local function PostMoveCallback(buttonName)
+	if(not buttonName or (buttonName ~= MOD.Docklet.Button:GetName())) then return end
+	if(ItemBar.Grip and (not ItemBar.Grip:HasMoved())) then
+		ReAnchorItemBar()
 	end
+	MOD.QuestItemTimer = SV.Timers:ExecuteTimer(ShowItemBarButtons, 1.2);
+	ShowItemBarButtons();
 end
 
-local _hook_QuestDock_OnHide = function(self)
-	if(ticker) then
-		SV.Timers:RemoveTimer(ticker)
-		ticker = nil
+local function PostShowCallback(location, windowName)
+	if(not location or (location ~= MOD.Docklet.Parent.Bar.Data.Location)) then return end
+	if(not windowName or (windowName ~= MOD.Docklet:GetName())) then return end
+	MOD.QuestItemTimer = SV.Timers:ExecuteTimer(ShowItemBarButtons, 1.2);
+	ShowItemBarButtons();
+end
+
+local function PostHideCallback(location, windowName)
+	if(not location or (location ~= MOD.Docklet.Parent.Bar.Data.Location)) then return end
+	if(not windowName or (windowName ~= MOD.Docklet:GetName())) then return end
+	if(MOD.QuestItemTimer) then
+		SV.Timers:RemoveTimer(MOD.QuestItemTimer)
+		MOD.QuestItemTimer = nil
 	end
-	HideItemBarButtons()
+	HideItemBarButtons();
 end
 
 function MOD:InitializeQuests()
-	ItemBar:ClearAllPoints();
-	ItemBar:SetParent(SV.Screen);
-	if(SV.db.QuestTracker.itemBarDirection == 'HORIZONTAL') then
-		ItemBar:SetPoint("BOTTOMLEFT", SV.Dock.BottomRight, "TOPLEFT", 0, 4);
-		ItemBar:SetWidth(SV.Dock.BottomRight:GetWidth());
-		ItemBar:SetHeight(32);
-	else
-		ItemBar:SetPoint("TOPRIGHT", SV.Dock.BottomRight, "TOPLEFT", -4, 0);
-		ItemBar:SetWidth(32);
-		ItemBar:SetHeight(SV.Dock.BottomRight:GetHeight());
-	end
-
+	ReAnchorItemBar()
 	SV:NewAnchor(ItemBar, L["Quest Items"]);
-	
+
 	for i = 1, 5 do
 		ItemBar.Buttons[i] = CreateQuestItemButton(i)
 	end
 
-	self.Docklet:HookScript("OnShow", _hook_QuestDock_OnShow)
-	self.Docklet:HookScript("OnHide", _hook_QuestDock_OnHide)
+	SV.Events:On("DOCKLET_MOVED", PostMoveCallback, true);
+	SV.Events:On("DOCKLET_SHOWN", PostShowCallback, true);
+	SV.Events:On("DOCKLET_HIDDEN", PostHideCallback, true);
 
 	local scrollChild = self.Docklet.ScrollFrame.ScrollChild;
 	local quests = CreateFrame("Frame", nil, scrollChild)

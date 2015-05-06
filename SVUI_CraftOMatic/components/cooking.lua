@@ -47,7 +47,7 @@ local CONFIGS = SV.defaults[PLUGIN.Schema];
 LOCAL VARS
 ##########################################################
 ]]--
-local cookingSpell, campFire, skillRank, skillModifier, DockButton, usePierre;
+local cookingSpell, campFire, skillRank, skillModifier, usePierre;
 --[[
 ##########################################################
 LOCAL FUNCTIONS
@@ -192,7 +192,7 @@ CORE METHODS
 ]]--
 function PLUGIN.Cooking:Enable()
 	PLUGIN.Cooking:Update()
-	if(not PLUGIN.Docklet:IsShown()) then PLUGIN.Docklet.DockButton:Click() end
+	if(not PLUGIN.Docklet:IsShown()) then PLUGIN.Docklet.Button:Click() end
 	if(CONFIGS.cooking.autoequip) then
 		UpdateChefWear();
 	end

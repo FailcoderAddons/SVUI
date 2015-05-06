@@ -123,7 +123,7 @@ local function StyleAceGUI(event, addon)
 			if not widget.styledCheckBG then 
 				widget.styledCheckBG = CreateFrame("Frame", nil, widget.frame)
 				widget.styledCheckBG:InsetPoints(widget.check)
-				SV.API:Set("!_Frame", widget.styledCheckBG, "Checkbox")
+				SV.API:Set("!_Frame", widget.styledCheckBG, "CheckButton")
 			end 
 			widget.check:SetParent(widget.styledCheckBG)
 

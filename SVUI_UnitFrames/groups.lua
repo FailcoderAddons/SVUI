@@ -160,6 +160,12 @@ local GroupDistributor = {
 FRAME HELPERS
 ##########################################################
 ]]--
+local groupLayoutPostSizeFunc = function(self, width, height)
+  SV.db.UnitFrames[self.___key].width = width;
+  SV.db.UnitFrames[self.___key].height = height;
+  self:Update()
+end
+
 local DetachSubFrames = function(...)
     for i = 1, select("#", ...) do
         local frame = select(i,...)
@@ -206,7 +212,7 @@ local AllowElement = function(self)
     end
 
     self:SetScript("OnUpdate", nil)
-    self.forceShowAuras = true;
+    --self.forceShowAuras = true;
     UnregisterUnitWatch(self)
     RegisterUnitWatch(self, true)
 
@@ -247,41 +253,41 @@ local PartyUnitUpdate = function(self)
     MOD.RefreshUnitMedia(self, "party")
 
     if self.isChild then
-        local altDB = db.petsGroup;
-        if self == _G[self.originalParent:GetName()..'Target'] then
-            altDB = db.targetsGroup
+      local altDB = db.petsGroup;
+      if self == _G[self.originalParent:GetName()..'Target'] then
+          altDB = db.targetsGroup
+      end
+      if not self.originalParent.childList then
+          self.originalParent.childList = {}
+      end
+      self.originalParent.childList[self] = true;
+      if not InCombatLockdown()then
+        if altDB.enable then
+            local UNIT_WIDTH, UNIT_HEIGHT = MOD:GetActiveSize(altDB)
+            self:SetParent(self.originalParent)
+            self:SetSize(UNIT_WIDTH, UNIT_HEIGHT)
+            self:ClearAllPoints()
+            SV:SetReversePoint(self, altDB.anchorPoint, self.originalParent, altDB.xOffset, altDB.yOffset)
+        else
+            self:SetParent(SV.Hidden)
         end
-        if not self.originalParent.childList then
-            self.originalParent.childList = {}
-        end
-        self.originalParent.childList[self] = true;
-        if not InCombatLockdown()then
-            if altDB.enable then
-                local UNIT_WIDTH, UNIT_HEIGHT = MOD:GetActiveSize(altDB)
-                self:SetParent(self.originalParent)
-                self:SetSize(UNIT_WIDTH, UNIT_HEIGHT)
-                self:ClearAllPoints()
-                SV:SetReversePoint(self, altDB.anchorPoint, self.originalParent, altDB.xOffset, altDB.yOffset)
-            else
-                self:SetParent(SV.Hidden)
-            end
-        end
-        do
-            local health = self.Health;
-            health.Smooth = nil;
-            health.frequentUpdates = nil;
-            health.colorSmooth = nil;
-            health.colorHealth = nil;
-            health.colorClass = true;
-            health.colorReaction = true;
-            health:ClearAllPoints()
-            health:SetPoint("TOPRIGHT", self, "TOPRIGHT", -1, -1)
-            health:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 1, 1)
-        end
-        do
-            local nametext = self.TextGrip.Name
-            self:Tag(nametext, altDB.tags)
-        end
+      end
+      do
+          local health = self.Health;
+          health.Smooth = nil;
+          health.frequentUpdates = nil;
+          health.colorSmooth = nil;
+          health.colorHealth = nil;
+          health.colorClass = true;
+          health.colorReaction = true;
+          health:ClearAllPoints()
+          health:SetPoint("TOPRIGHT", self, "TOPRIGHT", -1, -1)
+          health:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 1, 1)
+      end
+      do
+          local nametext = self.TextGrip.Name
+          self:Tag(nametext, altDB.tags)
+      end
     else
         if not InCombatLockdown() then
             local UNIT_WIDTH, UNIT_HEIGHT = MOD:GetActiveSize(db, "party")
@@ -303,6 +309,7 @@ UpdateTemplates["party"] = function(self)
         groupFrame:SetPoint("BOTTOMLEFT", SV.Dock.BottomLeft, "TOPLEFT", 0, 80)
         RegisterStateDriver(groupFrame, "visibility", "[group:party,nogroup:raid][@raid6,noexists,group:raid] show;hide")
         SV:NewAnchor(groupFrame, L['Party Frames']);
+        SV:SetAnchorResizing(groupFrame, groupLayoutPostSizeFunc, 10, 500)
         groupFrame.positioned = true;
     end
 
@@ -349,6 +356,7 @@ BuildTemplates["party"] = function(self, unit)
         MOD:CreatePortrait(self, true)
         MOD:CreateAuraFrames(self, "party")
         self.AuraWatch = MOD:CreateAuraWatch(self, "party")
+        self.RaidDebuffs = MOD:CreateRaidDebuffs(self)
         self.Afflicted = MOD:CreateAfflicted(self)
         self.ResurrectIcon = MOD:CreateResurectionIcon(self)
         self.LFDRole = MOD:CreateRoleIcon(self)
@@ -387,22 +395,6 @@ local RaidUnitUpdate = function(self)
         self:SetSize(UNIT_WIDTH, UNIT_HEIGHT)
     end
 
-    do
-        local rdBuffs = self.RaidDebuffs;
-        if db.rdebuffs.enable then
-            if not self:IsElementEnabled('RaidDebuffs') then
-                self:EnableElement("RaidDebuffs")
-            end
-            local actualSz = numMin(db.rdebuffs.size, (UNIT_HEIGHT - 8))
-            rdBuffs:SetSize(actualSz, actualSz)
-            rdBuffs:SetPoint("CENTER", self, "CENTER", db.rdebuffs.xOffset, db.rdebuffs.yOffset)
-            rdBuffs:Show()
-        else
-            self:DisableElement("RaidDebuffs")
-            rdBuffs:Hide()
-        end
-    end
-
     MOD.RefreshUnitMedia(self, token)
     MOD:RefreshUnitLayout(self, token)
 
@@ -422,6 +414,7 @@ UpdateTemplates["raid"] = function(self)
         groupFrame:SetPoint("BOTTOMLEFT", SV.Dock.BottomLeft, "TOPLEFT", 0, 80)
         RegisterStateDriver(groupFrame, "visibility", "[@raid6,exists,group:raid] show;hide")
         SV:NewAnchor(groupFrame, "Raid Frames")
+        SV:SetAnchorResizing(groupFrame, groupLayoutPostSizeFunc, 10, 500)
         groupFrame.positioned = true
     end
 
@@ -499,6 +492,7 @@ UpdateTemplates["raidpet"] = function(self)
         groupFrame:SetPoint("BOTTOMLEFT", SV.Screen, "BOTTOMLEFT", 4, 433)
         RegisterStateDriver(groupFrame, "visibility", "[group:raid] show;hide")
         SV:NewAnchor(groupFrame, L["Raid Pet Frames"])
+        SV:SetAnchorResizing(groupFrame, groupLayoutPostSizeFunc, 10, 500)
         groupFrame.positioned = true;
     end
 
@@ -622,6 +616,7 @@ UpdateTemplates["tank"] = function(self)
         self:ClearAllPoints()
         self:SetPoint("BOTTOMLEFT", SV.Dock.TopLeft, "BOTTOMLEFT", 0, 0)
         SV:NewAnchor(self, L["Tank Frames"])
+        SV:SetAnchorResizing(self, groupLayoutPostSizeFunc, 10, 500)
         self.Grip.positionOverride = "TOPLEFT"
         self:SetAttribute("minHeight", self.dirtyHeight)
         self:SetAttribute("minWidth", self.dirtyWidth)
@@ -732,6 +727,7 @@ UpdateTemplates["assist"] = function(self)
         self:ClearAllPoints()
         self:SetPoint("TOPLEFT", SV.Dock.TopLeft, "BOTTOMLEFT", 0, -10)
         SV:NewAnchor(self, L["Assist Frames"])
+        SV:SetAnchorResizing(self, groupLayoutPostSizeFunc, 10, 500)
         self.Grip.positionOverride = "TOPLEFT"
         self:SetAttribute("minHeight", self.dirtyHeight)
         self:SetAttribute("minWidth", self.dirtyWidth)

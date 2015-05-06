@@ -3,7 +3,7 @@
 S V U I   By: Munglunch
 ##############################################################################
 
-########################################################## 
+##########################################################
 LOCALIZED LUA FUNCTIONS
 ##########################################################
 ]]--
@@ -23,27 +23,16 @@ local floor = math.floor
 local tsort = table.sort;
 local IsShiftKeyDown        = _G.IsShiftKeyDown;
 local IsAddOnLoaded         = _G.IsAddOnLoaded;
-local GetNumAddOns          = _G.GetNumAddOns;
-local GetAddOnInfo          = _G.GetAddOnInfo;
-local GetFramerate          = _G.GetFramerate;
-local GetNetStats           = _G.GetNetStats;
-local GetAddOnCPUUsage      = _G.GetAddOnCPUUsage;
-local GetAddOnMemoryUsage   = _G.GetAddOnMemoryUsage;
-local ResetCPUUsage           = _G.ResetCPUUsage;
-local UpdateAddOnCPUUsage     = _G.UpdateAddOnCPUUsage;
-local UpdateAddOnMemoryUsage  = _G.UpdateAddOnMemoryUsage;
-local GetAvailableBandwidth   = _G.GetAvailableBandwidth;
-local GetDownloadedPercentage = _G.GetDownloadedPercentage;
---[[ 
-########################################################## 
+--[[
+##########################################################
 GET ADDON DATA
 ##########################################################
 ]]--
 local SV = select(2, ...)
 local L = SV.L;
 local Reports = SV.Reports;
---[[ 
-########################################################## 
+--[[
+##########################################################
 SYSTEM STATS (Credit: Elv)
 ##########################################################
 ]]--
@@ -113,15 +102,15 @@ local function UpdateCPU()
 	for i = 1, #cpuTable do
 		addonCPU = GetAddOnCPUUsage(cpuTable[i][1])
 		cpuTable[i][3] = addonCPU
-		totalCPU = totalCPU + addonCPU	
+		totalCPU = totalCPU + addonCPU
 	end
-	
+
 	tsort(cpuTable, function(a, b)
 		if a and b then
 			return a[3] > b[3]
 		end
-	end)	
-	
+	end)
+
 	return totalCPU
 end
 
@@ -141,11 +130,11 @@ Report.OnEnter = function(self)
 	local cpuProfiling = false
 	Reports:SetDataTip(self)
 
-	UpdateMemory()	
+	UpdateMemory()
 	bandwidth = GetAvailableBandwidth()
-	
+
 	Reports.ToolTip:AddDoubleLine(L['Home Latency:'], homeLatencyString:format(select(3, GetNetStats())), 0.69, 0.31, 0.31,0.84, 0.75, 0.65)
-	
+
 	if bandwidth ~= 0 then
 		local percent = GetDownloadedPercentage()
 		percent = percent * 100
@@ -153,14 +142,14 @@ Report.OnEnter = function(self)
 		Reports.ToolTip:AddDoubleLine(L['Download'] , percentageString:format(percent), 0.69, 0.31, 0.31, 0.84, 0.75, 0.65)
 		Reports.ToolTip:AddLine(" ")
 	end
-	
+
 	local totalCPU = nil
 	Reports.ToolTip:AddDoubleLine(L['Total Memory:'], formatMem(totalMemory), 0.69, 0.31, 0.31,0.84, 0.75, 0.65)
 	if cpuProfiling then
 		totalCPU = UpdateCPU()
 		Reports.ToolTip:AddDoubleLine(L['Total CPU:'], homeLatencyString:format(totalCPU), 0.69, 0.31, 0.31,0.84, 0.75, 0.65)
 	end
-	
+
 	local red, green
 	if IsShiftKeyDown() or not cpuProfiling then
 		Reports.ToolTip:AddLine(" ")
@@ -169,10 +158,10 @@ Report.OnEnter = function(self)
 				red = memoryTable[i][3] / totalMemory
 				green = 1 - red
 				Reports.ToolTip:AddDoubleLine(memoryTable[i][2], formatMem(memoryTable[i][3]), 1, 1, 1, red, green + .5, 0)
-			end						
+			end
 		end
 	end
-	
+
 	if cpuProfiling and not IsShiftKeyDown() then
 		Reports.ToolTip:AddLine(" ")
 		for i = 1, #cpuTable do
@@ -180,13 +169,13 @@ Report.OnEnter = function(self)
 				red = cpuTable[i][3] / totalCPU
 				green = 1 - red
 				Reports.ToolTip:AddDoubleLine(cpuTable[i][2], homeLatencyString:format(cpuTable[i][3]), 1, 1, 1, red, green + .5, 0)
-			end						
+			end
 		end
 
 		Reports.ToolTip:AddLine(" ")
 		Reports.ToolTip:AddLine(L['(Hold Shift) Memory Usage'])
 	end
-	
+
 	Reports.ToolTip:Show()
 end
 
@@ -198,23 +187,23 @@ end
 Report.OnUpdate = function(self, elapsed)
 	int = int - elapsed
 	int2 = int2 - elapsed
-	
+
 	if int < 0 then
 		RebuildAddonList()
 		int = 10
 	end
 	if int2 < 0 then
 		local framerate = floor(GetFramerate())
-		local latency = select(4, GetNetStats()) 
-					
-		self.text:SetFormattedText("FPS: %s%d|r MS: %s%d|r", 
-			statusColors[framerate >= 30 and 1 or (framerate >= 20 and framerate < 30) and 2 or (framerate >= 10 and framerate < 20) and 3 or 4], 
-			framerate, 
-			statusColors[latency < 150 and 1 or (latency >= 150 and latency < 300) and 2 or (latency >= 300 and latency < 500) and 3 or 4], 
+		local latency = select(4, GetNetStats())
+
+		self.text:SetFormattedText("FPS: %s%d|r MS: %s%d|r",
+			statusColors[framerate >= 30 and 1 or (framerate >= 20 and framerate < 30) and 2 or (framerate >= 10 and framerate < 20) and 3 or 4],
+			framerate,
+			statusColors[latency < 150 and 1 or (latency >= 150 and latency < 300) and 2 or (latency >= 300 and latency < 500) and 3 or 4],
 			latency)
 		int2 = 1
 		if enteredFrame then
 			Report.OnEnter(self)
-		end		
+		end
 	end
 end

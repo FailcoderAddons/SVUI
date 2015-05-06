@@ -24,7 +24,10 @@ MOD.media.completeIcon = [[Interface\AddOns\SVUI_QuestTracker\assets\QUEST-COMPL
 MOD.media.incompleteIcon = [[Interface\AddOns\SVUI_QuestTracker\assets\QUEST-INCOMPLETE-ICON]];
 
 SV.defaults[Schema] = {
+	["rowHeight"] = 0,
 	["itemBarDirection"] = 'VERTICAL',
+	["itemButtonSize"] = 28,
+	["itemButtonsPerRow"] = 5,
 };
 
 SV:AssignMedia("font", "questdialog", "SVUI Default Font", 12, "OUTLINE");
@@ -60,17 +63,65 @@ function MOD:LoadOptions()
 		type = "group",
 		name = Schema,
 		get = function(a)return SV.db[Schema][a[#a]] end,
-		set = function(a,b)MOD:ChangeDBVar(b,a[#a]); SV:StaticPopup_Show("RL_CLIENT") end,
+		set = function(a,b)
+			MOD:ChangeDBVar(b,a[#a]);
+			--MOD:UpdateLocals();
+		end,
 		args = {
-			itemBarDirection = {
+			generalGroup = {
 				order = 1,
-				type = 'select',
-				name = L["Item Bar Direction"],
-				values = {
-					['VERTICAL'] = L['Vertical'],
-					['HORIZONTAL'] = L['Horizontal']
-				},
+				type = "group",
+				name = "General",
+				guiInline = true,
+				args = {
+					rowHeight = {
+						order = 1,
+						type = 'range',
+						name = L["Row Height"],
+						desc = L["Setting this to 0 (zero) will force an automatic size"],
+						min = 0,
+						max = 50,
+						step = 1,
+						width = "full",
+					},
+				}
 			},
+			itemsGroup = {
+				order = 2,
+				type = "group",
+				name = "Quest Items",
+				guiInline = true,
+				args = {
+					itemBarDirection = {
+						order = 1,
+						type = 'select',
+						name = L["Bar Direction"],
+						values = {
+							['VERTICAL'] = L['Vertical'],
+							['HORIZONTAL'] = L['Horizontal']
+						},
+					},
+					itemButtonSize = {
+						order = 2,
+						type = 'range',
+						name = L["Button Size"],
+						min = 10,
+						max = 100,
+						step = 1,
+						width = "full",
+					},
+					itemButtonsPerRow = {
+						order = 3,
+						type = 'range',
+						name = L["Buttons Per Row"],
+						desc = L["This will only take effect if you have moved the item bar away from the dock."],
+						min = 1,
+						max = 20,
+						step = 1,
+						width = "full",
+					},
+				}
+			}
 		}
 	}
 end

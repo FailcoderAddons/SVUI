@@ -70,9 +70,9 @@ local function StyleACP()
 		k:SetScript("OnUpdate",cbResize)
 	end 
 	for c=1,20 do 
-		_G["ACP_AddonListEntry"..c.."Enabled"]:SetStyle("Checkbox")
+		_G["ACP_AddonListEntry"..c.."Enabled"]:SetStyle("CheckButton")
 	end 
-	ACP_AddonList_NoRecurse:SetStyle("Checkbox")
+	ACP_AddonList_NoRecurse:SetStyle("CheckButton")
 	SV.API:Set("ScrollBar", ACP_AddonList_ScrollFrameScrollBar)
 	SV.API:Set("DropDown", ACP_AddonListSortDropDown)
 	ACP_AddonListSortDropDown:SetWidth(130)

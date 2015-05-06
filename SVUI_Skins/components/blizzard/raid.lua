@@ -88,7 +88,7 @@ local function RaidInfoStyle()
 	SV.API:Set("ScrollBar", RaidInfoScrollFrameScrollBar)
 	
 	if RaidFrameRaidBrowserButton then RaidFrameRaidBrowserButton:SetStyle("Button") end
-	RaidFrameAllAssistCheckButton:SetStyle("Checkbox")
+	RaidFrameAllAssistCheckButton:SetStyle("CheckButton")
 end 
 --[[ 
 ########################################################## 

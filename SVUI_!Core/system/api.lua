@@ -77,12 +77,12 @@ MOD.Templates = {
     ["Default"]     = "SVUI_CoreStyle_Default",
     ["Transparent"] = "SVUI_CoreStyle_Transparent",
     ["Button"]      = "SVUI_CoreStyle_Button",
+    ["CheckButton"] = "SVUI_CoreStyle_CheckButton",
     ["DockButton"]  = "SVUI_CoreStyle_DockButton",
     ["ActionSlot"]  = "SVUI_CoreStyle_ActionSlot",
     ["Lite"]        = "SVUI_CoreStyle_Lite",
     ["Icon"]        = "SVUI_CoreStyle_Icon",
     ["Bar"]         = "SVUI_CoreStyle_Bar",
-    ["Checkbox"]    = "SVUI_CoreStyle_Checkbox",
     ["Inset"]       = "SVUI_CoreStyle_Inset",
     ["Blackout"]    = "SVUI_CoreStyle_Blackout",
     ["Component"]   = "SVUI_CoreStyle_Component",
@@ -250,23 +250,10 @@ local FadeEventManager_OnEvent = function(self, event)
         self:UnregisterEvent("PLAYER_REGEN_ENABLED")
         for frame in pairs(FRAMES_TO_HIDE) do
             frame:Hide()
-            if(frame.___forcehidefunc) then
-                local _, catch = pcall(frame.___forcehidefunc, frame)
-                if(catch) then
-                    frame.___forcehidefunc = nil
-                end
-            end
         end
         wipe(FRAMES_TO_HIDE)
-        --print("removed frames")
         for frame in pairs(FRAMES_TO_SHOW) do
             frame:Show()
-            if(frame.___forceshowfunc) then
-                local _, catch = pcall(frame.___forceshowfunc, frame)
-                if(catch) then
-                    frame.___forceshowfunc = nil
-                end
-            end
         end
         wipe(FRAMES_TO_SHOW)
     end
@@ -322,6 +309,7 @@ local SecureFade_OnUpdate = function(self, elasped)
 end
 
 local SecureFadeIn = function(self, duration, alphaStart, alphaEnd)
+    if(self.___visibilityLocked) then return end
     local alpha1 = alphaStart or 0;
     local alpha2 = alphaEnd or 1;
     local timer = duration or 0.1;
@@ -347,7 +335,7 @@ local SecureFadeIn = function(self, duration, alphaStart, alphaEnd)
 
         self.___fademode = "IN";
         self.___fadehide = nil;
-        self.___fadefunc = nil;
+        self.___fadefunc = self.___fadeshowfunc;
 
         if(not self.___fadeset) then
             self.___fadeset = {};
@@ -365,11 +353,12 @@ local SecureFadeIn = function(self, duration, alphaStart, alphaEnd)
 end
 
 local SecureFadeOut = function(self, duration, alphaStart, alphaEnd, hideOnFinished)
+    if(self.___visibilityLocked) then return end
     local alpha1 = alphaStart or 1;
     local alpha2 = alphaEnd or 0;
     local timer = duration or 0.1;
 
-    if(not self:IsShown() or self:GetAlpha() == alpha2) then return end
+    if((not self:IsShown()) or self:GetAlpha() == alpha2) then return end
     if(not self.___fadehandler) then
         self.___fadehandler = CreateFrame("Frame", nil)
         self.___fadehandler.owner = self;
@@ -381,7 +370,7 @@ local SecureFadeOut = function(self, duration, alphaStart, alphaEnd, hideOnFinis
 
         self.___fademode = "OUT";
         self.___fadehide = hideOnFinished;
-        self.___fadefunc = nil;
+        self.___fadefunc = self.___fadehidefunc;
 
         if(not self.___fadeset) then
             self.___fadeset = {};
@@ -399,14 +388,13 @@ local SecureFadeOut = function(self, duration, alphaStart, alphaEnd, hideOnFinis
     end
 end
 
-local SecureFadeCallback = function(self, callback, onForceHide, onForceShow)
-    if(onForceHide) then
-        self.___forcehidefunc = callback;
-    elseif(onForceShow) then
-        self.___forceshowfunc = callback;
-    else
-        self.___fadefunc = callback;
+local SecureFadeCallback = function(self, callback, alwaysOnHide, alwaysOnShow)
+    if(alwaysOnHide) then
+        self.___fadehidefunc = callback;
+    elseif(alwaysOnShow) then
+        self.___fadeshowfunc = callback;
     end
+    self.___fadefunc = callback;
 end
 --[[
 ##########################################################
@@ -962,7 +950,7 @@ MOD.Methods["ActionSlot"] = function(self, frame, inverse, addChecked)
     CommonButtonSettings(frame, addChecked, true)
 end;
 
-MOD.Methods["Checkbox"] = function(self, frame, inverse, x, y)
+MOD.Methods["CheckButton"] = function(self, frame, inverse, x, y)
     if(not frame or (frame and frame.Panel)) then return end
 
     local width, height = frame:GetSize()
@@ -971,7 +959,7 @@ MOD.Methods["Checkbox"] = function(self, frame, inverse, x, y)
     frame:SetSize(width, height)
 
     local underlay = (not inverse)
-    self:APPLY(frame, "Checkbox", inverse, 1, 1, 1)
+    self:APPLY(frame, "CheckButton", inverse, 1, 1, 1)
 
     if(frame.SetNormalTexture) then
         frame:SetNormalTexture("")
@@ -1491,12 +1479,29 @@ MOD.Concepts["Window"] = function(self, adjustable, frame, altStyle, fullStrip, 
         frame:SetFrameLevel(1)
     end
     RemoveTextures(frame, fullStrip)
+    local name = frame:GetName()
+    if(name and _G[name.."BtnCornerLeft"]) then
+      _G[name.."BtnCornerLeft"]:SetTexture("");
+		  _G[name.."BtnCornerRight"]:SetTexture("");
+		  _G[name.."ButtonBottomBorder"]:SetTexture("");
+    end
     self.Methods["Frame"](self, frame, (not adjustable), template, false, padding, xOffset, yOffset)
+    if(frame.Inset) then
+      RemoveTextures(frame.Inset, fullStrip)
+      self.Methods["Frame"](self, frame.Inset, adjustable, "Inset", false, 3, 1, 1)
+    end
 end
 
 MOD.Concepts["Button"] = function(self, adjustable, frame)
     if(not frame or (frame and frame.Panel)) then return end
+    RemoveTextures(frame)
     self.Methods["Button"](self, frame, adjustable)
+end
+
+MOD.Concepts["CheckButton"] = function(self, adjustable, frame)
+    if(not frame or (frame and frame.Panel)) then return end
+    --RemoveTextures(frame)
+    self.Methods["CheckButton"](self, frame, adjustable)
 end
 
 MOD.Concepts["CloseButton"] = function(self, adjustable, frame, targetAnchor)

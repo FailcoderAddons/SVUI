@@ -248,7 +248,7 @@ local function FriendsFrameStyle()
 	BNConversationInviteDialogInviteButton:SetStyle("Button")
 	BNConversationInviteDialogCancelButton:SetStyle("Button")
 	for i = 1, BN_CONVERSATION_INVITE_NUM_DISPLAYED do
-		 _G["BNConversationInviteDialogListFriend"..i].checkButton:SetStyle("Checkbox")
+		 _G["BNConversationInviteDialogListFriend"..i].checkButton:SetStyle("CheckButton")
 	end 
 	FriendsTabHeaderSoRButton:SetStyle("!_Frame", 'Default')
 	FriendsTabHeaderSoRButton:SetStyle("Button")

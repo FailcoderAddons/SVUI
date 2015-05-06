@@ -829,6 +829,17 @@ local function InitializeMisc()
 		ThreatMeter:SetScript("OnEvent", ThreatBar_OnEvent);
 		SV:NewAnchor(ThreatMeter, L["Threat-O-Meter"])
 	end
+
+	local cfg = CreateFrame("Button", "GameMenuButtonSVUI", GameMenuFrame, "GameMenuButtonTemplate")
+	cfg:SetSize(GameMenuButtonHelp:GetWidth(), GameMenuButtonHelp:GetHeight())
+	cfg:SetPoint(GameMenuButtonHelp:GetPoint())
+	cfg:SetScript("OnClick", function() SV:ToggleConfig() HideUIPanel(GameMenuFrame) end)
+	cfg:SetText("|cffFF9900SuperVillain UI|r")
+	GameMenuFrame:HookScript("OnShow", function()
+		GameMenuFrame:SetHeight(GameMenuFrame:GetHeight() + GameMenuButtonHelp:GetHeight() + 10)
+	end)
+	GameMenuButtonHelp:ClearAllPoints()
+	GameMenuButtonHelp:SetPoint("TOP", cfg, "BOTTOM", 0, -11)
 end
 
 SV.Events:On("CORE_INITIALIZED", InitializeMisc);

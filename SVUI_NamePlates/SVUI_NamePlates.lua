@@ -135,6 +135,8 @@ local CBYoffset = 0;
 local AuraFilterName, AuraFilter;
 local AuraMaxCount = 5;
 
+local NPFindHealers = false;
+
 local RestrictedPlates = {
 	["Army of the Dead Ghoul"] = true,
 	["Venomous Snake"] = true,
@@ -226,6 +228,12 @@ local formatting = {
 	["PERCENT"] = "%s%%",
 	["DEFICIT"] = "-%s"
 };
+
+local function IsEnemyPlayer(flags)
+	if((band(flags, COMBATLOG_OBJECT_REACTION_FRIENDLY) == 0) and (band(flags, COMBATLOG_OBJECT_CONTROL_PLAYER) > 0)) then
+		return true
+	end
+end
 
 local function TruncateString(value)
     if value  >= 1e9 then
@@ -625,6 +633,9 @@ function MOD:UpdateAuras(plate)
 	if plate.setting.tiny then return end
 	local guid = plate.guid
 	local frame = plate.frame
+	if(NPFindHealers and plate.isHealer) then
+		frame.health.icon:Show()
+	end
 	if not guid then
 		if RAID_CLASS_COLORS[plate.setting.classToken] then
 			local pn = plate.name:GetText()
@@ -651,6 +662,7 @@ function MOD:UpdateAuras(plate)
 			end
 		end
 	end
+
 end
 
 function MOD:UpdateAurasByUnitID(unitid)
@@ -731,9 +743,7 @@ do
 		end
 
 		plate.setting.classToken = nil
-		if((r > 0.4) and (g > 0.4) and (b > 0.4)) then
-			return REACTION_COLORING[2]()
-		elseif(r + b < 0.25) then
+		if(r + b < 0.25) then
 			return REACTION_COLORING[3]()
 		else
 			local threatReaction = GetPlateThreatReaction(plate)
@@ -741,6 +751,8 @@ do
 				return REACTION_COLORING[4](threatReaction)
 			elseif(g + b < 0.25) then
 				return REACTION_COLORING[5](threatReaction)
+			elseif((r > 0.45 and r < 0.55) and (g > 0.45 and g < 0.55) and (b > 0.45 and b < 0.55)) then
+				REACTION_COLORING[2]()
 			else
 				REACTION_COLORING[1]()
 			end
@@ -1443,47 +1455,75 @@ end
 function MOD:UNIT_AURA(event, unit)
   if(unit == "target" or unit == "focus") then
     self:UpdateAurasByUnitID(unit)
- 	if(self.UseCombo) then
-	  	UpdateComboPoints()
-	end
+		if(self.UseCombo) then
+			UpdateComboPoints()
+		end
   end
 end
 
-function MOD:COMBAT_LOG_EVENT_UNFILTERED(event, timestamp, combatevent, hideCaster, ...)
-  local _, sourceGUID, sourceName, destGUID, destName, destFlags, destRaidFlag, spellID, spellname
-  if(not destGUID or not spellID) then return end
-  if(combatevent == SPELL_AURA_APPLIED or combatevent == SPELL_AURA_REFRESH or combatevent == SPELL_AURA_APPLIED_DOSE or combatevent == SPELL_AURA_REMOVED_DOSE) then
-    sourceGUID, sourceName, _, _, destGUID, destName, destFlags, destRaidFlag, spellID, spellname  = ...
-    local stackCount = 1
-    local duration = LoadDuration(spellID)
-    local texture = GetSpellTexture(spellID)
-    if(combatevent == SPELL_AURA_APPLIED_DOSE or combatevent == SPELL_AURA_REMOVED_DOSE) then
-      stackCount = select(16, ...)
-    end
-    SetAuraInstance(destGUID, spellID, (GetTime() + duration), stackCount, sourceGUID, duration, texture)
-  elseif(combatevent == SPELL_AURA_BROKEN or combatevent == SPELL_AURA_BROKEN_SPELL or combatevent == SPELL_AURA_REMOVED) then
-    sourceGUID, sourceName, _, _, destGUID, destName, destFlags, destRaidFlag, spellID, spellname  = ...
-    local auraID = spellID..(tostring(sourceName or "UNKNOWN_CASTER"))
-    if UnitPlateAuras[destGUID][auraID] then
-      UnitPlateAuras[destGUID][auraID] = nil
-    end
-  else
-    return
-  end
+do
+	local COMBAT_HEAL_EVENTS = {
+		["SPELL_HEAL"] = true,
+		["SPELL_AURA_APPLIED"] = true,
+		["SPELL_CAST_START"] = true,
+		["SPELL_CAST_SUCCESS"] = true,
+		["SPELL_PERIODIC_HEAL"] = true,
+	}
 
-  local rawName, raidIcon
-  if(destName and (band(destFlags, COMBATLOG_OBJECT_CONTROL_PLAYER) > 0)) then
-    rawName = split("-", destName)
-    AuraByName[rawName] = destGUID
-  end
-  for iconName, bitmask in pairs(RIconData) do
-    if band(destRaidFlag, bitmask) > 0  then
-      raidIcon = iconName
-      AuraByRaidIcon[raidIcon] = destGUID
-      break
-    end
-  end
-  self:RequestScanUpdate(destGUID, raidIcon, rawName, "UpdateAuras")
+	local COMBAT_AURA_EVENTS = {
+		["SPELL_AURA_BROKEN"] = 1,
+		["SPELL_AURA_BROKEN_SPELL"] = 1,
+		["SPELL_AURA_REMOVED"] = 1,
+		["SPELL_AURA_APPLIED"] = 2,
+		["SPELL_AURA_REFRESH"] = 2,
+		["SPELL_AURA_APPLIED_DOSE"] = 3,
+		["SPELL_AURA_REMOVED_DOSE"] = 3,
+	}
+
+	function MOD:COMBAT_LOG_EVENT_UNFILTERED(event, timestamp, combatevent, hideCaster, ...)
+	  local sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellID, spellname = ...;
+		local hasChange = false;
+		local eventCheck = COMBAT_AURA_EVENTS[combatevent];
+		if(eventCheck and destGUID and spellID) then
+		  if(eventCheck > 1) then
+		    local stackCount = 1
+		    local duration = LoadDuration(spellID)
+		    local texture = GetSpellTexture(spellID)
+		    if(eventCheck == 3) then stackCount = select(16, ...) end
+		    SetAuraInstance(destGUID, spellID, (GetTime() + duration), stackCount, sourceGUID, duration, texture)
+		  else
+		    local auraID = spellID..(tostring(sourceName or "UNKNOWN_CASTER"))
+		    if UnitPlateAuras[destGUID][auraID] then
+		      UnitPlateAuras[destGUID][auraID] = nil
+		    end
+			end
+			hasChange = true;
+		end
+
+		if(NPFindHealers and COMBAT_HEAL_EVENTS[combatevent] and IsEnemyPlayer(sourceFlags) and sourceName) then
+			local healerName = split("-", sourceName)
+			self:RequestScanUpdate(sourceGUID, false, healerName, "UpdateHealer", healerName, spellID)
+			hasChange = true;
+		end
+
+	  if(not hasChange) then
+	    return
+	  end
+
+	  local rawName, raidIcon
+	  if(destName and (band(destFlags, COMBATLOG_OBJECT_CONTROL_PLAYER) > 0)) then
+	    rawName = split("-", destName)
+	    AuraByName[rawName] = destGUID
+	  end
+	  for iconName, bitmask in pairs(RIconData) do
+	    if band(destRaidFlag, bitmask) > 0  then
+	      raidIcon = iconName
+	      AuraByRaidIcon[raidIcon] = destGUID
+	      break
+	    end
+	  end
+	  self:RequestScanUpdate(destGUID, raidIcon, rawName, "UpdateAuras")
+	end
 end
 --[[
 ##########################################################
@@ -1544,6 +1584,8 @@ function MOD:UpdateLocals()
 	AuraFilterName = db.auras.additionalFilter
 	AuraFilter = SV.db.Filters[AuraFilterName]
 
+	NPFindHealers = db.findHealers
+
 	local tc = SV.db.NamePlates.threat
 	NPUseThreat = tc.enable;
 	NPThreatGS = tc.goodScale;
@@ -1584,6 +1626,12 @@ function MOD:UpdateLocals()
 	else
 		self.UseCombo = false
 		self:UnregisterEvent("UNIT_COMBO_POINTS")
+	end
+
+	if (NPFindHealers) then
+		self:RegisterEvent("UPDATE_BATTLEFIELD_SCORE")
+	else
+		self:UnregisterEvent("UPDATE_BATTLEFIELD_SCORE")
 	end
 end
 

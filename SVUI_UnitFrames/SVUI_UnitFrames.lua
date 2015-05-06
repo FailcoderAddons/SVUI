@@ -296,22 +296,26 @@ function MOD:RefreshUnitMedia(unitName)
     if(unitDB and unitDB.enable) then
         local panel = self.TextGrip
         if(panel) then
-            if(panel.Name and unitDB.name) then
-            	if(unitDB.grid and unitDB.grid.enable) then
-            		panel.Name:SetFont(SV.media.font.pixel, 8, "MONOCHROMEOUTLINE")
-            		panel.Name:SetShadowOffset(1, -1)
-					panel.Name:SetShadowColor(0, 0, 0, 0.75)
-            	else
-                	panel.Name:SetFont(LSM:Fetch("font", unitDB.name.font), unitDB.name.fontSize, unitDB.name.fontOutline)
-                	if(unitDB.name.fontOutline == 'NONE') then
-	                	panel.Name:SetShadowOffset(1, -1)
-						panel.Name:SetShadowColor(0, 0, 0, 1)
-					else
-						panel.Name:SetShadowOffset(2, -2)
-						panel.Name:SetShadowColor(0, 0, 0, 0.75)
-					end
-                end
+          if(panel.Name and unitDB.name) then
+          	if(unitDB.grid and unitDB.grid.enable) then
+          		panel.Name:SetFont(SV.media.font.pixel, 8, "MONOCHROMEOUTLINE")
+          		panel.Name:SetShadowOffset(0, -1)
+							panel.Name:SetShadowColor(0, 0, 0, 1)
+          	else
+              panel.Name:SetFont(LSM:Fetch("font", unitDB.name.font), unitDB.name.fontSize, unitDB.name.fontOutline)
+							if(key == 'raid') then
+								panel.Name:SetShadowOffset(0, -1)
+								panel.Name:SetShadowColor(0, 0, 0, 1)
+							else
+								if(unitDB.name.fontOutline == 'NONE') then
+									panel.Name:SetShadowColor(0, 0, 0, 1)
+								else
+									panel.Name:SetShadowColor(0, 0, 0, 0.5)
+								end
+								panel.Name:SetShadowOffset(1, -1)
+							end
             end
+          end
         end
         if(self.Health) then
             self.Health:SetStatusBarTexture(CURRENT_BAR_TEXTURE)
@@ -450,6 +454,8 @@ function MOD:RefreshUnitLayout(frame, template)
 	local BUFF_ENABLED = (db.buffs and db.buffs.enable) or false;
 	local DEBUFF_GRIP = frame.Debuffs;
 	local DEBUFF_ENABLED = (db.debuffs and db.debuffs.enable) or false;
+	local RAID_DEBUFFS = frame.RaidDebuffs;
+	local RAID_DEBUFFS_ENABLED = (db.rdebuffs and db.rdebuffs.enable) or false;
 
 	if(RESIZE_NEEDED) then
 		frame:SetSize(UNIT_WIDTH + (MASTER_X1_OFFSET + MASTER_X2_OFFSET), UNIT_HEIGHT + (MASTER_TOP_OFFSET + MASTER_BOTTOM_OFFSET))
@@ -883,7 +889,6 @@ function MOD:RefreshUnitLayout(frame, template)
 						BUFF_GRIP.UseBars = db.buffs.useBars or false;
 						--if(template == 'player') then print(db.buffs.useBars) end
 						if(BUFF_GRIP.UseBars and (BUFF_GRIP.UseBars == true)) then
-							auraSize = db.buffs.barSize;
 							count = db.buffs.barCount;
 							if(db.buffs.anchorPoint == "BELOW") then
 								BUFF_GRIP.down = true
@@ -902,13 +907,13 @@ function MOD:RefreshUnitLayout(frame, template)
 						end
 					end
 
-					if(not auraSize) then
-						if(db.buffs.sizeOverride and db.buffs.sizeOverride > 0) then
-							auraSize = db.buffs.sizeOverride
-						else
-							local tempSize = (((UNIT_WIDTH + spacing) - (spacing * (columns - 1))) / columns);
-							auraSize = min(BEST_SIZE, tempSize)
-						end
+					if(db.buffs.sizeOverride and db.buffs.sizeOverride > 0) then
+						auraSize = db.buffs.sizeOverride
+						BUFF_GRIP.barHeight = db.buffs.sizeOverride
+					else
+						local tempSize = (((UNIT_WIDTH + spacing) - (spacing * (columns - 1))) / columns);
+						auraSize = min(BEST_SIZE, tempSize)
+						BUFF_GRIP.barHeight = 16
 					end
 
 					if(db.buffs.barWidthOverride and db.buffs.barWidthOverride > 0) then
@@ -952,7 +957,6 @@ function MOD:RefreshUnitLayout(frame, template)
 					if(DEBUFF_GRIP.Bars and DEBUFF_GRIP.Icons) then
 						DEBUFF_GRIP.UseBars = db.debuffs.useBars or false;
 						if(DEBUFF_GRIP.UseBars and (DEBUFF_GRIP.UseBars == true)) then
-							auraSize = db.debuffs.barSize;
 							count = db.debuffs.barCount;
 							if(db.debuffs.anchorPoint == "BELOW") then
 								DEBUFF_GRIP.down = true
@@ -969,13 +973,13 @@ function MOD:RefreshUnitLayout(frame, template)
 						end
 					end
 
-					if(not auraSize) then
-						if(db.debuffs.sizeOverride and db.debuffs.sizeOverride > 0) then
-							auraSize = db.debuffs.sizeOverride
-						else
-							local tempSize = (((UNIT_WIDTH + spacing) - (spacing * (columns - 1))) / columns);
-							auraSize = min(BEST_SIZE, tempSize)
-						end
+					if(db.debuffs.sizeOverride and db.debuffs.sizeOverride > 0) then
+						auraSize = db.debuffs.sizeOverride
+						DEBUFF_GRIP.barHeight = db.debuffs.sizeOverride
+					else
+						local tempSize = (((UNIT_WIDTH + spacing) - (spacing * (columns - 1))) / columns);
+						auraSize = min(BEST_SIZE, tempSize)
+						DEBUFF_GRIP.barHeight = 16
 					end
 
 					if(db.debuffs.barWidthOverride and db.debuffs.barWidthOverride > 0) then
@@ -1007,6 +1011,23 @@ function MOD:RefreshUnitLayout(frame, template)
 					DEBUFF_GRIP:Hide()
 				end
 			end
+		end
+	end
+
+	if(RAID_DEBUFFS) then
+		if RAID_DEBUFFS_ENABLED then
+			RAID_DEBUFFS.forceShow 	= frame.forceShowAuras;
+			if(not frame:IsElementEnabled("RaidDebuffs")) then
+				frame:EnableElement("RaidDebuffs")
+			end
+			local actualSz = db.rdebuffs.size
+			RAID_DEBUFFS:SetSize(actualSz, actualSz)
+			RAID_DEBUFFS:SetPoint("CENTER", frame, "CENTER", db.rdebuffs.xOffset, db.rdebuffs.yOffset)
+			RAID_DEBUFFS:Show()
+		else
+			RAID_DEBUFFS.forceShow 	= nil;
+			frame:DisableElement("RaidDebuffs")
+			RAID_DEBUFFS:Hide()
 		end
 	end
 
@@ -1131,11 +1152,15 @@ function MOD:RefreshUnitLayout(frame, template)
 
 	if frame.Afflicted then
 		if SV.db.UnitFrames.debuffHighlighting then
+			frame.Afflicted.forceShow 	= frame.forceShowHighlights;
+			frame.Afflicted:ClearAllPoints()
+			frame.Afflicted:SetAllPoints(MASTER_GRIP)
 			if(template ~= "player" and template ~= "target" and template ~= "focus") then
-				frame.Afflicted:SetTexture(SV.BaseTexture)
+				frame.Afflicted.Texture:SetTexture(SV.BaseTexture)
 			end
 			frame:EnableElement('Afflicted')
 		else
+			frame.Afflicted.forceShow 	= nil;
 			frame:DisableElement('Afflicted')
 		end
 	end
@@ -1305,12 +1330,12 @@ end
 
 function MOD:CanClassDispel()
 	if RefMagicSpec then
-        if(GetTalentInfo(RefMagicSpec)) then
-            self.Dispellable["Magic"] = true
-        elseif(self.Dispellable["Magic"]) then
-            self.Dispellable["Magic"] = nil
-        end
+    if(GetTalentInfo(RefMagicSpec)) then
+      self.Dispellable["Magic"] = true
+    elseif(self.Dispellable["Magic"]) then
+      self.Dispellable["Magic"] = nil
     end
+  end
 end
 
 function MOD:SPELLS_CHANGED()

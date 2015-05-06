@@ -218,7 +218,7 @@
         </Frames>
     </Frame>
 
-    <Frame name="SVUI_CoreStyle_Checkbox" virtual="true">
+    <Frame name="SVUI_CoreStyle_CheckButton" virtual="true">
         <Attributes>
             <Attribute name="panelID" type="string" value="checkbox" />
             <Attribute name="panelPadding" type="number" value="1" />
@@ -249,7 +249,7 @@
             <EdgeSize val="6" />
             <TileSize val="0" />
             <BackgroundInsets left="0" right="0" top="0" bottom="0" />
-            <Color r="0" g="0" b="0" a="0.5" />
+            <Color r="0" g="0" b="0" a="1" />
             <BorderColor r="0" g="0" b="0" a="0.5" />
         </Backdrop>
     </Frame>

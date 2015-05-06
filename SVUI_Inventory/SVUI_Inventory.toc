@@ -1,6 +1,6 @@
 ## Interface: 60100
 ## Author: Munglunch
-## Version: 1.1.95
+## Version: 1.2.0
 ## Title: |cffFF9900SuperVillain UI: |r|cffFFEF00Inventory|r
 ## Notes: Inventory Plugin for [|cff9911FFSVUI|r].
 ## SavedVariables: SVUI_LootCache

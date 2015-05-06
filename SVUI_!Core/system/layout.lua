@@ -430,6 +430,41 @@ HANDLERS
 ]]--
 local LayoutUpdateHandler = CreateFrame("Frame", nil)
 
+local function SetPrecisionSizes()
+	if(not CurrentFrameTarget) then return end
+	if(not CurrentFrameTarget.postsize) then
+		SVUI_LayoutPrecision:SetHeight(70)
+		SVUI_LayoutPrecisionWidthAdjust:Hide()
+		SVUI_LayoutPrecisionHeightAdjust:Hide()
+	else
+		local x,y = SVUI_LayoutPrecision:GetCenter()
+		SVUI_LayoutPrecision:ClearAllPoints()
+		SVUI_LayoutPrecision:SetPoint("BOTTOMLEFT", SVUIParent, "BOTTOMLEFT", x,y)
+
+		SVUI_LayoutPrecision:SetHeight(144)
+		local minRange = CurrentFrameTarget.minRange or 0;
+		local maxRange = CurrentFrameTarget.maxRange or 500;
+		local min2Range = CurrentFrameTarget.min2Range or minRange;
+		local max2Range = CurrentFrameTarget.max2Range or maxRange;
+
+		local curWidth = floor(CurrentFrameTarget:GetWidth())
+		local curHeight = floor(CurrentFrameTarget:GetHeight())
+
+		SVUI_LayoutPrecisionWidthAdjust.rangeLow:SetText(minRange);
+		SVUI_LayoutPrecisionWidthAdjust.rangeHigh:SetText(maxRange);
+		SVUI_LayoutPrecisionWidthAdjust:SetMinMaxValues(minRange, maxRange);
+		SVUI_LayoutPrecisionWidthAdjust:SetValue(curWidth);
+		SVUI_LayoutPrecisionWidthAdjust.rangeValue:SetText(curWidth);
+		SVUI_LayoutPrecisionWidthAdjust:Show()
+		SVUI_LayoutPrecisionHeightAdjust.rangeLow:SetText(min2Range);
+		SVUI_LayoutPrecisionHeightAdjust.rangeHigh:SetText(max2Range);
+		SVUI_LayoutPrecisionHeightAdjust:SetMinMaxValues(minRange, maxRange);
+		SVUI_LayoutPrecisionHeightAdjust:SetValue(curHeight);
+		SVUI_LayoutPrecisionHeightAdjust.rangeValue:SetText(curHeight);
+		SVUI_LayoutPrecisionHeightAdjust:Show()
+	end
+end
+
 function Layout:Movable_OnMouseUp()
 	if(not SVUI_LayoutPrecision) then return end;
 	CurrentFrameTarget = self;
@@ -453,24 +488,34 @@ function Layout:Movable_OnUpdate()
 	local calc2 = rightPos * 0.66;
 	local calc3 = topPos * 0.5;
 	local anchor1, anchor2;
+	local xOffset,yOffset = 0,0;
 	if centerY >= calc3 then
 		anchor1 = "TOP"
 		anchor2 = "BOTTOM"
+		yOffset = -25
 	else
 		anchor1 = "BOTTOM"
 		anchor2 = "TOP"
+		yOffset = 25
 	end
 	if centerX >= calc2 then
 		anchor1 = "RIGHT"
 		anchor2 = "LEFT"
+		xOffset = -25
 	elseif centerX <= calc1 then
 		anchor1 = "LEFT"
 		anchor2 = "RIGHT"
+		xOffset = 25
 	end
 	if(not SVUI_LayoutPrecision) then return end;
-	SVUI_LayoutPrecision:ClearAllPoints()
-	SVUI_LayoutPrecision:SetPoint(anchor1, frame, anchor2, 0, 0)
-	SVUI_LayoutPrecision:SetFrameLevel(frame:GetFrameLevel() + 20)
+	if CurrentFrameTarget ~= frame then
+		SVUI_LayoutPrecision:Hide()
+		frame:GetScript("OnMouseUp")(frame)
+	else
+		SVUI_LayoutPrecision:ClearAllPoints()
+		SVUI_LayoutPrecision:SetPoint(anchor1, frame, anchor2, xOffset, yOffset)
+		SetPrecisionSizes()
+	end
 	Layout.Movable_OnMouseUp(frame)
 end
 
@@ -558,23 +603,22 @@ function Layout:Movable_OnEnter()
 	if TheHand.UserHeld then return end
 	ResetAllAlphas()
 	self:SetAlpha(1)
-	self.text:SetTextColor(0, 1, 1)
-	self:SetBackdropBorderColor(0, 0.7, 1)
+	if(CurrentFrameTarget ~= self) then
+		self.text:SetTextColor(0, 1, 1)
+		self:SetBackdropBorderColor(0, 0.7, 1)
+	end
 	UpdateFrameTarget = self;
 	Layout.Portrait:SetTexture([[Interface\AddOns\SVUI_!Core\assets\textures\Doodads\MENTALO-ON]])
 	TheHand:SetPoint("CENTER", self, "TOP", 0, 0)
 	TheHand:Show()
-	if(not SVUI_LayoutPrecision) then return end;
-	if CurrentFrameTarget ~= self then
-		SVUI_LayoutPrecision:Hide()
-		self:GetScript("OnMouseUp")(self)
-	end
 end
 
 function Layout:Movable_OnLeave()
 	if TheHand.UserHeld then return end
-	self.text:SetTextColor(0.5, 0.5, 0.5)
-	self:SetBackdropBorderColor(0.5, 0.5, 0.5)
+	if(CurrentFrameTarget ~= self) then
+		self.text:SetTextColor(0.5, 0.5, 0.5)
+		self:SetBackdropBorderColor(0.5, 0.5, 0.5)
+	end
 	Layout.Portrait:SetTexture([[Interface\AddOns\SVUI_!Core\assets\textures\Doodads\MENTALO-OFF]])
 	TheHand:Hide()
 	if(not SVUI_LayoutPrecision) then return end;
@@ -592,12 +636,11 @@ function Layout:Movable_OnMouseDown(button)
 			self:StopMovingOrSizing()
 		end
 		if(not SVUI_LayoutPrecision) then return end;
-		if(CurrentFrameTarget == self and not SVUI_LayoutPrecision:IsShown()) then
-			Layout:Movable_OnUpdate()
-			SVUI_LayoutPrecision:Show()
-		else
-			SVUI_LayoutPrecision:Hide()
-		end
+		CurrentFrameTarget = self
+		self.text:SetTextColor(0.2, 1, 0)
+		self:SetBackdropBorderColor(0, 1, 0)
+		Layout:Movable_OnUpdate()
+		SVUI_LayoutPrecision:Show()
 	end
 end
 
@@ -613,14 +656,13 @@ end
 CONSTRUCTS
 ##########################################################
 ]]--
-local function SetNewAnchor(frame, moveName, title, postSizeFunc, postDragFunc, callbackOnEnter)
+local function SetNewAnchor(frame, moveName, title, postDragFunc)
 	if((not frame) or (not moveName) or (Layout.Frames[moveName] ~= nil)) then return end
-	--print('SetNewAnchor: '..moveName)
+
 	Layout.Frames[moveName] = {
 		text = title,
-		postsize = postSizeFunc,
 		postdrag = postDragFunc,
-		layoutString = CurrentPosition(frame)
+		layoutString = CurrentPosition(frame),
 	}
 
 	local grip = CreateFrame("Button", moveName, SV.Screen)
@@ -676,16 +718,26 @@ local function SetNewAnchor(frame, moveName, title, postSizeFunc, postDragFunc, 
 	grip:SetMovable(true)
 	grip:Hide()
 
-	if(postDragFunc and (type(postDragFunc) == "function") and callbackOnEnter) then
-		grip:RegisterEvent("PLAYER_ENTERING_WORLD")
-		grip:SetScript("OnEvent", function(this, event)
-			local point = Pinpoint(this)
-			postDragFunc(this, point)
-			this:UnregisterAllEvents()
-		end)
-	end
-
 	Sticky.Frames[#Sticky.Frames + 1] = grip;
+end
+
+local function SetResizeHandling(frame, postSizeFunc, minRange, maxRange, min2Range, max2Range)
+	if((not frame) or (not frame.Grip)) then return end
+
+	Layout.Frames[frame.Grip.name].postsize = postSizeFunc;
+
+	frame.Grip.minRange = minRange;
+	frame.Grip.maxRange = maxRange;
+	frame.Grip.min2Range = min2Range;
+	frame.Grip.max2Range = max2Range;
+	frame.Grip.postsize = postSizeFunc;
+end
+
+local function AnchorResize(frame, callback, width, height)
+	if(not width or width == 0) then width = frame:GetWidth() end
+	if(not height or height == 0) then height = frame:GetHeight() end
+	frame:SetSize(width, height)
+	callback(frame)
 end
 
 function Layout:Reset(request, bypass)
@@ -697,12 +749,9 @@ function Layout:Reset(request, bypass)
 				frame:ClearAllPoints()
 				frame:SetPoint(anchor1, anchorParent, anchor2, xPos, yPos)
 				if(not bypass) then
-					if(frameData.postsize and (type(frameData.postsize) == "function")) then
-						if(not width or width == 0) then width = frame:GetWidth() end
-						if(not height or height == 0) then height = frame:GetHeight() end
-						frame:SetSize(width, height)
-						frameData.postsize(frame)
-					end
+					-- if(frameData.postsize and (type(frameData.postsize) == "function")) then
+					-- 	AnchorResize(frame, frameData.postsize, width, height)
+					-- end
 					if(frameData.postdrag and (type(frameData.postdrag) == "function")) then
 						frameData.postdrag(frame, Pinpoint(frame))
 					end
@@ -720,12 +769,9 @@ function Layout:Reset(request, bypass)
 				frame:ClearAllPoints()
 				frame:SetPoint(anchor1, anchorParent, anchor2, xPos, yPos)
 				if(not bypass) then
-					if(frameData.postsize and (type(frameData.postsize) == "function")) then
-						if(not width or width == 0) then width = frame:GetWidth() end
-						if(not height or height == 0) then height = frame:GetHeight() end
-						frame:SetSize(width, height)
-						frameData.postsize(frame)
-					end
+					-- if(frameData.postsize and (type(frameData.postsize) == "function")) then
+					-- 	AnchorResize(frame, frameData.postsize, width, height)
+					-- end
 					if(frameData.postdrag and (type(frameData.postdrag) == "function")) then
 						frameData.postdrag(frame, Pinpoint(frame))
 					end
@@ -750,53 +796,37 @@ function Layout:Update()
 				anchor1, parent, anchor2, x, y, width, height = LayoutParser(self.Anchors[frameName], frameName)
 				frame:ClearAllPoints()
 				frame:SetPoint(anchor1, parent, anchor2, x, y)
-				if(frameData.postsize and (type(frameData.postsize) == "function")) then
-					if(not width or width == 0) then width = frame:GetWidth() end
-					if(not height or height == 0) then height = frame:GetHeight() end
-					frame:SetSize(width, height)
-					frameData.postsize(frame)
-				end
+				-- if(frameData.postsize and (type(frameData.postsize) == "function")) then
+				-- 	AnchorResize(frame, frameData.postsize, width, height)
+				-- end
 			elseif(frameData.layoutString) then
 				anchor1, parent, anchor2, x, y, width, height = LayoutParser(frameData.layoutString, frameName)
 				frame:ClearAllPoints()
 				frame:SetPoint(anchor1, parent, anchor2, x, y)
-				if(frameData.postsize and (type(frameData.postsize) == "function")) then
-					if(not width or width == 0) then width = frame:GetWidth() end
-					if(not height or height == 0) then height = frame:GetHeight() end
-					frame:SetSize(width, height)
-					frameData.postsize(frame)
-				end
+				-- if(frameData.postsize and (type(frameData.postsize) == "function")) then
+				-- 	AnchorResize(frame, frameData.postsize, width, height)
+				-- end
 			end
 		end
 	end
 end
 
-function Layout:Toggle(isConfigMode)
+function Layout:Toggle()
 	if(InCombatLockdown()) then return end
 	local enabled = false;
-	if((isConfigMode ~= nil) and (isConfigMode ~= "")) then
-		SV.ConfigurationMode = isConfigMode
+	local aceConfig = LibStub("AceConfigDialog-1.0")
+	if(aceConfig and SV.OptionsLoaded) then
+		SV.OptionsStandby = nil
+		aceConfig:Close(SV.NameID)
+		GameTooltip:Hide()
 	end
-
-	if(not SV.ConfigurationMode) then
-		if(SV.OptionsLoaded) then
-			LibStub("AceConfigDialog-1.0"):Close(SV.NameID)
-			GameTooltip:Hide()
-			SV.ConfigurationMode = true
-		else
-			SV.ConfigurationMode = false
-		end
-	else
-		SV.ConfigurationMode = false
-	end
-
+	SVUI_LayoutPrecision:Hide()
 	if(self:IsShown()) then
 		self:Hide()
 	else
 		self:Show()
 		enabled = true
 	end
-
 	for frameName, _ in pairs(self.Frames)do
 		if(_G[frameName]) then
 			local movable = _G[frameName]
@@ -820,7 +850,7 @@ function Graph:Toggle(enabled)
 		self:UpdateAllReports()
 	end
 	if(not enabled) then
-        self.Grid:Hide()
+    self.Grid:Hide()
 	else
 		self.Grid:Show()
 	end
@@ -889,7 +919,7 @@ SCRIPT AND EVENT HANDLERS
 local XML_Layout_OnEvent = function(self)
 	if self:IsShown() then
 		self:Hide()
-		Layout:Toggle(true)
+		Layout:Toggle()
 	end
 end
 
@@ -904,7 +934,7 @@ end
 
 local XML_LayoutLockButton_OnClick = function(self)
 	Graph:Toggle()
-	Layout:Toggle(true)
+	Layout:Toggle()
 	if(SV.OptionsLoaded) then
 		LibStub("AceConfigDialog-1.0"):Open(SV.NameID)
 	end
@@ -946,6 +976,24 @@ local XML_LayoutPrecisionInputY_EnterPressed = function(self)
 	end
 	self:SetText(floor((self.CurrentValue or 0) + 0.5))
 	EditBox_ClearFocus(self)
+end
+
+local XML_LayoutPrecisionWidthAdjust_OnValueChanged = function(self, widthValue)
+	self.rangeValue:SetText(floor(widthValue))
+	if(CurrentFrameTarget and CurrentFrameTarget.postsize) then
+		local frame = CurrentFrameTarget.parent;
+		local heightValue = SVUI_LayoutPrecisionHeightAdjust:GetValue();
+		CurrentFrameTarget.postsize(frame, widthValue, heightValue);
+	end
+end
+
+local XML_LayoutPrecisionHeightAdjust_OnValueChanged = function(self, heightValue)
+	self.rangeValue:SetText(floor(heightValue))
+	if(CurrentFrameTarget and CurrentFrameTarget.postsize) then
+		local frame = CurrentFrameTarget.parent;
+		local widthValue = SVUI_LayoutPrecisionWidthAdjust:GetValue();
+		CurrentFrameTarget.postsize(frame, widthValue, heightValue);
+	end
 end
 --[[
 ##########################################################
@@ -1262,24 +1310,36 @@ local function InitializeMovables()
 	end)
 	SVUI_LayoutGridButton:SetScript("OnClick", XML_LayoutGridButton_OnClick)
 
-	SVUI_LayoutPrecision:SetStyle("Frame", "Transparent")
+	SVUI_LayoutPrecision:SetFrameLevel(999)
+	SVUI_LayoutPrecision:SetStyle("Frame", "Pattern")
 	SVUI_LayoutPrecision:EnableMouse(true)
+
+	SV.API:Set("CloseButton", SVUI_LayoutPrecisionCloseButton)
 
 	SVUI_LayoutPrecisionSetX:SetStyle("Editbox")
 	SVUI_LayoutPrecisionSetX.CurrentValue = 0;
 	SVUI_LayoutPrecisionSetX:SetScript("OnEnterPressed", XML_LayoutPrecisionInputX_EnterPressed)
-
 	SVUI_LayoutPrecisionSetY:SetStyle("Editbox")
 	SVUI_LayoutPrecisionSetY.CurrentValue = 0;
 	SVUI_LayoutPrecisionSetY:SetScript("OnEnterPressed", XML_LayoutPrecisionInputY_EnterPressed)
-
 	SVUI_LayoutPrecisionResetButton:SetStyle("Button")
 	SVUI_LayoutPrecisionUpButton:SetStyle("Button")
 	SVUI_LayoutPrecisionDownButton:SetStyle("Button")
 	SVUI_LayoutPrecisionLeftButton:SetStyle("Button")
 	SVUI_LayoutPrecisionRightButton:SetStyle("Button")
-
 	SVUI_LayoutPrecisionResetButton:SetScript("OnClick", SVUI_LayoutPrecisionResetButton_OnClick)
+
+	SVUI_LayoutPrecisionWidthAdjust:SetValueStep(1);
+	SVUI_LayoutPrecisionHeightAdjust:SetValueStep(1);
+	SVUI_LayoutPrecisionWidthAdjust:SetScript("OnValueChanged", XML_LayoutPrecisionWidthAdjust_OnValueChanged)
+	SVUI_LayoutPrecisionHeightAdjust:SetScript("OnValueChanged", XML_LayoutPrecisionHeightAdjust_OnValueChanged)
+
+	SVUI_LayoutPrecision:SetScript("OnHide", function()
+		if(not CurrentFrameTarget) then return end
+		CurrentFrameTarget.text:SetTextColor(0.5, 0.5, 0.5)
+		CurrentFrameTarget:SetBackdropBorderColor(0.5, 0.5, 0.5)
+		CurrentFrameTarget = nil
+	end)
 
 	Layout:Update()
 
@@ -1317,26 +1377,31 @@ SV.Events:On("LOAD_ALL_WIDGETS", InitializeMovables);
 CORE FUNCTIONS
 ##########################################################
 ]]--
-function SV:NewAnchor(frame, title, postSizeFunc, postDragFunc, overrideName, callbackOnEnter)
-	if(not frame or (not frame:GetName() and not overrideName)) then return end
-	local frameName = overrideName or frame:GetName()
+function SV:NewAnchor(frame, title, postDragFunc)
+	if(not frame or (not frame.GetName)) then return end
+	local frameName = frame:GetName()
 	local moveName = ("%s_MOVE"):format(frameName)
-	SetNewAnchor(frame, moveName, title, postSizeFunc, postDragFunc, callbackOnEnter)
+	SetNewAnchor(frame, moveName, title, postDragFunc)
 	if(self.initialized) then Layout:Update() end
 	return moveName
+end
+
+function SV:SetAnchorResizing(frame, postSizeFunc, minRange, maxRange, min2Range, max2Range)
+	if(not frame or (not frame.Grip)) then return end
+	SetResizeHandling(frame, postSizeFunc, minRange, maxRange, min2Range, max2Range)
 end
 
 function SV:ReAnchor(name, ...)
 	if((not name) or (not _G[name])) then return end
 	local frame = _G[name]
-	if(not frame or (not frame.Grip)) then return end
-	local grip = frame.Grip
-	grip:SetPoint(...)
-	SaveAnchor(grip.name)
+	if(not frame.Grip) then return end
+	frame.Grip:ClearAllPoints()
+	frame.Grip:SetPoint(...)
+	SaveAnchor(frame.Grip.name)
 end
 
-function SV:MoveAnchors(arg)
-	Layout:Toggle(arg)
+function SV:MoveAnchors()
+	Layout:Toggle()
 end
 
 function SV:UpdateAnchors()

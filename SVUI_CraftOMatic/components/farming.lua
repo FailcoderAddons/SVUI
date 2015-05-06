@@ -1,7 +1,7 @@
 --[[
 ##########################################################
 S V U I   By: S.Jackson
-########################################################## 
+##########################################################
 LOCALIZED LUA FUNCTIONS
 ##########################################################
 ]]--
@@ -33,7 +33,7 @@ local gsub          = string.gsub;
 
 local math 		= _G.math;
 local table 	= _G.table;
-local rept      = string.rep; 
+local rept      = string.rep;
 local tsort,twipe = table.sort,table.wipe;
 local floor,ceil  = math.floor, math.ceil;
 --BLIZZARD API
@@ -52,8 +52,8 @@ local GetItemInfo           = _G.GetItemInfo;
 local GetItemCount          = _G.GetItemCount;
 local GetItemQualityColor   = _G.GetItemQualityColor;
 local GetItemFamily         = _G.GetItemFamily;
---[[ 
-########################################################## 
+--[[
+##########################################################
 GET ADDON DATA
 ##########################################################
 ]]--
@@ -61,8 +61,8 @@ local SV = _G.SVUI;
 local L = SV.L;
 local PLUGIN = select(2, ...);
 local CONFIGS = SV.defaults[PLUGIN.Schema];
---[[ 
-########################################################## 
+--[[
+##########################################################
 LOCAL VARS
 ##########################################################
 ]]--
@@ -73,8 +73,8 @@ local DockButton, ModeLogsFrame;
 local refSeeds = {[79102]={1},[89328]={1},[80590]={1},[80592]={1},[80594]={1},[80593]={1},[80591]={1},[89329]={1},[80595]={1},[89326]={1},[80809]={3},[95434]={4},[89848]={3},[95437]={4},[84782]={3},[95436]={4},[85153]={3},[95438]={4},[85162]={3},[95439]={4},[85158]={3},[95440]={4},[84783]={3},[95441]={4},[89849]={3},[95442]={4},[85163]={3},[95443]={4},[89847]={3},[95444]={4},[85216]={2},[85217]={2},[89202]={2},[85215]={2},[89233]={2},[89197]={2},[85219]={2},[91806]={2},[95449]={5},[95450]={6},[95451]={5},[95452]={6},[95457]={5},[95458]={6},[95447]={5},[95448]={6},[95445]={5},[95446]={6},[95454]={5},[95456]={6},[85267]={7},[85268]={7},[85269]={7}};
 local refTools = {[79104]={30254},[80513]={30254},[89880]={30535},[89815]={31938}};
 local refPortals = {[91850]={"Horde"},[91861]={"Horde"},[91862]={"Horde"},[91863]={"Horde"},[91860]={"Alliance"},[91864]={"Alliance"},[91865]={"Alliance"},[91866]={"Alliance"}};
---[[ 
-########################################################## 
+--[[
+##########################################################
 LOCAL FUNCTIONS
 ##########################################################
 ]]--
@@ -85,12 +85,12 @@ end
 local Scroll_OnMouseWheel = function(self, delta)
 	local scroll = self:GetVerticalScroll();
 	local value = (scroll - (20 * delta));
-	if value < -1 then 
+	if value < -1 then
 		value = 0
-	end 
-	if value > 420 then 
+	end
+	if value > 420 then
 		value = 420
-	end 
+	end
 	self:SetVerticalScroll(value)
 	self.slider:SetValue(value)
 end
@@ -104,8 +104,8 @@ local function FindItemInBags(itemId)
 		end
 	end
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 EVENT HANDLER
 ##########################################################
 ]]--
@@ -118,7 +118,7 @@ do
 			button.text:SetText(button.items)
 		end
 		button.icon:SetDesaturated(button.items == 0)
-		button.icon:SetAlpha(button.items == 0 and .25 or 1)	
+		button.icon:SetAlpha(button.items == 0 and .25 or 1)
 	end
 
 	local InFarmZone = function()
@@ -135,7 +135,7 @@ do
 	 			PLUGIN.TitleWindow:AddMessage("|cffff2211Must be in Sunsong Ranch|r")
 			end
 			return false
-		end 
+		end
 	end
 
 	local UpdateFarmtoolCooldown = function()
@@ -162,21 +162,14 @@ do
 		if(InCombatLockdown()) then return end
 		if(event == "ZONE_CHANGED") then
 			local inZone = InFarmZone()
-			if not inZone and CONFIGS.farming.droptools then
+			if((not inZone) and CONFIGS.farming.droptools) then
 				for k, v in pairs(refTools) do
 					local container, slot = FindItemInBags(k)
 					if container and slot then
 						PickupContainerItem(container, slot)
 						DeleteCursorItem()
-					end		
+					end
 				end
-			end
-			if inZone then
-				self:RegisterEvent("BAG_UPDATE")
-				self:RegisterEvent("BAG_UPDATE_COOLDOWN")		
-			else
-				self:UnregisterEvent("BAG_UPDATE")
-				self:UnregisterEvent("BAG_UPDATE_COOLDOWN")
 			end
 			InventoryUpdate()
 		elseif(event == "BAG_UPDATE") then
@@ -184,11 +177,11 @@ do
 		elseif(event == "BAG_UPDATE_COOLDOWN") then
 			UpdateFarmtoolCooldown()
 		end
-	end 
+	end
 
 	InventoryUpdate = function()
 		if InCombatLockdown() then
-			FarmEventHandler:RegisterEvent("PLAYER_REGEN_ENABLED", InventoryUpdate)	
+			FarmEventHandler:RegisterEvent("PLAYER_REGEN_ENABLED", InventoryUpdate)
 			return
 		else
 			FarmEventHandler:UnregisterEvent("PLAYER_REGEN_ENABLED")
@@ -210,6 +203,8 @@ do
 
 	EnableListener = function()
 		FarmEventHandler:RegisterEvent("ZONE_CHANGED")
+		FarmEventHandler:RegisterEvent("BAG_UPDATE")
+		FarmEventHandler:RegisterEvent("BAG_UPDATE_COOLDOWN")
 		FarmEventHandler:SetScript("OnEvent", Farm_OnEvent)
 	end
 
@@ -218,13 +213,13 @@ do
 		FarmEventHandler:SetScript("OnEvent", nil)
 	end
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 LOADING HANDLER
 ##########################################################
 ]]--
 do
-	local seedsort = function(a, b) return a.sortname < b.sortname end 
+	local seedsort = function(a, b) return a.sortname < b.sortname end
 
 	local SeedToSoil = function(group, itemId)
 		if(UnitName("target") ~= L["Tilled Soil"]) then return false; end
@@ -232,7 +227,7 @@ do
 			if i == itemId then return true end
 		end
 		return false
-	end 
+	end
 
 	local Button_OnEnter = function(self)
 		GameTooltip:SetOwner(self, 'ANCHOR_TOPLEFT', 2, 4)
@@ -242,11 +237,11 @@ do
 			GameTooltip:AddLine(L['Right-click to drop the item.'])
 		end
 		GameTooltip:Show()
-	end 
+	end
 
 	local Button_OnLeave = function()
-		GameTooltip:Hide() 
-	end 
+		GameTooltip:Hide()
+	end
 
 	local Button_OnMouseDown = function(self, mousebutton)
 		if InCombatLockdown() then return end
@@ -260,9 +255,9 @@ do
 					self:SetAttribute("macrotext", format("/targetexact %s \n/use %s %s", L["Tilled Soil"], container, slot))
 				end
 			end
-			if self.cooldown then 
+			if self.cooldown then
 				self.cooldown:SetCooldown(GetItemCooldown(self.itemId))
-			end	
+			end
 		elseif mousebutton == "RightButton" and self.allowDrop then
 			self:SetAttribute("type", "click")
 			local container, slot = FindItemInBags(self.itemId)
@@ -271,7 +266,7 @@ do
 				DeleteCursorItem()
 			end
 		end
-	end 
+	end
 
 	local function CreateFarmingButton(index, owner, buttonName, buttonType, name, texture, allowDrop, showCount)
 		local BUTTONSIZE = owner.ButtonSize;
@@ -318,7 +313,7 @@ do
 				PLUGIN.FarmLoadTimer = nil
 				PLUGIN.Farming:Disable()
 				PLUGIN.TitleWindow:AddMessage("|cffffff11The Loader is Being Dumb...|r|cffff1111PLEASE TRY AGAIN|r")
-				return 
+				return
 			end
 			PLUGIN.TitleWindow:AddMessage("|cffffff11Loading Farm Tools...|r|cffff1111PLEASE WAIT|r")
 			PLUGIN.FarmLoadTimer = SV.Timers:ExecuteTimer(LoadFarmingModeTools, 5)
@@ -373,8 +368,8 @@ do
 		end
 	end
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 CORE FUNCTIONS
 ##########################################################
 ]]--
@@ -407,9 +402,9 @@ function PLUGIN.Farming:Enable()
 end
 
 function PLUGIN.Farming:Disable()
-	if(InCombatLockdown() or (not PLUGIN.Farming.Loaded) or (not PLUGIN.Farming.ToolsLoaded)) then 
+	if(InCombatLockdown() or (not PLUGIN.Farming.Loaded) or (not PLUGIN.Farming.ToolsLoaded)) then
 		DisableListener()
-		return 
+		return
 	end
 	if CONFIGS.farming.droptools then
 		for k, v in pairs(refTools) do
@@ -417,15 +412,15 @@ function PLUGIN.Farming:Disable()
 			if container and slot then
 				PickupContainerItem(container, slot)
 				DeleteCursorItem()
-			end		
+			end
 		end
 	end
 	if FarmModeFrame:IsShown() then FarmModeFrame:Hide() end
 	PLUGIN.Farming.ToolsLoaded = false
 	DisableListener()
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 CORE FUNCTIONS
 ##########################################################
 ]]--
@@ -461,8 +456,8 @@ function PLUGIN:RefreshFarmingTools()
 			end
 		end
 		if(CONFIGS.farming.onlyactive and not CONFIGS.farming.undocked) then
-			if count==0 then 
-				seedBar:Hide() 
+			if count==0 then
+				seedBar:Hide()
 			else
 				seedBar:Show()
 				if(not lastBar) then
@@ -495,7 +490,7 @@ function PLUGIN:RefreshFarmingTools()
 		end
 	end
 	if(CONFIGS.farming.onlyactive and not CONFIGS.farming.undocked) then
-		if count==0 then 
+		if count==0 then
 			FarmToolBarAnchor:Hide()
 			FarmPortalBar:SetPoint("TOPLEFT", FarmModeFrameSlots, "TOPLEFT", 0, 0)
 		else
@@ -523,8 +518,8 @@ function PLUGIN:RefreshFarmingTools()
 		end
 	end
 	if(CONFIGS.farming.onlyactive) then
-		if count==0 then 
-			FarmPortalBar:Hide() 
+		if count==0 then
+			FarmPortalBar:Hide()
 		else
 			FarmPortalBar:Show()
 		end
@@ -537,7 +532,7 @@ function PLUGIN:PrepareFarmingTools()
 	local BUTTONSPACE = CONFIGS.farming.buttonspacing or 2;
 
 	ModeLogsFrame = self.LogWindow;
-	DockButton = self.Docklet.DockButton
+	DockButton = self.Docklet.Button
 
 	if not CONFIGS.farming.undocked then
 		local bgTex = [[Interface\BUTTONS\WHITE8X8]]

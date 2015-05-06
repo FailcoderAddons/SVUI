@@ -113,9 +113,9 @@ end
 local GarrisonButton_OnEvent = function(self, event, ...)
 	if(not InCombatLockdown()) then
 		if (event == "GARRISON_HIDE_LANDING_PAGE") then
-			self:DockRemove()
+			self:SetDocked()
 		elseif (event == "GARRISON_SHOW_LANDING_PAGE") then
-			self:DockAdd()
+			self:SetDocked(true)
 		end
 	end
 	if((not self.StartAlert) or (not self.StopAlert)) then return end
@@ -265,7 +265,7 @@ local function LoadToolBarGarrison()
 		return
 	end
 
-	local garrison = SV.Dock:SetDockButton("BottomLeft", L["Garrison Landing Page"], SV.media.dock.garrisonToolIcon, nil, "SVUI_Garrison", SetGarrisonTooltip, "SecureActionButtonTemplate")
+	local garrison = SV.Dock:SetDockButton("BottomLeft", L["Garrison Landing Page"], "SVUI_Garrison", SV.media.dock.garrisonToolIcon, false, SetGarrisonTooltip, "SecureActionButtonTemplate")
 	garrison:SetAttribute("type1", "click")
 	garrison:SetAttribute("clickbutton", mmButton)
 
@@ -298,7 +298,7 @@ local function LoadToolBarGarrison()
 	garrison:SetScript("OnEvent", GarrisonButton_OnEvent);
 
 	if(not mmButton:IsShown()) then
-		garrison:DockRemove()
+		garrison:SetDocked()
 	end
 
 	C_Garrison.RequestLandingPageShipmentInfo();

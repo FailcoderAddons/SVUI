@@ -922,7 +922,8 @@ function MOD:Load()
 
 	BNToastFrame:ClearAllPoints()
 	BNToastFrame:SetPoint("BOTTOMRIGHT", SV.Dock.BottomLeft, "TOPRIGHT", 0, 20)
-	SV:NewAnchor(BNToastFrame, L["BattleNet Frame"], nil, nil, "BattleNetToasts")
+	--SV:NewAnchor(BNToastFrame, L["BattleNet Frame"], nil, nil, "BattleNetToasts")
+	SV:NewAnchor(BNToastFrame, L["BattleNet Frame"])
 	NewHook(BNToastFrame, "SetPoint", _hook_BNToastOnShow)
 
 	ApplyTooltipSkins()

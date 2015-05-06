@@ -293,7 +293,7 @@ local function AchievementStyle()
 				track:ClearAllPoints()
 				track:SetPoint("BOTTOMLEFT", 1, 5)
 				track:RemoveTextures()
-				track:SetStyle("Checkbox")
+				track:SetStyle("CheckButton")
 				track.ListParent = button
 			end
 		end

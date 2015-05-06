@@ -658,18 +658,26 @@ end
 BUILD FUNCTION / UPDATE
 ##########################################################
 ]]--
-function MOD:SetAccountantData(dataType, cacheType, defaultValue)
-	self.Accountant[dataType] = self.Accountant[dataType] or {};
-	local cache = self.Accountant[dataType];
-	if(not cache[playerName] or type(cache[playerName]) ~= cacheType) then
+function SV:GetReportData(key)
+	return MOD.Accountant[key]
+end
+
+function MOD:SetAccountantData(key, cacheType, defaultValue)
+	self.Accountant[key] = self.Accountant[key] or {};
+	local cache = self.Accountant[key];
+	if(type(cache) == 'number') then
+		cache = defaultValue;
+	elseif(not cache[playerName] or type(cache[playerName]) ~= cacheType) then
 		cache[playerName] = defaultValue;
 	end
 end
 
-function MOD:SetSubSettingsData(dataType, cacheType, defaultValue)
-	self.SubSettings[dataType] = self.SubSettings[dataType] or {};
-	local cache = self.SubSettings[dataType];
-	if(not cache[playerName] or type(cache[playerName]) ~= cacheType) then
+function MOD:SetSubSettingsData(key, cacheType, defaultValue)
+	self.SubSettings[key] = self.SubSettings[key] or {};
+	local cache = self.SubSettings[key];
+	if(type(cache) == 'number') then
+		cache = defaultValue;
+	elseif(not cache[playerName] or type(cache[playerName]) ~= cacheType) then
 		cache[playerName] = defaultValue;
 	end
 end

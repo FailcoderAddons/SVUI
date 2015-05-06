@@ -227,7 +227,7 @@ local function MiscStyles()
 		SV.API:Set("ScrollBar", ItemTextScrollFrameScrollBar)
 		SV.API:Set("CloseButton", ItemTextFrameCloseButton)
 		local r = {"GossipFrameGreetingPanel", "GossipFrameInset", "GossipGreetingScrollFrame"}
-		SV.API:Set("ScrollBar", GossipGreetingScrollFrameScrollBar, 5)
+		SV.API:Set("ScrollBar", GossipGreetingScrollFrame)
 		for s, t in pairs(r)do
 			_G[t]:RemoveTextures()
 		end
@@ -469,8 +469,7 @@ local function MiscStyles()
 
 	if(SV.db.Skins.blizzard.merchant) then
 
-		MerchantFrame:RemoveTextures(true)
-		MerchantFrame:SetStyle("Frame", "Window", false, nil, 2, 4)
+		SV.API:Set("Window", MerchantFrame, false, true)
 		MerchantFrame:SetWidth(360)
 
 		local level = MerchantFrame:GetFrameLevel()

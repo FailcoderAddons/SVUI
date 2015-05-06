@@ -1,7 +1,7 @@
 --[[
 ##########################################################
 S V U I   By: Munglunch
-########################################################## 
+##########################################################
 LOCALIZED LUA FUNCTIONS
 ##########################################################
 ]]--
@@ -14,8 +14,8 @@ local string 	= _G.string;
 --[[ STRING METHODS ]]--
 local format = string.format;
 local twipe = table.wipe;
---[[ 
-########################################################## 
+--[[
+##########################################################
 GET ADDON DATA
 ##########################################################
 ]]--
@@ -23,8 +23,8 @@ local SV = _G['SVUI'];
 local L = SV.L;
 local MOD = SV.Skins;
 local Schema = MOD.Schema;
---[[ 
-########################################################## 
+--[[
+##########################################################
 SKADA
 ##########################################################
 ]]--
@@ -35,7 +35,7 @@ end
 local function StyleSkada()
 	assert(Skada, "AddOn Not Loaded")
 	Skada.ShowPopup = Skada_ShowPopup
-	
+
 	local SkadaDisplayBar = Skada.displays['bar']
 
 	hooksecurefunc(SkadaDisplayBar, 'AddDisplayOptions', function(self, window, options)
@@ -73,13 +73,13 @@ local function StyleSkada()
 
 	hooksecurefunc(Skada, 'CreateWindow', function()
 		if MOD.Docklet:IsEmbedded("Skada") then
-			MOD:Docklet_Skada()
+			MOD:RegisterAddonDocklets()
 		end
 	end)
 
 	hooksecurefunc(Skada, 'DeleteWindow', function()
 		if MOD.Docklet:IsEmbedded("Skada") then
-			MOD:Docklet_Skada()
+			MOD:RegisterAddonDocklets()
 		end
 	end)
 end

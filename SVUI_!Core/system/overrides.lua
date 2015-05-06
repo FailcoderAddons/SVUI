@@ -856,15 +856,37 @@ local PVPRaidNoticeHandler = function(self, event, msg)
 end
 
 local CaptureBarHandler = function()
+	local lastFrame = SVUI_WorldStateHolder
+	local offset = 0;
+	if(NUM_ALWAYS_UP_UI_FRAMES) then
+		for i=1, NUM_ALWAYS_UP_UI_FRAMES do
+			local frame = _G["AlwaysUpFrame"..i]
+			if(frame and frame:IsVisible()) then
+				frame:ClearAllPoints()
+				frame:SetPoint("TOP", lastFrame, "TOP", 0, offset)
+				lastFrame = frame
+				offset = (-45 * i);
+			end
+		end
+	end
+
 	if(NUM_EXTENDED_UI_FRAMES) then
-		local lastFrame = SVUI_WorldStateHolder
-		local offset = 0;
 		for i=1, NUM_EXTENDED_UI_FRAMES do
-			local captureBar = _G["WorldStateCaptureBar"..i]
-			if(captureBar and captureBar:IsVisible()) then
-				captureBar:ClearAllPoints()
-				captureBar:SetPoint("TOP", lastFrame, "TOP", 0, offset)
-				lastFrame = captureBar
+			local name = "WorldStateCaptureBar"..i;
+			local frame = _G[name]
+			if(frame and frame:IsVisible()) then
+				if(_G[name .. "LeftBar"]) then _G[name .. "LeftBar"]:SetTexture("Interface\\AddOns\\SVUI_!Core\\assets\\textures\\WorldState-CaptureBar") end
+				if(_G[name .. "RightBar"]) then _G[name .. "RightBar"]:SetTexture("Interface\\AddOns\\SVUI_!Core\\assets\\textures\\WorldState-CaptureBar") end
+				if(_G[name .. "MiddleBar"]) then _G[name .. "MiddleBar"]:SetTexture("Interface\\AddOns\\SVUI_!Core\\assets\\textures\\WorldState-CaptureBar") end
+				if(_G[name .. "LeftLine"]) then _G[name .. "LeftLine"]:SetTexture("Interface\\AddOns\\SVUI_!Core\\assets\\textures\\WorldState-CaptureBar") end
+				if(_G[name .. "RightLine"]) then _G[name .. "RightLine"]:SetTexture("Interface\\AddOns\\SVUI_!Core\\assets\\textures\\WorldState-CaptureBar") end
+				if(_G[name .. "LeftIconHighlight"]) then _G[name .. "LeftIconHighlight"]:SetTexture("Interface\\AddOns\\SVUI_!Core\\assets\\textures\\WorldState-CaptureBar") end
+				if(_G[name .. "RightIconHighlight"]) then _G[name .. "RightIconHighlight"]:SetTexture("Interface\\AddOns\\SVUI_!Core\\assets\\textures\\WorldState-CaptureBar") end
+				if(_G[name .. "IndicatorLeft"]) then _G[name .. "IndicatorLeft"]:SetTexture("Interface\\AddOns\\SVUI_!Core\\assets\\textures\\WorldState-CaptureBar") end
+				if(_G[name .. "IndicatorRight"]) then _G[name .. "IndicatorRight"]:SetTexture("Interface\\AddOns\\SVUI_!Core\\assets\\textures\\WorldState-CaptureBar") end
+				frame:ClearAllPoints()
+				frame:SetPoint("TOP", lastFrame, "TOP", 0, offset)
+				lastFrame = frame
 				offset = (-45 * i);
 			end
 		end
@@ -885,7 +907,7 @@ local Vehicle_OnSetPoint = function(self, _, parent)
 end
 
 local Dura_OnSetPoint = function(self, _, parent)
-	if((parent == "MinimapCluster") or (parent == _G["MinimapCluster"])) then
+	if(parent ~= Minimap) then
 		self:ClearAllPoints()
 		self:SetPoint("RIGHT", Minimap, "RIGHT")
 		self:SetScale(0.6)
@@ -982,7 +1004,8 @@ local function SetOverrides()
 
 	TicketStatusFrame:ClearAllPoints()
 	TicketStatusFrame:SetPoint("TOPRIGHT", SV.Dock.TopLeft, "TOPRIGHT", 0, 0)
-	SV:NewAnchor(TicketStatusFrame, L["GM Ticket Frame"], nil, nil, "GM")
+	-- SV:NewAnchor(TicketStatusFrame, L["GM Ticket Frame"], nil, nil, "GM")
+	SV:NewAnchor(TicketStatusFrame, L["GM Ticket Frame"])
 
 	HelpPlate:Die()
 	HelpPlateTooltip:Die()
@@ -1029,7 +1052,8 @@ local function SetOverrides()
 	LossOfControlFrame:ClearAllPoints()
 	LossOfControlFrame:SetSize(75, 75)
 	LossOfControlFrame:SetPoint("CENTER", SV.Screen, "CENTER", -146, -40)
-	SV:NewAnchor(LossOfControlFrame, L["Loss Control Icon"], nil, nil, "LoC")
+	-- SV:NewAnchor(LossOfControlFrame, L["Loss Control Icon"], nil, nil, "LoC")
+	SV:NewAnchor(LossOfControlFrame, L["Loss Control Icon"])
 
 	SV:RegisterEvent("CHAT_MSG_BG_SYSTEM_HORDE", PVPRaidNoticeHandler)
 	SV:RegisterEvent("CHAT_MSG_BG_SYSTEM_ALLIANCE", PVPRaidNoticeHandler)
@@ -1049,7 +1073,8 @@ local function SetOverrides()
 		LootFrame:UnregisterAllEvents();
 
 		SVUI_LootFrameHolder:SetSize(150, 22);
-		SV:NewAnchor(SVUI_LootFrameHolder, L["Loot Frame"], nil, nil, "SVUI_LootFrame");
+		-- SV:NewAnchor(SVUI_LootFrameHolder, L["Loot Frame"], nil, nil, "SVUI_LootFrame");
+		SV:NewAnchor(SVUI_LootFrameHolder, L["Loot Frame"]);
 
 		SVUI_LootFrame:SetSize(256, 64);
 		SVUI_LootFrame:SetStyle("!_Frame", 'Transparent');

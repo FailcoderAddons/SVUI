@@ -904,7 +904,7 @@ local NEXT_ACTION_FORCED, FORCED_CLOSED, FORCED_OPEN = false, false, false;
 
 do
 	local InventorySearch_OnReset = function(self)
-		self:GetParent().detail:Show()
+		self.button:Show()
 		self:ClearFocus()
 		SetItemSearch('')
 	end
@@ -967,7 +967,7 @@ do
 	end
 
 	local Vendor_OnClick = function(self)
-		if IsShiftKeyDown()then
+		if(IsShiftKeyDown() or (not MerchantFrame or not MerchantFrame:IsShown())) then
 			SV.SystemAlert["DELETE_GRAYS"].Money = SV:VendorGrays(false,true,true)
 			SV:StaticPopup_Show('DELETE_GRAYS')
 		else
@@ -988,6 +988,33 @@ do
 		if IsModifiedClick("CHATLINK") then
 			HandleModifiedItemClick(GetCurrencyLink(self.currencyID))
 		end
+	end
+
+	local TopInfo_OnEnter = function(self)
+		GameTooltip:SetOwner(self,"ANCHOR_BOTTOM",0,-4)
+		GameTooltip:ClearLines()
+
+		local goldData = SV:GetReportData("gold")
+
+		local networth = goldData[nameKey];
+		GameTooltip:AddLine(L[nameKey..": "])
+		GameTooltip:AddDoubleLine(L["Total: "], SV:FormatCurrency(networth), 1,1,1,1,1,1)
+		GameTooltip:AddLine(" ")
+
+		GameTooltip:AddLine(L["Characters: "])
+		for name,amount in pairs(goldData)do
+			if(name ~= nameKey and name ~= 'total') then
+				networth = networth + amount;
+				GameTooltip:AddDoubleLine(name, SV:FormatCurrency(amount), 1,1,1,1,1,1)
+			end
+		end
+
+		GameTooltip:AddLine(" ")
+		GameTooltip:AddLine(L["Server: "])
+		GameTooltip:AddDoubleLine(L["Total: "], SV:FormatCurrency(networth), 1,1,1,1,1,1)
+		GameTooltip:AddLine(" ")
+
+		GameTooltip:Show()
 	end
 
 	local Tooltip_Show = function(self)
@@ -1105,8 +1132,11 @@ do
 		frame.goldText:SetPoint("BOTTOMRIGHT", frame.holderFrame, "TOPRIGHT", -2, 4)
 		frame.goldText:SetJustifyH("RIGHT")
 
+		frame.goldInfo = CreateFrame("Frame", nil, frame)
+		frame.goldInfo:SetAllPoints(frame.goldText)
+		frame.goldInfo:SetScript("OnEnter", TopInfo_OnEnter)
+
 		frame.editBox = CreateFrame("EditBox", "SVUI_ContainerFrameEditBox", frame)
-		frame.editBox:SetFrameLevel(frame.editBox:GetFrameLevel()+2)
 		frame.editBox:SetStyle("Editbox")
 		frame.editBox:SetHeight(15)
 		frame.editBox:Hide()
@@ -1136,6 +1166,7 @@ do
 		searchText:SetText("|cff9999ff"..SEARCH.."|r")
 		searchButton:SetFontString(searchText)
 		frame.detail = searchButton
+		frame.editBox.button = frame.detail;
 
 		frame.sortButton = CreateFrame("Button", nil, frame)
 		frame.sortButton:SetPoint("TOP", frame, "TOP", 0, -10)
@@ -1377,7 +1408,7 @@ do
 				GameTooltip:SetOwner(self:GetParent(),"ANCHOR_TOP",0,4)
 				GameTooltip:ClearLines()
 				if(not IsReagentBankUnlocked()) then
-					GameTooltip:AddDoubleLine("Purchase Reagents Bank", FormatCurrency(GetReagentBankCost()), 0.1,1,0.1, 1,1,1)
+					GameTooltip:AddDoubleLine("Purchase Reagents Bank", SV:FormatCurrency(GetReagentBankCost()), 0.1,1,0.1, 1,1,1)
 				else
 					GameTooltip:AddLine(self.ttText)
 				end

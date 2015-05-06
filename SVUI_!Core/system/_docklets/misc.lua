@@ -105,7 +105,7 @@ local function GetMacroCooldown(itemID)
 	end
 end
 
-local SetHearthTooltip = function(self)
+local Hearth_OnEnter = function(self)
 	GameTooltip:AddLine(HELPFRAME_STUCK_HEARTHSTONE_HEADER, 1, 1, 0)
 	GameTooltip:AddLine(" ", 1, 1, 1)
 	local location = GetBindLocation()
@@ -132,7 +132,7 @@ local SpecSwap_OnClick = function(self)
 	end
 end
 
-local SetSpecSwapTooltip = function(self)
+local SpecSwap_OnEnter = function(self)
 	local currentGroup = GetActiveSpecGroup()
 	local currentSpec = GetSpecialization(false, false, currentGroup);
 	local text1 = currentSpec and select(2, GetSpecializationInfo(currentSpec)) or "None"
@@ -162,7 +162,7 @@ local PowerButton_OnClick = function(self, button)
 	end
 end
 
-local SetPowerButtonTooltip = function(self)
+local PowerButton_OnEnter = function(self)
 	GameTooltip:AddLine(OTHER .. " " .. OPTIONS_MENU, 1, 1, 0)
 	GameTooltip:AddLine(" ", 1, 1, 1)
 	GameTooltip:AddDoubleLine("[Click]", LOGOUT, 0, 1, 0, 1, 1, 1)
@@ -183,7 +183,7 @@ local function LoadMiscTools()
 	if(SV.db.Dock.dockTools.hearth) then
 		local hearthStone = GetItemInfo(6948);
 		if(hearthStone and type(hearthStone) == "string") then
-			local hearth = SV.Dock:SetDockButton("BottomLeft", L["Hearthstone"], SV.media.dock.hearthIcon, nil, "SVUI_Hearth", SetHearthTooltip, "SecureActionButtonTemplate")
+			local hearth = SV.Dock:SetDockButton("BottomLeft", L["Hearthstone"], "SVUI_Hearth", SV.media.dock.hearthIcon, false, Hearth_OnEnter, "SecureActionButtonTemplate")
 			hearth.Icon:SetTexCoord(0,0.5,0,1)
 			hearth:SetAttribute("type1", "macro")
 			hearth:SetAttribute("macrotext1", "/use [nomod]" .. hearthStone)
@@ -204,13 +204,13 @@ local function LoadMiscTools()
 	if(SV.db.Dock.dockTools.specswap) then
 		local numSpecGroups = GetNumSpecGroups()
 		if(numSpecGroups and numSpecGroups == 2) then
-			local specSwap = SV.Dock:SetDockButton("BottomLeft", L["Spec Swap"], SV.media.dock.specSwapIcon, SpecSwap_OnClick, "SVUI_SpecSwap", SetSpecSwapTooltip)
+			local specSwap = SV.Dock:SetDockButton("BottomLeft", L["Spec Swap"], "SVUI_SpecSwap", SV.media.dock.specSwapIcon, SpecSwap_OnClick, SpecSwap_OnEnter)
 		end
 	end
 
 	-- POWER BUTTON
 	if(SV.db.Dock.dockTools.power) then
-		local power = SV.Dock:SetDockButton("BottomLeft", L["Power Button"], SV.media.dock.powerIcon, PowerButton_OnClick, "SVUI_PowerButton", SetPowerButtonTooltip)
+		local power = SV.Dock:SetDockButton("BottomLeft", L["Power Button"], "SVUI_PowerButton", SV.media.dock.powerIcon, PowerButton_OnClick, PowerButton_OnEnter)
 	end
 
 	MOD.MiscToolsLoaded = true

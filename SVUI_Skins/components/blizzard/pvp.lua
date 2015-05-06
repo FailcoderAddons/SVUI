@@ -18,13 +18,7 @@ PVP MODR
 ##########################################################
 ]]--
 local _hook_PVPReadyDialogDisplay = function(self, _, _, _, queueType, _, queueRole)
-	if(queueRole == "DAMAGER") then
-		PVPReadyDialogRoleIcon.texture:SetTexCoord(LFDQueueFrameRoleButtonDPS.background:GetTexCoord())
-	elseif(queueRole == "TANK") then
-		PVPReadyDialogRoleIcon.texture:SetTexCoord(LFDQueueFrameRoleButtonTank.background:GetTexCoord())
-	elseif(queueRole == "HEALER") then
-		PVPReadyDialogRoleIcon.texture:SetTexCoord(LFDQueueFrameRoleButtonHealer.background:GetTexCoord())
-	end
+	PVPReadyDialogRoleIconTexture:SetTexture("Interface\\AddOns\\SVUI_Skins\\artwork\\UI-LFG-ICON-ROLES")
 	if(queueType == "ARENA") then
 		self:SetHeight(100)
 	end
@@ -81,20 +75,26 @@ local function PVPFrameStyle()
 	HonorFrame.BonusFrame.DiceButton:DisableDrawLayer("ARTWORK")
 	HonorFrame.BonusFrame.DiceButton:SetHighlightTexture("")
 	HonorFrame.RoleInset:RemoveTextures()
-	HonorFrame.RoleInset.DPSIcon.checkButton:SetStyle("Checkbox")
-	HonorFrame.RoleInset.TankIcon.checkButton:SetStyle("Checkbox")
-	HonorFrame.RoleInset.HealerIcon.checkButton:SetStyle("Checkbox")
+	HonorFrame.RoleInset.DPSIcon.checkButton:SetStyle("CheckButton")
+	HonorFrame.RoleInset.TankIcon.checkButton:SetStyle("CheckButton")
+	HonorFrame.RoleInset.HealerIcon.checkButton:SetStyle("CheckButton")
 	HonorFrame.RoleInset.TankIcon:DisableDrawLayer("OVERLAY")
 	HonorFrame.RoleInset.TankIcon:DisableDrawLayer("BACKGROUND")
+	HonorFrame.RoleInset.TankIcon:SetNormalTexture("Interface\\AddOns\\SVUI_Skins\\artwork\\UI-LFG-ICON-ROLES")
 	HonorFrame.RoleInset.HealerIcon:DisableDrawLayer("OVERLAY")
 	HonorFrame.RoleInset.HealerIcon:DisableDrawLayer("BACKGROUND")
+	HonorFrame.RoleInset.HealerIcon:SetNormalTexture("Interface\\AddOns\\SVUI_Skins\\artwork\\UI-LFG-ICON-ROLES")
 	HonorFrame.RoleInset.DPSIcon:DisableDrawLayer("OVERLAY")
 	HonorFrame.RoleInset.DPSIcon:DisableDrawLayer("BACKGROUND")
+	HonorFrame.RoleInset.DPSIcon:SetNormalTexture("Interface\\AddOns\\SVUI_Skins\\artwork\\UI-LFG-ICON-ROLES")
 	hooksecurefunc("LFG_PermanentlyDisableRoleButton", function(n)
 		if n.bg then
 			n.bg:SetDesaturated(true)
 		end
 	end)
+
+	LFGListPVEStub:RemoveTextures(true)
+	LFGListPVPStub:RemoveTextures(true)
 
 	local ConquestPointsBar = _G.ConquestPointsBar;
 
@@ -131,8 +131,8 @@ local function PVPFrameStyle()
 	PVPReadyDialogEnterBattleButton:SetStyle("Button")
 	PVPReadyDialogLeaveQueueButton:SetStyle("Button")
 	SV.API:Set("CloseButton", PVPReadyDialogCloseButton)
-	PVPReadyDialogRoleIcon.texture:SetTexture("Interface\\LFGFrame\\UI-LFG-ICONS-ROLEBACKGROUNDS")
-	PVPReadyDialogRoleIcon.texture:SetAlpha(0.5)
+	PVPReadyDialogRoleIconTexture:SetTexture("Interface\\AddOns\\SVUI_Skins\\artwork\\UI-LFG-ICON-ROLES")
+	PVPReadyDialogRoleIconTexture:SetAlpha(0.5)
 
 	ConquestFrame.Inset:SetStyle("!_Frame", "Inset")
 	WarGamesFrameScrollFrame:SetStyle("Frame", "Inset",false,2,2,6)

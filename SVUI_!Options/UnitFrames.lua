@@ -4118,6 +4118,69 @@ SV.Options.args[Schema] = {
 								}
 							},
 						},
+						rdebuffs = {
+							order = 700,
+							type = 'group',
+							name = L['Raid Debuffs'],
+							get = function(l)return
+							SV.db.UnitFrames['party']['rdebuffs'][l[#l]]end,
+							set = function(l, m) MOD:ChangeDBVar(m, l[#l], "party", "rdebuffs"); MOD:SetGroupFrame('party')end,
+							args = {
+								enable = {
+									type = "toggle",
+									name = L["Enable"],
+									order = 1,
+								},
+								configureToggle = {
+									order = 2,
+									type = "execute",
+									name = L["Show Indicators"],
+									func = function()
+										local toggle = (not _G["SVUI_Party"].forceShowAuras) or nil
+										MOD:ViewGroupFrames(_G["SVUI_Party"], true, toggle)
+										MOD:SetGroupFrame('party')
+									end,
+								},
+								configureButton = {
+									type = "execute",
+									name = L["Configure Filters"],
+									func = function() SVUIOptions:SetToFilterConfig("Raid") end,
+									order = 3,
+								},
+								size = {
+									type = "range",
+									name = L["Size"],
+									order = 4,
+									min = 8,
+									max = 35,
+									step = 1,
+								},
+								fontSize = {
+									type = "range",
+									name = L["Font Size"],
+									order = 5,
+									min = 7,
+									max = 22,
+									step = 1,
+								},
+								xOffset = {
+									order = 6,
+									type = "range",
+									name = L["xOffset"],
+									min =  - 300,
+									max = 300,
+									step = 1,
+								},
+								yOffset = {
+									order = 7,
+									type = "range",
+									name = L["yOffset"],
+									min =  - 300,
+									max = 300,
+									step = 1,
+								},
+							},
+						},
 						icons = SVUIOptions:SetIconConfigGroup(MOD.SetGroupFrame, 'party')
 					},
 				},
@@ -4446,7 +4509,7 @@ SV.Options.args[Schema] = {
 						rdebuffs = {
 							order = 800,
 							type = "group",
-							name = L["RaidDebuff Indicator"],
+							name = L["Raid Debuffs"],
 							get = function(l)return
 							SV.db.UnitFrames.raid["rdebuffs"][l[#l]]end,
 							set = function(l, m)MOD:ChangeDBVar(m, l[#l], "raid", "rdebuffs");MOD:SetGroupFrame("raid")end,
@@ -4456,10 +4519,26 @@ SV.Options.args[Schema] = {
 									name = L["Enable"],
 									order = 1,
 								},
+								configureToggle = {
+									order = 2,
+									type = "execute",
+									name = L["Show Indicators"],
+									func = function()
+										local toggle = (not _G["SVUI_Raid"].forceShowAuras) or nil
+										MOD:ViewGroupFrames(_G["SVUI_Raid"], true, toggle)
+										MOD:SetGroupFrame("raid")
+									end,
+								},
+								configureButton = {
+									type = "execute",
+									name = L["Configure Filters"],
+									func = function()SVUIOptions:SetToFilterConfig("Raid")end,
+									order = 3,
+								},
 								size = {
 									type = "range",
 									name = L["Size"],
-									order = 2,
+									order = 4,
 									min = 8,
 									max = 35,
 									step = 1,
@@ -4467,13 +4546,13 @@ SV.Options.args[Schema] = {
 								fontSize = {
 									type = "range",
 									name = L["Font Size"],
-									order = 3,
+									order = 5,
 									min = 7,
 									max = 22,
 									step = 1,
 								},
 								xOffset = {
-									order = 4,
+									order = 6,
 									type = "range",
 									name = L["xOffset"],
 									min =  - 300,
@@ -4481,18 +4560,12 @@ SV.Options.args[Schema] = {
 									step = 1,
 								},
 								yOffset = {
-									order = 5,
+									order = 7,
 									type = "range",
 									name = L["yOffset"],
 									min =  - 300,
 									max = 300,
 									step = 1,
-								},
-								configureButton = {
-									type = "execute",
-									name = L["Configure Auras"],
-									func = function()SVUIOptions:SetToFilterConfig("Raid")end,
-									order = 7,
 								},
 							},
 						},
@@ -4711,45 +4784,63 @@ SV.Options.args[Schema] = {
 						rdebuffs = {
 							order = 700,
 							type = 'group',
-							name = L['RaidDebuff Indicator'],
+							name = L['Raid Debuffs'],
 							get = function(l)return
 							SV.db.UnitFrames['raidpet']['rdebuffs'][l[#l]]end,
 							set = function(l, m) MOD:ChangeDBVar(m, l[#l], "raidpet", "rdebuffs"); MOD:SetGroupFrame('raidpet')end,
 							args = {
 								enable = {
-									type = 'toggle',
-									name = L['Enable'],
+									type = "toggle",
+									name = L["Enable"],
 									order = 1,
 								},
-								size = {
-									type = 'range',
-									name = L['Size'],
+								configureToggle = {
 									order = 2,
+									type = "execute",
+									name = L["Show Indicators"],
+									func = function()
+										local toggle = (not _G["SVUI_RaidPet"].forceShowAuras) or nil
+										MOD:ViewGroupFrames(_G["SVUI_RaidPet"], true, toggle)
+										MOD:SetGroupFrame('raidpet')
+									end,
+								},
+								configureButton = {
+									type = "execute",
+									name = L["Configure Filters"],
+									func = function() SVUIOptions:SetToFilterConfig("Raid") end,
+									order = 3,
+								},
+								size = {
+									type = "range",
+									name = L["Size"],
+									order = 4,
 									min = 8,
 									max = 35,
 									step = 1,
 								},
+								fontSize = {
+									type = "range",
+									name = L["Font Size"],
+									order = 5,
+									min = 7,
+									max = 22,
+									step = 1,
+								},
 								xOffset = {
-									order = 3,
-									type = 'range',
-									name = L['xOffset'],
+									order = 6,
+									type = "range",
+									name = L["xOffset"],
 									min =  - 300,
 									max = 300,
 									step = 1,
 								},
 								yOffset = {
-									order = 4,
-									type = 'range',
-									name = L['yOffset'],
+									order = 7,
+									type = "range",
+									name = L["yOffset"],
 									min =  - 300,
 									max = 300,
 									step = 1,
-								},
-								configureButton = {
-									type = 'execute',
-									name = L['Configure Auras'],
-									func = function()SVUIOptions:SetToFilterConfig('Raid')end,
-									order = 5,
 								},
 							},
 						},

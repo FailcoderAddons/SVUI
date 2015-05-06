@@ -232,27 +232,15 @@ CUSTOM HANDLERS
 ##########################################################
 ]]--
 local AddonDockletToggle = function(self)
-	if(not InCombatLockdown()) then
-		self.Parent:Refresh()
-
-		if(not self.Parent.Parent.Window:IsShown()) then
-			self.Parent.Parent.Window:Show()
-		end
-	end
-
 	if(not MOD.Docklet:IsShown()) then
 		MOD.Docklet:Show()
 	end
-
 	if(not MOD.Docklet.Dock1:IsShown()) then
 		MOD.Docklet.Dock1:Show()
 	end
-
 	if(not MOD.Docklet.Dock2:IsShown()) then
 		MOD.Docklet.Dock2:Show()
 	end
-
-	self:Activate()
 end
 
 local ShowSubDocklet = function(self)
@@ -280,7 +268,7 @@ local function DockExpandDocklet()
 end
 
 local function DockFadeInDocklet()
-	local active = MOD.Docklet.DockButton:GetAttribute("isActive")
+	local active = MOD.Docklet.Button:GetAttribute("isActive")
 	if(active) then
 		MOD.Docklet.Dock1:Show()
 		MOD.Docklet.Dock2:Show()
@@ -288,7 +276,7 @@ local function DockFadeInDocklet()
 end
 
 local function DockFadeOutDocklet()
-	local active = MOD.Docklet.DockButton:GetAttribute("isActive")
+	local active = MOD.Docklet.Button:GetAttribute("isActive")
 	if(active) then
 		MOD.Docklet.Dock1:Hide()
 		MOD.Docklet.Dock2:Hide()
@@ -335,9 +323,9 @@ function MOD:Load()
 
 	self.Alert = alert;
 
-	self.Docklet = SV.Dock:NewDocklet("BottomRight", "SVUI_SkinsDock", self.TitleID, nil, AddonDockletToggle);
-	self.Docklet.DockButton.GetPreMenuList = self.GetDockables;
-	self.Docklet.DockButton:SetAttribute("hasDropDown", true);
+	self.Docklet = SV.Dock:NewDocklet("BottomRight", "SVUI_SkinsDock", self.TitleID, false, AddonDockletToggle);
+	self.Docklet.Button.ExternalMenuList = self.GetDockables;
+	self.Docklet.Button:SetAttribute("hasDropDown", true);
 
 	SV.Dock.BottomRight.Bar.Button.GetMenuList = self.GetDockables;
 

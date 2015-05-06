@@ -32,7 +32,7 @@
             <AbsValue val="9"/>
         </FontHeight>
     </Font>
-    
+
 	<Frame name="SVUI_PlateParentFrame" frameStrata="BACKGROUND" hidden="true">
         <Scripts>
             <OnLoad>
@@ -53,7 +53,7 @@
             <OnLoad>
             	self:SetParent(_G['WorldFrame'])
 				self:SetScale(2.5)
-            </OnLoad> 
+            </OnLoad>
         </Scripts>
     </Frame>
 
@@ -105,4 +105,5 @@
 
     <Script file="Loader.lua"/>
     <Script file='SVUI_NamePlates.lua'/>
+    <Script file='components\healers.lua'/>
 </Ui>

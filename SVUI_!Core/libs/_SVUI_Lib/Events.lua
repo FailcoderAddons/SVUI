@@ -1,12 +1,12 @@
 --[[
- /$$$$$$$$                              /$$             
-| $$_____/                             | $$             
+ /$$$$$$$$                              /$$
+| $$_____/                             | $$
 | $$    /$$    /$$ /$$$$$$  /$$$$$$$  /$$$$$$   /$$$$$$$
 | $$$$$|  $$  /$$//$$__  $$| $$__  $$|_  $$_/  /$$_____/
-| $$__/ \  $$/$$/| $$$$$$$$| $$  \ $$  | $$   |  $$$$$$ 
+| $$__/ \  $$/$$/| $$$$$$$$| $$  \ $$  | $$   |  $$$$$$
 | $$     \  $$$/ | $$_____/| $$  | $$  | $$ /$$\____  $$
 | $$$$$$$$\  $/  |  $$$$$$$| $$  | $$  |  $$$$//$$$$$$$/
-|________/ \_/    \_______/|__/  |__/   \___/ |_______/ 
+|________/ \_/    \_______/|__/  |__/   \___/ |_______/
 --]]
 
 --[[ LOCALIZED GLOBALS ]]--
@@ -68,6 +68,7 @@ lib.UnlockCallback = {};
 
 function lib:Trigger(eventName, ...)
     if(not eventName) then return end;
+    --print(eventName)
     if(self.Triggers[eventName]) then
         for i=1, #self.Triggers[eventName] do
             local fn = self.Triggers[eventName][i];
@@ -107,7 +108,7 @@ function lib:TriggerOnce(eventName, ...)
         end
 
         self.Triggers[eventName] = nil;
-        
+
     elseif(self.FireOnce[eventName]) then
         for i=1, #self.FireOnce[eventName] do
             local fn = self.FireOnce[eventName][i];
@@ -126,7 +127,7 @@ end
 --[[ REGISTRATION ]]--
 
 function lib:On(event, callback, always)
-    if((not event) or (not callback)) then return end; 
+    if((not event) or (not callback)) then return end;
     if(type(callback) == "function") then
         if(always) then
             if(not self.Triggers[event]) then
@@ -139,19 +140,19 @@ function lib:On(event, callback, always)
             end
             self.FireOnce[event][#self.FireOnce[event] + 1] = callback
         end
-    end 
+    end
 end
 
 function lib:OnLock(callback)
     if(callback and type(callback) == "function") then
         self.LockCallback[#self.LockCallback + 1] = callback
-    end 
+    end
 end
 
 function lib:OnUnlock(callback)
     if(callback and type(callback) == "function") then
         self.UnlockCallback[#self.UnlockCallback + 1] = callback
-    end 
+    end
 end
 
 --[[ COMMON EVENTS ]]--
@@ -170,7 +171,7 @@ local Library_OnEvent = function(self, event, arg, ...)
         end
     elseif(event == "PLAYER_REGEN_ENABLED") then
         for i=1, #lib.UnlockCallback do
-            local fn = lib.UnlockCallback[i] 
+            local fn = lib.UnlockCallback[i]
             if(fn and type(fn) == "function") then
                 local _, catch = pcall(fn, ...)
                 if(catch) then

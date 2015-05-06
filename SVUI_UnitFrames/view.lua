@@ -1,7 +1,7 @@
 --[[
 ##########################################################
 S V U I   By: Munglunch
-########################################################## 
+##########################################################
 LOCALIZED LUA FUNCTIONS
 ##########################################################
 ]]--
@@ -36,8 +36,8 @@ local min, random   = math.min, math.random;
 local table         = table;
 --[[ LOCALIZED BLIZZ FUNCTIONS ]]--
 local NewHook = hooksecurefunc;
---[[ 
-########################################################## 
+--[[
+##########################################################
 GET ADDON DATA AND TEST FOR oUF
 ##########################################################
 ]]--
@@ -46,44 +46,44 @@ local L = SV.L;
 local LSM = _G.LibStub("LibSharedMedia-3.0")
 local MOD = SV.UnitFrames
 
-if(not MOD) then return end 
+if(not MOD) then return end
 
 local oUF_SVUI = MOD.oUF
 assert(oUF_SVUI, "SVUI UnitFrames: unable to locate oUF.")
---[[ 
-########################################################## 
+--[[
+##########################################################
 LOCALS
 ##########################################################
 ]]--
 local _PRIVATE_ENVIRONMENT;
-local _PRIVATE_FUNCTIONS = {}; 
+local _PRIVATE_FUNCTIONS = {};
 local _PRIVATE_TAGS = {};
 
 local _PRIVATE_METHODS = {
 	UnitPower = function(unit, g)
-		if unit:find('target') or unit:find('focus') then 
+		if unit:find('target') or unit:find('focus') then
 			return UnitPower(unit, g)
 		end
 		return random(1, UnitPowerMax(unit, g)or 1)
-	end, 
+	end,
 	UnitHealth = function(unit)
-		if unit:find('target') or unit:find('focus') then 
+		if unit:find('target') or unit:find('focus') then
 			return UnitHealth(unit)
 		end
 		return random(1, UnitHealthMax(unit))
-	end, 
+	end,
 	UnitName = function(unit)
-		if unit:find('target') or unit:find('focus') then 
+		if unit:find('target') or unit:find('focus') then
 			return UnitName(unit)
 		end
 		return "Dummy"
-	end, 
+	end,
 	UnitClass = function(unit)
-		if unit:find('target') or unit:find('focus') then 
+		if unit:find('target') or unit:find('focus') then
 			return UnitClass(unit)
 		end
 		local token = CLASS_SORT_ORDER[random(1, #(CLASS_SORT_ORDER))]
-		return LOCALIZED_CLASS_NAMES_MALE[token], token 
+		return LOCALIZED_CLASS_NAMES_MALE[token], token
 	end,
 	Hex = function(r, g, b)
 		if not r then return end
@@ -103,7 +103,7 @@ local AttributeChangeHook = function(self)
 	local db = SV.db.UnitFrames[key]
 
 	local newIndex = -4;
-	if self:GetAttribute("startingIndex") ~= newIndex then 
+	if self:GetAttribute("startingIndex") ~= newIndex then
 		self:SetAttribute("startingIndex", newIndex)
 		self.isForced = true;
 		self:EnableChildren()
@@ -145,41 +145,50 @@ function MOD:ViewEnemyFrames(unit, numGroup)
 		local unitName = unit..i
 		local frame = self.Units[unitName]
 		if(frame and frame.Allow) then
-			if(not frame.isForced) then 
+			if(not frame.isForced) then
 				frame:Allow()
 			else
 				frame:Restrict()
 			end
 		end
-	end 
+	end
 end
 
-function MOD:ViewGroupFrames(headerFrame, setForced)
+local function TransferVisibility(frame)
+    for i = 1, select("#", frame:GetChildren()) do
+        local child = select(i,frame:GetChildren())
+				child.forceShowAuras = frame.forceShowAuras
+				child.forceShowHighlights = frame.forceShowHighlights
+    end
+end
+
+function MOD:ViewGroupFrames(headerFrame, setForced, setAuraForced, setHighlightForced)
 	if InCombatLockdown() then return end
 	if(not headerFrame) then return end
 	SetProxyEnv()
-	
+
 	headerFrame.forceShow = setForced;
-	headerFrame.forceShowAuras = setForced;
+	headerFrame.forceShowAuras = setAuraForced;
+	headerFrame.forceShowHighlights = setAuraForced or setHighlightForced;
 	headerFrame.isForced = setForced;
 	local raidToken = headerFrame.___groupkey
-	
-	if setForced then 
-		for _, func in pairs(_PRIVATE_TAGS) do 
-			if type(func) == "function" then 
-				if(not _PRIVATE_FUNCTIONS[func]) then 
+
+	if setForced then
+		for _, func in pairs(_PRIVATE_TAGS) do
+			if type(func) == "function" then
+				if(not _PRIVATE_FUNCTIONS[func]) then
 					_PRIVATE_FUNCTIONS[func] = getfenv(func)
 					setfenv(func, _PRIVATE_ENVIRONMENT)
-				end 
-			end 
+				end
+			end
 		end
 		RegisterStateDriver(headerFrame, "visibility", "show")
-	else 
-		for func, fenv in pairs(_PRIVATE_FUNCTIONS)do 
+	else
+		for func, fenv in pairs(_PRIVATE_FUNCTIONS)do
 			setfenv(func, fenv)
-			_PRIVATE_FUNCTIONS[func] = nil 
+			_PRIVATE_FUNCTIONS[func] = nil
 		end
-		
+
 		local db = SV.db.UnitFrames[raidToken]
 		RegisterStateDriver(headerFrame, "visibility", db.visibility)
 		local eventScript = headerFrame:GetScript("OnEvent")
@@ -194,9 +203,10 @@ function MOD:ViewGroupFrames(headerFrame, setForced)
 		if(groupFrame:IsShown()) then
 			groupFrame.forceShow = headerFrame.forceShow;
 			groupFrame.forceShowAuras = headerFrame.forceShowAuras;
+			groupFrame.forceShowHighlights = headerFrame.forceShowHighlights;
 			groupFrame:HookScript("OnAttributeChanged", AttributeChangeHook)
 
-			if setForced then 
+			if setForced then
 				groupFrame:SetAttribute("showRaid", nil)
 				groupFrame:SetAttribute("showParty", nil)
 				groupFrame:SetAttribute("showSolo", nil)
@@ -213,6 +223,8 @@ function MOD:ViewGroupFrames(headerFrame, setForced)
 				groupFrame:Update()
 			end
 		end
+
+		TransferVisibility(groupFrame)
 	end
 
 	headerFrame:SetVisibility()

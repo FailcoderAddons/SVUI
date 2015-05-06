@@ -455,7 +455,6 @@ function PLUGIN:PopulateKOS()
 end
 
 function PLUGIN:PopulateScans()
-	self.COMM.Unavailable:Hide()
 	self.Title:Clear();
 	self.Summary:Clear();
 	self.LOG.Output:Clear();
@@ -477,9 +476,6 @@ function PLUGIN:PopulateScans()
 			self.LOG.Output:AddMessage(hex, data.colors.r, data.colors.g, data.colors.b);
 			hasScans = true;
 		end
-	end
-	if(not hasScans) then
-		self.COMM.Unavailable:Show()
 	end
 end
 
@@ -509,6 +505,7 @@ function PLUGIN:ScannerLog(enemy)
 end
 
 function PLUGIN:UpdateCommunicator()
+	self.COMM.Unavailable:Hide()
 	if(self.InPVP) then
 		self.COMM.Unavailable:Show()
 		for i = 1, 5 do
@@ -530,7 +527,6 @@ function PLUGIN:UpdateCommunicator()
 		if(mapID) then
 			local points = PVP_NODES[mapID]
 			if(points) then
-				self.COMM.Unavailable:Hide()
 				for i = 1, 5 do
 					local nodeName = ("SVUI_PVPNode%d"):format(i)
 					local node = _G[nodeName]
@@ -593,10 +589,11 @@ function PLUGIN:UpdateZoneStatus()
 end
 
 local function ParseIncomingLog(timestamp, event, eGuid, eName, pGuid)
-	local cached = PLUGIN.public[eGuid]
+	local cached;
 	local kos, needsUpdate = false, false
 
-	if(cached) then
+	if(PLUGIN.public[eGuid]) then
+		cached = PLUGIN.public[eGuid]
 		kos = true
 	else
 		cached = EnemyCache[eGuid]

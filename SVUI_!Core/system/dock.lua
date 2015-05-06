@@ -71,7 +71,7 @@ MOD.Border = {};
 LOCALS
 ##########################################################
 ]]--
-local DOCK_CHECK = false;
+local DOCK_CHECK,DRAGGING_TARGET;
 local ORDER_TEMP, ORDER_TEST, DOCK_REGISTRY, DOCK_DROPDOWN_OPTIONS = {}, {}, {}, {};
 local DOCK_LOCATIONS = {
 	["BottomLeft"] = {1, "LEFT", true, "ANCHOR_TOPLEFT"},
@@ -79,9 +79,9 @@ local DOCK_LOCATIONS = {
 	["TopLeft"] = {1, "LEFT", false, "ANCHOR_BOTTOMLEFT"},
 	["TopRight"] = {-1, "RIGHT", false, "ANCHOR_BOTTOMLEFT"},
 };
-DOCK_DROPDOWN_OPTIONS["BottomLeft"] = { text = "To BottomLeft", func = function(button) MOD.BottomLeft.Bar:Add(button); end };
-DOCK_DROPDOWN_OPTIONS["BottomRight"] = { text = "To BottomRight", func = function(button) MOD.BottomRight.Bar:Add(button); end };
-DOCK_DROPDOWN_OPTIONS["TopLeft"] = { text = "To TopLeft", func = function(button) MOD.TopLeft.Bar:Add(button); end };
+--DOCK_DROPDOWN_OPTIONS["BottomLeft"] = { text = "To BottomLeft", func = function(button) button:MoveTo("BottomLeft"); end };
+--DOCK_DROPDOWN_OPTIONS["BottomRight"] = { text = "To BottomRight", func = function(button) button:MoveTo("BottomRight"); end };
+--DOCK_DROPDOWN_OPTIONS["TopLeft"] = { text = "To TopLeft", func = function(button) button:MoveTo("TopLeft"); end };
 --DOCK_DROPDOWN_OPTIONS["TopRight"] = { text = "To TopRight", func = function(button) MOD.TopRight.Bar:Add(button) end };
 --[[
 ##########################################################
@@ -90,6 +90,95 @@ THEMEABLE ITEMS
 ]]--
 MOD.ButtonSound = SV.Sounds:Blend("DockButton", "Buttons", "Levers");
 MOD.ErrorSound = SV.Sounds:Blend("Malfunction", "Sparks", "Wired");
+
+local function GetDockDimensions(location)
+	local width, height;
+	local isTop = location:find("Top")
+	local isLeft = location:find("Left")
+	if(isTop) then
+		if(isLeft) then
+			width = SV.db.Dock.dockTopLeftWidth;
+			height = SV.db.Dock.dockTopLeftHeight;
+		else
+			width = SV.db.Dock.dockTopRightWidth;
+			height = SV.db.Dock.dockTopRightHeight;
+		end
+	else
+		if(isLeft) then
+			width = SV.db.Dock.dockLeftWidth;
+			height = SV.db.Dock.dockLeftHeight;
+			if(MOD.private.LeftExpanded) then
+				height = height + 300
+			end
+		else
+			width = SV.db.Dock.dockRightWidth;
+			height = SV.db.Dock.dockRightHeight;
+			if(MOD.private.RightExpanded) then
+				height = height + 300
+			end
+		end
+	end
+
+	return width, height;
+end
+
+local function SetDockDimensions(location, width, height, buttonSize)
+	local isTop = location:find("Top")
+	local isLeft = location:find("Left")
+	if(isTop) then
+		if(isLeft) then
+			SV.db.Dock.dockTopLeftWidth = width;
+			if(not buttonSize) then
+				SV.db.Dock.dockTopLeftHeight = height;
+			end
+		else
+			SV.db.Dock.dockTopRightWidth = width;
+			if(not buttonSize) then
+				SV.db.Dock.dockTopRightHeight = height;
+			end
+		end
+	else
+		if(isLeft) then
+			SV.db.Dock.dockLeftWidth = width;
+			if(not buttonSize) then
+				SV.db.Dock.dockLeftHeight = height;
+			end
+		else
+			SV.db.Dock.dockRightWidth = width;
+			if(not buttonSize) then
+				SV.db.Dock.dockRightHeight = height;
+			end
+		end
+	end
+
+	if(buttonSize) then
+		SV.db.Dock.buttonSize = height;
+	end
+end
+
+local dockPostSizeFunc = function(self, width, height)
+	local name = self:GetName()
+	SetDockDimensions(name, width, height)
+end
+
+local dockBarPostSizeFunc = function(self, width, height)
+	local name = self:GetName()
+	SetDockDimensions(name, width, height, true)
+end
+
+local function ScreenBorderVisibility()
+	if SV.db.Dock.bottomPanel then
+		SVUIDock_BottomBorder:Show()
+	else
+		SVUIDock_BottomBorder:Hide()
+	end
+
+	if SV.db.Dock.topPanel then
+		SVUIDock_TopBorder:Show()
+	else
+		SVUIDock_TopBorder:Hide()
+	end
+end
 
 function MOD.SetThemeDockStyle(frame, isBottom)
 	local backdrop = CreateFrame("Frame", nil, frame)
@@ -356,311 +445,195 @@ function MOD:ExitFade()
 end
 --[[
 ##########################################################
-SET DOCKBAR FUNCTIONS
+DRAGGING HIGHLIGHT FUNCTIONS
 ##########################################################
 ]]--
-local RefreshDockWindows = function(self)
-	local default = '';
-	if(_G[self.Data.Default]) then
-		default = _G[self.Data.Default]:GetAttribute("ownerFrame")
+local HighLight_OnUpdate = function(self)
+	local highlight = self.Highlight;
+	if(not highlight) then
+		self:SetScript("OnUpdate", nil)
+		return
 	end
-	for name,window in pairs(self.Data.Windows) do
-		if(name ~= default and window.DockButton) then
-			--print('RefreshDockWindows:'..default.." ~= "..name)
-			window.DockButton:Deactivate()
-		end
-	end
-end
-
-local RefreshDockButtons = function(self)
-	for name,docklet in pairs(DOCK_REGISTRY) do
-		if(docklet and docklet.DockButton) then
-			docklet.DockButton:Deactivate()
-		end
+	if(highlight:IsMouseOver(50, -50, -50, 50)) then
+		DRAGGING_TARGET = self.Data.Location;
+		highlight:SetAlpha(1)
+	else
+		highlight:SetAlpha(0.2)
 	end
 end
 
-local GetDefault = function(self)
-	local default = self.Data.Default
-	local button = _G[default]
-	if(button and button.Activate) then
-		local window = button:GetAttribute("ownerFrame")
-		if window and _G[window] then
-			self:Refresh()
-			self.Parent.Window.FrameLink = _G[window]
-			self.Parent.Window:FadeIn()
-			_G[window]:Show()
-			button:Activate()
-			--print('GetDefault: ' .. default .. " - " .. window .. " - " .. self.Data.Location)
-		end
+local function AnchorInsertHighlight(dockbar)
+	local location = dockbar.Data.Location;
+	local lastTab = dockbar.Data.Order[#dockbar.Data.Order];
+	local isLeft = (location:find('Left'));
+	local anchor1 = isLeft and 'LEFT' or 'RIGHT';
+	local anchor2 = isLeft and 'RIGHT' or 'LEFT';
+	local xOff = isLeft and 2 or -2;
+	dockbar.Highlight:ClearAllPoints();
+	if(not lastTab) then
+		dockbar.Highlight:SetPoint(anchor1, dockbar, anchor1, xOff, 0);
+	else
+		dockbar.Highlight:SetPoint(anchor1, _G[lastTab], anchor2, xOff, 0);
 	end
 end
 
-local NextDefault = function(self)
-	print('NextDefault '..self.Data.Location)
-	for i = 1, #self.Data.Order do
-		local nextName = self.Data.Order[i];
-		print(nextName)
-		local nextButton = self.Data.Buttons[nextName];
-		local button = _G[nextButton]
-		if(button and button.Activate) then
-			print('Set NextDefault '..nextName)
-			local window = button:GetAttribute("ownerFrame")
-			if window and _G[window] then
-				print(nextName)
-				self.Data.Default = nextName;
-				self:Refresh()
-				self.Parent.Window.FrameLink = _G[window]
-				self.Parent.Window:FadeIn()
-				_G[window]:Show()
-				_G[window]:FadeIn()
-				button:Activate()
-				return
+local function ToggleBarHighlights(isShown)
+	for location, settings in pairs(DOCK_LOCATIONS) do
+		local dock = MOD[location];
+		local dockbar = dock.Bar;
+		if(dockbar) then
+			--AnchorInsertHighlight(dockbar)
+			if(isShown) then
+				dockbar.Highlight:Show()
+				dockbar.Highlight:SetAlpha(0.2)
+				dockbar:SetScript("OnUpdate", HighLight_OnUpdate)
+			else
+				DRAGGING_TARGET = nil;
+				dockbar.Highlight:Hide()
+				dockbar:SetScript("OnUpdate", nil)
 			end
 		end
 	end
 end
-
-local DockButtonMakeDefault = function(self)
-	local name = self:GetName()
-	--print('DockButtonMakeDefault' .. name)
-	self.Parent.Data.Default = self:GetName()
-	self.Parent:GetDefault()
-end
-
-local ToggleDockletWindow = function(self, button)
-	local frame  = button.FrameLink
-	self:Refresh()
-	self:Cycle()
-	if(frame) then
-		self.Parent.Window.FrameLink = frame
-		self.Parent.Window:FadeIn()
-		--frame:FadeIn()
-		button:Activate()
-	else
-		--print('ToggleDockletWindow Failed:' .. self:GetName())
-		button:Deactivate()
-		self:GetDefault()
+--[[
+##########################################################
+DOCKBAR FUNCTIONS
+##########################################################
+]]--
+local function DeactivateDockletButton(button)
+	button:SetAttribute("isActive", false)
+	button:SetPanelColor("default")
+	if(button.Icon) then
+		button.Icon:SetGradient(unpack(SV.media.gradient.icon));
 	end
 end
 
-local AlertActivate = function(self, child)
-	local size = SV.db.Dock.buttonSize or 22;
-	self:SetHeight(size)
-	self.backdrop:Show()
-	child:ClearAllPoints()
-	child:SetAllPoints(self)
+local function DeactivateAllDockletButtons(dockbar)
+	local location = dockbar.Data.Location;
+	local buttonList = dockbar.Data.Buttons;
+	for nextName,nextButton in pairs(buttonList) do
+		DeactivateDockletButton(nextButton)
+	end
 end
 
-local AlertDeactivate = function(self)
-	self.backdrop:Hide()
-	self:SetHeight(1)
+local function ActivateDockletButton(button)
+	DeactivateAllDockletButtons(button.Parent);
+	button:SetAttribute("isActive", true);
+	button:SetPanelColor("default");
+	if(button.Icon) then
+		button.Icon:SetGradient(unpack(SV.media.gradient.checked));
+	end
 end
 
-local Docklet_OnShow = function(self)
-	--print('Docklet_OnShow')
-	if(self.FrameLink) then
+local function ShowDockletWindow(button, location)
+	if((not button) or (not button.FrameLink)) then return end
+	local window = button.FrameLink
+	if((not window) or (not window.SetFrameLevel)) then return end
+	if(not window:IsShown()) then
 		if(not InCombatLockdown()) then
-			self.FrameLink:SetFrameLevel(10)
-		end
-		self.FrameLink:FadeIn()
-	end
-end
-
-local Docklet_OnHide = function(self)
-	--print('Docklet_OnHide:' .. self:GetName())
-	if(self.FrameLink) then
-		if(not InCombatLockdown()) then
-			self.FrameLink:SetFrameLevel(0)
-			self.FrameLink:Hide()
-		else
-			self.FrameLink:FadeOut(0.2, 1, 0, true)
+			window:SetFrameLevel(10)
+			window:Show()
 		end
 	end
+	window:FadeIn()
+	SV.Events:Trigger("DOCKLET_SHOWN", location, button.LinkKey);
+	return true;
 end
 
-local DockButtonActivate = function(self)
-	self:SetAttribute("isActive", true)
-	self:SetPanelColor("default")
-	self.Icon:SetGradient(unpack(SV.media.gradient.checked))
-	if(self.FrameLink) then
-		if(not InCombatLockdown()) then
-			self.FrameLink:SetFrameLevel(10)
-		end
-		self.FrameLink:FadeIn()
-		--print('DockButtonActivate:' .. self:GetName())
+local function HideDockletWindow(button, location)
+	if((not button) or (not button.FrameLink)) then return end
+	local window = button.FrameLink
+	if((not window) or (not window.SetFrameLevel)) then return end
+	if(not InCombatLockdown()) then
+		window:SetFrameLevel(0)
+		window:Hide()
 	end
+	window:FadeOut(0.1, 1, 0, true)
+	SV.Events:Trigger("DOCKLET_HIDDEN", location, button.LinkKey);
+	return true;
 end
 
-local DockButtonDeactivate = function(self)
-	--print('DockButtonDeactivate')
-	if(self.FrameLink) then
-		if(not InCombatLockdown()) then
-			self.FrameLink:SetFrameLevel(0)
-			self.FrameLink:Hide()
-		else
-			self.FrameLink:FadeOut(0.2, 1, 0, true)
-		end
-	end
-	self:SetAttribute("isActive", false)
-	self:SetPanelColor("default")
-	self.Icon:SetGradient(unpack(SV.media.gradient.icon))
-end
-
-local DockButton_OnEnter = function(self, ...)
-	MOD:EnterFade()
-
-	self:SetPanelColor("highlight")
-	self.Icon:SetGradient(unpack(SV.media.gradient.highlight))
-
-	GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT", 0, 4)
-	GameTooltip:ClearLines()
-	local tipText = self:GetAttribute("tipText")
-	GameTooltip:AddDoubleLine("[Left-Click]", tipText, 0, 1, 0, 1, 1, 1)
-	local tipExtraText = self:GetAttribute("tipExtraText")
-	GameTooltip:AddDoubleLine("[Right-Click]", tipExtraText, 0, 1, 0, 1, 1, 1)
-	GameTooltip:AddLine(" ")
-	GameTooltip:AddDoubleLine("[Alt + Click]", "Reset Dock Buttons", 0, 0.5, 1, 0.5, 1, 0.5)
-	GameTooltip:Show()
-end
-
-local DockletButton_OnEnter = function(self, ...)
-	MOD:EnterFade()
-
-	self:SetPanelColor("highlight")
-	self.Icon:SetGradient(unpack(SV.media.gradient.highlight))
-
-	local tipAnchor = self:GetAttribute("tipAnchor")
-	GameTooltip:SetOwner(self, tipAnchor, 0, 4)
-	GameTooltip:ClearLines()
-	if(self.CustomTooltip) then
-		self:CustomTooltip()
+local function ResetAllDockletWindows(dockbar, button)
+	local location = dockbar.Data.Location;
+	local buttonList = dockbar.Data.Buttons;
+	local currentButton = "";
+	if(button and button.GetName) then
+		currentButton = button:GetName()
 	else
-		local tipText = self:GetAttribute("tipText")
-		GameTooltip:AddDoubleLine("[Left-Click]", tipText, 0, 1, 0, 1, 1, 1)
+		dockbar.Parent.backdrop:Hide();
 	end
-	if(self:GetAttribute("hasDropDown") and self.GetMenuList) then
-		GameTooltip:AddLine(" ")
-		GameTooltip:AddDoubleLine("[Alt + Click]", "Docking Options", 0, 0.5, 1, 0.5, 1, 0.5)
-	end
-	GameTooltip:Show()
-end
-
-local DockletButton_OnLeave = function(self, ...)
-	MOD:ExitFade()
-
-	self:SetPanelColor("default")
-	if(self:GetAttribute("isActive")) then
-		-- self:SetPanelColor("checked")
-		self.Icon:SetGradient(unpack(SV.media.gradient.checked))
-	else
-		-- self:SetPanelColor("default")
-		self.Icon:SetGradient(unpack(SV.media.gradient.icon))
-	end
-
-	GameTooltip:Hide()
-end
-
-local DockletButton_OnClick = function(self, ...)
-	if(self.ClickTheme) then
-		self:ClickTheme()
-	end
-	MOD.ButtonSound()
-	if(IsAltKeyDown() and (not InCombatLockdown()) and self:GetAttribute("hasDropDown") and self.GetMenuList) then
-		local list = self:GetMenuList();
-		SV.Dropdown:Open(self, list, "Dock Options");
-	else
-		if self.PostClickFunction then
-			self:PostClickFunction(...)
-		else
-			self.Parent:Toggle(self)
+	for nextName,nextButton in pairs(buttonList) do
+		if(nextName ~= currentButton) then
+			if(nextButton.FrameLink) then
+				HideDockletWindow(nextButton, location)
+			end
 		end
 	end
+	SV.Events:Trigger("DOCKLET_RESET", location);
 end
 
-local DockletButton_OnPostClick = function(self, ...)
-	if InCombatLockdown() then
-		MOD.ErrorSound()
-		return
-	end
-	if(self.ClickTheme) then
-		self:ClickTheme()
-	end
-	MOD.ButtonSound()
-	if(IsAltKeyDown() and self:GetAttribute("hasDropDown") and self.GetMenuList) then
-		local list = self:GetMenuList();
-		SV.Dropdown:Open(self, list, "Dock Options");
-	end
+local DockBar_ResetAll = function(self)
+	ResetAllDockletWindows(self);
+	DeactivateAllDockletButtons(self);
 end
 
-local DockletEnable = function(self)
-	local dock = self.Parent;
-	if(self.DockButton) then dock.Bar:Add(self.DockButton) end
-end
-
-local DockletDisable = function(self)
-	local dock = self.Parent;
-	if(self.DockButton) then dock.Bar:Remove(self.DockButton) end
-end
-
-local DockletButtonSize = function(self)
-	local size = self.Bar.ToolBar:GetHeight() or 30;
-	return size;
-end
-
-local DockletRelocate = function(self, location)
-	local newParent = MOD[location];
-
-	if(not newParent) then return end
-
-	if(self.DockButton) then
-		newParent.Bar:Add(self.DockButton)
-	end
-
-	if(self.Bar) then
-		local height = newParent.Bar.ToolBar:GetHeight();
-		local mod = newParent.Bar.Data[1];
-		local barAnchor = newParent.Bar.Data[2];
-		local barReverse = SV:GetReversePoint(barAnchor);
-		local spacing = SV.db.Dock.buttonSpacing;
-
-		self.Bar:ClearAllPoints();
-		self.Bar:SetPoint(barAnchor, newParent.Bar.ToolBar, barReverse, (spacing * mod), 0)
-	end
-end
-
-local GetDockablePositions = function(self)
-	local button = self;
-	local name = button:GetName();
-	local currentLocation = MOD.private.Locations[name];
-	local t;
-
-	if(self.GetPreMenuList) then
-		t = self:GetPreMenuList();
-		tinsert(t, { title = "Move This", divider = true })
-	else
-		t = {{ title = "Move This", divider = true }};
-	end
-
-	for location,option in pairs(DOCK_DROPDOWN_OPTIONS) do
-		if(currentLocation ~= location) then
-		    tinsert(t, option);
+local DockBar_SetDefault = function(self, button, isAdvanced)
+	local location = self.Data.Location;
+	if(button) then
+		if(isAdvanced and button.ShowAdvancedDock) then
+			DockBar_ResetAll(self)
+			MOD.private.DefaultDocklets[location] = button:GetName();
+		elseif(button.FrameLink) then
+			MOD.private.DefaultDocklets[location] = button:GetName();
 		end
 	end
 
-	tinsert(t, { title = "Re-Order", divider = true });
+	if((not button) or (not button.FrameLink)) then
+		local defaultButton = MOD.private.DefaultDocklets[location];
+		button = _G[defaultButton];
+	end
 
-	for i=1, #button.Parent.Data.Order do
-		if(i ~= button.OrderIndex) then
-			local positionText = ("Position #%d"):format(i);
-		    tinsert(t, { text = positionText, func = function() button.Parent:ChangeOrder(button, i) end });
+	if(button) then
+		if(isAdvanced and button.ShowAdvancedDock) then
+			button:ShowAdvancedDock()
+			return true;
+		elseif(button.FrameLink) then
+			ResetAllDockletWindows(self, button);
+			self.Parent.Window.FrameLink = button.FrameLink;
+			self.Parent.Window:Show();
+			self.Parent.Window:FadeIn();
+			if(ShowDockletWindow(button, location)) then
+				self.Parent.backdrop:Show();
+				ActivateDockletButton(button);
+				return true;
+			end
 		end
 	end
 
-	return t;
+	return false
 end
 
-local ChangeBarOrder = function(self, button, targetIndex)
+local DockBar_NextDefault = function(self)
+	local location = self.Data.Location;
+	local buttonList = self.Data.Buttons;
+	for name,button in pairs(buttonList) do
+		if(button.FrameLink) then
+			MOD.private.DefaultDocklets[location] = name;
+			ResetAllDockletWindows(self, button);
+			self.Parent.Window.FrameLink = button.FrameLink;
+			self.Parent.Window:Show();
+			self.Parent.Window:FadeIn();
+			if(ShowDockletWindow(button, location)) then
+				self.Parent.backdrop:Show();
+				ActivateDockletButton(button);
+				return;
+			end
+		end
+	end
+	SV.Events:Trigger("DOCKLET_LIST_EMPTY", location);
+end
+
+local DockBar_ChangeOrder = function(self, button, targetIndex)
 	local targetName = button:GetName();
 	local currentIndex = button.OrderIndex;
 	wipe(ORDER_TEST);
@@ -696,7 +669,7 @@ local ChangeBarOrder = function(self, button, targetIndex)
 	self:Update()
 end
 
-local RefreshBarOrder = function(self)
+local DockBar_UpdateOrder = function(self)
 	wipe(ORDER_TEST);
 	wipe(ORDER_TEMP);
 	for i = 1, #self.Data.Order do
@@ -717,7 +690,7 @@ local RefreshBarOrder = function(self)
 	end
 end
 
-local CheckBarOrder = function(self, targetName)
+local DockBar_CheckOrder = function(self, targetName)
 	local found = false;
 	for i = 1, #self.Data.Order do
 		if(self.Data.Order[i] == targetName) then
@@ -726,11 +699,11 @@ local CheckBarOrder = function(self, targetName)
 	end
 	if(not found) then
 		tinsert(self.Data.Order, targetName);
-		self:UpdateOrder();
+		DockBar_UpdateOrder(self);
 	end
 end
 
-local RefreshBarLayout = function(self)
+local DockBar_UpdateLayout = function(self)
 	local anchor = upper(self.Data.Location)
 	local mod = self.Data.Modifier
 	local size = self.ToolBar:GetHeight();
@@ -758,13 +731,13 @@ local RefreshBarLayout = function(self)
 	self.ToolBar:SetWidth(offset + size);
 end
 
-local AddToDock = function(self, button)
+local DockBar_AddButton = function(self, button, forced)
 	if not button then return end
 	local name = button:GetName();
-	if(self.Data.Buttons[name]) then return end
+	local currentLocation = self.Data.Location
+	if(self.Data.Buttons[name] and (not forced)) then return end
 
 	local registeredLocation = MOD.private.Locations[name]
-	local currentLocation = self.Data.Location
 
 	if(registeredLocation) then
 		if(registeredLocation ~= currentLocation) then
@@ -778,7 +751,7 @@ local AddToDock = function(self, button)
 	end
 
 	self.Data.Buttons[name] = button;
-	self:CheckOrder(name);
+	DockBar_CheckOrder(self, name);
 
 	MOD.private.Locations[name] = currentLocation;
 	button.Parent = self;
@@ -795,21 +768,16 @@ local AddToDock = function(self, button)
 		frame:InsetPoints(self.Parent.Window)
 		frame.Parent = self.Parent
 		frame:FadeIn()
-		if((not self.Data.Default) or (self.Data.Default == "") or (#self.Data.Order == 1)) then
-			--print('Set New Default: '..name..', TO: '..currentLocation)
-			self.Data.Default = name
-			self:GetDefault()
+		if(not MOD.private.DefaultDocklets[currentLocation]) then
+			DockBar_SetDefault(self, button)
 		end
 	end
 
-	if(#self.Data.Order > 0) then
-		self.Parent.backdrop:Show()
-	end
-
+	self:SetDefault()
 	self:Update()
 end
 
-local RemoveFromDock = function(self, button, isMoving)
+local DockBar_RemoveButton = function(self, button, isMoving)
 	if not button then return end
 	local name = button:GetName();
 	local registeredLocation = MOD.private.Locations[name];
@@ -827,10 +795,6 @@ local RemoveFromDock = function(self, button, isMoving)
 		end
 	end
 
-	if((not self.Data.Default) or (self.Data.Default == "") or (self.Data.Default == name) or (#self.Data.Order > 0)) then
-		--print('Remove Default: '..name..', FROM: '..currentLocation)
-		self:NextDefault()
-	end
 	if(not self.Data.Buttons[name]) then return end
 
 	button:Hide()
@@ -845,56 +809,183 @@ local RemoveFromDock = function(self, button, isMoving)
 	end
 
 	if(#self.Data.Order == 0) then
-		self.Data.Default = "";
+		MOD.private.DefaultDocklets[currentLocation] = nil;
 		self.Parent.backdrop:Hide()
 	end
 
 	self.Data.Buttons[name] = nil;
-	self:UpdateOrder()
+	DockBar_UpdateOrder(self);
+	if(MOD.private.DefaultDocklets[currentLocation] == name or (not MOD.private.DefaultDocklets[currentLocation]) or (MOD.private.DefaultDocklets[currentLocation] == "")) then
+		self:NextDefault()
+	else
+		self:SetDefault()
+	end
 	self:Update()
 end
-
-local AddToParentDock = function(self)
-	if((not self.Parent) or (not self.Parent.Add)) then return end
-	self.Parent:Add(self)
-end
-
-local RemoveFromParentDock = function(self)
-	if((not self.Parent) or (not self.Parent.Remove)) then return end
-	self.Parent:Remove(self)
-end
-
-local ActivateDockletButton = function(self, button, clickFunction, tipFunction, isAction)
-	button.DockAdd = AddToParentDock
-	button.DockRemove = RemoveFromParentDock
-
-	if(tipFunction and type(tipFunction) == "function") then
-		button.CustomTooltip = tipFunction
+--[[
+##########################################################
+DOCKBUTTON FUNCTIONS
+##########################################################
+]]--
+local DockButton_OnDragStart = function(self)
+	if(IsShiftKeyDown() and (not InCombatLockdown())) then
+		self:SetMovable(true);
+		self:StartMoving();
+		ToggleBarHighlights(true);
 	end
+end
 
-	button.Parent = self
-	button:SetPanelColor("default")
-	button.Icon:SetGradient(unpack(SV.media.gradient.icon))
-	button:SetScript("OnEnter", DockletButton_OnEnter)
-	button:SetScript("OnLeave", DockletButton_OnLeave)
-	if(not isAction) then
-		button:SetScript("OnClick", DockletButton_OnClick)
+local DockButton_OnDragStop = function(self)
+	self:StopMovingOrSizing();
+	self:SetMovable(false);
+	if(DRAGGING_TARGET) then
+		self:MoveTo(DRAGGING_TARGET);
 	else
-		button:SetScript("PostClick", DockletButton_OnPostClick)
+		self:MoveTo(MOD.private.Locations[self:GetName()]);
 	end
+	DRAGGING_TARGET = nil;
+	ToggleBarHighlights(false)
+end
 
-	if(clickFunction and type(clickFunction) == "function") then
-		button.PostClickFunction = clickFunction
+local DockButton_OnEnter = function(self, ...)
+	MOD:EnterFade()
+	self:SetPanelColor("highlight")
+	self.Icon:SetGradient(unpack(SV.media.gradient.highlight))
+	local tipAnchor = self:GetAttribute("tipAnchor")
+	GameTooltip:SetOwner(self, tipAnchor, 0, 4)
+	GameTooltip:ClearLines()
+	if(self.CustomTooltip) then
+		self:CustomTooltip()
+	else
+		local tipText = self:GetAttribute("tipText")
+		GameTooltip:AddDoubleLine("[Left-Click]", tipText, 0, 1, 0, 1, 1, 1)
+		GameTooltip:AddDoubleLine("[Right-Click]", "Hide", 0, 1, 0, 1, 1, 1)
+		GameTooltip:AddDoubleLine("[Shift+Click+Drag]", "Move To Another Dock", 0, 1, 0, 1, 1, 1)
+	end
+	if(self:GetAttribute("hasDropDown") and self.GetMenuList) then
+		GameTooltip:AddLine(" ")
+		GameTooltip:AddDoubleLine("[Alt+Click]", "Docking Options", 0, 0.5, 1, 0.5, 1, 0.5)
+	end
+	GameTooltip:Show()
+end
+
+local DockButton_OnLeave = function(self, ...)
+	MOD:ExitFade()
+	self:SetPanelColor("default")
+	if(self:GetAttribute("isActive")) then
+		self.Icon:SetGradient(unpack(SV.media.gradient.checked))
+	else
+		self.Icon:SetGradient(unpack(SV.media.gradient.icon))
+	end
+	GameTooltip:Hide()
+end
+
+local DockButton_OnClick = function(self, button)
+	if(self.ClickTheme) then
+		self:ClickTheme()
+	end
+	MOD.ButtonSound()
+	if(button and (button == "RightButton") and (not IsShiftKeyDown())) then
+		self.Parent.Parent.backdrop:Hide()
+		self:SetAttribute("isActive", false)
+		self:SetPanelColor("default")
+		if(self.Icon) then
+			self.Icon:SetGradient(unpack(SV.media.gradient.icon));
+		end
+		if(self.FrameLink) then
+			local registeredLocation = MOD.private.Locations[self.LocationKey];
+			HideDockletWindow(self, registeredLocation)
+		end
+	else
+		if(IsAltKeyDown() and (not InCombatLockdown()) and self:GetAttribute("hasDropDown") and self.GetMenuList) then
+			local list = self:GetMenuList();
+			SV.Dropdown:Open(self, list, "Dock Options");
+		else
+			local clickAllowed = false;
+			if(self.FrameLink) then
+				clickAllowed = DockBar_SetDefault(self.Parent, self)
+			else
+				clickAllowed = true;
+			end
+			if(self.PostClickFunction and clickAllowed) then
+				self:PostClickFunction(button)
+			end
+		end
 	end
 end
 
-local CreateBasicToolButton = function(self, displayName, texture, onclick, globalName, tipFunction, primaryTemplate, frameLink)
+local DockButton_OnPostClick = function(self, ...)
+	if InCombatLockdown() then
+		MOD.ErrorSound()
+		return
+	end
+	if(self.ClickTheme) then
+		self:ClickTheme()
+	end
+	MOD.ButtonSound()
+	if(IsAltKeyDown() and self:GetAttribute("hasDropDown") and self.GetMenuList) then
+		local list = self:GetMenuList();
+		SV.Dropdown:Open(self, list, "Dock Options");
+	end
+end
+
+local DockButton_GetMenuList = function(self)
+	local button = self;
+	local name = button:GetName();
+	local currentLocation = MOD.private.Locations[name];
+	local t;
+
+	if(self.ExternalMenuList) then
+		t = self:ExternalMenuList();
+	else
+		t = {}
+	end
+
+	tinsert(t, { title = "Re-Order", divider = true });
+
+	for i=1, #button.Parent.Data.Order do
+		if(i ~= button.OrderIndex) then
+			local positionText = ("Position #%d"):format(i);
+		    tinsert(t, { text = positionText, func = function() DockBar_ChangeOrder(button.Parent, button, i) end });
+		end
+	end
+
+	return t;
+end
+
+local DockButton_SetDocked = function(self, attach)
+	if(not self.Parent) then return end
+	if(attach) then
+		if(not self.Parent.Add) then return end
+		self.Parent:Add(self)
+	else
+		if(not self.Parent.Remove) then return end
+		self.Parent:Remove(self)
+	end
+end
+
+local DockButton_MoveTo = function(self, location)
+	if(not MOD[location]) then return end
+	local previousLocation = MOD.private.Locations[self.LocationKey];
+	MOD[location].Bar:Add(self, true);
+	SV.Events:Trigger("DOCKLET_LIST_DECREASED", previousLocation);
+	SV.Events:Trigger("DOCKLET_LIST_INCREASED", location);
+	SV.Events:Trigger("DOCKLET_MOVED", self.LocationKey);
+end
+--[[
+##########################################################
+REMAINING DOCKBAR FUNCTIONS
+##########################################################
+]]--
+local DockBar_CreateButton = function(self, displayName, globalName, texture, clickFunction, tipFunction, primaryTemplate, frameLink)
 	local dockIcon = texture or [[Interface\AddOns\SVUI_!Core\assets\textures\Dock\DOCK-ICON-ADDON]];
 	local size = self.ToolBar:GetHeight();
 	local template = "SVUI_DockletButtonTemplate"
+	local isAction = false;
 
 	if(primaryTemplate) then
-		template = primaryTemplate .. ", SVUI_DockletButtonTemplate"
+		template = primaryTemplate .. ", SVUI_DockletButtonTemplate";
+		isAction = true;
 	end
 
 	local button = _G[globalName .. "DockletButton"] or CreateFrame("Button", globalName, self.ToolBar, template)
@@ -902,103 +993,49 @@ local CreateBasicToolButton = function(self, displayName, texture, onclick, glob
 	button:ClearAllPoints()
 	button:SetSize(size, size)
 	MOD:SetButtonTheme(button, size)
+	button:SetPanelColor("default")
 	button.Icon:SetTexture(dockIcon)
+	button.Icon:SetGradient(unpack(SV.media.gradient.icon))
+
 	button:SetAttribute("tipText", displayName)
 	button:SetAttribute("tipAnchor", self.Data.TipAnchor)
+	button:SetScript("OnEnter", DockButton_OnEnter)
+	button:SetScript("OnLeave", DockButton_OnLeave)
+	button:RegisterForDrag("LeftButton");
+	button:SetScript("OnDragStart", DockButton_OnDragStart);
+	button:SetScript("OnDragStop", DockButton_OnDragStop);
+	if(not isAction) then
+		button:SetScript("OnClick", DockButton_OnClick)
+	else
+		button:SetScript("PostClick", DockButton_OnPostClick)
+	end
 
-  button.OrderIndex = 0;
-	button.Activate = DockButtonActivate
-	button.Deactivate = DockButtonDeactivate
-	button.MakeDefault = DockButtonMakeDefault
-	button.GetMenuList = GetDockablePositions
+	button.Parent 			= self;
+  button.OrderIndex 	= 0;
+	button.LocationKey  = globalName;
+	button.MoveTo				= DockButton_MoveTo
+	button.GetMenuList 	= DockButton_GetMenuList
+	button.SetDocked 		= DockButton_SetDocked
+
+	if(clickFunction and type(clickFunction) == "function") then
+		button.PostClickFunction = clickFunction
+	end
+
+	if(tipFunction and type(tipFunction) == "function") then
+		button.CustomTooltip = tipFunction
+	end
 
 	if(frameLink) then
 		button.FrameLink = frameLink
-		button:SetAttribute("ownerFrame", frameLink:GetName())
-	else
-		button:SetAttribute("ownerFrame", globalName)
+		button.LinkKey   = frameLink:GetName();
 	end
 
   self:Add(button)
-	self:Initialize(button, onclick, tipFunction, primaryTemplate)
 
 	return button
 end
---[[
-##########################################################
-DOCKS
-##########################################################
-]]--
-local DockBar_OnEvent = function(self, event)
-    if(event == 'PLAYER_REGEN_ENABLED') then
-        self:UnregisterEvent("PLAYER_REGEN_ENABLED")
-        self:Refresh()
-    end
-end
 
-for location, settings in pairs(DOCK_LOCATIONS) do
-	MOD[location] = _G["SVUI_Dock" .. location];
-	MOD[location].Bar = _G["SVUI_DockBar" .. location];
-
-	MOD[location].Alert.Activate = AlertActivate;
-	MOD[location].Alert.Deactivate = AlertDeactivate;
-
-	MOD[location].Bar.Parent = MOD[location];
-	MOD[location].Bar.Refresh = RefreshDockButtons;
-	MOD[location].Bar.Cycle = RefreshDockWindows;
-	MOD[location].Bar.GetDefault = GetDefault;
-	MOD[location].Bar.NextDefault = NextDefault;
-	MOD[location].Bar.Toggle = ToggleDockletWindow;
-	MOD[location].Bar.Update = RefreshBarLayout;
-	MOD[location].Bar.UpdateOrder = RefreshBarOrder;
-	MOD[location].Bar.ChangeOrder = ChangeBarOrder;
-	MOD[location].Bar.CheckOrder = CheckBarOrder;
-	MOD[location].Bar.Add = AddToDock;
-	MOD[location].Bar.Remove = RemoveFromDock;
-	MOD[location].Bar.Initialize = ActivateDockletButton;
-	MOD[location].Bar.Create = CreateBasicToolButton;
-	MOD[location].Bar.Data = {
-		Location = location,
-		Anchor = settings[2],
-		Modifier = settings[1],
-		TipAnchor = settings[4],
-		Default = "",
-		Buttons = {},
-		Windows = {},
-		Order = {},
-	};
-	--MOD[location].Bar:SetScript("OnEvent", DockBar_OnEvent)
-end
-
-MOD.TopCenter = _G["SVUI_DockTopCenter"];
-MOD.BottomCenter = _G["SVUI_DockBottomCenter"];
-
-local function InitDockButton(button, location)
-	button:SetPanelColor("default")
-	button.Icon:SetGradient(unpack(SV.media.gradient.icon))
-	button:SetScript("OnEnter", DockButton_OnEnter)
-	button:SetScript("OnLeave", DockletButton_OnLeave)
-	if(location == "BottomLeft") then
-		button:SetScript("OnClick", ToggleSuperDockLeft)
-	else
-		button:SetScript("OnClick", ToggleSuperDockRight)
-	end
-end
-
-local function BorderColorUpdates()
-	SVUIDock_TopBorder:SetBackdropColor(0,0,0,0.8)
-	SVUIDock_TopBorder:SetBackdropBorderColor(0,0,0,0.8)
-	SVUIDock_BottomBorder:SetBackdropColor(0,0,0,0.8)
-	SVUIDock_BottomBorder:SetBackdropBorderColor(0,0,0,0.8)
-end
-
---SV.Events:On("SHARED_MEDIA_UPDATED", BorderColorUpdates, true)
---[[
-##########################################################
-EXTERNALLY ACCESSIBLE METHODS
-##########################################################
-]]--
-function MOD:SetDockButton(location, displayName, texture, onclick, globalName, tipFunction, primaryTemplate)
+function MOD:SetDockButton(location, displayName, globalName, texture, clickFunction, tipFunction, primaryTemplate)
 	if(not self.private) then return end
 	if(self.private.Locations[globalName]) then
 		location = self.private.Locations[globalName];
@@ -1006,27 +1043,101 @@ function MOD:SetDockButton(location, displayName, texture, onclick, globalName, 
 		self.private.Locations[globalName] = location;
 	end
 	local parent = self[location]
-	return parent.Bar:Create(displayName, texture, onclick, globalName, tipFunction, primaryTemplate)
+	return DockBar_CreateButton(parent.Bar, displayName, globalName, texture, clickFunction, tipFunction, primaryTemplate)
+end
+--[[
+##########################################################
+DOCKS
+##########################################################
+]]--
+MOD.TopCenter = _G["SVUI_DockTopCenter"];
+MOD.BottomCenter = _G["SVUI_DockBottomCenter"];
+
+local DockBar_OnEvent = function(self, event)
+    if(event == 'PLAYER_REGEN_ENABLED') then
+        self:UnregisterEvent("PLAYER_REGEN_ENABLED")
+				DockBar_SetDefault(self)
+    end
 end
 
-function MOD:GetDimensions(location)
-	local width, height;
+local DockAlert_Activate = function(self, child)
+	local size = SV.db.Dock.buttonSize or 22;
+	self:SetHeight(size)
+	self.backdrop:Show()
+	child:ClearAllPoints()
+	child:SetAllPoints(self)
+end
 
-	if(location:find("Left")) then
-		width = SV.db.Dock.dockLeftWidth;
-		height = SV.db.Dock.dockLeftHeight;
-		if(MOD.private.LeftExpanded) then
-			height = height + 300
-		end
-	else
-		width = SV.db.Dock.dockRightWidth;
-		height = SV.db.Dock.dockRightHeight;
-		if(MOD.private.RightExpanded) then
-			height = height + 300
-		end
+local DockAlert_Deactivate = function(self)
+	self.backdrop:Hide()
+	self:SetHeight(1)
+end
+
+for location, settings in pairs(DOCK_LOCATIONS) do
+	MOD[location] = _G["SVUI_Dock" .. location];
+	MOD[location].Bar = _G["SVUI_DockBar" .. location];
+
+	MOD[location].Alert.Activate 		= DockAlert_Activate;
+	MOD[location].Alert.Deactivate 	= DockAlert_Deactivate;
+
+	MOD[location].Bar.Parent 			= MOD[location];
+	MOD[location].Bar.SetDefault 	= DockBar_SetDefault;
+	MOD[location].Bar.NextDefault = DockBar_NextDefault;
+	MOD[location].Bar.Reset 			= DockBar_ResetAll;
+	MOD[location].Bar.Update 			= DockBar_UpdateLayout;
+	MOD[location].Bar.Add 				= DockBar_AddButton;
+	MOD[location].Bar.Remove 			= DockBar_RemoveButton;
+	MOD[location].Bar.Create 			= DockBar_CreateButton;
+	MOD[location].Bar.Data = {
+		Location = location,
+		Anchor = settings[2],
+		Modifier = settings[1],
+		TipAnchor = settings[4],
+		Buttons = {},
+		Windows = {},
+		Order = {},
+	};
+	--MOD[location].Bar:SetScript("OnEvent", DockBar_OnEvent)
+end
+--[[
+##########################################################
+DOCKLETS (DOCK BUTTONS WITH ASSOCIATED WINDOWS)
+##########################################################
+]]--
+local Docklet_Enable = function(self)
+	local dock = self.Parent;
+	if(self.Button) then dock.Bar:Add(self.Button) end
+end
+
+local Docklet_Disable = function(self)
+	local dock = self.Parent;
+	if(self.Button) then dock.Bar:Remove(self.Button) end
+end
+
+local Docklet_ButtonSize = function(self)
+	local size = self.Bar.ToolBar:GetHeight() or 30;
+	return size;
+end
+
+local Docklet_Relocate = function(self, location)
+	local newParent = MOD[location];
+
+	if(not newParent) then return end
+
+	if(self.Button) then
+		newParent.Bar:Add(self.Button)
 	end
 
-	return width, height;
+	if(self.Bar) then
+		local height = newParent.Bar.ToolBar:GetHeight();
+		local mod = newParent.Bar.Data[1];
+		local barAnchor = newParent.Bar.Data[2];
+		local barReverse = SV:GetReversePoint(barAnchor);
+		local spacing = SV.db.Dock.buttonSpacing;
+
+		self.Bar:ClearAllPoints();
+		self.Bar:SetPoint(barAnchor, newParent.Bar.ToolBar, barReverse, (spacing * mod), 0)
+	end
 end
 
 function MOD:NewDocklet(location, globalName, readableName, texture, onclick)
@@ -1047,16 +1158,15 @@ function MOD:NewDocklet(location, globalName, readableName, texture, onclick)
 	frame:SetAllPoints(newParent.Window);
 	frame:SetFrameStrata("BACKGROUND");
 	frame.Parent = newParent
-	frame.Disable = DockletDisable;
-	frame.Enable = DockletEnable;
-	frame.Relocate = DockletRelocate;
-	frame.GetButtonSize = DockletButtonSize;
-	frame:FadeCallback(function() newParent.Bar:Cycle() newParent.Bar:GetDefault() end, false, true)
+	frame.Disable = Docklet_Disable;
+	frame.Enable = Docklet_Enable;
+	frame.Relocate = Docklet_Relocate;
+	frame.GetButtonSize = Docklet_ButtonSize;
 
 	newParent.Bar.Data.Windows[globalName] = frame;
 
 	local buttonName = ("%sButton"):format(globalName)
-	frame.DockButton = newParent.Bar:Create(readableName, texture, onclick, buttonName, false, false, frame);
+	frame.Button = newParent.Bar:Create(readableName, buttonName, texture, onclick, false, false, frame);
 	DOCK_REGISTRY[globalName] = frame;
 	frame:SetAlpha(0)
 	DOCK_CHECK = true
@@ -1080,11 +1190,11 @@ function MOD:NewAdvancedDocklet(location, globalName)
 	frame:SetSize(newParent.Window:GetSize());
 	frame:SetAllPoints(newParent.Window);
 	frame:SetFrameStrata("BACKGROUND");
-	frame.Parent = newParent
-	frame.Disable = DockletDisable;
-	frame.Enable = DockletEnable;
-	frame.Relocate = DockletRelocate;
-	frame.GetButtonSize = DockletButtonSize;
+	frame.Parent = newParent;
+	frame.Disable = Docklet_Disable;
+	frame.Enable = Docklet_Enable;
+	frame.Relocate = Docklet_Relocate;
+	frame.GetButtonSize = Docklet_ButtonSize;
 
 	newParent.Bar.Data.Windows[globalName] = frame;
 
@@ -1094,7 +1204,7 @@ function MOD:NewAdvancedDocklet(location, globalName)
 	local barReverse = SV:GetReversePoint(barAnchor);
 	local spacing = SV.db.Dock.buttonSpacing;
 
-	frame.Bar = CreateFrame("Frame", nil, newParent);
+	frame.Bar = CreateFrame("Frame", globalName.."Bar", newParent);
 	frame.Bar:SetSize(1, height);
 	frame.Bar:SetPoint(barAnchor, newParent.Bar.ToolBar, barReverse, (spacing * mod), 0)
 	SV:NewAnchor(frame.Bar, globalName .. " Dock Bar");
@@ -1108,6 +1218,34 @@ end
 BUILD/UPDATE
 ##########################################################
 ]]--
+local CornerButton_OnEnter = function(self, ...)
+	MOD:EnterFade()
+
+	self:SetPanelColor("highlight")
+	self.Icon:SetGradient(unpack(SV.media.gradient.highlight))
+
+	GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT", 0, 4)
+	GameTooltip:ClearLines()
+	local tipText = self:GetAttribute("tipText")
+	GameTooltip:AddDoubleLine("[Left-Click]", tipText, 0, 1, 0, 1, 1, 1)
+	local tipExtraText = self:GetAttribute("tipExtraText")
+	GameTooltip:AddDoubleLine("[Right-Click]", tipExtraText, 0, 1, 0, 1, 1, 1)
+	GameTooltip:AddLine(" ")
+	GameTooltip:AddDoubleLine("[Alt + Click]", "Reset Dock Buttons", 0, 0.5, 1, 0.5, 1, 0.5)
+	GameTooltip:Show()
+end
+
+local CornerButton_OnLeave = function(self, ...)
+	MOD:ExitFade()
+	self:SetPanelColor("default")
+	if(self:GetAttribute("isActive")) then
+		self.Icon:SetGradient(unpack(SV.media.gradient.checked))
+	else
+		self.Icon:SetGradient(unpack(SV.media.gradient.icon))
+	end
+	GameTooltip:Hide()
+end
+
 function MOD:UpdateDockBackdrops()
 	if(DOCK_CHECK and SV.db.Dock.rightDockBackdrop) then
 		MOD.BottomRight.backdrop:Show()
@@ -1131,22 +1269,6 @@ function MOD:UpdateDockBackdrops()
 	end
 end
 
-function MOD:BottomBorderVisibility()
-	if SV.db.Dock.bottomPanel then
-		SVUIDock_BottomBorder:Show()
-	else
-		SVUIDock_BottomBorder:Hide()
-	end
-end
-
-function MOD:TopBorderVisibility()
-	if SV.db.Dock.topPanel then
-		SVUIDock_TopBorder:Show()
-	else
-		SVUIDock_TopBorder:Hide()
-	end
-end
-
 function MOD:ResetAllButtons()
 	wipe(MOD.private.Order)
 	wipe(MOD.private.Locations)
@@ -1158,7 +1280,7 @@ function MOD:Refresh()
 	local spacing = SV.db.Dock.buttonSpacing;
 
 	for location, settings in pairs(DOCK_LOCATIONS) do
-		local width, height = self:GetDimensions(location);
+		local width, height = GetDockDimensions(location);
 		local dock = self[location];
 
 		dock.Bar:SetSize(width, buttonsize)
@@ -1181,8 +1303,8 @@ function MOD:Refresh()
 	self.BottomCenter:SetSize(centerWidth, dockHeight);
 	self.TopCenter:SetSize(centerWidth, dockHeight);
 
-	self:BottomBorderVisibility();
-	self:TopBorderVisibility();
+	ScreenBorderVisibility();
+
 	self:UpdateDockBackdrops();
 
 	self:UpdateProfessionTools();
@@ -1248,11 +1370,13 @@ function MOD:Load()
 		self.private.Order = {}
 	end
 
+	if(not self.private.DefaultDocklets) then
+		self.private.DefaultDocklets = {}
+	end
+
 	if(not self.private.Locations) then
 		self.private.Locations = {}
 	end
-
-	self.private.Locations = self.private.Locations;
 
 	local buttonsize = SV.db.Dock.buttonSize;
 	local spacing = SV.db.Dock.buttonSpacing;
@@ -1262,11 +1386,10 @@ function MOD:Load()
 	self.Border.Top = CreateFrame("Frame", "SVUIDock_TopBorder", SV.Screen);
 	self.Border.Bottom = CreateFrame("Frame", "SVUIDock_BottomBorder", SV.Screen);
 	self:SetBorderTheme();
-	self:TopBorderVisibility();
-	self:BottomBorderVisibility();
+	ScreenBorderVisibility();
 
 	for location, settings in pairs(DOCK_LOCATIONS) do
-		local width, height = self:GetDimensions(location);
+		local width, height = GetDockDimensions(location);
 		local dock = self[location];
 		local mod = settings[1];
 		local anchor = upper(location);
@@ -1280,6 +1403,28 @@ function MOD:Load()
 		dock.Bar:ClearAllPoints()
 		dock.Bar:SetSize(width, buttonsize)
 		dock.Bar:SetPoint(anchor, SV.Screen, anchor, (2 * mod), (2 * vertMod))
+
+		local highlight = CreateFrame("Frame", nil, dock.Bar)
+		if(location:find('Top')) then
+			highlight:SetPoint("TOPLEFT", dock.Bar, "TOPLEFT", 0, 0)
+			highlight:SetPoint("TOPRIGHT", dock.Bar, "TOPRIGHT", 0, 0)
+			highlight:SetHeight(buttonsize * 2)
+			highlight.texture = highlight:CreateTexture(nil, "OVERLAY")
+			highlight.texture:SetAllPoints()
+			highlight.texture:SetTexture(SV.media.statusbar.default);
+			highlight.texture:SetGradientAlpha("VERTICAL",0,0.3,0.3,0,0,1,1,0.8)
+		else
+			highlight:SetPoint("BOTTOMLEFT", dock.Bar, "BOTTOMLEFT", 0, 0)
+			highlight:SetPoint("BOTTOMRIGHT", dock.Bar, "BOTTOMRIGHT", 0, 0)
+			highlight:SetHeight(buttonsize * 2)
+			highlight.texture = highlight:CreateTexture(nil, "OVERLAY")
+			highlight.texture:SetAllPoints()
+			highlight.texture:SetTexture(SV.media.statusbar.default);
+			highlight.texture:SetGradientAlpha("VERTICAL",0,1,1,0.8,0,0.3,0.3,0)
+		end
+		highlight:Hide()
+
+		dock.Bar.Highlight = highlight
 
 		if(not MOD.private.Order[location]) then
 			MOD.private.Order[location] = {}
@@ -1295,7 +1440,15 @@ function MOD:Load()
     	dock.Bar.Button.Icon:SetTexture(SV.media.icon.default)
     	dock.Bar.ToolBar:SetSize(1, buttonsize)
     	dock.Bar.ToolBar:SetPoint(barAnchor, dock.Bar.Button, barReverse, (spacing * mod), 0)
-    	InitDockButton(dock.Bar.Button, location)
+			dock.Bar.Button:SetPanelColor("default")
+			dock.Bar.Button.Icon:SetGradient(unpack(SV.media.gradient.icon))
+			dock.Bar.Button:SetScript("OnEnter", CornerButton_OnEnter)
+			dock.Bar.Button:SetScript("OnLeave", CornerButton_OnLeave)
+			if(location == "BottomLeft") then
+				dock.Bar.Button:SetScript("OnClick", ToggleSuperDockLeft)
+			else
+				dock.Bar.Button:SetScript("OnClick", ToggleSuperDockRight)
+			end
     else
     	dock.Bar.ToolBar:SetSize(1, buttonsize)
     	dock.Bar.ToolBar:SetPoint(barAnchor, dock.Bar, barAnchor, 0, 0)
@@ -1314,13 +1467,16 @@ function MOD:Load()
 
     dock.Window:ClearAllPoints()
     dock.Window:SetSize(width, height)
-    dock.Window:SetPoint(anchor, dock.Alert, reverse, 0, (4 * vertMod))
+    dock.Window:SetPoint(anchor, dock.Alert, reverse, 0, 4)
 		dock.backdrop = self.SetThemeDockStyle(dock.Window, isBottom)
 		dock.backdrop:Hide()
 		dock.Alert.backdrop = self.SetThemeDockStyle(dock.Alert, isBottom)
 		dock.Alert.backdrop:Hide()
+
 		SV:NewAnchor(dock.Bar, location .. " Dock ToolBar");
-		SV:NewAnchor(dock, location .. " Dock Window")
+		SV:SetAnchorResizing(dock.Bar, dockBarPostSizeFunc, 10, 500, 10, 80);
+		SV:NewAnchor(dock, location .. " Dock Window");
+		SV:SetAnchorResizing(dock, dockPostSizeFunc, 10, 500);
 	end
 
 	if MOD.private.LeftFaded then MOD.BottomLeft:Hide() end
@@ -1345,10 +1501,10 @@ function MOD:Load()
 	self.BottomCenter:SetSize(centerWidth, dockHeight)
 	self.BottomCenter:SetPoint("BOTTOM", SV.Screen, "BOTTOM", 0, 0)
 
-	self.BottomLeft.Bar:Refresh()
-	self.BottomRight.Bar:Refresh()
-	self.TopLeft.Bar:Refresh()
-	self.TopRight.Bar:Refresh()
+	DockBar_SetDefault(self.BottomLeft.Bar)
+	DockBar_SetDefault(self.BottomRight.Bar)
+	DockBar_SetDefault(self.TopLeft.Bar)
+	DockBar_SetDefault(self.TopRight.Bar)
 
 	self:LoadProfessionTools();
 	self:LoadAllMiscTools();
@@ -1360,8 +1516,7 @@ end
 local function UpdateAllDocks()
 	for location, settings in pairs(DOCK_LOCATIONS) do
 		local dock = MOD[location];
-		dock.Bar:Cycle()
-		dock.Bar:GetDefault()
+		DockBar_SetDefault(dock.Bar)
 	end
 
 	MOD:UpdateDockBackdrops()

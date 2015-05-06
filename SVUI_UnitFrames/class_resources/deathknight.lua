@@ -1,7 +1,7 @@
 --[[
 ##########################################################
 S V U I   By: Munglunch
-########################################################## 
+##########################################################
 LOCALIZED LUA FUNCTIONS
 ##########################################################
 ]]--
@@ -20,8 +20,8 @@ local assert 	= _G.assert;
 local math 		= _G.math;
 --[[ MATH METHODS ]]--
 local random = math.random;
---[[ 
-########################################################## 
+--[[
+##########################################################
 GET ADDON DATA
 ##########################################################
 ]]--
@@ -30,13 +30,13 @@ local L = SV.L;
 local LSM = _G.LibStub("LibSharedMedia-3.0")
 local MOD = SV.UnitFrames
 
-if(not MOD) then return end 
+if(not MOD) then return end
 
 local oUF_SVUI = MOD.oUF
 assert(oUF_SVUI, "SVUI UnitFrames: unable to locate oUF.")
-if(SV.class ~= "DEATHKNIGHT") then return end 
---[[ 
-########################################################## 
+if(SV.class ~= "DEATHKNIGHT") then return end
+--[[
+##########################################################
 LOCALS
 ##########################################################
 ]]--
@@ -44,12 +44,12 @@ SV.SpecialFX:Register("rune_blood", [[Spells\Monk_drunkenhaze_impact.m2]], 0, 0,
 SV.SpecialFX:Register("rune_frost", [[Spells\Ice_cast_low_hand.m2]], 0, 0, 0, 0, 0.00001, -0.2, 0.4)
 SV.SpecialFX:Register("rune_unholy", [[Spells\Poison_impactdot_med_chest.m2]], 0, 0, 0, 0, 0.13, -0.3, -0.2)
 SV.SpecialFX:Register("rune_death", [[Spells\Shadow_strikes_state_hand.m2]], 0, 0, 0, 0, 0.001, 0, -0.25)
-local specEffects = { 
-	[1] = "rune_blood", 
-	[2] = "rune_blood", 
+local specEffects = {
+	[1] = "rune_blood",
+	[2] = "rune_blood",
 	[3] = "rune_frost",
-	[4] = "rune_frost", 
-	[5] = "rune_unholy", 
+	[4] = "rune_frost",
+	[5] = "rune_unholy",
 	[6] = "rune_unholy",
 };
 local colors = {
@@ -60,8 +60,8 @@ local colors = {
 };
 local RUNE_FG = [[Interface\AddOns\SVUI_UnitFrames\assets\Class\RUNES-FG]];
 local RUNE_BG = [[Interface\AddOns\SVUI_UnitFrames\assets\Class\RUNES-BG]];
---[[ 
-########################################################## 
+--[[
+##########################################################
 POSITIONING
 ##########################################################
 ]]--
@@ -76,7 +76,7 @@ local Reposition = function(self)
 	local size = db.classbar.height
 	local inset = size * 0.1
 	local width = size * max;
-	
+
 	bar.Holder:SetSize(width, size)
     if(not db.classbar.detachFromFrame) then
     	SV:ResetAnchors(L["Classbar"])
@@ -93,21 +93,21 @@ local Reposition = function(self)
 		bar[i]:SetHeight(size + 4)
 		bar[i]:SetWidth(size)
 		bar[i].bar:GetStatusBarTexture():SetHorizTile(false)
-		if i==1 then 
+		if i==1 then
 			bar[i]:SetPoint("TOPLEFT", bar, "TOPLEFT", 0, 1)
-		else 
-			bar[i]:SetPoint("LEFT", bar[i - 1], "RIGHT", -6, 0) 
+		else
+			bar[i]:SetPoint("LEFT", bar[i - 1], "RIGHT", -6, 0)
 		end
 		bar[i].bar:ClearAllPoints()
 		bar[i].bar:InsetPoints(bgFrame,inset,inset)
 	end
 
-	if bar.UpdateAllRuneTypes then 
+	if bar.UpdateAllRuneTypes then
 		bar.UpdateAllRuneTypes(self)
 	end
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 DEATHKNIGHT
 ##########################################################
 ]]--
@@ -158,16 +158,16 @@ function MOD:CreateClassBar(playerFrame)
 		bar[i].bar.effectIndex = i;
 		bar[i].bar.Change = RuneChange;
 		bar[i].bar:SetOrientation("VERTICAL");
-	end 
-	
+	end
+
 	local classBarHolder = CreateFrame("Frame", "Player_ClassBar", bar)
 	classBarHolder:SetPoint("TOPLEFT", playerFrame, "BOTTOMLEFT", 0, -2)
 	bar:SetPoint("TOPLEFT", classBarHolder, "TOPLEFT", 0, 0)
 	bar.Holder = classBarHolder
-	SV:NewAnchor(bar.Holder, L["Classbar"], nil, OnMove)
+	SV:NewAnchor(bar.Holder, L["Classbar"], OnMove)
 
 	playerFrame.MaxClassPower = max;
 	playerFrame.RefreshClassBar = Reposition;
 	playerFrame.Necromancy = bar
-	return 'Necromancy' 
-end 
+	return 'Necromancy'
+end

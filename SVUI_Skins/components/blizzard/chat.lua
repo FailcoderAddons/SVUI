@@ -164,12 +164,12 @@ local _hook_ChatConfig_UpdateCheckboxes = function(frame)
 
 			local check = _G[baseName.."Check"]
 			if(check) then
-				check:SetStyle("Checkbox")
+				check:SetStyle("CheckButton")
 			end
 
 			local colors = _G[baseName.."ColorClasses"]
 			if(colors) then
-				colors:SetStyle("Checkbox")
+				colors:SetStyle("CheckButton")
 				colors:SetHeight(colorsHeight)
 			end
 		end
@@ -274,7 +274,7 @@ local function ChatStyle()
 	for i = 1, #ChatFrameList6 do
 		local this = _G[ChatFrameList6[i]]
 		if(this) then
-			this:SetStyle("Checkbox")
+			this:SetStyle("CheckButton")
 		end
 	end
 

@@ -14,8 +14,8 @@ local SV = _G['SVUI'];
 local L = SV.L;
 local MOD = SV.Skins;
 local Schema = MOD.Schema;
---[[ 
-########################################################## 
+--[[
+##########################################################
 HELPERS
 ##########################################################
 ]]--
@@ -61,31 +61,31 @@ local function SetItemFrame(frame, point)
 	point.backdrop:SetDrawLayer("BORDER", -4)
 	point.backdrop:SetAllPoints(point)
 	point.backdrop:SetTexture(SV.media.statusbar.default)
-	point.backdrop:SetVertexColor(unpack(SV.media.color.default))	
+	point.backdrop:SetVertexColor(unpack(SV.media.color.default))
 	point.bordertop = frame:CreateTexture(nil, "BORDER")
 	point.bordertop:SetPoint("TOPLEFT", point, "TOPLEFT", -noscalemult, noscalemult)
 	point.bordertop:SetPoint("TOPRIGHT", point, "TOPRIGHT", noscalemult, noscalemult)
 	point.bordertop:SetHeight(noscalemult)
-	point.bordertop:SetTexture(0,0,0)	
+	point.bordertop:SetTexture(0,0,0)
 	point.bordertop:SetDrawLayer("BORDER", 1)
 	point.borderbottom = frame:CreateTexture(nil, "BORDER")
 	point.borderbottom:SetPoint("BOTTOMLEFT", point, "BOTTOMLEFT", -noscalemult, -noscalemult)
 	point.borderbottom:SetPoint("BOTTOMRIGHT", point, "BOTTOMRIGHT", noscalemult, -noscalemult)
 	point.borderbottom:SetHeight(noscalemult)
-	point.borderbottom:SetTexture(0,0,0)	
+	point.borderbottom:SetTexture(0,0,0)
 	point.borderbottom:SetDrawLayer("BORDER", 1)
 	point.borderleft = frame:CreateTexture(nil, "BORDER")
 	point.borderleft:SetPoint("TOPLEFT", point, "TOPLEFT", -noscalemult, noscalemult)
 	point.borderleft:SetPoint("BOTTOMLEFT", point, "BOTTOMLEFT", noscalemult, -noscalemult)
 	point.borderleft:SetWidth(noscalemult)
-	point.borderleft:SetTexture(0,0,0)	
+	point.borderleft:SetTexture(0,0,0)
 	point.borderleft:SetDrawLayer("BORDER", 1)
 	point.borderright = frame:CreateTexture(nil, "BORDER")
 	point.borderright:SetPoint("TOPRIGHT", point, "TOPRIGHT", noscalemult, noscalemult)
 	point.borderright:SetPoint("BOTTOMRIGHT", point, "BOTTOMRIGHT", -noscalemult, -noscalemult)
 	point.borderright:SetWidth(noscalemult)
-	point.borderright:SetTexture(0,0,0)	
-	point.borderright:SetDrawLayer("BORDER", 1)	
+	point.borderright:SetTexture(0,0,0)
+	point.borderright:SetDrawLayer("BORDER", 1)
 end
 
 local function StyleCharacterSlots()
@@ -110,7 +110,7 @@ local function StyleCharacterSlots()
 			local r, g, b = 0, 0, 0;
 			if(slotID) then
 				local itemID = GetInventoryItemID("player", slotID)
-				if(itemID) then 
+				if(itemID) then
 					local rarity = select(3, GetItemInfo(itemID))
 					if(rarity and rarity > 1) then
 						r,g,b = GetItemQualityColor(rarity)
@@ -118,10 +118,10 @@ local function StyleCharacterSlots()
 				end
 				charSlot:SetBackdropBorderColor(r,g,b,1)
 			end
-		end 
+		end
 	end
 
-	for i = 1, #PAPERDOLL_SIDEBARS do 
+	for i = 1, #PAPERDOLL_SIDEBARS do
 		local tab = _G["PaperDollSidebarTab"..i]
 		if(tab) then
 			if(not tab.Panel) then
@@ -133,11 +133,11 @@ local function StyleCharacterSlots()
 				tab.Hider:SetPoint("BOTTOMRIGHT", -1, 0)
 				tab.TabBg:Die()
 				if i == 1 then
-					for x = 1, tab:GetNumRegions()do 
+					for x = 1, tab:GetNumRegions()do
 						local texture = select(x, tab:GetRegions())
 						texture:SetTexCoord(0.16, 0.86, 0.16, 0.86)
-					end 
-				end 
+					end
+				end
 				tab:SetStyle("Frame", "Default", true, 2)
 				tab.Panel:SetPoint("TOPLEFT", 2, -3)
 				tab.Panel:SetPoint("BOTTOMRIGHT", 0, -2)
@@ -149,15 +149,15 @@ local function StyleCharacterSlots()
 				tab:ClearAllPoints()
 				tab:SetPoint("LEFT",  _G["PaperDollSidebarTab"..i-1], "RIGHT", 4, 0)
 			end
-		end 
+		end
 	end
-end 
+end
 
 local function EquipmentFlyout_OnShow()
 	EquipmentFlyoutFrameButtons:RemoveTextures()
 	local counter = 1;
 	local button = _G["EquipmentFlyoutFrameButton"..counter]
-	while button do 
+	while button do
 		local texture = _G["EquipmentFlyoutFrameButton"..counter.."IconTexture"]
 		button:SetStyle("Button")
 		texture:SetTexCoord(unpack(_G.SVUI_ICON_COORDS))
@@ -167,20 +167,20 @@ local function EquipmentFlyout_OnShow()
 		if not button.Panel then
 			button:SetStyle("Frame", "Default")
 			button.Panel:SetAllPoints()
-		end 
+		end
 		counter = counter + 1;
 		button = _G["EquipmentFlyoutFrameButton"..counter]
-	end 
+	end
 end
 
 local function Reputation_OnShow()
-	for i = 1, GetNumFactions()do 
+	for i = 1, GetNumFactions()do
 		local bar = _G["ReputationBar"..i.."ReputationBar"]
 		if bar then
 			 bar:SetStatusBarTexture(SV.media.statusbar.default)
 			if not bar.Panel then
 				 bar:SetStyle("Frame", "Inset")
-			end 
+			end
 			_G["ReputationBar"..i.."Background"]:SetTexture("")
 			_G["ReputationBar"..i.."ReputationBarHighlight1"]:SetTexture("")
 			_G["ReputationBar"..i.."ReputationBarHighlight2"]:SetTexture("")
@@ -188,8 +188,8 @@ local function Reputation_OnShow()
 			_G["ReputationBar"..i.."ReputationBarAtWarHighlight2"]:SetTexture("")
 			_G["ReputationBar"..i.."ReputationBarLeftTexture"]:SetTexture("")
 			_G["ReputationBar"..i.."ReputationBarRightTexture"]:SetTexture("")
-		end 
-	end 
+		end
+	end
 end
 
 local function PaperDollTitlesPane_OnShow()
@@ -216,7 +216,7 @@ local function PaperDollEquipmentManagerPane_OnShow()
 			btn.icon:SetPoint("LEFT", btn, "LEFT", 4, 0)
 			if not btn.icon.bordertop then
 				 SetItemFrame(btn, btn.icon)
-			end 
+			end
 		end
 	end
 
@@ -229,7 +229,7 @@ local function PaperDollEquipmentManagerPane_OnShow()
 	GearManagerDialogPopupOkay:SetStyle("Button")
 	GearManagerDialogPopupCancel:SetStyle("Button")
 
-	for i = 1, NUM_GEARSET_ICONS_SHOWN do 
+	for i = 1, NUM_GEARSET_ICONS_SHOWN do
 		local btn = _G["GearManagerDialogPopupButton"..i]
 		if(btn and (not btn.Panel)) then
 			btn:RemoveTextures()
@@ -239,28 +239,28 @@ local function PaperDollEquipmentManagerPane_OnShow()
 				btn.icon:SetTexCoord(unpack(_G.SVUI_ICON_COORDS))
 				btn.icon:SetTexture("")
 				btn.icon:InsetPoints()
-			end 
-		end 
+			end
+		end
 	end
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 CHARACTERFRAME MODR
 ##########################################################
 ]]--
 local function CharacterFrameStyle()
 	if SV.db.Skins.blizzard.enable ~= true or SV.db.Skins.blizzard.character ~= true then
-		 return 
+		 return
 	end
 
 	SV.API:Set("Window", CharacterFrame, true, true, 1, 3, 3)
 
 	SV.API:Set("CloseButton", CharacterFrameCloseButton)
-	SV.API:Set("ScrollBar", CharacterStatsPaneScrollBar)
-	SV.API:Set("ScrollBar", ReputationListScrollFrameScrollBar)
-	SV.API:Set("ScrollBar", TokenFrameContainerScrollBar)
-	SV.API:Set("ScrollBar", GearManagerDialogPopupScrollFrameScrollBar)
-	
+	SV.API:Set("ScrollBar", CharacterStatsPane)
+	SV.API:Set("ScrollBar", ReputationListScrollFrame)
+	SV.API:Set("ScrollBar", TokenFrameContainer)
+	SV.API:Set("ScrollBar", GearManagerDialogPopupScrollFrame)
+
 	StyleCharacterSlots()
 
 	SlotListener:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
@@ -271,7 +271,7 @@ local function CharacterFrameStyle()
 	-- 	 SquareButton_SetIcon(CharacterFrameExpandButton, 'RIGHT')
 	-- else
 	-- 	 SquareButton_SetIcon(CharacterFrameExpandButton, 'LEFT')
-	-- end 
+	-- end
 	CharacterFrameExpandButton:RemoveTextures(true)
 	SV.API:Set("!_PageButton", CharacterFrameExpandButton)
 
@@ -287,12 +287,12 @@ local function CharacterFrameStyle()
 
 	SV.API:Set("CloseButton", ReputationDetailCloseButton)
 	SV.API:Set("CloseButton", TokenFramePopupCloseButton)
-	ReputationDetailAtWarCheckBox:SetStyle("Checkbox")
-	ReputationDetailMainScreenCheckBox:SetStyle("Checkbox")
-	ReputationDetailInactiveCheckBox:SetStyle("Checkbox")
-	ReputationDetailLFGBonusReputationCheckBox:SetStyle("Checkbox")
-	TokenFramePopupInactiveCheckBox:SetStyle("Checkbox")
-	TokenFramePopupBackpackCheckBox:SetStyle("Checkbox")
+	ReputationDetailAtWarCheckBox:SetStyle("CheckButton")
+	ReputationDetailMainScreenCheckBox:SetStyle("CheckButton")
+	ReputationDetailInactiveCheckBox:SetStyle("CheckButton")
+	ReputationDetailLFGBonusReputationCheckBox:SetStyle("CheckButton")
+	TokenFramePopupInactiveCheckBox:SetStyle("CheckButton")
+	TokenFramePopupBackpackCheckBox:SetStyle("CheckButton")
 	EquipmentFlyoutFrameHighlight:Die()
 	EquipmentFlyoutFrame:HookScript("OnShow", EquipmentFlyout_OnShow)
 	hooksecurefunc("EquipmentFlyout_Show", EquipmentFlyout_OnShow)
@@ -302,7 +302,7 @@ local function CharacterFrameStyle()
 
 	for _,gName in pairs(CharFrameList) do
 		if(_G[gName]) then _G[gName]:RemoveTextures(true) end
-	end 
+	end
 
 	CharacterFrameInsetRight:SetStyle("Frame", 'Inset')
 
@@ -354,7 +354,7 @@ local function CharacterFrameStyle()
 	TokenFrameContainer:SetStyle("Frame", 'Inset')
 
 	TokenFrame:HookScript("OnShow", function()
-		for i = 1, GetCurrencyListSize() do 
+		for i = 1, GetCurrencyListSize() do
 			local currency = _G["TokenFrameContainerButton"..i]
 			if(currency) then
 				currency.highlight:Die()
@@ -363,9 +363,9 @@ local function CharacterFrameStyle()
 				currency.categoryRight:Die()
 				if currency.icon then
 					 currency.icon:SetTexCoord(unpack(_G.SVUI_ICON_COORDS))
-				end 
-			end 
-		end 
+				end
+			end
+		end
 		TokenFramePopup:RemoveTextures()
 		TokenFramePopup:SetStyle("Frame", "Inset", true)
 		TokenFramePopup:SetPoint("TOPLEFT", TokenFrame, "TOPRIGHT", 4, -28)
@@ -377,9 +377,9 @@ local function CharacterFrameStyle()
 	PetPaperDollPetInfo:SetStyle("Frame", "Icon")
 	PetPaperDollPetInfo.Panel:SetFrameLevel(0)
 	PetPaperDollPetInfo:SetSize(24, 24)
-end 
---[[ 
-########################################################## 
+end
+--[[
+##########################################################
 MOD LOADING
 ##########################################################
 ]]--

@@ -94,7 +94,7 @@ local function GetMacroCooldown(itemID)
 	end
 end
 
-local SetMacroTooltip = function(self)
+local MacroButton_OnEnter = function(self)
 	local text1 = self:GetAttribute("tipText")
 	local text2 = self:GetAttribute("tipExtraText")
 	GameTooltip:AddLine(text1, 1, 1, 0)
@@ -116,7 +116,7 @@ local function CreateMacroToolButton(proName, proID, itemID)
 	if(not data) then return end
 
 	local globalName = ("SVUI_%s"):format(proName)
-	local button = SV.Dock:SetDockButton("BottomRight", proName, SV.media.dock.professionIconFile, nil, globalName, SetMacroTooltip, "SecureActionButtonTemplate")
+	local button = SV.Dock:SetDockButton("BottomRight", proName, globalName, SV.media.dock.professionIconFile, false, MacroButton_OnEnter, "SecureActionButtonTemplate")
 
 	button.Icon:SetTexCoord(data[1], data[2], data[3], data[4])
 

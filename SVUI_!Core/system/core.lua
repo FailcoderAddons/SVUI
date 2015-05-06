@@ -209,7 +209,6 @@ SV.GUID               = UnitGUID('player');
 SV.Allegiance         = UnitFactionGroup("player");
 SV.ClassRole          = "";
 SV.SpecificClassRole  = "NONE";
-SV.ConfigurationMode  = false;
 
 SV.Screen = CreateFrame("Frame", "SVUIParent", UIParent);
 SV.Screen:SetFrameLevel(UIParent:GetFrameLevel());
@@ -251,7 +250,7 @@ SV.defaults           = {
         ["saveDraggable"] = false,
         ["taintLog"] = false,
         ["stickyFrames"] = true,
-        ["graphSize"] = 64,
+        ["graphSize"] = 50,
         ["loot"] = true,
         ["lootRoll"] = true,
         ["lootRollWidth"] = 328,
@@ -370,6 +369,10 @@ SV.defaults           = {
         ["dockLeftHeight"] = 224,
         ["dockRightWidth"] = 412,
         ["dockRightHeight"] = 224,
+        ["dockTopLeftWidth"] = 412,
+        ["dockTopLeftHeight"] = 224,
+        ["dockTopRightWidth"] = 412,
+        ["dockTopRightHeight"] = 224,
         ["dockCenterWidth"] = defaultCenterWidth,
         ["dockCenterHeight"] = 20,
         ["buttonSize"] = 30,
@@ -660,98 +663,6 @@ function SV:RefreshEverything(bypass)
     SVUILib:RefreshAll();
     if not bypass then
         self:VersionCheck()
-    end
-end
-
-function SV:GenerateFontOptionGroup(groupName, groupCount, groupOverview, groupList)
-    self.Options.args.Fonts.args.fontGroup.args[groupName] = {
-        order = groupCount,
-        type = "group",
-        name = groupName,
-        args = {
-            overview = {
-                order = 1,
-                name = groupOverview,
-                type = "description",
-                width = "full",
-            },
-            spacer0 = {
-                order = 2,
-                name = "",
-                type = "description",
-                width = "full",
-            },
-        },
-    };
-
-    local orderCount = 3;
-    for template, info in pairs(groupList) do
-        self.Options.args.Fonts.args.fontGroup.args[groupName].args[template] = {
-            order = orderCount + info.order,
-            type = "group",
-            guiInline = true,
-            name = info.name,
-            get = function(key)
-                return self.media.shared.font[template][key[#key]]
-            end,
-            set = function(key,value)
-                self.media.shared.font[template][key[#key]] = value;
-                if(groupCount == 1) then
-                    self:StaticPopup_Show("RL_CLIENT")
-                else
-                    self.Events:Trigger("FONT_GROUP_UPDATED", template);
-                end
-            end,
-            args = {
-                description = {
-                    order = 1,
-                    name = info.desc,
-                    type = "description",
-                    width = "full",
-                },
-                spacer1 = {
-                    order = 2,
-                    name = "",
-                    type = "description",
-                    width = "full",
-                },
-                spacer2 = {
-                    order = 3,
-                    name = "",
-                    type = "description",
-                    width = "full",
-                },
-                file = {
-                    type = "select",
-                    dialogControl = 'LSM30_Font',
-                    order = 4,
-                    name = self.L["Font File"],
-                    desc = self.L["Set the font file to use with this font-type."],
-                    values = _G.AceGUIWidgetLSMlists.font,
-                },
-                outline = {
-                    order = 5,
-                    name = self.L["Font Outline"],
-                    desc = self.L["Set the outlining to use with this font-type."],
-                    type = "select",
-                    values = {
-                        ["NONE"] = self.L["None"],
-                        ["OUTLINE"] = "OUTLINE",
-                        ["MONOCHROMEOUTLINE"] = "MONOCROMEOUTLINE",
-                        ["THICKOUTLINE"] = "THICKOUTLINE"
-                    },
-                },
-                size = {
-                    order = 6,
-                    name = self.L["Font Size"],
-                    desc = self.L["Set the font size to use with this font-type."],
-                    type = "range",
-                    min = 6,
-                    max = 64,
-                    step = 1,
-                },
-            }
-        }
     end
 end
 

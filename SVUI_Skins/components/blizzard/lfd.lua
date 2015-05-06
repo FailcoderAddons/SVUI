@@ -178,23 +178,6 @@ local function LFDFrameStyle()
   --LFGDungeonReadyPopup:SetScript('OnShow', nil)
   --/script StaticPopupSpecial_Show(LFGDungeonReadyPopup);
 
-  -- LFGDungeonReadyDialogRoleIconTexture:SetTexture("Interface\\AddOns\\SVUI_Skins\\artwork\\UI-LFG-ICONS-ROLEBACKGROUNDS")
-  -- LFGDungeonReadyDialogRoleIconTexture:SetAlpha(0.5)
-  -- LFGDungeonReadyDialogRoleIconTexture:SetTexCoord(LFDQueueFrameRoleButtonDPS.background:GetTexCoord())
-  --
-  -- hooksecurefunc("LFGDungeonReadyPopup_Update", function()
-  --   local proposalExists, _, _, _, _, _, role = GetLFGProposal();
-  --   if proposalExists and role and LFGDungeonReadyDialogRoleIcon:IsShown() then
-  --     if(role == "DAMAGER") then
-  --       LFGDungeonReadyDialogRoleIconTexture:SetTexCoord(LFDQueueFrameRoleButtonDPS.background:GetTexCoord())
-  --     elseif(role == "TANK") then
-  --       LFGDungeonReadyDialogRoleIconTexture:SetTexCoord(LFDQueueFrameRoleButtonTank.background:GetTexCoord())
-  --     elseif(role == "HEALER") then
-  --       LFGDungeonReadyDialogRoleIconTexture:SetTexCoord(LFDQueueFrameRoleButtonHealer.background:GetTexCoord())
-  --     end
-  --   end
-  -- end)
-
   LFDQueueFrameRoleButtonTankIncentiveIcon:SetAlpha(0)
   LFDQueueFrameRoleButtonHealerIncentiveIcon:SetAlpha(0)
   LFDQueueFrameRoleButtonDPSIncentiveIcon:SetAlpha(0)
@@ -210,6 +193,14 @@ local function LFDFrameStyle()
   LFGDungeonReadyDialog.filigree:SetAlpha(0)
   LFGDungeonReadyDialog.bottomArt:SetAlpha(0)
   SV.API:Set("CloseButton", LFGDungeonReadyStatusCloseButton)
+
+  LFDQueueFrameRoleButtonTank:SetNormalTexture("Interface\\AddOns\\SVUI_Skins\\artwork\\UI-LFG-ICON-ROLES")
+  LFDQueueFrameRoleButtonHealer:SetNormalTexture("Interface\\AddOns\\SVUI_Skins\\artwork\\UI-LFG-ICON-ROLES")
+  LFDQueueFrameRoleButtonDPS:SetNormalTexture("Interface\\AddOns\\SVUI_Skins\\artwork\\UI-LFG-ICON-ROLES")
+
+  LFDQueueFrameRoleButtonTank.cover:SetTexture("Interface\\AddOns\\SVUI_Skins\\artwork\\UI-LFG-ICON-ROLES")
+  LFDQueueFrameRoleButtonHealer.cover:SetTexture("Interface\\AddOns\\SVUI_Skins\\artwork\\UI-LFG-ICON-ROLES")
+  LFDQueueFrameRoleButtonDPS.cover:SetTexture("Interface\\AddOns\\SVUI_Skins\\artwork\\UI-LFG-ICON-ROLES")
 
   for _,name in pairs(LFDFrameList) do
     local frame = _G[name];
@@ -420,7 +411,7 @@ local function LFDFrameStyle()
   --   local box = _G["LFDQueueFrameSpecificListButton"..u.."EnableButton"]
   --   if(box and (not box.Panel)) then
   --     box:RemoveTextures()
-  --     box:SetStyle("Checkbox")
+  --     box:SetStyle("CheckButton")
   --     box:SetFrameLevel(box:GetFrameLevel() + 50)
   --   end
   -- end
@@ -429,7 +420,7 @@ local function LFDFrameStyle()
   --   local box = _G["LFRQueueFrameSpecificListButton"..u.."EnableButton"]
   --   if(box and (not box.Panel)) then
   --     box:RemoveTextures()
-  --     box:SetStyle("Checkbox")
+  --     box:SetStyle("CheckButton")
   --     box:SetFrameLevel(box:GetFrameLevel() + 50)
   --   end
   -- end

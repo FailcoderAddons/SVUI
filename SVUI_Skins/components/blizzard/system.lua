@@ -13,8 +13,8 @@ local L = SV.L;
 local MOD = SV.Skins;
 local Schema = MOD.Schema;
 local ceil = math.ceil
---[[ 
-########################################################## 
+--[[
+##########################################################
 MASSIVE LIST OF LISTS
 ##########################################################
 ]]--
@@ -39,41 +39,42 @@ local SystemFrameList1 = {
 	"QueueStatusFrame",
 	"InterfaceOptionsFrame",
 	"VideoOptionsFrame",
-	"AudioOptionsFrame",
+	"AudioOptionsFrame"
 };
 local SystemFrameList4 = {
 	"Options",
 	"Store",
-	"SoundOptions", 
-	"UIOptions", 
-	"Keybindings", 
+	"SoundOptions",
+	"UIOptions",
+	"Keybindings",
 	"Macros",
 	"Ratings",
-	"AddOns", 
-	"Logout", 
-	"Quit", 
-	"Continue", 
+	"AddOns",
+	"Logout",
+	"Quit",
+	"Continue",
 	"MacOptions",
 	"Help",
 	"WhatsNew",
-	"Addons"
+	"Addons",
+	"SVUI"
 };
 local SystemFrameList5 = {
-	"GameMenuFrame", 
-	"InterfaceOptionsFrame", 
-	"AudioOptionsFrame", 
+	"GameMenuFrame",
+	"InterfaceOptionsFrame",
+	"AudioOptionsFrame",
 	"VideoOptionsFrame",
 };
 local SystemFrameList6 = {
-	"VideoOptionsFrameOkay", 
-	"VideoOptionsFrameCancel", 
-	"VideoOptionsFrameDefaults", 
-	"VideoOptionsFrameApply", 
-	"AudioOptionsFrameOkay", 
-	"AudioOptionsFrameCancel", 
-	"AudioOptionsFrameDefaults", 
-	"InterfaceOptionsFrameDefaults", 
-	"InterfaceOptionsFrameOkay", 
+	"VideoOptionsFrameOkay",
+	"VideoOptionsFrameCancel",
+	"VideoOptionsFrameDefaults",
+	"VideoOptionsFrameApply",
+	"AudioOptionsFrameOkay",
+	"AudioOptionsFrameCancel",
+	"AudioOptionsFrameDefaults",
+	"InterfaceOptionsFrameDefaults",
+	"InterfaceOptionsFrameOkay",
 	"InterfaceOptionsFrameCancel",
 	"ReadyCheckFrameYesButton",
 	"ReadyCheckFrameNoButton",
@@ -394,8 +395,8 @@ local SystemFrameList21 = {
 	"AddonListScrollFrameScrollBar",
 	"OpacityFrameSlider",
 };
---[[ 
-########################################################## 
+--[[
+##########################################################
 HELPER FUNCTIONS
 ##########################################################
 ]]--
@@ -405,8 +406,15 @@ local _hook_GhostFrameBackdropColor = function(self, r, g, b, a)
 		self:SetBackdropBorderColor(0,0,0,0)
 	end
 end
---[[ 
-########################################################## 
+
+local _hook_AddonsList_Update = function()
+	for i = 1, MAX_ADDONS_DISPLAYED do
+		SV.API:Set("CheckButton", _G["AddonListEntry"..i.."Enabled"])
+		SV.API:Set("Button", _G["AddonListEntry"..i.."Load"])
+	end
+end
+--[[
+##########################################################
 SYSTEM WIDGET MODRS
 ##########################################################
 ]]--
@@ -442,14 +450,14 @@ local function SystemPanelQue()
 			SV.API:Set("Window", this)
 		end
 	end
-	
+
 	LFDRoleCheckPopup:RemoveTextures()
 	LFDRoleCheckPopup:SetStyle("!_Frame")
 	LFDRoleCheckPopupAcceptButton:SetStyle("Button")
 	LFDRoleCheckPopupDeclineButton:SetStyle("Button")
-	LFDRoleCheckPopupRoleButtonTank.checkButton:SetStyle("Checkbox")
-	LFDRoleCheckPopupRoleButtonDPS.checkButton:SetStyle("Checkbox")
-	LFDRoleCheckPopupRoleButtonHealer.checkButton:SetStyle("Checkbox")
+	LFDRoleCheckPopupRoleButtonTank.checkButton:SetStyle("CheckButton")
+	LFDRoleCheckPopupRoleButtonDPS.checkButton:SetStyle("CheckButton")
+	LFDRoleCheckPopupRoleButtonHealer.checkButton:SetStyle("CheckButton")
 	LFDRoleCheckPopupRoleButtonTank.checkButton:SetFrameLevel(LFDRoleCheckPopupRoleButtonTank.checkButton:GetFrameLevel() + 1)
 	LFDRoleCheckPopupRoleButtonDPS.checkButton:SetFrameLevel(LFDRoleCheckPopupRoleButtonDPS.checkButton:GetFrameLevel() + 1)
 	LFDRoleCheckPopupRoleButtonHealer.checkButton:SetFrameLevel(LFDRoleCheckPopupRoleButtonHealer.checkButton:GetFrameLevel() + 1)
@@ -501,8 +509,26 @@ local function SystemPanelQue()
 		tex:SetTexCoord(unpack(_G.SVUI_ICON_COORDS))
 		tex:InsetPoints()
 	end
+
+	if(AddonList) then
+		--AddonList:RemoveTextures(true)
+		SV.API:Set("Window", AddonList, true, true)
+		SV.API:Set("Button", AddonListEnableAllButton)
+		SV.API:Set("Button", AddonListDisableAllButton)
+		SV.API:Set("Button", AddonListDisableAllButton)
+		SV.API:Set("Button", AddonListCancelButton)
+		SV.API:Set("Button", AddonListOkayButton)
+		SV.API:Set("CheckButton", AddonListForceLoad)
+		SV.API:Set("DropDown", AddonCharacterDropDown)
+		SV.API:Set("ScrollBar", AddonListScrollFrameScrollBar)
+		for i = 1, MAX_ADDONS_DISPLAYED do
+			SV.API:Set("CheckButton", _G["AddonListEntry"..i.."Enabled"])
+			SV.API:Set("Button", _G["AddonListEntry"..i.."Load"])
+		end
+	end
+
 	for i = 1, #SystemFrameList5 do
-		local this = _G[SystemFrameList5[i].."Header"]			
+		local this = _G[SystemFrameList5[i].."Header"]
 		if(this) then
 			this:SetTexture("")
 			this:ClearAllPoints()
@@ -520,18 +546,18 @@ local function SystemPanelQue()
 		end
 	end
 	VideoOptionsFrameCancel:ClearAllPoints()
-	VideoOptionsFrameCancel:SetPoint("RIGHT",VideoOptionsFrameApply,"LEFT",-4,0)		 
+	VideoOptionsFrameCancel:SetPoint("RIGHT",VideoOptionsFrameApply,"LEFT",-4,0)
 	VideoOptionsFrameOkay:ClearAllPoints()
-	VideoOptionsFrameOkay:SetPoint("RIGHT",VideoOptionsFrameCancel,"LEFT",-4,0)	
+	VideoOptionsFrameOkay:SetPoint("RIGHT",VideoOptionsFrameCancel,"LEFT",-4,0)
 	AudioOptionsFrameOkay:ClearAllPoints()
 	AudioOptionsFrameOkay:SetPoint("RIGHT",AudioOptionsFrameCancel,"LEFT",-4,0)
 	InterfaceOptionsFrameOkay:ClearAllPoints()
 	InterfaceOptionsFrameOkay:SetPoint("RIGHT",InterfaceOptionsFrameCancel,"LEFT", -4,0)
 	ReadyCheckFrameYesButton:SetParent(ReadyCheckFrame)
-	ReadyCheckFrameNoButton:SetParent(ReadyCheckFrame) 
+	ReadyCheckFrameNoButton:SetParent(ReadyCheckFrame)
 	ReadyCheckFrameYesButton:SetPoint("RIGHT", ReadyCheckFrame, "CENTER", -1, 0)
 	ReadyCheckFrameNoButton:SetPoint("LEFT", ReadyCheckFrameYesButton, "RIGHT", 3, 0)
-	ReadyCheckFrameText:SetParent(ReadyCheckFrame)	
+	ReadyCheckFrameText:SetParent(ReadyCheckFrame)
 	ReadyCheckFrameText:ClearAllPoints()
 	ReadyCheckFrameText:SetPoint("TOP", 0, -12)
 	ReadyCheckListenerFrame:SetAlpha(0)
@@ -542,13 +568,13 @@ local function SystemPanelQue()
 	InterfaceOptionsFrame:SetMovable(true)
 	InterfaceOptionsFrame:EnableMouse(true)
 	InterfaceOptionsFrame:RegisterForDrag("LeftButton", "RightButton")
-	InterfaceOptionsFrame:SetScript("OnDragStart", function(self) 
+	InterfaceOptionsFrame:SetScript("OnDragStart", function(self)
 		if InCombatLockdown() then return end
 		if IsShiftKeyDown() then
-			self:StartMoving() 
+			self:StartMoving()
 		end
 	end)
-	InterfaceOptionsFrame:SetScript("OnDragStop", function(self) 
+	InterfaceOptionsFrame:SetScript("OnDragStop", function(self)
 		self:StopMovingOrSizing()
 	end)
 	if IsMacClient() then
@@ -632,7 +658,7 @@ local function SystemPanelQue()
 	for i = 1, #SystemFrameList15 do
 		local this = _G["InterfaceOptions"..SystemFrameList15[i]]
 		if(this) then
-			this:SetStyle("Checkbox")
+			this:SetStyle("CheckButton")
 		end
 	end
 	for i = 1, #SystemFrameList16 do
@@ -645,7 +671,7 @@ local function SystemPanelQue()
 	for i = 1, #SystemFrameList17 do
 		local this = _G[SystemFrameList17[i]]
 		if(this) then
-			this:SetStyle("Checkbox")
+			this:SetStyle("CheckButton")
 		end
 	end
 	for i = 1, #SystemFrameList18 do
@@ -662,13 +688,13 @@ local function SystemPanelQue()
 	end
 	AudioOptionsVoicePanelChatMode1KeyBindingButton:ClearAllPoints()
 	AudioOptionsVoicePanelChatMode1KeyBindingButton:SetPoint("CENTER", AudioOptionsVoicePanelBinding, "CENTER", 0, -10)
-	CompactUnitFrameProfilesRaidStylePartyFrames:SetStyle("Checkbox")
+	CompactUnitFrameProfilesRaidStylePartyFrames:SetStyle("CheckButton")
 	CompactUnitFrameProfilesGeneralOptionsFrameResetPositionButton:SetStyle("Button")
 
 	for i = 1, #SystemFrameList20 do
 		local this = _G["CompactUnitFrameProfilesGeneralOptionsFrame"..SystemFrameList20[i]]
 		if(this) then
-			this:SetStyle("Checkbox")
+			this:SetStyle("CheckButton")
 			this:SetFrameLevel(40)
 		end
 	end
@@ -700,7 +726,7 @@ local function SystemPanelQue()
 		for i = 1, 11 do
 			local this = _G["MacOptionsFrameCheckButton"..i]
 			if(this) then
-				this:SetStyle("Checkbox")
+				this:SetStyle("CheckButton")
 			end
 		end
 		MacOptionsButtonKeybindings:ClearAllPoints()
@@ -711,7 +737,7 @@ local function SystemPanelQue()
 		MacOptionsFrameCancel:SetPoint("LEFT", MacOptionsFrameOkay, "RIGHT", 2, 0)
 		MacOptionsFrameCancel:SetWidth(MacOptionsFrameCancel:GetWidth() - 6)
 	end
-	
+
 	ReportCheatingDialog:RemoveTextures()
 	ReportCheatingDialogCommentFrame:RemoveTextures()
 	ReportCheatingDialogReportButton:SetStyle("Button")
@@ -733,11 +759,11 @@ local function SystemPanelQue()
 	SideDressUpModel:SetStyle("!_Frame", "Model")
 	SideDressUpModelResetButton:SetStyle("Button")
 	SideDressUpModelResetButton:SetPoint("BOTTOM", SideDressUpModel, "BOTTOM", 0, 20)
-	SV.API:Set("CloseButton", SideDressUpModelCloseButton)	
+	SV.API:Set("CloseButton", SideDressUpModelCloseButton)
 	SV.API:Set("CloseButton", SideDressUpModelCloseButton)
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 MOD LOADING
 ##########################################################
 ]]--

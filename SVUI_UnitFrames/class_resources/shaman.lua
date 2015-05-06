@@ -154,7 +154,7 @@ function MOD:CreateClassBar(playerFrame)
 	classBarHolder:SetPoint("TOPLEFT", playerFrame, "BOTTOMLEFT", 0, -2)
 	bar:SetPoint("TOPLEFT", classBarHolder, "TOPLEFT", 0, 0)
 	bar.Holder = classBarHolder
-	SV:NewAnchor(bar.Holder, L["Classbar"], nil, OnMove)
+	SV:NewAnchor(bar.Holder, L["Classbar"], OnMove)
 
 	playerFrame.MaxClassPower = totemMax;
 	playerFrame.RefreshClassBar = Reposition;

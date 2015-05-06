@@ -510,7 +510,7 @@ function MOD:LoadKeyBinder()
   moveDesc:SetText(L["Hover your mouse over any actionbutton or spellbook button to bind it. Press the escape key or right click to clear the current actionbutton's keybinding."])
 
   local checkButton = NewFrame("CheckButton", "SVUI_KeyBindPopupCheckButton", pop, "OptionsCheckButtonTemplate")
-  checkButton:SetStyle("Checkbox")
+  checkButton:SetStyle("CheckButton")
   _G["SVUI_KeyBindPopupCheckButtonText"]:SetText(CHARACTER_SPECIFIC_KEYBINDINGS)
   checkButton:SetScript("OnShow", Check_OnShow)
   checkButton:SetScript("OnClick", Check_OnClick)

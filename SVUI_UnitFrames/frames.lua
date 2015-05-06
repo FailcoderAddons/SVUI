@@ -91,6 +91,12 @@ local lastArenaFrame, lastBossFrame
 ALL UNIT HELPERS
 ##########################################################
 ]]--
+local unitLayoutPostSizeFunc = function(self, width, height)
+  SV.db.UnitFrames[self.___key].width = width;
+  SV.db.UnitFrames[self.___key].height = height;
+  self:Update()
+end
+
 local UpdateTargetGlow = function(self)
     if not self.unit then return end
     local unit = self.unit;
@@ -174,7 +180,7 @@ local UpdatePlayerFrame = function(self)
     self:SetSize(UNIT_WIDTH, UNIT_HEIGHT)
     local lossSize = UNIT_WIDTH * 0.6
     self.LossOfControl.stunned:SetSize(lossSize, lossSize)
-    _G[self:GetName().."_MOVE"]:SetSize(self:GetSize())
+    self.Grip:SetSize(self:GetSize())
 
     MOD:RefreshUnitLayout(self, "player")
 
@@ -281,6 +287,7 @@ CONSTRUCTORS["player"] = function(self, unit)
     self.CombatFade = true;
     self:SetPoint("BOTTOMRIGHT", SV.Screen, "BOTTOM", -80, 182)
     SV:NewAnchor(self, L["Player Frame"])
+    SV:SetAnchorResizing(self, unitLayoutPostSizeFunc, 10, 500)
 
     self.MediaUpdate = MOD.RefreshUnitMedia
     self.Update = UpdatePlayerFrame
@@ -303,7 +310,7 @@ local UpdateTargetFrame = function(self)
     MOD.RefreshUnitMedia(self, "target")
     self.colors = oUF_SVUI.colors;
     self:SetSize(UNIT_WIDTH, UNIT_HEIGHT)
-    _G[self:GetName().."_MOVE"]:SetSize(self:GetSize())
+    self.Grip:SetSize(self:GetSize())
     if not self:IsElementEnabled("ActionPanel")then
         self:EnableElement("ActionPanel")
     end
@@ -378,6 +385,7 @@ CONSTRUCTORS["target"] = function(self, unit)
 
     self:SetPoint("BOTTOMLEFT", SV.Screen, "BOTTOM", 80, 182)
     SV:NewAnchor(self, L["Target Frame"])
+    SV:SetAnchorResizing(self, unitLayoutPostSizeFunc, 10, 500)
 
     self.MediaUpdate = MOD.RefreshUnitMedia
     self.Update = UpdateTargetFrame
@@ -396,7 +404,7 @@ local UpdateTargetTargetFrame = function(self)
     MOD.RefreshUnitMedia(self, "targettarget")
     self.colors = oUF_SVUI.colors;
     self:SetSize(UNIT_WIDTH, UNIT_HEIGHT)
-    _G[self:GetName().."_MOVE"]:SetSize(self:GetSize())
+    self.Grip:SetSize(self:GetSize())
     MOD:RefreshUnitLayout(self, "targettarget")
     self:UpdateAllElements()
 end
@@ -419,6 +427,7 @@ CONSTRUCTORS["targettarget"] = function(self, unit)
     self.Range = { insideAlpha = 1, outsideAlpha = 1 }
     self:SetPoint("LEFT", SVUI_Target, "RIGHT", 4, 0)
     SV:NewAnchor(self, L["TargetTarget Frame"])
+    SV:SetAnchorResizing(self, unitLayoutPostSizeFunc, 10, 500)
 
     self.MediaUpdate = MOD.RefreshUnitMedia
     self.Update = UpdateTargetTargetFrame
@@ -437,7 +446,7 @@ local UpdatePetFrame = function(self)
     MOD.RefreshUnitMedia(self, "pet")
     self.colors = oUF_SVUI.colors;
     self:SetSize(UNIT_WIDTH, UNIT_HEIGHT)
-    _G[self:GetName().."_MOVE"]:SetSize(self:GetSize())
+    self.Grip:SetSize(self:GetSize())
     MOD:RefreshUnitLayout(self, "pet")
     do
         if SVUI_Player and not InCombatLockdown()then
@@ -468,6 +477,7 @@ CONSTRUCTORS["pet"] = function(self, unit)
     self.Range = { insideAlpha = 1, outsideAlpha = 1 }
     self:SetPoint("RIGHT", SVUI_Player, "LEFT", -4, 0)
     SV:NewAnchor(self, L["Pet Frame"])
+    SV:SetAnchorResizing(self, unitLayoutPostSizeFunc, 10, 500)
     self.MediaUpdate = MOD.RefreshUnitMedia
     self.Update = UpdatePetFrame
     return self
@@ -485,7 +495,7 @@ local UpdatePetTargetFrame = function(self)
     MOD.RefreshUnitMedia(self, "pettarget")
     self.colors = oUF_SVUI.colors;
     self:SetSize(UNIT_WIDTH, UNIT_HEIGHT)
-    _G[self:GetName().."_MOVE"]:SetSize(self:GetSize())
+    self.Grip:SetSize(self:GetSize())
     MOD:RefreshUnitLayout(self, "pettarget")
     do
         if SVUI_Pet and not InCombatLockdown()then
@@ -512,6 +522,7 @@ CONSTRUCTORS["pettarget"] = function(self, unit)
     self:SetPoint("BOTTOM", SVUI_Pet, "TOP", 0, 7)
     self.snapOffset = -7
     SV:NewAnchor(self, L["PetTarget Frame"])
+    SV:SetAnchorResizing(self, unitLayoutPostSizeFunc, 10, 500)
 
     self.MediaUpdate = MOD.RefreshUnitMedia
     self.Update = UpdatePetTargetFrame
@@ -530,7 +541,7 @@ local UpdateFocusFrame = function(self)
     MOD.RefreshUnitMedia(self, "focus")
     self.colors = oUF_SVUI.colors;
     self:SetSize(UNIT_WIDTH, UNIT_HEIGHT)
-    _G[self:GetName().."_MOVE"]:SetSize(self:GetSize())
+    self.Grip:SetSize(self:GetSize())
     MOD:RefreshUnitLayout(self, "focus")
 
     self:UpdateAllElements()
@@ -588,6 +599,7 @@ CONSTRUCTORS["focus"] = function(self, unit)
 
     self:SetPoint("BOTTOMRIGHT", SVUI_Target, "TOPRIGHT", 0, 220)
     SV:NewAnchor(self, L["Focus Frame"])
+    SV:SetAnchorResizing(self, unitLayoutPostSizeFunc, 10, 500)
 
     self.MediaUpdate = MOD.RefreshUnitMedia
     self.Update = UpdateFocusFrame
@@ -606,7 +618,7 @@ local UpdateFocusTargetFrame = function(self)
     MOD.RefreshUnitMedia(self, "focustarget")
     self.colors = oUF_SVUI.colors;
     self:SetSize(UNIT_WIDTH, UNIT_HEIGHT)
-    _G[self:GetName().."_MOVE"]:SetSize(self:GetSize())
+    self.Grip:SetSize(self:GetSize())
     MOD:RefreshUnitLayout(self, "focustarget")
     self:UpdateAllElements()
 end
@@ -629,6 +641,7 @@ CONSTRUCTORS["focustarget"] = function(self, unit)
     self:SetPoint("LEFT", SVUI_Focus, "RIGHT", 12, 0)
     self.snapOffset = -7
     SV:NewAnchor(self, L["FocusTarget Frame"])
+    SV:SetAnchorResizing(self, unitLayoutPostSizeFunc, 10, 500)
 
     self.MediaUpdate = MOD.RefreshUnitMedia
     self.Update = UpdateFocusTargetFrame
@@ -642,7 +655,7 @@ BOSS
 local UpdateBossFrame = function(self)
     local db = SV.db.UnitFrames["boss"]
     local INDEX = self:GetID() or 1;
-    local holder = _G["SVUI_Boss_MOVE"]
+    local holder = _G['SVUI_Boss1_MOVE']
     local UNIT_WIDTH = db.width;
     local UNIT_HEIGHT = db.height;
 
@@ -652,15 +665,7 @@ local UpdateBossFrame = function(self)
     self:SetSize(UNIT_WIDTH, UNIT_HEIGHT)
     self:ClearAllPoints()
 
-    if(tonumber(INDEX) == 1) then
-        holder:SetWidth(UNIT_WIDTH)
-        holder:SetHeight(UNIT_HEIGHT + (UNIT_HEIGHT + 12 + db.castbar.height) * 4)
-        if db.showBy == "UP"then
-            self:SetPoint("BOTTOMRIGHT", holder, "BOTTOMRIGHT")
-        else
-            self:SetPoint("TOPRIGHT", holder, "TOPRIGHT")
-        end
-    else
+    if(holder and (tonumber(INDEX) == 1)) then
         local yOffset = (UNIT_HEIGHT + 12 + db.castbar.height) * (INDEX - 1)
         if db.showBy == "UP"then
             self:SetPoint("BOTTOMRIGHT", holder, "BOTTOMRIGHT", 0, yOffset)
@@ -702,12 +707,14 @@ CONSTRUCTORS["boss"] = function(self, unit)
     self.Range = { insideAlpha = 1, outsideAlpha = 1 }
     self:SetAttribute("type2", "focus")
 
-    if(not _G["SVUI_Boss_MOVE"]) then
+    if(not lastBossFrame) then
         self:SetPoint("RIGHT", SV.Screen, "RIGHT", -105, 0)
-        SV:NewAnchor(self, L["Boss Frames"], nil, nil, "SVUI_Boss")
     else
         self:SetPoint("TOPRIGHT", lastBossFrame, "BOTTOMRIGHT", 0, -20)
     end
+
+    SV:NewAnchor(self, L["Boss Frames"])
+    SV:SetAnchorResizing(self, unitLayoutPostSizeFunc, 10, 500)
 
     self.MediaUpdate = MOD.RefreshUnitMedia
     self.Update = UpdateBossFrame
@@ -722,7 +729,7 @@ ARENA
 local UpdateArenaFrame = function(self)
     local db = SV.db.UnitFrames["arena"]
     local INDEX = self:GetID() or 1;
-    local holder = _G["SVUI_Arena_MOVE"]
+    local holder = _G['SVUI_Arena1_MOVE'];
     local UNIT_WIDTH = db.width;
     local UNIT_HEIGHT = db.height
 
@@ -734,15 +741,7 @@ local UpdateArenaFrame = function(self)
 
     self:ClearAllPoints()
 
-    if(tonumber(INDEX) == 1) then
-        holder:SetWidth(UNIT_WIDTH)
-        holder:SetHeight(UNIT_HEIGHT + (UNIT_HEIGHT + 12 + db.castbar.height) * 4)
-        if(db.showBy == "UP") then
-            self:SetPoint("BOTTOMRIGHT", holder, "BOTTOMRIGHT")
-        else
-            self:SetPoint("TOPRIGHT", holder, "TOPRIGHT")
-        end
-    else
+    if(holder and (tonumber(INDEX) > 1)) then
         local yOffset = (UNIT_HEIGHT + 12 + db.castbar.height) * (INDEX - 1)
         if(db.showBy == "UP") then
             self:SetPoint("BOTTOMRIGHT", holder, "BOTTOMRIGHT", 0, yOffset)
@@ -873,12 +872,14 @@ CONSTRUCTORS["arena"] = function(self, unit)
         prep:Hide()
     end
 
-    if(not _G["SVUI_Arena_MOVE"]) then
+    if(not lastArenaFrame) then
         self:SetPoint("RIGHT", SV.Screen, "RIGHT", -105, 0)
-        SV:NewAnchor(self, L["Arena Frames"], nil, nil, "SVUI_Arena")
     else
         self:SetPoint("TOPRIGHT", lastArenaFrame, "BOTTOMRIGHT", 0, -20)
     end
+
+    SV:NewAnchor(self, L["Arena Frames"])
+    SV:SetAnchorResizing(self, unitLayoutPostSizeFunc, 10, 500)
 
     self.MediaUpdate = MOD.RefreshUnitMedia
     self.Update = UpdateArenaFrame

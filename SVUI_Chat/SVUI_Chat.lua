@@ -434,6 +434,50 @@ CORE FUNCTIONS
 ]]--
 local TabsList = {};
 
+local function removeIconFromLine(text)
+	-- for i=1, 8 do
+	-- 	text = gsub(text, "|TInterface\\TargetingFrame\\UI%-RaidTargetingIcon_"..i..":0|t", "")
+	-- end
+	text = gsub(text, "(|TInterface(.*)|t)", "")
+	return text
+end
+
+function MOD:FadeLines(frame)
+	for i = select("#", frame:GetRegions()), 1, -1 do
+		local region = select(i, frame:GetRegions())
+		if region:GetObjectType() == "FontString" then
+			local line = tostring(region:GetText())
+			local newtext = removeIconFromLine(line)
+			region:SetText(newtext)
+			region:SetAlpha(0)
+		end
+	end
+	frame.___isFaded = true;
+end
+
+function MOD:ShowLines(frame)
+	for i = select("#", frame:GetRegions()), 1, -1 do
+		local region = select(i, frame:GetRegions())
+		if region:GetObjectType() == "FontString" then
+			region:SetAlpha(1)
+		end
+	end
+	frame.___isFaded = nil;
+end
+
+function MOD:GetLines(...)
+	local index = 1
+	for i = select("#", ...), 1, -1 do
+		local region = select(i, ...)
+		if region:GetObjectType() == "FontString" then
+			local line = tostring(region:GetText())
+			COPY_LINES[index] = removeIconFromLine(line)
+			index = index + 1
+		end
+	end
+	return index - 1
+end
+
 local function AnchorInsertHighlight()
 	local lastTab = TabsList[1];
 	for chatID,frame in pairs(TabsList) do
@@ -447,6 +491,49 @@ local function AnchorInsertHighlight()
 	else
 		MOD.Dock.Highlight:SetPoint("LEFT", lastTab, "RIGHT", 6, 0);
 	end
+end
+
+local function DockResetChat(location)
+	if(not location or (location ~= MOD.Dock.Parent.Bar.Data.Location)) then return end
+	local activeChatFrame = FCFDock_GetSelectedWindow(GENERAL_CHAT_DOCK)
+	MOD:FadeLines(activeChatFrame)
+	activeChatFrame:ForceHide(true)
+	activeChatFrame:FadeOut(2, activeChatFrame:GetAlpha(), 0, true)
+	for chatID,frame in pairs(TabsList) do
+		frame.link.IsOpen = false
+		frame.link:SetPanelColor("default")
+		frame.link.icon:SetGradient(unpack(SV.media.gradient.icon))
+	end
+end
+
+local function DockSetChatDefault(location)
+	if(not location or (location ~= MOD.Dock.Parent.Bar.Data.Location)) then return end
+	local activeChatFrame = FCFDock_GetSelectedWindow(GENERAL_CHAT_DOCK)
+	MOD.Dock.Parent.backdrop:Show();
+	MOD:ShowLines(activeChatFrame)
+	activeChatFrame:ForceHide(false)
+	activeChatFrame:FadeIn(0.2, activeChatFrame:GetAlpha(), 1)
+	local chatName = activeChatFrame:GetName()
+	local tabName = chatName.."Tab";
+	local tab = _G[tabName];
+	if(tab) then
+		tab.IsOpen = true
+	end
+end
+
+local function DockFadeInChat()
+	local activeChatFrame = FCFDock_GetSelectedWindow(GENERAL_CHAT_DOCK)
+	MOD.Dock.Parent.backdrop:Show();
+	MOD:ShowLines(activeChatFrame)
+	activeChatFrame:ForceHide(false)
+	activeChatFrame:FadeIn(0.2, activeChatFrame:GetAlpha(), 1)
+end
+
+local function DockFadeOutChat()
+	local activeChatFrame = FCFDock_GetSelectedWindow(GENERAL_CHAT_DOCK)
+	MOD:FadeLines(activeChatFrame)
+	activeChatFrame:ForceHide(true)
+	activeChatFrame:FadeOut(2, activeChatFrame:GetAlpha(), 0, true)
 end
 
 do
@@ -468,28 +555,6 @@ do
 			SetHyperlink(self, data, ...)
 		end
 	end
-
-	-- local SVUI_OnHyperlinkShow = function(self, link, ...)
-	-- 	if(link:sub(1, 3) == "url") then
-	-- 		local ChatFrameEditBox = ChatEdit_ChooseBoxForSend()
-	-- 		local currentLink = (link):sub(5)
-	-- 		if (not ChatFrameEditBox:IsShown()) then
-	-- 			ChatEdit_ActivateChat(ChatFrameEditBox)
-	-- 		end
-	-- 		ChatFrameEditBox:Insert(currentLink)
-	-- 		ChatFrameEditBox:HighlightText()
-	-- 		return;
-	-- 	end
-	-- 	local test, text = link:match("(%a+):(.+)");
-	-- 	if(test == "url") then
-	-- 		local editBox = LAST_ACTIVE_CHAT_EDIT_BOX or _G[("%sEditBox"):format(self:GetName())]
-	-- 		if editBox then
-	-- 			editBox:SetText(text)
-	-- 			editBox:SetFocus()
-	-- 			editBox:HighlightText()
-	-- 		end
-	-- 	end
-	-- end
 
 	local _hook_TabTextColor = function(self, r, g, b, a)
 		local r2, g2, b2 = 1, 1, 1;
@@ -528,8 +593,11 @@ do
 	end
 
 	local Tab_OnClick = function(self,button)
-		FCF_Tab_OnClick(self,button);
 		local chatFrame = _G[("ChatFrame%d"):format(self:GetID())];
+		if((not self.IsOpen) or (not chatFrame:IsShown())) then
+			MOD.Dock.Parent.Bar:SetDefault(MOD.Dock.Bar, true)
+		end
+		FCF_Tab_OnClick(self,button);
 		if(chatFrame:AtBottom() and ScrollIndicator:IsShown()) then
 			SV.Animate:StopFlash(ScrollIndicator)
 			ScrollIndicator:Hide()
@@ -543,9 +611,9 @@ do
 			frame.link.icon:SetGradient(unpack(SV.media.gradient.icon))
 		end
 		if(chatFrame.isDocked) then
-	        self.IsOpen = true
-	        self.icon:SetGradient(unpack(SV.media.gradient.green))
-	    end
+        self.IsOpen = true
+        self.icon:SetGradient(unpack(SV.media.gradient.green))
+    end
 	end
 
 	local Tab_OnDragStart = function(self)
@@ -640,8 +708,8 @@ do
 		end
 	end
 
-	local function _repositionDockedTabs()
-		if(not MOD.Dock or not TABS_DIRTY) then return end;
+	local function _repositionDockedTabs(_, isForced)
+		if((not MOD.Dock) or (not TABS_DIRTY)) then return end;
 		local lastTab = TabsList[1];
 		if(lastTab) then
 			lastTab:ClearAllPoints()
@@ -649,7 +717,7 @@ do
 		end
 		local offset = 1;
 		for chatID,frame in pairs(TabsList) do
-			if(frame and chatID ~= 1 and frame.isDocked) then
+			if(frame and chatID ~= 1 and (frame.isDocked or isForced)) then
 				frame:ClearAllPoints()
 				if(not lastTab) then
 					frame:SetPoint("LEFT", MOD.Dock.Bar, "LEFT", 2, 0);
@@ -750,6 +818,7 @@ do
 		local chatID = chat:GetID();
 		local tabName = chatName.."Tab";
 		local tabText = _G[chatName.."TabText"]
+		SV:SetFrameVisibilityLocks(chat)
 		if(not chat.Panel) then
 			chat:SetStyle("Frame", "Transparent", true, 1, 3, 6)
 			chat.Panel:Hide()
@@ -1107,6 +1176,7 @@ local function _hook_TabStopDragging(chatFrame)
 	if(MOD.Dock.Highlight:IsMouseOver(50, -2, 0, 50)) then
 		TABS_DIRTY = true;
 		FCF_DockFrame(chatFrame, chatFrame:GetID(), true);
+		FCFDock_UpdateTabs(GENERAL_CHAT_DOCK, true);
 	end
 end
 
@@ -1289,50 +1359,6 @@ local ScrollFullButton = function(self)
 	self:Hide()
 end
 
-local function removeIconFromLine(text)
-	-- for i=1, 8 do
-	-- 	text = gsub(text, "|TInterface\\TargetingFrame\\UI%-RaidTargetingIcon_"..i..":0|t", "")
-	-- end
-	text = gsub(text, "(|TInterface(.*)|t)", "")
-	return text
-end
-
-function MOD:FadeLines(frame)
-	for i = select("#", frame:GetRegions()), 1, -1 do
-		local region = select(i, frame:GetRegions())
-		if region:GetObjectType() == "FontString" then
-			local line = tostring(region:GetText())
-			local newtext = removeIconFromLine(line)
-			region:SetText(newtext)
-			region:SetAlpha(0)
-		end
-	end
-	frame.___isFaded = true;
-end
-
-function MOD:ShowLines(frame)
-	for i = select("#", frame:GetRegions()), 1, -1 do
-		local region = select(i, frame:GetRegions())
-		if region:GetObjectType() == "FontString" then
-			region:SetAlpha(1)
-		end
-	end
-	frame.___isFaded = nil;
-end
-
-function MOD:GetLines(...)
-	local index = 1
-	for i = select("#", ...), 1, -1 do
-		local region = select(i, ...)
-		if region:GetObjectType() == "FontString" then
-			local line = tostring(region:GetText())
-			COPY_LINES[index] = removeIconFromLine(line)
-			index = index + 1
-		end
-	end
-	return index - 1
-end
-
 function MOD:CopyChat(frame)
 	if not SVUI_CopyChatFrame:IsShown() then
 		SVUI_CopyChatFrame:Show()
@@ -1344,23 +1370,12 @@ function MOD:CopyChat(frame)
 	end
 end
 
-local function DockFadeInChat()
-	local activeChatFrame = FCFDock_GetSelectedWindow(GENERAL_CHAT_DOCK)
-	MOD:ShowLines(activeChatFrame)
-	activeChatFrame:FadeIn(0.2, activeChatFrame:GetAlpha(), 1)
-end
-
-local function DockFadeOutChat()
-	local activeChatFrame = FCFDock_GetSelectedWindow(GENERAL_CHAT_DOCK)
-	MOD:FadeLines(activeChatFrame)
-	activeChatFrame:FadeOut(2, activeChatFrame:GetAlpha(), 0, true)
-end
-
 function MOD:UpdateLocals()
+	local width,height = MOD.Dock.Parent.Window:GetSize()
 	PLAYER_NAME = UnitName("player");
 	PLAYER_FILTER = PLAYER_NAME:upper();
-	CHAT_WIDTH = (SV.db.Dock.dockLeftWidth or 350) - 10;
-	CHAT_HEIGHT = (SV.db.Dock.dockLeftHeight or 180) - 15;
+	CHAT_WIDTH = (width or 350) - 10;
+	CHAT_HEIGHT = (height or 180) - 15;
 	CHAT_THROTTLE = SV.db.Chat.throttleInterval;
 	CHAT_ALLOW_URL = SV.db.Chat.url;
 	CHAT_HOVER_URL = SV.db.Chat.hyperlinkHover;
@@ -1394,6 +1409,7 @@ function MOD:Load()
 	self.ChatHistory = self.private.history;
 
 	self.Dock = SV.Dock:NewAdvancedDocklet("BottomLeft", "SVUI_ChatFrameDock")
+	self.Dock.Bar.ShowAdvancedDock = DockFadeInChat;
 
 	local hlSize = self.Dock.Bar:GetHeight()
 	local insertHL = CreateFrame("Frame", nil, self.Dock.Bar)
@@ -1512,4 +1528,9 @@ function MOD:Load()
 	SV.Events:On("DOCK_LEFT_FADE_IN", DockFadeInChat, true);
 	SV.Events:On("DOCK_LEFT_FADE_OUT", DockFadeOutChat, true);
 	SV.Events:On("DOCK_LEFT_EXPANDED", ExpandChatDock, true);
+	SV.Events:On("DOCKLET_RESET", DockResetChat, true);
+	SV.Events:On("DOCKLET_SHOWN", DockResetChat, true);
+	SV.Events:On("DOCKLET_LIST_INCREASED", DockResetChat, true);
+	SV.Events:On("DOCKLET_LIST_DECREASED", DockSetChatDefault, true);
+	SV.Events:On("DOCKLET_LIST_EMPTY", DockSetChatDefault, true);
 end

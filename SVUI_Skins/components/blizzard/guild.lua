@@ -304,7 +304,7 @@ local _hook_BankTabPermissions = function(self)
 				end
 				view =  _G[ownedName.."ViewCheck"]
 				if(view) then
-					view:SetStyle("Checkbox")
+					view:SetStyle("CheckButton")
 					GCTabHelper(view)
 				end
 				stack =  _G[ownedName.."StackBox"]
@@ -314,12 +314,12 @@ local _hook_BankTabPermissions = function(self)
 				end
 				deposit =  _G[ownedName.."DepositCheck"]
 				if(deposit) then
-					deposit:SetStyle("Checkbox")
+					deposit:SetStyle("CheckButton")
 					GCTabHelper(deposit)
 				end
 				update =  _G[ownedName.."UpdateInfoCheck"]
 				if(update) then
-					update:SetStyle("Checkbox")
+					update:SetStyle("CheckButton")
 					GCTabHelper(update)
 				end
 			end
@@ -492,7 +492,7 @@ local function GuildFrameStyle()
 
 	for i = 1, #GuildCheckBoxList do
 		local check = _G[GuildCheckBoxList[i]]
-		if(check) then check:SetStyle("Checkbox") end
+		if(check) then check:SetStyle("CheckButton") end
 	end
 
 	for i = 1, 5 do
@@ -510,9 +510,9 @@ local function GuildFrameStyle()
 	GuildNewsBossModelTextFrame.Panel:SetPoint("TOPLEFT", GuildNewsBossModel.Panel, "BOTTOMLEFT", 0, -1)
 	GuildNewsBossModel:SetPoint("TOPLEFT", GuildFrame, "TOPRIGHT", 4, -43)
 
-	GuildRecruitmentTankButton.checkButton:SetStyle("Checkbox")
-	GuildRecruitmentHealerButton.checkButton:SetStyle("Checkbox")
-	GuildRecruitmentDamagerButton.checkButton:SetStyle("Checkbox")
+	GuildRecruitmentTankButton.checkButton:SetStyle("CheckButton")
+	GuildRecruitmentHealerButton.checkButton:SetStyle("CheckButton")
+	GuildRecruitmentDamagerButton.checkButton:SetStyle("CheckButton")
 
 	GuildFactionBar:RemoveTextures()
 	GuildFactionBar.progress:SetTexture(SV.media.statusbar.default)
@@ -522,7 +522,7 @@ local function GuildFrameStyle()
 
 	GuildRosterContainer:SetStyle("Frame", "Inset")
 	SV.API:Set("ScrollBar", GuildRosterContainerScrollBar, 4, -4)
-	GuildRosterShowOfflineButton:SetStyle("Checkbox")
+	GuildRosterShowOfflineButton:SetStyle("CheckButton")
 
 	for i = 1, 4 do
 		local btn = _G["GuildRosterColumnButton"..i]
@@ -567,7 +567,7 @@ local function GuildFrameStyle()
 	for i = 1, 7 do
 		local btn = _G["GuildNewsFilterButton"..i]
 		if(btn) then
-			btn:SetStyle("Checkbox")
+			btn:SetStyle("CheckButton")
 		end
 	end
 
@@ -694,7 +694,7 @@ local function GuildControlStyle()
 
 	for i=1, NUM_RANK_FLAGS do
 		local check = _G["GuildControlUIRankSettingsFrameCheckbox"..i]
-		if(check) then check:SetStyle("Checkbox") end
+		if(check) then check:SetStyle("CheckButton") end
 	end
 
 	GuildControlUIRankOrderFrameNewButton:SetStyle("Button")
@@ -718,12 +718,12 @@ local function LFGuildFrameStyle()
 
 	for i = 1, #LFGFrameList do
 		local check = _G[LFGFrameList[i]]
-		if(check) then check:SetStyle("Checkbox") end
+		if(check) then check:SetStyle("CheckButton") end
 	end
 
-	LookingForGuildTankButton.checkButton:SetStyle("Checkbox")
-	LookingForGuildHealerButton.checkButton:SetStyle("Checkbox")
-	LookingForGuildDamagerButton.checkButton:SetStyle("Checkbox")
+	LookingForGuildTankButton.checkButton:SetStyle("CheckButton")
+	LookingForGuildHealerButton.checkButton:SetStyle("CheckButton")
+	LookingForGuildDamagerButton.checkButton:SetStyle("CheckButton")
 	LookingForGuildFrameInset:RemoveTextures(false)
 	LookingForGuildBrowseButton_LeftSeparator:Die()
 	LookingForGuildRequestButton_RightSeparator:Die()

@@ -419,7 +419,9 @@ end
 
 function MOD:UpdateLocals()
 	ROW_WIDTH = self.Docklet.ScrollFrame:GetWidth();
-	ROW_HEIGHT = SV.media.shared.font.questdialog.size / 0.55;
+	local baseWidth = SV.db.QuestTracker.rowHeight;
+	local calculated = SV.media.shared.font.questdialog.size / 0.55;
+	ROW_HEIGHT = (baseWidth == 0) and calculated or baseWidth;
 	INNER_HEIGHT = ROW_HEIGHT - 4;
 	LARGE_ROW_HEIGHT = ROW_HEIGHT * 2;
 	LARGE_INNER_HEIGHT = LARGE_ROW_HEIGHT - 4;
@@ -493,7 +495,6 @@ function MOD:Load()
 	self:InitializeAchievements()
 
 	self:UpdateDimensions();
-	--self.Docklet.DockButton:MakeDefault();
 	self.Docklet:Show();
 
 	ObjectiveTrackerFrame:UnregisterAllEvents();

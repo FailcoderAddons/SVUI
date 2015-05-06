@@ -66,6 +66,7 @@ SV.defaults[Schema] = {
 	["colorNameByValue"] = true,
 	["showthreat"] = true,
 	["targetcount"] = true,
+	["findHealers"] = true,
 	["pointer"] = {
 		["enable"] = true,
 		["colorMatchHealthBar"] = true,

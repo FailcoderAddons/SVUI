@@ -12,8 +12,8 @@ local SV = _G['SVUI'];
 local L = SV.L;
 local MOD = SV.Skins;
 local Schema = MOD.Schema;
---[[ 
-########################################################## 
+--[[
+##########################################################
 OVERRIDES AND HOOKS
 ##########################################################
 ]]--
@@ -39,13 +39,13 @@ local _hook_DisableOverlay = function(self)
     self:DisableDrawLayer("OVERLAY")
 end;
 
-local _hook_BackdropColor = function(self,...) 
+local _hook_BackdropColor = function(self,...)
     if(self.AlertPanel) then
         self.AlertPanel:AlertColor(...)
     end
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 HELPERS
 ##########################################################
 ]]--
@@ -54,8 +54,8 @@ local function StyleAlertIcon(frame, icon)
 
 	icon:SetTexCoord(unpack(_G.SVUI_ICON_COORDS))
 	icon:SetDrawLayer("BORDER")
-	
-	if(not frame.IconSlot) then 
+
+	if(not frame.IconSlot) then
 		frame.IconSlot = CreateFrame("Frame", nil, frame)
 		frame.IconSlot:WrapPoints(icon)
 		frame.IconSlot:SetStyle("Icon")
@@ -68,7 +68,7 @@ local function StyleLootFrame(frame)
 
 	if(not frame.Panel) then
 		SV.API:Set("!_Alert", frame)
-
+    if(frame.PvPBackground) then frame.PvPBackground:Die() end
 		if(frame.Background) then frame.Background:Die() end
 		if(frame.BGAtlas) then frame.BGAtlas:Die() end
 		if(frame.IconBorder) then frame.IconBorder:Die() end
@@ -123,7 +123,7 @@ local function AchievementStyle()
 		local frameName = "AchievementAlertFrame"..i
 		local frame = _G[frameName]
 		if(frame and (not frame.Panel)) then
-			
+
 			SV.API:Set("!_Alert", frame)
 
 			local icon = _G[frameName.."IconTexture"];
@@ -138,18 +138,18 @@ local function AchievementStyle()
 			if(_G[frameName .. 'Glow']) then _G[frameName .. 'Glow']:Die() end
 			if(_G[frameName .. 'Shine']) then _G[frameName .. 'Shine']:Die() end
 			if(_G[frameName .. 'Background']) then _G[frameName .. 'Background']:SetTexture("") end
-			if(_G[frameName .. 'IconOverlay']) then _G[frameName .. 'IconOverlay']:Die() end				
+			if(_G[frameName .. 'IconOverlay']) then _G[frameName .. 'IconOverlay']:Die() end
 			if(_G[frameName .. 'GuildBanner']) then _G[frameName .. 'GuildBanner']:Die() end
 			if(_G[frameName .. 'GuildBorder']) then _G[frameName .. 'GuildBorder']:Die() end
 			if(_G[frameName .. 'OldAchievement']) then _G[frameName .. 'OldAchievement']:Die() end
-		end 
-	end 
+		end
+	end
 end
 
 local function DungeonCompletionStyle()
 	local frameName = "DungeonCompletionAlertFrame1"
 	local frame = _G[frameName]
-	if(frame and (not frame.Panel)) then 
+	if(frame and (not frame.Panel)) then
 
 		SV.API:Set("!_Alert", frame)
 
@@ -161,22 +161,22 @@ local function DungeonCompletionStyle()
 			StyleAlertIcon(frame, icon)
 		end
 
-		if(_G[frameName .. 'GlowFrame']) then 
+		if(_G[frameName .. 'GlowFrame']) then
 			if(_G[frameName .. 'GlowFrame'].glow) then _G[frameName .. 'GlowFrame'].glow:Die() end
-			_G[frameName .. 'GlowFrame']:Die() 
+			_G[frameName .. 'GlowFrame']:Die()
 		end
 		if(_G[frameName .. 'Shine']) then _G[frameName .. 'Shine']:Die() end
 
 		frame:DisableDrawLayer("BORDER")
 		frame:HookScript("OnShow", _hook_DisableBorder)
-	end 
+	end
 end
 
 local function GuildChallengeStyle()
     local frameName = "GuildChallengeAlertFrame"
 	local frame = _G[frameName];
-	if(frame and (not frame.Panel)) then 
-		
+	if(frame and (not frame.Panel)) then
+
 		SV.API:Set("!_Alert", frame)
 
 		local icon = _G[frameName .. 'EmblemIcon'];
@@ -184,8 +184,8 @@ local function GuildChallengeStyle()
 			icon:ClearAllPoints()
 			icon:SetPoint("CENTER", frame.AlertPanel.icon, "CENTER", 0, 0)
 			StyleAlertIcon(frame, icon)
-			SetLargeGuildTabardTextures("player", icon, nil, nil) 
-		end 
+			SetLargeGuildTabardTextures("player", icon, nil, nil)
+		end
 
 		if(_G[frameName .. 'Glow']) then _G[frameName .. 'Glow']:Die() end
 		if(_G[frameName .. 'Shine']) then _G[frameName .. 'Shine']:Die() end
@@ -193,82 +193,82 @@ local function GuildChallengeStyle()
 		frame:DisableDrawLayer("BACKGROUND")
 		frame:DisableDrawLayer("BORDER")
 		frame:HookScript("OnShow", _hook_DisableBoth)
-	end 
+	end
 end
 
 local function ChallengeModeStyle()
 	local frameName = "ChallengeModeAlertFrame1"
 	local frame = _G[frameName];
-	if(frame and (not frame.Panel)) then 
-		
+	if(frame and (not frame.Panel)) then
+
 		SV.API:Set("!_Alert", frame)
 
 		local icon = _G[frameName .. 'DungeonTexture'];
 		if(icon) then
 			icon:ClearAllPoints()
 			icon:SetPoint("CENTER", frame.AlertPanel.icon, "CENTER", 0, 0)
-			StyleAlertIcon(frame, icon) 
+			StyleAlertIcon(frame, icon)
 		end
 
-		if(_G[frameName .. 'GlowFrame']) then 
+		if(_G[frameName .. 'GlowFrame']) then
 			if(_G[frameName .. 'GlowFrame'].glow) then _G[frameName .. 'GlowFrame'].glow:Die() end
-			_G[frameName .. 'GlowFrame']:Die() 
+			_G[frameName .. 'GlowFrame']:Die()
 		end
 		if(_G[frameName .. 'Shine']) then _G[frameName .. 'Shine']:Die() end
 		if(_G[frameName .. 'Border']) then _G[frameName .. 'Border']:Die() end
 
 		frame:DisableDrawLayer("BACKGROUND")
 		frame:HookScript("OnShow", _hook_DisableBackground)
-	end 
+	end
 end
 
 local function ScenarioStyle()
 	local frameName = "ScenarioAlertFrame1"
 	local frame = _G[frameName];
-	if(frame and (not frame.Panel)) then 
-		
+	if(frame and (not frame.Panel)) then
+
 		SV.API:Set("!_Alert", frame)
 
 		local icon = _G[frameName .. 'DungeonTexture'];
 		if(icon) then
 			icon:ClearAllPoints()
 			icon:SetPoint("CENTER", frame.AlertPanel.icon, "CENTER", 0, 0)
-			StyleAlertIcon(frame, icon) 
+			StyleAlertIcon(frame, icon)
 		end
 
-		if(_G[frameName .. 'GlowFrame']) then 
+		if(_G[frameName .. 'GlowFrame']) then
 			if(_G[frameName .. 'GlowFrame'].glow) then _G[frameName .. 'GlowFrame'].glow:Die() end
-			_G[frameName .. 'GlowFrame']:Die() 
+			_G[frameName .. 'GlowFrame']:Die()
 		end
 		if(_G[frameName .. 'Shine']) then _G[frameName .. 'Shine']:Die() end
 
 		frame:DisableDrawLayer("BORDER")
 		frame:HookScript("OnShow", _hook_DisableBorder)
-	end 
+	end
 end
 
 local function CriteriaStyle()
-	for i = 1, MAX_ACHIEVEMENT_ALERTS do 
+	for i = 1, MAX_ACHIEVEMENT_ALERTS do
 		local frameName = "CriteriaAlertFrame"..i
 		local frame = _G[frameName]
 		if(frame and (not frame.Panel)) then
-			
+
 			SV.API:Set("!_Alert", frame)
 
 			local icon = _G[frameName .. 'IconTexture'];
 			if(icon) then
 				icon:ClearAllPoints()
 				icon:SetPoint("CENTER", frame.AlertPanel.icon, "CENTER", 0, 0)
-				StyleAlertIcon(frame, icon) 
+				StyleAlertIcon(frame, icon)
 			end
 
 			if(_G[frameName .. 'Glow']) then _G[frameName .. 'Glow']:Die() end
 			if(_G[frameName .. 'Shine']) then _G[frameName .. 'Shine']:Die() end
 			if(_G[frameName .. 'Background']) then _G[frameName .. 'Background']:SetTexture("") end
-			if(_G[frameName .. 'IconOverlay']) then _G[frameName .. 'IconOverlay']:Die() end				
+			if(_G[frameName .. 'IconOverlay']) then _G[frameName .. 'IconOverlay']:Die() end
 			if(_G[frameName .. 'IconBling']) then _G[frameName .. 'IconBling']:Die() end
-		end 
-	end 
+		end
+	end
 end
 
 -- [[ GarrisonFollowerAlertFrame ]] --
@@ -282,8 +282,8 @@ local function GarrisonFollowerAlertStyle(followerID, name, displayID, level, qu
 		GarrisonFollowerAlertFrame.PortraitFrame.PortraitRing:SetVertexColor(1, 1, 1);
 	end
 end
---[[ 
-########################################################## 
+--[[
+##########################################################
 ALERTFRAME STYLES
 ##########################################################
 ]]--
@@ -314,28 +314,28 @@ local function AlertStyle()
 
 	--[[ LOOT WON ]]--
 	do
-		for i = 1, #LOOT_WON_ALERT_FRAMES do 
+		for i = 1, #LOOT_WON_ALERT_FRAMES do
 			StyleLootFrame(LOOT_WON_ALERT_FRAMES[i])
 		end
 		StyleLootFrame(BonusRollLootWonFrame)
 		hooksecurefunc("AlertFrame_SetLootWonAnchors", function()
-			for i = 1, #LOOT_WON_ALERT_FRAMES do 
+			for i = 1, #LOOT_WON_ALERT_FRAMES do
 				local frame = LOOT_WON_ALERT_FRAMES[i]
 				if(frame) then StyleLootFrame(frame) end
-			end 
+			end
 		end)
 		hooksecurefunc("LootWonAlertFrame_SetUp", function(self, itemLink, ...)
 		    local itemName, itemHyperLink, itemRarity, itemTexture, _;
 		    if (self.isCurrency) then
 		        itemName, _, itemTexture, _, _, _, _, itemRarity = GetCurrencyInfo(itemLink);
-		        itemHyperLink = itemLink;       
+		        itemHyperLink = itemLink;
 		    else
 		        itemName, itemHyperLink, itemRarity, _, _, _, _, _, _, itemTexture = GetItemInfo(itemLink);
 		    end
 	    	if(itemRarity) then
 		    	local color = ITEM_QUALITY_COLORS[itemRarity];
 		    	if(not self.IconSlot) then return end;
-				self.IconSlot:SetBackdropColor(color.r, color.g, color.b); 
+				self.IconSlot:SetBackdropColor(color.r, color.g, color.b);
 				self:AlertColor(color.r, color.g, color.b)
 			end
 		end)
@@ -343,35 +343,35 @@ local function AlertStyle()
 
 	--[[ MONEY WON ]]--
 	do
-		for i = 1, #MONEY_WON_ALERT_FRAMES do 
+		for i = 1, #MONEY_WON_ALERT_FRAMES do
 			StyleLootFrame(MONEY_WON_ALERT_FRAMES[i])
 		end
 		StyleLootFrame(BonusRollMoneyWonFrame)
 		hooksecurefunc("AlertFrame_SetMoneyWonAnchors", function()
-			for i = 1, #MONEY_WON_ALERT_FRAMES do 
+			for i = 1, #MONEY_WON_ALERT_FRAMES do
 				local frame = MONEY_WON_ALERT_FRAMES[i]
 				if(frame) then StyleLootFrame(frame) end
-			end 
+			end
 		end)
 	end
 
 	--[[ LOOT UPGRADE ]]--
 	do
-		for i = 1, #LOOT_UPGRADE_ALERT_FRAMES do 
+		for i = 1, #LOOT_UPGRADE_ALERT_FRAMES do
 			StyleUpgradeFrame(LOOT_UPGRADE_ALERT_FRAMES[i])
 		end
 		hooksecurefunc("AlertFrame_SetLootUpgradeFrameAnchors", function()
-			for i = 1, #LOOT_UPGRADE_ALERT_FRAMES do 
+			for i = 1, #LOOT_UPGRADE_ALERT_FRAMES do
 				local frame = LOOT_UPGRADE_ALERT_FRAMES[i]
-				if(frame) then StyleUpgradeFrame(frame) end 
-			end 
+				if(frame) then StyleUpgradeFrame(frame) end
+			end
 		end)
 		hooksecurefunc("LootUpgradeFrame_SetUp", function(self, itemLink, ...)
 		    local itemName, itemHyperLink, itemRarity, _, _, _, _, _, _, itemTexture = GetItemInfo(itemLink);
 		    if(itemRarity) then
 		    	local color = ITEM_QUALITY_COLORS[itemRarity];
 		    	if(not self.IconSlot) then return end;
-				self.IconSlot:SetBackdropColor(color.r, color.g, color.b); 
+				self.IconSlot:SetBackdropColor(color.r, color.g, color.b);
 				self:AlertColor(color.r, color.g, color.b)
 			end
 		end)
@@ -408,7 +408,7 @@ local function AlertStyle()
 		--Garrison Mission
 	    frameName = "GarrisonMissionAlertFrame"
 	    frame = _G[frameName]
-	    if(frame and (not frame.Panel)) then 
+	    if(frame and (not frame.Panel)) then
 			frame:DisableDrawLayer("BACKGROUND")
 
 			SV.API:Set("!_Alert", frame)
@@ -429,7 +429,7 @@ local function AlertStyle()
 		--Garrison Building
 		frameName = "GarrisonBuildingAlertFrame"
 	    frame = _G[frameName]
-	    if(frame and (not frame.Panel)) then 
+	    if(frame and (not frame.Panel)) then
 			frame:DisableDrawLayer("BACKGROUND")
 
 			SV.API:Set("!_Alert", frame)
@@ -449,7 +449,7 @@ local function AlertStyle()
 		frameName = "GarrisonFollowerAlertFrame"
 	    frame = _G[frameName]
 	    if(frame) then
-	    	if(not frame.Panel) then 
+	    	if(not frame.Panel) then
 				frame:DisableDrawLayer("BACKGROUND")
 
 				SV.API:Set("!_Alert", frame)
@@ -479,9 +479,9 @@ local function AlertStyle()
 		end
 	end
 	hooksecurefunc("GarrisonFollowerAlertFrame_ShowAlert", GarrisonFollowerAlertStyle)
-end 
---[[ 
-########################################################## 
+end
+--[[
+##########################################################
 MOD LOADING
 ##########################################################
 ]]--

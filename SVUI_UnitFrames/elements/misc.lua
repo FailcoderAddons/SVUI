@@ -37,30 +37,6 @@ local max         	= math.max
 
 local CreateFrame           = _G.CreateFrame;
 local InCombatLockdown      = _G.InCombatLockdown;
-local IsLoggedIn            = _G.IsLoggedIn;
-local IsResting             = _G.IsResting;
-local GameTooltip           = _G.GameTooltip;
-local UnitClass             = _G.UnitClass;
-local UnitBuff              = _G.UnitBuff;
-local UnitHealth            = _G.UnitHealth;
-local UnitHealthMax         = _G.UnitHealthMax;
-local UnitIsPlayer          = _G.UnitIsPlayer;
-local UnitReaction          = _G.UnitReaction;
-local UnitIsConnected  		= _G.UnitIsConnected;
-local UnitIsDeadOrGhost  	= _G.UnitIsDeadOrGhost;
-local UnitClassBase  		= _G.UnitClassBase;
-local UnitPowerType  		= _G.UnitPowerType;
-local UnitPlayerControlled  = _G.UnitPlayerControlled;
-local UnitGroupRolesAssigned  = _G.UnitGroupRolesAssigned;
-local UnitThreatSituation   = _G.UnitThreatSituation;
-local UnitAffectingCombat   = _G.UnitAffectingCombat;
-local GetThreatStatusColor  = _G.GetThreatStatusColor;
-local UnitAlternatePowerInfo  = _G.UnitAlternatePowerInfo;
-local UnitGetIncomingHeals  = _G.UnitGetIncomingHeals;
-local UnitGetTotalAbsorbs   = _G.UnitGetTotalAbsorbs;
-local UnitGetTotalHealAbsorbs = _G.UnitGetTotalHealAbsorbs;
-local GetSpecialization     = _G.GetSpecialization;
-local GetSpecializationInfo = _G.GetSpecializationInfo;
 
 local SV = _G['SVUI']
 local L = SV.L;
@@ -76,10 +52,12 @@ assert(oUF_SVUI, "SVUI UnitFrames: unable to locate oUF.")
 LOCAL VARIABLES
 ##########################################################
 ]]--
+local AFFLICTED_SKIN = [[Interface\AddOns\SVUI_!Core\assets\textures\Affected\AFFECTED1]];
+
 local ROLE_ICON_DATA = {
-	["TANK"] = {0,0.5,0,0.5, 0.5,0.75,0.5,0.75},
-	["HEALER"] = {0,0.5,0.5,1, 0.5,0.75,0.75,1},
-	["DAMAGER"] = {0.5,1,0,0.5, 0.75,1,0.5,0.75}
+	["TANK"] = {0,0.5,0,0.5, 0.5,0.75,0.51,0.75},
+	["HEALER"] = {0,0.5,0.5,1, 0.5,0.75,0.76,1},
+	["DAMAGER"] = {0.5,1,0,0.5, 0.76,1,0.51,0.75}
 }
 
 local function BasicBG(frame)
@@ -105,7 +83,8 @@ RAID DEBUFFS / DEBUFF HIGHLIGHT
 ##########################################################
 ]]--
 function MOD:CreateRaidDebuffs(frame)
-	local raidDebuff = CreateFrame("Frame", nil, frame)
+	local raidDebuff = CreateFrame("Frame", nil, frame.TextGrip)
+	raidDebuff:SetFrameLevel(50)
 	raidDebuff:SetStyle("!_Frame", "Icon")
 	raidDebuff.icon = raidDebuff:CreateTexture(nil, "OVERLAY")
 	raidDebuff.icon:SetTexCoord(unpack(_G.SVUI_ICON_COORDS))
@@ -118,19 +97,19 @@ function MOD:CreateRaidDebuffs(frame)
 	raidDebuff.time:SetFontObject(SVUI_Font_Aura)
 	raidDebuff.time:SetPoint("CENTER")
 	raidDebuff.time:SetTextColor(1, .9, 0)
-	raidDebuff:SetParent(frame.TextGrip)
 	return raidDebuff
 end
 
 function MOD:CreateAfflicted(frame)
-	local holder = CreateFrame("Frame", nil, frame.Health)
-	holder:SetFrameLevel(30)
-	holder:SetAllPoints(frame.Health)
-	local afflicted = holder:CreateTexture(nil, "OVERLAY", nil, 7)
-	afflicted:InsetPoints(holder)
-	afflicted:SetTexture(MOD.media.afflicted)
-	afflicted:SetVertexColor(0, 0, 0, 0)
-	afflicted:SetBlendMode("ADD")
+	local afflicted = CreateFrame("Frame", nil, frame.TextGrip)
+	afflicted:SetFrameLevel(30)
+	afflicted:SetPoint("TOPLEFT", frame.Health, "TOPLEFT", 0, 0)
+	afflicted:SetPoint("BOTTOMRIGHT", frame.Health, "BOTTOMRIGHT", 0, 0)
+	afflicted.Texture = afflicted:CreateTexture(nil, "OVERLAY", nil, 7)
+	afflicted.Texture:SetAllPoints(afflicted)
+	afflicted.Texture:SetTexture(AFFLICTED_SKIN)
+	afflicted.Texture:SetVertexColor(0, 0, 0, 0)
+	afflicted.Texture:SetBlendMode("ADD")
 	afflicted.ClassFilter = true
 	afflicted.MaxAlpha = 0.75
 

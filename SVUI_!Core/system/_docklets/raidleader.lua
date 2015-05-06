@@ -102,14 +102,14 @@ function MOD:UpdateRaidLeader(event)
 		return
 	end
 	if CheckRaidStatus() then
-		self.RaidTool:DockAdd()
+		self.RaidTool:SetDocked(true)
 		if self.RaidTool.Menu.toggled == true then
 			self.RaidTool.Menu:Show()
 		else
 			self.RaidTool.Menu:Hide()
 		end
 	else
-		self.RaidTool:DockRemove()
+		self.RaidTool:SetDocked()
 		self.RaidTool.Menu:Hide()
 	end
 end
@@ -117,7 +117,7 @@ end
 function MOD:LoadRaidLeaderTools()
 	if(not SV.db.Dock.dockTools.leader) then return end
 
-	self.RaidTool = SV.Dock:SetDockButton("TopLeft", RAID_CONTROL, SV.media.dock.raidToolIcon, nil, "SVUI_RaidToolDockButton");
+	self.RaidTool = SV.Dock:SetDockButton("TopLeft", RAID_CONTROL, "SVUI_RaidToolDockButton", SV.media.dock.raidToolIcon);
 	self.RaidTool:SetAttribute("hasDropDown", false);
 
 	local dock = self.RaidTool.Parent
